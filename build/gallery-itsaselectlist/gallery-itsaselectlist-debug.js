@@ -275,8 +275,8 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                 node.addClass(instance._selectedItemClass);
                 nodeHTML = node.getHTML();
                 instance._selectedMainItemNode.setHTML(nodeHTML);
-                instance.buttonNode.fire('valueChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});
-                if (userInteraction) {instance.buttonNode.fire('selectChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});}
+                instance.fire('valueChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});
+                if (userInteraction) {instance.fire('selectChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});}
             }
         },
 

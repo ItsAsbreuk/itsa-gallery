@@ -481,7 +481,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }
                 if (indent) {selectlist.get('boundingBox').addClass('itsa-button-indent');}
                 instance.toolbarNode.addTarget(buttonNode);
-                buttonNode.on('selectChange', instance._handleSelectChange, instance);
+                selectlist.on('selectChange', instance._handleSelectChange, instance);
                 if (Lang.isFunction(syncFunc)) {buttonNode.on('itsatoolbar:statusChange', Y.bind(syncFunc, context || instance));}
                 instance.editor.on('nodeChange', selectlist.hideListbox, selectlist);
             }, instance, execCommand, syncFunc, context, indent);
