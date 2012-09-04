@@ -37,6 +37,7 @@ var Lang = Y.Lang,
     ITSA_TOOLBAR_TEMPLATE = "<div class='itsatoolbar'></div>",
     ITSA_TOOLBAR_SMALL = 'itsa-buttonsize-small',
     ITSA_TOOLBAR_MEDIUM = 'itsa-buttonsize-medium',
+    ITSA_CLASSEDITORPART = 'itsatoolbar-editorpart',
     ITSA_SELECTCONTNODE = '<div></div>';
 
 // -- Public Static Properties -------------------------------------------------
@@ -525,6 +526,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 srcNode.prepend(instance.toolbarNode);
             }
             else {
+                instance.toolbarNode.addClass(ITSA_CLASSEDITORPART);
                 instance.editorNode.set('height', parseInt(instance.containerNode.getStyle('height'),10)-parseInt(instance.toolbarNode.getStyle('height'),10)+'px');
                 instance.editorNode.insert(instance.toolbarNode, 'before');
             }
@@ -663,8 +665,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 bgcolors,
                 buttons;
 
-            if (instance.get('btnfontfamily')) {
-                Y.log('Defining button btnfontfamily', 'info', 'ITSAToolbar');
+            if (instance.get('btnFontfamily')) {
+                Y.log('Defining button btnFontfamily', 'info', 'ITSAToolbar');
                 items = instance.get('fontFamilies');
                 for (i=0; i<items.length; i++) {
                     item = items[i];
@@ -678,8 +680,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {buttonWidth: 145});
             }
 
-            if (instance.get('btnfontsize')) {
-                Y.log('Defining button btnfontsize', 'info', 'ITSAToolbar');
+            if (instance.get('btnFontsize')) {
+                Y.log('Defining button btnFontsize', 'info', 'ITSAToolbar');
                 items = [];
                 for (i=6; i<=32; i++) {items.push({text: i.toString(), returnValue: i+'px'});}
                 instance.sizeSelectlist = instance.addSelectlist(items, 'itsafontsize', function(e) {
@@ -691,8 +693,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {buttonWidth: 42, className: 'itsatoolbar-fontsize', listAlignLeft: false});
             }
 
-            if (instance.get('btnheader')) {
-                Y.log('Defining button btnheader', 'info', 'ITSAToolbar');
+            if (instance.get('btnHeader')) {
+                Y.log('Defining button btnHeader', 'info', 'ITSAToolbar');
                 items = [];
                 items.push({text: 'No header', returnValue: 'clear'});
                 for (i=1; i<=instance.get('headerLevels'); i++) {items.push({text: 'Header '+i, returnValue: 'h'+i});}
@@ -913,8 +915,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             }
 
 //************************************************
-// just for temporary local use CMAS2+
-            if (instance.get('btnHyperlink')) {
+// just for temporary local use ITS Asbreuk
+// should NOT be part of the gallery
+            if (false) {
                 instance.addSyncButton(
                     instance.ICON_FILE,
                     {   customFunc: function(e) {

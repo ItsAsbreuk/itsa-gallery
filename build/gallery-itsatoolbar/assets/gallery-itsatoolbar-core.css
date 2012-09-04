@@ -11,6 +11,10 @@
     background-image: url('itsa-buttonicons-2012-08-15.png');
 }
 
+.itsatoolbar.itsatoolbar-editorpart {
+    padding: 4px 0px;
+}
+
 .itsatoolbar-colors .itsa-selectlist-selectedmain div {
     width: 18px;
     height: 10px;
