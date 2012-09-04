@@ -6,22 +6,18 @@
 }
 
 .yui3-itsaselectlist.itsa-buttonsize-small .yui3-button {
-    padding: 3px;
     height:25px;
 }
 
 .yui3-itsaselectlist.itsa-buttonsize-medium .yui3-button {
-    padding: 5px;
     height:29px;
 }
 
 .yui3-itsaselectlist.itsa-buttonsize-small .itsa-selectlist-selectedmain {
-    padding-top: 1px;
     padding-left: 4px;
 }
 
 .yui3-itsaselectlist.itsa-buttonsize-medium .itsa-selectlist-selectedmain {
-    padding-top: 3px;
     padding-left: 5px;
 }
 
@@ -35,7 +31,8 @@
 
 .yui3-itsaselectlist .yui3-button {
     padding: 4px 3px 0px;
-    
+    cursor: pointer;
+    height: 32px;
 }
 
 .itsa-shim {
@@ -130,7 +127,7 @@
 }
 
 .itsa-selectlist-selected {
-    background-image: url('http://files.brongegevens.nl/global/images/cmas2plus-baseicon2.gif');
+    background-image: url('itsa-icons-2012-08-15.gif');
     background-repeat: no-repeat;
 }
 
@@ -138,17 +135,18 @@
     display: none;
 }
 
+.itsa-button-icon {
+    display: inline-block;
+    height: 20px;
+    vertical-align: middle;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-image: url('itsa-buttonicons-2012-08-15.png');
+}
+
 .itsa-icon-selectdown {
     float:right;
     background-position: 4px -1139px;
     height:18px;
     width: 15px;
-}
-
-.yui3-itsaselectlist.itsa-buttonsize-small .itsa-icon-selectdown {
-    background-position: 4px -1138px;
-}
-
-.yui3-itsaselectlist.itsa-buttonsize-medium .itsa-icon-selectdown {
-    background-position: 4px -1137px;
 }
