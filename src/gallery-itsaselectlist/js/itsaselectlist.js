@@ -199,6 +199,10 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @param {Int} index index to be selected
          * @param {Boolean} softMatch when set to true will always make a selectchange, even when the index is out of bound
          * @param {String} softButtonText Text to be appeared on the button in case softMatch is true and there is no match. When not specified, the attribute <i>defaultButtonText</i> will be used
+         * @return {eventFacade} Not returnvalue, but event, fired by valueChange, or selectChange.<br>
+         * <i>- e.currentTarget: the selected li-Node<br>
+         * <i>- e.value: returnvalue of the selected item<br>
+         * <i>- e.index: index of the selected item</i>
          * 
         */
         selectItem : function(index, softMatch, softButtonText) {
@@ -224,6 +228,10 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @param {String} itemText listitem to be selected
          * @param {Boolean} softMatch when set to true will always make a selectchange, even when the listitem is not available
          * @param {Boolean} defaultButtonText Whether to use the attribute <i>defaultButtonText</i> in case softMatch is true and there is no match. When set to false, <i>itemText</i> will be used when there is no match.
+         * @return {eventFacade} Not returnvalue, but event, fired by valueChange, or selectChange.<br>
+         * <i>- e.currentTarget: the selected li-Node<br>
+         * <i>- e.value: returnvalue of the selected item<br>
+         * <i>- e.index: index of the selected item</i>
          *
         */
         selectItemByValue : function(itemText, softMatch, defaultButtonText) {
@@ -243,7 +251,11 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @private
          * @param {Y.Node} node listitem to be selected
          * @param {Boolean} userInteraction Specifies whether the selection is made by userinteraction, or by functioncall.<br>
-         * In case of userinteraction,  
+         * In case of userinteraction,  selectChange will also be fired.
+         * @return {eventFacade} Not returnvalue, but event, fired by valueChange, or selectChange.<br>
+         * <i>- e.currentTarget: the selected li-Node<br>
+         * <i>- e.value: returnvalue of the selected item<br>
+         * <i>- e.index: index of the selected item</i>
          *
         */
         _selectItem : function(node, userInteraction) {
