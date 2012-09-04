@@ -311,6 +311,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         /**
          * Creates a new Button on the Toolbar. By default at the end of the toolbar.
          * @method addButton
+         * @private
          * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, or you want a custom Function to be executed, you must supply an object:<br>
@@ -348,7 +349,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
         /**
          * Creates a new toggleButton on the Toolbar. By default at the end of the toolbar.
-         * @method addToggleButton
+         * @method addSyncButton
+         * @private
          * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, you must supply an object with two fields:<br>
@@ -375,6 +377,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         /**
          * Creates a new toggleButton on the Toolbar. By default at the end of the toolbar.
          * @method addToggleButton
+         * @private
          * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, you must supply an object with two fields:<br>
@@ -400,6 +403,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * Creates a group of toggleButtons on the Toolbar which are related to each-other. For instance when you might need 3 related buttons: leftalign, center, rightalign.
          * Position is by default at the end of the toolbar.<br>
          * @method addButtongroup
+         * @private
          * @param {Array} buttons Should consist of objects with two fields:<br>
          * <i>- iconClass</i> (String): which defines the icon's look<br>&nbsp;&nbsp; (refer to the general moduledescription for a list with available classes)<br>
          * <i>- command</i> (String): the execcommand that will be executed on buttonclick
@@ -442,6 +446,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * <i>- e.value</i>: value of selected item<br>
          * <i>- e.index</i>: indexnr of the selected item
          * @method addSelectList
+         * @private
          * @param {Array} items contains all the items. Should be either a list of (String), or a list of (Objects). In case of an Object-list, the objects should contain two fields:<br>
          * <i>- text</i> (String): the text shown in the selectlist<br>
          * <i>- returnValue</i> (String): the returnvalue of e.value<br>
@@ -997,7 +1002,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             return css;
         },
 
-
+.on
         /**********************************************************************************************************************
         ***********************************************************************************************************************
 
