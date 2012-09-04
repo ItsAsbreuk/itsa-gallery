@@ -267,17 +267,18 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             var instance = this;
             instance.editor = instance.get('host');
             // need to make sure we can use execCommand
-            instance.editor.on('frame:ready', instance.render, instance);
+            instance.editor.on('frame:ready', instance._render, instance);
         },
 
         /**
          * Establishes the initial DOM for the toolbar. This method ia automaticly invoked once during initialisation.
          * It will invoke renderUI, bindUI and syncUI, just as within a widget.
          *
-         * @method render
+         * @method _render
+         * @private
         */
-        render : function() {
-            Y.log('render', 'info', 'ITSAToolbar');
+        _render : function() {
+            Y.log('_render', 'info', 'ITSAToolbar');
             var instance = this;
             instance.editorY = instance.editor.getInstance();
             instance.editorNode = instance.editor.frame.get('node');
@@ -1002,7 +1003,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             return css;
         },
 
-.on
         /**********************************************************************************************************************
         ***********************************************************************************************************************
 
