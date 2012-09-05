@@ -281,14 +281,20 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                  * In case of a valuechange, valueChange will be fired. 
                  * No matter whether the change is done by userinteraction, or by a functioncall like selectItem()
                  * @event valueChange
-                 * @param {EventFacade} e Event object
+                 * @param {EventFacade} e Event object<br>
+                 * <i>- e.currentTarget: the selected li-Node<br>
+                 * <i>- e.value: returnvalue of the selected item<br>
+                 * <i>- e.index: index of the selected item</i>
                 */                
                 instance.fire('valueChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});
                 /**
                  * In case of a valuechange <u>triggered by userinteraction</u>, selectChange will be fired. 
                  * This way you can use functioncalls like selectItem() and prevent double programmaction (which might occur when you listen to the valueChange event)
                  * @event selectChange
-                 * @param {EventFacade} e Event object
+                 * @param {EventFacade} e Event object<br>
+                 * <i>- e.currentTarget: the selected li-Node<br>
+                 * <i>- e.value: returnvalue of the selected item<br>
+                 * <i>- e.index: index of the selected item</i>
                 */                
                 if (userInteraction) {instance.fire('selectChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});}
             }
