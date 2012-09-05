@@ -185,7 +185,11 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
          * @method _itemClick
          * @private
-         * @param {EventFacade} e
+         * @param {EventFacade} e with e.currentTarget as the selected li-Node
+         * @return {eventFacade} Fires a valueChange, or selectChange event.<br>
+         * <i>- e.currentTarget: the selected li-Node<br>
+         * <i>- e.value: returnvalue of the selected item<br>
+         * <i>- e.index: index of the selected item</i>
          * 
         */
         _itemClick : function(e) {
@@ -199,9 +203,9 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
          * @method selectItem
          * @param {Int} index index to be selected
-         * @param {Boolean} softMatch when set to true will always make a selectchange, even when the index is out of bound
-         * @param {String} softButtonText Text to be appeared on the button in case softMatch is true and there is no match. When not specified, the attribute <i>defaultButtonText</i> will be used
-         * @return {eventFacade} Not returnvalue, but event, fired by valueChange, or selectChange.<br>
+         * @param {Boolean} [softMatch] Optional. When set to true will always make a selectchange, even when the index is out of bound
+         * @param {String} [softButtonText] Optional. Text to be appeared on the button in case softMatch is true and there is no match. When not specified, the attribute <i>defaultButtonText</i> will be used
+         * @return {eventFacade} Fires a valueChange, NO selectChange event, because there is no userinteraction.<br>
          * <i>- e.currentTarget: the selected li-Node<br>
          * <i>- e.value: returnvalue of the selected item<br>
          * <i>- e.index: index of the selected item</i>
@@ -227,9 +231,9 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
          * @method selectItemByValue
          * @param {String} itemText listitem to be selected
-         * @param {Boolean} softMatch when set to true will always make a selectchange, even when the listitem is not available
-         * @param {Boolean} defaultButtonText Whether to use the attribute <i>defaultButtonText</i> in case softMatch is true and there is no match. When set to false, <i>itemText</i> will be used when there is no match.
-         * @return {eventFacade} Not returnvalue, but event, fired by valueChange, or selectChange.<br>
+         * @param {Boolean} [softMatch] Optional. When set to true will always make a selectchange, even when the listitem is not available
+         * @param {Boolean} [defaultButtonText] Optional. Whether to use the attribute <i>defaultButtonText</i> in case softMatch is true and there is no match. When set to false, <i>itemText</i> will be used when there is no match.
+         * @return {eventFacade} Fires a valueChange, NO selectChange event, because there is no userinteraction.<br>
          * <i>- e.currentTarget: the selected li-Node<br>
          * <i>- e.value: returnvalue of the selected item<br>
          * <i>- e.index: index of the selected item</i>
@@ -267,7 +271,19 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                 node.addClass(instance._selectedItemClass);
                 nodeHTML = node.getHTML();
                 instance._selectedMainItemNode.setHTML(nodeHTML);
+                /**
+                 * In case of a valuechange, valueChange will be fired. 
+                 * No matter whether the change is done by userinteraction, or by a functioncall like selectItem()
+                 * @event valueChange
+                 * @param {EventFacade} e Event object
+                */                
                 instance.fire('valueChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});
+                /**
+                 * In case of a valuechange <u>triggered by userinteraction</u>, selectChange will be fired. 
+                 * This way you can use functioncalls like selectItem() and prevent double programmaction (which might occur when you listen to the valueChange event)
+                 * @event selectChange
+                 * @param {EventFacade} e Event object
+                */                
                 if (userInteraction) {instance.fire('selectChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});}
             }
         },
