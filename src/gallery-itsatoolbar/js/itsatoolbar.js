@@ -349,7 +349,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         },
 
         /**
-         * Creates a new toggleButton on the Toolbar. By default at the end of the toolbar.
+         * Creates a new syncButton on the Toolbar. By default at the end of the toolbar.<br>
+         * A syncButton is just like a normal toolbarButton, with the exception that the editor can sync it's status, which cannot be done with a normal button. 
+         * Typically used in situations like a hyperlinkbutton: it never stays pressed, but when the cursos is on a hyperlink, he buttons look will change.
          * @method addSyncButton
          * @private
          * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
@@ -1098,7 +1100,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                                 if (a) {
                                     out.item(0).replace(a);
                                 }
-                                if (Y.UA.gecko) {
+                                if (a && Y.UA.gecko) {
                                     if (a.get('parentNode').test('span')) {
                                         if (a.get('parentNode').one('br.yui-cursor')) {
                                            a.get('parentNode').insert(a, 'before');
@@ -1155,7 +1157,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                                 if (a) {
                                     out.item(0).replace(a);
                                 }
-                                if (Y.UA.gecko) {
+                                if (a && Y.UA.gecko) {
                                     if (a.get('parentNode').test('span')) {
                                         if (a.get('parentNode').one('br.yui-cursor')) {
                                            a.get('parentNode').insert(a, 'before');
@@ -1209,7 +1211,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                                 if (a) {
                                     out.item(0).replace(a);
                                 }
-                                if (Y.UA.gecko) {
+                                if (a && Y.UA.gecko) {
                                     if (a.get('parentNode').test('span')) {
                                         if (a.get('parentNode').one('br.yui-cursor')) {
                                            a.get('parentNode').insert(a, 'before');
@@ -1263,7 +1265,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                                 if (a) {
                                     out.item(0).replace(a);
                                 }
-                                if (Y.UA.gecko) {
+                                if (a && Y.UA.gecko) {
                                     if (a.get('parentNode').test('span')) {
                                         if (a.get('parentNode').one('br.yui-cursor')) {
                                            a.get('parentNode').insert(a, 'before');
@@ -1374,7 +1376,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button fontfamily is available<br>
              * Default = true
              * @attribute btnFontfamily
-             * @type int
+             * @type Boolean
             */
             btnFontfamily : {
                 value: true,
@@ -1387,7 +1389,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button fontsize is available<br>
              * Default = true
              * @attribute btnFontsize
-             * @type int
+             * @type Boolean
             */
             btnFontsize : {
                 value: true,
@@ -1402,7 +1404,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * Is something to work on in fututr releases. It works within firefox though.
              * Default = false
              * @attribute btnHeader
-             * @type int
+             * @type Boolean
             */
             btnHeader : {
                 value: false,
@@ -1415,7 +1417,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button bold is available<br>
              * Default = true
              * @attribute btnBold
-             * @type int
+             * @type Boolean
             */
             btnBold : {
                 value: true,
@@ -1428,7 +1430,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button italic is available<br>
              * Default = true
              * @attribute btnItalic
-             * @type int
+             * @type Boolean
             */
             btnItalic : {
                 value: true,
@@ -1441,7 +1443,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button underline is available<br>
              * Default = true
              * @attribute btnUnderline
-             * @type int
+             * @type Boolean
             */
             btnUnderline : {
                 value: true,
@@ -1454,7 +1456,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the group align is available<br>
              * Default = true
              * @attribute grpAlign
-             * @type int
+             * @type Boolean
             */
             grpAlign : {
                 value: true,
@@ -1468,7 +1470,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * will only be shown in combination with grpalign
              * Default = true
              * @attribute btnJustify
-             * @type int
+             * @type Boolean
             */
             btnJustify : {
                 value: true,
@@ -1481,7 +1483,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the group sub/superscript is available<br>
              * Default = true
              * @attribute grpSubsuper
-             * @type int
+             * @type Boolean
             */
             grpSubsuper : {
                 value: true,
@@ -1494,7 +1496,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button textcolor is available<br>
              * Default = true
              * @attribute btnTextcolor
-             * @type int
+             * @type Boolean
             */
             btnTextcolor : {
                 value: true,
@@ -1507,7 +1509,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button markcolor is available<br>
              * Default = true
              * @attribute btnMarkcolor
-             * @type int
+             * @type Boolean
             */
             btnMarkcolor : {
                 value: true,
@@ -1520,7 +1522,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the group indent is available<br>
              * Default = true
              * @attribute grpIndent
-             * @type int
+             * @type Boolean
             */
             grpIndent : {
                 value: true,
@@ -1533,7 +1535,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the group lists is available<br>
              * Default = true
              * @attribute grpLists
-             * @type int
+             * @type Boolean
             */
             grpLists : {
                 value: true,
@@ -1560,7 +1562,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the group undo/redo is available<br>
              * Default = true
              * @attribute grpUndoredo
-             * @type int
+             * @type Boolean
             */
             grpUndoredo : {
                 value: true,
@@ -1573,7 +1575,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button email is available<br>
              * Default = true
              * @attribute btnEmail
-             * @type int
+             * @type Boolean
             */
             btnEmail : {
                 value: true,
@@ -1586,7 +1588,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @description Whether the button hyperlink is available<br>
              * Default = true
              * @attribute btnHyperlink
-             * @type int
+             * @type Boolean
             */
             btnHyperlink : {
                 value: true,
@@ -1601,7 +1603,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * It works in a simple way though.
              * Default = false
              * @attribute btnImage
-             * @type int
+             * @type Boolean
             */
             btnImage : {
                 value: false,
@@ -1616,7 +1618,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * It works in a simple way though. The end-user should enter a youtube-link once they click on this button.
              * Default = false
              * @attribute btnVideo
-             * @type int
+             * @type Boolean
             */
             btnVideo : {
                 value: false,
