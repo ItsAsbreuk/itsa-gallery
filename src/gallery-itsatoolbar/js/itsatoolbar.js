@@ -314,7 +314,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             Y.log('_initStatus', 'info', 'ITSAToolbar');
             // Fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
             var instance = this;
-            instance.toolbarNode.fire('itsatoolbar:statusChange', {changedNode: instance._getCursorRef()});
+                node = instance._getCursorRef();
+            if (node) {instance.toolbarNode.fire('itsatoolbar:statusChange', {changedNode: node});}
         },
 
         /**
@@ -340,7 +341,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 // insert cursor and use that node as the selected node
                 // first remove previous
                 instance._removeRefNode();
-                node = sel.insertContent(ITSA_REFNODE);
+                instance.editor.exec.command('inserthtml', ITSA_REFNODE);
+                node = instance.editorY.one('#itsatoolbar-ref');
             }
             return node;
         },
