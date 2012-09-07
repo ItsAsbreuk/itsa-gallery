@@ -38,7 +38,8 @@ var Lang = Y.Lang,
     ITSA_TOOLBAR_SMALL = 'itsa-buttonsize-small',
     ITSA_TOOLBAR_MEDIUM = 'itsa-buttonsize-medium',
     ITSA_CLASSEDITORPART = 'itsatoolbar-editorpart',
-    ITSA_SELECTCONTNODE = '<div></div>';
+    ITSA_SELECTCONTNODE = '<div></div>',
+    ITSA_REFNODE = "<span id='itsatoolbar-ref'></span>";
 
 // -- Public Static Properties -------------------------------------------------
 
@@ -71,6 +72,13 @@ var Lang = Y.Lang,
  * Reference to the toolbar-node.<br>
  * @property toolbarNode
  * @type Y.Node
+ */
+
+/**
+ * Used internally to check if the toolbar should still be rendered after the editor is rendered<br>
+ * To prevent rendering while it is already unplugged
+ * @property _destroyed
+ * @type Boolean
  */
 
 /**
@@ -234,6 +242,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         editorNode : null,
         containerNode : null,
         toolbarNode : null,
+        _destroyed : false,
 
         ICON_BOLD : 'itsa-icon-bold',
         ICON_ITALIC : 'itsa-icon-italic',
@@ -267,8 +276,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         initializer : function(config) {
             var instance = this;
             instance.editor = instance.get('host');
-            // need to make sure we can use execCommand
-            instance.editor.on('frame:ready', instance._render, instance);
+            // need to make sure we can use execCommand, so do not render before the frame exists.
+            if (instance.editor.frame && instance.editor.frame.get('node')) {instance._render();}
+            else {instance.editor.on('frame:ready', instance._render, instance);}
         },
 
         /**
@@ -280,17 +290,72 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         */
         _render : function() {
             var instance = this;
-            instance.editorY = instance.editor.getInstance();
-            instance.editorNode = instance.editor.frame.get('node');
-            instance.containerNode = instance.editorNode.get('parentNode');
-            instance.get('paraSupport') ? instance.editor.plug(Y.Plugin.EditorPara) : instance.editor.plug(Y.Plugin.EditorBR);
-            instance.editor.plug(Y.Plugin.ExecCommand);
-            instance._defineCustomExecCommands();
-            instance._renderUI();
-            instance._bindUI();
-            // first time? then fire a nodeChange-event to sync the toolbox with the editors-event object
-//            instance.editor.simulate('nodeChange');
-            instance.editor.focus();
+            if (!instance._destroyed) {
+                instance.editorY = instance.editor.getInstance();
+                instance.editorNode = instance.editor.frame.get('node');
+                instance.containerNode = instance.editorNode.get('parentNode');
+                instance.get('paraSupport') ? instance.editor.plug(Y.Plugin.EditorPara) : instance.editor.plug(Y.Plugin.EditorBR);
+                instance.editor.plug(Y.Plugin.ExecCommand);
+                instance._defineCustomExecCommands();
+                instance._renderUI();
+                instance._bindUI();
+                // first time: fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
+                instance._initStatus();
+            }
+        },
+
+        /**
+         * Sync the toolbar for the first time, during ititialisation<br>
+         * We need to do this manually, because there is no nodeChange-event fired by the editor.
+         * @method _initStatus
+         * @private
+        */
+        _initStatus : function() {
+            // Fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
+            var instance = this;
+            instance.toolbarNode.fire('itsatoolbar:statusChange', {changedNode: instance._getCursorRef()});
+        },
+
+        /**
+         * Gets or creates a referencenode at cursorposition<br>
+         * If no selection was made, a new tmp-node (empty span) will be created to serve as reference.
+         * @method _getCursorRef
+         * @private
+         * @returns {Y.Node} reference to the first node of the selection, or the new created node
+        */
+        _getCursorRef : function() {
+            var instance = this,
+                sel,
+                out,
+                node;
+            sel = new instance.editorY.EditorSelection();
+            out = sel.getSelected();
+            if (!sel.isCollapsed && out.size()) {
+                //We have a selection
+                node = out.item(0);
+            }
+            else {
+                // insert cursor and use that node as the selected node
+                // first remove previous
+                instance._removeRefNode();
+                node = sel.insertContent(ITSA_REFNODE);
+            }
+            return node;
+        },
+
+        /**
+         * Removes temporary created cursor-ref-Node that might have been created by _getCursorRef
+         * @method _removeRefNode
+         * @private
+        */
+        _removeRefNode : function() {
+            var instance = this,
+                node,
+                useY;
+            // because it can be called when editorY is already destroyed, you need to take Y-instance instead of editorY in those cases
+            useY = instance.editorY ? instance.editorY : Y;
+            node = useY.all('#itsatoolbar-ref');
+            if (node) {node.remove();}
         },
 
         /**
@@ -352,7 +417,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * Typically used in situations like a hyperlinkbutton: it never stays pressed, but when the cursos is on a hyperlink, he buttons look will change.
          * @method addSyncButton
          * @private
-         * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
+         * @param {String} iconClass Defines the icon's look. Refer static Properties for some predefined classes like ICON_BOLD.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, you must supply an object with two fields:<br>
          * <i>- command</i> (String): the execcommand<br>
@@ -378,7 +443,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * Creates a new toggleButton on the Toolbar. By default at the end of the toolbar.
          * @method addToggleButton
          * @private
-         * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
+         * @param {String} iconClass Defines the icon's look. Refer static Properties for some predefined classes like ICON_BOLD.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, you must supply an object with two fields:<br>
          * <i>- command</i> (String): the execcommand<br>
@@ -404,7 +469,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @method addButtongroup
          * @private
          * @param {Array} buttons Should consist of objects with two fields:<br>
-         * <i>- iconClass</i> (String): which defines the icon's look<br>&nbsp;&nbsp; (refer to the general moduledescription for a list with available classes)<br>
+         * <i>- iconClass</i> (String): defines the icon's look. Refer static Properties for some predefined classes like ICON_BOLD.
          * <i>- command</i> (String): the execcommand that will be executed on buttonclick
          * <i>- [value]</i> (String) optional: additional value for the execcommand
          * <i>- syncFunc</i> (Function): callback-function that will be called after a statusChange, when the users manupilates the text, or the cursor is moved (for more info on the sync-function, see addToggleButton)
@@ -500,6 +565,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         destructor : function() {
             var instance = this,
                 srcNode = instance.get('srcNode');
+             // first, set _notDestroyed to false --> this will prevent rendering if editor.frame:ready fires after toolbars destruction
+            instance._destroyed = true;
+            instance._removeRefNode();
             if (instance.toolbarNode) {instance.toolbarNode.remove(true);}
         },
 
@@ -655,6 +723,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 bgcolors,
                 buttons;
 
+            // create fonffamily button
             if (instance.get('btnFontfamily')) {
                 items = instance.get('fontFamilies');
                 for (i=0; i<items.length; i++) {
@@ -669,6 +738,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {buttonWidth: 145});
             }
 
+            // create fontsize button
             if (instance.get('btnFontsize')) {
                 items = [];
                 for (i=6; i<=32; i++) {items.push({text: i.toString(), returnValue: i+'px'});}
@@ -681,6 +751,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {buttonWidth: 42, className: 'itsatoolbar-fontsize', listAlignLeft: false});
             }
 
+            // create header button
             if (instance.get('btnHeader')) {
                 items = [];
                 items.push({text: 'No header', returnValue: 'clear'});
@@ -701,24 +772,28 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {buttonWidth: 96});
             }
 
+            // create bold button
             if (instance.get('btnBold')) {
                 instance.addToggleButton(instance.ICON_BOLD, 'bold', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.getStyle('fontWeight')==='bold'));
                 }, null, true);
             }
 
+            // create italic button
             if (instance.get('btnItalic')) {
                 instance.addToggleButton(instance.ICON_ITALIC, 'italic', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.getStyle('fontStyle')==='italic'));
                 });
             }
 
+            // create underline button
             if (instance.get('btnUnderline')) {
                 instance.addToggleButton(instance.ICON_UNDERLINE, 'underline', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.getStyle('textDecoration')==='underline'));
                 });
             }
 
+            // create align buttons
             if (instance.get('grpAlign')) {
                 buttons = [
                     {
@@ -746,6 +821,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                                     }
                     }
                 ];
+            // create justify button
                 if (instance.get('btnJustify')) {
                     buttons.push({
                         iconClass : instance.ICON_ALIGN_JUSTIFY,
@@ -759,6 +835,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance.addButtongroup(buttons, true);
             }
 
+            // create subsuperscript buttons
             if (instance.get('grpSubsuper')) {
                 instance.addToggleButton(instance.ICON_SUBSCRIPT, 'subscript', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.test('sub')));
@@ -768,6 +845,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 });
             }
 
+            // create textcolor button
             if (instance.get('btnTextcolor')) {
                 items = [];
                 bgcolors = instance.get('colorPallet');
@@ -783,6 +861,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {listWidth: 256, className: 'itsatoolbar-colors', iconClassName: instance.ICON_TEXTCOLOR});
             }
 
+            // create markcolor button
             if (instance.get('btnMarkcolor')) {
                 items = [];
                 bgcolors = instance.get('colorPallet');
@@ -798,11 +877,13 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true, {listWidth: 256, className: 'itsatoolbar-colors', iconClassName: instance.ICON_MARKCOLOR});
             }
 
+            // create indent buttons
             if (instance.get('grpIndent')) {
                 instance.addButton(instance.ICON_INDENT, 'indent', true);
                 instance.addButton(instance.ICON_OUTDENT, 'outdent');
             }
 
+            // create list buttons
             if (instance.get('grpLists')) {
                 instance.addToggleButton(instance.ICON_UNORDEREDLIST, 'insertunorderedlist', function(e) {
                     var instance = this,
@@ -822,6 +903,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 });
             }
 
+            // create email button
             if (instance.get('btnEmail')) {
                 instance.addSyncButton(instance.ICON_EMAIL, 'itsacreatemaillink', function(e) {
                     var instance = this,
@@ -842,6 +924,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 }, null, true);
             }
 
+            // create hyperlink button
             if (instance.get('btnHyperlink')) {
                 instance.addSyncButton(instance.ICON_HYPERLINK, 'itsacreatehyperlink', function(e) {
                     var instance = this,
@@ -875,12 +958,14 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 });
             }
 
+            // create image button
             if (instance.get('btnImage')) {
                 instance.addSyncButton(instance.ICON_IMAGE, 'itsacreateimage', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.test('img')));
                 });
             }
 
+            // create video button
             if (instance.get('btnVideo')) {
                 instance.addSyncButton(instance.ICON_VIDEO, 'itsacreateyoutube', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.test('iframe')));
