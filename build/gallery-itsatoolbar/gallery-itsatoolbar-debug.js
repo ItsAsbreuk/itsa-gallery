@@ -343,7 +343,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             else {
                 // insert cursor and use that node as the selected node
                 // first remove previous
-                instance._removeRefNode();
+                instance._removeCursorRef();
                 instance.editor.exec.command('inserthtml', ITSA_REFNODE);
                 node = instance.editorY.one('#itsatoolbar-ref');
             }
@@ -352,11 +352,11 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
         /**
          * Removes temporary created cursor-ref-Node that might have been created by _getCursorRef
-         * @method _removeRefNode
+         * @method _removeCursorRef
          * @private
         */
-        _removeRefNode : function() {
-            Y.log('_removeRefNode', 'info', 'ITSAToolbar');
+        _removeCursorRef : function() {
+            Y.log('_removeCursorRef', 'info', 'ITSAToolbar');
             var instance = this,
                 node,
                 useY;
@@ -583,7 +583,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 srcNode = instance.get('srcNode');
              // first, set _notDestroyed to false --> this will prevent rendering if editor.frame:ready fires after toolbars destruction
             instance._destroyed = true;
-            instance._removeRefNode();
+            instance._removeCursorRef();
             if (instance.toolbarNode) {instance.toolbarNode.remove(true);}
         },
 
@@ -672,23 +672,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         },
 
         /**
-         * Executes this.editor.exec.command with the execCommand and value that is bound to the node through Node.setData('execCommand') and Node.setData('execValue'). <br>
-         * these values are bound during definition of addButton(), addSyncButton(), addToggleButton etc.
-         *
-         * @method _execCommandFromData
-         * @private
-         * @param {EventFacade} e in case of selectList, e.value and e.index are also available
-        */
-        _execCommandFromData: function(buttonNode) {
-            Y.log('_execCommandFromData', 'info', 'ITSAToolbar');
-            var execCommand,
-                execValue;
-            execCommand = buttonNode.getData('execCommand');
-            execValue = buttonNode.getData('execValue');
-            this.editor.exec.command(execCommand, execValue);
-        },
-
-        /**
          * Handling the selectChange event of a selectButton
          *
          * @method _handleSelectChange
@@ -703,7 +686,39 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             selectButtonNode = e.currentTarget.buttonNode;
             restoreCommand = selectButtonNode.getData('restoreCommand');
             execCommand = (restoreCommand && (e.value===selectButtonNode.getData('restoreValue'))) ? restoreCommand : selectButtonNode.getData('execCommand');
-            this.editor.exec.command(execCommand, e.value);
+            this.execCommand(execCommand, e.value);
+        },
+
+        /**
+         * Executes this.editor.exec.command with the execCommand and value that is bound to the node through Node.setData('execCommand') and Node.setData('execValue'). <br>
+         * these values are bound during definition of addButton(), addSyncButton(), addToggleButton etc.
+         *
+         * @method _execCommandFromData
+         * @private
+         * @param {EventFacade} e in case of selectList, e.value and e.index are also available
+        */
+        _execCommandFromData: function(buttonNode) {
+            Y.log('_execCommandFromData', 'info', 'ITSAToolbar');
+            var execCommand,
+                execValue;
+            execCommand = buttonNode.getData('execCommand');
+            execValue = buttonNode.getData('execValue');
+            this.execCommand(execCommand, execValue);
+        },
+
+        /**
+         * Performs a execCommand that will take into account the editors cursorposition<br>
+         * This means that when no selection is made, the operation still works: you can preset an command this way.
+         *
+         * @method execCommand
+         * @param {String} command The execCommand
+         * @param {String} [value] additional commandvalue
+        */
+        execCommand: function(command, value) {
+            Y.log('execCommand', 'info', 'ITSAToolbar');
+            var instance = this;
+            instance.editor.focus();
+            instance.editor.exec.command(command, value);
         },
 
         /**
@@ -781,9 +796,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             if (instance.get('btnHeader')) {
                 Y.log('Defining button btnHeader', 'info', 'ITSAToolbar');
                 items = [];
-                items.push({text: 'No header', returnValue: 'clear'});
+                items.push({text: 'No header', returnValue: 'none'});
                 for (i=1; i<=instance.get('headerLevels'); i++) {items.push({text: 'Header '+i, returnValue: 'h'+i});}
-                instance.headerSelectlist = instance.addSelectlist(items, {command: 'heading', restoreCommand: 'insertParagraph', restoreValue: 'clear'}, function(e) {
+                instance.headerSelectlist = instance.addSelectlist(items, 'itsaheading', function(e) {
                     var instance = this,
                         node = e.changedNode,
                         nodePosition,
@@ -1071,6 +1086,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         },
 
         /**
+        * Based on YUI2 rich-editor code
         * @private
         * @method _filter_rgb
         * @param String css The CSS string containing rgb(#,#,#);
@@ -1080,13 +1096,14 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         _filter_rgb: function(css) {
             Y.log('_filter_rgb', 'info', 'ITSAToolbar');
             if (css.toLowerCase().indexOf('rgb') != -1) {
-                var exp = new RegExp("(.*?)rgb\\s*?\\(\\s*?([0-9]+).*?,\\s*?([0-9]+).*?,\\s*?([0-9]+).*?\\)(.*?)", "gi");
-                var rgb = css.replace(exp, "$1,$2,$3,$4,$5").split(',');
+                var exp = new RegExp("(.*?)rgb\\s*?\\(\\s*?([0-9]+).*?,\\s*?([0-9]+).*?,\\s*?([0-9]+).*?\\)(.*?)", "gi"),
+                    rgb = css.replace(exp, "$1,$2,$3,$4,$5").split(','),
+                    r, g, b;
             
                 if (rgb.length === 5) {
-                    var r = parseInt(rgb[1], 10).toString(16);
-                    var g = parseInt(rgb[2], 10).toString(16);
-                    var b = parseInt(rgb[3], 10).toString(16);
+                    r = parseInt(rgb[1], 10).toString(16);
+                    g = parseInt(rgb[2], 10).toString(16);
+                    b = parseInt(rgb[3], 10).toString(16);
 
                     r = r.length === 1 ? '0' + r : r;
                     g = g.length === 1 ? '0' + g : g;
@@ -1107,7 +1124,65 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         ***********************************************************************************************************************
         ***********************************************************************************************************************/
 
+        /**
+        * Defines the execCommand itsaheading
+        * @method _defineExecCommandHeader
+        * @private
+        */
+   /*
+        _defineExecCommandHeader : function() {
+            if (!Y.Plugin.ExecCommand.COMMANDS.itsaheading) {
+                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsaheading', 'info', 'ITSAToolbar');
+                Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
+                    itsaheading: function(cmd, val) {
 
+
+                        var exec = true,
+                            el = null,
+                            action = 'heading',
+                            _sel = this._getSelection(),
+                            _selEl = this._getSelectedElement();
+
+                        if (_selEl) {
+                            _sel = _selEl;
+                        }
+            
+                        if (this.browser.ie) {
+                            action = 'formatblock';
+                        }
+                        if (value == this.STR_NONE) {
+                            if ((_sel && _sel.tagName && (_sel.tagName.toLowerCase().substring(0,1) == 'h')) || (_sel && _sel.parentNode && _sel.parentNode.tagName && (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h'))) {
+                                if (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h') {
+                                    _sel = _sel.parentNode;
+                                }
+                                if (this._isElement(_sel, 'html')) {
+                                    return [false];
+                                }
+                                el = this._swapEl(_selEl, 'span', function(el) {
+                                    el.className = 'yui-non';
+                                });
+                                this._selectNode(el);
+                                this.currentElement[0] = el;
+                            }
+                            exec = false;
+                        } else {
+                            if (this._isElement(_selEl, 'h1') || this._isElement(_selEl, 'h2') || this._isElement(_selEl, 'h3') || this._isElement(_selEl, 'h4') || this._isElement(_selEl, 'h5') || this._isElement(_selEl, 'h6')) {
+                                el = this._swapEl(_selEl, value);
+                                this._selectNode(el);
+                                this.currentElement[0] = el;
+                            } else {
+                                this._createCurrentElement(value);
+                                this._selectNode(this.currentElement[0]);
+                            }
+                            exec = false;
+                        }
+
+
+                   }
+                });
+            }
+        },
+*/
         /**
         * Defines the execCommand itsafontsize
         * @method _defineExecCommandFontSize
