@@ -302,7 +302,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance._renderUI();
                 instance._bindUI();
                 // first time: fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
-                instance._initStatus();
+                // be sure the editor has focus already focus, otherwise safari cannot inserthtml at cursorposition!
+                instance.editor.frame.focus(Y.bind(instance._initStatus, instance));
             }
         },
 
@@ -315,7 +316,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         _initStatus : function() {
             Y.log('_initStatus', 'info', 'ITSAToolbar');
             // Fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
-            var instance = this;
+            var instance = this,
                 node = instance._getCursorRef();
             if (node) {instance.toolbarNode.fire('itsatoolbar:statusChange', {changedNode: node});}
         },
@@ -376,7 +377,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             // syncUI will sync the toolbarstatus with the editors cursorposition
             Y.log('sync', 'info', 'ITSAToolbar');
             var instance = this;
-            if (e) {
+            if (e && e.changedNode) {
                 instance.toolbarNode.fire('itsatoolbar:statusChange', e);
             }
         },
@@ -527,7 +528,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * <i>- returnValue</i> (String): the returnvalue of e.value<br>
          * In case a String-list is supplied, e.value will equal to the selected String-item (returnvalue==text)
 
-         * @param {String | Object} execCommand ExecCommand that will be executed after a selectChange-event is fired. e.value will be placed as the second argument in editor.exec.command().<br>
+         * @param {String | Object} execCommand ExecCommand that will be executed after a selectChange-event is fired. e.value will be placed as the second argument in editor.execCommand().<br>
          * You could provide a second 'restoreCommand', in case you need a different execCommand to erase some format. In that case you must supply an object with three fields:<br>
          * <i>- command</i> (String): the standard execcommand<br>
          * <i>- restoreCommand</i> (String): the execcommand that will be executed in case e.value equals the restore-value<br>
@@ -666,20 +667,20 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     instance.toolbarNode.all('.' + ITSA_BTNGROUP + '-' + node.getData('buttongroup')).toggleClass(ITSA_BTNPRESSED, false);
                     node.toggleClass(ITSA_BTNPRESSED, true);
                 }
-                if (!node.hasClass(ITSA_BTNCUSTOMFUNC)) {instance.execCommand(node);}
+                if (!node.hasClass(ITSA_BTNCUSTOMFUNC)) {instance._execCommandFromData(node);}
             }
         },
 
         /**
-         * Executes this.editor.exec.commanc with the execCommand and value that is bound to the node through Node.setData('execCommand') and Node.setData('execValue'). <br>
+         * Executes this.editor.exec.command with the execCommand and value that is bound to the node through Node.setData('execCommand') and Node.setData('execValue'). <br>
          * these values are bound during definition of addButton(), addSyncButton(), addToggleButton etc.
          *
-         * @method execCommand
+         * @method _execCommandFromData
          * @private
          * @param {EventFacade} e in case of selectList, e.value and e.index are also available
         */
-        execCommand : function(buttonNode) {
-            Y.log('execCommand', 'info', 'ITSAToolbar');
+        _execCommandFromData: function(buttonNode) {
+            Y.log('_execCommandFromData', 'info', 'ITSAToolbar');
             var execCommand,
                 execValue;
             execCommand = buttonNode.getData('execCommand');
@@ -1022,7 +1023,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                             Y.config.cmas2plus.uploader.show(
                                 null, 
                                 Y.bind(function(e) {
-                                    this.editor.exec.command('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + e.n);
+                                    this.editor.execCommand('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + e.n);
                                 }, this)
                             );
                         }
