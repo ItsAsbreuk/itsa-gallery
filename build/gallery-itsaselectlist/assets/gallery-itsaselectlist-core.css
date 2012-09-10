@@ -1,3 +1,7 @@
+.yui3-itsaselectlist-disabled .itsa-selectlist-basediv {
+    display: none;
+}
+
 .itsa-selectlist-selectedmain {
     float: left;
     padding-left:6px;
