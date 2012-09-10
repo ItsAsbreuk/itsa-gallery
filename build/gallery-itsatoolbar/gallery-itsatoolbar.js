@@ -39,7 +39,9 @@ var Lang = Y.Lang,
     ITSA_TOOLBAR_MEDIUM = 'itsa-buttonsize-medium',
     ITSA_CLASSEDITORPART = 'itsatoolbar-editorpart',
     ITSA_SELECTCONTNODE = '<div></div>',
-    ITSA_REFNODE = "<span id='itsatoolbar-ref'></span>";
+    ITSA_REFNODE = "<span id='itsatoolbar-ref'></span>",
+    ITSA_REFSELECTION = 'itsa-selection-tmp',
+    ITSA_FONTSIZENODE = 'itsa-fontsize';
 
 // -- Public Static Properties -------------------------------------------------
 
@@ -278,7 +280,17 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             instance.editor = instance.get('host');
             // need to make sure we can use execCommand, so do not render before the frame exists.
             if (instance.editor.frame && instance.editor.frame.get('node')) {instance._render();}
-            else {instance.editor.on('frame:ready', instance._render, instance);}
+            else {
+                if (Y.UA.ie>0) {
+                    // didn't find out yet: IE stops creating the editorinstance when pluggedin too soon!
+                    // GOTTA check out
+                    // at the time being: delaying
+                    Y.later(250, instance, instance._render);
+                }
+                else {
+                    instance.editor.on('frame:ready', instance._render, instance);
+                }
+            }
         },
 
         /**
@@ -301,45 +313,30 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance._bindUI();
                 // first time: fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
                 // be sure the editor has focus already focus, otherwise safari cannot inserthtml at cursorposition!
-                instance.editor.frame.focus(Y.bind(instance._initStatus, instance));
+                instance.editor.frame.focus(Y.bind(instance.sync, instance));
             }
         },
 
         /**
-         * Sync the toolbar for the first time, during ititialisation<br>
-         * We need to do this manually, because there is no nodeChange-event fired by the editor.
-         * @method _initStatus
-         * @private
-        */
-        _initStatus : function() {
-            // Fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
-            var instance = this,
-                node = instance._getCursorRef();
-            if (node) {instance.toolbarNode.fire('itsatoolbar:statusChange', {changedNode: node});}
-        },
-
-        /**
-         * Gets or creates a referencenode at cursorposition<br>
-         * If no selection was made, a new tmp-node (empty span) will be created to serve as reference.
+         * Returns node at cursorposition<br>
+         * This can be a selectionnode, or -in case of no selection- a new tmp-node (empty span) that will be created to serve as reference.
+         * In case of selection, there will always be made a tmp-node as placeholder. But in that case, the tmp-node will be just before the returned node.
          * @method _getCursorRef
          * @private
-         * @returns {Y.Node} reference to the first node of the selection, or the new created node
+         * @returns {Y.Node} created empty referencenode
         */
         _getCursorRef : function() {
             var instance = this,
-                sel,
-                out,
                 node;
-            sel = new instance.editorY.EditorSelection();
-            out = sel.getSelected();
-            if (!sel.isCollapsed && out.size()) {
-                //We have a selection
-                node = out.item(0);
+            // insert cursor and use that node as the selected node
+            // first remove previous
+            instance._removeCursorRef();
+            node = instance._getSelectedNode();
+            if (node) {
+                node.addClass(ITSA_REFSELECTION);
+                instance.editorY.one('body').insertBefore(ITSA_REFNODE, node);
             }
             else {
-                // insert cursor and use that node as the selected node
-                // first remove previous
-                instance._removeCursorRef();
                 instance.editor.exec.command('inserthtml', ITSA_REFNODE);
                 node = instance.editorY.one('#itsatoolbar-ref');
             }
@@ -357,23 +354,67 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 useY;
             // because it can be called when editorY is already destroyed, you need to take Y-instance instead of editorY in those cases
             useY = instance.editorY ? instance.editorY : Y;
+            // first cleanup single referencenode
             node = useY.all('#itsatoolbar-ref');
             if (node) {node.remove();}
+            // next clean up aal selections, by replacing the nodes with its html-content. Thus elimination the <span> definitions
+            node = useY.all('.' + ITSA_REFSELECTION)
+            if (node.size()>0) {
+                node.each(function(node){
+                    node.replace(node.getHTML());
+                });
+            }
+        },
+
+        /**
+         * Sets the real editorcursor at the position of the tmp-node created by _getCursorRef<br>
+         * Removes the cursor tmp-node afterward.
+         * @method _setCursorAtRef
+         * @private
+        */
+        _setCursorAtRef : function() {
+            var instance = this,
+                sel,
+                node = instance.editorY.one('#itsatoolbar-ref');
+            if (node) {
+                sel = new instance.editorY.EditorSelection();
+                sel.selectNode(node);
+                instance._removeCursorRef();
+            }
+        },
+
+        /**
+         * Gets the selection<br>
+         * returns null when no selection is made.
+         * @method _getSelectedNode
+         * @private
+         * @returns {Y.Node} selection-node
+        */
+        _getSelectedNode : function() {
+            var instance = this,
+                node = null,
+                sel = new instance.editorY.EditorSelection(),
+                out = sel.getSelected();
+            if (!sel.isCollapsed && out.size()) {
+                // We have a selection
+                node = out.item(0);
+            }
+            return node;
         },
 
         /**
          * Syncs the toolbar's status with the editor.<br>
-         * At this point, it only works internal, because it needs the nodeChange-eventFacade.
          * @method sync
-         * @param {EventFacade} e which will be passed when the edtior fires a nodeChange-event
-         * @private
+         * @param {EventFacade} [e] will be passed when the editor fires a nodeChange-event, but if called manually, leave e undefined. Then the function will search for the current cursorposition.
         */
         sync : function(e) {
             // syncUI will sync the toolbarstatus with the editors cursorposition
             var instance = this;
-            if (e && e.changedNode) {
-                instance.toolbarNode.fire('itsatoolbar:statusChange', e);
+            if (!e || !e.changedNode) {
+                e = {changedNode: instance._getCursorRef()};
+                Y.later(500, instance, instance._removeCursorRef);
             }
+            instance.toolbarNode.fire('itsatoolbar:statusChange', e);
         },
 
         /**
@@ -552,7 +593,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 if (indent) {selectlist.get('boundingBox').addClass('itsa-button-indent');}
                 instance.toolbarNode.addTarget(buttonNode);
                 selectlist.on('selectChange', instance._handleSelectChange, instance);
-                if (Lang.isFunction(syncFunc)) {buttonNode.on('itsatoolbar:statusChange', Y.bind(syncFunc, context || instance));}
+                if (Lang.isFunction(syncFunc)) {buttonNode.on('itsatoolbar:statusChange', Y.rbind(syncFunc, context || instance));}
                 instance.editor.on('nodeChange', selectlist.hideListbox, selectlist);
             }, instance, execCommand, syncFunc, context, indent);
             selectlist.render(instance.toolbarNode);
@@ -584,6 +625,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         */
         _renderUI : function() {
             var instance = this,
+                correctedHeight = 0,
                 srcNode = instance.get('srcNode'),
                 btnSize = instance.get('btnSize');
             // be sure that its.yui3-widget-loading, because display:none will make it impossible to calculate size of nodes during rendering
@@ -595,7 +637,22 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             }
             else {
                 instance.toolbarNode.addClass(ITSA_CLASSEDITORPART);
-                instance.editorNode.set('height', parseInt(instance.containerNode.getStyle('height'),10)-parseInt(instance.toolbarNode.getStyle('height'),10)+'px');
+                switch (instance.get('btnSize')) {
+                    case 1:
+                        correctedHeight = -40;
+                    break;
+                    case 2: 
+                        correctedHeight = -44;
+                    break;
+                    case 3: 
+                        correctedHeight = -46;
+                    break;
+                }
+                correctedHeight += parseInt(instance.containerNode.get('offsetHeight'),10) 
+                                 - parseInt(instance.containerNode.getComputedStyle('paddingTop'),10) 
+                                 - parseInt(instance.containerNode.getComputedStyle('borderTopWidth'),10) 
+                                 - parseInt(instance.containerNode.getComputedStyle('borderBottomWidth'),10);
+                instance.editorNode.set('height', correctedHeight);
                 instance.editorNode.insert(instance.toolbarNode, 'before');
             }
             instance._initializeButtons();
@@ -621,6 +678,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         */
         _defineCustomExecCommands : function() {
             var instance = this;
+            instance._defineExecCommandHeader();
             instance._defineExecCommandFontSize();
             instance._defineExecCommandHyperlink();
             instance._defineExecCommandMaillink();
@@ -702,26 +760,102 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         },
 
         /**
+         * Checks whether there is a selection within the editor<br>
+         *
+         * @method _hasSelection
+         * @private
+         * @returns {Boolean} whether there is a selection
+        */
+        _hasSelection : function() {
+            var instance = this,
+                sel = new instance.editorY.EditorSelection();
+            return (!sel.isCollapsed  && sel.anchorNode);
+        },
+
+        /**
          * Checks whether the cursor is inbetween a selector. For instance to check if cursor is inbetween a h1-selector
          *
          * @method _checkInbetweenSelector
          * @private
          * @param {String} selector The selector to check for
-         * @param {String} refContent Should be Y.one('body').getHtml()
-         * @param {int} cursorindex Index where the cursor retains
+         * @param {Y.Node} cursornode Active node where the cursor resides, or the selection
+         * @returns {Boolean} whether node resides inbetween selector
         */
-        _checkInbetweenSelector : function(selector, refContent, cursorindex) {
+        _checkInbetweenSelector : function(selector, cursornode) {
             var instance = this,
-                pattern = '<\s*' + selector + '[^>]*>(.*?)<\s*/\s*' + selector  + '>',
-                searchHeaderPattern = new RegExp(pattern, 'gi'), 
-                fragment, 
-                inbetween = false;
+                pattern = '<\\s*' + selector + '[^>]*>(.*?)<\\s*/\\s*' + selector  + '>',
+                searchHeaderPattern = new RegExp(pattern, 'gi'),
+                fragment,
+                inbetween = false,
+                refContent = instance.editorY.one('body').getHTML(),
+                nodewrap,
+                cursorindex;
+            nodewrap = Node.create('<div></div>');
+            nodewrap.append(cursornode.cloneNode(true));
+            cursorindex = refContent.indexOf(nodewrap.getHTML());
             fragment = searchHeaderPattern.exec(refContent);
             while ((fragment !== null) && !inbetween) {
-                inbetween = ((cursorindex>fragment.index) && (cursorindex<(fragment.index+fragment[0].length)));
+                inbetween = ((cursorindex>=fragment.index) && (cursorindex<(fragment.index+fragment[0].length)));
                 fragment = searchHeaderPattern.exec(refContent); // next search
             }
             return inbetween;
+        },
+
+        /**
+         * Finds the headernode where the cursor, or selection remains in
+         *
+         * @method _getActiveHeader
+         * @private
+         * @param {Y.Node} cursornode Active node where the cursor resides, or the selection. Can be supplied by e.changedNode, or left empty to make this function determine itself.
+         * @returns {Y.Node|null} the headernode where the cursor remains. Returns null if outside any header.
+        */
+     _getActiveHeader : function(cursornode) {
+            var instance = this,
+                pattern,
+                searchHeaderPattern,
+                fragment,
+                nodeFound,
+                nodewrap,
+                nodetag,
+                headingNumber = 0,
+                returnNode = null,
+                checkNode,
+                endpos,
+                refContent;
+            if (cursornode) {    
+                // node can be a header right away, or it can be a node within a header. Check for both
+                nodetag = cursornode.get('tagName');
+                if (nodetag.length>1) {headingNumber = parseInt(nodetag.substring(1), 10);}
+                if ((nodetag.length===2) && (nodetag.toLowerCase().substring(0,1)==='h') && (headingNumber>0) && (headingNumber<10)) {
+                    returnNode = cursornode;
+                }
+                else {
+                    nodewrap = Node.create('<div></div>');
+                    nodewrap.append(cursornode.cloneNode(true));
+                    // first look for endtag, to determine which headerlevel to search for
+//                    pattern = '<\\s*h\\d[^>]*>(.*?)' + nodewrap.getHTML() + '(.*?)<\\s*/\\s*h\\d>';
+                    pattern = nodewrap.getHTML() + '(.*?)<\\s*/\\s*h\\d>';
+                    searchHeaderPattern = new RegExp(pattern, 'gi');
+                    refContent = instance.editorY.one('body').getHTML();
+                    fragment = searchHeaderPattern.exec(refContent);
+                    if (fragment !== null) {
+                        // search again, looking for the right headernumber
+                        endpos = fragment.index+fragment[0].length-1;
+                        headingNumber = refContent.substring(endpos-1, endpos);
+                        pattern = '<\\s*h' + headingNumber + '[^>]*>(.*?)' + nodewrap.getHTML() + '(.*?)<\\s*/\\s*h' + headingNumber + '>';
+                        searchHeaderPattern = new RegExp(pattern, 'gi');
+                        fragment = searchHeaderPattern.exec(refContent); // next search
+                        if (fragment !== null) {
+                            nodeFound = refContent.substring(fragment.index, fragment.index+fragment[0].length);
+                        }
+                    }
+                    if (nodeFound) {
+                        checkNode = Node.create(nodeFound);
+                        returnNode = instance.editorY.one('#' + checkNode.get('id'));
+                    }
+                }
+            }
+            return returnNode;
         },
 
         /**
@@ -751,6 +885,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     var familyList = e.changedNode.getStyle('fontFamily'),
                         familyListArray = familyList.split(','),
                         activeFamily = familyListArray[0];
+                    // some browsers place '' surround the string, when it should contain whitespaces.
+                    // first remove them
+                    if (activeFamily.substring(0,1)==="'") {activeFamily = activeFamily.substring(1, activeFamily.length-1);}
                     this.fontSelectlist.selectItemByValue(activeFamily, true, true);
                 }, null, true, {buttonWidth: 145});
             }
@@ -776,16 +913,14 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance.headerSelectlist = instance.addSelectlist(items, 'itsaheading', function(e) {
                     var instance = this,
                         node = e.changedNode,
-                        nodePosition,
-                        currentHeader,
-                        i,
-                        bodyhtml = instance.editorY.one('body').getHTML();
-                    nodePosition = bodyhtml.indexOf(node.getHTML());
-                    for (i=1; (!currentHeader && (i<=instance.get('headerLevels'))); i++) {
-                        if (instance._checkInbetweenSelector('h'+i, bodyhtml, nodePosition)) {currentHeader = i;}
+                        internalcall = (e.sender && e.sender==='itsaheading'),
+                        activeHeader;
+                    // prevent update when sync is called after heading has made changes. Check this through e.sender
+                    if (!internalcall) {
+                        activeHeader = instance._getActiveHeader(node);
+                        instance.headerSelectlist.selectItem(activeHeader ? parseInt(activeHeader.get('tagName').substring(1), 10) : 0);
+                        instance.headerSelectlist.set('disabled', Lang.isNull(activeHeader) && !instance._hasSelection());
                     }
-                    if (!currentHeader) {currentHeader=0;}
-                    instance.headerSelectlist.selectItem(currentHeader);
                 }, null, true, {buttonWidth: 96});
             }
 
@@ -904,19 +1039,13 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             if (instance.get('grpLists')) {
                 instance.addToggleButton(instance.ICON_UNORDEREDLIST, 'insertunorderedlist', function(e) {
                     var instance = this,
-                        node = e.changedNode,
-                        nodePosition,
-                        bodyhtml = instance.editorY.one('body').getHTML();
-                    nodePosition = bodyhtml.indexOf(node.getHTML());
-                    e.currentTarget.toggleClass(ITSA_BTNPRESSED, (instance._checkInbetweenSelector('ul', bodyhtml, nodePosition)));
+                        node = e.changedNode;
+                    e.currentTarget.toggleClass(ITSA_BTNPRESSED, (instance._checkInbetweenSelector('ul', node)));
                 }, null, true);
                 instance.addToggleButton(instance.ICON_ORDEREDLIST, 'insertorderedlist', function(e) {
                     var instance = this,
-                        node = e.changedNode,
-                        nodePosition,
-                        bodyhtml = instance.editorY.one('body').getHTML();
-                    nodePosition = bodyhtml.indexOf(node.getHTML());
-                    e.currentTarget.toggleClass(ITSA_BTNPRESSED, (instance._checkInbetweenSelector('ol', bodyhtml, nodePosition)));
+                        node = e.changedNode;
+                    e.currentTarget.toggleClass(ITSA_BTNPRESSED, (instance._checkInbetweenSelector('ol', node)));
                 });
             }
 
@@ -927,10 +1056,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                         node = e.changedNode,
                         nodePosition,
                         isLink,
-                        isEmailLink,
-                        bodyhtml = instance.editorY.one('body').getHTML();
-                    nodePosition = bodyhtml.indexOf(node.getHTML());
-                    isLink =  instance._checkInbetweenSelector('a', bodyhtml, nodePosition);
+                        isEmailLink;
+                    isLink =  instance._checkInbetweenSelector('a', node);
                     if (isLink) {
                         // check if its a normal href or a mailto:
                         while (node && !node.test('a')) {node=node.get('parentNode');}
@@ -953,10 +1080,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                         href,
                         lastDot,
                         fileExt,
-                        isHyperLink,
-                        bodyhtml = instance.editorY.one('body').getHTML();
-                    nodePosition = bodyhtml.indexOf(node.getHTML());
-                    isLink =  instance._checkInbetweenSelector('a', bodyhtml, nodePosition);
+                        isHyperLink;
+                    isLink =  instance._checkInbetweenSelector('a', node);
                         if (isLink) {
                             // check if its a normal href or a mailto:
                             while (node && !node.test('a')) {node=node.get('parentNode');}
@@ -1014,10 +1139,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                             href,
                             lastDot,
                             fileExt,
-                            isHyperLink,
-                            bodyhtml = instance.editorY.one('body').getHTML();
-                        nodePosition = bodyhtml.indexOf(node.getHTML());
-                        isLink =  instance._checkInbetweenSelector('a', bodyhtml, nodePosition);
+                            isHyperLink;
+                        isLink =  instance._checkInbetweenSelector('a', node);
                         if (isLink) {
                             // check if its a normal href or a mailto:
                             while (node && !node.test('a')) {node=node.get('parentNode');}
@@ -1088,59 +1211,43 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @method _defineExecCommandHeader
         * @private
         */
-   /*
         _defineExecCommandHeader : function() {
             if (!Y.Plugin.ExecCommand.COMMANDS.itsaheading) {
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsaheading: function(cmd, val) {
-
-
-                        var exec = true,
-                            el = null,
-                            action = 'heading',
-                            _sel = this._getSelection(),
-                            _selEl = this._getSelectedElement();
-
-                        if (_selEl) {
-                            _sel = _selEl;
-                        }
-            
-                        if (this.browser.ie) {
-                            action = 'formatblock';
-                        }
-                        if (value == this.STR_NONE) {
-                            if ((_sel && _sel.tagName && (_sel.tagName.toLowerCase().substring(0,1) == 'h')) || (_sel && _sel.parentNode && _sel.parentNode.tagName && (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h'))) {
-                                if (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h') {
-                                    _sel = _sel.parentNode;
-                                }
-                                if (this._isElement(_sel, 'html')) {
-                                    return [false];
-                                }
-                                el = this._swapEl(_selEl, 'span', function(el) {
-                                    el.className = 'yui-non';
-                                });
-                                this._selectNode(el);
-                                this.currentElement[0] = el;
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef = itsatoolbar._getCursorRef(),
+                            activeHeader = itsatoolbar._getActiveHeader(noderef),
+                            headingNumber = 0,
+                            disableSelectbutton = false,
+                            node;
+                        if (val==='none') {
+                            // want to clear heading
+                            if (activeHeader) {
+                                activeHeader.replace("<span class='" + ITSA_REFSELECTION + "'>"+activeHeader.getHTML()+"</span>");
+                                // need to disable the selectbutton right away, because there will be no syncing on the headerselectbox
+                                itsatoolbar.headerSelectlist.set('disabled', true);
                             }
-                            exec = false;
                         } else {
-                            if (this._isElement(_selEl, 'h1') || this._isElement(_selEl, 'h2') || this._isElement(_selEl, 'h3') || this._isElement(_selEl, 'h4') || this._isElement(_selEl, 'h5') || this._isElement(_selEl, 'h6')) {
-                                el = this._swapEl(_selEl, value);
-                                this._selectNode(el);
-                                this.currentElement[0] = el;
-                            } else {
-                                this._createCurrentElement(value);
-                                this._selectNode(this.currentElement[0]);
+                            // want to add or change a heading
+                            if (val.length>1) {headingNumber = parseInt(val.substring(1), 10);}
+                            if ((val.length===2) && (val.toLowerCase().substring(0,1)==='h') && (headingNumber>0) && (headingNumber<10)) {
+                                node = activeHeader ? activeHeader : noderef;
+                                // make sure you set an id to the created header-element. Otherwise _getActiveHeader() cannot find it in next searches
+                                node.replace("<"+val+" id='" + editorY.guid() + "'>"+node.getHTML()+"</"+val+">");
                             }
-                            exec = false;
                         }
-
-
+                        itsatoolbar._setCursorAtRef();
+                        // do a toolbarsync, because styles will change.
+                        // but do not refresh the heading-selectlist! Therefore e.sender is defined
+                        itsatoolbar.sync({sender: 'itsaheading'});
                    }
                 });
             }
         },
-*/
+
         /**
         * Defines the execCommand itsafontsize
         * @method _defineExecCommandFontSize
@@ -1152,34 +1259,34 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             if (!Y.Plugin.ExecCommand.COMMANDS.itsafontsize) {
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                    itsafontsize: function(cmd, val) {
-                       var execCommandInstance = this,
-                           editorY = execCommandInstance.get('host').getInstance(),
-                           sel = new editorY.EditorSelection(),
-                           newNodelist;
-                       if (!sel.isCollapsed  && sel.anchorNode && (execCommandInstance._lastKey !== 32)) {
-                           //We have a selection
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef = itsatoolbar._getCursorRef(),
+                            parentnode,
+                            selection = noderef.hasClass(ITSA_REFSELECTION);
+                       if (selection) {
+                            //We have a selection
+                            parentnode = noderef.get('parentNode');
                             if (Y.UA.webkit) {
-                                if (sel.anchorNode.getStyle('lineHeight')) {
-                                    sel.anchorNode.setStyle('lineHeight', '');
-                                }
+                                parentnode.setStyle('lineHeight', '');
                             }
                             // first cleaning up old fontsize
-                            // isn't done well !! there might be other tags than <span> that have fontSize declared
-                            // And you should not wrap a new <span> when sel === previous <span>
-                            sel.anchorNode.all('span').setStyle('fontSize', '');
-                            // create new wrapper <span style='font-size: val'>....</span>
-                            // isn't done well !! you might disturbe the html when sel already is previous <span style='font-size: val'>....</span>
-                            // in that case you create a span wrapped on a previous span
-                            newNodelist = sel.wrapContent('span');
-                            newNodelist.item(0).setStyle('fontSize', val);
+                            noderef.all('span').setStyle('fontSize', '');
+                            // now previous created span-tags will be marked as temp-selection --> this way the can be removed (retaining innerhtml)
+                            noderef.all('.'+ITSA_FONTSIZENODE).replaceClass(ITSA_FONTSIZENODE, ITSA_REFSELECTION);
+                            noderef.setStyle('fontSize', val);
+                            // now, mark this node, so we know it is made by itsafontsize. This way, we can cleanup when fontsize is generated multiple times (prevent creating span within span)
+                            noderef.addClass(ITSA_FONTSIZENODE);
+                            // remove the selection-mark before removing tmp-node placeholder: we need to keep the node
+                            noderef.removeClass(ITSA_REFSELECTION);
+                            // remove the tmp-node placeholder
+                            itsatoolbar._removeCursorRef();
                        }
                        else {
-                           // Didn't find a way to set the focus yet.... damn...
-                           /*
-                           sel.setCursor();
-                           execCommandInstance.command("inserthtml", "<span style='font-size:" + val + "'></span>");
-                           sel.focusCursor(true, true);
-                           */
+//                           itsatoolbar._setCursorAtRef();
+                           itsatoolbar.execCommand("inserthtml", "<span class='" + ITSA_FONTSIZENODE + "' style='font-size:" + val + "'>" + ITSA_REFNODE + "</span>");
+                           itsatoolbar._setCursorAtRef();
                        }
                    }
                 });
@@ -1523,7 +1630,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @type Boolean
             */
             btnHeader : {
-                value: false,
+                value: true,
                 validator: function(val) {
                     return Lang.isBoolean(val);
                 }
