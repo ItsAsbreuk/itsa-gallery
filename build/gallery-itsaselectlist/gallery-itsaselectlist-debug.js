@@ -387,7 +387,9 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         _disabledChange : function(e) {
-            this.buttonNode.toggleClass('yui3-button-disabled', e.newVal);
+            var instance = this;
+            instance.buttonNode.toggleClass('yui3-button-disabled', e.newVal);
+            instance.hideListbox();
         },
 
         /**

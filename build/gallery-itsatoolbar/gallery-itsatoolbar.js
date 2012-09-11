@@ -288,7 +288,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     Y.later(250, instance, instance._render);
                 }
                 else {
-                    instance.editor.on('frame:ready', instance._render, instance);
+                    // do not subscribe to the frame:ready, but to the ready-event
+                    // Iliyan Peychev made an editor that doesn't use Frame, so this way it works on all editors
+                    instance.editor.on('ready', instance._render, instance);
                 }
             }
         },
@@ -828,7 +830,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     nodewrap = Node.create('<div></div>');
                     nodewrap.append(cursornode.cloneNode(true));
                     // first look for endtag, to determine which headerlevel to search for
-//                    pattern = '<\\s*h\\d[^>]*>(.*?)' + nodewrap.getHTML() + '(.*?)<\\s*/\\s*h\\d>';
                     pattern = nodewrap.getHTML() + '(.*?)<\\s*/\\s*h\\d>';
                     searchHeaderPattern = new RegExp(pattern, 'gi');
                     refContent = instance.editorY.one('body').getHTML();
