@@ -559,4 +559,4 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
 );
 
 
-}, '@VERSION@' ,{requires:['widget-base', 'node-base', 'event-base', 'event-delegate', 'event-outside', 'event-custom'], skinnable:true});
+}, '@VERSION@' ,{requires:['base-build', 'widget-base', 'node-base', 'cssbutton', 'event-base', 'node-event-delegate', 'event-outside'], skinnable:true});
