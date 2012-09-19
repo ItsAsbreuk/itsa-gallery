@@ -80,6 +80,7 @@ var Lang = Y.Lang,
  * Used internally to check if the toolbar should still be rendered after the editor is rendered<br>
  * To prevent rendering while it is already unplugged
  * @property _destroyed
+ * @private
  * @type Boolean
  */
 
@@ -422,7 +423,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         /**
          * Creates a new Button on the Toolbar. By default at the end of the toolbar.
          * @method addButton
-         * @param {String} iconClass Defines the icon's look. Refer to the general moduledescription for a list with available classes.
+         * @param {String} iconClass Defines the icon's look. Refer to the static Properties for some predefined classes like ICON_BOLD.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, or you want a custom Function to be executed, you must supply an object:<br>
          * <i>- [command]</i> (String): the execcommand<br>
@@ -461,7 +462,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * A syncButton is just like a normal toolbarButton, with the exception that the editor can sync it's status, which cannot be done with a normal button. 
          * Typically used in situations like a hyperlinkbutton: it never stays pressed, but when the cursos is on a hyperlink, he buttons look will change.
          * @method addSyncButton
-         * @param {String} iconClass Defines the icon's look. Refer static Properties for some predefined classes like ICON_BOLD.
+         * @param {String} iconClass Defines the icon's look. Refer to the static Properties for some predefined classes like ICON_BOLD.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, you must supply an object with two fields:<br>
          * <i>- command</i> (String): the execcommand<br>
@@ -486,7 +487,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         /**
          * Creates a new toggleButton on the Toolbar. By default at the end of the toolbar.
          * @method addToggleButton
-         * @param {String} iconClass Defines the icon's look. Refer static Properties for some predefined classes like ICON_BOLD.
+         * @param {String} iconClass Defines the icon's look. Refer to the static Properties for some predefined classes like ICON_BOLD.
          * @param {String | Object} execCommand ExecCommand that will be executed on buttonclick.<br>
          * when execCommand consists of a command and a value, you must supply an object with two fields:<br>
          * <i>- command</i> (String): the execcommand<br>
@@ -511,7 +512,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * Position is by default at the end of the toolbar.<br>
          * @method addButtongroup
          * @param {Array} buttons Should consist of objects with two fields:<br>
-         * <i>- iconClass</i> (String): defines the icon's look. Refer static Properties for some predefined classes like ICON_BOLD.
+         * <i>- iconClass</i> (String): defines the icon's look. Refer to the static Properties for some predefined classes like ICON_BOLD.
          * <i>- command</i> (String): the execcommand that will be executed on buttonclick
          * <i>- [value]</i> (String) optional: additional value for the execcommand
          * <i>- syncFunc</i> (Function): callback-function that will be called after a statusChange, when the users manupilates the text, or the cursor is moved (for more info on the sync-function, see addToggleButton)
@@ -1569,8 +1570,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             },
 
             /**
-             * @description The fontfamilies that can be selected<br>
-             * Should be a value from 1-9<br>
+             * @description The fontfamilies that can be selected.<br>
+             * Be aware to supply fontFamilies that are supported by the browser.<br>
+             * Typically usage is the standard families extended by some custom fonts.<br>
              * @attribute fontFamilies
              * @type Array [String]
             */
