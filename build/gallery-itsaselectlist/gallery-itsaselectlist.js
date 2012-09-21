@@ -176,7 +176,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                     if (item.returnValue) {newNode.setData('returnValue', item.returnValue);}
                     ullist.append(newNode);
                 }
-                instance._selectedMainItemNode.setHTML(defaultItemFound ? defaultItem : instance.get('defaultButtonText'));
+                instance._selectedMainItemNode.setHTML((instance.get('selectionOnButton') && defaultItemFound) ? defaultItem : instance.get('defaultButtonText'));
             }
             instance._syncWithinSetterItems = true;
         },
@@ -221,7 +221,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                     // no hit: return to default without selection in case of softMatch
                     if (softMatch) {
                         nodelist.removeClass(instance._selectedItemClass);
-                        instance._selectedMainItemNode.setHTML(softButtonText ? softButtonText : instance.get('defaultButtonText'));
+                        if (instance.get('selectionOnButton')) {instance._selectedMainItemNode.setHTML(softButtonText ? softButtonText : instance.get('defaultButtonText'));}
                     }
                 }
             }
@@ -273,7 +273,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                 if (previousNode) {previousNode.removeClass(instance._selectedItemClass);}
                 node.addClass(instance._selectedItemClass);
                 nodeHTML = node.getHTML();
-                instance._selectedMainItemNode.setHTML(nodeHTML);
+                if (instance.get('selectionOnButton')) {instance._selectedMainItemNode.setHTML(nodeHTML);}
                 /**
                  * In case of a valuechange, valueChange will be fired. 
                  * No matter whether the change is done by userinteraction, or by a functioncall like selectItem()
@@ -519,6 +519,21 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                 value: null,
                 validator: function(val) {
                     return Y.Lang.isString(val);
+                }
+            },
+
+            /**
+             * @description Whether the selection should be displayed on the button.<br>
+             * This is normal behaviour. Although in some cases you might not want this. For example when simulating a menubutton with static text and a dropdown with subbuttons<br>
+             * Default = true<br>
+             * When set to false, the buttontext will always remains the Attribute: <b>defaultButtonText</b>
+             * @attribute selectionOnButton
+             * @type Boolean
+            */
+            selectionOnButton : {
+                value: true,
+                validator: function(val) {
+                    return Y.Lang.isBoolean(val);
                 }
             },
 
