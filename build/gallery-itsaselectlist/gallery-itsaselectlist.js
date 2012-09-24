@@ -283,7 +283,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                  * <i>- e.value: returnvalue of the selected item<br>
                  * <i>- e.index: index of the selected item</i>
                 */                
-                instance.fire('valueChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});
+                instance.fire('valueChange', {currentTarget: node, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});
                 /**
                  * In case of a valuechange <u>triggered by userinteraction</u>, selectChange will be fired. 
                  * This way you can use functioncalls like selectItem() and prevent double programmaction (which might occur when you listen to the valueChange event)
@@ -293,28 +293,46 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                  * <i>- e.value: returnvalue of the selected item<br>
                  * <i>- e.index: index of the selected item</i>
                 */                
-                if (userInteraction) {instance.fire('selectChange', {currentTarget: instance, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});}
+                if (userInteraction) {instance.fire('selectChange', {currentTarget: node, value: node.getData('returnValue') || nodeHTML, index: instance._indexOf(node)});}
             }
         },
 
         /**
          * Will hide the listitems.
+         * Will also fire a <b>hide event</b>.<br>
          * @method hideListbox
          *
         */
         hideListbox : function() {
             var instance = this;
-            if (!instance.get('disabled')) {instance._itemsContainerNode.toggleClass(ITSA_CLASSHIDDEN, true);}
+            if (!instance.get('disabled')) {
+                /**
+                 * In case the listbox is opened, hide-event will be fired. 
+                 * @event shide
+                 * @param {EventFacade} e Event object<br>
+                */                
+                instance.fire('hide');
+                instance._itemsContainerNode.toggleClass(ITSA_CLASSHIDDEN, true);
+            }
         },
 
         /**
          * Will show the listitems.
+         * Will also fire a <b>show event</b>.<br>
          * @method showListbox
          *
         */
         showListbox : function() {
             var instance = this;
-            if (!instance.get('disabled')) {instance._itemsContainerNode.toggleClass(ITSA_CLASSHIDDEN, false);}
+            if (!instance.get('disabled')) {
+                /**
+                 * In case the listbox is opened, show-event will be fired. 
+                 * @event show
+                 * @param {EventFacade} e Event object<br>
+                */                
+                instance.fire('show');
+                instance._itemsContainerNode.toggleClass(ITSA_CLASSHIDDEN, false);
+            }
         },
 
         /**
@@ -326,7 +344,8 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
         */
         _toggleListbox : function() {
             var instance = this;
-            if (!instance.get('disabled')) {instance._itemsContainerNode.toggleClass(ITSA_CLASSHIDDEN);}
+            if (instance._itemsContainerNode.hasClass(ITSA_CLASSHIDDEN)) {instance.showListbox();}
+            else {instance.hideListbox();}
         },
 
         /**
