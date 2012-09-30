@@ -315,7 +315,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
             if (!instance.get('disabled')) {
                 /**
                  * In case the listbox is opened, hide-event will be fired. 
-                 * @event shide
+                 * @event hide
                  * @param {EventFacade} e Event object<br>
                 */                
                 instance.fire('hide');
