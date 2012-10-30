@@ -10,6 +10,7 @@
 /**
  *
  * @class ITSASelectlist
+ * @extends Widget
  * @constructor
  *
  * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
