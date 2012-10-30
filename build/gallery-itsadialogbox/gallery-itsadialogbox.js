@@ -12,7 +12,7 @@ YUI.add('gallery-itsadialogbox', function(Y) {
  * Dialogbox with sugar messages
  * 
  *
- * @class ITSADIALOGBOX
+ * @class ITSADialogbox
  * @extends Panel
  * @constructor
  *
@@ -131,13 +131,12 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
  */
 
         /**
-         * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
-         *
          * @method initializer
          * @protected
         */
         initializer : function() {
             var instance = this;
+            instance.get('boundingBox').addClass('yui3-skin-sam');
             instance.get('contentBox').plug(Y.Plugin.NodeFocusManager, {
                 descendants: 'button, input, textarea',
                 circular: true,
@@ -164,7 +163,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             You can use 4 actionfunctions to attach at the button: Y.Global.ItsaDialog.ACTION_HIDE, Y.Global.ItsaDialog.ACTION_STAYALIVE, Y.Global.ItsaDialog.ACTION_RESET and Y.Global.ItsaDialog.ACTION_CLEAR
          * @method definePanel
          * @param {Object} panelOptions The config-object.
-         * @returns {Integer} unique panelId
+         * @return {Integer} unique panelId
         */
         definePanel: function(panelOptions) {
             var instance = this;
@@ -1049,6 +1048,25 @@ if (!Y.Global.ItsaDialog) {
 //=================================================================================
 
 // Y.ITSAFORMELEMENT should get an own module. For the short time being, we will keep it inside itsa-dialog
+
+/**
+ * The Itsa Dialogbox module.
+ *
+ * @module itsa-dialogbox
+ */
+
+/**
+ * Dialogbox with sugar messages
+ * 
+ *
+ * @class ITSAFormelement
+ * @extends Panel
+ * @constructor
+ *
+ * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
+ * YUI BSD License - http://developer.yahoo.com/yui/license.html
+ *
+*/
 
 var ITSAFORM_TABLETEMPLATE = '<td class="itsaform-tablelabel{classnamelabel}"{marginstyle}>{label}</td>'
                             +'<td class="itsaform-tableelement">{element}<div class="itsa-formelement-validationmessage itsa-formelement-hidden">{validationMessage}</div></td>',
