@@ -231,7 +231,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
          * Shows a Panel with the buttons: <b>Abort Ignore Retry</b><br>
          * Look for <i>e.buttonName</i> to determine which button is pressed.
          * @method getRetryConfirmation
-         * @param {String} title showed in the header of the Panel.
+         * @param {String} [title] showed in the header of the Panel.
          * @param {String} question showed inside the Panel.
          * @param {Function} [callback] callbackfunction to be excecuted.
          * @param {Object} [context] (this) in the callback.
@@ -246,11 +246,11 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
          * Shows a Panel with the buttons: <b>No Yes</b><br>
          * Look for <i>e.buttonName</i> to determine which button is pressed.
          * @method getConfirmation
-         * @param {String} title showed in the header of the Panel.
+         * @param {String} [title] showed in the header of the Panel.
          * @param {String} question showed inside the Panel.
-         * @param {Function} callback callbackfunction to be excecuted.
-         * @param {Object} context (this) in the callback.
-         * @param {String | Array} args Arguments for the callback.
+         * @param {Function} [callback] callbackfunction to be excecuted.
+         * @param {Object} [context] (this) in the callback.
+         * @param {String | Array} [args] Arguments for the callback.
         */
         getConfirmation: function(title, question, callback, context, args) {
             Y.log('getConfirmation', 'info', 'ITSADIALOGBOX');
@@ -260,7 +260,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Shows a Panel with an inputfield and the buttons: <b>Cancel Ok</b><br>
          * @method getInput
-         * @param {String} title showed in the header of the Panel.
+         * @param {String} [title] showed in the header of the Panel.
          * @param {String} message showed inside the Panel.
          * @param {String} [defaultmessage] showed inside the form-input.
          * @param {Function} [callback] callbackfunction to be excecuted.
@@ -294,7 +294,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
          * Look for <i>e.buttonName</i> to determine which button is pressed.<br>
          * Look for <i>e.value</i> to determine the userinput.
          * @method getNumber
-         * @param {String} title showed in the header of the Panel.
+         * @param {String} [title] showed in the header of the Panel.
          * @param {String} message showed inside the Panel.
          * @param {Integer} [defaultvalue] showed inside the form-input.
          * @param {Integer} [minvalue] used for validation.
@@ -462,7 +462,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Shows an ErrorMessage (Panel)
          * @method showErrorMessage
-         * @param {String} title showed in the header of the Panel.
+         * @param {String} [title] showed in the header of the Panel.
          * @param {String} errormessage showed inside the Panel.
          * @param {Function} [callback] callbackfunction to be excecuted.
          * @param {Object} [context] (this) in the callback.
@@ -476,7 +476,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Shows a Message (Panel)
          * @method showMessage
-         * @param {String} title showed in the header of the Panel.
+         * @param {String} [title] showed in the header of the Panel.
          * @param {String} errormessage showed inside the Panel.
          * @param {Function} [callback] callbackfunction to be excecuted.
          * @param {Object} [context] (this) in the callback.
@@ -492,8 +492,8 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Shows an Warning (Panel)
          * @method showWarning
-         * @param {String} title showed in the header of the Panel.
-         * @param {String} errormessage showed inside the Panel.
+         * @param {String} [title] showed in the header of the Panel.
+         * @param {String} warning showed inside the Panel.
          * @param {Function} [callback] callbackfunction to be excecuted.
          * @param {Object} [context] (this) in the callback.
          * @param {String | Array} [args] Arguments for the callback.
