@@ -88,6 +88,12 @@
 }
 
 .yui3-skin-sam .yui3-panel.yui3-itsadialogbox .yui3-widget-bd {
+    text-align: center;
+    padding: 30px 12px 0px;
+    min-height:48px;
+}
+
+.yui3-skin-sam .yui3-panel.yui3-itsadialogbox.withicon .yui3-widget-bd {
     text-align: left;
     padding: 12px 12px 27px;
     min-height:48px;
