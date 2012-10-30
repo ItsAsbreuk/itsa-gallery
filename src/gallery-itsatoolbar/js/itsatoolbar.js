@@ -11,6 +11,7 @@
  * 
  *
  * @class Plugin.ITSAToolbar
+ * @extends Plugin.Base
  * @constructor
  *
  * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>

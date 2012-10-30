@@ -13,7 +13,7 @@
 
 .itsa-button-icon {
     display: inline-block;
-    height: 21px;
+    height: 19px;
     vertical-align: middle;
     width: 20px;
     background-repeat: no-repeat;
@@ -22,6 +22,10 @@
 
 .itsatoolbar.itsatoolbar-editorpart {
     padding: 4px 0px;
+}
+
+.itsatoolbar.itsa-buttonsize-medium.itsatoolbar-editorpart {
+    padding: 4px 0px 3px;
 }
 
 .itsatoolbar-colors .itsa-selectlist-selectedmain div {
@@ -112,6 +116,10 @@
     height: 22px;
 }
 
+.itsatoolbar.itsa-buttonsize-medium .itsa-button-icon {
+    height: 21px;
+}
+
 .itsatoolbar.itsa-buttonsize-small {
     padding: 4px 0px 0px;
 }
@@ -159,105 +167,105 @@
 }
 
 .itsa-icon-aligncenter {
-    background-position: 1px -359px;
+    background-position: 1px -360px;
 }
 
 .itsa-icon-alignjustify {
-    background-position: 1px -431px;
+    background-position: 1px -432px;
 }
 
 .itsa-icon-alignleft {
-    background-position: 1px -323px;
+    background-position: 1px -324px;
 }
 
 .itsa-icon-alignright {
-    background-position: 1px -395px;
+    background-position: 1px -396px;
 }
 
 .itsa-icon-bold {
-    background-position: 1px 1px;
+    background-position: 1px 0px;
 }
 
 .itsa-icon-calendar {
-    background-position: 2px -1773px;
+    background-position: 2px -1774px;
 }
 
 .itsa-icon-close {
-    background-position: 3px -1695px;
+    background-position: 3px -1696px;
 }
 
 .itsa-icon-email {
-    background-position: 2px -1416px;
+    background-position: 2px -1417px;
 }
 
 .itsa-icon-file {
-    background-position: 3px -1655px;
+    background-position: 3px -1656px;
 }
 
 .itsa-icon-hyperlink {
-    background-position: 1px -792px;
+    background-position: 1px -793px;
 }
 
 .itsa-icon-image {
-    background-position: 1px -1375px;
+    background-position: 1px -1376px;
 }
 
 .itsa-icon-indent {
-    background-position: 1px -719px;
+    background-position: 1px -720px;
 }
 
 .itsa-icon-italic {
-    background-position: 1px -35px;
+    background-position: 1px -36px;
 }
 
 .itsa-icon-markcolor {
-    background-position: 1px -288px;
+    background-position: 2px -288px;
     width: 16px;
     margin-right: 4px;
 }
 
 .itsa-icon-orderedlist {
-    background-position: 1px -503px;
+    background-position: 1px -504px;
 }
 
 .itsa-icon-outdent {
-    background-position: 1px -683px;
+    background-position: 1px -684px;
 }
 
 .itsa-icon-redo {
-    background-position: 2px -1936px;
+    background-position: 2px -1937px;
 }
 
 .itsa-icon-strikethrough {
-    background-position: 1px -107px;
+    background-position: 1px -108px;
 }
 
 .itsa-icon-subscript {
-    background-position: 1px -180px;
+    background-position: 1px -181px;
 }
 
 .itsa-icon-superscript {
-    background-position: 1px -143px;
+    background-position: 1px -144px;
 }
 
 .itsa-icon-textcolor {
-    background-position: 1px -215px;
+    background-position: 2px -216px;
     width: 16px;
     margin-right: 4px;
 }
 
 .itsa-icon-underline {
-    background-position: 1px -71px;
+    background-position: 1px -72px;
 }
 
 .itsa-icon-undo {
-    background-position: 2px -1976px;
+    background-position: 2px -1977px;
 }
 
 .itsa-icon-unorderedlist {
-    background-position: 1px -467px;
+    background-position: 1px -468px;
 }
 
 .itsa-icon-video {
-    background-position: 3px -1336px;
+    background-position: 3px -1337px;
 }
