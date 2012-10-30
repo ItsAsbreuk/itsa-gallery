@@ -135,7 +135,6 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         initializer : function() {
             Y.log('initializer', 'info', 'ITSADIALOGBOX');
             var instance = this;
-            instance.get('boundingBox').addClass('yui3-skin-sam');
             instance.get('contentBox').plug(Y.Plugin.NodeFocusManager, {
                 descendants: 'button, input, textarea',
                 circular: true,
@@ -199,6 +198,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             if ((panelId>=0) && (panelId<instance.panelOptions.length)) {
                 instance._activePanelOption = instance.panelOptions[panelId];
                 iconClass = customIconclass || instance._activePanelOption.iconClass;
+                instance.get('boundingBox').toggleClass('withicon', Lang.isString(iconClass));
                 // in case no title is given, the third argument will be the callback
                 if (!Lang.isString(bodyText)) {
                     args = context;
@@ -259,7 +259,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Shows a Panel with an inputfield and the buttons: <b>Cancel Ok</b><br>
          * @method getInput
-         * @param {String} [title] showed in the header of the Panel.
+         * @param {String} title showed in the header of the Panel.
          * @param {String} message showed inside the Panel.
          * @param {String} [defaultmessage] showed inside the form-input.
          * @param {Function} [callback] callbackfunction to be excecuted.
@@ -293,7 +293,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
          * Look for <i>e.buttonName</i> to determine which button is pressed.<br>
          * Look for <i>e.value</i> to determine the userinput.
          * @method getNumber
-         * @param {String} [title] showed in the header of the Panel.
+         * @param {String} title showed in the header of the Panel.
          * @param {String} message showed inside the Panel.
          * @param {Integer} [defaultvalue] showed inside the form-input.
          * @param {Integer} [minvalue] used for validation.
@@ -330,7 +330,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             instance.inputElement = new Y.ITSAFORMELEMENT({
                 name: 'value',
                 type: 'input',
-                value: defaultvalue.toString(),
+                value: defaultvalue ? defaultvalue.toString() : '',
                 label: message,
                 keyValidation: function(e) {
                     Y.log('keyValidation keyCode: ' +e.keyCode + ', charCode: ' + e.charCode + ', character: '+String.fromCharCode(e.keyCode), 'info', 'ITSADIALOGBOX');
