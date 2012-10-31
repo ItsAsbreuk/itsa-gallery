@@ -418,6 +418,10 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                         newValue = parseInt(value, 10);
                     formelement.set('value', newValue.toString());
                     if ((Lang.isNumber(minvalue) && (newValue<minvalue)) || (Lang.isNumber(maxvalue) && (newValue>maxvalue))) {
+                        if (newValue<minvalue) {
+                        }
+                        if (newValue>maxvalue) {
+                        }
                         if (e.showValidation) {e.showValidation();}
                         if (e.activatePanel) {e.activatePanel();}
                         return false;
@@ -745,7 +749,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     autoCorrection = instance.inputElement && instance.inputElement.get('autoCorrection');
                     autoCorrectResult = true;
                     if (autoCorrection) {
-                        autoCorrectResult = Y.bind(autoCorrection, instance.inputElement, eventArgs.minValue, eventArgs.maxValue)();
+                        autoCorrectResult = Y.bind(autoCorrection, instance.inputElement, eventArgs)();
                         if (!autoCorrectResult) {
                             eventArgs.showValidation();
                             instance.deactivatePanel();
