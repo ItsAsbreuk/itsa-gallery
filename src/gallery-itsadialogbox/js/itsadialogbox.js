@@ -420,8 +420,11 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                         Y.log('Autocorrection: removing leading zero', 'info', 'ITSADIALOGBOX');
                         node.set('value', '');
                     }
-                    if (reactivation && e.hideValidation) {e.hideValidation();}
-                    if (reactivation && e.activatePanel) {e.activatePanel();}
+                    // only reactivate when the key is not a key that leaves the element
+                    if ((keycode!==9) && (keycode!==13)) {
+                        if (reactivation && e.hideValidation) {e.hideValidation();}
+                        if (reactivation && e.activatePanel) {e.activatePanel();}
+                    }
                     return true;
                 },
                 autoCorrection: function(e) {
@@ -631,10 +634,12 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                         nextDescendant = e.newVal,
                         defaultButton,
                         isButton,
-                        allDescendants = contentBox.focusManager.get('descendants');
+                        allDescendants = contentBox.focusManager.get('descendants'),
+                        sameDescendant;
                     instance._descendantChange++;
                     if (Lang.isNumber(previousDescendant) && (previousDescendant>=0)) {previousDescendant = allDescendants.item(e.prevVal);}
                     if (Lang.isNumber(nextDescendant)) {nextDescendant = allDescendants.item(e.newVal);}
+                    sameDescendant = nextDescendant.compareTo(previousDescendant);
                     Y.log('new element focussed: '+nextDescendant, 'info', 'ITSADIALOGBOX');
                     defaultButton = contentBox.one('.yui3-button-primary');
                     isButton = (nextDescendant.get('tagName')==='BUTTON');
@@ -648,9 +653,12 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     }
                     // now: by first time showing the Panel, the focusManager activeDescendent will be called three times, before steady state in case of an element that gets focused.
                     // To make the content be selected again (if requested) look at the value of instance._descendant
-                    if ((!nextDescendant.compareTo(previousDescendant) || (instance._descendantChange<4)) && nextDescendant.hasClass('itsa-formelement-selectall')) {
+                    if ((!sameDescendant || (instance._descendantChange<4)) && nextDescendant.hasClass('itsa-formelement-selectall')) {
                         Y.log('new element full selected', 'info', 'ITSADIALOGBOX');
                         nextDescendant.select();
+                    }
+                    if (!sameDescendant) {
+                        instance._validate(isButton, nextDescendant);
                     }
                 },
                 instance,
@@ -671,13 +679,6 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             instance._inputListener = contentBox.delegate(
                 'keydown',
                 instance._checkInput,
-                'input',
-                instance
-            );
-            // reset posible validationmessages
-            instance._blurInputListener = contentBox.delegate(
-                'blur',
-                instance._checkInputBlur,
                 'input',
                 instance
             );
@@ -802,25 +803,25 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         /**
-         * Internal function that is called when an input-elements gets blurred.<br>
+         * Internal function that is called when an descendant changes. To validate inputelements (if present)<br>
          * If the element has autocorrection, autocorrect-function is called.<br>If this returns false, then all buttons with button.validation=true get disabled, if returns true, all these buttons get enabled.
-         * @method _checkInputBlur
+         * @method _validate
          * @private
         */
-        _checkInputBlur: function() {
-            Y.log('_checkInputBlur', 'info', 'ITSADIALOGBOX');
+        _validate: function(isButton, node) {
+            Y.log('_validate', 'info', 'ITSADIALOGBOX');
             var instance = this,
                 eventArgs = instance._activePanelOption.eventArgs,
+                buttonValidation = isButton && node.hasClass('itsadialogbox-button-validated'),
                 autoCorrection = instance.inputElement && instance.inputElement.get('autoCorrection'),
                 autoCorrectResult = true;
-            if (autoCorrection) {
+            if (autoCorrection && buttonValidation) {
                 autoCorrectResult = Y.bind(autoCorrection, instance.inputElement, eventArgs)();
                 if (!autoCorrectResult) {
                     if (eventArgs && eventArgs.showValidation) {
                         eventArgs.showValidation();
                     }
                     instance.deactivatePanel();
-                    instance.get('contentBox').focusManager.focus(instance._getFirstFocusNode());
                 }
             }
             if (autoCorrectResult) {
@@ -863,7 +864,6 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             if (instance._headerMousedownListener) {instance._headerMousedownListener.detach();}
             if (instance._headerMouseupListener) {instance._headerMouseupListener.detach();}
             if (instance._inputListener) {instance._inputListener.detach();}
-            if (instance._blurInputListener) {instance._blurInputListener.detach();}
             if (instance._checkBoxListener) {instance._checkBoxListener.detach();}
             if (instance._buttonsListener) {instance._buttonsListener.detach();}
         },
