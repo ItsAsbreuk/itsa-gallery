@@ -2,6 +2,10 @@ YUI.add('gallery-itsadialogbox', function(Y) {
 
 'use strict';
 
+// TO DO:
+// wait for show until the widget is rendered
+// When form is disabled, the cancelbutton doesn only close when pressed twice
+
 /**
  * The Itsa Dialogbox module.
  *
@@ -1065,10 +1069,15 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             Y.log('_serializeForm', 'info', 'ITSADIALOGBOX');
             var instance = this,
                 formelements = masterNode.all('.itsa-formelement'),
+                value,
+                intValue,
                 serialdata = {};
             formelements.each(
                 function(formelementNode, index, nodeList) {
-                    serialdata[formelementNode.get('name')] = formelementNode.get('value');
+                    value = formelementNode.get('value');
+                    intValue = parseInt(value, 10);
+                    // now check with DOUBLE == (not threedouble) to see if value == intValue --> in that case we have an integer
+                    serialdata[formelementNode.get('name')] = (value==intValue) ? intValue : value;
                 }
             );
             return serialdata;
