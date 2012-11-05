@@ -120,18 +120,21 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
  * Internal reference to the active panelOptions (which is active after showPanel() is called
  * @property _activePanelOption
  * @type Object
+ * @private
  */
 
 /**
  * Nodelist that contains all current (from _activePanelOption) buttons that have button.validated set to true.
  * @property _validationButtons
  * @type Y.NodeList
+ * @private
  */
 
 /**
  * Internal count that keeps track of how many times a descendentChange has been taken place by the focusManager
  * @property _descendantChange
  * @type Int
+ * @private
  */
 
         /**
@@ -151,15 +154,15 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Defines a new Panel and stores it to the panelOptions-Array. Returns an panelId that can be used sot show the Panel later on using showPanel(panelId).<br>
          * PanelOptions is an object that can have the following fields:<br>
-           <ul><li>iconClass (String) className for the icon, for example Y.Global.ItsaDialog.ICON_QUESTION</li>
+           <ul><li>iconClass (String) className for the icon, for example Y.Global.ItsaDialog.ICON\_QUESTION</li>
                <li>form (Array) Array with objects that will be transformed to Y.FORMELEMENT objects (not currently available)</li>
                <li>buttons (Object) Which buttons to use. For example:
                <br>&nbsp;&nbsp;{
                     <br>&nbsp;&nbsp;&nbsp;&nbsp;footer: [
-                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'cancel', label:'Cancel', action: Y.Global.ItsaDialog.ACTION_HIDE},
-                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'ok', label:'Ok', action: Y.Global.ItsaDialog.ACTION_HIDE, validation: true, isDefault: true}    
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'cancel', label:'Cancel', action: Y.Global.ItsaDialog.ACTION\_HIDE},
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'ok', label:'Ok', action: Y.Global.ItsaDialog.ACTION\_HIDE, validation: true, isDefault: true}    
                     <br>&nbsp;&nbsp;&nbsp;&nbsp;]
-               &nbsp;&nbsp;}
+               <br>&nbsp;&nbsp;}
                </li>    
             </ul>    
             <br><br>
@@ -805,7 +808,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         /**
-         * Enables all buttons with button.validation=true
+         * Enables the Panel in such a way that Buttons with validation are functional
          * @method activatePanel
         */
         activatePanel: function() {
@@ -813,7 +816,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         /**
-         * Disnables all buttons with button.validation=true
+         * Deactivates the Panel in such a way that it only responses to Buttons with no validation
          * @method deactivatePanel
         */
         deactivatePanel: function() {
