@@ -157,3 +157,11 @@
 .itsadialogbox-icon.icon-success {
     background-position: 0px 0px;
 }
+
+.yui3-itsadialogbox table {
+    width: 100%;
+}
+
+.itsaform-tablelabel {
+    width: 10px;
+}

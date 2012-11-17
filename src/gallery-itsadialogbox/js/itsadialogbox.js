@@ -1,9 +1,5 @@
 'use strict';
 
-// TO DO:
-// wait for show until the widget is rendered
-// When form is disabled, the cancelbutton doesn only close when pressed twice
-
 /**
  * The Itsa Dialogbox module.
  *
@@ -118,21 +114,18 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
  * Internal reference to the active panelOptions (which is active after showPanel() is called
  * @property _activePanelOption
  * @type Object
- * @private
  */
 
 /**
  * Nodelist that contains all current (from _activePanelOption) buttons that have button.validated set to true.
  * @property _validationButtons
  * @type Y.NodeList
- * @private
  */
 
 /**
  * Internal count that keeps track of how many times a descendentChange has been taken place by the focusManager
  * @property _descendantChange
  * @type Int
- * @private
  */
 
         /**
@@ -153,15 +146,15 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Defines a new Panel and stores it to the panelOptions-Array. Returns an panelId that can be used sot show the Panel later on using showPanel(panelId).<br>
          * PanelOptions is an object that can have the following fields:<br>
-           <ul><li>iconClass (String) className for the icon, for example Y.Global.ItsaDialog.ICON\_QUESTION</li>
+           <ul><li>iconClass (String) className for the icon, for example Y.Global.ItsaDialog.ICON_QUESTION</li>
                <li>form (Array) Array with objects that will be transformed to Y.FORMELEMENT objects (not currently available)</li>
                <li>buttons (Object) Which buttons to use. For example:
                <br>&nbsp;&nbsp;{
                     <br>&nbsp;&nbsp;&nbsp;&nbsp;footer: [
-                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'cancel', label:'Cancel', action: Y.Global.ItsaDialog.ACTION\_HIDE},
-                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'ok', label:'Ok', action: Y.Global.ItsaDialog.ACTION\_HIDE, validation: true, isDefault: true}    
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'cancel', label:'Cancel', action: Y.Global.ItsaDialog.ACTION_HIDE},
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'ok', label:'Ok', action: Y.Global.ItsaDialog.ACTION_HIDE, validation: true, isDefault: true}    
                     <br>&nbsp;&nbsp;&nbsp;&nbsp;]
-               <br>&nbsp;&nbsp;}
+               &nbsp;&nbsp;}
                </li>    
             </ul>    
             <br><br>
@@ -293,6 +286,60 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 selectOnFocus: true
             });
             instance.showPanel(2, title, message + '<br>' + instance.inputElement.render(), callback, context, args, customButtons, customIconclass);
+        },
+
+        /**
+         * Shows a login-Panel with an username/password fields and the buttons: <b>Cancel Ok</b><br>
+         * @method getLogin
+         * @param {String} title showed in the header of the Panel.
+         * @param {String} message showed inside the Panel.
+         * @param {Object} [logindata] this data will be used to present the formfields and defaultinput-values.
+         * @param {Function} [callback] callbackfunction to be excecuted.
+         * @param {Object} [context] (this) in the callback.
+         * @param {String | Array} [args] Arguments for the callback.
+         * @param {Object} [customButtons] In case you want buttons other that Cancel/Ok.
+         * @param {String} [customIconclass] In case you want an Icon other that ICON_QUESTION.
+         * @return {String} passed by the eventTarget in the callback<br>
+         * Look for <i>e.buttonName</i> to determine which button is pressed.<br>
+         * Look for <i>e.value</i> to determine the userinput.
+        */
+        getLogin: function(title, message, logindata, callback, context, args, customButtons, customIconclass) {
+            Y.log('getInput', 'info', 'ITSADIALOGBOX');
+            var instance = this,
+                bodyMessage,
+                logintable,
+                inputElementUsername,
+                inputElementPassword;
+            logindata = {
+                usernameLabel: 'username',
+                passwordLabel: 'password',
+                defaultUsername: 'enter username'
+            };                
+            instance.inputElementUsername = new Y.ITSAFORMELEMENT({
+                label: logindata.usernameLabel,
+                name: 'username',
+                type: 'input',
+                value: logindata.defaultUsername,
+                classNameValue: 'yui3-itsadialogbox-stringinput itsa-formelement-firstelement',
+                marginTop: 24,
+                initialFocus: true,
+                selectOnFocus: true
+            });
+            instance.inputElementPassword = new Y.ITSAFORMELEMENT({
+                label: logindata.passwordLabel,
+                name: 'password',
+                type: 'password',
+                value: '',
+                classNameValue: 'yui3-itsadialogbox-stringinput itsa-formelement-lastelement',
+                marginTop: 7,
+                initialFocus: false,
+                selectOnFocus: true
+            });
+            logintable = '<table><tbody>';
+            logintable += '<tr>'+instance.inputElementUsername.render(true)+'</tr>';
+            logintable += '<tr>'+instance.inputElementPassword.render(true)+'</tr>';
+            logintable += '</tbody></table>';
+            instance.showPanel(7, title, message + '<br>' + logintable, callback, context, args, customButtons, customIconclass);
         },
 
         /**
@@ -444,12 +491,6 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     Y.log('autoCorrection previous: '+previousValue+', final: '+newValue, 'info', 'ITSADIALOGBOX');
                     formelement.set('value', newValue.toString());
                     if ((Lang.isNumber(minvalue) && (newValue<minvalue)) || (Lang.isNumber(maxvalue) && (newValue>maxvalue))) {
-                        if (newValue<minvalue) {
-                            Y.log('autoCorrections validation failed: newValue<minvalue ('+newValue+'<'+minvalue+')', 'info', 'ITSADIALOGBOX');
-                        }
-                        if (newValue>maxvalue) {
-                            Y.log('autoCorrections validation failed: newValue<minvalue ('+newValue+'<'+maxvalue+')', 'info', 'ITSADIALOGBOX');
-                        }
                         if (e.showValidation) {e.showValidation();}
                         if (e.activatePanel) {e.activatePanel();}
                         return false;
@@ -846,7 +887,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         /**
-         * Enables the Panel in such a way that Buttons with validation are functional
+         * Enables all buttons with button.validation=true
          * @method activatePanel
         */
         activatePanel: function() {
@@ -855,7 +896,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         /**
-         * Deactivates the Panel in such a way that it only responses to Buttons with no validation
+         * Disnables all buttons with button.validation=true
          * @method deactivatePanel
         */
         deactivatePanel: function() {
@@ -1026,6 +1067,20 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     ]
                 }    
             });
+
+            // creating loginPanel (id=7)
+            instance.definePanel({
+                iconClass: instance.ICON_QUESTION,
+                form: [
+                    {name:'username', label:'{username}', value:'{username}'},
+                    {name:'password', label:'{password}', value:'{password}'}
+                ],
+                buttons: {
+                    footer: [
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}    
+                    ]
+                }    
+            });
         },
 
         /**
@@ -1078,7 +1133,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     value = formelementNode.get('value');
                     intValue = parseInt(value, 10);
                     // now check with DOUBLE == (not threedouble) to see if value == intValue --> in that case we have an integer
-                    serialdata[formelementNode.get('name')] = (value==intValue) ? intValue : value;
+                    serialdata[formelementNode.get('name')] = (value===intValue.toString()) ? intValue : value;
                 }
             );
             return serialdata;
@@ -1108,6 +1163,27 @@ if (!Y.Global.ItsaDialog) {
     Y.Global.ItsaDialog.dd.addHandle('.yui3-widget-hd');
 }
 
+Y.ItsaDialogBox = Y.Global.ItsaDialog;
+
+if (!Y.alert) {
+    Y.alert = function(title, message, callback, context, args, customButtons, customIconclass) {
+        Y.Global.ItsaDialog.showMessage(title, message, callback, context, args, customButtons, customIconclass);
+    };
+}
+
+if (!Y.prompt) {
+    Y.prompt = function(title, message, defaultmessage, callback, context, args, customButtons, customIconclass) {
+        Y.Global.ItsaDialog.getInput(title, message, defaultmessage, callback, context, args, customButtons, customIconclass);
+    };
+}
+
+if (!Y.confirm) {
+    Y.confirm = function(title, question, callback, context, args) {
+        Y.Global.ItsaDialog.getConfirmation(title, question, callback, context, args);
+    };
+}
+
+
 //=================================================================================
 
 // Y.ITSAFORMELEMENT should get an own module. For the short time being, we will keep it inside itsa-dialog
@@ -1131,8 +1207,8 @@ if (!Y.Global.ItsaDialog) {
  *
 */
 
-var ITSAFORM_TABLETEMPLATE = '<td class="itsaform-tablelabel{classnamelabel}"{marginstyle}>{label}</td>'
-                            +'<td class="itsaform-tableelement">{element}<div class="itsa-formelement-validationmessage itsa-formelement-hidden">{validationMessage}</div></td>',
+var ITSAFORM_TABLETEMPLATE = '<td class="itsaform-tablelabel{classnamelabel}"{paddingstyle}>{label}</td>'
+                            +'<td class="itsaform-tableelement"{paddingstyle}>{element}<div class="itsa-formelement-validationmessage itsa-formelement-hidden">{validationMessage}</div></td>',
     ITSAFORM_INLINETEMPLATE = '<span class="itsaform-spanlabel{classnamelabel}"{marginstyle}>{label}</span>'
                             +'{element}<div class="itsa-formelement-validationmessage itsa-formelement-hidden">{validationMessage}</div>';
 
@@ -1161,7 +1237,8 @@ Y.ITSAFORMELEMENT = Y.Base.create('itsaformelement', Y.Base, [], {
         render : function(tableform) {
             var instance = this,
                 marginTop = instance.get('marginTop'),
-                marginStyle = marginTop ? ' style="margin-top:' + marginTop + 'px"' : '',
+                marginStyle = (marginTop && !tableform) ? ' style="margin-top:' + marginTop + 'px"' : '',
+                paddingStyle = marginTop ? ' style="padding-top:' + marginTop + 'px"' : '',
                 type = instance.get('type'),
                 classNameLabel = instance.get('classNameLabel'),
                 classNameValue = instance.get('classNameValue'),
@@ -1178,10 +1255,12 @@ Y.ITSAFORMELEMENT = Y.Base.create('itsaformelement', Y.Base, [], {
                 elementClass = ' class="itsa-formelement ' + classNameValue + initialFocusClass + selectOnFocusClass + keyValidationClass + validationClass + autoCorrectionClass+'"',
                 element = '';
             if (type==='input') {element = '<input id="' + instance.id + '" type="text" name="' + instance.get('name') + '" value="' + instance.get('value') + '"' + elementClass + marginStyle + ' />';}
+            if (type==='password') {element = '<input id="' + instance.id + '" type="password" name="' + instance.get('name') + '" value="' + instance.get('value') + '"' + elementClass + marginStyle + ' />';}
             return  Lang.sub(
                         tableform ? ITSAFORM_TABLETEMPLATE : ITSAFORM_INLINETEMPLATE,
                         {
                             marginstyle: marginStyle,
+                            paddingstyle: paddingStyle,
                             label: instance.get('label'),
                             element: element,
                             classnamelabel: classNameLabel,
