@@ -235,10 +235,12 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
          * @param {Function} [callback] callbackfunction to be excecuted.
          * @param {Object} [context] (this) in the callback.
          * @param {String | Array} [args] Arguments for the callback.
+         * @param {Object} [customButtons] In case you want buttons other that Cancel/Ok.
+         * @param {String} [customIconclass] In case you want an Icon other that ICON_QUESTION.
         */
-        getRetryConfirmation: function(title, question, callback, context, args) {
+        getRetryConfirmation: function(title, question, callback, context, args, customButtons, customIconclass) {
             Y.log('askQuestion', 'info', 'ITSADIALOGBOX');
-            this.showPanel(0, title, question, callback, context, args);
+            this.showPanel(0, title, question, callback, context, args, customButtons, customIconclass);
         },
 
         /**
@@ -250,10 +252,12 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
          * @param {Function} [callback] callbackfunction to be excecuted.
          * @param {Object} [context] (this) in the callback.
          * @param {String | Array} [args] Arguments for the callback.
+         * @param {Object} [customButtons] In case you want buttons other that Cancel/Ok.
+         * @param {String} [customIconclass] In case you want an Icon other that ICON_QUESTION.
         */
-        getConfirmation: function(title, question, callback, context, args) {
+        getConfirmation: function(title, question, callback, context, args, customButtons, customIconclass) {
             Y.log('getConfirmation', 'info', 'ITSADIALOGBOX');
-            this.showPanel(1, title, question, callback, context, args);
+            this.showPanel(1, title, question, callback, context, args, customButtons, customIconclass);
         },
 
         /**
@@ -649,7 +653,8 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             var instance = this,
                 contentBox = instance.get('contentBox'),
                 focusManager = contentBox.focusManager;
-            instance.constructor.superclass.focus.apply(instance, arguments);
+            // apply returns something, call just runs. First argument is 'this' in the function, next arguments are the arguments in targetfunction
+            instance.constructor.superclass.focus.call(instance);
             if (focusManager) {
                 focusManager.focus();
             }
@@ -1010,8 +1015,8 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 iconClass: instance.ICON_INFO,
                 buttons: {
                     footer: [
-                        {name:'no', label:'No', action:instance.ACTION_HIDE},
-                        {name:'yes', label:'Yes', action:instance.ACTION_HIDE, isDefault: true}    
+                        {name:'no', label:'No', action:instance.ACTION_HIDE, isDefault: true},
+                        {name:'yes', label:'Yes', action:instance.ACTION_HIDE}    
                     ]
                 }    
             });
@@ -1178,8 +1183,8 @@ if (!Y.prompt) {
 }
 
 if (!Y.confirm) {
-    Y.confirm = function(title, question, callback, context, args) {
-        Y.Global.ItsaDialog.getConfirmation(title, question, callback, context, args);
+    Y.confirm = function(title, question, callback, context, args, customButtons, customIconclass) {
+        Y.Global.ItsaDialog.getConfirmation(title, question, callback, context, args, customButtons, customIconclass);
     };
 }
 

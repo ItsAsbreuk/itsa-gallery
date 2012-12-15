@@ -89,7 +89,7 @@
 
 .yui3-skin-sam .yui3-panel.yui3-itsadialogbox .yui3-widget-bd {
     text-align: center;
-    padding: 30px 12px 0px;
+    padding: 30px 12px 12px;
     min-height:48px;
 }
 
@@ -127,7 +127,7 @@
     width: 44px;
     height: 44px;
     background-repeat: no-repeat;
-    background-image: url('itsadialog_buttonicons.png');
+    background-image: url('../assets/itsadialog_buttonicons.png');
     background-position: -999px 0px;
 }
 
@@ -164,4 +164,5 @@
 
 .itsaform-tablelabel {
     width: 10px;
+    padding-right: 8px;
 }
