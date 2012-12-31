@@ -1,0 +1,449 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', '-g', 'install', 'git' ]
+2 info using npm@1.1.69
+3 info using node@v0.8.16
+4 verbose read json /usr/local/lib/package.json
+5 verbose read json /usr/local/lib/package.json
+6 verbose cache add [ 'git', null ]
+7 silly cache add name=undefined spec="git" args=["git",null]
+8 verbose parsed url { pathname: 'git', path: 'git', href: 'git' }
+9 silly lockFile 46f1a0bd-git git
+10 verbose lock git /var/root/.npm/46f1a0bd-git.lock
+11 silly lockFile 46f1a0bd-git git
+12 verbose addNamed [ 'git', '' ]
+13 verbose addNamed [ null, '' ]
+14 silly lockFile c6f8daad-git git@
+15 verbose lock git@ /var/root/.npm/c6f8daad-git.lock
+16 silly addNameRange { name: 'git', range: '', hasData: false }
+17 verbose url raw git
+18 verbose url resolving [ 'https://registry.npmjs.org/', './git' ]
+19 verbose url resolved https://registry.npmjs.org/git
+20 info trying registry request attempt 1 at 15:53:56
+21 http GET https://registry.npmjs.org/git
+22 http 200 https://registry.npmjs.org/git
+23 silly registry.get cb [ 200,
+23 silly registry.get   { vary: 'Accept',
+23 silly registry.get     server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+23 silly registry.get     etag: '"81JTAQHZN1C89UBX7CEX2K5DZ"',
+23 silly registry.get     date: 'Mon, 31 Dec 2012 14:52:45 GMT',
+23 silly registry.get     'content-type': 'application/json',
+23 silly registry.get     'content-length': '4169' } ]
+24 silly addNameRange number 2 { name: 'git', range: '', hasData: true }
+25 silly addNameRange versions [ 'git', [ '0.1.0', '0.1.1', '0.1.2', '0.1.3' ] ]
+26 verbose addNamed [ 'git', '0.1.3' ]
+27 verbose addNamed [ '0.1.3', '0.1.3' ]
+28 silly lockFile 6a15d255-git-0-1-3 git@0.1.3
+29 verbose lock git@0.1.3 /var/root/.npm/6a15d255-git-0-1-3.lock
+30 silly lockFile 42c16550-stry-npmjs-org-git-git-0-1-3-tgz https://registry.npmjs.org/git/-/git-0.1.3.tgz
+31 verbose lock https://registry.npmjs.org/git/-/git-0.1.3.tgz /var/root/.npm/42c16550-stry-npmjs-org-git-git-0-1-3-tgz.lock
+32 verbose addRemoteTarball [ 'https://registry.npmjs.org/git/-/git-0.1.3.tgz',
+32 verbose addRemoteTarball   'fc63766b25a5f40a4affa22099e6a4054960ec55' ]
+33 info retry fetch attempt 1 at 15:53:57
+34 verbose fetch to= /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/tmp.tgz
+35 http GET https://registry.npmjs.org/git/-/git-0.1.3.tgz
+36 http 200 https://registry.npmjs.org/git/-/git-0.1.3.tgz
+37 silly shasum updated bytes 40960
+38 silly shasum updated bytes 40960
+39 silly shasum updated bytes 2561
+40 info shasum fc63766b25a5f40a4affa22099e6a4054960ec55
+40 info shasum /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/tmp.tgz
+41 verbose tar unpack /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/tmp.tgz
+42 silly lockFile 69a61a60-37103-0-9834664333611727-package /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package
+43 verbose lock /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package /var/root/.npm/69a61a60-37103-0-9834664333611727-package.lock
+44 silly gunzTarPerm modes [ '755', '644' ]
+45 silly gunzTarPerm extractEntry .gitignore
+46 silly gunzTarPerm extractEntry .npmignore
+47 silly gunzTarPerm extractEntry makefile
+48 silly gunzTarPerm extractEntry package.json
+49 silly gunzTarPerm extractEntry README.rdoc
+50 silly gunzTarPerm extractEntry benchmarks/benchmark.js
+51 silly gunzTarPerm extractEntry lib/diff/block.js
+52 silly gunzTarPerm extractEntry lib/diff/callbacks.js
+53 silly gunzTarPerm extractEntry lib/diff/change.js
+54 silly gunzTarPerm extractEntry lib/diff/diff.js
+55 silly gunzTarPerm extractEntry lib/diff/hunk.js
+56 silly gunzTarPerm extractEntry lib/sprintf/sprintf.js
+57 silly gunzTarPerm extractEntry lib/zlib/zlib.js
+58 silly gunzTarPerm extractEntry lib/git/actor.js
+59 silly gunzTarPerm extractEntry lib/git/binary_parser.js
+60 silly gunzTarPerm extractEntry lib/git/blame.js
+61 silly gunzTarPerm extractEntry lib/git/blame_line.js
+62 silly gunzTarPerm extractEntry lib/git/blob.js
+63 silly gunzTarPerm extractEntry lib/git/commit.js
+64 silly gunzTarPerm extractEntry lib/git/commit_stats.js
+65 silly gunzTarPerm extractEntry lib/git/config.js
+66 silly gunzTarPerm extractEntry lib/git/diff.js
+67 silly gunzTarPerm extractEntry lib/git/file_index.js
+68 silly gunzTarPerm extractEntry lib/git/file_window.js
+69 silly gunzTarPerm extractEntry lib/git/git.js
+70 silly gunzTarPerm extractEntry lib/git/git_file_operations.js
+71 silly gunzTarPerm extractEntry lib/git/git_index.js
+72 silly gunzTarPerm extractEntry lib/git/git_object.js
+73 silly gunzTarPerm extractEntry lib/git/head.js
+74 silly gunzTarPerm extractEntry lib/git/index.js
+75 silly gunzTarPerm extractEntry lib/git/loose_storage.js
+76 silly gunzTarPerm extractEntry lib/git/merge.js
+77 silly gunzTarPerm extractEntry lib/git/pack_storage.js
+78 silly gunzTarPerm extractEntry lib/git/raw_object.js
+79 silly gunzTarPerm extractEntry lib/git/ref.js
+80 silly gunzTarPerm extractEntry lib/git/remote.js
+81 silly gunzTarPerm extractEntry lib/git/repo.js
+82 silly gunzTarPerm extractEntry lib/git/repository.js
+83 silly gunzTarPerm extractEntry lib/git/status.js
+84 silly gunzTarPerm extractEntry lib/git/status_file.js
+85 silly gunzTarPerm extractEntry lib/git/sub_module.js
+86 silly gunzTarPerm extractEntry lib/git/tag.js
+87 silly gunzTarPerm extractEntry lib/git/tree.js
+88 silly gunzTarPerm extractEntry lib/git/user_info.js
+89 silly gunzTarPerm extractEntry lib/git/internal/directory_entry.js
+90 silly gunzTarPerm extractEntry lib/git/internal/git_blob.js
+91 silly gunzTarPerm extractEntry lib/git/internal/git_commit.js
+92 silly gunzTarPerm extractEntry lib/git/internal/git_tag.js
+93 silly gunzTarPerm extractEntry lib/git/internal/git_tree.js
+94 silly gunzTarPerm extractEntry lib/git/mime/mime_types.js
+95 verbose read json /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package/package.json
+96 silly lockFile 69a61a60-37103-0-9834664333611727-package /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package
+97 verbose from cache /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package/package.json
+98 verbose tar pack [ '/var/root/.npm/git/0.1.3/package.tgz',
+98 verbose tar pack   '/var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package' ]
+99 verbose tarball /var/root/.npm/git/0.1.3/package.tgz
+100 verbose folder /var/root/tmp/npm-74963/1356965637103-0.9834664333611727/package
+101 silly lockFile fa86157e-r-root-npm-git-0-1-3-package-tgz /var/root/.npm/git/0.1.3/package.tgz
+102 verbose lock /var/root/.npm/git/0.1.3/package.tgz /var/root/.npm/fa86157e-r-root-npm-git-0-1-3-package-tgz.lock
+103 silly lockFile fa86157e-r-root-npm-git-0-1-3-package-tgz /var/root/.npm/git/0.1.3/package.tgz
+104 silly lockFile 74f8dd2d-var-root-npm-git-0-1-3-package /var/root/.npm/git/0.1.3/package
+105 verbose lock /var/root/.npm/git/0.1.3/package /var/root/.npm/74f8dd2d-var-root-npm-git-0-1-3-package.lock
+106 silly lockFile 74f8dd2d-var-root-npm-git-0-1-3-package /var/root/.npm/git/0.1.3/package
+107 verbose tar unpack /var/root/.npm/git/0.1.3/package.tgz
+108 silly lockFile 74f8dd2d-var-root-npm-git-0-1-3-package /var/root/.npm/git/0.1.3/package
+109 verbose lock /var/root/.npm/git/0.1.3/package /var/root/.npm/74f8dd2d-var-root-npm-git-0-1-3-package.lock
+110 silly gunzTarPerm modes [ '755', '644' ]
+111 silly gunzTarPerm extractEntry package.json
+112 silly gunzTarPerm extractEntry .npmignore
+113 silly gunzTarPerm extractEntry benchmarks/benchmark.js
+114 silly gunzTarPerm extractEntry lib/diff/block.js
+115 silly gunzTarPerm extractEntry lib/diff/callbacks.js
+116 silly gunzTarPerm extractEntry lib/diff/change.js
+117 silly gunzTarPerm extractEntry lib/diff/diff.js
+118 silly gunzTarPerm extractEntry lib/diff/hunk.js
+119 silly gunzTarPerm extractEntry lib/git/actor.js
+120 silly gunzTarPerm extractEntry lib/git/git_file_operations.js
+121 silly gunzTarPerm extractEntry lib/git/git_index.js
+122 silly gunzTarPerm extractEntry lib/git/git_object.js
+123 silly gunzTarPerm extractEntry lib/git/git.js
+124 silly gunzTarPerm extractEntry lib/git/binary_parser.js
+125 silly gunzTarPerm extractEntry lib/git/tree.js
+126 silly gunzTarPerm extractEntry lib/git/loose_storage.js
+127 silly gunzTarPerm extractEntry lib/git/merge.js
+128 silly gunzTarPerm extractEntry lib/git/tag.js
+129 silly gunzTarPerm extractEntry lib/git/file_window.js
+130 silly gunzTarPerm extractEntry lib/git/pack_storage.js
+131 silly gunzTarPerm extractEntry lib/git/file_index.js
+132 silly gunzTarPerm extractEntry lib/git/raw_object.js
+133 silly gunzTarPerm extractEntry lib/git/diff.js
+134 silly gunzTarPerm extractEntry lib/git/ref.js
+135 silly gunzTarPerm extractEntry lib/git/config.js
+136 silly gunzTarPerm extractEntry lib/git/remote.js
+137 silly gunzTarPerm extractEntry lib/git/commit_stats.js
+138 silly gunzTarPerm extractEntry lib/git/repo.js
+139 silly gunzTarPerm extractEntry lib/git/commit.js
+140 silly gunzTarPerm extractEntry lib/git/repository.js
+141 silly gunzTarPerm extractEntry lib/git/blob.js
+142 silly gunzTarPerm extractEntry lib/git/status.js
+143 silly gunzTarPerm extractEntry lib/git/blame_line.js
+144 silly gunzTarPerm extractEntry lib/git/status_file.js
+145 silly gunzTarPerm extractEntry lib/git/blame.js
+146 silly gunzTarPerm extractEntry lib/git/sub_module.js
+147 silly gunzTarPerm extractEntry lib/git/head.js
+148 silly gunzTarPerm extractEntry lib/git/user_info.js
+149 silly gunzTarPerm extractEntry lib/git/index.js
+150 silly gunzTarPerm extractEntry lib/git/mime/mime_types.js
+151 silly gunzTarPerm extractEntry lib/git/internal/directory_entry.js
+152 silly gunzTarPerm extractEntry lib/git/internal/git_blob.js
+153 silly gunzTarPerm extractEntry lib/git/internal/git_commit.js
+154 silly gunzTarPerm extractEntry lib/git/internal/git_tag.js
+155 silly gunzTarPerm extractEntry lib/git/internal/git_tree.js
+156 silly gunzTarPerm extractEntry lib/sprintf/sprintf.js
+157 silly gunzTarPerm extractEntry lib/zlib/zlib.js
+158 silly gunzTarPerm extractEntry makefile
+159 silly gunzTarPerm extractEntry README.rdoc
+160 verbose read json /var/root/.npm/git/0.1.3/package/package.json
+161 silly lockFile 74f8dd2d-var-root-npm-git-0-1-3-package /var/root/.npm/git/0.1.3/package
+162 silly shasum updated bytes 40960
+163 silly shasum updated bytes 40960
+164 silly shasum updated bytes 3603
+165 info shasum 47f71471b8075dc829ccc2549a70aff0ebd519a9
+165 info shasum /var/root/.npm/git/0.1.3/package.tgz
+166 verbose from cache /var/root/.npm/git/0.1.3/package/package.json
+167 verbose chmod /var/root/.npm/git/0.1.3/package.tgz 644
+168 verbose chown /var/root/.npm/git/0.1.3/package.tgz [ 0, 0 ]
+169 silly lockFile 42c16550-stry-npmjs-org-git-git-0-1-3-tgz https://registry.npmjs.org/git/-/git-0.1.3.tgz
+170 silly lockFile 6a15d255-git-0-1-3 git@0.1.3
+171 silly lockFile c6f8daad-git git@
+172 silly resolved [ { name: 'git',
+172 silly resolved     description: 'A node.js library for git',
+172 silly resolved     version: '0.1.3',
+172 silly resolved     author: { name: 'Christian Amor Kvalheim', email: 'christkv@gmail.com' },
+172 silly resolved     contributors: [],
+172 silly resolved     repository: { type: 'git', url: 'git@github.com:christkv/node-git.git' },
+172 silly resolved     bugs:
+172 silly resolved      { mail: 'node-git@googlegroups.com',
+172 silly resolved        url: 'http://groups.google.com/group/nodegit' },
+172 silly resolved     os: [ 'linux', 'darwin', 'freebsd' ],
+172 silly resolved     main: './lib/git/index',
+172 silly resolved     directories: { lib: './lib/git' },
+172 silly resolved     engines: { node: '>=0.4.0' },
+172 silly resolved     dependencies: { compress: '>=0.1.6' },
+172 silly resolved     devDependencies: { nodeunit: '>=0.5.1' },
+172 silly resolved     licenses: [ [Object] ],
+172 silly resolved     readme: '= Introduction\n\nThis is a library for Git written in Node.js. It\'s as close a port of grit http://github.com/mojombo/grit.\n\nThe idea is to allow for manipulation of git repositories by the node.js application. Not everything is\nimplemented directly in node-git. Some of the stuff is using the native git command line instead of\ndirect javascript code. Also it\'s fairly synchronous right now but that will hopefully change a little\nby little over time as it gets more stable and I start using it in real life scenarios.\n\n== Github information\n\nThe source code is available at http://github.com/christkv/node-git.\nYou can either clone the repository or download a tarball of the latest release.\n\nOnce you have the source you can test the driver by running\n\n\t$ make test\n\t\n== Examples\n\nFor simple examples of usage look at the tests included in the repository.\n\n== Notes\n\nThe current version is basic git support, don\'t expect everything to work as you expect it\noff the bat.\n\n== License\n\n\tCopyright 2009 - 2010 Christian Amor Kvalheim.\n\n\t  Licensed under the Apache License, Version 2.0 (the "License");\n\t  you may not use this file except in compliance with the License.\n\t  You may obtain a copy of the License at\n\n\t      http://www.apache.org/licenses/LICENSE-2.0\n\n\t  Unless required by applicable law or agreed to in writing, software\n\t  distributed under the License is distributed on an "AS IS" BASIS,\n\t  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\t  See the License for the specific language governing permissions and\n\t  limitations under the License.',
+172 silly resolved     readmeFilename: 'README.rdoc',
+172 silly resolved     _id: 'git@0.1.3',
+172 silly resolved     dist: { shasum: '47f71471b8075dc829ccc2549a70aff0ebd519a9' },
+172 silly resolved     _from: 'git' } ]
+173 info install git@0.1.3 into /usr/local/lib
+174 info installOne git@0.1.3
+175 verbose from cache /var/root/.npm/git/0.1.3/package/package.json
+176 info /usr/local/lib/node_modules/git unbuild
+177 verbose read json /usr/local/lib/node_modules/git/package.json
+178 verbose tar unpack /var/root/.npm/git/0.1.3/package.tgz
+179 silly lockFile e31bd4a7-usr-local-lib-node-modules-git /usr/local/lib/node_modules/git
+180 verbose lock /usr/local/lib/node_modules/git /var/root/.npm/e31bd4a7-usr-local-lib-node-modules-git.lock
+181 silly gunzTarPerm modes [ '755', '644' ]
+182 silly gunzTarPerm extractEntry package.json
+183 silly gunzTarPerm extractEntry .npmignore
+184 silly gunzTarPerm extractEntry benchmarks/benchmark.js
+185 silly gunzTarPerm extractEntry lib/diff/block.js
+186 silly gunzTarPerm extractEntry lib/diff/callbacks.js
+187 silly gunzTarPerm extractEntry lib/diff/change.js
+188 silly gunzTarPerm extractEntry lib/diff/diff.js
+189 silly gunzTarPerm extractEntry lib/diff/hunk.js
+190 silly gunzTarPerm extractEntry lib/git/actor.js
+191 silly gunzTarPerm extractEntry lib/git/git_file_operations.js
+192 silly gunzTarPerm extractEntry lib/git/git_index.js
+193 silly gunzTarPerm extractEntry lib/git/git_object.js
+194 silly gunzTarPerm extractEntry lib/git/git.js
+195 silly gunzTarPerm extractEntry lib/git/binary_parser.js
+196 silly gunzTarPerm extractEntry lib/git/tree.js
+197 silly gunzTarPerm extractEntry lib/git/loose_storage.js
+198 silly gunzTarPerm extractEntry lib/git/merge.js
+199 silly gunzTarPerm extractEntry lib/git/tag.js
+200 silly gunzTarPerm extractEntry lib/git/file_window.js
+201 silly gunzTarPerm extractEntry lib/git/pack_storage.js
+202 silly gunzTarPerm extractEntry lib/git/file_index.js
+203 silly gunzTarPerm extractEntry lib/git/raw_object.js
+204 silly gunzTarPerm extractEntry lib/git/diff.js
+205 silly gunzTarPerm extractEntry lib/git/ref.js
+206 silly gunzTarPerm extractEntry lib/git/config.js
+207 silly gunzTarPerm extractEntry lib/git/remote.js
+208 silly gunzTarPerm extractEntry lib/git/commit_stats.js
+209 silly gunzTarPerm extractEntry lib/git/repo.js
+210 silly gunzTarPerm extractEntry lib/git/commit.js
+211 silly gunzTarPerm extractEntry lib/git/repository.js
+212 silly gunzTarPerm extractEntry lib/git/blob.js
+213 silly gunzTarPerm extractEntry lib/git/status.js
+214 silly gunzTarPerm extractEntry lib/git/blame_line.js
+215 silly gunzTarPerm extractEntry lib/git/status_file.js
+216 silly gunzTarPerm extractEntry lib/git/blame.js
+217 silly gunzTarPerm extractEntry lib/git/sub_module.js
+218 silly gunzTarPerm extractEntry lib/git/head.js
+219 silly gunzTarPerm extractEntry lib/git/user_info.js
+220 silly gunzTarPerm extractEntry lib/git/index.js
+221 silly gunzTarPerm extractEntry lib/git/mime/mime_types.js
+222 silly gunzTarPerm extractEntry lib/git/internal/directory_entry.js
+223 silly gunzTarPerm extractEntry lib/git/internal/git_blob.js
+224 silly gunzTarPerm extractEntry lib/git/internal/git_commit.js
+225 silly gunzTarPerm extractEntry lib/git/internal/git_tag.js
+226 silly gunzTarPerm extractEntry lib/git/internal/git_tree.js
+227 silly gunzTarPerm extractEntry lib/sprintf/sprintf.js
+228 silly gunzTarPerm extractEntry lib/zlib/zlib.js
+229 silly gunzTarPerm extractEntry makefile
+230 silly gunzTarPerm extractEntry README.rdoc
+231 verbose read json /usr/local/lib/node_modules/git/package.json
+232 silly lockFile e31bd4a7-usr-local-lib-node-modules-git /usr/local/lib/node_modules/git
+233 info preinstall git@0.1.3
+234 verbose from cache /usr/local/lib/node_modules/git/package.json
+235 verbose readDependencies using package.json deps
+236 verbose from cache /usr/local/lib/node_modules/git/package.json
+237 verbose readDependencies using package.json deps
+238 verbose cache add [ 'compress@>=0.1.6', null ]
+239 silly cache add name=undefined spec="compress@>=0.1.6" args=["compress@>=0.1.6",null]
+240 verbose parsed url { pathname: 'compress@%3E=0.1.6',
+240 verbose parsed url   path: 'compress@%3E=0.1.6',
+240 verbose parsed url   href: 'compress@%3E=0.1.6' }
+241 silly cache add name="compress" spec=">=0.1.6" args=["compress",">=0.1.6"]
+242 verbose parsed url { pathname: '%3E=0.1.6', path: '%3E=0.1.6', href: '%3E=0.1.6' }
+243 verbose addNamed [ 'compress', '>=0.1.6' ]
+244 verbose addNamed [ null, '>=0.1.6' ]
+245 silly lockFile aed67f60-compress-0-1-6 compress@>=0.1.6
+246 verbose lock compress@>=0.1.6 /var/root/.npm/aed67f60-compress-0-1-6.lock
+247 silly addNameRange { name: 'compress', range: '>=0.1.6', hasData: false }
+248 verbose url raw compress
+249 verbose url resolving [ 'https://registry.npmjs.org/', './compress' ]
+250 verbose url resolved https://registry.npmjs.org/compress
+251 info trying registry request attempt 1 at 15:53:59
+252 http GET https://registry.npmjs.org/compress
+253 http 200 https://registry.npmjs.org/compress
+254 silly registry.get cb [ 200,
+254 silly registry.get   { vary: 'Accept',
+254 silly registry.get     server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+254 silly registry.get     etag: '"34OTHR7ZTSYIRYO0KMIZMEJSU"',
+254 silly registry.get     date: 'Mon, 31 Dec 2012 14:52:48 GMT',
+254 silly registry.get     'content-type': 'application/json',
+254 silly registry.get     'content-length': '2849' } ]
+255 silly addNameRange number 2 { name: 'compress', range: '>=0.1.6', hasData: true }
+256 silly addNameRange versions [ 'compress', [ '0.1.6', '0.1.7', '0.1.8', '0.1.9' ] ]
+257 verbose addNamed [ 'compress', '0.1.9' ]
+258 verbose addNamed [ '0.1.9', '0.1.9' ]
+259 silly lockFile f575ee5c-compress-0-1-9 compress@0.1.9
+260 verbose lock compress@0.1.9 /var/root/.npm/f575ee5c-compress-0-1-9.lock
+261 silly lockFile 4fa57216--org-compress-compress-0-1-9-tgz https://registry.npmjs.org/compress/-/compress-0.1.9.tgz
+262 verbose lock https://registry.npmjs.org/compress/-/compress-0.1.9.tgz /var/root/.npm/4fa57216--org-compress-compress-0-1-9-tgz.lock
+263 verbose addRemoteTarball [ 'https://registry.npmjs.org/compress/-/compress-0.1.9.tgz',
+263 verbose addRemoteTarball   '4be592238535b51f52cc5d05cf72e56d5fe367f9' ]
+264 info retry fetch attempt 1 at 15:53:59
+265 verbose fetch to= /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/tmp.tgz
+266 http GET https://registry.npmjs.org/compress/-/compress-0.1.9.tgz
+267 http 200 https://registry.npmjs.org/compress/-/compress-0.1.9.tgz
+268 silly shasum updated bytes 4143
+269 info shasum 4be592238535b51f52cc5d05cf72e56d5fe367f9
+269 info shasum /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/tmp.tgz
+270 verbose tar unpack /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/tmp.tgz
+271 silly lockFile e4ca66d2-39921-0-6597083604428917-package /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package
+272 verbose lock /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package /var/root/.npm/e4ca66d2-39921-0-6597083604428917-package.lock
+273 silly gunzTarPerm modes [ '755', '644' ]
+274 silly gunzTarPerm extractEntry
+275 silly gunzTarPerm extractEntry README
+276 silly gunzTarPerm extractEntry wscript
+277 silly gunzTarPerm extractEntry filetest.js
+278 silly gunzTarPerm extractEntry package.json
+279 silly gunzTarPerm extractEntry test.js
+280 silly gunzTarPerm extractEntry LICENSE
+281 silly gunzTarPerm extractEntry compress.node
+282 silly gunzTarPerm modified mode [ 'compress.node', 511, 493 ]
+283 silly gunzTarPerm extractEntry compress.cc
+284 warn excluding symbolic link compress.node -> build/default/compress.node
+285 verbose read json /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package/package.json
+286 silly lockFile e4ca66d2-39921-0-6597083604428917-package /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package
+287 verbose from cache /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package/package.json
+288 verbose tar pack [ '/var/root/.npm/compress/0.1.9/package.tgz',
+288 verbose tar pack   '/var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package' ]
+289 verbose tarball /var/root/.npm/compress/0.1.9/package.tgz
+290 verbose folder /var/root/tmp/npm-74963/1356965639921-0.6597083604428917/package
+291 silly lockFile da27bdc3-t-npm-compress-0-1-9-package-tgz /var/root/.npm/compress/0.1.9/package.tgz
+292 verbose lock /var/root/.npm/compress/0.1.9/package.tgz /var/root/.npm/da27bdc3-t-npm-compress-0-1-9-package-tgz.lock
+293 silly lockFile da27bdc3-t-npm-compress-0-1-9-package-tgz /var/root/.npm/compress/0.1.9/package.tgz
+294 silly lockFile ba774bd8--root-npm-compress-0-1-9-package /var/root/.npm/compress/0.1.9/package
+295 verbose lock /var/root/.npm/compress/0.1.9/package /var/root/.npm/ba774bd8--root-npm-compress-0-1-9-package.lock
+296 silly lockFile ba774bd8--root-npm-compress-0-1-9-package /var/root/.npm/compress/0.1.9/package
+297 verbose tar unpack /var/root/.npm/compress/0.1.9/package.tgz
+298 silly lockFile ba774bd8--root-npm-compress-0-1-9-package /var/root/.npm/compress/0.1.9/package
+299 verbose lock /var/root/.npm/compress/0.1.9/package /var/root/.npm/ba774bd8--root-npm-compress-0-1-9-package.lock
+300 silly gunzTarPerm modes [ '755', '644' ]
+301 silly gunzTarPerm extractEntry package.json
+302 silly gunzTarPerm extractEntry README
+303 silly gunzTarPerm extractEntry LICENSE
+304 silly gunzTarPerm extractEntry filetest.js
+305 silly gunzTarPerm extractEntry test.js
+306 silly gunzTarPerm extractEntry compress.cc
+307 silly gunzTarPerm extractEntry wscript
+308 verbose read json /var/root/.npm/compress/0.1.9/package/package.json
+309 silly lockFile ba774bd8--root-npm-compress-0-1-9-package /var/root/.npm/compress/0.1.9/package
+310 silly shasum updated bytes 4063
+311 info shasum 6393abed9f3c1be3ee479818aa605eed025eb534
+311 info shasum /var/root/.npm/compress/0.1.9/package.tgz
+312 verbose from cache /var/root/.npm/compress/0.1.9/package/package.json
+313 verbose chmod /var/root/.npm/compress/0.1.9/package.tgz 644
+314 verbose chown /var/root/.npm/compress/0.1.9/package.tgz [ 0, 0 ]
+315 silly lockFile 4fa57216--org-compress-compress-0-1-9-tgz https://registry.npmjs.org/compress/-/compress-0.1.9.tgz
+316 silly lockFile f575ee5c-compress-0-1-9 compress@0.1.9
+317 silly lockFile aed67f60-compress-0-1-6 compress@>=0.1.6
+318 silly resolved [ { name: 'compress',
+318 silly resolved     description: 'A streaming compression / gzip library for node.js',
+318 silly resolved     version: '0.1.9',
+318 silly resolved     author: { name: 'Rhys' },
+318 silly resolved     repository:
+318 silly resolved      { type: 'git',
+318 silly resolved        url: 'http://github.com/waveto/node-compress.git' },
+318 silly resolved     scripts:
+318 silly resolved      { 'pre-install': 'node-waf configure && node-waf',
+318 silly resolved        install: 'node-waf clean ; node-waf configure build' },
+318 silly resolved     engine: [ 'node >=0.2.5' ],
+318 silly resolved     main: './build/default/compress',
+318 silly resolved     readme: 'node-compress\n=============\n\nA streaming compression / gzip module for node.js\n\nTo install, ensure that you have libz installed, and run:\n\nnode-waf configure \nnode-waf build\n\nThis will put the compress.node binary module in build/default. \n\n\nQuick example\n-------------\n\nvar compress=require("./compress");\nvar sys=require("sys");\nvar posix=require("posix");\n\n// Create gzip stream\nvar gzip=new compress.Gzip;\ngzip.init();\n\n// Pump data to be compressed\nvar gzdata1 = gzip.deflate("My data that needs ", "binary"); \nsys.puts("Compressed size : "+gzdata1.length);\n\nvar gzdata2 = gzip.deflate("to be compressed. 01234567890.", "binary"); \nsys.puts("Compressed size : "+gzdata2.length);\n\nvar gzdata3 = gzip.end();\nsys.puts("Last bit : "+gzdata3.length);\n\n// Normally stream this out as its generated, but just print here\nvar gzdata = gzdata1+gzdata2+gzdata3;\nsys.puts("Total compressed size : "+gzdata.length);\n',
+318 silly resolved     readmeFilename: 'README',
+318 silly resolved     _id: 'compress@0.1.9',
+318 silly resolved     dist: { shasum: '6393abed9f3c1be3ee479818aa605eed025eb534' },
+318 silly resolved     _from: 'compress@>=0.1.6' } ]
+319 info install compress@0.1.9 into /usr/local/lib/node_modules/git
+320 info installOne compress@0.1.9
+321 verbose from cache /var/root/.npm/compress/0.1.9/package/package.json
+322 info /usr/local/lib/node_modules/git/node_modules/compress unbuild
+323 verbose read json /usr/local/lib/node_modules/git/node_modules/compress/package.json
+324 verbose tar unpack /var/root/.npm/compress/0.1.9/package.tgz
+325 silly lockFile 61707dbf-odules-git-node-modules-compress /usr/local/lib/node_modules/git/node_modules/compress
+326 verbose lock /usr/local/lib/node_modules/git/node_modules/compress /var/root/.npm/61707dbf-odules-git-node-modules-compress.lock
+327 silly gunzTarPerm modes [ '755', '644' ]
+328 silly gunzTarPerm extractEntry package.json
+329 silly gunzTarPerm extractEntry README
+330 silly gunzTarPerm extractEntry LICENSE
+331 silly gunzTarPerm extractEntry filetest.js
+332 silly gunzTarPerm extractEntry test.js
+333 silly gunzTarPerm extractEntry compress.cc
+334 silly gunzTarPerm extractEntry wscript
+335 verbose read json /usr/local/lib/node_modules/git/node_modules/compress/package.json
+336 silly lockFile 61707dbf-odules-git-node-modules-compress /usr/local/lib/node_modules/git/node_modules/compress
+337 info preinstall compress@0.1.9
+338 verbose from cache /usr/local/lib/node_modules/git/node_modules/compress/package.json
+339 verbose readDependencies using package.json deps
+340 verbose from cache /usr/local/lib/node_modules/git/node_modules/compress/package.json
+341 verbose readDependencies using package.json deps
+342 silly resolved []
+343 verbose about to build /usr/local/lib/node_modules/git/node_modules/compress
+344 info build /usr/local/lib/node_modules/git/node_modules/compress
+345 verbose from cache /usr/local/lib/node_modules/git/node_modules/compress/package.json
+346 verbose linkStuff [ true,
+346 verbose linkStuff   '/usr/local/lib/node_modules',
+346 verbose linkStuff   false,
+346 verbose linkStuff   '/usr/local/lib/node_modules/git/node_modules' ]
+347 info linkStuff compress@0.1.9
+348 verbose linkBins compress@0.1.9
+349 verbose linkMans compress@0.1.9
+350 verbose rebuildBundles compress@0.1.9
+351 info install compress@0.1.9
+352 verbose unsafe-perm in lifecycle false
+353 verbose set uid from=0 to=nobody
+354 verbose set uid from=0 to=-2
+355 silly exec sh "-c" "node-waf clean ; node-waf configure build"
+356 silly sh,-c,node-waf clean ; node-waf configure build,/usr/local/lib/node_modules/git/node_modules/compress spawning
+357 info compress@0.1.9 Failed to exec install script
+358 info /usr/local/lib/node_modules/git/node_modules/compress unbuild
+359 verbose from cache /usr/local/lib/node_modules/git/node_modules/compress/package.json
+360 info preuninstall compress@0.1.9
+361 info uninstall compress@0.1.9
+362 verbose false,/usr/local/lib/node_modules,/usr/local/lib/node_modules/git/node_modules unbuild compress@0.1.9
+363 info postuninstall compress@0.1.9
+364 verbose about to build /usr/local/lib/node_modules/git
+365 info /usr/local/lib/node_modules/git unbuild
+366 verbose from cache /usr/local/lib/node_modules/git/package.json
+367 info preuninstall git@0.1.3
+368 info uninstall git@0.1.3
+369 verbose true,/usr/local/lib/node_modules,/usr/local/lib/node_modules unbuild git@0.1.3
+370 info postuninstall git@0.1.3
+371 error compress@0.1.9 install: `node-waf clean ; node-waf configure build`
+371 error `sh "-c" "node-waf clean ; node-waf configure build"` failed with 1
+372 error Failed at the compress@0.1.9 install script.
+372 error This is most likely a problem with the compress package,
+372 error not with npm itself.
+372 error Tell the author that this fails on your system:
+372 error     node-waf clean ; node-waf configure build
+372 error You can get their info via:
+372 error     npm owner ls compress
+372 error There is likely additional logging output above.
+373 error System Darwin 12.2.0
+374 error command "node" "/usr/local/bin/npm" "-g" "install" "git"
+375 error cwd /Volumes/DataStorage/server/Marco Asbreuk/Documents/ITS Asbreuk/Projecten/github/yui3-gallery
+376 error node -v v0.8.16
+377 error npm -v 1.1.69
+378 error code ELIFECYCLE
+379 verbose exit [ 1, true ]

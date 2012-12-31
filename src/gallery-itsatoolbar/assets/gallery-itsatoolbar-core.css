@@ -202,8 +202,16 @@
     background-position: 3px -1656px;
 }
 
+.itsa-icon-iframe {
+    background-position: 1px -1736px;
+}
+
 .itsa-icon-hyperlink {
     background-position: 1px -793px;
+}
+
+.itsa-icon-removelink {
+    background-position: 1px -1495px;
 }
 
 .itsa-icon-image {

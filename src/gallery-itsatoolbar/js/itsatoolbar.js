@@ -45,7 +45,14 @@ var Lang = Y.Lang,
     ITSA_FONTSIZENODE = 'itsa-fontsize',
     ITSA_FONTFAMILYNODE = 'itsa-fontfamily',
     ITSA_FONTCOLORNODE = 'itsa-fontcolor',
-    ITSA_MARKCOLORNODE = 'itsa-markcolor';
+    ITSA_MARKCOLORNODE = 'itsa-markcolor',
+    ITSA_IFRAMENODE = 'itsa-iframenode',
+    ITSA_YOUTUBENODE = 'itsa-youtubenode',
+    ITSA_IFRAMEBLOCKER = 'itsa-iframeblocker',
+    ITSA_IFRAMEBLOCKER_CSS = '.itsa-iframeblocker {position: relative; z-index: 1; background-color:#FFF; opacity:0; filter:alpha(opacity=0;} .itsa-iframeblocker:hover {opacity:0.4; filter:alpha(opacity=40;}',
+    ITSA_IFRAMEBLOCKER_TEMPLATE = '<span style="padding-left:{width}px; margin-right:-{width}px; padding-top:{height}px; " class="'+ITSA_IFRAMEBLOCKER+' {node}"></span>';
+
+    // DO NOT make ITSA_IFRAMEBLOCKER_CSS position absolute! FF will append resizehandlers which we don't want
 
 // -- Public Static Properties -------------------------------------------------
 
@@ -102,6 +109,21 @@ var Lang = Y.Lang,
  * @property _backupCursorRef
  * @private
  * @type Y.Node
+ */
+
+/**
+ * ItsaDialogBox-Reference to a the custom internat getUrl-panel<br>
+ * Will be created during initialization
+ * @property _dialogPanelId
+ * @private
+ * @type int
+ */
+
+/**
+ * Backup of the editors-value 'extracss'. Need to use internally, because the toolbar will add extra css of its own.<br>
+ * @property _extracssBKP
+ * @private
+ * @type int
  */
 
 /**
@@ -233,6 +255,13 @@ var Lang = Y.Lang,
 /**
  * Can be used as iconClass within buttondefinition
  * @static
+ * @property ICON_REMOVELINK
+ * @type String
+ */
+
+/**
+ * Can be used as iconClass within buttondefinition
+ * @static
  * @property ICON_HYPERLINK
  * @type String
  */
@@ -241,6 +270,13 @@ var Lang = Y.Lang,
  * Can be used as iconClass within buttondefinition
  * @static
  * @property ICON_IMAGE
+ * @type String
+ */
+
+/**
+ * Can be used as iconClass within buttondefinition
+ * @static
+ * @property ICON_IFRAME
  * @type String
  */
 
@@ -268,6 +304,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         _destroyed : false,
         _timerClearEmptyFontRef : null,
         _backupCursorRef : null,
+        _dialogPanelId : null,
+        _extracssBKP : '',
 
         ICON_BOLD : 'itsa-icon-bold',
         ICON_ITALIC : 'itsa-icon-italic',
@@ -288,6 +326,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         ICON_REDO : 'itsa-icon-redo',
         ICON_EMAIL : 'itsa-icon-email',
         ICON_HYPERLINK : 'itsa-icon-hyperlink',
+        ICON_REMOVELINK : 'itsa-icon-removelink',
+        ICON_IFRAME : 'itsa-icon-iframe',
         ICON_IMAGE : 'itsa-icon-image',
         ICON_FILE : 'itsa-icon-file',
         ICON_VIDEO : 'itsa-icon-video',
@@ -326,8 +366,13 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance.editorNode = instance.editor.frame.get('node');
                 instance.containerNode = instance.editorNode.get('parentNode');
                 instance.get('paraSupport') ? instance.editor.plug(Y.Plugin.EditorPara) : instance.editor.plug(Y.Plugin.EditorBR);
+                // make the iframeblocker work through css:
+                instance._extracssBKP = instance.editor.get('extracss');
+                instance.editor.set('extracss', instance._extracssBKP + ITSA_IFRAMEBLOCKER_CSS);
                 instance.editor.plug(Y.Plugin.ExecCommand);
                 instance._defineCustomExecCommands();
+                instance._createUrlDialog();
+                instance._createBlockerRefs();
                 instance._renderUI();
                 instance._bindUI();
                 // first time: fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
@@ -397,9 +442,60 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             node = useY.all('.' + ITSA_REFSELECTION);
             if (node.size()>0) {
                 node.each(function(node){
-                    node.replace(node.getHTML());
+                    if (node.getHTML()==='') {
+                        node.remove(false);
+                    }
+                    else {
+                        node.replace(node.getHTML());
+                    }
                 });
             }
+        },
+
+        /**
+         * Creates blocker spans above iframe-elements to make them clickable.
+         * @method _createBlockerRefs
+         * @private
+        */
+        _createBlockerRefs: function() {
+            var instance = this,
+                alliframes,
+                regExp = /^http:\/\/www\.youtube\.com\/embed\/(\w+)/; // search for strings like http://www.youtube.com/embed/PHIaeHAcE_A&whatever
+            // first remove old references, should they exists    
+            instance._clearBlockerRef();    
+            alliframes = instance.editorY.all('iframe');
+            alliframes.each(
+                function(node) {
+                    var blocker,
+                        width,
+                        height;
+                    width = node.get('width');
+                    height = node.get('height');
+                    blocker = Lang.sub(
+                        ITSA_IFRAMEBLOCKER_TEMPLATE,
+                        {
+                            width: width || 315,
+                            height: height || 420,
+                            node: regExp.test(node.get('src') || '') ? ITSA_YOUTUBENODE : ITSA_IFRAMENODE
+                        }
+                    );
+                    node.insert(blocker, 'before');
+                },
+                instance
+            );
+        },
+
+        /**
+         * Removes blocker spans that are created above iframe-elements to make them clickable.
+         * @method _clearBlockerRef
+         * @private
+        */
+        _clearBlockerRef : function() {
+            var instance = this,
+                useY;
+            // because it can be called when editorY is already destroyed, you need to take Y-instance instead of editorY in those cases
+            useY = instance.editorY ? instance.editorY : Y;
+            useY.all('.'+ITSA_IFRAMEBLOCKER).remove(false);
         },
 
         /**
@@ -456,10 +552,14 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 sel,
                 node = instance.editorY.one('#itsatoolbar-ref');
             if (node) {
+                instance.editor.focus();
                 sel = new instance.editorY.EditorSelection();
                 sel.selectNode(node);
-                // DO NOT call _removeCursorref straight away --> it will make Opera crash
-                Y.later(100, instance, instance._removeCursorRef);
+                instance._removeCursorRef();
+            }
+            else {
+                // even without '#itsatoolbar-ref' there might still be nodes that need to be cleaned up
+                instance._removeCursorRef();
             }
         },
 
@@ -483,7 +583,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.Node} created empty referencenode
         */
         _getBackupCursorRef : function() {
-            return this._backupCursorRef;
+            var instance = this;
+            return instance._backupCursorRef || instance._getCursorRef(true);
         },
 
         /**
@@ -659,7 +760,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 if (button.iconClass && button.command) {
                     if (Lang.isString(button.value)) {execCommand = {command: button.command, value: button.value};}
                     else {execCommand = button.command;}
-                    buttonNode = instance.addButton(button.iconClass, execCommand, indent && (i===0), (position) ? position+i : null);
+                    buttonNode = instance.addButton(button.iconClass, execCommand, indent && (i===0), (position ? position+i : null));
                     buttonNode.addClass(ITSA_BTNGROUP);
                     buttonNode.addClass(ITSA_BTNGROUP+'-'+buttonGroup);
                     buttonNode.setData('buttongroup', buttonGroup);
@@ -749,7 +850,10 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             instance._removeCursorRef();
             if (instance._timerClearEmptyFontRef) {instance._timerClearEmptyFontRef.cancel();}
             instance._clearEmptyFontRef();
+            instance._clearBlockerRef();
+            instance.editor.set('extracss', instance._extracssBKP);
             if (instance.toolbarNode) {instance.toolbarNode.remove(true);}
+            if (instance._dialogPanelId) {Y.Global.ItsaDialog.panelOptions.splice(instance._dialogPanelId, 1);}
         },
 
         // -- Private Methods ----------------------------------------------------------
@@ -810,6 +914,61 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         },
 
         /**
+         * Creates a Y.Global.ItsaDialog.panel that can be called through method this.getUrl()
+         *
+         * @method _createUrlDialog
+         * @private
+        */
+        _createUrlDialog: function() {
+            var instance = this;
+            instance._dialogPanelId = Y.Global.ItsaDialog.definePanel({
+                iconClass: Y.Global.ItsaDialog.ICON_INFO,
+                form: [
+                    {name:'count', label:'{message}', value:'{count}'}
+                ],
+                buttons: {
+                    footer: [
+                        {name:'cancel', label:'Cancel', action:Y.Global.ItsaDialog.ACTION_HIDE},
+                        {name:'removelink', label:'Remove link', action:Y.Global.ItsaDialog.ACTION_HIDE},
+                        {name:'ok', label:'Ok', action:Y.Global.ItsaDialog.ACTION_HIDE, validation: true, isDefault: true}    
+                    ]
+                }    
+            });
+        },
+
+        /**
+         * Shows the Url-Panel with an inputfield and the buttons: <b>Cancel, Remove Link, Ok</b><br>
+         * @method getUrl
+         * @param {String} title showed in the header of the Panel.
+         * @param {String} message showed inside the Panel.
+         * @param {String} [defaultmessage] showed inside the form-input.
+         * @param {Function} [callback] callbackfunction to be excecuted.
+         * @param {Object} [context] (this) in the callback.
+         * @param {String | Array} [args] Arguments for the callback.
+         * @param {Object} [customButtons] In case you want buttons other that Cancel/Ok.
+         * @param {String} [customIconclass] In case you want an Icon other that ICON_QUESTION.
+         * @return {String} passed by the eventTarget in the callback<br>
+         * Look for <i>e.buttonName</i> to determine which button is pressed.<br>
+         * Look for <i>e.value</i> to determine the userinput.
+        */
+        getUrl: function(title, message, defaultmessage, callback, context, args, customButtons, customIconclass) {
+            Y.log('getInput', 'info', 'ITSADIALOGBOX');
+            var instance = this,
+                bodyMessage,
+                inputElement;
+            inputElement = new Y.ITSAFORMELEMENT({
+                name: 'value',
+                type: 'input',
+                value: defaultmessage,
+                classNameValue: 'yui3-itsadialogbox-stringinput itsa-formelement-lastelement',
+                marginTop: 10,
+                initialFocus: true,
+                selectOnFocus: true
+            });
+            Y.Global.ItsaDialog.showPanel(instance._dialogPanelId, title, message + '<br>' + inputElement.render(), callback, context, args, customButtons, customIconclass);
+        },
+
+        /**
          * Defines all custom execCommands
          *
          * @method _defineCustomExecCommands
@@ -824,8 +983,10 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             instance._defineExecCommandFontColor();
             instance._defineExecCommandMarkColor();
             instance._defineExecCommandHyperlink();
+            instance._defineExecCommandRemoveHyperlink();
             instance._defineExecCommandMaillink();
             instance._defineExecCommandImage();
+            instance._defineExecCommandIframe();
             instance._defineExecCommandYouTube();
         },
 
@@ -1279,37 +1440,59 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 });
             }
 
+            // create remove-hyperlink button
+            if (instance.get('btnRemoveHyperlink')) {
+                Y.log('Defining button btnRemoveHyperlink', 'info', 'ITSAToolbar');
+                instance.addSyncButton(instance.ICON_REMOVELINK, 'itsaremovehyperlink', function(e) {
+                    var instance = this,
+                        node = e.changedNode;
+                    e.currentTarget.toggleClass(ITSA_BTNACTIVE, instance._checkInbetweenSelector('a', node));
+                });
+            }
+
             // create image button
             if (instance.get('btnImage')) {
                 Y.log('Defining button btnImage', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_IMAGE, 'itsacreateimage', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.test('img')));
-                });
+                }, null, true);
             }
 
             // create video button
             if (instance.get('btnVideo')) {
                 Y.log('Defining button btnVideo', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_VIDEO, 'itsacreateyoutube', function(e) {
-                    e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.test('iframe')));
+                    e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.hasClass(ITSA_YOUTUBENODE)));
                 });
+            }
+
+            // create iframe button
+            if (instance.get('btnIframe')) {
+                Y.log('Defining button btnIframe', 'info', 'ITSAToolbar');
+                instance.addSyncButton(instance.ICON_IFRAME, 'itsacreateiframe', function(e) {
+                    e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.hasClass(ITSA_IFRAMENODE)));
+                },
+                null, true);
             }
 
 //************************************************
 // just for temporary local use ITS Asbreuk
 // should NOT be part of the gallery
             if (false) {
-                instance.addButton(instance.ICON_EURO, {command: 'inserthtml', value: '&#8364;'}, true);
+//                instance.addButton(instance.ICON_EURO, {command: 'inserthtml', value: '&#8364;'}, true);
                 instance.addSyncButton(
                     instance.ICON_FILE,
-                    {   customFunc: function(e) {
-                            Y.config.cmas2plus.uploader.show(
-                                null, 
-                                Y.bind(function(e) {
-                                    this.editor.execCommand('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + e.n);
-                                }, this)
-                            );
-                        }
+                    {   customFunc: Y.bind(
+                            function(e) {
+                                Y.config.cmas2plus.uploader.show(
+                                    null, 
+                                    Y.bind(function(e) {
+                                        this.execCommand('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + e.n);
+                                    }, this)
+                                );
+                            },
+                            instance
+                        )
                     },
                     function(e) {
                         var instance = this,
@@ -1639,51 +1822,133 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     // 'img', 'url', 'video', 'email'
                     itsacreatehyperlink: function(cmd, val) {
                         Y.log('executing custom execCommand itsacreatehyperlink', 'info', 'ITSAToolbar');
-                        var execCommandInstance = this,
-                            editorY = execCommandInstance.get('host').getInstance(),
-                            out, 
-                            a, 
-                            sel, 
-                            holder, 
-                            url, 
-                            videoitem, 
-                            videoitempos;
-                        url = val || prompt('Enter url', 'http://');
-                        if (url) {
-                            holder = editorY.config.doc.createElement('div');
-                            url = url.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
-                            url = editorY.config.doc.createTextNode(url);
-                            holder.appendChild(url);
-                            url = holder.innerHTML;
-                            execCommandInstance.get('host')._execCommand('createlink', url);
-                            sel = new editorY.EditorSelection();
-                            out = sel.getSelected();
-                            if (!sel.isCollapsed && out.size()) {
-                                //We have a selection
-                                a = out.item(0).one('a');
-                                if (a) {
-                                    out.item(0).replace(a);
-                                }
-                                if (a && Y.UA.gecko) {
-                                    if (a.get('parentNode').test('span')) {
-                                        if (a.get('parentNode').one('br.yui-cursor')) {
-                                           a.get('parentNode').insert(a, 'before');
-                                        }
-                                    }
-                                }
-                            } else {
-                                //No selection, insert a new node..
-                                execCommandInstance.get('host').execCommand('inserthtml', '<a href="' + url + '" target="_blank">' + url + '</a>');
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef,
+                            callFunc,
+                            currentAnchorNode,
+                            anchorNodeWithinSel,
+                            currentHyperlink,
+                            href,
+                            selection;
+                        itsatoolbar._createBackupCursorRef();    
+                        noderef = itsatoolbar._getBackupCursorRef();
+                        // first we need to find out whether the cursor is within a current hyperlink, or a hyperlink is within selection
+                        // If that is the case, then this hyperlink needs to be modified. Otherwise create a new hyperlink
+                        anchorNodeWithinSel = noderef.one('a');
+                        if (anchorNodeWithinSel || itsatoolbar._checkInbetweenSelector('a', noderef)) {
+                            currentAnchorNode = anchorNodeWithinSel || noderef;
+                            while (currentAnchorNode && (currentAnchorNode.get('tagName')!=='A')) {
+                                currentAnchorNode = currentAnchorNode.get('parentNode');
+                            }
+                            if (currentAnchorNode) {
+                                currentHyperlink = currentAnchorNode.get('href');
                             }
                         }
-                        return a;
+                        if (val) {
+                            selection = noderef.hasClass(ITSA_REFSELECTION);
+                            href = val.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                            if (currentAnchorNode) {
+                                currentAnchorNode.set('href', href);
+                            }
+                            else {
+                                itsatoolbar.execCommand('inserthtml', '<a href="' + href+ '">' + (selection ? noderef.getHTML() : href) + '</a>'+ ITSA_REFNODE);
+                            }
+                            itsatoolbar._setCursorAtRef();
+                        }
+                        else {
+                            // Ask for hyperlink
+                            // Which function to call? Only with button 'Remove link' when there is already an anchorlink
+                            callFunc = currentAnchorNode ? Y.bind(itsatoolbar.getUrl, itsatoolbar) : Y.bind(Y.Global.ItsaDialog.getInput, Y.Global.ItsaDialog);
+                            callFunc(
+                                'Hyperlink',
+                                'Enter here the link',
+                                currentHyperlink || 'http://',
+                                function(e) {
+                                    var itsatoolbar = this;
+                                    selection = noderef.hasClass(ITSA_REFSELECTION);
+                                    if (e.buttonName==='ok') {
+                                        href = e.value.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                                        if (currentAnchorNode) {
+                                            currentAnchorNode.set('href', href);
+                                        }
+                                        else {
+                                            itsatoolbar.execCommand('inserthtml', '<a href="' + href+ '">' + (selection ? noderef.getHTML() : href) + '</a>'+ ITSA_REFNODE);
+                                        }
+                                    }
+                                    if (e.buttonName==='removelink') {
+                                        if (currentAnchorNode.getHTML()==='') {
+                                            currentAnchorNode.remove(false);
+                                        }
+                                        else {
+                                            currentAnchorNode.replace(currentAnchorNode.getHTML());
+                                        }
+                                        itsatoolbar.sync({changedNode: editorY.one('#itsatoolbar-ref')});
+                                        // take some time to let the sync do its work before set and remove cursor
+                                        Y.later(250, itsatoolbar, itsatoolbar._setCursorAtRef);
+                                    }
+                                    else {
+                                        itsatoolbar._setCursorAtRef();
+                                    }
+                                },
+                                itsatoolbar
+                            );
+                        }
                     }
                 });
             }
         },
 
         /**
-        * Defines the execCommand itsacretaeemaillink
+        * Defines the execCommand itsacretaehyperlink
+        * @method _defineExecCommandRemoveHyperlink
+        * @private
+        */
+        _defineExecCommandRemoveHyperlink : function() {
+            Y.log('_defineExecCommandRemoveHyperlink', 'info', 'ITSAToolbar');
+            if (!Y.Plugin.ExecCommand.COMMANDS.itsaremovehyperlink) {
+                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsaremovehyperlink', 'info', 'ITSAToolbar');
+                Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
+                    // val can be:
+                    // 'img', 'url', 'video', 'email'
+                    itsaremovehyperlink: function(cmd, val) {
+                        Y.log('executing custom execCommand itsaremovehyperlink', 'info', 'ITSAToolbar');
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef,
+                            currentAnchorNode,
+                            anchorNodeWithinSel;
+                        itsatoolbar._createBackupCursorRef();    
+                        noderef = itsatoolbar._getBackupCursorRef();
+                        // first we need to find out whether the cursor is within a current hyperlink, or a hyperlink is within selection
+                        // If that is the case, then this hyperlink needs to be modified. Otherwise create a new hyperlink
+                        anchorNodeWithinSel = noderef.one('a');
+                        if (anchorNodeWithinSel || itsatoolbar._checkInbetweenSelector('a', noderef)) {
+                            currentAnchorNode = anchorNodeWithinSel || noderef;
+                            while (currentAnchorNode && (currentAnchorNode.get('tagName')!=='A')) {
+                                currentAnchorNode = currentAnchorNode.get('parentNode');
+                            }
+                            if (currentAnchorNode) {
+                                if (currentAnchorNode.getHTML()==='') {
+                                    currentAnchorNode.remove(false);
+                                }
+                                else {
+                                    currentAnchorNode.replace(currentAnchorNode.getHTML());
+                                }
+                                itsatoolbar.sync({changedNode: editorY.one('#itsatoolbar-ref')});
+                                // take some time to let the sync do its work before set and remove cursor
+                                Y.later(250, itsatoolbar, itsatoolbar._setCursorAtRef);
+                            }
+                        }
+                    }
+                });
+            }
+        },
+
+        /**
+        * Defines the execCommand itsacreatemaillink
         * @method _defineExecCommandMaillink
         * @private
         */
@@ -1694,47 +1959,82 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreatemaillink: function(cmd, val) {
                         Y.log('executing custom execCommand itsacreatemaillink', 'info', 'ITSAToolbar');
-                        var execCommandInstance = this,
-                            editorY = execCommandInstance.get('host').getInstance(),
-                            out, 
-                            a, 
-                            sel, 
-                            holder, 
-                            url, 
-                            urltext,
-                            videoitem, 
-                            videoitempos;
-                        url = val || prompt('Enter email', '');
-                        if (url) {
-                            holder = editorY.config.doc.createElement('div');
-                            url = url.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
-                            urltext = url;
-                            url = 'mailto:' + url;
-                            url = editorY.config.doc.createTextNode(url);
-                            holder.appendChild(url);
-                            url = holder.innerHTML;
-                            execCommandInstance.get('host')._execCommand('createlink', url);
-                            sel = new editorY.EditorSelection();
-                            out = sel.getSelected();
-                            if (!sel.isCollapsed && out.size()) {
-                                //We have a selection
-                                a = out.item(0).one('a');
-                                if (a) {
-                                    out.item(0).replace(a);
-                                }
-                                if (a && Y.UA.gecko) {
-                                    if (a.get('parentNode').test('span')) {
-                                        if (a.get('parentNode').one('br.yui-cursor')) {
-                                           a.get('parentNode').insert(a, 'before');
-                                        }
-                                    }
-                                }
-                            } else {
-                                //No selection, insert a new node..
-                                execCommandInstance.get('host').execCommand('inserthtml', '<a href="' + url+ '">' + urltext + '</a>');
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef,
+                            callFunc,
+                            currentAnchorNode,
+                            anchorNodeWithinSel,
+                            currentHyperlink,
+                            href,
+                            selection;
+                        itsatoolbar._createBackupCursorRef();    
+                        noderef = itsatoolbar._getBackupCursorRef();
+                        // first we need to find out whether the cursor is within a current hyperlink, or a hyperlink is within selection
+                        // If that is the case, then this hyperlink needs to be modified. Otherwise create a new hyperlink
+                        anchorNodeWithinSel = noderef.one('a');
+                        if (anchorNodeWithinSel || itsatoolbar._checkInbetweenSelector('a', noderef)) {
+                            currentAnchorNode = anchorNodeWithinSel || noderef;
+                            while (currentAnchorNode && (currentAnchorNode.get('tagName')!=='A')) {
+                                currentAnchorNode = currentAnchorNode.get('parentNode');
+                            }
+                            if (currentAnchorNode) {
+                                currentHyperlink = currentAnchorNode.get('href');
+                                if (currentHyperlink.toLowerCase().substr(0,7)==='mailto:') {currentHyperlink = currentHyperlink.substr(7);}
                             }
                         }
-                        return a;
+                        if (val) {
+                            selection = noderef.hasClass(ITSA_REFSELECTION);
+                            href = 'mailto:' + val.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                            if (currentAnchorNode) {
+                                currentAnchorNode.set('href', href);
+                            }
+                            else {
+                                itsatoolbar.execCommand('inserthtml', '<a href="' + href+ '">' + (selection ? noderef.getHTML() : href) + '</a>'+ ITSA_REFNODE);
+                            }
+                            itsatoolbar._setCursorAtRef();
+                        }
+                        else {
+                            // Ask for emaillink
+                            // Which function to call? Only with button 'Remove link' when there is already an anchorlink
+                            callFunc = currentAnchorNode ? Y.bind(itsatoolbar.getUrl, itsatoolbar) : Y.bind(Y.Global.ItsaDialog.getInput, Y.Global.ItsaDialog);
+                            callFunc(
+                                'Emaillink',
+                                'Enter here the emailaddress',
+                                currentHyperlink || '',
+                                function(e) {
+                                    var itsatoolbar = this,
+                                        href,
+                                        selection;
+                                    selection = noderef.hasClass(ITSA_REFSELECTION);
+                                    if (e.buttonName==='ok') {
+                                        href = 'mailto:' + e.value.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                                        if (currentAnchorNode) {
+                                            currentAnchorNode.set('href', href);
+                                        }
+                                        else {
+                                            itsatoolbar.execCommand('inserthtml', '<a href="' + href+ '">' + (selection ? noderef.getHTML() : href) + '</a>'+ ITSA_REFNODE);
+                                        }
+                                    }
+                                    if (e.buttonName==='removelink') {
+                                        if (currentAnchorNode.getHTML()==='') {
+                                            currentAnchorNode.remove(false);
+                                        }
+                                        else {
+                                            currentAnchorNode.replace(currentAnchorNode.getHTML());
+                                        }
+                                        itsatoolbar.sync({changedNode: editorY.one('#itsatoolbar-ref')});
+                                        // take some time to let the sync do its work before set and remove cursor
+                                        Y.later(250, itsatoolbar, itsatoolbar._setCursorAtRef);
+                                    }
+                                    else {
+                                        itsatoolbar._setCursorAtRef();
+                                    }
+                                },
+                                itsatoolbar
+                            );
+                        }
                     }
                 });
             }
@@ -1752,44 +2052,53 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreateimage: function(cmd, val) {
                         Y.log('executing custom execCommand itsacreateimage', 'info', 'ITSAToolbar');
-                        var execCommandInstance = this,
-                            editorY = execCommandInstance.get('host').getInstance(),
-                            out, 
-                            a, 
-                            sel, 
-                            holder, 
-                            url, 
-                            videoitem, 
-                            videoitempos;
-                        url = val || prompt('Enter link to image', 'http://');
-                        if (url) {
-                            holder = editorY.config.doc.createElement('div');
-                            url = url.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
-                            url = editorY.config.doc.createTextNode(url);
-                            holder.appendChild(url);
-                            url = holder.innerHTML;
-                            execCommandInstance.get('host')._execCommand('createlink', url);
-                            sel = new editorY.EditorSelection();
-                            out = sel.getSelected();
-                            if (!sel.isCollapsed && out.size()) {
-                                //We have a selection
-                                a = out.item(0).one('a');
-                                if (a) {
-                                    out.item(0).replace(a);
-                                }
-                                if (a && Y.UA.gecko) {
-                                    if (a.get('parentNode').test('span')) {
-                                        if (a.get('parentNode').one('br.yui-cursor')) {
-                                           a.get('parentNode').insert(a, 'before');
-                                        }
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef,
+                            callFunc,
+                            currentImageNode,
+                            currentImagelink;
+                        itsatoolbar._createBackupCursorRef();    
+                        noderef = itsatoolbar._getBackupCursorRef();
+                        // first we need to find out whether the cursor is within a current hyperlink, or a hyperlink is within selection
+                        // If that is the case, then this hyperlink needs to be modified. Otherwise create a new hyperlink
+                        currentImageNode = noderef.one('img');
+                        if (currentImageNode) {
+                            currentImagelink = currentImageNode.get('src');
+                        }
+                        // Which function to call? Only with button 'Remove link' when there is already an anchorlink
+                        callFunc = currentImageNode ? Y.bind(itsatoolbar.getUrl, itsatoolbar) : Y.bind(Y.Global.ItsaDialog.getInput, Y.Global.ItsaDialog);
+                        callFunc(
+                            'Inline Image',
+                            'Enter here the link to the image',
+                            currentImagelink || 'http://',
+                            function(e) {
+                                var itsatoolbar = this,
+                                    src,
+                                    selection;
+                                selection = noderef.hasClass(ITSA_REFSELECTION);
+                                if (e.buttonName==='ok') {
+                                    src = e.value.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                                    if (currentImageNode) {
+                                        currentImageNode.set('src', src);
+                                    }
+                                    else {
+                                        itsatoolbar.execCommand('inserthtml', '<img src="' + src+ '" />' + ITSA_REFNODE);
                                     }
                                 }
-                            } else {
-                                //No selection, insert a new node..
-                                execCommandInstance.get('host').execCommand('inserthtml', '<img src="' + url + '" />');
-                            }
-                        }
-                        return a;
+                                if (e.buttonName==='removelink') {
+                                    currentImageNode.remove(false);
+                                    itsatoolbar.sync({changedNode: editorY.one('#itsatoolbar-ref')});
+                                    // take some time to let the sync do its work before set and remove cursor
+                                    Y.later(250, itsatoolbar, itsatoolbar._setCursorAtRef);
+                                }
+                                else {
+                                    itsatoolbar._setCursorAtRef();
+                                }
+                            },
+                            itsatoolbar
+                        );
                     }
                 });
             }
@@ -1807,48 +2116,166 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreateyoutube: function(cmd, val) {
                         Y.log('executing custom execCommand itsacreateyoutube', 'info', 'ITSAToolbar');
-                        var execCommandInstance = this,
-                            editorY = execCommandInstance.get('host').getInstance(),
-                            out, 
-                            a, 
-                            sel, 
-                            holder, 
-                            url, 
-                            videoitem, 
-                            videoitempos;
-                        url = val || prompt('Enter link to image', 'http://');
-                        if (url) {
-                            holder = editorY.config.doc.createElement('div');
-                            url = url.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
-                            url = editorY.config.doc.createTextNode(url);
-                            holder.appendChild(url);
-                            url = holder.innerHTML;
-                            execCommandInstance.get('host')._execCommand('createlink', url);
-                            sel = new editorY.EditorSelection();
-                            out = sel.getSelected();
-                            if (!sel.isCollapsed && out.size()) {
-                                //We have a selection
-                                a = out.item(0).one('a');
-                                if (a) {
-                                    out.item(0).replace(a);
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef,
+                            previousNode,
+                            blockerNode,
+                            callFunc,
+                            regExp1 = /^http:\/\/www\.youtube\.com\/watch?v=(\w+)/, // search for strings like http://www.youtube.com/watch?v=PHIaeHAcE_A&whatever
+                            regExp2 = /^http:\/\/youtu\.be\/(\w+)/, // search for strings like http://youtu.be/PHIaeHAcE_A&whatever
+                            regExp3 = /^http:\/\/www\.youtube\.com\/embed\/(\w+)/, // search for strings like http://www.youtube.com/embed/PHIaeHAcE_A&whatever
+                            regExp4 = /^v=(\w+)/, // search for strings like v=PHIaeHAcE_A&whatever
+                            regExp5 = /^(\w+)$/, // search for strings like PHIaeHAcE_A&whatever
+                            currentYouTubeNode,
+                            currentYouTubeLink;
+                        // BE CAREFULL: when manipulating: the selection surrounds the blockerdiv and the cursor is inbetween the blocker-div and the iframe!!!
+                        itsatoolbar._createBackupCursorRef();    
+                        noderef = itsatoolbar._getBackupCursorRef();
+                        blockerNode = noderef.one('.'+ITSA_IFRAMEBLOCKER);
+                        // Now check if you are manipulating an existing iframe-element:
+                        if (blockerNode) {
+                            // yes: a blockernode exists, so we are manipulating an existent iframe-element
+                            currentYouTubeNode = noderef.next('iframe');
+                            if (currentYouTubeNode) {
+                                // First the most tricky part: We need to reset the position of JUST ITSA_REFNODE
+                                previousNode = itsatoolbar.editorY.one('#itsatoolbar-ref');
+                                previousNode.remove(false);
+                                // now reposition the cursor
+                                currentYouTubeNode.insert(ITSA_REFNODE, 'after');
+                                // next: we read the src attribute
+                                currentYouTubeLink = currentYouTubeNode.get('src');
+                                // Try to extract the videoitem based on regExp1-regExp5
+                                if (regExp1.test(currentYouTubeLink) || regExp2.test(currentYouTubeLink) || regExp3.test(currentYouTubeLink) || regExp4.test(currentYouTubeLink) || regExp5.test(currentYouTubeLink)) {
+                                    currentYouTubeLink = RegExp.$1;
                                 }
-                                if (a && Y.UA.gecko) {
-                                    if (a.get('parentNode').test('span')) {
-                                        if (a.get('parentNode').one('br.yui-cursor')) {
-                                           a.get('parentNode').insert(a, 'before');
+                            }
+                        }
+                        // Which function to call? Only with button 'Remove link' when there is already an anchorlink
+                        callFunc = currentYouTubeNode ? Y.bind(itsatoolbar.getUrl, itsatoolbar) : Y.bind(Y.Global.ItsaDialog.getInput, Y.Global.ItsaDialog);
+                        callFunc(
+                            'Inline YouTube movie',
+                            'Enter here the link to the youtube-movie',
+                            currentYouTubeLink || 'http://youtu.be/PHIaeHAcE_A',
+                            function(e) {
+                                var itsatoolbar = this,
+                                    src,
+                                    videoitem,
+                                    width = 420,
+                                    height = 315;
+                                if (e.buttonName==='ok') {
+                                    src = e.value.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                                    // Try to extract the videoitem based on regExp1-regExp5
+                                    if (regExp1.test(src) || regExp2.test(src) || regExp3.test(src) || regExp4.test(src) || regExp5.test(src)) {
+                                        videoitem = RegExp.$1;
+                                    }
+                                    if (videoitem) {
+                                        if (currentYouTubeNode) {
+                                            currentYouTubeNode.set('src', 'http://www.youtube.com/embed/' + videoitem);
+                                        }
+                                        else {
+                                            itsatoolbar.execCommand('inserthtml', '<span style="padding-left:'+width+'px; margin-right:-'+width+'px; padding-top:'+height+'px; " class="'+ITSA_IFRAMEBLOCKER+' '+ITSA_YOUTUBENODE+'"></span><iframe width="'+width+'" height="'+height+'" src="http://www.youtube.com/embed/' + videoitem + '" frameborder="0" allowfullscreen></iframe>');
                                         }
                                     }
                                 }
-                            } else {
-                                //No selection, insert a new node..
-                                    videoitempos = url.indexOf('watch?v=');
-                                    if (videoitempos!==-1) {
-                                        videoitem = url.substring(url.videoitempos+8);
-                                        execCommandInstance.get('host').execCommand('inserthtml', '<iframe width="420" height="315" src="http://www.youtube.com/embed/' + videoitem + '" frameborder="0" allowfullscreen></iframe>');
+                                if (e.buttonName==='removelink') {
+                                    if (currentYouTubeNode) {
+                                        currentYouTubeNode.remove(false);
                                     }
+                                    if (blockerNode) {
+                                        blockerNode.remove(false);
+                                    }
+                                    itsatoolbar.sync({changedNode: editorY.one('#itsatoolbar-ref')});
+                                    // take some time to let the sync do its work before set and remove cursor
+                                    Y.later(250, itsatoolbar, itsatoolbar._setCursorAtRef);
+                                }
+                                else {
+                                    itsatoolbar._setCursorAtRef();
+                                }
+                            },
+                            itsatoolbar
+                        );
+                    }
+                });
+            }
+        },
+
+        /**
+        * Defines the execCommand itsacreateiframe
+        * @method _defineExecCommandIframe
+        * @private
+        */
+        _defineExecCommandIframe : function() {
+            Y.log('_defineExecCommandIframe', 'info', 'ITSAToolbar');
+            if (!Y.Plugin.ExecCommand.COMMANDS.itsacreateiframe) {
+                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsacreateiframe', 'info', 'ITSAToolbar');
+                Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
+                    itsacreateiframe: function(cmd, val) {
+                        Y.log('executing custom execCommand itsacreateiframe', 'info', 'ITSAToolbar');
+                        var editor = this.get('host'),
+                            editorY = editor.getInstance(),
+                            itsatoolbar = editor.itsatoolbar,
+                            noderef,
+                            blockerNode,
+                            previousNode,
+                            callFunc,
+                            currentIframeNode,
+                            currentIframeSrc;
+                        itsatoolbar._createBackupCursorRef();    
+                        noderef = itsatoolbar._getBackupCursorRef();
+                        blockerNode = noderef.one('.'+ITSA_IFRAMEBLOCKER);
+                        // Now check if you are manipulating an existing iframe-element:
+                        if (blockerNode) {
+                            // yes: a blockernode exists, so we are manipulating an existent iframe-element
+                            currentIframeNode = noderef.next('iframe');
+                            if (currentIframeNode) {
+                                // First the most tricky part: We need to reset the position of JUST ITSA_REFNODE
+                                previousNode = itsatoolbar.editorY.one('#itsatoolbar-ref');
+                                previousNode.remove(false);
+                                // now reposition the cursor
+                                currentIframeNode.insert(ITSA_REFNODE, 'after');
+                                // next: we read the src attribute
+                                currentIframeSrc = currentIframeNode.get('src');
                             }
                         }
-                        return a;
+                        // Which function to call? Only with button 'Remove link' when there is already an anchorlink
+                        callFunc = currentIframeNode ? Y.bind(itsatoolbar.getUrl, itsatoolbar) : Y.bind(Y.Global.ItsaDialog.getInput, Y.Global.ItsaDialog);
+                        callFunc(
+                            'Inline iframe',
+                            'Enter here the source to the iframe',
+                            currentIframeSrc || 'http://',
+                            function(e) {
+                                var itsatoolbar = this,
+                                    width = 420,
+                                    height = 315,
+                                    src;
+                                if (e.buttonName==='ok') {
+                                    src = e.value.replace(/"/g, '').replace(/'/g, ''); //Remove single & double quotes
+                                    if (currentIframeNode) {
+                                        currentIframeNode.set('src', src);
+                                    }
+                                    else {
+                                        itsatoolbar.execCommand('inserthtml', '<span style="padding-left:'+width+'px; margin-right:-'+width+'px; padding-top:'+height+'px; " class="'+ITSA_IFRAMEBLOCKER+' '+ITSA_IFRAMENODE+'"></span><iframe width="'+width+'" height="'+height+'" src="' + src + '" frameborder="0"></iframe>');
+                                    }
+                                }
+                                if (e.buttonName==='removelink') {
+                                    if (currentIframeNode) {
+                                        currentIframeNode.remove(false);
+                                    }
+                                    if (blockerNode) {
+                                        blockerNode.remove(false);
+                                    }
+                                    itsatoolbar.sync({changedNode: editorY.one('#itsatoolbar-ref')});
+                                    // take some time to let the sync do its work before set and remove cursor
+                                    Y.later(250, itsatoolbar, itsatoolbar._setCursorAtRef);
+                                }
+                                else {
+                                    itsatoolbar._setCursorAtRef();
+                                }
+                            },
+                            itsatoolbar
+                        );
                     }
                 });
             }
@@ -2166,6 +2593,19 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             },
 
             /**
+             * @description Whether the button remove-hyperlink is available<br>
+             * Default = true
+             * @attribute btnRemoveHyperlink
+             * @type Boolean
+            */
+            btnRemoveHyperlink : {
+                value: true,
+                validator: function(val) {
+                    return Lang.isBoolean(val);
+                }
+            },
+
+            /**
              * @description Whether the button image is available<br>
              * because this code needs to be developed in a better way, the function is disabled by default.<br>
              * It works in a simple way though.
@@ -2174,7 +2614,22 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
              * @type Boolean
             */
             btnImage : {
-                value: false,
+                value: true,
+                validator: function(val) {
+                    return Lang.isBoolean(val);
+                }
+            },
+
+            /**
+             * @description Whether the button iframe is available<br>
+             * because not all iframe-options can be entered, the function is disabled by default.<br>
+             * It does work, but you cannot specify the iframesize.
+             * Default = false
+             * @attribute btnIframe
+             * @type Boolean
+            */
+            btnIframe : {
+                value: true,
                 validator: function(val) {
                     return Lang.isBoolean(val);
                 }
@@ -2182,14 +2637,12 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             /**
              * @description Whether the button video is available<br>
-             * because this code needs to be developed in a better way, the function is disabled by default.<br>
-             * It works in a simple way though. The end-user should enter a youtube-link once they click on this button.
-             * Default = false
+             * Default = true
              * @attribute btnVideo
              * @type Boolean
             */
             btnVideo : {
-                value: false,
+                value: true,
                 validator: function(val) {
                     return Lang.isBoolean(val);
                 }
