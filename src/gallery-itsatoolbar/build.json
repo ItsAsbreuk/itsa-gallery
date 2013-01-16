@@ -1,0 +1,32 @@
+{
+    "name": "gallery-itsatoolbar",
+    "builds": {
+        "gallery-itsatoolbar": {
+            "config": {
+                "supersedes": [
+                    ""
+                ],
+                "skinnable": "true",
+                "requires": [
+                    "plugin",
+                    "base-build",
+                    "node-base",
+                    "editor",
+                    "event-delegate",
+                    "event-custom",
+                    "cssbutton",
+                    "gallery-itsaselectlist",
+                    "gallery-itsadialogbox"
+                ],
+                "optional": [
+                    ""
+                ]
+            },
+            "skinnable": "true",
+            "jsfiles": [
+                "itsatoolbar.js"
+            ],
+            "meta": {}
+        }
+    }
+}

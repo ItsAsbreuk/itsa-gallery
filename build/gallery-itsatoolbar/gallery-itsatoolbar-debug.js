@@ -1,3 +1,5 @@
+YUI.add('gallery-itsatoolbar', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -3126,3 +3128,24 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         }
     }
 );
+
+}, '@VERSION@', {
+    "supersedes": [
+        ""
+    ],
+    "skinnable": "true",
+    "requires": [
+        "plugin",
+        "base-build",
+        "node-base",
+        "editor",
+        "event-delegate",
+        "event-custom",
+        "cssbutton",
+        "gallery-itsaselectlist",
+        "gallery-itsadialogbox"
+    ],
+    "optional": [
+        ""
+    ]
+});

@@ -1,3 +1,5 @@
+YUI.add('gallery-itsatoolbar', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -378,7 +380,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @protected
         */
         initializer : function(config) {
-            Y.log('initializer', 'info', 'ITSAToolbar');
             var instance = this;
             instance.editor = instance.get('host');
             // need to make sure we can use execCommand, so do not render before the frame exists.
@@ -398,7 +399,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _render : function() {
-            Y.log('_render', 'info', 'ITSAToolbar');
             var instance = this;
             if (!instance._destroyed) {
                 instance.initialContent = instance.editor.get('content');
@@ -432,7 +432,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.Node} created empty referencenode
         */
         _getCursorRef : function(selectionIfAvailable) {
-            Y.log('_getCursorRef', 'info', 'ITSAToolbar');
             var instance = this,
                 node,
                 tmpnode,
@@ -477,7 +476,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _removeCursorRef : function() {
-            Y.log('_removeCursorRef', 'info', 'ITSAToolbar');
             var instance = this,
                 node,
                 useY;
@@ -555,7 +553,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _clearEmptyFontRef : function() {
-            Y.log('_clearEmptyFontRef', 'info', 'ITSAToolbar');
             var instance = this,
                 node,
                 useY;
@@ -598,7 +595,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _setCursorAtRef : function() {
-            Y.log('_setCursorAtRef', 'info', 'ITSAToolbar');
             var instance = this,
                 sel,
                 node = instance.editorY.one('#itsatoolbar-ref');
@@ -646,7 +642,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         */
         sync : function(e) {
             // syncUI will sync the toolbarstatus with the editors cursorposition
-            Y.log('sync', 'info', 'ITSAToolbar');
             var instance = this,
                 cursorRef;
             if (!(e && e.changedNode)) {
@@ -673,7 +668,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.Node} reference to the created buttonnode
         */
         addButton : function(iconClass, execCommand, indent, position) {
-            Y.log('addButton', 'info', 'ITSAToolbar');
             var instance = this,
                 buttonNode,
                 buttonInnerNode;
@@ -721,7 +715,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.Node} reference to the created buttonnode
         */
         addSyncButton : function(iconClass, execCommand, syncFunc, context, indent, position, isToggleButton) {
-            Y.log('addSyncButton', 'info', 'ITSAToolbar');
             var instance = this,
                 buttonNode = instance.addButton(iconClass, execCommand, indent, position);
             if (!isToggleButton) {buttonNode.addClass(ITSA_BTNSYNC);}
@@ -753,7 +746,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.Node} reference to the created buttonnode
         */
         addToggleButton : function(iconClass, execCommand, syncFunc, context, indent, position) {
-            Y.log('addToggleButton', 'info', 'ITSAToolbar');
             var instance = this,
                 buttonNode = instance.addSyncButton(iconClass, execCommand, syncFunc, context, indent, position, true);
             buttonNode.addClass(ITSA_BTNTOGGLE);
@@ -774,7 +766,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @param {Number} [position] Index where to insert the button. Default=null, which means added as the last button.
         */
         addButtongroup : function(buttons, indent, position) {
-            Y.log('addButtongroup', 'info', 'ITSAToolbar');
             var instance = this;
             if (instance.toolbarNode) {instance._addButtongroup(buttons, indent, position);}
             else {
@@ -799,7 +790,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @param {Number} [position] Index where to insert the button. Default=null, which means added as the last button.
         */
         _addButtongroup : function(buttons, indent, position) {
-            Y.log('_addButtongroup', 'info', 'ITSAToolbar');
             var instance = this,
                 buttonGroup = Y.guid(),
                 button,
@@ -853,13 +843,11 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.ITSASelectlist} reference to the created object
         */
         addSelectlist : function(items, execCommand, syncFunc, context, indent, config, position) {
-            Y.log('addSelectlist', 'info', 'ITSAToolbar');
             var instance = this,
                 selectlist;
             config = Y.merge(config, {items: items, defaultButtonText: ''});
             selectlist = new Y.ITSASelectList(config);
             selectlist.after('render', function(e, execCommand, syncFunc, context, indent){
-                Y.log('addSelectlist - rendered', 'info', 'ITSAToolbar');
                 var instance = this,
                     selectlist = e.currentTarget,
                     buttonNode = selectlist.buttonNode;
@@ -894,7 +882,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @protected
         */
         destructor : function() {
-            Y.log('destructor', 'info', 'ITSAToolbar');
             var instance = this,
                 srcNode = instance.get('srcNode');
              // first, set _notDestroyed to false --> this will prevent rendering if editor.frame:ready fires after toolbars destruction
@@ -923,7 +910,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _renderUI : function() {
-            Y.log('_renderUI', 'info', 'ITSAToolbar');
             var instance = this,
                 correctedHeight = 0,
                 srcNode = instance.get('srcNode'),
@@ -965,7 +951,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _bindUI : function() {
-            Y.log('_bindUI', 'info', 'ITSAToolbar');
             var instance = this,
                 eventhandlers = instance._eventhandlers;
             eventhandlers.push(
@@ -986,7 +971,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         */
         _handleShortcutFn : function(e) {
             var instance = this;
-            Y.log('_handleShortcutFn', 'cmaswarn', 'ITSAToolbar');
             if (e.ctrlKey || e.metaKey) {
                 switch (e.keyCode) {
                     case 66 :
@@ -1047,7 +1031,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * Look for <i>e.value</i> to determine the userinput.
         */
         getUrl: function(title, message, defaultmessage, callback, context, args, customButtons, customIconclass) {
-            Y.log('getInput', 'info', 'ITSADIALOGBOX');
             var instance = this,
                 bodyMessage,
                 inputElement;
@@ -1070,7 +1053,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _defineCustomExecCommands : function() {
-            Y.log('_defineCustomExecCommands', 'info', 'ITSAToolbar');
             var instance = this;
             instance._defineExecCommandHeader();
             instance._defineExecCommandFontFamily();
@@ -1095,7 +1077,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @param {EventFacade} e in case of selectList, e.value and e.index are also available
         */
         _handleBtnClick : function(e) {
-            Y.log('_handleBtnClick', 'info', 'ITSAToolbar');
             var instance = this,
                 node = e.currentTarget;
             // only execute for .itsa-button, not for all buttontags    
@@ -1122,7 +1103,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @param {EventFacade} e in case of selectList, e.value and e.index are also available
         */
         _handleSelectChange : function(e) {
-            Y.log('_handleSelectChange', 'info', 'ITSAToolbar');
             var selectButtonNode,
                 restoreCommand,
                 execCommand;
@@ -1141,7 +1121,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @param {EventFacade} e in case of selectList, e.value and e.index are also available
         */
         _execCommandFromData: function(buttonNode) {
-            Y.log('_execCommandFromData', 'info', 'ITSAToolbar');
             var instance = this,
                 execCommand,
                 execValue;
@@ -1161,7 +1140,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @param {String} [value] additional commandvalue
         */
         execCommand: function(command, value) {
-            Y.log('execCommand', 'info', 'ITSAToolbar');
             var instance = this,
                 tmpnode;
             instance.editor.focus();
@@ -1185,7 +1163,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Boolean} whether there is a selection
         */
         _hasSelection : function() {
-            Y.log('_hasSelection', 'info', 'ITSAToolbar');
             var instance = this,
                 sel = new instance.editorY.EditorSelection();
             // use sel.anchorNode for all browsers except IE
@@ -1205,7 +1182,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Boolean} whether node resides inbetween selector
         */
         _checkInbetweenSelector : function(selector, cursornode) {
-            Y.log('_checkInbetweenHeader', 'info', 'ITSAToolbar');
             var instance = this,
                 pattern = '<\\s*' + selector + '[^>]*>(.*?)<\\s*/\\s*' + selector  + '>',
                 searchHeaderPattern = new RegExp(pattern, 'gi'),
@@ -1235,7 +1211,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @return {Y.Node|null} the headernode where the cursor remains. Returns null if outside any header.
         */
      _getActiveHeader : function(cursornode) {
-            Y.log('_getActiveHeader', 'info', 'ITSAToolbar');
             var instance = this,
                 pattern,
                 searchHeaderPattern,
@@ -1291,7 +1266,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
          * @private
         */
         _initializeButtons : function() { 
-            Y.log('_initializeButtons', 'info', 'ITSAToolbar');
             var instance = this,
                 i, r, g, b,
                 item,
@@ -1303,7 +1277,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create fonffamily button
             if (instance.get('btnFontfamily')) {
-                Y.log('Defining button btnFontfamily', 'info', 'ITSAToolbar');
                 items = instance.get('fontFamilies');
                 for (i=0; i<items.length; i++) {
                     item = items[i];
@@ -1322,7 +1295,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create fontsize button
             if (instance.get('btnFontsize')) {
-                Y.log('Defining button btnFontsize', 'info', 'ITSAToolbar');
                 items = [];
                 for (i=6; i<=32; i++) {items.push({text: i.toString(), returnValue: i+'px'});}
                 instance.sizeSelectlist = instance.addSelectlist(items, 'itsafontsize', function(e) {
@@ -1336,7 +1308,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create header button
             if (instance.get('btnHeader')) {
-                Y.log('Defining button btnHeader', 'info', 'ITSAToolbar');
                 items = [];
                 items.push({text: 'No header', returnValue: 'none'});
                 for (i=1; i<=instance.get('headerLevels'); i++) {items.push({text: 'Header '+i, returnValue: 'h'+i});}
@@ -1356,7 +1327,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create bold button
             if (instance.get('btnBold')) {
-                Y.log('Defining button btnBold', 'info', 'ITSAToolbar');
                 instance.addToggleButton(instance.ICON_BOLD, 'bold', function(e) {
                     var fontWeight = e.changedNode.getStyle('fontWeight');
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (Lang.isNumber(parseInt(fontWeight, 10)) ? (fontWeight>=600) : ((fontWeight==='bold') || (fontWeight==='bolder'))));
@@ -1365,7 +1335,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create italic button
             if (instance.get('btnItalic')) {
-                Y.log('Defining button btnItalic', 'info', 'ITSAToolbar');
                 instance.addToggleButton(instance.ICON_ITALIC, 'italic', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.getStyle('fontStyle')==='italic'));
                 });
@@ -1373,7 +1342,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create underline button
             if (instance.get('btnUnderline')) {
-                Y.log('Defining button btnUnderline', 'info', 'ITSAToolbar');
                 instance.addToggleButton(instance.ICON_UNDERLINE, 'underline', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.getStyle('textDecoration')==='underline'));
                 });
@@ -1381,7 +1349,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create align buttons
             if (instance.get('grpAlign')) {
-                Y.log('Defining buttongroup grpAlign', 'info', 'ITSAToolbar');
                 buttons = [
                     {
                         iconClass : instance.ICON_ALIGN_LEFT,
@@ -1410,7 +1377,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 ];
             // create justify button
                 if (instance.get('btnJustify')) {
-                    Y.log('Defining button btnJustify', 'info', 'ITSAToolbar');
                     buttons.push({
                         iconClass : instance.ICON_ALIGN_JUSTIFY,
                         command : 'JustifyFull',
@@ -1425,7 +1391,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create subsuperscript buttons
             if (instance.get('grpSubsuper')) {
-                Y.log('Defining buttongroup grpSubsuper', 'info', 'ITSAToolbar');
                 instance.addToggleButton(instance.ICON_SUBSCRIPT, 'subscript', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNPRESSED, (e.changedNode.test('sub')));
                 }, null, true);
@@ -1436,7 +1401,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create textcolor button
             if (instance.get('btnTextcolor')) {
-                Y.log('Defining button btnTextcolor', 'info', 'ITSAToolbar');
                 items = [];
                 bgcolors = instance.get('colorPallet');
                 for (i=0; i<bgcolors.length; i++) {
@@ -1453,7 +1417,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create markcolor button
             if (instance.get('btnMarkcolor')) {
-                Y.log('Defining button btnMarkcolor', 'info', 'ITSAToolbar');
                 items = [];
                 bgcolors = instance.get('colorPallet');
                 for (i=0; i<bgcolors.length; i++) {
@@ -1470,14 +1433,12 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create indent buttons
             if (instance.get('grpIndent')) {
-                Y.log('Defining buttongroup grpIndent', 'info', 'ITSAToolbar');
                 instance.addButton(instance.ICON_INDENT, 'indent', true);
                 instance.addButton(instance.ICON_OUTDENT, 'outdent');
             }
 
             // create list buttons
             if (instance.get('grpLists')) {
-                Y.log('Defining buttongroup grpLists', 'info', 'ITSAToolbar');
                 instance.addToggleButton(instance.ICON_UNORDEREDLIST, 'insertunorderedlist', function(e) {
                     var instance = this,
                         node = e.changedNode;
@@ -1492,7 +1453,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create email button
             if (instance.get('btnEmail')) {
-                Y.log('Defining button btnEmail', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_EMAIL, 'itsacreatemaillink', function(e) {
                     var instance = this,
                         node = e.changedNode,
@@ -1512,7 +1472,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create hyperlink button
             if (instance.get('btnHyperlink')) {
-                Y.log('Defining button btnHyperlink', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_HYPERLINK, 'itsacreatehyperlink', function(e) {
                     var instance = this,
                         posibleFiles = '.doc.docx.xls.xlsx.pdf.txt.zip.rar.',
@@ -1545,7 +1504,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create remove-hyperlink button
             if (instance.get('btnRemoveHyperlink')) {
-                Y.log('Defining button btnRemoveHyperlink', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_REMOVELINK, 'itsaremovehyperlink', function(e) {
                     var instance = this,
                         node = e.changedNode;
@@ -1555,7 +1513,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create image button
             if (instance.get('btnImage')) {
-                Y.log('Defining button btnImage', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_IMAGE, 'itsacreateimage', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.test('img')));
                 }, null, true);
@@ -1563,7 +1520,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create video button
             if (instance.get('btnVideo')) {
-                Y.log('Defining button btnVideo', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_VIDEO, 'itsacreateyoutube', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.hasClass(ITSA_YOUTUBENODE)));
                 });
@@ -1571,7 +1527,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create iframe button
             if (instance.get('btnIframe')) {
-                Y.log('Defining button btnIframe', 'info', 'ITSAToolbar');
                 instance.addSyncButton(instance.ICON_IFRAME, 'itsacreateiframe', function(e) {
                     e.currentTarget.toggleClass(ITSA_BTNACTIVE, (e.changedNode.hasClass(ITSA_IFRAMENODE)));
                 },
@@ -1580,19 +1535,16 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 
             // create clear button
             if (instance.get('btnClear')) {
-                Y.log('Defining button btnClear', 'info', 'ITSAToolbar');
                 instance.addButton(instance.ICON_CLEAR, {command: 'mysetcontent', value: ''}, true);
             }
 
             // create save button
             if (instance.get('btnSave')) {
-                Y.log('Defining button btnSave', 'info', 'ITSAToolbar');
                 instance.addButton(instance.ICON_SAVE, 'itsasavecontent', true);
             }
 
             // create cancel button
             if (instance.get('btnCancel')) {
-                Y.log('Defining button btnCancel', 'info', 'ITSAToolbar');
                 instance.addButton(instance.ICON_CANCEL, {command: 'mysetcontent', value: instance.initialContent}, true);
             }
 
@@ -1648,7 +1600,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
 //************************************************
 
             if (instance.get('grpUndoredo')) {
-                Y.log('Defining buttongroup grpundoredo', 'info', 'ITSAToolbar');
                 instance.addButton(instance.ICON_UNDO, 'undo', true);
                 instance.addButton(instance.ICON_REDO, 'redo');
             }
@@ -1664,7 +1615,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @return String
         */
         _filter_rgb: function(css) {
-            Y.log('_filter_rgb', 'info', 'ITSAToolbar');
             if (css.toLowerCase().indexOf('rgb') != -1) {
                 var exp = new RegExp("(.*?)rgb\\s*?\\(\\s*?([0-9]+).*?,\\s*?([0-9]+).*?,\\s*?([0-9]+).*?\\)(.*?)", "gi"),
                     rgb = css.replace(exp, "$1,$2,$3,$4,$5").split(','),
@@ -1692,10 +1642,8 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         */
         _defineExecCommandHeader : function() {
             if (!Y.Plugin.ExecCommand.COMMANDS.itsaheading) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsaheading', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsaheading: function(cmd, val) {
-                        Y.log('executing custom execCommand itsaheading', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1736,12 +1684,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandFontFamily : function() {
-            Y.log('_defineExecCommandFontFamily', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsafontfamily) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsafontfamily', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsafontfamily: function(cmd, val) {
-                        Y.log('executing custom execCommand itsafontfamily', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1781,12 +1726,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandFontSize : function() {
-            Y.log('_defineExecCommandFontSize', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsafontsize) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsafontsize', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsafontsize: function(cmd, val) {
-                        Y.log('executing custom execCommand itsafontsize', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1833,12 +1775,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandFontColor : function() {
-            Y.log('_defineExecCommandFontSize', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsafontcolor) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsafontcolor', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsafontcolor: function(cmd, val) {
-                        Y.log('executing custom execCommand itsafontcolor', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1880,12 +1819,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandMarkColor : function() {
-            Y.log('_defineExecCommandFontSize', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsamarkcolor) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsamarkcolor', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsamarkcolor: function(cmd, val) {
-                        Y.log('executing custom execCommand itsamarkcolor', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1927,12 +1863,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecSaveContent : function() {
-            Y.log('_defineExecSaveContent', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsamarkcolor) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsasavecontent', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsasavecontent: function(cmd, val) {
-                        Y.log('executing custom execCommand itsasavecontent', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1955,12 +1888,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecSetContent : function() {
-            Y.log('_defineExecSetContent', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsasetcontent) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsasetcontent', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsasetcontent: function(cmd, val) {
-                        Y.log('executing custom execCommand itsasetcontent', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -1983,14 +1913,11 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandHyperlink : function() {
-            Y.log('_defineExecCommandHyperlink', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsacreatehyperlink) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsacreatehyperlink', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     // val can be:
                     // 'img', 'url', 'video', 'email'
                     itsacreatehyperlink: function(cmd, val) {
-                        Y.log('executing custom execCommand itsacreatehyperlink', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -2091,14 +2018,11 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandRemoveHyperlink : function() {
-            Y.log('_defineExecCommandRemoveHyperlink', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsaremovehyperlink) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsaremovehyperlink', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     // val can be:
                     // 'img', 'url', 'video', 'email'
                     itsaremovehyperlink: function(cmd, val) {
-                        Y.log('executing custom execCommand itsaremovehyperlink', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -2137,12 +2061,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandMaillink : function() {
-            Y.log('_defineExecCommandMaillink', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsacreatemaillink) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsacreatemaillink', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreatemaillink: function(cmd, val) {
-                        Y.log('executing custom execCommand itsacreatemaillink', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -2244,12 +2165,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandImage : function() {
-            Y.log('_defineExecCommandImage', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsacreateimage) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsacreateimage', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreateimage: function(cmd, val) {
-                        Y.log('executing custom execCommand itsacreateimage', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -2336,12 +2254,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandYouTube : function() {
-            Y.log('_defineExecCommandYouTube', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsacreateyoutube) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsacreateyoutube', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreateyoutube: function(cmd, val) {
-                        Y.log('executing custom execCommand itsacreateyoutube', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -2436,12 +2351,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         * @private
         */
         _defineExecCommandIframe : function() {
-            Y.log('_defineExecCommandIframe', 'info', 'ITSAToolbar');
             if (!Y.Plugin.ExecCommand.COMMANDS.itsacreateiframe) {
-                Y.log('declaring Y.Plugin.ExecCommand.COMMANDS.itsacreateiframe', 'info', 'ITSAToolbar');
                 Y.mix(Y.Plugin.ExecCommand.COMMANDS, {
                     itsacreateiframe: function(cmd, val) {
-                        Y.log('executing custom execCommand itsacreateiframe', 'info', 'ITSAToolbar');
                         var editor = this.get('host'),
                             editorY = editor.getInstance(),
                             itsatoolbar = editor.itsatoolbar,
@@ -3126,3 +3038,24 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
         }
     }
 );
+
+}, '@VERSION@', {
+    "supersedes": [
+        ""
+    ],
+    "skinnable": "true",
+    "requires": [
+        "plugin",
+        "base-build",
+        "node-base",
+        "editor",
+        "event-delegate",
+        "event-custom",
+        "cssbutton",
+        "gallery-itsaselectlist",
+        "gallery-itsadialogbox"
+    ],
+    "optional": [
+        ""
+    ]
+});
