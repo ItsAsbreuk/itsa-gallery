@@ -1412,6 +1412,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
          * Justifies the tablewidth: will be called after datatable.changeWidth-event.
          *
          * @method _justifyTableAfterTableWidthChange
+         * @private
          * @since 0.1
          *
         */
@@ -1751,6 +1752,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         /**
          * Syncs the YScroller-UI after a column changes its width.
          * @method _syncYScrollerUI
+         * @private
          * @param {int} tableWidth width of the datatable visible area, without outside datatable-borders
          * @param {boolean} [comesFromCheckRemainingColSpace] internally used to mark when function is called from this._checkRemainingColSpace
          * @since 0.1
