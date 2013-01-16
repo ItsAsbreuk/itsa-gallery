@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaselectlist', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -101,7 +103,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @protected
         */
         initializer : function(config) {
-            Y.log('initializer ', 'cmas', 'ITSASelectList');
             var instance = this;
             instance._selectedItemClass = instance.get('hideSelected') ? ITSA_CLASSHIDDEN : 'itsa-selectlist-selected';
 
@@ -113,7 +114,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @method renderUI 
         */
         renderUI : function() {
-            Y.log('renderUI ', 'cmas', 'ITSASelectList');
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
                 className = instance.get('className'),
@@ -149,7 +149,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @method bindUI 
         */
         bindUI : function() {
-            Y.log('bindUI ', 'cmas', 'ITSASelectList');
             var instance = this,
                 boundingBox = instance.get('boundingBox');
             instance._eventhandlers.push(
@@ -172,7 +171,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @method syncUI
         */
         syncUI : function() {
-            Y.log('syncUI ', 'cmas', 'ITSASelectList');
             var instance = this,
                 items = instance.get('items'),
                 defaultItem = instance.get('defaultItem'),
@@ -212,7 +210,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * 
         */
         _itemClick : function(e) {
-            Y.log('_itemClick ', 'cmas', 'ITSASelectList');
             this._selectItem(e.currentTarget, true);
         },
 
@@ -232,7 +229,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * 
         */
         selectItem : function(index, softMatch, softButtonText) {
-            Y.log('selectItem ', 'cmas', 'ITSASelectList');
             var instance = this,
                 nodelist = instance._itemsContainerNode.all('li');
             if (!instance.get('disabled')) {
@@ -264,7 +260,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
         */
         selectItemByValue : function(itemText, softMatch, defaultButtonText) {
             // by returnvalue 
-            Y.log('selectItemByValue', 'cmas', 'ITSASelectList');
             var instance = this,
                 index = Y.Array.indexOf(instance._itemValues, itemText.toString().toLowerCase());
             instance.selectItem(index, softMatch, defaultButtonText ? instance.get('defaultButtonText') : itemText);
@@ -287,7 +282,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         _selectItem : function(node, userInteraction) {
-            Y.log('_selectItem ', 'cmas', 'ITSASelectList');
             var instance = this,
                 previousNode = instance._itemsContainerNode.one('li.'+instance._selectedItemClass),
                 nodeHTML;
@@ -326,7 +320,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         hideListbox : function() {
-            Y.log('hideListbox ', 'cmas', 'ITSASelectList');
             var instance = this;
             if (!instance.get('disabled')) {
                 /**
@@ -346,7 +339,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         showListbox : function() {
-            Y.log('showListbox ', 'cmas', 'ITSASelectList');
             var instance = this;
             if (!instance.get('disabled')) {
                 /**
@@ -367,7 +359,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         _toggleListbox : function() {
-            Y.log('_toggleListbox ', 'cmas', 'ITSASelectList');
             var instance = this;
             if (instance._itemsContainerNode.hasClass(ITSA_CLASSHIDDEN)) {instance.showListbox();}
             else {instance.hideListbox();}
@@ -380,7 +371,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          * @return {Y.Node} the current selected listitemnode, or null if none is selected.
         */
         currentSelected : function() {
-            Y.log('currentSelected', 'cmas', 'ITSASelectList');
             return this._itemsContainerNode.one('li.'+this._selectedItemClass);
         },
 
@@ -392,7 +382,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         currentIndex : function() {
-            Y.log('currentIndex', 'cmas', 'ITSASelectList');
             return this._indexOf(this.currentSelected());
         },
 
@@ -406,7 +395,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         _indexOf : function(node) {
-            Y.log('_searchIndex ', 'cmas', 'ITSASelectList');
             var nodelist = this._itemsContainerNode.one('.itsa-selectlist-ullist').all('li');
             return nodelist.indexOf(node);
         },
@@ -420,7 +408,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         _disabledChange : function(e) {
-            Y.log('_disabledChange set to '+e.newVal, 'cmas', 'ITSASelectList');
             var instance = this;
             instance.buttonNode.toggleClass('yui3-button-disabled', e.newVal);
             instance.hideListbox();
@@ -434,7 +421,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         _clearMemory : function() {
-            Y.log('_clearMemory ', 'cmas', 'ITSASelectList');
             var instance = this;
             Y.Array.each(
                 instance._eventhandlers,
@@ -452,7 +438,6 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
          *
         */
         destructor : function() {
-            Y.log('destructor ', 'cmas', 'ITSASelectList');
             this._clearMemory();
         }
 
@@ -657,3 +642,22 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
 
     }
 );
+
+}, '@VERSION@', {
+    "supersedes": [
+        ""
+    ],
+    "skinnable": "true",
+    "requires": [
+        "base-build",
+        "widget",
+        "node-base",
+        "cssbutton",
+        "event-base",
+        "node-event-delegate",
+        "event-outside"
+    ],
+    "optional": [
+        ""
+    ]
+});
