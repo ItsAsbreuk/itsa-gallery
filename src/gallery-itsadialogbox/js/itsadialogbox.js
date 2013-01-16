@@ -3,7 +3,7 @@
 /**
  * The Itsa Dialogbox module.
  *
- * @module itsa-dialogbox
+ * @module gallery-itsadialogbox
  */
 
 /**
