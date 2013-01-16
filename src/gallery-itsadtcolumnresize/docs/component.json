@@ -5,7 +5,7 @@
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsadtcolumnresize" ],
 
-    "tags": [ "gallery" ],
+    "tags": [ "gallery", "plugin"],
 
     "examples": []
 }
