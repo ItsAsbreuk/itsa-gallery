@@ -1,0 +1,8 @@
+{
+    "gallery-itsaform": {
+        "requires": [
+            "widget"
+        ],
+        "skinnable": true
+    }
+}
