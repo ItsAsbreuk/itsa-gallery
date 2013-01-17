@@ -572,10 +572,11 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
          * @param {Number|String} name key, name, or index of a column in the host's `_displayColumns` array.
          * @param {int|String} width new width in pixels or percent. Numbers are treated as pixels
          * @param {int} [expansion] Only to be set internally: to expand the col in order to make it fit with the datatable's width.
+         * @param {int} [fireInPercent] Only to be set internally: force the widthChange-event to fire e.newVal in percent
          * @return {int|String} final reached columnwidth in pixels (number) or percents (number+'%'), which might differ from which was tried to set
          * @since 0.1
         */
-        setColumnWidth: function (name, width, expansion) {
+        setColumnWidth: function (name, width, expansion, fireInPercent) {
             Y.log('setColumnWidth col: '+name+' --> width: '+width+', expansion: '+expansion, 'info', 'DTColumnResize');
             // Opera (including Opera Next circa 1/13/2012) and IE7- pass on the
             // width style to the cells directly, allowing padding and borders to
@@ -797,7 +798,9 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                      * @param {Int} e.prevVal
                      * @param {Int} e.newVal
                     */
-                    dt.fire('colWidthChange', {colIndex: colIndex, prevVal: eventPrevValue, newVal: width});
+                    // CAUTIOUS: if (fireInPercent && !newWidthPercented), then width is still in pixels, but we need percents to be fired!
+                    dt.fire('colWidthChange', {colIndex: colIndex, prevVal: eventPrevValue,
+                             newVal: (fireInPercent && !newWidthPercented) ? (100*width/dtWidthWithBorder).toFixed(2)+'%' : width});
                 }
 
             }
@@ -1561,37 +1564,6 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         },
 
         /**
-         * In case of IE: Change text-unselectable of the cols
-         *
-         * @method _changeUnselectableIE
-         * @private
-         * @return total width of all cols
-         * @since 0.1
-         *
-        */
-        _changeUnselectableIE : function(noSelect) {
-            var instance = this,
-                headers = instance._dtScrollHeader || instance._dtRealDataTableHeader,
-                headerList = headers && headers.all('th'),
-                unselectableBkpList = instance._unselectableBkpList,
-                bkpMade;
-
-            if (Y.UA.ie>0) {
-                Y.log('_changeUnselectableIE make unselectable: '+noSelect, 'info', 'DTColumnResize');
-                bkpMade = (unselectableBkpList.length>0);
-                headerList.each(
-                    function(th, index) {
-                        if (noSelect && !bkpMade) {
-                            instance._unselectableBkpList.push(th.get('unselectable') || '');
-                        }
-                        th.setAttribute('unselectable', noSelect ? 'on' : ((unselectableBkpList.length>index) ? unselectableBkpList[index] : ''));
-                    },
-                    instance
-                );
-            }
-        },
-
-        /**
          * Because we cannot use unpredictable columnwidth, all columns must have a defined width.
          *
          * @method _transformAllColumnWidthToPixels
@@ -1608,7 +1580,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 notSpecCols = instance._notSpecCols,
                 usedSpace = 0,
                 remainingSpace = 0,
-                allThRealHeader = instance._dtRealDataTableTHNodes,
+                allThRealHeader = instance._dtRealDataTableTHNodes, fireInPercent,
                 width, configWidth, colConfigObject, percentWidth, total, thcell,
                 storedPercentedWidth, expansion, definedColWidth, percentedIsStored;
             
@@ -1639,8 +1611,10 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                                 thcell.setData(PERCENTEDWIDTHDATA, configWidth);
                             }
                             configWidth = colConfigObject.width = Math.round(dtWidthWithBorder*parseFloat(configWidth)/100)+'px';
+                            fireInPercent = true;
                         }
                         else {
+                            fireInPercent = false;
                             if (thcell) {
                                 // reset
                                 thcell.setData(PERCENTEDWIDTHDATA, null);
@@ -1650,7 +1624,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     if (configWidth && (definedColWidth===DATAYES)) {
                         // width is defined in objectconfig
                         width = parseInt(configWidth, 10) - expansion;
-                        usedSpace += instance.setColumnWidth(index, width);
+                        usedSpace += instance.setColumnWidth(index, width, 0, fireInPercent);
                     }
                     else {
                         // no width is defined in objectconfig --> store the column because we need to redefine all remaining space afterwards
@@ -1676,6 +1650,37 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             Y.log('_transformAllColumnWidthToPixels ready dtWidthWithBorder='+dtWidthWithBorder+'px, realtablewidth='
                    + parseInt(instance._dtRealDataTable.getStyle("width"),10)+'px, total colwidth='+total+'px', 'info', 'DTColumnResize');
             return total;
+        },
+
+        /**
+         * In case of IE: Change text-unselectable of the cols
+         *
+         * @method _changeUnselectableIE
+         * @private
+         * @return total width of all cols
+         * @since 0.1
+         *
+        */
+        _changeUnselectableIE : function(noSelect) {
+            var instance = this,
+                headers = instance._dtScrollHeader || instance._dtRealDataTableHeader,
+                headerList = headers && headers.all('th'),
+                unselectableBkpList = instance._unselectableBkpList,
+                bkpMade;
+
+            if (Y.UA.ie>0) {
+                Y.log('_changeUnselectableIE make unselectable: '+noSelect, 'info', 'DTColumnResize');
+                bkpMade = (unselectableBkpList.length>0);
+                headerList.each(
+                    function(th, index) {
+                        if (noSelect && !bkpMade) {
+                            instance._unselectableBkpList.push(th.get('unselectable') || '');
+                        }
+                        th.setAttribute('unselectable', noSelect ? 'on' : ((unselectableBkpList.length>index) ? unselectableBkpList[index] : ''));
+                    },
+                    instance
+                );
+            }
         },
 
         /**
