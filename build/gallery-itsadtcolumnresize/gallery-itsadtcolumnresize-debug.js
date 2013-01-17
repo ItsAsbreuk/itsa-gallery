@@ -1127,16 +1127,22 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 contentBox = instance._dtContentBox,
                 yScrollerContainer = instance._dtYScrollerContainer,
                 realDataTable = instance._dtRealDataTable,
-                prevYScrollerContainerWidth, prevRealDataTableWidth;
+                thNode = e.currentTarget,
+                colResizable, prevYScrollerContainerWidth, prevRealDataTableWidth;
 
             Y.log('_triggerSort', 'info', 'DTColumnResize');
             if (instance._dtScrollY) {
                 // Due to a bug: Only in browsers where Y-Scroller is always visible (FF), when the extra amount
                 // that is overlapping reaches just in the width-area (xscroller between 1-15 px), then after a col-resort
-                // YScrollerContainer and realDataTable get wrong values. We need to restore that
+                // YScrollerContainer and realDataTable get wrong values. We need to restore that.
+                // Also: YScroller WILL REMOVE RESIZABLE_COLUMN_CLASS, so we need to add that again!
                 prevYScrollerContainerWidth = parseInt(yScrollerContainer.getStyle('width'), 10);
                 prevRealDataTableWidth = parseInt(realDataTable.getStyle('width'), 10);
+                colResizable = thNode.hasClass(RESIZABLE_COLUMN_CLASS);
                 Y.bind('_onUITriggerSort', dt, e)();
+                if (colResizable) {
+                    thNode.addClass(RESIZABLE_COLUMN_CLASS);
+                }
                 yScrollerContainer.setStyle('width', prevYScrollerContainerWidth+'px');
                 realDataTable.setStyle('width', prevRealDataTableWidth+'px');
                 instance._dtYScrollBar.setStyle('left', (parseInt(instance._dtXScroller.getStyle('width'),10)-15)+'px');
