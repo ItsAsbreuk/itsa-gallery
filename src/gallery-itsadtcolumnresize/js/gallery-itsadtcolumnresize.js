@@ -878,7 +878,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             var instance = this,
                 dt = instance.datatable,
                 scrollAttrs = dt.get('scrollable'),
-                xScrollableTable = (scrollAttrs==='x') || (scrollAttrs==='xy') || (scrollAttrs===true);
+                xScrollableTable = scrollAttrs && (scrollAttrs.indexOf('x')>-1);
 
             if (!xScrollableTable) {
                 // always activate the xScroller --> this way we can controll the colwidths in a decent matter
@@ -889,7 +889,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     Y.bind(
                         function(Y) {
                             Y.log('Adding a x-scroller', 'info', 'DTColumnResize');
-                            dt.set('scrollable', (dt.get('scrollable')==='y') ? 'xy' : 'x');
+                            dt.set('scrollable', (scrollAttrs && (scrollAttrs.indexOf('y')>-1)) ? 'xy' : 'x');
                             this._initUI();
                         },
                         instance
