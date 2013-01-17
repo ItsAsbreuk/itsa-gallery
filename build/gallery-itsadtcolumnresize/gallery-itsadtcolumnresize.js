@@ -69,6 +69,13 @@ YUI.add('gallery-itsadtcolumnresize', function (Y, NAME) {
  */
 
 /**
+ * Node-reference to datatable's parentNode
+ * @property _datatableParentNode
+ * @type Y.Node
+ * @private
+ */
+
+/**
  * Node-reference to datatable's boundingbox
  * @property _dtBoundingBox
  * @type Y.Node
@@ -247,8 +254,15 @@ YUI.add('gallery-itsadtcolumnresize', function (Y, NAME) {
  */
 
 /**
- * Internal flag that tells whether the original datatable had the width defined
+ * Internal flag that tells whether the datatable has its width-attribute defined
  * @property _dtWidthDefined
+ * @private
+ * @type boolean
+ */
+
+/**
+ * Internal flag that tells whether the datatable has its width-attribute in percent
+ * @property _dtWidthIsPercented
  * @private
  * @type boolean
  */
@@ -283,7 +297,9 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         datatable : null,
         _badColWidth : null,
         _dtWidthDefined : null,
+        _dtWidthIsPercented : null,
         _dtColNodes : null,
+        _datatableParentNode : null,
         _dtBoundingBox : null,
         _dtContentBox : null,
         _dtXScroller : null,
@@ -510,8 +526,9 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         */
         getColumnWidthPercent: function(name, withoutExpansion) {
             var instance = this,
-                width = parseInt(instance._dtXScroller.getStyle('width'), 10) + DATATABLE_BORDERWIDTH,
-                dtWidthWithBorder = instance.getColumnWidthPx(name, withoutExpansion);
+                dtWidthWithBorder = instance._dtWidthDefined ? (parseInt(instance._dtXScroller.getStyle('width'), 10) + DATATABLE_BORDERWIDTH)
+                                    : instance._datatableParentNode.get('offsetWidth'),
+                width = instance.getColumnWidthPx(name, withoutExpansion);
 
             return (100*width/dtWidthWithBorder).toFixed(2) + '%';
         },
@@ -542,8 +559,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
          *
          * @method setColumnWidth
          * @param {Number|String} name key, name, or index of a column in the host's `_displayColumns` array.
-         * @param {Int} width new width in pixels or percent
-         * @param {Int} [expansion] Only to be set internally: to expand the col in order to make it fit with the datatable's width.
+         * @param {int|String} width new width in pixels or percent. Numbers are treated as pixels
+         * @param {int} [expansion] Only to be set internally: to expand the col in order to make it fit with the datatable's width.
          * @return {int|String} final reached columnwidth in pixels (number) or percents (number+'%'), which might differ from which was tried to set
          * @since 0.1
         */
@@ -568,7 +585,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 prevExpansion = (thcell && thcell.getData(EXPANSIONDATA)) || 0,
                 busyResize = instance._busyResize,
                 dtWidth = parseInt(instance._dtXScroller.getStyle('width'), 10),
-                dtWidthWithBorder = instance._dtWidthDefined ? (dtWidth + DATATABLE_BORDERWIDTH) : Y.DOM.winWidth(),
+                dtWidthWithBorder = instance._dtWidthDefined ? (dtWidth + DATATABLE_BORDERWIDTH) : instance._datatableParentNode.get('offsetWidth'),
                 busyTransformAllColumnWidthToPixels = instance._busyTransformAllColumnWidthToPixels,
                 colConfig = dt.getColumn(colIndex),
                 prevWidthPercent = (thcell && thcell.getData(PERCENTEDWIDTHDATA)) || '',
@@ -871,9 +888,10 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         */
         _initUI : function() {
             var instance = this,
-                dt = instance.datatable;
+                dt = instance.datatable,
+                dtWidth = dt.get('width');
 
-            if (dt.get('width')==='') {
+            if (dtWidth==='') {
                 // If no dt-width is defined, then we set it ourselves in order to get the x-scroller rendered
                 // Also, we must store the fact that the original dt had no width specified: when resizing colls this will lead to expansion of the dt
                 // The final tablewidth will be set after resizing
@@ -883,6 +901,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             }
             else {
                 instance._dtWidthDefined = true;
+                instance._dtWidthIsPercented = (dtWidth.substr(dtWidth.length-1)==='%');
             }
             instance._initPrivateVars();
             instance._justifyTableWidth();
@@ -935,11 +954,10 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             if (dt._scrollResizeHandle) {
                 dt._scrollResizeHandle.detach();
             }
+
             dt._scrollResizeHandle = Y.on(
                 'resize',
-                instance._syncScrollUIPercentedDT,
-                null,
-                instance
+                Y.rbind(instance._syncScrollUIPercentedDT, instance)
             );
 
             if (Lang.isBoolean(sortable) && sortable) {
@@ -1046,7 +1064,11 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 dt = instance.datatable;
 
             // will always be during rendering dt, so we need to suppress first call
-            if (instance._resizeEventMayOccur) {
+            if (instance._resizeEventMayOccur && instance._dtWidthIsPercented) {
+                // Actually we SHOULD call this method ALSO when datatable has no width specified,
+                // and when there are percented cols available --> they need new width.
+                // However, calling dt._syncScrollUI, or dt.set('width') will lead to hanging the
+                // resize-event --> for 1 time everything is excecuted, but the resizeevent never fires again !!!!
                 Y.rbind(dt._syncScrollUI, dt)();
                 instance.syncTableUI();
             }
@@ -1112,7 +1134,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             var instance = this, dt,
                 yScrollerContainer = instance._dtYScrollerContainer,
                 resizeMargin, resizeMarginHalf, th, lastTh, allTh,
-                mouseX, thWidth, thX, mouseInLeftNode;
+                mouseX, thWidth, thX, mouseInLeftNode, leftColIndex;
 
             if (instance._resizeApproved) {
                 instance._busyResize = true;
@@ -1146,8 +1168,9 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     instance._mouseOffset = thX-mouseX;
                 }
                 allTh = th.get('parentNode').all('th');
-                instance._leftColIndex = allTh.indexOf(instance._leftThNode);
-                instance._initialColWidth = instance.getColumnWidthPx(instance._leftColIndex);
+                instance._leftColIndex = leftColIndex = allTh.indexOf(instance._leftThNode);
+                instance._initialColWidth = instance.columnWidthIsPercent(leftColIndex) ? instance.getColumnWidthPercent(leftColIndex)
+                                            : instance.getColumnWidthPx(leftColIndex);
                 instance._changeUnselectableIE(true);
             }
         },
@@ -1169,7 +1192,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         _stopResize: function(e) {
             var instance = this,
                 dt = instance.datatable,
-                finalColWidth;
+                leftColIndex = instance._leftColIndex,
+                dtWidthWithBorder, finalColWidth;
 
             if (instance._busyResize) {
                 // resizing will be ending. Fire event.
@@ -1183,7 +1207,13 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 // Don't know why, but we need to e.halt in order to fire a new event.
                 e.halt();
                 if (instance._initialColWidth !== finalColWidth) {
-                    dt.fire('colWidthChange', {colIndex: instance._leftColIndex, prevVal: instance._initialColWidth, newVal: finalColWidth});
+                    // to return the with in percent (when needed), transform width
+                    if (instance.columnWidthIsPercent(leftColIndex)) {
+                        dtWidthWithBorder = instance._dtWidthDefined ? (parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH)
+                                            : instance._datatableParentNode.get('offsetWidth');
+                        finalColWidth = (100*finalColWidth/dtWidthWithBorder).toFixed(2) + '%';
+                    }
+                    dt.fire('colWidthChange', {colIndex: leftColIndex, prevVal: instance._initialColWidth, newVal: finalColWidth});
                 }
                 // set _comingFromResize to false AFTER a delay --> sorting headers will notice a click that needs to be prevented by this value
                 Y.later(
@@ -1274,11 +1304,11 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     if (instance._dtWidthDefined && (leftColIndex===lastColIndex) && (setNewLeftWidth<prevWidth)) {
                         setNewLeftWidth = prevWidth - Math.min((prevWidth-setNewLeftWidth), (widthCompairContainer-widthXScroller+distributedSpace));
                     }
-                    if (instance.columnWidthIsPercent(leftColIndex) && instance._dtWidthDefined) {
+                    if (instance.columnWidthIsPercent(leftColIndex)) {
                         // set the new size in percent and NOT in pixels
                         // Only if the datatable-width is defined: if not, then percented-col has no meaning and we transform the colwidth to pixels
                         dtWidthWithBorder = instance._dtWidthDefined ? (parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH)
-                                            : Y.DOM.winWidth();
+                                            : instance._datatableParentNode.get('offsetWidth');
                         setNewLeftWidth = (100*setNewLeftWidth/dtWidthWithBorder).toFixed(2)+'%';
                         prevWidth = (100*prevWidth/dtWidthWithBorder).toFixed(2)+'%';
                     }
@@ -1351,6 +1381,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
 
             instance._bodyNode = Y.one('body');
             instance._dtBoundingBox = dt.get('boundingBox');
+            instance._datatableParentNode = instance._dtBoundingBox.get('parentNode');
             instance._dtContentBox = contentBox = dt.get('contentBox');
             instance._dtRealDataTable = realDataTable = contentBox.one('.'+dt.getClassName('table'));
             instance._dtXScroller = contentBox.one('.'+dt.getClassName('x', 'scroller'));
@@ -1377,11 +1408,13 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         */
         _justifyTableAfterTableWidthChange : function() {
             var instance = this,
-                dt = instance.datatable;
+                dt = instance.datatable,
+                dtWidth;
 
             // do not do this when busyResizing, because it will interfer, and it was meant for react for external width-changes
             if (!instance._busyResize) {
-                if (dt.get('width')==='') {
+                dtWidth = dt.get('width');
+                if (dtWidth==='') {
                     // If no dt-width is defined, then we set it ourselves in order to get the x-scroller rendered
                     // Also, we must store the fact that the original dt had no width specified: when resizing colls this will lead to
                     // expansion of the dt
@@ -1392,6 +1425,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 }
                 else {
                     instance._dtWidthDefined = true;
+                    instance._dtWidthIsPercented = (dtWidth.substr(dtWidth.length-1)==='%');
                 }
                 instance.syncTableUI();
             }
@@ -1433,10 +1467,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 yScrollerContainer.setStyle('width', '1px');
             }
 
-
             // ALWAYS transform columnwidth to pixels. This is KEY to a predictable colwidth. But first reset lastcolwidthexpansion
             totalWidth = instance._transformAllColumnWidthToPixels();
-
             // instance._distributedSpace should have been set to 0 by instance._transformAllColumnWidthToPixels
             // but just in case there are roundingerrors we set it exactly to 0
             if (instance._distributedSpace>0) {
@@ -1532,7 +1564,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             var instance = this,
                 dt = instance.datatable,
                 dtWidthWithBorder = instance._dtWidthDefined ? (parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH)
-                                    : Y.DOM.winWidth(),
+                                    : instance._datatableParentNode.get('offsetWidth'),
                 notSpecCols = instance._notSpecCols,
                 usedSpace = 0,
                 remainingSpace = 0,
@@ -1702,6 +1734,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         _syncYScrollerUI : function(tableWidth, comesFromCheckRemainingColSpace) {
             // always scrollabeY when called
             var instance = this,
+                dt = instance.datatable,
                 realDataTable = instance._dtRealDataTable,
                 yScrollerContainer = instance._dtYScrollerContainer,
                 prevWidthYScrollerContainer, xScrollerWidth;
@@ -1713,12 +1746,6 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     // never sync to values below xScroller-width
                     xScrollerWidth = parseInt(instance._dtXScroller.getStyle('width'), 10);
                     tableWidth = Math.max(tableWidth, xScrollerWidth);
-/*
-if ((tableWidth>xScrollerWidth) && (tableWidth<(xScrollerWidth+instance._scrollbarOffset))) {
-var dt = instance.datatable;
-    Y.rbind(dt._syncScrollUI, dt)();
-}
-*/
                     realDataTable.setStyle('width', (tableWidth-instance._scrollbarOffset)+'px');
                 }
                 else {
@@ -1737,7 +1764,7 @@ var dt = instance.datatable;
                     instance._checkRemainingColSpace(prevWidthYScrollerContainer);
                 }
                 if (!instance._dtWidthDefined) {
-                    instance.datatable._syncScrollUI();
+                    Y.rbind(dt._syncScrollUI, dt)();
                 }
                 // The scrollbar NEEDS to be set AFTER _checkRemainingColSpace and after _syncScrollUI
                 instance._dtYScrollBar.setStyle('left', (parseInt(instance._dtXScroller.getStyle('width'),10)-15)+'px');
@@ -1917,7 +1944,6 @@ var dt = instance.datatable;
     "requires": [
         "base-build",
         "plugin",
-        "dom-screen",
         "node-base",
         "node-screen",
         "node-event-delegate",

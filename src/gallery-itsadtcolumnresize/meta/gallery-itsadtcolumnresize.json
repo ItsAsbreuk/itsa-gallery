@@ -3,7 +3,6 @@
         "requires": [
             "base-build",
             "plugin",
-            "dom-screen",
             "node-base",
             "node-screen",
             "node-event-delegate",
