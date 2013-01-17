@@ -568,7 +568,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 prevExpansion = (thcell && thcell.getData(EXPANSIONDATA)) || 0,
                 busyResize = instance._busyResize,
                 dtWidth = parseInt(instance._dtXScroller.getStyle('width'), 10),
-                dtWidthWithBorder = dtWidth + DATATABLE_BORDERWIDTH,
+                dtWidthWithBorder = instance._dtWidthDefined ? (dtWidth + DATATABLE_BORDERWIDTH) : Y.DOM.winWidth(),
                 busyTransformAllColumnWidthToPixels = instance._busyTransformAllColumnWidthToPixels,
                 colConfig = dt.getColumn(colIndex),
                 prevWidthPercent = (thcell && thcell.getData(PERCENTEDWIDTHDATA)) || '',
@@ -579,12 +579,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 widthPxAttempt, widthChange, widthTypeChange, expansionChange, eventPrevValue;
 
             expansion = expansion || 0;
-            if (!instance._dtWidthDefined && newWidthPercented) {
-                width = instance.get('minColWidth');
-            }
-            else {
-                width = newWidthPercented ? parseFloat(width) : parseInt(width, 10);
-            }
+            width = newWidthPercented ? parseFloat(width) : parseInt(width, 10);
             widthChange = newWidthPercented ? (prevWidthPercent!==(width+'%')) : (width!==prevWidthPx);
             widthTypeChange = (newWidthPercented!==prevWidthPercented);
             expansionChange = (expansion!==prevExpansion);
@@ -1282,7 +1277,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     if (instance.columnWidthIsPercent(leftColIndex) && instance._dtWidthDefined) {
                         // set the new size in percent and NOT in pixels
                         // Only if the datatable-width is defined: if not, then percented-col has no meaning and we transform the colwidth to pixels
-                        dtWidthWithBorder = parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH;
+                        dtWidthWithBorder = instance._dtWidthDefined ? (parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH)
+                                            : Y.DOM.winWidth();
                         setNewLeftWidth = (100*setNewLeftWidth/dtWidthWithBorder).toFixed(2)+'%';
                         prevWidth = (100*prevWidth/dtWidthWithBorder).toFixed(2)+'%';
                     }
@@ -1535,7 +1531,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
         _transformAllColumnWidthToPixels: function() {
             var instance = this,
                 dt = instance.datatable,
-                dtWidthWithBorder = parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH,
+                dtWidthWithBorder = instance._dtWidthDefined ? (parseInt(instance._dtXScroller.getStyle('width'),10) + DATATABLE_BORDERWIDTH)
+                                    : Y.DOM.winWidth(),
                 notSpecCols = instance._notSpecCols,
                 usedSpace = 0,
                 remainingSpace = 0,
@@ -1568,14 +1565,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                             if (thcell) {
                                 thcell.setData(PERCENTEDWIDTHDATA, configWidth);
                             }
-                            if (instance._dtWidthDefined) {
-                                configWidth = colConfigObject.width = Math.round(dtWidthWithBorder*parseFloat(configWidth)/100)+'px';
-                            }
-                            else {
-                                // treat as null, the width will be unpredictable: thus the col needs to be as small as posible
-                                // just as if configWidth would have been undefined
-                                configWidth = null;
-                            }
+                            configWidth = colConfigObject.width = Math.round(dtWidthWithBorder*parseFloat(configWidth)/100)+'px';
                         }
                         else {
                             if (thcell) {
@@ -1927,6 +1917,7 @@ var dt = instance.datatable;
     "requires": [
         "base-build",
         "plugin",
+        "dom-screen",
         "node-base",
         "node-screen",
         "node-event-delegate",
