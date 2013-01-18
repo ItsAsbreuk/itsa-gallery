@@ -792,12 +792,13 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 Y.log('setColumnWidth has set column '+colIndex+' to '+width + (newWidthPercented ? '' : 'px'),'info', 'DTColumnResize');
                 if (!busyResize || busyDistributeRemainingSpace) {
                     /**
-                     * In case of a resized column, resize:colWidthChange will be fired by the host-datatable during resizing
+                     * In case of a resized column, colWidthChange will be fired by the host-datatable during resizing
+                     * When pixels are set: a number is returned, in case of percented value: a String (ending with %)
                      * @event colWidthChange
                      * @param {EventFacade} e Event object
                      * @param {Int} e.colIndex
-                     * @param {Int} e.prevVal
-                     * @param {Int} e.newVal
+                     * @param {Int|String} e.prevVal
+                     * @param {Int|String} e.newVal
                     */
                     // CAUTIOUS: if (fireInPercent && !newWidthPercented), then width is still in pixels, but we need percents to be fired!
                     dt.fire('colWidthChange', {colIndex: colIndex, prevVal: eventPrevValue,
@@ -1368,11 +1369,12 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     if (prevWidth!==newWidth) {
                         /**
                          * In case of a resized column, resize:colWidthChange will be fired by the host-datatable during resizing
+                         * When pixels are set: a number is returned, in case of percented value: a String (ending with %)
                          * @event resize:colWidthChange
                          * @param {EventFacade} e Event object
                          * @param {Int} e.colIndex
-                         * @param {Int} e.prevVal
-                         * @param {Int} e.newVal
+                         * @param {Int|String} e.prevVal
+                         * @param {Int|String} e.newVal
                         */
                         instance.datatable.fire('resize:colWidthChange', {colIndex: leftColIndex, prevVal: prevWidth, newVal: newWidth});
                     }
@@ -1960,8 +1962,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
 
             /**
              * @description Width of the area where the mouse turns into col-resize<br>
-             * The value correspons with an area that overlaps 2 columns (50% each)<br>
-             * Has the dame purpose as resizeMarginTouchDevice, only resizeMargin will be used on non-mobile devices<br>
+             * The value corresponds with an area that overlaps 2 columns (50% each)<br>
+             * Has the same purpose as resizeMarginTouchDevice, only resizeMargin will be used on non-mobile devices<br>
              * While resizeMarginTouchDevice will be used on mobile devices<br>
              * minimum value = 2<br>
              * maximum value = 60
@@ -1979,8 +1981,8 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
 
             /**
              * @description Width of the area where you can resize in touchdevices.<br>
-             * The value correspons with an area that overlaps 2 columns (50% each)<br>
-             * Has the dame purpose as resizeMargin, only resizeMargin will be used on non-mobile devices<br>
+             * The value corresponds with an area that overlaps 2 columns (50% each)<br>
+             * Has the same purpose as resizeMargin, only resizeMargin will be used on non-mobile devices<br>
              * While resizeMarginTouchDevice will be used on mobile devices<br>
              * minimum value = 2<br>
              * maximum value = 60
