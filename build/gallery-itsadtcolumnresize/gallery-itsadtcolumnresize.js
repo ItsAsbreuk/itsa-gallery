@@ -391,7 +391,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
          * adding expansion when other cols get width-changes. Can only be done if the DataTable has a defined width (either in pixels or percent)
          * Does not return result, because you would have to define whether you want the result with or without added expansion
          * (extra space that might be added to the column in order to make it fit the DataTable-width)
-         * @method transformToPixels
+         * @method transformToUndefinedWidth
          * @param {String} name key or name of a column in the host's `_displayColumns` array.
          * @since 0.1
         */
