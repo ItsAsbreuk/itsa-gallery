@@ -606,6 +606,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                 prevWidthPercent = (thcell && thcell.getData(PERCENTEDWIDTHDATA)) || '',
                 prevWidthPercented = (prevWidthPercent.length>0),
                 newWidthPercented = width && width.substr && (width.substr(width.length-1)==='%'),
+                busyDistributeRemainingSpace = instance._busyDistributeRemainingSpace,
                 resetContainer, tableToBackup, noWidthCol, bkpColWidth, lastIndex, bkpDatatableWidth, badColWidth,
                 newWidth, getCellStyle, setColWidth, setCellWidth, corrected, scrollThDiv, scrollTh,
                 widthPxAttempt, widthChange, widthTypeChange, expansionChange, eventPrevValue;
@@ -750,7 +751,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                                                             getCellStyle(scrollTh, 'borderLeftWidth') -
                                                             getCellStyle(scrollTh, 'borderRightWidth'));
                         setColWidth(scrollThDiv, corrected);
-                        if (!instance._busyDistributeRemainingSpace && !instance._busyTransformAllColumnWidthToPixels) {
+                        if (!busyDistributeRemainingSpace && !busyTransformAllColumnWidthToPixels) {
                             if (instance._dtWidthDefined) {
                                 yScrollerContainer.setStyle('width', newWidth+'px');
                                 instance._checkRemainingColSpace();
@@ -763,7 +764,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                         }
                     }
                     else {
-                        if (!instance._busyDistributeRemainingSpace && !instance._busyTransformAllColumnWidthToPixels) {
+                        if (!busyDistributeRemainingSpace && !busyTransformAllColumnWidthToPixels) {
                             Y.log('setColumnWidth: setting tablewidth from '+bkpDatatableWidth +'px --> '+newWidth+'px', 'info', 'DTColumnResize');
                             realDataTable.setStyle('width', newWidth+'px');
                             if (!instance._dtWidthDefined) {
@@ -791,7 +792,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     width = (100*width/dtWidthWithBorder).toFixed(2) + '%';
                 }
                 Y.log('setColumnWidth has set column '+colIndex+' to '+width + (newWidthPercented ? '' : 'px'),'info', 'DTColumnResize');
-                if (!busyResize) {
+                if (!busyResize || busyDistributeRemainingSpace) {
                     /**
                      * In case of a resized column, resize:colWidthChange will be fired by the host-datatable during resizing
                      * @event colWidthChange
