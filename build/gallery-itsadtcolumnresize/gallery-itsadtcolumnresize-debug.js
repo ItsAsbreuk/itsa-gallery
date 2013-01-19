@@ -2008,7 +2008,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
              * @since 0.1
             */
             resizeMargin: {
-                value: 10,
+                value: 16,
                 validator: function(val) {
                     return (Y.Lang.isNumber(val) && (val>=2) && (val<=60));
                 }
@@ -2027,7 +2027,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
              * @since 0.1
             */
             resizeMarginTouchDevice: {
-                value: 20,
+                value: 32,
                 validator: function(val) {
                     return (Y.Lang.isNumber(val) && (val>=2) && (val<=60));
                 }
