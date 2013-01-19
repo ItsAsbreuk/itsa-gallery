@@ -2008,7 +2008,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
              * @since 0.1
             */
             resizeMargin: {
-                value: 16,
+                value: 14,
                 validator: function(val) {
                     return (Y.Lang.isNumber(val) && (val>=2) && (val<=60));
                 }
