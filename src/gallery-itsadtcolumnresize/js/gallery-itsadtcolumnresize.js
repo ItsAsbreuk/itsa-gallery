@@ -4,6 +4,22 @@
  * DataTable ColumnResize Plugin
  *
  *
+ * If you want to make the columns resizable, than you just define the datatable-attribute 'colsresizable' like:
+ *
+ * myDatatable.set('colsresizable', true);
+ *
+ * This can be done at initialisation of the datatable, before Y.Plugin.ITSADTColumnResize is plugged in, or later on.
+ * The attribute 'colsresizable' can have three states:
+ *
+ * <ul>
+ * <li>true --> all columns are resizable</li>
+ * <li>false --> colresizing is disabled</li>
+ * <li>null/undefined --> colresizing is active where only columns(objects) that have the property 'resizable' will be resizable</li>
+ * </ul>
+ *
+ * If myDatatable.get('colsresizable') is undefined or null, then only columns with colConfig.resizable=true are resizable.
+ *
+ *
  * @module gallery-itsadtcolumnresize
  * @class Plugin.ITSADTColumnResize
  * @extends Plugin.Base
@@ -941,7 +957,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             // Justify the tablewidth again after one of these changes:
             eventhandlers.push(
                 dt.after(
-                    ['colsresizableChange'],
+                    'colsresizableChange',
                     instance._activateColResizer,
                     instance
                 )
@@ -961,7 +977,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             // Justify the tablewidth again after render view or when there is a columnChange
             eventhandlers.push(
                 dt.after(
-                    ['widthChange'],
+                    'widthChange',
                     instance._justifyTableAfterTableWidthChange,
                     instance
                 )
@@ -1400,15 +1416,6 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
                     }
                     newWidth = instance.setColumnWidth(leftColIndex, setNewLeftWidth);
                     if (prevWidth!==newWidth) {
-                        /**
-                         * In case of a resized column, resize:colWidthChange will be fired by the host-datatable during resizing
-                         * When pixels are set: a number is returned, in case of percented value: a String (ending with %)
-                         * @event resize:colWidthChange
-                         * @param {EventFacade} e Event object
-                         * @param {Int} e.colIndex
-                         * @param {Int|String} e.prevVal
-                         * @param {Int|String} e.newVal
-                        */
                         instance.datatable.fire('resize:colWidthChange', {colIndex: leftColIndex, prevVal: prevWidth, newVal: newWidth});
                     }
                 }
