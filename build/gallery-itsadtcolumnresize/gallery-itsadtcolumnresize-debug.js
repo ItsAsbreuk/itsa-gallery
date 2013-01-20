@@ -591,7 +591,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
          * @param {Number|String} name key, name, or index of a column in the host's `_displayColumns` array.
          * @param {int|String} width new width in pixels or percent. Numbers are treated as pixels
          * @param {int} [expansion] Only to be set internally: to expand the col in order to make it fit with the datatable's width.
-         * @param {int} [fireInPercent] Only to be set internally: force the widthChange-event to fire e.newVal in percent
+         * @param {boolean} [fireInPercent] Only to be set internally: force the widthChange-event to fire e.newVal in percent
          * @return {int|String} final reached columnwidth in pixels (number) or percents (number+'%'), which might differ from which was tried to set
          * @since 0.1
         */
