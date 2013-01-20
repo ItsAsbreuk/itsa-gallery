@@ -1596,10 +1596,10 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
 
             if (scrollY) {
                 dtScrollHeader.all('th').each(
-                    function(th, index) {
+                    function(th) {
                         // add the resizeclass to the th-elements of the scrollable header
-                        colObject = dt.getColumn(index);
-                        th.toggleClass(RESIZABLE_COLUMN_CLASS, Lang.isBoolean(colObject.resizable) && colObject.resizable);
+                        colObject = dt.getColumn(th.getAttribute('data-yui3-col-id'));
+                        th.toggleClass(RESIZABLE_COLUMN_CLASS, colObject && Lang.isBoolean(colObject.resizable) && colObject.resizable);
                     }
                 );
                 // Next is a fix to have the y-scroller also visible in browsers that autohide it (chrome, safari)
@@ -1609,9 +1609,9 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
             else {
                 // If not y-scroller, then add the resizeclass to the th-elements of the real datatable
                 allThRealHeader.each(
-                    function(th, index) {
-                        colObject = dt.getColumn(index);
-                        th.toggleClass(RESIZABLE_COLUMN_CLASS, Lang.isBoolean(colObject.resizable) && colObject.resizable);
+                    function(th) {
+                        colObject = dt.getColumn(th.getAttribute('data-yui3-col-id'));
+                        th.toggleClass(RESIZABLE_COLUMN_CLASS, colObject && Lang.isBoolean(colObject.resizable) && colObject.resizable);
                     }
                 );
                 if (!dtWidthDefined) {
