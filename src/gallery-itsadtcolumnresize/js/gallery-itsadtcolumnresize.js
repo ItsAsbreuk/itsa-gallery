@@ -1023,7 +1023,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
          * then this method should be excecuted to make the UI fit again!
          *
          * @method _syncTableUI
-         * private
+         * @private
          * @since 0.1
          *
         */
