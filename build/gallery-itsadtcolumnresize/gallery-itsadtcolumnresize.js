@@ -1953,7 +1953,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
              * While resizeMarginTouchDevice will be used on mobile devices<br>
              * minimum value = 2<br>
              * maximum value = 60
-             * @default 10
+             * @default 14
              * @attribute resizeMargin
              * @type int
              * @since 0.1
@@ -1972,7 +1972,7 @@ Y.namespace('Plugin').ITSADTColumnResize = Y.Base.create('itsadtcolumnresize', Y
              * While resizeMarginTouchDevice will be used on mobile devices<br>
              * minimum value = 2<br>
              * maximum value = 60
-             * @default 20
+             * @default 32
              * @attribute resizeMarginTouchDevice
              * @type int
              * @since 0.1
