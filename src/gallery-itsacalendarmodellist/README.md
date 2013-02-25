@@ -2,7 +2,8 @@ gallery-itsacalendarmodellist
 =============================
 
 Adds the feature to attach a ModelList to Calendar.
-Is an extention to Y.Calendar, meaning that you can call these methods like myCalendar.getModelsInYear(2015);
+Is an extention to Y.Calendar, meaning that you can call these methods like this:
+myCalendar.getModelsInYear(2015);
 
 <i>Uses <b>gallery-itsacalendarmarkeddates</b> under the hood.</i>
 
@@ -40,27 +41,36 @@ So, we need to specify modelConfig like this:
 myModelConfig = {
         date: 'starts',
         enddate: 'ends',
-     // intervalMinutes: '',  -- not needed in this examples
-     // intervalHours: '',  -- not needed in this examples
-     // intervalDays: '',  -- not needed in this examples
+     // intervalMinutes: '',  <-- not needed in this example
+     // intervalHours: '',  <-- not needed in this example
+     // intervalDays: '',  <-- not needed in this example
         intervalMonths: 'monthStep',
         count: 'repeattimes'
 };
 ```
 
-When a Date in the Calendar is clicked, Calendar fires a <b>modelSelectionChange</b>-event which holds an Array of unique bound Models.
-to the Date-selection
+When a Date in the Calendar is clicked, Calendar fires a <b>modelSelectionChange</b>-event which holds an Array of unique bound Models
+regarding to the selectedDates.
+
+Examples
+--------
+[Online example](http://projects.itsasbreuk.nl/examples/itsacalendarmodellist/index.html)
+
+Documentation
+--------------
+
+[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/ITSACalendarMarkedDates.html)
 
 Usage
 -----
 
-<u><b>Example 1:</b></u>
+<u><b>Usage 1:</b></u>
 ```js
 var myModelList = new Y.ModelList(),
     appointment1, appointment2;
 
     appointment1 = new Y.Model({
-        name: 'Visit Marco',
+        name: 'Fishing',
         when: new Date(2013, 01, 03)
     });
 
@@ -84,13 +94,13 @@ var myModelList = new Y.ModelList(),
      Y.log('Is there an event at 3-feb 2013? '+myCalendar.dateHasModels(new Date(2013, 01, 03)));
 ```
 
- <u><b>Example 2:</b></u>
+ <u><b>Usage 2:</b></u>
 ```js
 var myModelList = new Y.ModelList(),
     appointment1, appointment2, myModelConfig;
 
     appointment1 = new Y.Model({
-        name: 'YUI Conf',
+        name: 'Skiing',
         starting: new Date(2013, 01, 03),
         ending: new Date(2013, 01, 05)
     });
@@ -124,13 +134,15 @@ var myModelList = new Y.ModelList(),
 
 <u><b>Custom styling:</b></u>
 
-The way Matched-Dates are styled can be altered by overruling three styles:
-     '.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-itsa-markeddate'
-and  '.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-itsa-markeddate:hover'
-and  '.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-prevmonth-day.yui3-itsa-markeddate,
-      .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-nextmonth-day.yui3-itsa-markeddate,
-      .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-prevmonth-day.yui3-itsa-markeddate:hover,
-      .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-nextmonth-day.yui3-itsa-markeddate:hover'
+The way matched-Dates are styled can be altered by overruling these styles:
+```js
+.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-itsa-markeddate {}
+.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-itsa-markeddate:hover {}
+.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-prevmonth-day.yui3-itsa-markeddate,
+  .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-nextmonth-day.yui3-itsa-markeddate,
+  .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-prevmonth-day.yui3-itsa-markeddate:hover,
+  .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-nextmonth-day.yui3-itsa-markeddate:hover {}
+```
 
 To make sure your new rule takes higher precedence, be sure you give it a finer declaration. For example no dots but red color:
 ```js
@@ -143,18 +155,13 @@ To make sure your new rule takes higher precedence, be sure you give it a finer 
     color: #F00;
 }
 .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-prevmonth-day.yui3-itsa-markeddate,
-.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-nextmonth-day.yui3-itsa-markeddate,
-.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-prevmonth-day.yui3-itsa-markeddate:hover,
-.yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-nextmonth-day.yui3-itsa-markeddate:hover {
+  .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-nextmonth-day.yui3-itsa-markeddate,
+  .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-prevmonth-day.yui3-itsa-markeddate:hover,
+  .yui3-skin-sam .yui3-calendar-itsa-markeddates .yui3-calendar-content .yui3-calendar-nextmonth-day.yui3-itsa-markeddate:hover {
     background-image: none;
     color: #A00;
 }
 ```
-
-Documentation
---------------
-
-[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/ITSACalendarMarkedDates.html)
 
 License
 -------
