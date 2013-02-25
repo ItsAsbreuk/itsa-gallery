@@ -147,7 +147,7 @@
  * @class ITSACalendarModelList
  * @since 3.8.1
  *
- * <i>Copyright (c) 2013 Marco Asbreuk - http://itsasbreuk.nl</i>
+ * <i>Copyright (c) 2013 Its Asbreuk - http://itsasbreuk.nl</i>
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
 **/
 
