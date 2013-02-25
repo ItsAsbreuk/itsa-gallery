@@ -166,5 +166,6 @@ To make sure your new rule takes higher precedence, be sure you give it a finer 
 License
 -------
 
-Copyright (c) 2013 Its Asbreuk - http://itsasbreuk.nl
+Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
+
 [YUI BSD License](http://developer.yahoo.com/yui/license.html)
