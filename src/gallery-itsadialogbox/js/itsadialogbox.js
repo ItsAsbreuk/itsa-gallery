@@ -8,7 +8,7 @@
 
 /**
  * Dialogbox with sugar messages
- * 
+ *
  *
  * @class ITSADialogbox
  * @extends Panel
@@ -37,7 +37,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         ACTION_STAYALIVE : '_actionStayAlive',
         ACTION_RESET : '_actionReset',
         ACTION_CLEAR : '_actionClear',
-        panelOptions : [], 
+        panelOptions : [],
         _activePanelOption : null,
         _validationButtons : null,
         _descendantChange : 0,
@@ -152,11 +152,11 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                <br>&nbsp;&nbsp;{
                     <br>&nbsp;&nbsp;&nbsp;&nbsp;footer: [
                         <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'cancel', label:'Cancel', action: Y.Global.ItsaDialog.ACTION_HIDE},
-                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'ok', label:'Ok', action: Y.Global.ItsaDialog.ACTION_HIDE, validation: true, isDefault: true}    
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:'ok', label:'Ok', action: Y.Global.ItsaDialog.ACTION_HIDE, validation: true, isDefault: true}
                     <br>&nbsp;&nbsp;&nbsp;&nbsp;]
                &nbsp;&nbsp;}
-               </li>    
-            </ul>    
+               </li>
+            </ul>
             <br><br>
             You can use 4 actionfunctions to attach at the button: Y.Global.ItsaDialog.ACTION_HIDE, Y.Global.ItsaDialog.ACTION_STAYALIVE, Y.Global.ItsaDialog.ACTION_RESET and Y.Global.ItsaDialog.ACTION_CLEAR
          * @method definePanel
@@ -219,7 +219,8 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     title = '&nbsp;'; // making the header appear
                 }
                 instance.set('headerContent', title || '&nbsp;'); // always making the header appear by display &nbsp;
-                instance.set('bodyContent', (iconClass ? Lang.sub(ITSADIALOG_ICON_TEMPLATE, {iconclass: iconClass}) : '') + Lang.sub(ITSADIALOG_BODY_TEMPLATE, {bdclass: (iconClass ? ' class="itsadialogbox-messageindent"' : ''), bdtext: bodyText}));
+                instance.set('bodyContent', (iconClass ? Lang.sub(ITSADIALOG_ICON_TEMPLATE, {iconclass: iconClass}) : '')
+                    + Lang.sub(ITSADIALOG_BODY_TEMPLATE, {bdclass: (iconClass ? ' class="itsadialogbox-messageindent"' : ''), bdtext: bodyText}));
                 instance.set('buttons', customButtons || instance._activePanelOption.buttons || {});
                 instance._activePanelOption.callback = callback;
                 instance._activePanelOption.context = context;
@@ -236,7 +237,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         //==============================================================================
-      
+
         /**
          * Shows a Panel with the buttons: <b>Abort Ignore Retry</b><br>
          * Look for <i>e.buttonName</i> to determine which button is pressed.
@@ -329,7 +330,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 usernameLabel: 'username',
                 passwordLabel: 'password',
                 defaultUsername: 'enter username'
-            };                
+            };
             instance.inputElementUsername = new Y.ITSAFORMELEMENT({
                 label: logindata.usernameLabel,
                 name: 'username',
@@ -592,11 +593,11 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             e.preventDefault();
             if (!button.hasClass('yui3-button-disabled')) {
                 ev.buttonName = e.target.getData('name');
-                instance.hide();       
+                instance.hide();
                 if (Y.Lang.isFunction(instance._activePanelOption.callback)) {
                     Y.rbind(instance._activePanelOption.callback, instance._activePanelOption.context, ev, instance._activePanelOption.args)();
                 }
-            } 
+            }
         },
 
         /**
@@ -618,7 +619,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 if (Y.Lang.isFunction(instance._activePanelOption.callback)) {
                     Y.rbind(instance._activePanelOption.callback, instance._activePanelOption.context, ev, instance._activePanelOption.args)();
                 }
-            } 
+            }
         },
 
         /**
@@ -681,7 +682,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 contentBox = instance.get('contentBox'),
                 focusManager = contentBox.focusManager;
             instance._panelListener = contentBox.on(
-                'keydown', 
+                'keydown',
                 function (e) {
                     if (e.keyCode === 9) { // tab
                         Y.log('tabkey pressed', 'info', 'ITSADIALOGBOX');
@@ -791,7 +792,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     if (Lang.isBoolean(backward) && backward) {
                         activeDescendant--;
                         focusManager.focus((activeDescendant<0) ? numberDescendants-1 : activeDescendant);
-                    } 
+                    }
                     else {
                         activeDescendant++;
                         focusManager.focus((activeDescendant>=numberDescendants) ? 0 : activeDescendant);
@@ -929,7 +930,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
             Y.log('destructor', 'info', 'ITSADIALOGBOX');
             var instance = this;
             if (instance.keyDownHandle) {instance.keyDownHandle.detach();}
-            if (instance._panelListener) {instance._panelListener.detach();} 
+            if (instance._panelListener) {instance._panelListener.detach();}
             if (instance._descendantListener) {instance._descendantListener.detach();}
             if (instance._headerMousedownListener) {instance._headerMousedownListener.detach();}
             if (instance._headerMouseupListener) {instance._headerMouseupListener.detach();}
@@ -983,9 +984,9 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         /**
          * Internal method that markes a button with a validated-class if it has button.validation=true<br>
          * @method _markButtonValidated
-         * @param {Object} buttonObject 
+         * @param {Object} buttonObject
          * @param {Int} index
-         * @param {Array} array 
+         * @param {Array} array
          * @private
         */
         _markButtonValidated : function(buttonObject, index, array) {
@@ -1018,9 +1019,9 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                     footer: [
                         {name:'abort', label:'Abort', action:instance.ACTION_HIDE},
                         {name:'ignore', label:'Ignore', action:instance.ACTION_HIDE},
-                        {name:'retry', label:'Retry', action:instance.ACTION_HIDE, isDefault: true}    
+                        {name:'retry', label:'Retry', action:instance.ACTION_HIDE, isDefault: true}
                     ]
-                }    
+                }
             });
             // creating getConfirmation
             instance.definePanel({
@@ -1028,9 +1029,9 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 buttons: {
                     footer: [
                         {name:'no', label:'No', action:instance.ACTION_HIDE, isDefault: true},
-                        {name:'yes', label:'Yes', action:instance.ACTION_HIDE}    
+                        {name:'yes', label:'Yes', action:instance.ACTION_HIDE}
                     ]
-                }    
+                }
             });
             // creating getInput
             instance.definePanel({
@@ -1041,9 +1042,9 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 buttons: {
                     footer: [
                         {name:'cancel', label:'Cancel', action:instance.ACTION_HIDE},
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, validation: true, isDefault: true}    
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, validation: true, isDefault: true}
                     ]
-                }    
+                }
             });
             // creating getNumber
             instance.definePanel({
@@ -1054,35 +1055,35 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 buttons: {
                     footer: [
                         {name:'cancel', label:'Cancel', action:instance.ACTION_HIDE},
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, validation: true, isDefault: true}    
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, validation: true, isDefault: true}
                     ]
-                }    
+                }
             });
             // creating showErrorMessage
             instance.definePanel({
                 iconClass: instance.ICON_ERROR,
                 buttons: {
                     footer: [
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}    
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}
                     ]
-                }    
+                }
             });
             // creating showMessage
             instance.definePanel({
                 buttons: {
                     footer: [
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}    
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}
                     ]
-                }    
+                }
             });
             // creating showWarning
             instance.definePanel({
                 iconClass: instance.ICON_WARN,
                 buttons: {
                     footer: [
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}    
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}
                     ]
-                }    
+                }
             });
 
             // creating loginPanel (id=7)
@@ -1094,9 +1095,9 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 ],
                 buttons: {
                     footer: [
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}    
+                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}
                     ]
-                }    
+                }
             });
         },
 
@@ -1213,7 +1214,7 @@ if (!Y.confirm) {
 
 /**
  * Dialogbox with sugar messages
- * 
+ *
  *
  * @class ITSAFormelement
  * @extends Panel
@@ -1354,14 +1355,14 @@ Y.ITSAFORMELEMENT = Y.Base.create('itsaformelement', Y.Base, [], {
                     return val;
                 },
                 validator: function(val) {
-                    return (Lang.isString(val) && 
-                            ((val==='input') || 
-                             (val==='password') || 
-                             (val==='textarea') || 
-                             (val==='checkbox') || 
-                             (val==='radiogroup') || 
-                             (val==='selectbox') || 
-                             (val==='button') || 
+                    return (Lang.isString(val) &&
+                            ((val==='input') ||
+                             (val==='password') ||
+                             (val==='textarea') ||
+                             (val==='checkbox') ||
+                             (val==='radiogroup') ||
+                             (val==='selectbox') ||
+                             (val==='button') ||
                              (val==='hidden')
                             )
                     );
