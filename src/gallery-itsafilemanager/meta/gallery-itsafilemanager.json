@@ -1,0 +1,16 @@
+{
+    "gallery-itsafilemanager": {
+        "requires": [
+            "base-build",
+            "panel",
+            "node-base",
+            "node-screen",
+            "node-event-delegate",
+            "event-mouseenter",
+            "event-custom",
+            "event-touch",
+            "pluginhost-base"
+        ],
+        "skinnable": false
+    }
+}

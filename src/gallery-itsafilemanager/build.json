@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsafilemanager",
+    "builds": {
+        "gallery-itsafilemanager": {
+            "jsfiles": [
+                "js/gallery-itsafilemanager.js"
+            ]
+        }
+    }
+}

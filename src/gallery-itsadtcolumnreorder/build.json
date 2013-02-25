@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsadtcolumnreorder",
+    "builds": {
+        "gallery-itsadtcolumnreorder": {
+            "jsfiles": [
+                "js/gallery-itsadtcolumnreorder.js"
+            ]
+        }
+    }
+}

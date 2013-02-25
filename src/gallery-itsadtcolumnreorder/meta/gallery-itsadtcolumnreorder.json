@@ -1,0 +1,8 @@
+{
+    "gallery-itsadtcolumnreorder": {
+        "requires": [
+            "widget"
+        ],
+        "skinnable": true
+    }
+}
