@@ -10,10 +10,10 @@ myCalendar.getModelsInYear(2015);
 
 Coupling a ModelList to Calendar-instance results in highlighted dates for each Model that has a 'Date-match'.
 To determine a 'Date-match' the Model must have a field of a Date-type.
-This can be defined with the attribute 'modelConfig.date'. When not defined, this Module will
+This can be defined with the <b>Calendar-attribute</b> <i>'modelConfig.date'</i>. When not defined, this Module will
 automaticly search in the first Model-structure for an appropriate modelConfig.date.
 
-The attribute modelConfig can be omitted. But when applied, it should be an object with
+The Calendar-attribute 'modelConfig' can be omitted. But when applied, it should be an object with
 the next possible fields: <b>date</b>, <b>enddate</b>, <b>count</b>, <b>intervalMinutes</b>,
 <b>intervalHours</b>, <b>intervalDays</b> and <b>intervalMonths</b>.
 
@@ -33,11 +33,12 @@ var someEvent = new Y.Model({
 ```
 
 Without specifying modelConfig, this would lead to just marking 25 feb. 2013.
-But when modelConfig specifies which Model-fields hold what values, we can enhance the behaviour in a way that startDate-endDate is marked
-and that the marking is repeated over 10 years.
+But when Calendar.modelConfig specifies which Model-attributes can be used to extract the appropriate values,
+we can enhance the Model-behaviour in a way that startDate-endDate is marked and that the marking is repeated over 10 years.
 
 So, we need to specify modelConfig like this:
 ```js
+// define Calendar-attribute
 myModelConfig = {
         date: 'starts',
         enddate: 'ends',
