@@ -32,7 +32,7 @@ var someEvent = new Y.Model({
 });
 ```
 
-Without specifying modelConfig, this would lead to just marking 25 feb. 2013.
+Without specifying Calendar.modelConfig, this would lead to just marking 25 feb. 2013.
 But when Calendar.modelConfig specifies which Model-attributes can be used to extract the appropriate values,
 we can enhance the Model-behaviour in a way that startDate-endDate is marked and that the marking is repeated over 10 years.
 
