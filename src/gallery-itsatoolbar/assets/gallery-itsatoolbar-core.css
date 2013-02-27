@@ -12,7 +12,11 @@
 }
 
 .itsa-button-icon {
+    /* cross browser inline block */
+    display: -moz-inline-stack;
     display: inline-block;
+    *display: inline;
+
     height: 19px;
     vertical-align: middle;
     width: 20px;
@@ -38,7 +42,11 @@
     height:15px;
 }
 .yui3-itsaselectlist.itsa-leftalign.itsatoolbar-colors li {
+    /* cross browser inline block */
+    display: -moz-inline-stack;
     display: inline-block;
+    *display: inline;
+
     padding: 2px;
     border: solid 1px #FFF;
 }
@@ -135,7 +143,11 @@
     width: 100%;
     padding: 4px 4px 4px 0px;
     position:static;
+    /* cross browser inline block */
+    display: -moz-inline-stack;
     display: inline-block;
+    *display: inline;
+
     background-color:#E6E6E6;
 
     -webkit-touch-callout: none;
