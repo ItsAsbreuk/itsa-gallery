@@ -1,0 +1,8 @@
+{
+    "gallery-itsascrollviewmodellist": {
+        "requires": [
+            "widget"
+        ],
+        "skinnable": true
+    }
+}

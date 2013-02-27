@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsascrollviewmodellist",
+    "displayName": "Gallery: gallery-itsascrollviewmodellist",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsascrollviewmodellist" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

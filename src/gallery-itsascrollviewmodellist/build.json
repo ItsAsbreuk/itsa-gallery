@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsascrollviewmodellist",
+    "builds": {
+        "gallery-itsascrollviewmodellist": {
+            "jsfiles": [
+                "js/gallery-itsascrollviewmodellist.js"
+            ]
+        }
+    }
+}
