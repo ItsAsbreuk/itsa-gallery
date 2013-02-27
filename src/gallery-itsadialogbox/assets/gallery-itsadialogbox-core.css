@@ -122,7 +122,11 @@
 
 .itsadialogbox-icon {
     position: static;
+    /* cross browser inline block */
+    display: -moz-inline-stack;
     display: inline-block;
+    *display: inline;
+
     float: left;
     width: 44px;
     height: 44px;
