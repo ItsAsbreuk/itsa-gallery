@@ -503,7 +503,7 @@ Y.mix(ITSACalendarMarkedDates.prototype, {
         var instance = this,
             prevMarked = instance._getMarkedDatesList();
 
-        arrayEach(datesArray, instance._removeDatesFromMarked, instance);
+        arrayEach(datesArray, instance._removeDateFromMarked, instance);
         instance._fireMarkChange(prevMarked);
     },
 

@@ -528,7 +528,7 @@ Y.mix(ITSACalendarMarkedDates.prototype, {
             prevMarked = instance._getMarkedDatesList();
 
         Y.log('_removeDatesFromMarked', 'info', 'Itsa-CalendarMarkedDates');
-        arrayEach(datesArray, instance._removeDatesFromMarked, instance);
+        arrayEach(datesArray, instance._removeDateFromMarked, instance);
         Y.log('_removeDatesFromMarked will fire a markChange event', 'info', 'Itsa-CalendarMarkedDates');
         instance._fireMarkChange(prevMarked);
     },
