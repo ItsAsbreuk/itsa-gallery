@@ -67,6 +67,7 @@ Usage
 
 <u><b>Usage 1:</b></u>
 ```js
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('calendar', 'gallery-itsacalendarmodellist', function(Y) {
 var myModelList = new Y.ModelList(),
     appointment1, appointment2;
 
@@ -93,10 +94,12 @@ var myModelList = new Y.ModelList(),
 
      // now check if Calendar has a Model at 3-feb 2013 (no need to wait for Calendar to be rendered):
      Y.log('Is there an event at 3-feb 2013? '+myCalendar.dateHasModels(new Date(2013, 01, 03)));
+});
 ```
 
  <u><b>Usage 2:</b></u>
 ```js
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('calendar', 'gallery-itsacalendarmodellist', function(Y) {
 var myModelList = new Y.ModelList(),
     appointment1, appointment2, myModelConfig;
 
@@ -131,6 +134,7 @@ var myModelList = new Y.ModelList(),
      });
 
      myCalendar.render();
+});
 ```
 
 <u><b>Custom styling:</b></u>
