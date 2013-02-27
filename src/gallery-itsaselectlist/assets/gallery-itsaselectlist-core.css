@@ -146,7 +146,11 @@
 }
 
 .itsa-button-icon {
+    /* cross browser inline block */
+    display: -moz-inline-stack;
     display: inline-block;
+    *display: inline;
+
     height: 20px;
     vertical-align: middle;
     width: 20px;
