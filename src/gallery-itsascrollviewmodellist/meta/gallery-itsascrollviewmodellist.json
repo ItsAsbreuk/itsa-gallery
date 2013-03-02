@@ -1,7 +1,14 @@
 {
     "gallery-itsascrollviewmodellist": {
         "requires": [
-            "widget"
+            "base-build",
+            "node-base",
+            "node-event-delegate",
+            "event-mouseenter",
+            "event-custom",
+            "model",
+            "model-list",
+            "datatype-date-math"
         ],
         "skinnable": true
     }
