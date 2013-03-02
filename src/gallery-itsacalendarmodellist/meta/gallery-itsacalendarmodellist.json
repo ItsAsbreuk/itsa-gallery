@@ -2,6 +2,7 @@
     "gallery-itsacalendarmodellist": {
         "requires": [
             "base-build",
+            "node-base",
             "calendar-base",
             "model",
             "model-list",

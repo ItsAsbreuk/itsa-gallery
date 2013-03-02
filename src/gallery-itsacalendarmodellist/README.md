@@ -50,6 +50,9 @@ myModelConfig = {
 };
 ```
 
+The Calendar-instance will automaticly be updated when there are changes in the Models or ModelList. It also updates when the
+modelList-attribute is changed (attaching another ModelList).
+
 When a Date in the Calendar is clicked, Calendar fires a <b>modelSelectionChange</b>-event which holds an Array of unique bound Models
 regarding to the selectedDates.
 
