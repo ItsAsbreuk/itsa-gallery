@@ -1,0 +1,12 @@
+{
+    "gallery-itsascrollviewdupmodels": {
+        "requires": [
+            "base-build",
+            "node-base",
+            "model",
+            "model-list",
+            "datatype-date-math",
+            "gallery-itsascrollviewmodellist"
+        ]
+    }
+}

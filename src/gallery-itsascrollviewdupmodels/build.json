@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsascrollviewdupmodels",
+    "builds": {
+        "gallery-itsascrollviewdupmodels": {
+            "jsfiles": [
+                "js/gallery-itsascrollviewdupmodels.js"
+            ]
+        }
+    }
+}
