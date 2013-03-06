@@ -657,7 +657,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         },
 
         /**
-         * overrules Y.panel.focus, by focussing on the panel furst, and then using the focusmanager to focus on the right element.
+         * overrules Y.panel.focus, by focussing on the panel first, and then using the focusmanager to focus on the right element.
          * @method focus
         */
         focus: function(){
