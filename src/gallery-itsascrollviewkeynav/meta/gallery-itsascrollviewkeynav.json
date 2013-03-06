@@ -1,0 +1,9 @@
+{
+    "gallery-itsascrollviewkeynav": {
+        "requires": [
+            "base-build",
+            "plugin",
+            "node-base"
+        ]
+    }
+}
