@@ -26,12 +26,15 @@ var Lang = Y.Lang,
     YNode = Y.Node,
     VIEW_TEMPLATE = '<ul role="presentation"></ul>',
     VIEW_MODEL_TEMPLATE = '<li role="presentation"></li>',
+    VIEW_EMPTY_ELEMENT_TEMPLATE = '<li></li>',
+    EMPTY_ELEMENT_CLASS = 'itsa-scrollview-fillelement',
     MODEL_CLASS = 'itsa-scrollviewmodel',
     SVML_CLASS = 'itsa-scrollviewmodellist',
     SVML_SELECTED_CLASS = MODEL_CLASS + '-selected',
     SVML_EVEN_CLASS = MODEL_CLASS + '-even',
     SVML_ODD_CLASS = MODEL_CLASS + '-odd',
     SVML_STYLE_CLASS = SVML_CLASS + '-styled',
+    GROUPHEADER_CLASS = SVML_CLASS + '-groupheader',
     GROUPHEADER1_CLASS = SVML_CLASS + '-groupheader1',
     GROUPHEADER2_CLASS = SVML_CLASS + '-groupheader2',
     GROUPHEADER3_CLASS = SVML_CLASS + '-groupheader3',
@@ -188,15 +191,28 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Function which the developer might override with 'model' as first argument.
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
-     * just above all models (li-elements) that encounter a change in the groupHeader1-value. If overriden: MUST return a valid value for all models.
-     * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
+     * If set true, the last element will not be bounced to the bottm/right edge, but to the top/left edge.
      *
-     * @method groupHeader1
-     * @param {Y.Model} Model to be checked.
+     * @method lastItemOnTop
      * @return {String|Int|Boolean} Model-specific value on which base the module can determine to what groupHeader
      * the Model belongs.
+     * @since 0.1
+     */
+    lastItemOnTop: {
+        value: null,
+        validator: function(v){ return Lang.isBoolean(v);},
+        setter: '_setLastItemOnTop'
+    },
+
+    /**
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
+     * just above all models (li-elements) whom encounter a change in the groupHeader1-value.
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String|Int|Boolean} value for all models.
+     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
+     *
+     * @attribute groupHeader1
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     groupHeader1: {
@@ -206,14 +222,14 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Function which the developer might override with 'model' as first argument.
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader2')
-     * just above all models (li-elements) that encounter a change in the groupHeader2-value. If overriden: MUST return a valid value for all models.
-     * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
+     * just above all models (li-elements) whom encounter a change in the groupHeader2-value.
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String|Int|Boolean} value for all models.
+     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
      *
-     * @param {Y.Model} Model to be checked.
-     * @return {String|Int|Boolean} Model-specific value on which base the module can determine to what groupHeader
-     * @method groupHeader2
+     * @attribute groupHeader2
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     groupHeader2: {
@@ -223,14 +239,14 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Function which the developer might override with 'model' as first argument.
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader3')
-     * just above all models (li-elements) that encounter a change in the groupHeader3-value. If overriden: MUST return a valid value for all models.
-     * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
+     * just above all models (li-elements) whom encounter a change in the groupHeader3-value.
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String|Int|Boolean} value for all models.
+     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
      *
-     * @param {Y.Model} Model to be checked.
-     * @return {String|Int|Boolean} Model-specific value on which base the module can determine to what groupHeader
-     * @method groupHeader3
+     * @attribute groupHeader3
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     groupHeader3: {
@@ -240,13 +256,14 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Method that is responsible for the rendering of all the Models. The developer should override this method in a way
+     * Sttribute that is responsible for the rendering of all the Models. The developer is advised to override this attribute in a way
      * that the rendering of the Models result in the content that is desired.
-     * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
+     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
      *
-     * @method renderModel
-     * @param {Y.Model} model The Model which needs to be rendered.
-     * return {String} Rendered Model-content
+     * @attribute renderGroupHeader1
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     renderModel: {
@@ -256,14 +273,15 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Method that is responsible for the rendering of groupHeader1. The developer may override this method, but can choose not to.
-     * If not overriden, renderGroupHeader1 will render the same output as groupHeader1 returns (except that it's a String).
+     * Determines how the rendering of groupHeader1 takes place. The developer may set this method, but can choose not to.
+     * If not overriden, renderGroupHeader1 will render the same as the attribute 'groupHeader1' (except that it's a String).
      * If the developer wants content other than groupHeader1 generates, he/she can override this method.
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
      * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
      *
-     * @method renderGroupHeader1
-     * @param {Y.Model} model The Model which needs to be rendered.
-     * return {String} Rendered content of groupHeader1
+     * @attribute renderGroupHeader1
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     renderGroupHeader1: {
@@ -273,14 +291,15 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Method that is responsible for the rendering of groupHeader2. The developer may override this method, but can choose not to.
-     * If not overriden, renderGroupHeader2 will render the same output as groupHeader2 returns (except that it's a String).
+     * Determines how the rendering of groupHeader2 takes place. The developer may set this method, but can choose not to.
+     * If not overriden, renderGroupHeader2 will render the same as the attribute 'groupHeader2' (except that it's a String).
      * If the developer wants content other than groupHeader2 generates, he/she can override this method.
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
      * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
      *
-     * @method renderGroupHeader2
-     * @param {Y.Model} model The Model which needs to be rendered.
-     * return {String} Rendered content of groupHeader2
+     * @attribute renderGroupHeader2
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     renderGroupHeader2: {
@@ -290,14 +309,15 @@ ITSAScrollViewModelListExtention.ATTRS = {
     },
 
     /**
-     * Method that is responsible for the rendering of groupHeader3. The developer may override this method, but can choose not to.
-     * If not overriden, renderGroupHeader3 will render the same output as groupHeader3 returns (except that it's a String).
+     * Determines how the rendering of groupHeader3 takes place. The developer may set this method, but can choose not to.
+     * If not overriden, renderGroupHeader3 will render the same as the attribute 'groupHeader3' (except that it's a String).
      * If the developer wants content other than groupHeader3 generates, he/she can override this method.
+     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
      * <u>If you change this method after the scrollview-instance is rendered, you need to call renderView() to make the changes applied.</u>
      *
-     * @method renderGroupHeader3
-     * @param {Y.Model} model The Model which needs to be rendered.
-     * return {String} Rendered content of groupHeader3
+     * @attribute renderGroupHeader3
+     * @type {Function}
+     * @default null
      * @since 0.1
      */
     renderGroupHeader3: {
@@ -332,6 +352,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _lastClickedModel : null,
     _abberantModelList : null,
     _setViewFilterInitiated : null,
+    _setLastItemOnTopInitiated : null,
     _setGroupHeader1Initiated : null,
     _setGroupHeader2Initiated : null,
     _setGroupHeader3Initiated : null,
@@ -339,6 +360,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setRenderGroupHeader2Initiated : null,
     _setRenderGroupHeader3Initiated : null,
     _setRenderModelInitiated : null,
+    _rerenderAttributesOnChange : true,
 
     /**
      * Initialisation of the Plugin
@@ -359,6 +381,28 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
                 instance
             )
         );
+    },
+
+    /**
+     * Sets an attribute, but in a way that there will be no rerendering of the view.
+     * This is handy if you want to change multplie attributes where you only want the view to be re-rendered after the
+     * last attributes is set, instead of every time after eacht attribute-change.
+     *
+     * @method setWithoutRerender
+     * @param {String} name The name of the attribute. If the
+     * current value of the attribute is an Object, dot notation can be used
+     * to set the value of a property within the object (e.g. <code>set("x.y.z", 5)</code>).
+     * @param {Any} value The value to set the attribute to.
+     * @param {Object} [opts] Optional data providing the circumstances for the change.
+     * @since 0.1
+    */
+    setWithoutRerender : function(name, val, opts) {
+        var instance = this;
+
+        Y.log('setWithoutRerender', 'info', 'Itsa-ScrollViewModelList');
+        instance._rerenderAttributesOnChange = false;
+        instance.set(name, val, opts);
+        instance._rerenderAttributesOnChange = true;
     },
 
     /**
@@ -513,7 +557,8 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             renderGroupHeader2 = instance.get('renderGroupHeader2') || groupHeader2Func,
             renderGroupHeader3 = instance.get('renderGroupHeader3') || groupHeader3Func,
             even = false,
-            header1, header2, header3, prevHeader1, prevHeader2, prevHeader3, modelconfig;
+            header1, header2, header3, prevHeader1, prevHeader2, prevHeader3, modelconfig, modelNode,
+            axis, xAxis, yAxis, boundingBox, viewsize, elementsize, lastModelNode, offsetDirection;
 
         Y.log('renderView', 'info', 'Itsa-ScrollViewModelList');
 Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
@@ -543,14 +588,15 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         modelList.each(
             function(model) {
-                var modelNode = YNode.create(VIEW_MODEL_TEMPLATE),
-                    modelClientId = model.get('clientId'),
+                    var modelClientId = model.get('clientId'),
                     headerNode;
                 if (!viewFilter || viewFilter(model)) {
+                    modelNode = YNode.create(VIEW_MODEL_TEMPLATE);
                     if (activeGroupHeader1) {
                         header1 = groupHeader1Func(model);
                         if (header1!==prevHeader1) {
                             headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
+                            headerNode.addClass(GROUPHEADER_CLASS);
                             headerNode.addClass(GROUPHEADER1_CLASS);
                             if (prevHeader1) {
                                 headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
@@ -567,6 +613,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
                         header2 = groupHeader2Func(model);
                         if (header2!==prevHeader2) {
                             headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
+                            headerNode.addClass(GROUPHEADER_CLASS);
                             headerNode.addClass(GROUPHEADER2_CLASS);
                             if (prevHeader2) {
                                 headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
@@ -583,6 +630,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
                         header3 = groupHeader3Func(model);
                         if (header3!==prevHeader3) {
                             headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
+                            headerNode.addClass(GROUPHEADER_CLASS);
                             headerNode.addClass(GROUPHEADER3_CLASS);
                             if (prevHeader3) {
                                 headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
@@ -603,9 +651,39 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
                 }
             }
         );
-
+        if (instance.get('lastItemOnTop')) {
+            // need to add an extra empty LI-element that has the size of the view minus the last element
+            // modelNode is the reference to the last element
+            lastModelNode = modelNode;
+            axis = instance.get('axis');
+            xAxis = axis.x;
+            yAxis = axis.y;
+            boundingBox = instance.get('boundingBox'),
+            modelNode = YNode.create(VIEW_EMPTY_ELEMENT_TEMPLATE),
+            modelNode.addClass(EMPTY_ELEMENT_CLASS);
+            offsetDirection = xAxis ? 'offsetWidth' : 'offsetHeight';
+            viewsize = boundingBox.get(offsetDirection);
+            elementsize = viewsize - lastModelNode.get(offsetDirection);
+            lastModelNode = lastModelNode.previous();
+            while (lastModelNode && lastModelNode.hasClass(GROUPHEADER_CLASS)) {
+                // also decrease with the size of this LI-element
+                elementsize -= lastModelNode.get(offsetDirection);
+                lastModelNode = lastModelNode.previous();
+            }
+            modelNode.setStyle((xAxis ? 'width' : 'height'), elementsize+'px');
+            if (elementsize>0) {
+                viewNode.append(modelNode);
+            }
+        }
         // always syncUI() --> making scrollview 'know' how large the scrollable contentbox is
         instance.syncUI();
+        /**
+         * Fire an event, so that anyone who is terested in this point can hook in.
+         *
+         * @event modelListRender
+         * @since 0.1
+        **/
+        instance.fire('modelListRender');
     },
 
     /**
@@ -717,7 +795,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute viewFilter. Will re-render the view when changed.
+     * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setViewFilter
      * @private
@@ -729,7 +807,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setViewFilter', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setViewFilterInitiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setViewFilterInitiated = true;
@@ -737,7 +817,30 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute groupHeader1. Will re-render the view when changed.
+     * Setter for attribute lastItemOnTop. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     *
+     * @method _setLastItemOnTop
+     * @private
+     * @since 0.1
+     *
+    */
+    _setLastItemOnTop : function() {
+        var instance = this;
+
+        Y.log('_setLastItemOnTop', 'info', 'Itsa-ScrollViewModelList');
+        if (instance._setLastItemOnTopInitiated) {
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
+        }
+        else {
+            instance._setLastItemOnTopInitiated = true;
+        }
+    },
+
+
+    /**
+     * Setter for attribute groupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGroupHeader1
      * @private
@@ -749,7 +852,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader1Initiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setGroupHeader1Initiated = true;
@@ -757,7 +862,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute groupHeader2. Will re-render the view when changed.
+     * Setter for attribute groupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGroupHeader2
      * @private
@@ -769,7 +874,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader2Initiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setGroupHeader2Initiated = true;
@@ -777,7 +884,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute groupHeader3. Will re-render the view when changed.
+     * Setter for attribute groupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGroupHeader3
      * @private
@@ -789,7 +896,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader3Initiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setGroupHeader3Initiated = true;
@@ -797,7 +906,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute renderGroupHeader1. Will re-render the view when changed.
+     * Setter for attribute renderGroupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGroupHeader1
      * @private
@@ -809,7 +918,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setRenderGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader1Initiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setRenderGroupHeader1Initiated = true;
@@ -817,7 +928,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute renderGroupHeader2. Will re-render the view when changed.
+     * Setter for attribute renderGroupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGroupHeader2
      * @private
@@ -829,7 +940,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setRenderGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader2Initiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setRenderGroupHeader2Initiated = true;
@@ -837,7 +950,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute renderGroupHeader3. Will re-render the view when changed.
+     * Setter for attribute renderGroupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGroupHeader3
      * @private
@@ -849,7 +962,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setRenderGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader3Initiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setRenderGroupHeader3Initiated = true;
@@ -857,7 +972,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute renderModel. Will re-render the view when changed.
+     * Setter for attribute renderModel. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderModel
      * @private
@@ -869,7 +984,9 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
 
         Y.log('_setRenderModel', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderModelInitiated) {
-            instance.renderView();
+            if (instance._rerenderAttributesOnChange) {
+                instance.renderView();
+            }
         }
         else {
             instance._setRenderModelInitiated = true;
@@ -1178,6 +1295,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
                 // We need to know in case of a future shift-click
                 instance._lastClickedModel = modelPrevSelected ? null : model;
             }
+            e.currentTarget.focus();
         }
         instance._fireSelectedModels();
     },
