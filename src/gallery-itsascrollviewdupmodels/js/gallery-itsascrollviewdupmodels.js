@@ -87,7 +87,8 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
     _setModelConfigInitiated : null,
 
     /**
-     * Setter for attribute viewFilter. Will re-render the view when changed.
+     * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender()
+     * which is available from gallery-itsascrollviewmodellist.
      *
      * @method _setModelConfig
      * @private
@@ -100,8 +101,11 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
         Y.log('_setModelConfig', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setModelConfigInitiated) {
             if (instance.renderView) {
-                // instance.renderView() is a function that is available from gallery-itsascrollviewmodellist
-                instance.renderView();
+                // instance.renderView() is a function that is available from gallery-itsascrollviewmodellist.
+                // instance._rerenderAttributesOnChange is a private variable that is available from gallery-itsascrollviewmodellist.
+                if (instance._rerenderAttributesOnChange) {
+                    instance.renderView();
+                }
             }
         }
         else {
