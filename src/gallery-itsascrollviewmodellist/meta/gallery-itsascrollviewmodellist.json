@@ -4,10 +4,12 @@
             "base-build",
             "node-base",
             "node-event-delegate",
+            "pluginhost-base",
             "event-mouseenter",
             "event-custom",
             "model",
-            "model-list"
+            "model-list",
+            "lazy-model-list"
         ],
         "skinnable": true
     }

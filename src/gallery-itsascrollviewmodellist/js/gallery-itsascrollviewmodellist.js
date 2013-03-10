@@ -57,7 +57,8 @@ ITSAScrollViewModelListExtention.ATTRS = {
     */
     modelList: {
         value: null,
-        validator: function(v){ return (v instanceof Y.ModelList) || (v === null); }
+        validator: function(v){ return (v instanceof Y.ModelList) || (v instanceof Y.LazyModelList) || (v === null);},
+        setter: '_setModelList'
     },
 
     /**
@@ -361,6 +362,12 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setRenderGroupHeader3Initiated : null,
     _setRenderModelInitiated : null,
     _rerenderAttributesOnChange : true,
+    _moreItemsAvailable : true, // must initially be set true
+    _prevLastModelIndex : null,
+    _modelListIsLazy : false,
+    _prevHeader1 : null,
+    _prevHeader2 : null,
+    _prevHeader3 : null,
 
     /**
      * Initialisation of the Plugin
@@ -531,159 +538,18 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     },
 
     /**
-     * Renderes the ModelList within _viewNode (which is inside the contentBox of the ScrollView-instance).
-     * Does not need to be called standalone, because eventlisteners will sync automaticly on ModelList-changes.
+     * Renders the ModelList within _viewNode (which is inside the contentBox of the ScrollView-instance).
+     * Call this method, when the ModelList.comapator changes, or when you are using LazyModelList and an item (Model or object) changes.
+     * Is called automaticly on 'add', 'remove' and 'reset' events of the (Lazy)ModelList. And in case of ModelList:
+     * also on *:change-events of a Model (but only when the Models-position changes or its groupHeaders)
      *
      * @method renderView
-     * @private
      * @since 0.1
      *
     */
     renderView : function() {
-        var instance = this,
-            viewNode = instance._viewNode,
-            contentBox = instance.get('contentBox'),
-            modelList = instance.get('modelList'),
-            viewFilter = instance.get('viewFilter'),
-            firstModel = modelList && (modelList.size()>0) && modelList.item(0),
-            renderModel = instance.get('renderModel'),
-            groupHeader1Func = instance.get('groupHeader1'),
-            groupHeader2Func = instance.get('groupHeader2'),
-            groupHeader3Func = instance.get('groupHeader3'),
-            activeGroupHeader1 = firstModel && groupHeader1Func && Lang.isValue(groupHeader1Func(firstModel)),
-            activeGroupHeader2 = firstModel && groupHeader2Func && Lang.isValue(groupHeader2Func(firstModel)),
-            activeGroupHeader3 = firstModel && groupHeader3Func && Lang.isValue(groupHeader3Func(firstModel)),
-            renderGroupHeader1 = instance.get('renderGroupHeader1') || groupHeader1Func,
-            renderGroupHeader2 = instance.get('renderGroupHeader2') || groupHeader2Func,
-            renderGroupHeader3 = instance.get('renderGroupHeader3') || groupHeader3Func,
-            even = false,
-            header1, header2, header3, prevHeader1, prevHeader2, prevHeader3, modelconfig, modelNode,
-            axis, xAxis, yAxis, boundingBox, viewsize, elementsize, lastModelNode, offsetDirection;
-
-        Y.log('renderView', 'info', 'Itsa-ScrollViewModelList');
-Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
-        if (!contentBox.one('#'+instance._viewId)) {
-            contentBox.setHTML(viewNode);
-            instance._set('srcNode', contentBox);
-        }
-        viewNode.setHTML('');
-        // if it finds out there is a 'modelconfig'-attribute, then we need to make extra steps:
-        // we do not render the standard 'modelList', but we create a second modellist that might have more models: these
-        // will be the models that are repeated due to a count-value or an enddate when duplicateWhenDurationCrossesMultipleDays is true.
-        if (instance._generateAbberantModelList) {
-            modelconfig = instance.get('modelConfig');
-            if (modelconfig && modelconfig.date && (modelconfig.enddate || modelconfig.count)) {
-                instance._generateAbberantModelList();
-                modelList = instance._abberantModelList;
-            }
-            else {
-                // clear _abberantModelList to make sure in other methods the actual modelList (from attribute) will be used.
-                instance._abberantModelList = null;
-            }
-        }
-        else {
-            // clear _abberantModelList to make sure in other methods the actual modelList (from attribute) will be used.
-            instance._abberantModelList = null;
-        }
-
-        modelList.each(
-            function(model) {
-                    var modelClientId = model.get('clientId'),
-                    headerNode;
-                if (!viewFilter || viewFilter(model)) {
-                    modelNode = YNode.create(VIEW_MODEL_TEMPLATE);
-                    if (activeGroupHeader1) {
-                        header1 = groupHeader1Func(model);
-                        if (header1!==prevHeader1) {
-                            headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
-                            headerNode.addClass(GROUPHEADER_CLASS);
-                            headerNode.addClass(GROUPHEADER1_CLASS);
-                            if (prevHeader1) {
-                                headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
-                            }
-                            headerNode.setHTML(renderGroupHeader1(model));
-                            viewNode.append(headerNode);
-                            prevHeader1 = header1;
-                            even = false;
-                            // force to make a header2 insertion (when apriopriate)
-                            prevHeader2 = null;
-                        }
-                    }
-                    if (activeGroupHeader2) {
-                        header2 = groupHeader2Func(model);
-                        if (header2!==prevHeader2) {
-                            headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
-                            headerNode.addClass(GROUPHEADER_CLASS);
-                            headerNode.addClass(GROUPHEADER2_CLASS);
-                            if (prevHeader2) {
-                                headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
-                            }
-                            headerNode.setHTML(renderGroupHeader2(model));
-                            viewNode.append(headerNode);
-                            prevHeader2 = header2;
-                            even = false;
-                            // force to make a header3 insertion (when apriopriate)
-                            prevHeader3 = null;
-                        }
-                    }
-                    if (activeGroupHeader3) {
-                        header3 = groupHeader3Func(model);
-                        if (header3!==prevHeader3) {
-                            headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
-                            headerNode.addClass(GROUPHEADER_CLASS);
-                            headerNode.addClass(GROUPHEADER3_CLASS);
-                            if (prevHeader3) {
-                                headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
-                            }
-                            headerNode.setHTML(renderGroupHeader3(model));
-                            viewNode.append(headerNode);
-                            prevHeader3 = header3;
-                            even = false;
-                        }
-                    }
-                    modelNode.setData('modelClientId', modelClientId);
-                    modelNode.addClass(MODEL_CLASS);
-                    modelNode.addClass(modelClientId);
-                    modelNode.addClass(even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
-                    modelNode.setHTML(renderModel(model));
-                    viewNode.append(modelNode);
-                    even = !even;
-                }
-            }
-        );
-        if (instance.get('lastItemOnTop')) {
-            // need to add an extra empty LI-element that has the size of the view minus the last element
-            // modelNode is the reference to the last element
-            lastModelNode = modelNode;
-            axis = instance.get('axis');
-            xAxis = axis.x;
-            yAxis = axis.y;
-            boundingBox = instance.get('boundingBox'),
-            modelNode = YNode.create(VIEW_EMPTY_ELEMENT_TEMPLATE),
-            modelNode.addClass(EMPTY_ELEMENT_CLASS);
-            offsetDirection = xAxis ? 'offsetWidth' : 'offsetHeight';
-            viewsize = boundingBox.get(offsetDirection);
-            elementsize = viewsize - lastModelNode.get(offsetDirection);
-            lastModelNode = lastModelNode.previous();
-            while (lastModelNode && lastModelNode.hasClass(GROUPHEADER_CLASS)) {
-                // also decrease with the size of this LI-element
-                elementsize -= lastModelNode.get(offsetDirection);
-                lastModelNode = lastModelNode.previous();
-            }
-            modelNode.setStyle((xAxis ? 'width' : 'height'), elementsize+'px');
-            if (elementsize>0) {
-                viewNode.append(modelNode);
-            }
-        }
-        // always syncUI() --> making scrollview 'know' how large the scrollable contentbox is
-        instance.syncUI();
-        /**
-         * Fire an event, so that anyone who is terested in this point can hook in.
-         *
-         * @event modelListRender
-         * @since 0.1
-        **/
-        instance.fire('modelListRender');
+        Y.log('destructor', 'info', 'Itsa-ScrollViewModelList');
+        this._renderView();
     },
 
     /**
@@ -787,7 +653,10 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
         // Re-render the view when a model is added to or removed from the modelList
         // because we made it bubble-up to the scrollview-instance, we attach the listener there.
         eventhandlers.push(
-            instance.after(['add', 'remove', 'reset'], instance.renderView, instance)
+            instance.after(['remove', 'reset'], instance._renderView, instance)
+        );
+        eventhandlers.push(
+            instance.after('add', instance._renderViewCheckAppend, instance)
         );
         eventhandlers.push(
             instance.after('*:change', instance._renderModelOrView, instance)
@@ -795,20 +664,37 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
     },
 
     /**
-     * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute modelList. Stores whether a Y.ModelList, or a Y.LazyModelList is set.
      *
-     * @method _setViewFilter
+     * @method _setModelList
+     * @param {Object} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setViewFilter : function() {
+    _setModelList : function(val) {
+        var instance = this;
+
+        Y.log('_setModelList', 'info', 'Itsa-ScrollViewModelList');
+        instance._modelListIsLazy = (val instanceof Y.LazyModelList);
+    },
+
+    /**
+     * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     *
+     * @method _setViewFilter
+     * @param {Function} val the new set value for this attribute
+     * @private
+     * @since 0.1
+     *
+    */
+    _setViewFilter : function(val) {
         var instance = this;
 
         Y.log('_setViewFilter', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setViewFilterInitiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({viewFilter: val});
             }
         }
         else {
@@ -820,17 +706,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute lastItemOnTop. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setLastItemOnTop
+     * @param {Boolean} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setLastItemOnTop : function() {
+    _setLastItemOnTop : function(val) {
         var instance = this;
 
         Y.log('_setLastItemOnTop', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setLastItemOnTopInitiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({lastItemOnTop: val});
             }
         }
         else {
@@ -843,17 +730,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute groupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGroupHeader1
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setGroupHeader1 : function() {
+    _setGroupHeader1 : function(val) {
         var instance = this;
 
         Y.log('_setGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader1Initiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({groupHeader1: val});
             }
         }
         else {
@@ -865,17 +753,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute groupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGroupHeader2
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setGroupHeader2 : function() {
+    _setGroupHeader2 : function(val) {
         var instance = this;
 
         Y.log('_setGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader2Initiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({groupHeader2: val});
             }
         }
         else {
@@ -887,17 +776,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute groupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGroupHeader3
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setGroupHeader3 : function() {
+    _setGroupHeader3 : function(val) {
         var instance = this;
 
         Y.log('_setGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader3Initiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({groupHeader3: val});
             }
         }
         else {
@@ -909,17 +799,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute renderGroupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGroupHeader1
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderGroupHeader1 : function() {
+    _setRenderGroupHeader1 : function(val) {
         var instance = this;
 
         Y.log('_setRenderGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader1Initiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({renderGroupHeader1: val});
             }
         }
         else {
@@ -931,17 +822,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute renderGroupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGroupHeader2
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderGroupHeader2 : function() {
+    _setRenderGroupHeader2 : function(val) {
         var instance = this;
 
         Y.log('_setRenderGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader2Initiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({renderGroupHeader2: val});
             }
         }
         else {
@@ -953,17 +845,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute renderGroupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGroupHeader3
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderGroupHeader3 : function() {
+    _setRenderGroupHeader3 : function(val) {
         var instance = this;
 
         Y.log('_setRenderGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader3Initiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({renderGroupHeader3: val});
             }
         }
         else {
@@ -975,17 +868,18 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
      * Setter for attribute renderModel. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderModel
+     * @param {Function} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderModel : function() {
+    _setRenderModel : function(val) {
         var instance = this;
 
         Y.log('_setRenderModel', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderModelInitiated) {
             if (instance._rerenderAttributesOnChange) {
-                instance.renderView();
+                instance._renderView({renderModel: val});
             }
         }
         else {
@@ -1264,9 +1158,11 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
             singleSelectable = (modelsSelectable==='single'),
             shiftClick = e.shiftKey && !singleSelectable,
             ctrlClick = (e.metaKey || e.ctrlKey),
-            modelPrevSelected, multipleModels, newModelIndex, prevModelIndex, startIndex, endIndex, i;
+            viewFilter = instance.get('viewFilter'),
+            modelPrevSelected, multipleModels, newModelIndex, prevModelIndex, startIndex, endIndex, i, nextModel;
 
         Y.log('_handleModelSelectionChange', 'info', 'Itsa-ScrollViewModelList');
+        modelPrevSelected = model && instance.modelIsSelected(model);
         // At this stage, 'modelsSelectable' is either 'single' or 'multi'
         if (singleSelectable || !ctrlClick) {
             instance.clearSelectedModels();
@@ -1279,12 +1175,14 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
                 startIndex = Math.min(newModelIndex, prevModelIndex);
                 endIndex = Math.max(newModelIndex, prevModelIndex);
                 for (i=startIndex; i<=endIndex; i++) {
-                    multipleModels.push(modelList.item(i));
+                    nextModel = modelList.item(i);
+                    if (!viewFilter || viewFilter(nextModel)) {
+                        multipleModels.push(nextModel);
+                    }
                 }
                 instance.selectModels(multipleModels);
             }
             else {
-                modelPrevSelected = instance.modelIsSelected(model);
                 if (modelPrevSelected) {
                     instance.unselectModels(model);
                 }
@@ -1298,6 +1196,206 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
             e.currentTarget.focus();
         }
         instance._fireSelectedModels();
+    },
+
+    /**
+     * Renders the ModelList within _viewNode (which is inside the contentBox of the ScrollView-instance).
+     * Does not need to be called standalone, because eventlisteners will sync automaticly on ModelList-changes.
+     *
+     * @method _renderView
+     * @param {Object} [setterAtrs] Definition of fields which called this method internally. Only for internal use within some attribute-setters.
+     * @param {Boolean} [forceRebuild] Forces the list to be cleared and rebuild from the ground up.
+     * @private
+     * @since 0.1
+     *
+    */
+    _renderView : function(setterAtrs, forceRebuild) {
+        var instance = this,
+            viewNode = instance._viewNode,
+            contentBox = instance.get('contentBox'),
+            modelList = instance.get('modelList'),
+            firstModel = modelList && (modelList.size()>0) && modelList.item(0),
+            viewFilter = (setterAtrs && setterAtrs.viewFilter) || instance.get('viewFilter'),
+            renderModel = (setterAtrs && setterAtrs.renderModel) || instance.get('renderModel'),
+            groupHeader1Func = (setterAtrs && setterAtrs.groupHeader1) || instance.get('groupHeader1'),
+            groupHeader2Func = (setterAtrs && setterAtrs.groupHeader2) || instance.get('groupHeader2'),
+            groupHeader3Func = (setterAtrs && setterAtrs.groupHeader3) || instance.get('groupHeader3'),
+            renderGroupHeader1 = (setterAtrs && setterAtrs.renderGroupHeader1) || instance.get('renderGroupHeader1') || groupHeader1Func,
+            renderGroupHeader2 = (setterAtrs && setterAtrs.renderGroupHeader2) || instance.get('renderGroupHeader2') || groupHeader2Func,
+            renderGroupHeader3 = (setterAtrs && setterAtrs.renderGroupHeader3) || instance.get('renderGroupHeader3') || groupHeader3Func,
+            lastItemOnTop = (setterAtrs && setterAtrs.lastItemOnTop) || instance.get('lastItemOnTop'),
+            activeGroupHeader1 = firstModel && groupHeader1Func && Lang.isValue(groupHeader1Func(firstModel)),
+            activeGroupHeader2 = firstModel && groupHeader2Func && Lang.isValue(groupHeader2Func(firstModel)),
+            activeGroupHeader3 = firstModel && groupHeader3Func && Lang.isValue(groupHeader3Func(firstModel)),
+            infiniteView = instance.hasPlugin('itssvinfinite'),
+            even = false,
+            header1, header2, header3, modelConfig, modelNode,
+            axis, xAxis, yAxis, boundingBox, viewsize, elementsize, lastModelNode, offsetDirection,
+            modelClientId, headerNode, i, model, modelListItems, batchSize, items, modelListItemsLength;
+
+        Y.log('_renderView', 'info', 'Itsa-ScrollViewModelList');
+Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
+        if (!contentBox.one('#'+instance._viewId)) {
+            contentBox.setHTML(viewNode);
+            instance._set('srcNode', contentBox);
+        }
+        // if it finds out there is a 'modelconfig'-attribute, then we need to make extra steps:
+        // we do not render the standard 'modelList', but we create a second modellist that might have more models: these
+        // will be the models that are repeated due to a count-value or an enddate when duplicateWhenDurationCrossesMultipleDays is true.
+        modelListItems = modelList._items.concat();
+        modelListItemsLength = modelListItems.length;
+        if (!infiniteView || forceRebuild) {
+            viewNode.setHTML('');
+            i = 0;
+            batchSize = modelListItemsLength;
+            instance._prevHeader1 = null;
+            instance._prevHeader2 = null;
+            instance._prevHeader3 = null;
+        }
+        else {
+            i = (instance._prevLastModelIndex || -1) + 1;
+            batchSize = Math.min(instance.itssvinfinite.get('batchSize'), modelListItemsLength);
+        }
+        if (instance._generateAbberantModelList) {
+            modelConfig = (setterAtrs && setterAtrs.modelConfig) || instance.get('modelConfig');
+            if (modelConfig && modelConfig.date && (modelConfig.enddate || modelConfig.count)) {
+                instance._generateAbberantModelList(infiniteView, i, batchSize-1, forceRebuild);
+                modelList = instance._abberantModelList;
+                // reset next 2 items
+                modelListItems = modelList._items.concat();
+                modelListItemsLength = modelListItems.length;
+            }
+            else {
+                // clear _abberantModelList to make sure in other methods the actual modelList (from attribute) will be used.
+                instance._abberantModelList = null;
+            }
+        }
+        else {
+            // clear _abberantModelList to make sure in other methods the actual modelList (from attribute) will be used.
+            instance._abberantModelList = null;
+        }
+        items = 0;
+        while ((items<batchSize) && (i<modelListItemsLength)) {
+            model = modelListItems[i];
+            modelClientId = model.get('clientId');
+            if (!viewFilter || viewFilter(model)) {
+                items++;
+                modelNode = YNode.create(VIEW_MODEL_TEMPLATE);
+                if (activeGroupHeader1) {
+                    header1 = groupHeader1Func(model);
+                    if (header1!==instance._prevHeader1) {
+                        headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
+                        headerNode.addClass(GROUPHEADER_CLASS);
+                        headerNode.addClass(GROUPHEADER1_CLASS);
+                        if (instance._prevHeader1) {
+                            headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
+                        }
+                        headerNode.setHTML(renderGroupHeader1(model));
+                        viewNode.append(headerNode);
+                        instance._prevHeader1 = header1;
+                        even = false;
+                        // force to make a header2 insertion (when apriopriate)
+                        instance._prevHeader2 = null;
+                    }
+                }
+                if (activeGroupHeader2) {
+                    header2 = groupHeader2Func(model);
+                    if (header2!==instance._prevHeader2) {
+                        headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
+                        headerNode.addClass(GROUPHEADER_CLASS);
+                        headerNode.addClass(GROUPHEADER2_CLASS);
+                        if (instance._prevHeader2) {
+                            headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
+                        }
+                        headerNode.setHTML(renderGroupHeader2(model));
+                        viewNode.append(headerNode);
+                        instance._prevHeader2 = header2;
+                        even = false;
+                        // force to make a header3 insertion (when apriopriate)
+                        instance._prevHeader3 = null;
+                    }
+                }
+                if (activeGroupHeader3) {
+                    header3 = groupHeader3Func(model);
+                    if (header3!==instance._prevHeader3) {
+                        headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
+                        headerNode.addClass(GROUPHEADER_CLASS);
+                        headerNode.addClass(GROUPHEADER3_CLASS);
+                        if (instance._prevHeader3) {
+                            headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
+                        }
+                        headerNode.setHTML(renderGroupHeader3(model));
+                        viewNode.append(headerNode);
+                        instance._prevHeader3 = header3;
+                        even = false;
+                    }
+                }
+                modelNode.setData('modelClientId', modelClientId);
+                modelNode.addClass(MODEL_CLASS);
+                modelNode.addClass(modelClientId);
+                modelNode.addClass(even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
+                modelNode.setHTML(renderModel(model));
+                viewNode.append(modelNode);
+                even = !even;
+            }
+            i++;
+        }
+        // _prevLastModelIndex is needed by the plugin infinitescroll
+        instance._prevLastModelIndex = i - 1;
+        if (modelNode && lastItemOnTop && (!infiniteView || !instance._moreItemsAvailable)) {
+            // need to add an extra empty LI-element that has the size of the view minus the last element
+            // modelNode is the reference to the last element
+            lastModelNode = modelNode;
+            axis = instance.get('axis');
+            xAxis = axis.x;
+            yAxis = axis.y;
+            boundingBox = instance.get('boundingBox'),
+            modelNode = YNode.create(VIEW_EMPTY_ELEMENT_TEMPLATE),
+            modelNode.addClass(EMPTY_ELEMENT_CLASS);
+            offsetDirection = xAxis ? 'offsetWidth' : 'offsetHeight';
+            viewsize = boundingBox.get(offsetDirection);
+            elementsize = viewsize - lastModelNode.get(offsetDirection);
+            lastModelNode = lastModelNode.previous();
+            while (lastModelNode && lastModelNode.hasClass(GROUPHEADER_CLASS)) {
+                // also decrease with the size of this LI-element
+                elementsize -= lastModelNode.get(offsetDirection);
+                lastModelNode = lastModelNode.previous();
+            }
+            modelNode.setStyle((xAxis ? 'width' : 'height'), elementsize+'px');
+            if (elementsize>0) {
+                viewNode.append(modelNode);
+            }
+        }
+        // always syncUI() --> making scrollview 'know' how large the scrollable contentbox is
+        instance.syncUI();
+        if (infiniteView) {
+            instance.itssvinfinite._checkExpansion();
+        }
+        /**
+         * Fire an event, so that anyone who is terested in this point can hook in.
+         *
+         * @event modelListRender
+         * @since 0.1
+        **/
+        instance.fire('modelListRender');
+    },
+
+    /**
+     * Will render the view, but first checks whether the current View needs to be cleared, oor the new models need to be appended.
+     * This module will assume ONLY to append if <i>ITSAScrollViewInifiniteScroll</i> is pluged in.
+     *
+     * @method _renderViewCheckAppend
+     * @param {EventTarget} e
+     * @private
+     * @since 0.1
+     *
+    */
+    _renderViewCheckAppend : function(e) {
+        var instance = this,
+            append = instance.hasPlugin('itssvinfinite');
+
+        Y.log('_renderViewCheckAppend', 'info', 'Itsa-ScrollViewModelList');
+        instance._renderView(null, append);
     },
 
     /**
@@ -1315,7 +1413,7 @@ Y.log('renderView', 'warn', 'Itsa-ScrollViewModelList');
             modellist = instance.get('modelList');
 
         Y.log('_renderModelOrView', 'info', 'Itsa-ScrollViewModelList');
-        instance.renderView();
+        instance._renderView();
     },
 
     /**
