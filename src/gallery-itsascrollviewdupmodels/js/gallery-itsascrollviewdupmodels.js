@@ -91,20 +91,21 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
      * which is available from gallery-itsascrollviewmodellist.
      *
      * @method _setModelConfig
+     * @param {Object} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setModelConfig : function() {
+    _setModelConfig : function(val) {
         var instance = this;
 
         Y.log('_setModelConfig', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setModelConfigInitiated) {
             if (instance.renderView) {
-                // instance.renderView() is a function that is available from gallery-itsascrollviewmodellist.
+                // instance._renderView() is a function that is available from gallery-itsascrollviewmodellist.
                 // instance._rerenderAttributesOnChange is a private variable that is available from gallery-itsascrollviewmodellist.
                 if (instance._rerenderAttributesOnChange) {
-                    instance.renderView();
+                instance._renderView({modelConfig: val});
                 }
             }
         }
@@ -118,14 +119,19 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
      * These will be the models that are repeated due to a count-value or an enddate when duplicateWhenDurationCrossesMultipleDays is true.
      *
      * @method _generateAbberantModelList
+     * @param {Boolean} infiniteView Whether the scrollview has the infinitescroll pluged-in
+     * @param {Int} firstIndex Modellist's index to start generating
+     * @param {Int} lastIndex Modellist's last index
+     * @param {Boolean} [forceRebuild] Forces the list to be cleared and rebuild from the ground up.
      * @private
      * @protected
      * @since 0.1
      *
     */
-    _generateAbberantModelList : function() {
+    _generateAbberantModelList : function(infiniteView, firstIndex, lastIndex, forceRebuild) {
         var instance = this,
             modelList = instance.get('modelList'),
+            modelListIsLazy = instance._modelListIsLazy,
             modelconfig = instance.get('modelConfig'),
             attrDate = modelconfig && modelconfig.date,
             attrEnddate = modelconfig && modelconfig.enddate,
@@ -135,14 +141,13 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
             attrIntervalDays = modelconfig && modelconfig.intervalDays,
             attrIntervalMonths = modelconfig && modelconfig.intervalMonths,
             attrDuplicateEveryMinutes = modelconfig && modelconfig.duplicateEveryMinutes,
-            modelfunc, duppedModel, pushDate;
+            modelfunc, duppedModel, pushDate, genModel, i;
 
         Y.log('_generateAbberantModelList', 'info', 'Itsa-ScrollViewDupModels');
-        // duppedModel duplicates a Y.Model, but changes the startdate to the specified new Date.
+        // duppedModel duplicates a Model-instance, but changes the startdate to the specified new Date.
         duppedModel = function(model, newStartDate, endDate, duplicateEveryMinutes, forceSetEndDate) {
-            var dupModel = new Y.Model(),
+            var dupModel = new modelList.model(model.getAttrs()),
                 maxEndDate;
-            dupModel.setAttrs(model.getAttrs());
             if (endDate) {
                 maxEndDate = dateCopyObject(newStartDate);
                 dateAddMinutes(maxEndDate, duplicateEveryMinutes);
@@ -159,13 +164,15 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
             instance._originalModels[dupModel.get('clientId')] = model;
             return dupModel;
         };
-
-        instance._originalModels.length = 0;
-        if (instance._abberantModelList) {
-            instance._abberantModelList.destroy();
+        if (!infiniteView || !instance._abberantModelList || forceRebuild) {
+            instance._originalModels.length = 0;
+            if (instance._abberantModelList) {
+                instance._abberantModelList.destroy();
+            }
+            instance._abberantModelList = modelListIsLazy ? new Y.LazyModelList() : new Y.ModelList();
+            instance._abberantModelList.comparator = modelList && modelList.comparator;
+            instance._abberantModelList.model = modelList.model;
         }
-        instance._abberantModelList = new Y.ModelList();
-        instance._abberantModelList.comparator = modelList && modelList.comparator;
         // I choosed to split it up in 3 scenario's. This is a bit more code, but it makes runtime faster when
         // an easier configuration is used (probably most of the cases)
         if (attrEnddate && !attrCount) {
@@ -318,9 +325,10 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
                 }
             };
         }
-        modelList.each(
-            modelfunc
-        );
+        for (i=firstIndex; i<=lastIndex; i++) {
+            genModel = modelList.item(i);
+            modelfunc(genModel);
+        }
     }
 
 }, true);
