@@ -85,6 +85,7 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
      * @type Boolean
      */
     _setModelConfigInitiated : null,
+    _prevLastAbberantModelIndex : null,
 
     /**
      * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender()
@@ -128,7 +129,7 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
      * @since 0.1
      *
     */
-    _generateAbberantModelList : function(infiniteView, firstIndex, lastIndex, forceRebuild) {
+    _generateAbberantModelList : function(infiniteView, forceRebuild) {
         var instance = this,
             modelList = instance.get('modelList'),
             modelListIsLazy = instance._modelListIsLazy,
@@ -141,30 +142,45 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
             attrIntervalDays = modelconfig && modelconfig.intervalDays,
             attrIntervalMonths = modelconfig && modelconfig.intervalMonths,
             attrDuplicateEveryMinutes = modelconfig && modelconfig.duplicateEveryMinutes,
-            modelfunc, duppedModel, pushDate, genModel, i;
+            getModelAttr = instance.getModelAttr,
+            setModelAttr = instance.setModelAttr,
+            modelfunc, duppedModel, markOriginal, dupmodel, pushDate, genModel, i, firstIndex, lastIndex;
 
         Y.log('_generateAbberantModelList', 'info', 'Itsa-ScrollViewDupModels');
         // duppedModel duplicates a Model-instance, but changes the startdate to the specified new Date.
         duppedModel = function(model, newStartDate, endDate, duplicateEveryMinutes, forceSetEndDate) {
-            var dupModel = new modelList.model(model.getAttrs()),
-                maxEndDate;
+            var modelIsLazy = (Lang.type(model.get) !== 'function'),
+                dupModel, maxEndDate;
+            if (modelIsLazy) {
+                dupModel = {};
+                Y.mix(dupModel, model);
+                // Make the new object posible to be added to the LazyModelList by removing its
+                delete dupModel.clientId;
+                delete dupModel.id;
+            }
+            else {
+                dupModel = new modelList.model(model.getAttrs());
+            }
             if (endDate) {
                 maxEndDate = dateCopyObject(newStartDate);
                 dateAddMinutes(maxEndDate, duplicateEveryMinutes);
                 if (YDate.isGreater(endDate, maxEndDate)) {
-                    dupModel.set(attrEnddate, maxEndDate);
+                    setModelAttr(dupModel, false, attrEnddate, maxEndDate);
                 }
                 else if (forceSetEndDate) {
-                    dupModel.set(attrEnddate, dateCopyObject(endDate));
+                    setModelAttr(dupModel, false, attrEnddate, dateCopyObject(endDate));
                 }
             }
-            if (dupModel.get(attrDate)) {
-                dupModel.set(attrDate, dateCopyObject(newStartDate));
+            if (getModelAttr(dupModel, attrDate)) {
+                setModelAttr(dupModel, false, attrDate, dateCopyObject(newStartDate));
             }
-            instance._originalModels[dupModel.get('clientId')] = model;
             return dupModel;
         };
+        markOriginal = function(dupModel, model) {
+            instance._originalModels[getModelAttr(dupModel, 'clientId')] = model;
+        };
         if (!infiniteView || !instance._abberantModelList || forceRebuild) {
+            instance._prevLastAbberantModelIndex = null;
             instance._originalModels.length = 0;
             if (instance._abberantModelList) {
                 instance._abberantModelList.destroy();
@@ -179,19 +195,23 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
             Y.log('_generateAbberantModelList adds the model to _abberantModelList spread until endDate without intervals',
                   'info', 'Itsa-ScrollViewDupModels');
             modelfunc = function(model) {
-                var modelDate = model.get(attrDate),
-                    modelEndDate = model.get(attrEnddate),
-                    duplicateEveryMinutes = (attrDuplicateEveryMinutes && model.get(attrDuplicateEveryMinutes));
+                var modelDate = getModelAttr(model, attrDate),
+                    modelEndDate = getModelAttr(model, attrEnddate),
+                    duplicateEveryMinutes = (attrDuplicateEveryMinutes && getModelAttr(model, attrDuplicateEveryMinutes));
                 if (dateIsValid(modelDate) && dateIsValid(modelEndDate)) {
                     if (!Lang.isNumber(duplicateEveryMinutes)) {
                         duplicateEveryMinutes = 1440;
                     }
                     pushDate = dateCopyObject(modelDate);
-                    instance._abberantModelList.add(duppedModel(model, pushDate, modelEndDate, duplicateEveryMinutes));
+                    dupmodel = duppedModel(model, pushDate, modelEndDate, duplicateEveryMinutes);
+                    instance._abberantModelList.add(dupmodel);
+                    markOriginal(dupmodel, model);
                     while (dayisGreater(modelEndDate, pushDate)) {
                         // duplicate pushDate, otherwise all subModels remain the same Date
                         dateAddMinutes(pushDate, duplicateEveryMinutes);
-                        instance._abberantModelList.add(duppedModel(model, pushDate, modelEndDate, duplicateEveryMinutes));
+                        dupmodel = duppedModel(model, pushDate, modelEndDate, duplicateEveryMinutes);
+                        instance._abberantModelList.add(dupmodel);
+                        markOriginal(dupmodel, model);
                     }
                 }
                 else {
@@ -202,18 +222,20 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
         else if (!attrEnddate && attrCount) {
             Y.log('_generateAbberantModelList will sync only the startdates with intervals', 'info', 'Itsa-ScrollViewDupModels');
             modelfunc = function(model) {
-                var modelDate = model.get(attrDate),
-                    modelCount = model.get(attrCount) || 1,
-                    modelIntervalMinutes = (attrIntervalMinutes && model.get(attrIntervalMinutes)),
-                    modelIntervalHours = (attrIntervalHours && model.get(attrIntervalHours)),
-                    modelIntervalDays = (attrIntervalDays && model.get(attrIntervalDays)),
-                    modelIntervalMonths = (attrIntervalMonths && model.get(attrIntervalMonths)),
+                var modelDate = getModelAttr(model, attrDate),
+                    modelCount = getModelAttr(model, attrCount) || 1,
+                    modelIntervalMinutes = (attrIntervalMinutes && getModelAttr(model, attrIntervalMinutes)),
+                    modelIntervalHours = (attrIntervalHours && getModelAttr(model, attrIntervalHours)),
+                    modelIntervalDays = (attrIntervalDays && getModelAttr(model, attrIntervalDays)),
+                    modelIntervalMonths = (attrIntervalMonths && getModelAttr(model, attrIntervalMonths)),
                     stepMinutes, i;
                 if (!dateIsValid(modelDate)) {
                     instance._abberantModelList.add(model);
                 }
                 else {
-                    instance._abberantModelList.add(duppedModel(model, modelDate));
+                    dupmodel = duppedModel(model, modelDate);
+                    instance._abberantModelList.add(dupmodel);
+                    markOriginal(dupmodel, model);
                     if (!Lang.isNumber(modelCount)) {
                         modelCount = 1;
                     }
@@ -241,7 +263,9 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
                         if (modelIntervalMonths>0) {
                             dateAddMonths(pushDate, modelIntervalMonths);
                         }
-                        instance._abberantModelList.add(duppedModel(model, pushDate));
+                        dupmodel = duppedModel(model, pushDate);
+                        instance._abberantModelList.add(dupmodel);
+                        markOriginal(dupmodel, model);
                     }
                 }
             };
@@ -251,15 +275,15 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
             // Make pushDate a Date object, so we can copy Date-values to it
             pushDate = new Date(0);
             modelfunc = function(model) {
-                var modelDate = model.get(attrDate),
-                    modelEndDate = model.get(attrEnddate) || modelDate,
-                    modelCount = model.get(attrCount) || 1,
-                    modelIntervalMinutes = (attrIntervalMinutes && model.get(attrIntervalMinutes)),
-                    modelIntervalHours = (attrIntervalHours && model.get(attrIntervalHours)),
-                    modelIntervalDays = (attrIntervalDays && model.get(attrIntervalDays)),
-                    modelIntervalMonths = (attrIntervalMonths && model.get(attrIntervalMonths)),
-                    duplicateEveryMinutes = (attrDuplicateEveryMinutes && model.get(attrDuplicateEveryMinutes)),
-                    stepMinutes, startPushDate, endPushDate, dupped, i, validModelEndDate;
+                var modelDate = getModelAttr(model, attrDate),
+                    modelEndDate = getModelAttr(model, attrEnddate) || modelDate,
+                    modelCount = getModelAttr(model, attrCount) || 1,
+                    modelIntervalMinutes = (attrIntervalMinutes && getModelAttr(model, attrIntervalMinutes)),
+                    modelIntervalHours = (attrIntervalHours && getModelAttr(model, attrIntervalHours)),
+                    modelIntervalDays = (attrIntervalDays && getModelAttr(model, attrIntervalDays)),
+                    modelIntervalMonths = (attrIntervalMonths && getModelAttr(model, attrIntervalMonths)),
+                    duplicateEveryMinutes = (attrDuplicateEveryMinutes && getModelAttr(model, attrDuplicateEveryMinutes)),
+                    stepMinutes, startPushDate, endPushDate, i, validModelEndDate;
                 if (!dateIsValid(modelDate)) {
                     instance._abberantModelList.add(model);
                 }
@@ -267,7 +291,9 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
                     if (!Lang.isNumber(duplicateEveryMinutes)) {
                         duplicateEveryMinutes = 1440;
                     }
-                    instance._abberantModelList.add(duppedModel(model, modelDate, modelEndDate, duplicateEveryMinutes));
+                    dupmodel = duppedModel(model, modelDate, modelEndDate, duplicateEveryMinutes);
+                    instance._abberantModelList.add(dupmodel);
+                    markOriginal(dupmodel, model);
                     validModelEndDate = dateIsValid(modelEndDate);
                     if (!validModelEndDate) {
                         modelEndDate = modelDate;
@@ -298,7 +324,9 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
                         pushDate = dateCopyObject(startPushDate);
                         while (dayisGreater(endPushDate, pushDate)) {
                             dateAddMinutes(pushDate, duplicateEveryMinutes);
-                            instance._abberantModelList.add(duppedModel(model, pushDate, endPushDate, duplicateEveryMinutes));
+                            dupmodel = duppedModel(model, pushDate, endPushDate, duplicateEveryMinutes);
+                            instance._abberantModelList.add(dupmodel);
+                            markOriginal(dupmodel, model);
                         }
                     }
                     // now duplicate based on interval
@@ -311,20 +339,25 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
                             dateAddMonths(startPushDate, modelIntervalMonths);
                             dateAddMonths(endPushDate, modelIntervalMonths);
                         }
-                        dupped = duppedModel(model, startPushDate, endPushDate, duplicateEveryMinutes, true);
-                        instance._abberantModelList.add(dupped);
+                        dupmodel = duppedModel(model, startPushDate, endPushDate, duplicateEveryMinutes, true);
+                        instance._abberantModelList.add(dupmodel);
+                        markOriginal(dupmodel, model);
                         // also duplicate based on enddate
                         if (validModelEndDate) {
                             pushDate = dateCopyObject(startPushDate);
                             while (dayisGreater(endPushDate, pushDate)) {
                                 dateAddMinutes(pushDate, duplicateEveryMinutes);
-                                instance._abberantModelList.add(duppedModel(model, pushDate, endPushDate, duplicateEveryMinutes, true));
+                                dupmodel = duppedModel(model, pushDate, endPushDate, duplicateEveryMinutes, true);
+                                instance._abberantModelList.add(dupmodel);
+                                markOriginal(dupmodel, model);
                             }
                         }
                     }
                 }
             };
         }
+        firstIndex = (instance._prevLastAbberantModelIndex || -1) + 1;
+        instance._prevLastAbberantModelIndex = lastIndex = modelList.size()-1;
         for (i=firstIndex; i<=lastIndex; i++) {
             genModel = modelList.item(i);
             modelfunc(genModel);
