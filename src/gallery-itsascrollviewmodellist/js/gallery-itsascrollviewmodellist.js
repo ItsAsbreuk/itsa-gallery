@@ -40,6 +40,81 @@ var Lang = Y.Lang,
     GROUPHEADER3_CLASS = SVML_CLASS + '-groupheader3',
     GROUPHEADER_SEQUEL_CLASS = SVML_CLASS + '-sequelgroupheader';
 
+
+// -- First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes --------------------------
+
+function ITSALazyModelListAttrExtention() {}
+
+Y.mix(ITSALazyModelListAttrExtention.prototype, {
+
+    /**
+     * Gets an attribute-value from a Model OR object. Depends on the state (Lazy or not).
+     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
+     *
+     * @method getModelAttr
+     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
+     * @param {String} name Attribute name or object property path.
+     * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
+     * @since 0.1
+     *
+    */
+    getModelAttr: function(model, name) {
+        Y.log('getModelAttr', 'info', 'Itsa-LazyModelListAttr');
+        return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
+    },
+
+    /**
+     * Sets an attribute-value of a Model OR object. Depends on the state (Lazy or not).
+     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
+     * If you want to be sure the Model fires an attributeChange-event, then set 'revive' true. This way
+     * lazy-Modles will become true Models and fire an attributeChange-event. When the attibute was lazy before,
+     * it will return lazy afterwards.
+     *
+     * @method _setModelAttr
+     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
+     * @param {Boolean} revive Whether to force a lazy-model to revive (when lazy before: will be lazy afterwards)
+     * @param {String} name Attribute name or object property path.
+     * @param {any} value Value to set.
+     * @param {Object} [options] Data to be mixed into the event facade of the `change` event(s) for these attributes.
+     * In case of Lazy-Model, this only has effect when 'revive' is true.
+     *    @param {Boolean} [options.silent=false] If `true`, no `change` event will be fired.
+     * @since 0.1
+     *
+    */
+    setModelAttr: function(model, revive, name, value, options) {
+        var instance = this,
+            modelIsLazy;
+
+        Y.log('setModelAttr', 'info', 'Itsa-LazyModelListAttr');
+        if (model) {
+            modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
+            if (modelIsLazy) {
+                if (revive) {
+                    if (revive) {
+                        instance.revive(model);
+                        model.set(name, value, options);
+                        instance.free(model);
+                    }
+                    else {
+                        model.set(name, value, options);
+                    }
+                }
+                else {
+                    model[name] = value;
+                }
+            }
+            else {
+                model.set(name, value, options);
+            }
+        }
+    }
+
+}, true);
+
+Y.LazyModelList.ITSALazyModelListAttrExtention = ITSALazyModelListAttrExtention;
+
+Y.Base.mix(Y.LazyModelList, [ITSALazyModelListAttrExtention]);
+
 // -- Mixing extra Methods to Y.ScrollView -----------------------------------
 
 function ITSAScrollViewModelListExtention() {}
@@ -268,7 +343,9 @@ ITSAScrollViewModelListExtention.ATTRS = {
      * @since 0.1
      */
     renderModel: {
-        value: function(model) {return model.get('clientId');}, // default, so that there always is content. Best to be overwritten.
+        value: function(model) {
+            return this.getModelAttr(model, 'clientId'); // default, so that there always is content. Best to be overwritten.
+        },
         validator: function(v){ return Lang.isFunction(v) || v === null; },
         setter: '_setRenderModel'
     },
@@ -368,6 +445,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _prevHeader1 : null,
     _prevHeader2 : null,
     _prevHeader3 : null,
+    _even : false,
 
     /**
      * Initialisation of the Plugin
@@ -416,7 +494,8 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * If the Model/Models has a 'selected-status' in the ScrollView-instance.
      *
      * @method modelIsSelected
-     * @param {Y.Model|Array} model Model or Array of Models to be checked
+     * @param {Y.Model|Array} model Model or Array of Models to be checked. May also be items of a LazyModelList,
+     * in which case it might not be a true Model, but an Object.
      * @return {Boolean} whether the Model (or all Models) have a 'selected-status'
      * @since 0.1
     */
@@ -429,13 +508,13 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             YArray.some(
                 model,
                 function(onemodel) {
-                    selected = (onemodel instanceof Y.Model) && instance._selectedModels[onemodel.get('clientId')];
+                    selected = instance._selectedModels[instance.getModelAttr(onemodel, 'clientId')];
                     return selected ? false : true;
                 }
             );
         }
         else {
-            selected = (model instanceof Y.Model) && instance._selectedModels[model.get('clientId')];
+            selected = instance._selectedModels[instance.getModelAttr(model, 'clientId')];
         }
         return Lang.isValue(selected);
     },
@@ -444,7 +523,8 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * Of all the supplied Models: sets the 'selected-status' in the ScrollView-instance to true
      *
      * @method selectModels
-     * @param {Y.Model|Array} models Model or Array of Models to be checked
+     * @param {Y.Model|Array} models Model or Array of Models to be checked. May also be items of a LazyModelList,
+     * in which case it might not be a true Model, but an Object.
      * @since 0.1
     */
     selectModels : function(models) {
@@ -510,7 +590,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @param {Boolean} original If set to true: the original Models will be returned (unique). If false (or undefined)<br>
      * then -in case of repeated Models (see attribute 'modelConfig')- the subModel (dup or splitted) will be returned. In the
      * latter case, you have full control of the exact item that was selected.
-     * @return {Array} Array with all unique Models that are selected
+     * @return {Array} Array with all unique Models that are selected. In case of LazyModelList, it might be Objects instead of Models.
      * @since 0.1
      */
     getSelectedModels : function(original) {
@@ -527,7 +607,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
                 instance._selectedModels,
                 function(model) {
                     // if model.get('clientId') is defined in _originalModels, then it has an originalModel
-                    var originalModel = instance._originalModels[model.get('clientId')];
+                    var originalModel = instance._originalModels[instance.getModelAttr(model, 'clientId')];
                     if (!originalModel || (YArray.indexOf(selected, originalModel) === -1)) {
                         selected.push(originalModel || model);
                     }
@@ -550,6 +630,68 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     renderView : function() {
         Y.log('destructor', 'info', 'Itsa-ScrollViewModelList');
         this._renderView();
+    },
+
+    /**
+     * Gets an attribute-value from a Model OR object. Depends on the state (Lazy or not).
+     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
+     *
+     * @method getModelAttr
+     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
+     * @param {String} name Attribute name or object property path.
+     * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
+     * @since 0.1
+     *
+    */
+    getModelAttr: function(model, name) {
+        Y.log('getModelAttr', 'info', 'Itsa-ScrollViewModelList');
+        return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
+    },
+
+    /**
+     * Sets an attribute-value of a Model OR object. Depends on the state (Lazy or not).
+     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
+     * If you want to be sure the Model fires an attributeChange-event, then set 'revive' true. This way
+     * lazy-Modles will become true Models and fire an attributeChange-event. When the attibute was lazy before,
+     * it will return lazy afterwards.
+     *
+     * @method setModelAttr
+     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
+     * @param {Boolean} revive Whether to force a lazy-model to revive (when lazy before: will be lazy afterwards)
+     * @param {String} name Attribute name or object property path.
+     * @param {any} value Value to set.
+     * @param {Object} [options] Data to be mixed into the event facade of the `change` event(s) for these attributes.
+     * In case of Lazy-Model, this only has effect when 'revive' is true.
+     *    @param {Boolean} [options.silent=false] If `true`, no `change` event will be fired.
+     * @since 0.1
+     *
+    */
+    setModelAttr: function(model, revive, name, value, options) {
+        var instance = this,
+            modelIsLazy, modelList;
+
+        Y.log('_setModelAttr', 'info', 'Itsa-ScrollViewModelList');
+        if (model) {
+            modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
+            if (modelIsLazy) {
+                if (revive) {
+                    modelList = instance.get('modelList');
+                    if (instance._modelListIsLazy && revive) {
+                        modelList.revive(model);
+                    }
+                    model.set(name, value, options);
+                    if (instance._modelListIsLazy && revive) {
+                        modelList.free(model);
+                    }
+                }
+                else {
+                    model[name] = value;
+                }
+            }
+            else {
+                model.set(name, value, options);
+            }
+        }
     },
 
     /**
@@ -1153,7 +1295,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             // first check _abberantModelList --> this might be available and it will overrule this.get('modelList')
             modelList = instance._abberantModelList || instance.get('modelList'),
             modelClientId = modelNode.getData('modelClientId'),
+
             model = modelList && modelList.getByClientId(modelClientId),
+
             modelsSelectable = instance.get('modelsSelectable'),
             singleSelectable = (modelsSelectable==='single'),
             shiftClick = e.shiftKey && !singleSelectable,
@@ -1228,13 +1372,11 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             activeGroupHeader2 = firstModel && groupHeader2Func && Lang.isValue(groupHeader2Func(firstModel)),
             activeGroupHeader3 = firstModel && groupHeader3Func && Lang.isValue(groupHeader3Func(firstModel)),
             infiniteView = instance.hasPlugin('itssvinfinite'),
-            even = false,
             header1, header2, header3, modelConfig, modelNode,
             axis, xAxis, yAxis, boundingBox, viewsize, elementsize, lastModelNode, offsetDirection,
             modelClientId, headerNode, i, model, modelListItems, batchSize, items, modelListItemsLength;
 
         Y.log('_renderView', 'info', 'Itsa-ScrollViewModelList');
-Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
         if (!contentBox.one('#'+instance._viewId)) {
             contentBox.setHTML(viewNode);
             instance._set('srcNode', contentBox);
@@ -1251,6 +1393,7 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
             instance._prevHeader1 = null;
             instance._prevHeader2 = null;
             instance._prevHeader3 = null;
+            instance._even = false;
         }
         else {
             i = (instance._prevLastModelIndex || -1) + 1;
@@ -1259,7 +1402,7 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
         if (instance._generateAbberantModelList) {
             modelConfig = (setterAtrs && setterAtrs.modelConfig) || instance.get('modelConfig');
             if (modelConfig && modelConfig.date && (modelConfig.enddate || modelConfig.count)) {
-                instance._generateAbberantModelList(infiniteView, i, batchSize-1, forceRebuild);
+                instance._generateAbberantModelList(infiniteView, forceRebuild);
                 modelList = instance._abberantModelList;
                 // reset next 2 items
                 modelListItems = modelList._items.concat();
@@ -1277,7 +1420,7 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
         items = 0;
         while ((items<batchSize) && (i<modelListItemsLength)) {
             model = modelListItems[i];
-            modelClientId = model.get('clientId');
+            modelClientId = instance.getModelAttr(model, 'clientId');
             if (!viewFilter || viewFilter(model)) {
                 items++;
                 modelNode = YNode.create(VIEW_MODEL_TEMPLATE);
@@ -1293,7 +1436,7 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
                         headerNode.setHTML(renderGroupHeader1(model));
                         viewNode.append(headerNode);
                         instance._prevHeader1 = header1;
-                        even = false;
+                        instance._even = false;
                         // force to make a header2 insertion (when apriopriate)
                         instance._prevHeader2 = null;
                     }
@@ -1310,7 +1453,7 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
                         headerNode.setHTML(renderGroupHeader2(model));
                         viewNode.append(headerNode);
                         instance._prevHeader2 = header2;
-                        even = false;
+                        instance._even = false;
                         // force to make a header3 insertion (when apriopriate)
                         instance._prevHeader3 = null;
                     }
@@ -1327,16 +1470,16 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
                         headerNode.setHTML(renderGroupHeader3(model));
                         viewNode.append(headerNode);
                         instance._prevHeader3 = header3;
-                        even = false;
+                        instance._even = false;
                     }
                 }
                 modelNode.setData('modelClientId', modelClientId);
                 modelNode.addClass(MODEL_CLASS);
                 modelNode.addClass(modelClientId);
-                modelNode.addClass(even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
+                modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
                 modelNode.setHTML(renderModel(model));
                 viewNode.append(modelNode);
-                even = !even;
+                instance._even = !instance._even;
             }
             i++;
         }
@@ -1427,12 +1570,12 @@ Y.log('_renderView', 'warn', 'Itsa-ScrollViewModelList');
     */
     _selectModel : function(model, selectstatus) {
         var instance = this,
-            modelid = (model instanceof Y.Model) && model.get('clientId'),
+            modelid = instance.getModelAttr(model, 'clientId'),
             contentBox = instance.get('contentBox'),
             modelnodes;
 
         if (modelid) {
-            Y.log('_selectModel '+model.get("clientId")+' new selectstatus: '+selectstatus, 'info', 'Itsa-ScrollViewModelList');
+            Y.log('_selectModel '+instance.getModelAttr(model, "clientId")+' new selectstatus: '+selectstatus, 'info', 'Itsa-ScrollViewModelList');
             // each modelid-class should be prenet only once
             modelnodes = contentBox.one('.'+modelid);
             if (modelnodes) {
