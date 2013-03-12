@@ -1,3 +1,5 @@
+YUI.add('gallery-itsascrollviewmodellist', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -59,7 +61,6 @@ Y.mix(ITSALazyModelListAttrExtention.prototype, {
      *
     */
     getModelAttr: function(model, name) {
-        Y.log('getModelAttr', 'info', 'Itsa-LazyModelListAttr');
         return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
     },
 
@@ -85,7 +86,6 @@ Y.mix(ITSALazyModelListAttrExtention.prototype, {
         var instance = this,
             modelIsLazy;
 
-        Y.log('setModelAttr', 'info', 'Itsa-LazyModelListAttr');
         if (model) {
             modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
             if (modelIsLazy) {
@@ -497,7 +497,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     initializer : function() {
         var instance = this;
 
-        Y.log('initializer', 'info', 'Itsa-ScrollViewModelList');
         instance._viewId = Y.guid();
         instance._eventhandlers.push(
             instance.after(
@@ -524,115 +523,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     setWithoutRerender : function(name, val, opts) {
         var instance = this;
 
-        Y.log('setWithoutRerender', 'info', 'Itsa-ScrollViewModelList');
         instance._rerenderAttributesOnChange = false;
         instance.set(name, val, opts);
         instance._rerenderAttributesOnChange = true;
-    },
-
-    /**
-     * Retreives the Li-Node given a Model from the ModelList.
-     * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the Node, there might be a lot of
-     * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
-     * That's why the second param is needed.
-     *
-     * @method getNodeFromModel
-     * @param {Y.Model} model List-item from the modelList. In case of a LazyModelList, this might be an object.
-     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
-     * external data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
-     * from external data at the <b>max of 25 times by default</b> (which is quite a lot). If you are responsible for the external data and
-     * it is limited, then you might choose to set this value that high to make sure all data is rendered in the scrollview.
-     * @return {Y.Node} Li-Node that corresponds with the model.
-     * @since 0.1
-    */
-    getNodeFromModel : function(model, maxExpansions) {
-        var instance = this,
-            modelClientId = instance.getModelAttr(model, 'clientId'),
-            infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
-            maxLoop = maxExpansions || 25,
-            i = 0,
-            nodeFound = false, nodeList, findNode;
-
-        Y.log('getNodeFromModel', 'info', 'Itsa-ScrollViewModelList');
-        findNode = function(node) {
-            var found = (node.getData('modelClientId') === modelClientId);
-            if (found) {
-                nodeFound = node;
-            }
-            return found;
-        };
-        do {
-            nodeList = instance._viewNode.all('.itsa-scrollviewmodel');
-            nodeList.some(findNode);
-            i++;
-//=============================================================================================================================
-//
-// NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-//
-//=============================================================================================================================
-        } while (!nodeFound && infiniteScrollPlugin && (i<maxLoop) && infiniteScrollPlugin.expandList());
-        return nodeFound;
-    },
-
-    /**
-     * Makes the Model scroll into the View (at the top).
-     *
-     * @method scrollIntoView
-     * @param {Y.Model} that should be got view.
-     * @private
-     * @since 0.1
-    */
-    scrollIntoView : function(model) {
-        var instance = this,
-            boundingBox = instance.get('boundingBox'),
-            axis = instance.get('axis'),
-            yAxis = axis.y,
-            viewNode = instance._viewNode,
-            modelNode = model && instance.getNodeFromModel(model),
-            infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
-            boundingBoxEdge, modelNodeEdge, currentOffset, maxOffset, newOffset;
-
-        if (modelNode) {
-            Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
-            if (yAxis) {
-                boundingBoxEdge = boundingBox.getY();
-                modelNodeEdge = modelNode.getY();
-                currentOffset = instance.get('scrollY');
-                maxOffset = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
-            }
-            else {
-                boundingBoxEdge = boundingBox.getX();
-                modelNodeEdge = modelNode.getX();
-                currentOffset = instance.get('scrollX');
-                maxOffset = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
-            }
-            newOffset = Math.round(currentOffset + modelNodeEdge - boundingBoxEdge);
-            // You might need to expand the list in case ITSAScrollViewInifiniteScroll is pluged-in AND maxOffset<newOffset
-            // Only 1 time is needed: getNodeFromModel already has expanded a number of times to make the Node available
-            if (infiniteScrollPlugin && (maxOffset<newOffset) && instance._moreItemsAvailable) {
-//=============================================================================================================================
-//
-// NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-//
-//=============================================================================================================================
-                infiniteScrollPlugin.expandList();
-                if (yAxis) {
-                    maxOffset = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
-                }
-                else {
-                    maxOffset = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
-                }
-            }
-            if (yAxis) {
-                instance.scrollTo(0, Math.min(newOffset, maxOffset));
-            }
-            else {
-                instance.scrollTo(Math.min(newOffset, maxOffset), 0);
-            }
-        }
-        else {
-            Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ScrollViewModelList');
-        }
     },
 
     /**
@@ -648,7 +541,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             selected;
 
-        Y.log('modelIsSelected', 'info', 'Itsa-ScrollViewModelList');
         if (Lang.isArray(model)) {
             YArray.some(
                 model,
@@ -670,13 +562,11 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @method selectModels
      * @param {Y.Model|Array} models Model or Array of Models to be checked. May also be items of a LazyModelList,
      * in which case it might not be a true Model, but an Object.
-     * @param {boolean} [scrollIntoView] makes the first selected Model scroll into the View (at the top).
      * @since 0.1
     */
-    selectModels : function(models, scrollIntoView) {
+    selectModels : function(models) {
         var instance = this;
 
-        Y.log('selectModels', 'info', 'Itsa-ScrollViewModelList');
         if (Lang.isArray(models)) {
             YArray.each(
                 models,
@@ -684,15 +574,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
                     instance._selectModel(model, true);
                 }
             );
-            if (scrollIntoView && (models.length>0)) {
-                instance.scrollIntoView(models[0]);
-            }
         }
         else {
             instance._selectModel(models, true);
-            if (scrollIntoView) {
-                instance.scrollIntoView(models);
-            }
         }
     },
 
@@ -706,7 +590,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     unselectModels : function(models) {
         var instance = this;
 
-        Y.log('unselectModels', 'info', 'Itsa-ScrollViewModelList');
         if (Lang.isArray(models)) {
             YArray.each(
                 models,
@@ -730,7 +613,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             contentBox = instance.get('contentBox');
 
-        Y.log('clearSelectedModels', 'info', 'Itsa-ScrollViewModelList');
         contentBox.all('.'+SVML_SELECTED_CLASS).removeClass(SVML_SELECTED_CLASS);
         instance._selectedModels = {};
     },
@@ -749,7 +631,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             selected;
 
-        Y.log('getSelectedModels', 'info', 'Itsa-ScrollViewModelList');
         if (!original) {
             selected = YObject.values(instance._selectedModels);
         }
@@ -780,7 +661,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      *
     */
     renderView : function() {
-        Y.log('destructor', 'info', 'Itsa-ScrollViewModelList');
         this._renderView();
     },
 
@@ -796,7 +676,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      *
     */
     getModelAttr: function(model, name) {
-        Y.log('getModelAttr', 'info', 'Itsa-ScrollViewModelList');
         return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
     },
 
@@ -822,7 +701,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             modelIsLazy, modelList;
 
-        Y.log('_setModelAttr', 'info', 'Itsa-ScrollViewModelList');
         if (model) {
             modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
             if (modelIsLazy) {
@@ -856,7 +734,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             modellist = instance.get('modelList');
 
-        Y.log('destructor', 'info', 'Itsa-ScrollViewModelList');
         instance._clearEventhandlers();
         modellist.removeTarget(instance);
         if (instance._selectableModelEvent) {
@@ -897,7 +774,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             modellist = instance.get('modelList'),
             viewNode;
 
-        Y.log('_render', 'info', 'Itsa-ScrollViewModelList');
         instance._viewNode = viewNode = YNode.create(VIEW_TEMPLATE);
         viewNode.set('id', instance._viewId);
         instance._extraBindUI();
@@ -919,7 +795,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             modellist = instance.get('modelList'),
             eventhandlers = instance._eventhandlers;
 
-        Y.log('_extraBindUI', 'info', 'Itsa-ScrollViewModelList');
         // making models bubble up to the scrollview-instance:
         if (modellist) {
             modellist.addTarget(instance);
@@ -972,7 +847,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setModelList : function(val) {
         var instance = this;
 
-        Y.log('_setModelList', 'info', 'Itsa-ScrollViewModelList');
         instance._modelListIsLazy = (val instanceof Y.LazyModelList);
     },
 
@@ -988,7 +862,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setNoDups : function(val) {
         var instance = this;
 
-        Y.log('_setNoDups', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setNoDupsInitiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({noDups: val});
@@ -1011,7 +884,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setViewFilter : function(val) {
         var instance = this;
 
-        Y.log('_setViewFilter', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setViewFilterInitiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({viewFilter: val});
@@ -1034,7 +906,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setLastItemOnTop : function(val) {
         var instance = this;
 
-        Y.log('_setLastItemOnTop', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setLastItemOnTopInitiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({lastItemOnTop: val});
@@ -1058,7 +929,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setDupComparator : function(val) {
         var instance = this;
 
-        Y.log('_setDupComparator', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setDupComparatorInitiated) {
             if (instance._rerenderAttributesOnChange && instance.get('noDups')) {
                 instance._renderView({dupComparator: val});
@@ -1081,7 +951,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setGroupHeader1 : function(val) {
         var instance = this;
 
-        Y.log('_setGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader1Initiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({groupHeader1: val});
@@ -1104,7 +973,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setGroupHeader2 : function(val) {
         var instance = this;
 
-        Y.log('_setGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader2Initiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({groupHeader2: val});
@@ -1127,7 +995,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setGroupHeader3 : function(val) {
         var instance = this;
 
-        Y.log('_setGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader3Initiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({groupHeader3: val});
@@ -1150,7 +1017,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setRenderGroupHeader1 : function(val) {
         var instance = this;
 
-        Y.log('_setRenderGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader1Initiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderGroupHeader1: val});
@@ -1173,7 +1039,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setRenderGroupHeader2 : function(val) {
         var instance = this;
 
-        Y.log('_setRenderGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader2Initiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderGroupHeader2: val});
@@ -1196,7 +1061,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setRenderGroupHeader3 : function(val) {
         var instance = this;
 
-        Y.log('_setRenderGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader3Initiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderGroupHeader3: val});
@@ -1219,7 +1083,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setRenderModel : function(val) {
         var instance = this;
 
-        Y.log('_setRenderModel', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderModelInitiated) {
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderModel: val});
@@ -1243,7 +1106,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setModelsSelectable : function(val) {
         var instance = this;
 
-        Y.log('_setModelsSelectable', 'info', 'Itsa-ScrollViewModelList');
         if ((val==='') || !val) {
             val = null;
         }
@@ -1268,7 +1130,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     _setModelListStyled : function(val) {
         var instance = this;
 
-        Y.log('_setModelListStyled', 'info', 'Itsa-ScrollViewModelList');
         instance.get('boundingBox').toggleClass(SVML_STYLE_CLASS, val);
     },
 
@@ -1285,7 +1146,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             contentBox = instance.get('contentBox');
 
-        Y.log('_setSelectableEvents', 'info', 'Itsa-ScrollViewModelList');
         instance.clearSelectedModels();
         if (val && !instance._selectableModelEvent) {
             instance._selectableModelEvent = contentBox.delegate(
@@ -1317,7 +1177,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             contentBox = instance.get('contentBox');
 
-        Y.log('_setClickEvents', 'info', 'Itsa-ScrollViewModelList');
         if (val && !instance._clickModelEvent) {
             /**
              * Is fired when the user positions the mouse over a Model.
@@ -1363,7 +1222,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             contentBox = instance.get('contentBox');
 
 
-        Y.log('_setMouseDownUpEvents', 'info', 'Itsa-ScrollViewModelList');
         if (val && !instance._mouseDownModelEvent) {
             /**
              * Is fired when the user positions the mouse over a Model.
@@ -1429,7 +1287,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             contentBox = instance.get('contentBox');
 
-        Y.log('_setHoverEvents', 'info', 'Itsa-ScrollViewModelList');
         if (val && !instance._mouseenterModelEvent) {
             /**
              * Is fired when the user positions the mouse over a Model.
@@ -1506,7 +1363,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             viewFilter = instance.get('viewFilter'),
             modelPrevSelected, multipleModels, newModelIndex, prevModelIndex, startIndex, endIndex, i, nextModel;
 
-        Y.log('_handleModelSelectionChange', 'info', 'Itsa-ScrollViewModelList');
         modelPrevSelected = model && instance.modelIsSelected(model);
         // At this stage, 'modelsSelectable' is either 'single' or 'multi'
         if (singleSelectable || !ctrlClick) {
@@ -1579,7 +1435,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             axis, xAxis, yAxis, boundingBox, viewsize, elementsize, lastModelNode, offsetDirection, renderedModel, prevRenderedModel,
             modelClientId, headerNode, i, model, modelListItems, batchSize, items, modelListItemsLength, dupAvailable;
 
-        Y.log('_renderView', 'info', 'Itsa-ScrollViewModelList');
         dupAvailable = function(model) {
             var dupFound = false,
                 modelComp = dupComparator(model);
@@ -1755,7 +1610,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      *
     */
     _resetView : function() {
-        Y.log('_resetView', 'info', 'Itsa-ScrollViewModelList');
         this._resetView(null, true);
     },
 
@@ -1774,7 +1628,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             append = instance.hasPlugin('itssvinfinite');
 
-        Y.log('_renderViewCheckAppend', 'info', 'Itsa-ScrollViewModelList');
         instance._renderView(null, append);
     },
 
@@ -1792,7 +1645,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             modellist = instance.get('modelList');
 
-        Y.log('_renderModelOrView', 'info', 'Itsa-ScrollViewModelList');
         instance._renderView();
     },
 
@@ -1812,7 +1664,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             modelnodes;
 
         if (modelid) {
-            Y.log('_selectModel '+instance.getModelAttr(model, "clientId")+' new selectstatus: '+selectstatus, 'info', 'Itsa-ScrollViewModelList');
             // each modelid-class should be prenet only once
             modelnodes = contentBox.one('.'+modelid);
             if (modelnodes) {
@@ -1826,7 +1677,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             }
         }
         else {
-            Y.log('_selectModel --> no action taken: undefined Model', 'warn', 'Itsa-ScrollViewModelList');
         }
     },
 
@@ -1841,7 +1691,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         var instance = this,
             selectedModels, originalModels;
 
-        Y.log('_fireSelectedModels', 'info', 'Itsa-ScrollViewModelList');
         /**
          * Is fired when the user changes the modelselection. In case multiple Models are selected and the same Model is
          * more than once (in case of repeating Models), the Model is only once in the resultarray.
@@ -1873,7 +1722,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      *
     */
     _clearEventhandlers : function() {
-        Y.log('_clearEventhandlers', 'info', 'DTColumnResize');
         YArray.each(
             this._eventhandlers,
             function(item){
@@ -1887,3 +1735,18 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
 Y.ScrollView.ITSAScrollViewModelListExtention = ITSAScrollViewModelListExtention;
 
 Y.Base.mix(Y.ScrollView, [ITSAScrollViewModelListExtention]);
+
+}, '@VERSION@', {
+    "requires": [
+        "base-build",
+        "node-base",
+        "node-event-delegate",
+        "pluginhost-base",
+        "event-mouseenter",
+        "event-custom",
+        "model",
+        "model-list",
+        "lazy-model-list"
+    ],
+    "skinnable": true
+});

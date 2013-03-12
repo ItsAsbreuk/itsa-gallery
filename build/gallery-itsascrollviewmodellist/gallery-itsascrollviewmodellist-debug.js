@@ -1,3 +1,5 @@
+YUI.add('gallery-itsascrollviewmodellist', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -531,111 +533,6 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     },
 
     /**
-     * Retreives the Li-Node given a Model from the ModelList.
-     * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the Node, there might be a lot of
-     * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
-     * That's why the second param is needed.
-     *
-     * @method getNodeFromModel
-     * @param {Y.Model} model List-item from the modelList. In case of a LazyModelList, this might be an object.
-     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
-     * external data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
-     * from external data at the <b>max of 25 times by default</b> (which is quite a lot). If you are responsible for the external data and
-     * it is limited, then you might choose to set this value that high to make sure all data is rendered in the scrollview.
-     * @return {Y.Node} Li-Node that corresponds with the model.
-     * @since 0.1
-    */
-    getNodeFromModel : function(model, maxExpansions) {
-        var instance = this,
-            modelClientId = instance.getModelAttr(model, 'clientId'),
-            infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
-            maxLoop = maxExpansions || 25,
-            i = 0,
-            nodeFound = false, nodeList, findNode;
-
-        Y.log('getNodeFromModel', 'info', 'Itsa-ScrollViewModelList');
-        findNode = function(node) {
-            var found = (node.getData('modelClientId') === modelClientId);
-            if (found) {
-                nodeFound = node;
-            }
-            return found;
-        };
-        do {
-            nodeList = instance._viewNode.all('.itsa-scrollviewmodel');
-            nodeList.some(findNode);
-            i++;
-//=============================================================================================================================
-//
-// NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-//
-//=============================================================================================================================
-        } while (!nodeFound && infiniteScrollPlugin && (i<maxLoop) && infiniteScrollPlugin.expandList());
-        return nodeFound;
-    },
-
-    /**
-     * Makes the Model scroll into the View (at the top).
-     *
-     * @method scrollIntoView
-     * @param {Y.Model} that should be got view.
-     * @private
-     * @since 0.1
-    */
-    scrollIntoView : function(model) {
-        var instance = this,
-            boundingBox = instance.get('boundingBox'),
-            axis = instance.get('axis'),
-            yAxis = axis.y,
-            viewNode = instance._viewNode,
-            modelNode = model && instance.getNodeFromModel(model),
-            infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
-            boundingBoxEdge, modelNodeEdge, currentOffset, maxOffset, newOffset;
-
-        if (modelNode) {
-            Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
-            if (yAxis) {
-                boundingBoxEdge = boundingBox.getY();
-                modelNodeEdge = modelNode.getY();
-                currentOffset = instance.get('scrollY');
-                maxOffset = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
-            }
-            else {
-                boundingBoxEdge = boundingBox.getX();
-                modelNodeEdge = modelNode.getX();
-                currentOffset = instance.get('scrollX');
-                maxOffset = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
-            }
-            newOffset = Math.round(currentOffset + modelNodeEdge - boundingBoxEdge);
-            // You might need to expand the list in case ITSAScrollViewInifiniteScroll is pluged-in AND maxOffset<newOffset
-            // Only 1 time is needed: getNodeFromModel already has expanded a number of times to make the Node available
-            if (infiniteScrollPlugin && (maxOffset<newOffset) && instance._moreItemsAvailable) {
-//=============================================================================================================================
-//
-// NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-//
-//=============================================================================================================================
-                infiniteScrollPlugin.expandList();
-                if (yAxis) {
-                    maxOffset = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
-                }
-                else {
-                    maxOffset = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
-                }
-            }
-            if (yAxis) {
-                instance.scrollTo(0, Math.min(newOffset, maxOffset));
-            }
-            else {
-                instance.scrollTo(Math.min(newOffset, maxOffset), 0);
-            }
-        }
-        else {
-            Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ScrollViewModelList');
-        }
-    },
-
-    /**
      * If the Model/Models has a 'selected-status' in the ScrollView-instance.
      *
      * @method modelIsSelected
@@ -670,10 +567,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @method selectModels
      * @param {Y.Model|Array} models Model or Array of Models to be checked. May also be items of a LazyModelList,
      * in which case it might not be a true Model, but an Object.
-     * @param {boolean} [scrollIntoView] makes the first selected Model scroll into the View (at the top).
      * @since 0.1
     */
-    selectModels : function(models, scrollIntoView) {
+    selectModels : function(models) {
         var instance = this;
 
         Y.log('selectModels', 'info', 'Itsa-ScrollViewModelList');
@@ -684,15 +580,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
                     instance._selectModel(model, true);
                 }
             );
-            if (scrollIntoView && (models.length>0)) {
-                instance.scrollIntoView(models[0]);
-            }
         }
         else {
             instance._selectModel(models, true);
-            if (scrollIntoView) {
-                instance.scrollIntoView(models);
-            }
         }
     },
 
@@ -1887,3 +1777,18 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
 Y.ScrollView.ITSAScrollViewModelListExtention = ITSAScrollViewModelListExtention;
 
 Y.Base.mix(Y.ScrollView, [ITSAScrollViewModelListExtention]);
+
+}, '@VERSION@', {
+    "requires": [
+        "base-build",
+        "node-base",
+        "node-event-delegate",
+        "pluginhost-base",
+        "event-mouseenter",
+        "event-custom",
+        "model",
+        "model-list",
+        "lazy-model-list"
+    ],
+    "skinnable": true
+});
