@@ -1,3 +1,5 @@
+YUI.add('itsa-scrollview-dupmodels', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -369,3 +371,5 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
 Y.ScrollView.ITSAScrollViewDupModelsExtention = ITSAScrollViewDupModelsExtention;
 
 Y.Base.mix(Y.ScrollView, [ITSAScrollViewDupModelsExtention]);
+
+}, '3.8.1', {"requires": ["base-build", "node-base", "model-list", "datatype-date-math", "itsa-scrollview-modellist"]});
