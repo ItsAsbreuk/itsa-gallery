@@ -1,3 +1,5 @@
+YUI.add('gallery-itsascrollviewkeynav', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -57,11 +59,9 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
 
             instance.host = host = instance.get('host');
             if (host instanceof Y.ScrollView) {
-                Y.log('initializer', 'info', 'Itsa-ScrollViewKeyNav');
                 instance._bindUI();
             }
             else {
-                Y.log('initializer --> cannot continue ataching eventlisteners: Host is not a ScrollView-instance', 'warn', 'Itsa-ScrollViewKeyNav');
             }
         },
 
@@ -72,7 +72,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
          * @since 0.1
         */
         destructor : function() {
-            Y.log('destructor', 'info', 'Itsa-ScrollViewKeyNav');
             this._clearEventhandlers();
         },
 
@@ -90,7 +89,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
         _bindUI : function() {
             var instance = this;
 
-            Y.log('_bindUI', 'info', 'Itsa-ScrollViewKeyNav');
             instance._eventhandlers.push(
                 Y.on(
                     'keydown',
@@ -230,7 +228,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 }
             };
             if (host.get('focused')) {
-                Y.log('_handleKeyDown keyCode: '+keyCode, 'info', 'Itsa-ScrollViewKeyNav');
                 modelsSelectable = host.get('modelsSelectable');
                 viewNode = host._viewNode || host.get('srcNode');
                 paginationActive = host.hasPlugin('pages');
@@ -471,7 +468,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 }
             }
             else {
-                Y.log('_handleKeyDown wil not perform any action: the scrollviewinstance is not focused', 'info', 'Itsa-ScrollViewKeyNav');
             }
         },
 
@@ -493,7 +489,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
             var host = this.host,
                 pagination = host && host.pages;
 
-            Y.log('_focusHost', 'info', 'Itsa-ScrollViewKeyNav');
             if (pagination) {
 //=============================================================================================================================
 //
@@ -520,7 +515,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 viewNode = host._viewNode || host.get('scrNode'),
                 max;
 
-            Y.log('_saveScrollTo', 'info', 'Itsa-ScrollViewKeyNav');
             if (x) {
                 x = Math.max(0, x);
                 max = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
@@ -545,7 +539,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
         _focusHost : function() {
             var host = this.host;
 
-            Y.log('_focusHost', 'info', 'Itsa-ScrollViewKeyNav');
             if (host && host.focus) {
                 host.focus();
             }
@@ -560,7 +553,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-ScrollViewKeyNav');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -611,3 +603,5 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "plugin", "pluginhost-base", "node-base"]});

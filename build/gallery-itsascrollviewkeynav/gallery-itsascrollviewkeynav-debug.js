@@ -1,3 +1,5 @@
+YUI.add('gallery-itsascrollviewkeynav', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -611,3 +613,5 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "plugin", "pluginhost-base", "node-base"]});
