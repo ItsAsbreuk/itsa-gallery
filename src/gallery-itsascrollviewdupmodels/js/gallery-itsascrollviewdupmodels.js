@@ -1,5 +1,3 @@
-YUI.add('itsa-scrollview-dupmodels', function (Y, NAME) {
-
 'use strict';
 
 /**
@@ -88,6 +86,22 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
      */
     _setModelConfigInitiated : null,
     _prevLastAbberantModelIndex : null,
+
+    /**
+     * Returns the ModelList which rendered the View. In case there are dupModels available, this is a abbarant
+     * ModelList, which has more items than the bound modelList-attribute. This method always returns the 'full'-modellist
+     * with all the items.
+     *
+     * @method getModelList
+     * @since 0.1
+     *
+    */
+    getModelList : function() {
+        var instance = this;
+
+        Y.log('getModelList', 'info', 'Itsa-ScrollViewModelList');
+        return instance._abberantModelList || instance.get('modelList');
+    },
 
     /**
      * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender()
@@ -371,5 +385,3 @@ Y.mix(ITSAScrollViewDupModelsExtention.prototype, {
 Y.ScrollView.ITSAScrollViewDupModelsExtention = ITSAScrollViewDupModelsExtention;
 
 Y.Base.mix(Y.ScrollView, [ITSAScrollViewDupModelsExtention]);
-
-}, '3.8.1', {"requires": ["base-build", "node-base", "model-list", "datatype-date-math", "itsa-scrollview-modellist"]});
