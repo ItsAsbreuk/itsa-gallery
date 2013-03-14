@@ -175,20 +175,36 @@ ITSAScrollViewModelListExtention.ATTRS = {
    /**
     * Whether the Models can be selected (resulting in a 'modelSelectionChange'-event)
     * Posible values are: <b>null</b>, <b>''</b>, <b>true</b>, <b>false</b>, <b>single</b>, <b>multi</b>
-    * The value true equals 'multi'
+    * The value true equals 'multi', 'null' or '' equals false.
     *
-    * @default true
+    * @default false
     * @attribute modelsSelectable
     * @type {Boolean|String|null}
     * @since 0.1
     */
     modelsSelectable: {
-        value: null,
+        value: false,
         lazyAdd: false,
         validator:  function(v) {
-            return ((v==='') || (v===null) || (v===true) || (v===false) || (v==='single') || (v==='multi'));
+            return ((v==='') || (v===null) || Lang.isBoolean(v) || (v==='single') || (v==='multi'));
         },
         setter: '_setModelsSelectable'
+    },
+
+   /**
+    * If set, then there ALWAYS REMAINS 1 Model selected.
+    * <i>Only accounts when 'modelsSelectable' is active.
+    *
+    * @default true
+    * @attribute modelsUnselectable
+    * @type {Boolean}
+    * @since 0.1
+    */
+    modelsUnselectable: {
+        value: false,
+        validator:  function(v) {
+            return Lang.isBoolean(v);
+        }
     },
 
    /**
@@ -531,6 +547,26 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     },
 
     /**
+     * Retreives the Li-Node given the index from the ModelList.
+     * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the Node, there might be a lot of
+     * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
+     * That's why the second param is needed.
+     *
+     * @method getNodeFromIndex
+     * @param {Int} index Index of item in the modelList.
+     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+     * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+     * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
+     * @return {Y.Node} Li-Node that corresponds with the model.
+     * @since 0.1
+    */
+    getNodeFromIndex : function(index, maxExpansions) {
+        Y.log('getNodeFromIndex', 'info', 'Itsa-ScrollViewModelList');
+        return this._getNodeFromModelOrIndex(null, index, maxExpansions);
+    },
+
+    /**
      * Retreives the Li-Node given a Model from the ModelList.
      * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the Node, there might be a lot of
      * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
@@ -539,74 +575,128 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @method getNodeFromModel
      * @param {Y.Model} model List-item from the modelList. In case of a LazyModelList, this might be an object.
      * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
-     * external data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
-     * from external data at the <b>max of 25 times by default</b> (which is quite a lot). If you are responsible for the external data and
-     * it is limited, then you might choose to set this value that high to make sure all data is rendered in the scrollview.
+     * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+     * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
      * @return {Y.Node} Li-Node that corresponds with the model.
      * @since 0.1
     */
     getNodeFromModel : function(model, maxExpansions) {
-        var instance = this,
-            modelClientId = instance.getModelAttr(model, 'clientId'),
-            infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
-            maxLoop = maxExpansions || 25,
-            i = 0,
-            nodeFound = false, nodeList, findNode;
-
         Y.log('getNodeFromModel', 'info', 'Itsa-ScrollViewModelList');
-        findNode = function(node) {
-            var found = (node.getData('modelClientId') === modelClientId);
-            if (found) {
-                nodeFound = node;
-            }
-            return found;
-        };
-        do {
-            nodeList = instance._viewNode.all('.itsa-scrollviewmodel');
-            nodeList.some(findNode);
-            i++;
-//=============================================================================================================================
-//
-// NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-//
-//=============================================================================================================================
-        } while (!nodeFound && infiniteScrollPlugin && (i<maxLoop) && infiniteScrollPlugin.expandList());
-        return nodeFound;
+        return this._getNodeFromModelOrIndex(model, null, maxExpansions);
     },
 
     /**
-     * Makes the Model scroll into the View (at the top).
+     * Equals scrollview.scrollTo, but makes sure we keep between the correct boundaries.
+     *
+     * @method saveScrollTo
+     * @param x {Int} The x-position to scroll to. (null for no movement)
+     * @param y {Int} The y-position to scroll to. (null for no movement)
+     * @since 0.1
+     *
+    */
+    saveScrollTo : function(x, y) {
+        var instance = this,
+            boundingBox = instance.get('boundingBox'),
+            viewNode = instance._viewNode,
+            max;
+
+        Y.log('saveScrollTo', 'info', 'Itsa-ScrollViewKeyNav');
+        if (x) {
+            x = Math.max(0, x);
+            max = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
+            x = Math.min(x, max);
+        }
+        if (y) {
+            y = Math.max(0, y);
+            max = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
+            y = Math.min(y, max);
+        }
+        instance.scrollTo(x, y);
+    },
+
+    /**
+     * Makes the Model scroll into the View. Items that are already in the view: no scroll appears. Items that are above: will appear
+     * on top. Items that are after the view: will appear on bottom.
+     * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the Node, there might be a lot of
+     * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
+     * That's why the second param is needed.
      *
      * @method scrollIntoView
-     * @param {Y.Model} that should be got view.
-     * @private
+     * @param {Y.Model|Int} modelOrIndex Y.Model or index that should be into view.
+     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+     * external data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * from external data at the <b>max of 25 times by default</b> (which is quite a lot). If you are responsible for the external data and
+     * it is limited, then you might choose to set this value that high to make sure all data is rendered in the scrollview.
      * @since 0.1
     */
-    scrollIntoView : function(model) {
+    scrollIntoView : function(modelOrIndex, maxExpansions) {
         var instance = this,
             boundingBox = instance.get('boundingBox'),
             axis = instance.get('axis'),
             yAxis = axis.y,
+            boundingBoxSize = yAxis ? boundingBox.get('offsetHeight') : boundingBox.get('offsetWidth'),
+            boundingBoxEdge = yAxis ? boundingBox.getY() : boundingBox.getX(),
             viewNode = instance._viewNode,
-            modelNode = model && instance.getNodeFromModel(model),
             infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
-            boundingBoxEdge, modelNodeEdge, currentOffset, maxOffset, newOffset;
+            paginatorPlugin = instance.hasPlugin('pages'),
+            modelNodeEdge, currentOffset, maxOffset, newOffset, modelNode, liElements, getNodePosition,
+            decreased, onTop, nodePosition, modelNodeSize;
 
-        if (modelNode) {
-            Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
-            if (yAxis) {
-                boundingBoxEdge = boundingBox.getY();
-                modelNodeEdge = modelNode.getY();
-                currentOffset = instance.get('scrollY');
-                maxOffset = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
+        getNodePosition = function(node) {
+            // returns -1 if (partial) before viewNode
+            // returns 0 if inside viewNode
+            // returns 1 if (partial) after viewNode
+            var nodeLowerEdge = yAxis ? node.getY() : node.getX(),
+                nodeUpperEdge = nodeLowerEdge + (yAxis ? node.get('offsetHeight') : node.get('offsetWidth'));
+            if (nodeLowerEdge<boundingBoxEdge) {
+                return -1;
+            }
+            else if (nodeUpperEdge>(boundingBoxEdge+boundingBoxSize)) {
+                return 1;
             }
             else {
-                boundingBoxEdge = boundingBox.getX();
+                return 0;
+            }
+        };
+        if (Lang.isNumber(modelOrIndex)) {
+            modelNode = modelOrIndex && instance.getNodeFromIndex(modelOrIndex, maxExpansions);
+            nodePosition = getNodePosition(modelNode);
+        }
+        else {
+            modelNode = modelOrIndex && instance.getNodeFromModel(modelOrIndex, maxExpansions);
+            nodePosition = getNodePosition(modelNode);
+            if (paginatorPlugin && (nodePosition!==0)) {
+                // transform model to an index
+                liElements = instance._viewNode.all('li');
+                modelOrIndex = 0;
+                liElements.some(
+                    function(node, index) {
+                        var found = (node===modelNode);
+                        if (found) {
+                            modelOrIndex = index;
+                        }
+                        return found;
+                    }
+                );
+            }
+        }
+        if ((modelNode) && (nodePosition!==0)) {
+            Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
+            onTop = (nodePosition===-1);
+            if (yAxis) {
+                modelNodeEdge = modelNode.getY();
+                currentOffset = instance.get('scrollY');
+                modelNodeSize = modelNode.get('offsetHeight');
+                maxOffset = viewNode.get('offsetHeight') - boundingBoxSize;
+            }
+            else {
                 modelNodeEdge = modelNode.getX();
                 currentOffset = instance.get('scrollX');
-                maxOffset = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
+                modelNodeSize = modelNode.get('offsetWidth');
+                maxOffset = viewNode.get('offsetWidth') - boundingBoxSize;
             }
-            newOffset = Math.round(currentOffset + modelNodeEdge - boundingBoxEdge);
+            newOffset = Math.round(currentOffset + modelNodeEdge - boundingBoxEdge - (onTop ? 0 : (boundingBoxSize-modelNodeSize)));
             // You might need to expand the list in case ITSAScrollViewInifiniteScroll is pluged-in AND maxOffset<newOffset
             // Only 1 time is needed: getNodeFromModel already has expanded a number of times to make the Node available
             if (infiniteScrollPlugin && (maxOffset<newOffset) && instance._moreItemsAvailable) {
@@ -616,22 +706,41 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
 //
 //=============================================================================================================================
                 infiniteScrollPlugin.expandList();
-                if (yAxis) {
-                    maxOffset = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
-                }
-                else {
-                    maxOffset = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
+                if (paginatorPlugin && !instance._moreItemsAvailable) {
+                    // it can be that you need a lower index, when the scroll comes on the last page.
+                    modelOrIndex = Math.min(modelOrIndex, instance._getMaxPaginatorGotoIndex(maxExpansions));
                 }
             }
-            if (yAxis) {
-                instance.scrollTo(0, Math.min(newOffset, maxOffset));
+            if (paginatorPlugin) {
+                if (!onTop) {
+                    while ((modelNodeSize<boundingBoxSize) && (modelOrIndex>0)) {
+                        decreased = true;
+                        modelOrIndex--;
+                        modelNode = modelNode.previous('li');
+                        modelNodeSize += modelNode.get(yAxis ? 'offsetHeight' : 'offsetWidth');
+                    }
+                    if (decreased) {
+                        modelOrIndex++;
+                    }
+                }
+                instance.pages.scrollToIndex(modelOrIndex);
             }
             else {
-                instance.scrollTo(Math.min(newOffset, maxOffset), 0);
+                if (yAxis) {
+                    instance.saveScrollTo(null, newOffset);
+                }
+                else {
+                    instance.saveScrollTo(newOffset, null);
+                }
             }
         }
         else {
-            Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ScrollViewModelList');
+            if (!modelNode) {
+                Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ScrollViewModelList');
+            }
+            else {
+                Y.log('scrollIntoView --> no change needed: model is inside view', 'info', 'Itsa-ScrollViewModelList');
+            }
         }
     },
 
@@ -671,17 +780,27 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @param {Y.Model|Array} models Model or Array of Models to be checked. May also be items of a LazyModelList,
      * in which case it might not be a true Model, but an Object.
      * @param {boolean} [scrollIntoView] makes the first selected Model scroll into the View (at the top).
+     * @param {boolean} [silent] set true if you don't want a 'modelSelectionChange'-event to be fired.
+     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+     * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+     * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
      * @since 0.1
     */
-    selectModels : function(models, scrollIntoView) {
-        var instance = this;
+    selectModels : function(models, scrollIntoView, silent, maxExpansions) {
+        var instance = this,
+            prevSize, contentBox;
 
         Y.log('selectModels', 'info', 'Itsa-ScrollViewModelList');
+        if (!silent) {
+            contentBox = instance.get('contentBox');
+            prevSize = contentBox.all('.'+SVML_SELECTED_CLASS).size();
+        }
         if (Lang.isArray(models)) {
             YArray.each(
                 models,
                 function(model) {
-                    instance._selectModel(model, true);
+                    instance._selectModel(model, true, maxExpansions);
                 }
             );
             if (scrollIntoView && (models.length>0)) {
@@ -689,10 +808,13 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             }
         }
         else {
-            instance._selectModel(models, true);
+            instance._selectModel(models, true, maxExpansions);
             if (scrollIntoView) {
                 instance.scrollIntoView(models);
             }
+        }
+        if (!silent && (prevSize!==contentBox.all('.'+SVML_SELECTED_CLASS).size())) {
+            instance._fireSelectedModels();
         }
     },
 
@@ -701,12 +823,18 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      *
      * @method unselectModels
      * @param {Y.Model|Array} models Model or Array of Models to be checked
+     * @param {boolean} [silent] set true if you don't want a 'modelSelectionChange'-event to be fired.
      * @since 0.1
     */
-    unselectModels : function(models) {
-        var instance = this;
+    unselectModels : function(models, silent) {
+        var instance = this,
+            prevSize, contentBox;
 
         Y.log('unselectModels', 'info', 'Itsa-ScrollViewModelList');
+        if (!silent) {
+            contentBox = instance.get('contentBox');
+            prevSize = contentBox.all('.'+SVML_SELECTED_CLASS).size();
+        }
         if (Lang.isArray(models)) {
             YArray.each(
                 models,
@@ -718,21 +846,44 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         else {
             instance._selectModel(models, false);
         }
+        if (!silent && (prevSize!==contentBox.all('.'+SVML_SELECTED_CLASS).size())) {
+            instance._fireSelectedModels();
+        }
     },
 
     /**
      * Of all the selected Models: sets the 'selected-status' in the ScrollView-instance to false
      *
      * @method clearSelectedModels
+     * @param {boolean} [silent] set true if you don't want a 'modelSelectionChange'-event to be fired.
+     * @param {boolean} [force] set true if you want to force unselect all models, even if the attribute 'modelsUnselectable' is true.
      * @since 0.1
     */
-    clearSelectedModels : function() {
+    clearSelectedModels : function(silent, force) {
         var instance = this,
-            contentBox = instance.get('contentBox');
+            contentBox = instance.get('contentBox'),
+            currentSelected, fireEvent, firstSelected, clientId, model, modelList;
 
         Y.log('clearSelectedModels', 'info', 'Itsa-ScrollViewModelList');
-        contentBox.all('.'+SVML_SELECTED_CLASS).removeClass(SVML_SELECTED_CLASS);
+        currentSelected = contentBox.all('.'+SVML_SELECTED_CLASS);
+        firstSelected = (currentSelected.size()>0) && currentSelected.item(0);
+        if (silent) {
+            currentSelected.removeClass(SVML_SELECTED_CLASS);
+        }
+        else {
+            fireEvent = (currentSelected.size()>0);
+            currentSelected.removeClass(SVML_SELECTED_CLASS);
+            if (fireEvent) {
+                instance._fireSelectedModels();
+            }
+        }
         instance._selectedModels = {};
+        if (instance.get('modelsUnselectable') && firstSelected && !force) {
+            clientId = firstSelected.getData('modelClientId');
+            modelList = instance._abberantModelList || instance.get('modelList');
+            model = modelList.getByClientId(clientId);
+            instance.selectModels(model, false, true);
+        }
     },
 
     /**
@@ -902,8 +1053,51 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
         viewNode.set('id', instance._viewId);
         instance._extraBindUI();
         if (modellist) {
-            instance.renderView();
+            instance._renderView(null, true);
         }
+    },
+
+    /**
+     * Returns the maximum PaginatorIndex that should be called. This is <b>lower</b> than the list-size, because
+     * it is the uppermost item on the last page. This is handy, because scrollview.pages.scrollToIndex(lastitem)
+     * bumbs too much.
+     * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the last Node, there might be a lot of
+     * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
+     * That's why the param is needed.
+     *
+     * @method _getMaxPaginatorGotoIndex
+     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+     * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+     * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
+     * @return {Int} maximum PaginatorIndex that should be called.
+     * @private
+     * @since 0.1
+     *
+    */
+    _getMaxPaginatorGotoIndex : function(maxExpansions) {
+        var instance = this,
+            paginator = instance.hasPlugin('pages'),
+            modelList = instance._abberantModelList || instance.get('modelList'),
+            axis = instance.get('axis'),
+            yAxis = axis.y,
+            boundingSize = instance.get('boundingBox').get(yAxis ? 'offsetHeight' : 'offsetWidth'),
+            i = 0,
+            lastNode, size;
+
+        Y.log('_getMaxPaginatorGotoIndex', 'info', 'Itsa-ScrollViewModelList');
+        if (paginator && (modelList.size()>0)) {
+            lastNode = instance.getNodeFromIndex(modelList.size()-1, maxExpansions);
+            size = lastNode.get(yAxis ? 'offsetHeight' : 'offsetWidth');
+            i = instance._viewNode.all('li').size()-1;
+            while (lastNode && (i>0) && (size<boundingSize)) {
+                i--;
+                lastNode = lastNode.previous();
+                size += lastNode.get(yAxis ? 'offsetHeight' : 'offsetWidth');
+            }
+            if (size>=boundingSize) {i++;}
+        }
+        return i;
     },
 
     /**
@@ -1496,23 +1690,26 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             // first check _abberantModelList --> this might be available and it will overrule this.get('modelList')
             modelList = instance._abberantModelList || instance.get('modelList'),
             modelClientId = modelNode.getData('modelClientId'),
-
             model = modelList && modelList.getByClientId(modelClientId),
-
             modelsSelectable = instance.get('modelsSelectable'),
             singleSelectable = (modelsSelectable==='single'),
             shiftClick = e.shiftKey && !singleSelectable,
             ctrlClick = (e.metaKey || e.ctrlKey),
             viewFilter = instance.get('viewFilter'),
-            modelPrevSelected, multipleModels, newModelIndex, prevModelIndex, startIndex, endIndex, i, nextModel;
+            modelPrevSelected, multipleModels, newModelIndex, prevModelIndex, startIndex, endIndex, i, nextModel,
+            currentSelected, firstItemSelected;
 
         Y.log('_handleModelSelectionChange', 'info', 'Itsa-ScrollViewModelList');
         modelPrevSelected = model && instance.modelIsSelected(model);
-        // At this stage, 'modelsSelectable' is either 'single' or 'multi'
-        if (singleSelectable || !ctrlClick) {
-            instance.clearSelectedModels();
-        }
         if (model) {
+            // At this stage, 'modelsSelectable' is either 'single' or 'multi'
+            if (singleSelectable || !ctrlClick) {
+                if (instance.get('modelsUnselectable')) {
+                    currentSelected = instance._viewNode.all('.'+SVML_SELECTED_CLASS);
+                    firstItemSelected = (currentSelected.size()>0) && currentSelected.item(0);
+                }
+                instance.clearSelectedModels(true, true);
+            }
             if (shiftClick && instance._lastClickedModel) {
                 multipleModels = [];
                 newModelIndex = modelList.indexOf(model);
@@ -1525,14 +1722,14 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
                         multipleModels.push(nextModel);
                     }
                 }
-                instance.selectModels(multipleModels);
+                instance.selectModels(multipleModels, false, true);
             }
             else {
-                if (modelPrevSelected) {
-                    instance.unselectModels(model);
+                if (modelPrevSelected && !firstItemSelected) {
+                    instance.unselectModels(model, true);
                 }
                 else {
-                    instance.selectModels(model);
+                    instance.selectModels(model, false, true);
                 }
                 // store model because we need to know which model received the last click
                 // We need to know in case of a future shift-click
@@ -1610,6 +1807,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             instance._prevHeader2 = null;
             instance._prevHeader3 = null;
             instance._even = false;
+            if (infiniteView) {
+                instance._moreItemsAvailable = true;
+            }
         }
         else {
             i = (instance._prevLastModelIndex || -1) + 1;
@@ -1747,6 +1947,54 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     },
 
     /**
+     * Retreives the Li-Node given a Model from the ModelList, or the index,
+     * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the Node, there might be a lot of
+     * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
+     * That's why the second param is needed.
+     *
+     * @method _getNodeFromModelOrIndex
+     * @param {Y.Model} [model] List-item from the modelList. In case of a LazyModelList, this might be an object.
+     * @param {Int} [index] Index of item in the modelList.
+     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+     * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+     * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
+     * @return {Y.Node} Li-Node that corresponds with the model.
+     * @since 0.1
+    */
+    _getNodeFromModelOrIndex : function(model, index, maxExpansions) {
+        var instance = this,
+            infiniteScrollPlugin = instance.hasPlugin('itssvinfinite'),
+            maxLoop = maxExpansions || (infiniteScrollPlugin && infiniteScrollPlugin.get('maxExpansions')) || 0,
+            i = 0,
+            nodeFound = false,
+            nodeList, findNode, modelClientId;
+
+        Y.log('_getNodeFromModelOrIndex', 'info', 'Itsa-ScrollViewModelList');
+        if (model) {
+            modelClientId = instance.getModelAttr(model, 'clientId');
+        }
+        findNode = function(node, loopindex) {
+            var found = model ? (node.getData('modelClientId') === modelClientId) : (loopindex===index);
+            if (found) {
+                nodeFound = node;
+            }
+            return found;
+        };
+        do {
+            nodeList = instance._viewNode.all('.itsa-scrollviewmodel');
+            nodeList.some(findNode);
+            i++;
+//=============================================================================================================================
+//
+// NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
+//
+//=============================================================================================================================
+        } while (!nodeFound && infiniteScrollPlugin && (i<maxLoop) && infiniteScrollPlugin.expandList());
+        return nodeFound;
+    },
+
+    /**
      * Re-renders the ModelList within _viewNode and forces a complete new rebuild.
      *
      * @method _resetView
@@ -1802,18 +2050,27 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @method _selectModel
      * @param {Y.Model|Array} model Model or Array of Models to be checked
      * @param {Boolean} selectstatus whether the new status is true or false
+     * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+     * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+     * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+     * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
      * @private
      * @since 0.1
     */
-    _selectModel : function(model, selectstatus) {
+    _selectModel : function(model, selectstatus, maxExpansions) {
         var instance = this,
             modelid = instance.getModelAttr(model, 'clientId'),
             contentBox = instance.get('contentBox'),
+            itemUnselectable = (!selectstatus && instance.get('modelsUnselectable') && (YObject.size(instance._selectedModels)===1)),
             modelnodes;
 
-        if (modelid) {
+        if (modelid && !itemUnselectable) {
             Y.log('_selectModel '+instance.getModelAttr(model, "clientId")+' new selectstatus: '+selectstatus, 'info', 'Itsa-ScrollViewModelList');
-            // each modelid-class should be prenet only once
+            if (instance.hasPlugin('itssvinfinite')) {
+                // make sure the node is rendered
+                instance._getNodeFromModelOrIndex(model, null, maxExpansions);
+            }
+            // each modelid-class should be present only once
             modelnodes = contentBox.one('.'+modelid);
             if (modelnodes) {
                 modelnodes.toggleClass(SVML_SELECTED_CLASS, selectstatus);
@@ -1826,7 +2083,12 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             }
         }
         else {
-            Y.log('_selectModel --> no action taken: undefined Model', 'warn', 'Itsa-ScrollViewModelList');
+            if (!modelid) {
+                Y.log('_selectModel --> no action taken: undefined Model', 'warn', 'Itsa-ScrollViewModelList');
+            }
+            else {
+                Y.log('_selectModel --> cannot unselect Model --> there always should remain 1 selected', 'info', 'Itsa-ScrollViewModelList');
+            }
         }
     },
 
@@ -1849,8 +2111,10 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
          *
          * @event modelSelectionChange
          * @param {Array} newModelSelection contains [Model] with all modelList's Models that are selected:<br>
-         * -in case of repeated Models (see attribute 'modelConfig')- the subModel (dup or splitted) will be returned.
+         * -in case of repeated Models (see attribute 'modelConfig')- the subModel (dup or splitted) will be returned. This subModel
+         * <b>is not part</b> of the original ModelList.
          * @param {Array} originalModelSelection contains [Model] with all modelList's unique original Models that are selected.
+         * These models also exists in the original ModelList.
          * @since 0.1
         **/
         selectedModels = instance.getSelectedModels();
