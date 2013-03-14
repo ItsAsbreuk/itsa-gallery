@@ -3,6 +3,7 @@
         "requires": [
             "base-build",
             "plugin",
+            "pluginhost-base",
             "node-base"
         ]
     }
