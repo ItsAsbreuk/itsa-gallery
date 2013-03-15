@@ -116,13 +116,15 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 boundingBox = host.get('boundingBox'),
                 boundingBoxX = boundingBox.getX(),
                 boundingBoxY = boundingBox.getY(),
-                boundingBoxHeight = boundingBox.get('offsetHeight'),
-                boundingBoxWidth = boundingBox.get('offsetWidth'),
+                boundingBoxHeight = boundingBox.get('offsetHeight') + GETSTYLE(boundingBox, 'borderTopWidth')
+                        + GETSTYLE(boundingBox, 'borderBottomWidth') + GETSTYLE(boundingBox, 'paddingTop') + GETSTYLE(boundingBox,'paddingBottom'),
+                boundingBoxWidth = boundingBox.get('offsetWidth')+GETSTYLE(boundingBox,'borderLeftWidth')+GETSTYLE(boundingBox,'borderRightWidth')
+                        + GETSTYLE(boundingBox, 'paddingLeft') + GETSTYLE(boundingBox, 'paddingRight'),
                 rightborder = parseInt(boundingBox.getStyle('borderRightWidth'), 10),
                 bottomborder = parseInt(boundingBox.getStyle('borderBottomWidth'), 10),
-                paginationActive, axis, xAxis, yAxis, itemLeft, itemRight, itemUp, itemDown, currentVisible, i, viewNode, inRegion,
+                axis, xAxis, yAxis, itemLeft, itemRight, itemUp, itemDown, currentVisible, i, viewNode, inRegion,
                 pageLeft, pageRight, pageUp, pageDown, selectKey, modelsSelectable, pagination, currentIndex, totalCount, modelNode, liElements,
-                itemHome, itemEnd, lastListItemIsInView, paginatorScrollToIndex, paginatorScrollToIndexSave, currentScroll, remaining,
+                itemHome, itemEnd, lastListItemIsInView, paginatorScrollToIndex, currentScroll, remaining,
                 step, scrollToSave, down, lastFocusedModelNode, modelList, scrollHome, scrollEnd, nextModelNodeIsFullVisible,
                 prevModelNodeIsFullVisible, itemFullVisible, getFirstFullVisibleModelNode, getLastFullVisibleModelNode, nextModelNode,
                 scrollToModelNode, getDistanceToLowerEdge, getDistanceToUpperEdge, nextModelNodeVisible, newIndex, clientId, model;
@@ -231,11 +233,9 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
             if (host.get('focused')) {
                 Y.log('_handleKeyDown keyCode: '+keyCode, 'info', 'Itsa-ScrollViewKeyNav');
                 modelsSelectable = host.get('modelsSelectable');
-                viewNode = host._viewNode || host.get('srcNode').one('ul');
-                paginationActive = host.hasPlugin('pages');
-                if (paginationActive) {
-                    pagination = host.pages;
-                    paginatorScrollToIndexSave = Y.rbind(instance._paginatorScrollToIndex, instance);
+                viewNode = host._viewNode || host.get('srcNode').one('*');
+                pagination = host.pages;
+                if (pagination) {
                     paginatorScrollToIndex = Y.rbind(pagination.scrollToIndex, pagination);
                 }
                 axis = host.get('axis');
@@ -255,8 +255,13 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 if (selectKey || itemLeft || itemRight || itemUp || itemDown || pageLeft || pageRight || pageUp || pageDown || itemHome || itemEnd) {
                     e.preventDefault();
                 }
-                // Movementbehavior is different in different cases
-                if (modelsSelectable) {
+                //===================================================================================================================================
+                //
+                // Elements might be selectable when ItsaScrollViewModelList is available
+                // We need other behaviour in that case: scrolling through the items instead of scrolling through the scrollview
+                //
+                //===================================================================================================================================
+                if (modelsSelectable) { // only when ItsaScrollViewModelList is active and host.get('modelsSelectable')===true
                     // models are selectable --> no scrolling but shifting through items
                     // UNLESS the selected items come out of view --> in that case we need to scroll again to get it into position.
                     modelList = host._abberantModelList || host.get('modelList');
@@ -287,7 +292,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                                 }
                                 else {
                                     if (nextModelNodeVisible) {
-                                        liElements = viewNode.all('li');
+                                        liElements = viewNode.all('>*');
                                         scrollToModelNode(getLastFullVisibleModelNode(liElements));
                                     }
                                     else {
@@ -312,7 +317,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                                 }
                                 else {
                                     if (nextModelNodeVisible) {
-                                        liElements = viewNode.all('li');
+                                        liElements = viewNode.all('>*');
                                         scrollToModelNode(getFirstFullVisibleModelNode(liElements));
                                     }
                                     else {
@@ -347,7 +352,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                         }
                         else if (itemDown || itemRight || pageDown || pageRight) {
                             // no model has active focus yet, only take action if shiftdown
-                            liElements = viewNode.all('li');
+                            liElements = viewNode.all('>*');
                             if (itemDown || itemRight) {
                                 // select first visible element on page
                                 scrollToModelNode(getFirstFullVisibleModelNode(liElements));
@@ -359,16 +364,21 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                         }
                     }
                 }
+                //===================================================================================================================================
+                //
+                // When elements are not selectable, do a 'normal' scrolling (dependent whether the Paginator is plugged in)
+                //
+                //===================================================================================================================================
                 else {
                     // models are unselectable --> scroll the view
                     // How to scroll depends on whether Paginator is active. If active, than we can scroll a complete item at a time
                     // If not, then we scroll 1 pixel at a time
-                    if (paginationActive) {
+                    if (pagination) {
                         // no ModelsSelectable, with Pagination
                         // we need the currentindex to calculate how many items to shift.
                         currentIndex = pagination.get('index');
                         totalCount = pagination.get('total');
-                        liElements = viewNode.all('li');
+                        liElements = viewNode.all('>*');
                         if (itemLeft || itemUp) {
                             pagination.prev();
                         }
@@ -411,7 +421,9 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                         }
                         // next we handle shifting to the end
                         if ((itemRight || itemDown) && !lastListItemIsInView(liElements)) {
-                            paginatorScrollToIndexSave(Math.min(currentIndex+1, totalCount-1));
+                            newIndex = currentIndex+1;
+                            newIndex = Math.min(newIndex, instance._getMaxPaginatorGotoIndex(newIndex, 0));
+                            paginatorScrollToIndex(newIndex);
                         }
                         if ((pageDown || pageRight) && !lastListItemIsInView(liElements)) {
                             // now we need to find out what element is the last one that is not full-visible in the viewport.
@@ -421,14 +433,19 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                                 modelNode = liElements.item(i);
                                 currentVisible = inRegion(modelNode, boundingBox);
                             }
-                            paginatorScrollToIndexSave(i-1);
+                            newIndex = i-1;
+                            newIndex = Math.min(newIndex, instance._getMaxPaginatorGotoIndex(newIndex, 0));
+                            paginatorScrollToIndex(newIndex);
                         }
                         if (itemEnd && !lastListItemIsInView(liElements)) {
                             // Be aware that if ITSAScrollViewInifiniteScroll is plugged in, we need to be sure the items are available.
                             if (infiniteScroll && host._moreItemsAvailable) {
                                 host.itssvinfinite.loadAllItems();
+                                totalCount = pagination.get('total');
                             }
-                            paginatorScrollToIndexSave(totalCount-1);
+                            newIndex = totalCount-1;
+                            newIndex = Math.min(newIndex, instance._getMaxPaginatorGotoIndex(newIndex));
+                            paginatorScrollToIndex(newIndex);
                         }
                     }
                     else {
@@ -466,14 +483,19 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                                 infiniteScroll.loadAllItems();
                             }
                             if (yAxis) {
-                                scrollToSave(null, viewNode.get('offsetHeight'));
+                                scrollToSave(null, host._maxScrollY);
                             }
                             else {
-                                scrollToSave(viewNode.get('offsetWidth'), null);
+                                scrollToSave(host._maxScrollX, null);
                             }
                         }
                     }
                 }
+                //===================================================================================================================================
+                //
+                // End of scrollnehaviour
+                //
+                //===================================================================================================================================
             }
             else {
                 Y.log('_handleKeyDown wil not perform any action: the scrollviewinstance is not focused', 'info', 'Itsa-ScrollViewKeyNav');
@@ -519,27 +541,23 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
          * Equals scrollview.scrollTo, but makes sure we keep between the correct boundaries.
          *
          * @method _saveScrollTo
-         * @param x {Int} The x-position to scroll to. (null for no movement)
-         * @param y {Int} The y-position to scroll to. (null for no movement)
+         * @param {Int} x The x-position to scroll to. (null for no movement)
+         * @param {Int} y The y-position to scroll to. (null for no movement)
          * @private
          * @since 0.1
          *
         */
         _saveScrollTo : function(x, y) {
-            var host = this.host,
-                boundingBox = host.get('boundingBox'),
-                viewNode = host._viewNode || host.get('srcNode').one('ul'),
-                max;
-            Y.log('_saveScrollTo', 'info', 'Itsa-ScrollViewKeyNav');
+            var host = this.host;
+
+            Y.log('_saveScrollTo (x,y) = ('+x+','+y+')', 'info', 'Itsa-ScrollViewKeyNav');
             if (x) {
                 x = Math.max(0, x);
-                max = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
-                x = Math.min(x, max);
+                x = Math.min(x, host._maxScrollX);
             }
             if (y) {
                 y = Math.max(0, y);
-                max = viewNode.get('offsetHeight') - boundingBox.get('offsetHeight');
-                y = Math.min(y, max);
+                y = Math.min(y,  host._maxScrollY);
             }
             host.scrollTo(x, y);
         },
@@ -563,6 +581,73 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
             else {
                 instance.afterHostEvent('render', instance._focusHostSave, instance);
             }
+        },
+
+        /**
+         * Returns the maximum PaginatorIndex that should be called. This is <b>lower</b> than the list-size, because
+         * it is the uppermost item on the last page. This is handy, because scrollview.pages.scrollToIndex(lastitem)
+         * bumbs too much.
+         * <u>Be careful if you use the plugin ITSAScrollViewInifiniteScroll:</u> to get the last Node, there might be a lot of
+         * list-expansions triggered. Be sure that expansions from external data does end, otherwise it will overload the browser.
+         * That's why the param is needed.
+         *
+         * @method _getMaxPaginatorGotoIndex
+         * @param {Int} searchedIndex index that needs to besearched for. This will prevent a complete rendering of all items when not needed.
+         * This only applies when the ITSAScrollViewInifiniteScroll is plugged in.
+         * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
+         * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
+         * at the <b>max of ITSAScrollViewInifiniteScroll.get('maxExpansions') times by default</b>. If you are responsible for the external data and
+         * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
+         * @return {Int} maximum PaginatorIndex that should be called.
+         * @private
+         * @since 0.1
+         *
+        */
+        _getMaxPaginatorGotoIndex : function(searchedIndex, maxExpansions) {
+//=============================================================================================================================
+//
+// NEED SOME WORK HERE: MIGHT BE ASYNCHROUS --> WE NEED TO RETURN A PROMISE
+//
+//=============================================================================================================================
+            var host = this.host,
+                paginator = host.hasPlugin('pages'),
+                itssvinfinite = host.hasPlugin('itssvinfinite'),
+                axis = host.get('axis'),
+                yAxis = axis.y,
+                boundingSize = host.get('boundingBox').get(yAxis ? 'offsetHeight' : 'offsetWidth'),
+                i = 0,
+                hostModelList = host._abberantModelList || host.get('modelList'), // only when ItsaScrollviewModelList is active
+                viewNode = host._viewNode || host.get('srcNode').one('*'),
+                liElements = viewNode.all('>*'),
+                listSize = (hostModelList && hostModelList.size()) || liElements.size(),
+                lastNode, size;
+
+            Y.log('_getMaxPaginatorGotoIndex', 'info', 'Itsa-ScrollViewModelList');
+            if (paginator && (listSize>0)) {
+                lastNode = hostModelList ? host.getNodeFromIndex(Math.min(searchedIndex,listSize-1),maxExpansions) : liElements.item(listSize-1);
+                if (yAxis) {
+                    size = lastNode.get('offsetHeight') + GETSTYLE(lastNode, 'marginTop') + GETSTYLE(lastNode, 'marginBottom');
+                }
+                else {
+                    size = lastNode.get('offsetWidth') + GETSTYLE(lastNode, 'marginLeft') + GETSTYLE(lastNode, 'marginRight');
+                }
+                if (hostModelList && itssvinfinite) {
+                    // list might have been expanded --> we need to recalculate liElements
+                    liElements = viewNode.all('>*');
+                }
+                i = liElements.size();
+                while (lastNode && (--i>=0) && (size<boundingSize)) {
+                    lastNode = liElements.item(i);
+                    if (yAxis) {
+                        size += lastNode.get('offsetHeight') + GETSTYLE(lastNode, 'marginTop') + GETSTYLE(lastNode, 'marginBottom');
+                    }
+                    else {
+                        size += lastNode.get('offsetWidth') + GETSTYLE(lastNode, 'marginLeft') + GETSTYLE(lastNode, 'marginRight');
+                    }
+                }
+                if (size>=boundingSize) {i++;}
+            }
+            return i;
         },
 
         /**
