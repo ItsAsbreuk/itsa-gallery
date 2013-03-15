@@ -4,6 +4,7 @@
             "base-build",
             "node-base",
             "node-event-delegate",
+            "dom-screen",
             "pluginhost-base",
             "event-mouseenter",
             "event-custom",
