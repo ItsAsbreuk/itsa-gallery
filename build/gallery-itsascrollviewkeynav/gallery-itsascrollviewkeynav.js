@@ -56,7 +56,6 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
         initializer : function() {
             var instance = this,
                 host;
-
             instance.host = host = instance.get('host');
             if (host instanceof Y.ScrollView) {
                 instance._bindUI();
@@ -229,7 +228,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
             };
             if (host.get('focused')) {
                 modelsSelectable = host.get('modelsSelectable');
-                viewNode = host._viewNode || host.get('srcNode');
+                viewNode = host._viewNode || host.get('srcNode').one('ul');
                 paginationActive = host.hasPlugin('pages');
                 if (paginationActive) {
                     pagination = host.pages;
@@ -377,7 +376,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                             for (i=currentIndex-1; currentVisible && (i>=0); i--) {
                                 modelNode = liElements.item(i);
                                 currentVisible = ((i===currentIndex-1) ||
-                                                  inRegion(modelNode, boundingBox, 0, -boundingBoxHeight)); // needs dom-base
+                                                  inRegion(modelNode, boundingBox, 0, -boundingBoxHeight));
                             }
                             newIndex = i + 2;
                             if (currentIndex === newIndex) {
@@ -394,16 +393,22 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                             for (i=currentIndex-1; currentVisible && (i>=0); i--) {
                                 modelNode = liElements.item(i);
                                 currentVisible = ((i===currentIndex-1) ||
-                                                  inRegion(modelNode, boundingBox, -boundingBoxWidth, 0)); // needs dom-base
+                                                  inRegion(modelNode, boundingBox, -boundingBoxWidth, 0));
                             }
-                            paginatorScrollToIndex(i+2);
+                            newIndex = i + 2;
+                            if (currentIndex === newIndex) {
+                                paginatorScrollToIndex(0);
+                            }
+                            else {
+                                paginatorScrollToIndex(newIndex);
+                            }
                         }
                         if (itemHome) {
                             paginatorScrollToIndex(0);
                         }
                         // next we handle shifting to the end
                         if ((itemRight || itemDown) && !lastListItemIsInView(liElements)) {
-                            paginatorScrollToIndexSave(currentIndex + 1);
+                            paginatorScrollToIndexSave(Math.min(currentIndex+1, totalCount-1));
                         }
                         if ((pageDown || pageRight) && !lastListItemIsInView(liElements)) {
                             // now we need to find out what element is the last one that is not full-visible in the viewport.
@@ -487,15 +492,21 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
 //
 //=============================================================================================================================
             var host = this.host,
-                pagination = host && host.pages;
+                pagination = host && host.pages,
+                itssvinfinite = host && host.itssvinfinite;
 
             if (pagination) {
+                if (itssvinfinite) {
 //=============================================================================================================================
 //
 // NEED SOME WORK HERE: MIGHT BE ASYNCHROUS --> WE NEED TO RETURN A PROMISE
 //
 //=============================================================================================================================
-                pagination.scrollToIndex(Math.min(index, host._getMaxPaginatorGotoIndex(0)));
+                    pagination.scrollToIndex(Math.min(index, host._getMaxPaginatorGotoIndex(0)));
+                }
+                else {
+                    pagination.scrollToIndex(index);
+                }
             }
         },
 
@@ -512,9 +523,8 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
         _saveScrollTo : function(x, y) {
             var host = this.host,
                 boundingBox = host.get('boundingBox'),
-                viewNode = host._viewNode || host.get('scrNode'),
+                viewNode = host._viewNode || host.get('srcNode').one('ul'),
                 max;
-
             if (x) {
                 x = Math.max(0, x);
                 max = viewNode.get('offsetWidth') - boundingBox.get('offsetWidth');
@@ -537,10 +547,32 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
          *
         */
         _focusHost : function() {
+            var instance = this,
+                host = this.host;
+
+            if (host && host.get('rendered')) {
+                instance._focusHostSave();
+            }
+            else {
+                instance.afterHostEvent('render', instance._focusHostSave, instance);
+            }
+        },
+
+        /**
+         * Focuses the ScrollView-instance (host), but is safe: the scrollview-instance is rendered here.
+         *
+         * @method _focusHostSave
+         * @private
+         * @since 0.1
+         *
+        */
+        _focusHostSave : function() {
             var host = this.host;
 
             if (host && host.focus) {
                 host.focus();
+            }
+            else {
             }
         },
 
@@ -604,4 +636,4 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
     }
 );
 
-}, '@VERSION@', {"requires": ["base-build", "plugin", "pluginhost-base", "node-base"]});
+}, '@VERSION@', {"requires": ["base-build", "plugin", "pluginhost-base", "node", "dom-screen"]});

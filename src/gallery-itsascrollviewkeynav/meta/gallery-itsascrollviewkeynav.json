@@ -4,7 +4,8 @@
             "base-build",
             "plugin",
             "pluginhost-base",
-            "node-base"
+            "node",
+            "dom-screen"
         ]
     }
 }
