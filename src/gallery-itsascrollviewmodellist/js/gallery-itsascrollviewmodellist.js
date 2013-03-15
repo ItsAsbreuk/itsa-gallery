@@ -641,6 +641,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
      * @param {Object} [options] To force the 'scrollIntoView' to scroll on top or on bottom of the view.
      *     @param {Boolean} [options.forceTop=false] if 'true', the (first) selected item will always be positioned on top.
      *     @param {Boolean} [options.forceBottom=false] if 'true', the (first) selected item will always be positioned on bottom.
+     *     @param {Boolean} [options.noFocus=false] if 'true', then the listitem won't get focussed.
      * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAScrollViewInifiniteScroll</b>. Use this value to limit
      * external data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
      * from external data at the <b>max of 25 times by default</b> (which is quite a lot). If you are responsible for the external data and
@@ -693,7 +694,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             nodePosition = getNodePosition(modelNode);
             if (paginatorPlugin && (nodePosition!==0)) {
                 // increase the modelIndex --> paginator is pased on all LI's, not just the Models
-                liElements = viewNode.all('li');
+                liElements = viewNode.all('>li');
                 liElements.some(
                     function(node, index) {
                         if (!node.hasClass(MODEL_CLASS)) {
@@ -709,7 +710,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             nodePosition = getNodePosition(modelNode);
             if (paginatorPlugin && (nodePosition!==0)) {
                 // transform model to an index
-                liElements = viewNode.all('li');
+                liElements = viewNode.all('>li');
                 modelOrIndex = 0;
                 liElements.some(
                     function(node, index) {
@@ -722,7 +723,9 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
                 );
             }
         }
-        instance._focusModelNode(modelNode);
+        if (!options || !Lang.isBoolean(options.noFocus) || !options.noFocus) {
+            instance._focusModelNode(modelNode);
+        }
         if ((modelNode) && (nodePosition!==0)) {
             Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
             onTop = (nodePosition===-1);
@@ -923,16 +926,25 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
     clearSelectedModels : function(silent, force) {
         var instance = this,
             contentBox = instance.get('contentBox'),
-            currentSelected, fireEvent, firstSelected, clientId, model, modelList;
+            blurAll, currentSelected, fireEvent, firstSelected, clientId, model, modelList;
 
         Y.log('clearSelectedModels', 'info', 'Itsa-ScrollViewModelList');
+        blurAll = function() {
+            currentSelected.each(
+                function(node) {
+                    node.blur();
+                }
+            );
+        };
         currentSelected = contentBox.all('.'+SVML_SELECTED_CLASS);
         firstSelected = (currentSelected.size()>0) && currentSelected.item(0);
         if (silent) {
+            blurAll();
             currentSelected.removeClass(SVML_SELECTED_CLASS);
         }
         else {
             fireEvent = (currentSelected.size()>0);
+            blurAll();
             currentSelected.removeClass(SVML_SELECTED_CLASS);
             if (fireEvent) {
                 instance._fireSelectedModels();
@@ -1181,7 +1193,7 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             else {
                 size = lastNode.get('offsetWidth') + GETSTYLE(lastNode, 'marginLeft') + GETSTYLE(lastNode, 'marginRight');
             }
-            liElements = instance._viewNode.all('li');
+            liElements = instance._viewNode.all('>li');
             i = liElements.size();
             while (lastNode && (--i>=0) && (size<boundingSize)) {
                 lastNode = liElements.item(i);
@@ -2210,6 +2222,13 @@ Y.mix(ITSAScrollViewModelListExtention.prototype, {
             // each modelid-class should be present only once
             modelnodes = contentBox.one('.'+modelid);
             if (modelnodes) {
+                if (!selectstatus) {
+                    modelnodes.each(
+                        function(node) {
+                            node.blur();
+                        }
+                    );
+                }
                 modelnodes.toggleClass(SVML_SELECTED_CLASS, selectstatus);
             }
             if (selectstatus) {
