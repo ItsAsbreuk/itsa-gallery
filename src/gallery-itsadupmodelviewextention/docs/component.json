@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsadupmodelviewextention",
+    "displayName": "Gallery: gallery-itsadupmodelviewextention",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsadupmodelviewextention" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

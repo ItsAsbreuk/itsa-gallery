@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsaviewpaginator",
+    "builds": {
+        "gallery-itsaviewpaginator": {
+            "jsfiles": [
+                "js/gallery-itsaviewpaginator.js"
+            ]
+        }
+    }
+}

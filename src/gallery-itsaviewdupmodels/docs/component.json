@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsaviewdupmodels",
+    "displayName": "Gallery: gallery-itsaviewdupmodels",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsaviewdupmodels" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

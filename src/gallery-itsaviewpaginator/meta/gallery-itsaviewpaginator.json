@@ -1,0 +1,8 @@
+{
+    "gallery-itsaviewpaginator": {
+        "requires": [
+            "widget"
+        ],
+        "skinnable": true
+    }
+}

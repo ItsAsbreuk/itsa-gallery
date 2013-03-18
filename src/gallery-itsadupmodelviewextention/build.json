@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsadupmodelviewextention",
+    "builds": {
+        "gallery-itsadupmodelviewextention": {
+            "jsfiles": [
+                "js/gallery-itsadupmodelviewextention.js"
+            ]
+        }
+    }
+}

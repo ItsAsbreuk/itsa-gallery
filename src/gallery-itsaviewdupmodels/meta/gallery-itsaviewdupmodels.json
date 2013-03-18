@@ -1,8 +1,8 @@
 {
-    "gallery-itsascrollviewdupmodels": {
+    "gallery-itsaviewdupmodels": {
         "requires": [
             "gallery-itsadupmodelviewextention",
-            "gallery-itsascrollviewmodellist"
+            "gallery-itsaviewmodellist"
         ]
     }
 }

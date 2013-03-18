@@ -1,0 +1,7 @@
+{
+    "gallery-itsaviewmodel": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}

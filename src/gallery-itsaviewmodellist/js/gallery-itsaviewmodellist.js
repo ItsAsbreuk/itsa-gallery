@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * ScrollView ModelList Extention
+ * View ModelList Extention
  *
  *
  * Adds an Y.ModelList to a ScrollView instance, where the Models are rendered inside an unsorted-list
@@ -10,8 +10,8 @@
  * Caution: you MUST set the axis-atribute before rendering! Because the content is empty at start, scrollview
  * would otherwise fail autofind the value of axis.
  *
- * @module gallery-itsascrollviewmodellist
- * @class ITSAScrollViewModelList
+ * @module gallery-itsaviewmodellist
+ * @class ITSAViewModelList
  * @constructor
  * @since 0.1
  *
@@ -20,4 +20,4 @@
  *
 */
 
-Y.Base.mix(Y.ScrollView, [Y.ITSAModellistViewExtention]);
+Y.Base.mix(Y.View, [Y.ITSAModellistViewExtention]);

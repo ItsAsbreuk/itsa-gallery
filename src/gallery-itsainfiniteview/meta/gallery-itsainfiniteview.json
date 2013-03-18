@@ -1,0 +1,10 @@
+{
+    "gallery-itsainfiniteview": {
+        "requires": [
+            "base-build",
+            "plugin",
+            "node-base",
+            "json-parse"
+        ]
+    }
+}

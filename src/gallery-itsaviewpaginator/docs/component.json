@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsaviewpaginator",
+    "displayName": "Gallery: gallery-itsaviewpaginator",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsaviewpaginator" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

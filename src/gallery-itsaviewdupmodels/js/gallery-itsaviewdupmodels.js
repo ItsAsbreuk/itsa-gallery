@@ -1,16 +1,16 @@
 'use strict';
 
 /**
- * ScrollView DupModel Extention
+ * View DupModel Extention
  *
- * Coorporates with gallery-itsascrollviewmodellist --> it will load this module when not already loaded
+ * Coorporates with gallery-itsaviewmodellist --> it will load this module when not already loaded
  *
  * Adds the posibility to duplicate items from a ModelList, when these items have an 'endDate' or Interval set.
  * See the attribute <b>modelConfig</b> for more info.
  *
  *
- * @module gallery-itsascrollviewdupmodels
- * @class ITSAScrollViewDupModels
+ * @module gallery-itsaviewdupmodels
+ * @class ITSAViewDupModels
  * @constructor
  * @since 0.1
  *
@@ -19,4 +19,4 @@
  *
 */
 
-Y.Base.mix(Y.ScrollView, [Y.ITSADupModelViewExtention]);
+Y.Base.mix(Y.View, [Y.ITSADupModelViewExtention]);

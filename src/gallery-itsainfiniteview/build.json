@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsainfiniteview",
+    "builds": {
+        "gallery-itsainfiniteview": {
+            "jsfiles": [
+                "js/gallery-itsainfiniteview.js"
+            ]
+        }
+    }
+}
