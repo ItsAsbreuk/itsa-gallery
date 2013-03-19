@@ -1451,7 +1451,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance.on(['modelList:remove', 'lazyModelList:remove'], instance._removeView, instance)
         );
         eventhandlers.push(
-            instance.on('add', instance._addView, instance)
+            instance.after(['modelList:add', 'lazyModelList:add'], instance._addView, instance)
         );
         eventhandlers.push(
             instance.on('*:change', instance._changeView, instance)
@@ -2797,6 +2797,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             nextNode = node.next(); // index not points to the next node which MIGHT NOT exists
             prevNode = node.previous();
             node.remove(true);
+// IN CASE OF DUPMODELS --> WE MIGHT NEED TO DELETE MORE ITEMS !!!
+// ALSO: LOOP THROUGH THE LIST -DOWNSTREAM- AND RESET ALL EVEN/ODD CLASSES UNTIL A HEADER IS FOUND, NOT HANDLE THE LAST FILL-ELEMENT
             nextNodeIsEmptyItem = nextNode && nextNode.hasClass(EMPTY_ELEMENT_CLASS);
             while ((removedModel || !nextModel) && prevNode && prevNode.hasClass(GROUPHEADER_CLASS)) {
                 removeNode = prevNode;
@@ -2892,8 +2894,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Will render the view, but first checks whether the current View needs to be cleared, oor the new models need to be appended.
-     * This module will assume ONLY to append if <i>ITSAInifiniteView</i> is pluged in.
+     * Adds a new model to the view. Will rerender the view.
      *
      * @method _addView
      * @param {EventTarget} e
@@ -2902,11 +2903,10 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      *
     */
     _addView : function(e) {
-        var instance = this,
-            append = instance.hasPlugin('itsainfiniteview');
+        var instance = this;
 
         Y.log('_addView', 'info', 'Itsa-ScrollViewModelList');
-        instance._renderView(null, append);
+        instance._renderView(null, true);
     },
 
     /**
