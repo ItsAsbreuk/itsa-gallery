@@ -292,7 +292,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                                 }
                                 else {
                                     if (nextModelNodeVisible) {
-                                        liElements = viewNode.all('children');
+                                        liElements = viewNode.get('children');
                                         scrollToModelNode(getLastFullVisibleModelNode(liElements));
                                     }
                                     else {
@@ -317,7 +317,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                                 }
                                 else {
                                     if (nextModelNodeVisible) {
-                                        liElements = viewNode.all('children');
+                                        liElements = viewNode.get('children');
                                         scrollToModelNode(getFirstFullVisibleModelNode(liElements));
                                     }
                                     else {
@@ -352,7 +352,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                         }
                         else if (itemDown || itemRight || pageDown || pageRight) {
                             // no model has active focus yet, only take action if shiftdown
-                            liElements = viewNode.all('children');
+                            liElements = viewNode.get('children');
                             if (itemDown || itemRight) {
                                 // select first visible element on page
                                 scrollToModelNode(getFirstFullVisibleModelNode(liElements));
@@ -378,7 +378,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                         // we need the currentindex to calculate how many items to shift.
                         currentIndex = pagination.get('index');
                         totalCount = pagination.get('total');
-                        liElements = viewNode.all('children');
+                        liElements = viewNode.get('children');
                         if (itemLeft || itemUp) {
                             pagination.prev();
                         }
@@ -618,7 +618,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 i = 0,
                 hostModelList = host._abberantModelList || host.get('modelList'), // only when ItsaScrollviewModelList is active
                 viewNode = host._viewNode || host.get('srcNode').one('*'),
-                liElements = viewNode.all('children'),
+                liElements = viewNode.get('children'),
                 listSize = (hostModelList && hostModelList.size()) || liElements.size(),
                 lastNode, size;
 
@@ -633,7 +633,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 }
                 if (hostModelList && itsainfiniteview) {
                     // list might have been expanded --> we need to recalculate liElements
-                    liElements = viewNode.all('children');
+                    liElements = viewNode.get('children');
                 }
                 i = liElements.size();
                 while (lastNode && (--i>=0) && (size<boundingSize)) {

@@ -10,7 +10,8 @@
             "event-custom",
             "model",
             "model-list",
-            "lazy-model-list"
+            "lazy-model-list",
+            "template-micro"
         ]
     }
 }

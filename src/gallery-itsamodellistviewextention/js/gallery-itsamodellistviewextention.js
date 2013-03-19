@@ -24,6 +24,7 @@ var Lang = Y.Lang,
     YObject = Y.Object,
     YArray = Y.Array,
     YNode = Y.Node,
+    YTemplateMicro = Y.Template.Micro,
     VIEW_TEMPLATE = '<ul role="presentation"></ul>',
     VIEW_MODEL_TEMPLATE = '<li role="presentation"></li>',
     VIEW_EMPTY_ELEMENT_TEMPLATE = '<li></li>',
@@ -166,7 +167,7 @@ ITSAModellistViewExtention.ATTRS = {
     * By default, this will be compared with the previous rendered Model.
     * If you want a more sophisticated dup-check, the set the dupComparator-attribute. But be careful: the dupComparator
     * has a significant performance-hit.
-    * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
+    * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
     *
     * @attribute noDups
     * @type {Boolean}
@@ -223,7 +224,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelsSelectable: {
         value: null,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator:  function(v) {
             return ((v==='') || (v===null) || Lang.isBoolean(v) || (v==='single') || (v==='multi'));
         },
@@ -300,7 +301,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     clickEvents: {
         value: false,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isBoolean(v);},
         setter: '_setClickEvents'
     },
@@ -316,7 +317,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     dblclickEvents: {
         value: false,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isBoolean(v);},
         setter: '_setDblclickEvents'
     },
@@ -334,7 +335,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     highlightAfterModelChange: {
         value: 0,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isNumber(v);},
         setter: '_setHighlightAfterModelChange'
     },
@@ -349,7 +350,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelsIntoViewAfterAdd: {
         value: false,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isBoolean(v);},
         setter: '_setModelsIntoViewAfterAdd'
     },
@@ -364,7 +365,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelsIntoViewAfterChange: {
         value: false,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isBoolean(v);},
         setter: '_setModelsIntoViewAfterChange'
     },
@@ -382,7 +383,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     mouseDownUpEvents: {
         value: false,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isBoolean(v);},
         setter: '_setMouseDownUpEvents'
     },
@@ -398,7 +399,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     hoverEvents: {
         value: false,
-//        lazyAdd: false,
+        lazyAdd: false,
         validator: function(v) {return Lang.isBoolean(v);},
         setter: '_setHoverEvents'
     },
@@ -423,8 +424,14 @@ ITSAModellistViewExtention.ATTRS = {
     /**
      * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
      * just above all models (li-elements) whom encounter a change in the groupHeader1-value.
-     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String|Int|Boolean} value for all models.
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
+     * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
+     * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{stardate}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<% if (data.startdate) {%>Start: <%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %><br /><% } else { %>no startdate<br /><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
      * @attribute groupHeader1
      * @type {Function}
@@ -433,15 +440,21 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader1: {
         value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
+        validator: function(v){ return Lang.isString(v) || v === null; },
         setter: '_setGroupHeader1'
     },
 
     /**
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader2')
      * just above all models (li-elements) whom encounter a change in the groupHeader2-value.
-     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String|Int|Boolean} value for all models.
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
+     * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
+     * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{stardate}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<% if (data.startdate) {%>Start: <%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %><br /><% } else { %>no startdate<br /><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
      * @attribute groupHeader2
      * @type {Function}
@@ -450,15 +463,21 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader2: {
         value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
+        validator: function(v){ return Lang.isString(v) || v === null; },
         setter: '_setGroupHeader2'
     },
 
     /**
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader3')
      * just above all models (li-elements) whom encounter a change in the groupHeader3-value.
-     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String|Int|Boolean} value for all models.
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
+     * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
+     * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{stardate}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<% if (data.startdate) {%>Start: <%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %><br /><% } else { %>no startdate<br /><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
      * @attribute groupHeader3
      * @type {Function}
@@ -467,15 +486,19 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader3: {
         value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
+        validator: function(v){ return Lang.isString(v) || v === null; },
         setter: '_setGroupHeader3'
     },
 
     /**
-     * Y.Lang.Sub template to render the Model.
-     * The attribute MUST be a template that can be processed by Y.Lang.sub, where the Model-attribtes can be refered to by {}.
-     * <b>Example: '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
+     * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+     * where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
      * @attribute renderModel
      * @type {String}
@@ -486,6 +509,78 @@ ITSAModellistViewExtention.ATTRS = {
         value: '{clientId}', // default-template, so that there always is content. Best to be overwritten.
         validator: function(v){ return Lang.isString(v); },
         setter: '_setRenderModel'
+    },
+
+    /**
+     * Template for rendering of groupHeader1. If not set, renderGroupHeader1 will render the same as the attribute 'groupHeader1'.
+     * If you want the rendered content other than groupHeader1 generates, you can override this method. This is handy when the rendered
+     * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader1').
+     * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
+     * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{stardate}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<% if (data.startdate) {%>Start: <%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %><br /><% } else { %>no startdate<br /><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+     *
+     * @attribute renderGroupHeader1
+     * @type {Function}
+     * @default null
+     * @since 0.1
+     */
+    renderGroupHeader1: {
+        value: null,
+        validator: function(v){ return Lang.isString(v) || v === null; },
+        setter: '_setRenderGroupHeader1'
+    },
+
+    /**
+     * Template for rendering of groupHeader2. If not set, renderGroupHeader2 will render the same as the attribute 'groupHeader2'.
+     * If you want the rendered content other than groupHeader2 generates, you can override this method. This is handy when the rendered
+     * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader2').
+     * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
+     * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{stardate}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<% if (data.startdate) {%>Start: <%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %><br /><% } else { %>no startdate<br /><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+     *
+     * @attribute renderGroupHeader2
+     * @type {Function}
+     * @default null
+     * @since 0.1
+     */
+    renderGroupHeader2: {
+        value: null,
+        validator: function(v){ return Lang.isString(v) || v === null; },
+        setter: '_setRenderGroupHeader2'
+    },
+
+    /**
+     * Template for rendering of groupHeader3. If not set, renderGroupHeader3 will render the same as the attribute 'groupHeader3'.
+     * If you want the rendered content other than groupHeader3 generates, you can override this method. This is handy when the rendered
+     * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader3').
+     * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
+     * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{stardate}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %>'
+     * <b>Example 2 with Y.Template.Micro:</b>
+     * '<% if (data.startdate) {%>Start: <%= Y.Date.format(data.startdate, {format:"%d-%m-%Y"}) %><br /><% } else { %>no startdate<br /><% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+     *
+     * @attribute renderGroupHeader3
+     * @type {Function}
+     * @default null
+     * @since 0.1
+     */
+    renderGroupHeader3: {
+        value: null,
+        validator: function(v){ return Lang.isString(v) || v === null; },
+        setter: '_setRenderGroupHeader3'
     },
 
     /**
@@ -506,61 +601,8 @@ ITSAModellistViewExtention.ATTRS = {
         value: null,
         validator: function(v){ return Lang.isFunction(v) || v === null; },
         setter: '_setDupComparator'
-    },
-
-    /**
-     * Determines how the rendering of groupHeader1 takes place. The developer may set this method, but can choose not to.
-     * If not overriden, renderGroupHeader1 will render the same as the attribute 'groupHeader1' (except that it's a String).
-     * If the developer wants content other than groupHeader1 generates, he/she can override this method.
-     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
-     *
-     * @attribute renderGroupHeader1
-     * @type {Function}
-     * @default null
-     * @since 0.1
-     */
-    renderGroupHeader1: {
-        value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
-        setter: '_setRenderGroupHeader1'
-    },
-
-    /**
-     * Determines how the rendering of groupHeader2 takes place. The developer may set this method, but can choose not to.
-     * If not overriden, renderGroupHeader2 will render the same as the attribute 'groupHeader2' (except that it's a String).
-     * If the developer wants content other than groupHeader2 generates, he/she can override this method.
-     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
-     *
-     * @attribute renderGroupHeader2
-     * @type {Function}
-     * @default null
-     * @since 0.1
-     */
-    renderGroupHeader2: {
-        value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
-        setter: '_setRenderGroupHeader2'
-    },
-
-    /**
-     * Determines how the rendering of groupHeader3 takes place. The developer may set this method, but can choose not to.
-     * If not overriden, renderGroupHeader3 will render the same as the attribute 'groupHeader3' (except that it's a String).
-     * If the developer wants content other than groupHeader3 generates, he/she can override this method.
-     * The attribute MUST be a function like this: <b>function(model) {return ...)}</b> and MUST return a {String} value for all models.
-     * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered.</u>
-     *
-     * @attribute renderGroupHeader3
-     * @type {Function}
-     * @default null
-     * @since 0.1
-     */
-    renderGroupHeader3: {
-        value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
-        setter: '_setRenderGroupHeader3'
     }
+
 };
 
 Y.mix(ITSAModellistViewExtention.prototype, {
@@ -589,6 +631,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     _selectedModels : {},
     _viewNode : null,
     _viewId : null,
+    _templateFuncs : null,
     _lastClickedModel : null,
     _abberantModelList : null,
     _setViewFilterInitiated : null,
@@ -1257,6 +1300,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_render', 'info', 'Itsa-ScrollViewModelList');
         instance._viewNode = viewNode = YNode.create(VIEW_TEMPLATE);
+        instance._templateFuncs = instance._getAllTemplateFuncs();
         viewNode.set('id', instance._viewId);
         instance._extraBindUI();
         if (modellist) {
@@ -1564,6 +1608,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader1Initiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({groupHeader1: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({groupHeader1: val});
             }
@@ -1587,6 +1632,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader2Initiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({groupHeader2: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({groupHeader2: val});
             }
@@ -1610,6 +1656,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setGroupHeader3Initiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({groupHeader3: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({groupHeader3: val});
             }
@@ -1633,6 +1680,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setRenderGroupHeader1', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader1Initiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({renderGroupHeader1: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderGroupHeader1: val});
             }
@@ -1656,6 +1704,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setRenderGroupHeader2', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader2Initiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({renderGroupHeader2: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderGroupHeader2: val});
             }
@@ -1679,6 +1728,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setRenderGroupHeader3', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderGroupHeader3Initiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({renderGroupHeader3: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderGroupHeader3: val});
             }
@@ -1702,6 +1752,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setRenderModel', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setRenderModelInitiated) {
+            instance._templateFuncs = instance._getAllTemplateFuncs({renderModel: val});
             if (instance._rerenderAttributesOnChange) {
                 instance._renderView({renderModel: val});
             }
@@ -2164,7 +2215,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     /**
      * Returns an object with all the Templates. Can be used to quickly render a Li-Node from a Model, without calling all getters every time.
      *
-     * @method _getAllTemplates
+     * @method _getAllTemplateFuncs
      * @param {Object} [setterAttrs] Definition of fields which called this method internally. Only for internal use within some attribute-setters.
      * @private
      * @return {Object} All templates --> an object with the fields: <b>renderModel, groupH1, groupH2, groupH3, renderGH1, renderGH1, renderGH1,
@@ -2172,24 +2223,162 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @since 0.1
      *
     */
-    _getAllTemplates : function(setterAttrs) {
+    _getAllTemplateFuncs : function(setterAttrs) {
         var instance = this,
-            templateObject;
+            renderModel = (setterAttrs && setterAttrs.renderModel) || instance.get('renderModel'),
+            groupH1 = (setterAttrs && setterAttrs.groupHeader1) || instance.get('groupHeader1'),
+            groupH2 = (setterAttrs && setterAttrs.groupHeader2) || instance.get('groupHeader2'),
+            groupH3 = (setterAttrs && setterAttrs.groupHeader3) || instance.get('groupHeader3'),
+            renderGH1 = (setterAttrs && setterAttrs.renderGroupHeader1) || instance.get('renderGroupHeader1') || groupH1,
+            renderGH2 = (setterAttrs && setterAttrs.renderGroupHeader2) || instance.get('renderGroupHeader2') || groupH2,
+            renderGH3 = (setterAttrs && setterAttrs.renderGroupHeader3) || instance.get('renderGroupHeader3') || groupH3,
+            activeGH1 = groupH1 && (groupH1.length>0),
+            activeGH2 = groupH2 && (groupH2.length>0),
+            activeGH3 = groupH3 && (groupH3.length>0),
+            modelEngine, compiledModelEngine, groupH1Engine, compiledGroupH1Engine, groupH2Engine, compiledGroupH2Engine, groupH3Engine,
+            compiledGroupH3Engine, renderGH1Engine, compiledRenderGH1Engine, renderGH2Engine, compiledRenderGH2Engine, renderGH3Engine,
+            compiledRenderGH3Engine, templateObject, isMicroTemplate;
 
-        Y.log('_renderView', 'info', 'Itsa-ScrollViewModelList');
-        templateObject = {
-            renderModel : (setterAttrs && setterAttrs.renderModel) || instance.get('renderModel'),
-            groupH1     : (setterAttrs && setterAttrs.groupHeader1) || instance.get('groupHeader1'),
-            groupH2     : (setterAttrs && setterAttrs.groupHeader2) || instance.get('groupHeader2'),
-            groupH3     : (setterAttrs && setterAttrs.groupHeader3) || instance.get('groupHeader3')
+        Y.log('_getAllTemplateFuncs', 'info', 'Itsa-ScrollViewModelList');
+        isMicroTemplate = function(template) {
+            var microTemplateRegExp = /<%(.+)%>/;
+            return microTemplateRegExp.test(template);
         };
-        templateObject.renderGH1 = (setterAttrs && setterAttrs.renderGroupHeader1) || instance.get('renderGroupHeader1') || templateObject.groupH1;
-        templateObject.renderGH2 = (setterAttrs && setterAttrs.renderGroupHeader2) || instance.get('renderGroupHeader2') || templateObject.groupH2;
-        templateObject.renderGH3 = (setterAttrs && setterAttrs.renderGroupHeader3) || instance.get('renderGroupHeader3') || templateObject.groupH3;
-        templateObject.activeGH1 = templateObject.groupH1 && (templateObject.groupH1.length>0);
-        templateObject.activeGH2 = templateObject.groupH2 && (templateObject.groupH2.length>0);
-        templateObject.activeGH3 = templateObject.groupH3 && (templateObject.groupH3.length>0);
+        if (isMicroTemplate(renderModel)) {
+            compiledModelEngine = YTemplateMicro.compile(renderModel);
+            modelEngine = function(model) {
+                return compiledModelEngine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            modelEngine = function(model) {
+                return Lang.sub(renderModel, instance.getModelToJSON(model));
+            };
+        }
+        if (activeGH1 && isMicroTemplate(groupH1)) {
+            compiledGroupH1Engine = YTemplateMicro.compile(groupH1);
+            groupH1Engine = function(model) {
+                return compiledGroupH1Engine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            groupH1Engine = function(model) {
+                return Lang.sub(groupH1, instance.getModelToJSON(model));
+            };
+        }
+        if (activeGH2 && isMicroTemplate(groupH2)) {
+            compiledGroupH2Engine = YTemplateMicro.compile(groupH2);
+            groupH2Engine = function(model) {
+                return compiledGroupH2Engine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            groupH2Engine = function(model) {
+                return Lang.sub(groupH2, instance.getModelToJSON(model));
+            };
+        }
+        if (activeGH3 && isMicroTemplate(groupH3)) {
+            compiledGroupH3Engine = YTemplateMicro.compile(groupH3);
+            groupH3Engine = function(model) {
+                return compiledGroupH3Engine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            groupH3Engine = function(model) {
+                return Lang.sub(groupH3, instance.getModelToJSON(model));
+            };
+        }
+        if (activeGH1 && isMicroTemplate(renderGH1)) {
+            compiledRenderGH1Engine = YTemplateMicro.compile(renderGH1);
+            renderGH1Engine = function(model) {
+                return compiledRenderGH1Engine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            renderGH1Engine = function(model) {
+                return Lang.sub(renderGH1, instance.getModelToJSON(model));
+            };
+        }
+        if (activeGH2 && isMicroTemplate(renderGH2)) {
+            compiledRenderGH2Engine = YTemplateMicro.compile(renderGH2);
+            renderGH2Engine = function(model) {
+                return compiledRenderGH2Engine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            renderGH2Engine = function(model) {
+                return Lang.sub(renderGH2, instance.getModelToJSON(model));
+            };
+        }
+        if (activeGH3 && isMicroTemplate(renderGH3)) {
+            compiledRenderGH3Engine = YTemplateMicro.compile(renderGH3);
+            renderGH3Engine = function(model) {
+                return compiledRenderGH3Engine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            renderGH3Engine = function(model) {
+                return Lang.sub(renderGH3, instance.getModelToJSON(model));
+            };
+        }
+        templateObject = {
+            renderModel : modelEngine,
+            groupH1 : groupH1Engine,
+            groupH2 : groupH2Engine,
+            groupH3 : groupH3Engine,
+            renderGH1 : renderGH1Engine,
+            renderGH2 : renderGH2Engine,
+            renderGH3 : renderGH3Engine,
+            activeGH1 : activeGH1,
+            activeGH2 : activeGH2,
+            activeGH3 : activeGH3
+        };
         return templateObject;
+    },
+
+    /**
+     * Will try to render 'trymodel' through the template defined with tha attribute 'renderModel'.
+     * Only succeeds if it passes all tests declared by the other params. Should it fail the tests, then 'false' is returned.
+     * If succeeded, the the HTML (String) will be returned.
+     *
+     * @method _tryRenderModel
+     * @param {Y.Model} trymodel The Model (might be an object in case of LazyModelList) to be rendered
+     * @param {String} [prevrenderedmodel] The previous Model that was rendered: should be in a 'rendered-state'.
+     * Is used to check against when nodups are permitted and dupComparator is undefined.
+     * @param {Y.Array} modelListItemsArray (Lazy)ModelList in array-form
+     * @param {Function} viewFilter the viewFilter function (attribute), passed as a parameter for performancereasons
+     * @param {Boolean} noDups the value of the attribute 'nodups', passed as a parameter for performancereasons
+     * @param {Function} dupComparator the dupComparator function (attribute), passed as a parameter for performancereasons
+     * @param {Object} allTemplateFuncs passed as a parameter for performancereasons
+     * @private
+     * @return {HTML|false} false if failed -possibly because it's a dup or falls out of the filter-, otherwise returns the rendered HTML: rendered
+     * through the 'renderModel'-template
+     * @since 0.1
+     *
+    */
+    _tryRenderModel : function(trymodel, prevrenderedmodel, modelListItemsArray, viewFilter, noDups, dupComparator, allTemplateFuncs) {
+        var renderedmodel, allowed, dupAvailable;
+
+        Y.log('_tryRenderModel', 'info', 'Itsa-ScrollViewModelList');
+        dupAvailable = function(model) {
+            var dupFound = false,
+                modelComp = dupComparator(model);
+            YArray.some(
+                modelListItemsArray,
+                function(checkModel) {
+                    if (checkModel===model) {return true;}
+                    dupFound = (dupComparator(checkModel)===modelComp);
+                    return dupFound;
+                }
+            );
+            return dupFound;
+        };
+        allowed = (!viewFilter || viewFilter(trymodel)) &&
+                      (!noDups ||
+                       (!dupComparator && ((renderedmodel = allTemplateFuncs.renderModel(trymodel))!==prevrenderedmodel)) ||
+                       (dupComparator && !dupAvailable(trymodel))
+                      );
+        return allowed && (renderedmodel || allTemplateFuncs.renderModel(trymodel));
     },
 
     /**
@@ -2217,37 +2406,14 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
             changedLimitModels = (setterAttrs && setterAttrs.limitModels),
             limitModels = changedLimitModels || instance.get('limitModels'),
-            allTemplates = instance._getAllTemplates(setterAttrs),
+            allTemplateFuncs = instance._templateFuncs,
             lastItemOnTop = (setterAttrs && setterAttrs.lastItemOnTop) || instance.get('lastItemOnTop'),
             infiniteView = instance.itsainfiniteview, removeNode, currentPaginatorIndex, maxPaginatorIndex,
-            modelConfig, modelNode, currentModelListSize, tryRenderModel,
+            modelConfig, modelNode, currentModelListSize,
             renderedModel, prevRenderedModel, renderListLength, listIsLimited,
-            i, j, model, modelListItems, batchSize, items, modelListItemsLength, dupAvailable, decreasList, currentModelList;
+            i, j, model, modelListItems, batchSize, items, modelListItemsLength, decreasList, currentModelList;
 
         Y.log('_renderView', 'info', 'Itsa-ScrollViewModelList');
-        dupAvailable = function(model) {
-            var dupFound = false,
-                modelComp = dupComparator(model);
-            YArray.some(
-                modelListItems,
-                function(checkModel) {
-                    if (checkModel===model) {return true;}
-                    dupFound = (dupComparator(checkModel)===modelComp);
-                    return dupFound;
-                }
-            );
-            return dupFound;
-        };
-        tryRenderModel = function(trymodel, prevrenderedmodel) {
-            var renderedmodel,
-                modelObject = instance.getModelToJSON(trymodel),
-                allowed = (!viewFilter || viewFilter(trymodel)) &&
-                              (!noDups ||
-                               (!dupComparator && ((renderedmodel = Lang.sub(allTemplates.renderModel, modelObject))!==prevrenderedmodel)) ||
-                               (dupComparator && !dupAvailable(trymodel))
-                              );
-            return allowed && (renderedmodel || Lang.sub(allTemplates.renderModel, modelObject));
-        };
         if (!contentBox.one('#'+instance._viewId)) {
             contentBox.setHTML(viewNode);
             instance._set('srcNode', contentBox);
@@ -2329,10 +2495,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             }
             while ((items<batchSize) && (++i<renderListLength)) {
                 model = modelListItems[i];
-                renderedModel = tryRenderModel(model, prevRenderedModel);
+                renderedModel = instance._tryRenderModel(model, prevRenderedModel, modelListItems, viewFilter, noDups,
+                                                         dupComparator, allTemplateFuncs);
                 if (renderedModel) {
                     items++;
-                    modelNode = instance._createModelNode(model, renderedModel, allTemplates);
+                    modelNode = instance._createModelNode(model, renderedModel);
                     // modelNode is an ARRAY of Y.Node !!!
                     for (j=0; j<modelNode.length; j++) {
                         viewNode.append(modelNode[j]);
@@ -2378,17 +2545,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
 // return {Array} array of Y.Node --> the last element is always the ModelNode, but it can be precede with headerNodes.
-    _createModelNode : function(model, renderedModel, allTemplates) {
+    _createModelNode : function(model, renderedModel) {
         var instance = this,
             modelClientId = instance.getModelAttr(model, 'clientId'),
             nodes = [],
             modelNode = YNode.create(VIEW_MODEL_TEMPLATE),
-            header1, header2, header3, headerNode, template;
+            header1, header2, header3, headerNode, allTemplateFuncs;
 
         Y.log('_createModelNode', 'info', 'Itsa-ScrollViewModelList');
-        allTemplates = allTemplates || instance._getAllTemplates();
-        if (allTemplates.activeGH1) {
-            header1 = allTemplates.groupH1(model);
+        allTemplateFuncs = instance._templateFuncs;
+        if (allTemplateFuncs.activeGH1) {
+            header1 = allTemplateFuncs.groupH1(model);
             if (header1!==instance._prevHeader1) {
                 headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
                 headerNode.addClass(GROUPHEADER_CLASS);
@@ -2396,7 +2563,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 if (instance._prevHeader1) {
                     headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
                 }
-                headerNode.setHTML(allTemplates.renderGH1(model));
+                headerNode.setHTML(allTemplateFuncs.renderGH1(model));
                 nodes.push(headerNode);
                 instance._prevHeader1 = header1;
                 instance._even = false;
@@ -2404,8 +2571,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 instance._prevHeader2 = null;
             }
         }
-        if (allTemplates.activeGH2) {
-            header2 = allTemplates.groupH2(model);
+        if (allTemplateFuncs.activeGH2) {
+            header2 = allTemplateFuncs.groupH2(model);
             if (header2!==instance._prevHeader2) {
                 headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
                 headerNode.addClass(GROUPHEADER_CLASS);
@@ -2413,7 +2580,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 if (instance._prevHeader2) {
                     headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
                 }
-                headerNode.setHTML(allTemplates.renderGH2(model));
+                headerNode.setHTML(allTemplateFuncs.renderGH2(model));
                 nodes.push(headerNode);
                 instance._prevHeader2 = header2;
                 instance._even = false;
@@ -2421,8 +2588,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 instance._prevHeader3 = null;
             }
         }
-        if (allTemplates.activeGH3) {
-            header3 = allTemplates.groupH3(model);
+        if (allTemplateFuncs.activeGH3) {
+            header3 = allTemplateFuncs.groupH3(model);
             if (header3!==instance._prevHeader3) {
                 headerNode = YNode.create(VIEW_MODEL_TEMPLATE),
                 headerNode.addClass(GROUPHEADER_CLASS);
@@ -2430,7 +2597,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 if (instance._prevHeader3) {
                     headerNode.addClass(GROUPHEADER_SEQUEL_CLASS);
                 }
-                headerNode.setHTML(allTemplates.renderGH3(model));
+                headerNode.setHTML(allTemplateFuncs.renderGH3(model));
                 nodes.push(headerNode);
                 instance._prevHeader3 = header3;
                 instance._even = false;
@@ -2440,8 +2607,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         modelNode.addClass(MODEL_CLASS);
         modelNode.addClass(modelClientId);
         modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
-        template = renderedModel || allTemplates.renderModel(model);
-        modelNode.setHTML(Lang.sub(template, instance.getModelToJSON(model)));
+        modelNode.setHTML(renderedModel || allTemplateFuncs.renderModel(model));
         nodes.push(modelNode);
         return nodes;
     },
@@ -2574,26 +2740,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         return nodeFound;
     },
 
-    _renderModel : function(model) {
-        var renderModel = this.get('renderModel');
-        return renderModel && renderModel(model);
-    },
-    _renderGroupHeader1 : function(model) {
-        var instance = this,
-            renderGroupHeader1 = instance.get('renderGroupHeader1') || instance.get('groupHeader1');
-        return renderGroupHeader1 && renderGroupHeader1(model);
-    },
-    _renderGroupHeader2 : function(model) {
-        var instance = this,
-            renderGroupHeader2 = instance.get('renderGroupHeader2') || instance.get('groupHeader2');
-        return renderGroupHeader2 && renderGroupHeader2(model);
-    },
-    _renderGroupHeader3 : function(model) {
-        var instance = this,
-            renderGroupHeader3 = instance.get('renderGroupHeader3') || instance.get('groupHeader3');
-        return renderGroupHeader3 && renderGroupHeader3(model);
-    },
-
     /**
      * Re-renders the ModelList within _viewNode and forces a complete new rebuild.
      *
@@ -2628,50 +2774,25 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             dupComparator = instance.get('dupComparator'),
             node = instance.getNodeFromIndex(index, 0),
             viewNode = instance._viewNode,
-            renderGroupHeader1 = Y.bind(instance._renderGroupHeader1, instance),
-            renderGroupHeader2 = Y.bind(instance._renderGroupHeader2, instance),
-            renderGroupHeader3 = Y.bind(instance._renderGroupHeader3, instance),
-            infiniteView = instance.itsainfiniteview, allTemplates, dupAvailable, liElements, liElementsSize, renderedModel, prevRenderedModel,
+            infiniteView = instance.itsainfiniteview, allTemplateFuncs, liElements, liElementsSize, renderedModel, prevRenderedModel,
             prevNode, nextModel, removedH1, removedH2, removedH3, removedModel, nextNode, nextNodeIsEmptyItem, removeNode, nextModelNode, j,
-            nextH1, nextH2, nextH3, tryRenderModel, modelListItems, modelListItemsLength, modelClientId, lastModel;
+            nextH1, nextH2, nextH3, modelListItems, modelListItemsLength, modelClientId, lastModel;
 
         Y.log('_removeView', 'info', 'Itsa-ScrollViewModelList');
         if (node) {
             modelListItems = modelList._items.concat();
             modelListItemsLength = modelListItems.length;
-            dupAvailable = function(model) {
-                var dupFound = false,
-                    modelComp = dupComparator(model);
-                YArray.some(
-                    modelListItems,
-                    function(checkModel) {
-                        if (checkModel===model) {return true;}
-                        dupFound = (dupComparator(checkModel)===modelComp);
-                        return dupFound;
-                    }
-                );
-                return dupFound;
-            };
-            tryRenderModel = function(trymodel, prevrenderedmodel) {
-                var renderedmodel,
-                    modelObject = instance.getModelToJSON(trymodel),
-                    allowed = (!viewFilter || viewFilter(trymodel)) &&
-                                  (!noDups ||
-                                   (!dupComparator && ((renderedmodel = Y.Lang.sub(allTemplates.renderModel, modelObject))!==prevrenderedmodel)) ||
-                                   (dupComparator && !dupAvailable(trymodel))
-                                  );
-                return allowed && (renderedmodel || Y.Lang.sub(allTemplates.renderModel, modelObject));
-            };
+            allTemplateFuncs = instance._templateFuncs;
             removedModel = modelList.item(index);
-            removedH1 = renderGroupHeader1(removedModel);
-            removedH2 = renderGroupHeader2(removedModel);
-            removedH3 = renderGroupHeader3(removedModel);
+            removedH1 = allTemplateFuncs.activeGH1 && allTemplateFuncs.groupH1(removedModel);
+            removedH2 = allTemplateFuncs.activeGH2 && allTemplateFuncs.groupH2(removedModel);
+            removedH3 = allTemplateFuncs.activeGH3 && allTemplateFuncs.groupH3(removedModel);
             // It might be that 'node' made some headers that are not needed anymore. correcting this:
             nextModel = modelList.item(++index); // index now points to the next model which MIGHT NOT exists
             if (nextModel) {
-                nextH1 = renderGroupHeader1(nextModel);
-                nextH2 = renderGroupHeader2(nextModel);
-                nextH3 = renderGroupHeader3(nextModel);
+                nextH1 = allTemplateFuncs.activeGH1 && allTemplateFuncs.groupH1(nextModel);
+                nextH2 = allTemplateFuncs.activeGH2 && allTemplateFuncs.groupH2(nextModel);
+                nextH3 = allTemplateFuncs.activeGH3 && allTemplateFuncs.groupH3(nextModel);
             }
             nextNode = node.next(); // index not points to the next node which MIGHT NOT exists
             prevNode = node.previous();
@@ -2704,7 +2825,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 nextNode.remove(); // remove(false) --> there is nothing inside
             }
             if ((instance.get('limitModels')>0) && nextModel) {
-                allTemplates = instance._getAllTemplates();
                 liElements = viewNode.get('children');
                 liElementsSize = liElements.size();
                 prevRenderedModel = '';
@@ -2722,28 +2842,30 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     if (prevNode) {
                         modelClientId = prevNode.getData('modelClientId');
                         lastModel = modelList.getByClientId(modelClientId);
-                        prevRenderedModel = Y.Lang.sub(allTemplates.renderModel, instance.getModelToJSON(lastModel));
+                        prevRenderedModel = allTemplateFuncs.renderModel(lastModel);
                         instance._even = prevNode.hasClass(SVML_ODD_CLASS) ||
                                          ((liElementsSize>1) && liElements.item(liElementsSize-2).hasClass(GROUPHEADER_CLASS));
-                        instance._prevHeader1 = allTemplates.activeGH1 && allTemplates.groupH1(lastModel);
-                        instance._prevHeader2 = allTemplates.activeGH2 && allTemplates.groupH2(lastModel);
-                        instance._prevHeader3 = allTemplates.activeGH3 && allTemplates.groupH3(lastModel);
+                        instance._prevHeader1 = allTemplateFuncs.activeGH1 && allTemplateFuncs.groupH1(lastModel);
+                        instance._prevHeader2 = allTemplateFuncs.activeGH2 && allTemplateFuncs.groupH2(lastModel);
+                        instance._prevHeader3 = allTemplateFuncs.activeGH3 && allTemplateFuncs.groupH3(lastModel);
                         // find index of lastModel
                         index = modelList.indexOf(lastModel);
                         nextModel = modelList.item(++index);
                     }
                 }
                 if (nextModel) {
-                    renderedModel = tryRenderModel(nextModel, prevRenderedModel);
+                    renderedModel = instance._tryRenderModel(nextModel, prevRenderedModel, modelListItems, viewFilter, noDups,
+                                                             dupComparator, allTemplateFuncs);
                 }
                 while (nextModel && !renderedModel) {
                     nextModel = modelList.item(++index); // index now points to the next model which MIGHT NOT exists
                     if (nextModel) {
-                        renderedModel = tryRenderModel(nextModel, prevRenderedModel);
+                        renderedModel = instance._tryRenderModel(nextModel, prevRenderedModel, modelListItems, viewFilter, noDups,
+                                                                 dupComparator, allTemplateFuncs);
                     }
                 }
                 if (nextModel) {
-                    nextModelNode = instance._createModelNode(nextModel, renderedModel, allTemplates);
+                    nextModelNode = instance._createModelNode(nextModel, renderedModel);
                     // nextModelNode is an ARRAY of Y.Node !!!
                     for (j=0; j<nextModelNode.length; j++) {
                         nextNode = nextModelNode[j];
