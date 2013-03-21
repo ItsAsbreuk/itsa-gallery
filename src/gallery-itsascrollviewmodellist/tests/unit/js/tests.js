@@ -1,6 +1,6 @@
 YUI.add('module-tests', function(Y) {
 
-    var suite = new Y.Test.Suite('gallery-itsascrollviewmodellist');
+    var suite = new Y.Test.Suite('gallery-ITSAScrollViewModellist');
 
     suite.add(new Y.Test.Case({
         name: 'Automated Tests',

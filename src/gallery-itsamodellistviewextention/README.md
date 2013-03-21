@@ -3,7 +3,7 @@ gallery-itsamodellistviewextention
 
 
 This module should not be used of its own.
-Use its derived modules: gallery-itsaviewmodellist or gallery-itsascrollviewmodellist.
+Use its derived modules: gallery-itsaviewmodellist or gallery-ITSAScrollViewModellist.
 
 
 License

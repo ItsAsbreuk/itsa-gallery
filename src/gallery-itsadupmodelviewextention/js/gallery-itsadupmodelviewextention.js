@@ -89,7 +89,7 @@ Y.mix(ITSADupModelViewExtention.prototype, {
 
     /**
      * Setter for attribute viewFilter. Will re-render the view when changed UNLESS it is called from setWithoutRerender()
-     * which is available from gallery-itsascrollviewmodellist.
+     * which is available from gallery-ITSAScrollViewModellist.
      *
      * @method _setModelConfig
      * @param {Object} val the new set value for this attribute
@@ -103,8 +103,8 @@ Y.mix(ITSADupModelViewExtention.prototype, {
         Y.log('_setModelConfig', 'info', 'Itsa-ScrollViewModelList');
         if (instance._setModelConfigInitiated) {
             if (instance.renderView) {
-                // instance._renderView() is a function that is available from gallery-itsascrollviewmodellist.
-                // instance._rerendAttrChg is a private variable that is available from gallery-itsascrollviewmodellist.
+                // instance._renderView() is a function that is available from gallery-ITSAScrollViewModellist.
+                // instance._rerendAttrChg is a private variable that is available from gallery-ITSAScrollViewModellist.
                 if (instance._rerendAttrChg) {
                 instance._renderView({modelConfig: val});
                 }

@@ -1,6 +1,7 @@
 {
     "gallery-itsaviewmodellist": {
         "requires": [
+            "widget",
             "gallery-itsamodellistviewextention"
         ],
         "skinnable": true

@@ -6,7 +6,7 @@
  *
  * Plugin that enables infinite-scroll with scrollview-modellist.
  *
- * <b>Caution1:</b>Only use this plugin when you create the scrollview through a (lazy)ModelList (extention: ItsaScrollViewModelList).
+ * <b>Caution1:</b>Only use this plugin when you create the scrollview through a (lazy)ModelList (extention: ITSAScrollViewModellist).
  *
  * <b>Caution2:</b> If used, the the ModelList's 'add'-event does not update the list, but will append the new items at the bottom.
  * Thus, in order to work, <u>both ModelList.comparator and the sorting-method on the remote datasupplier must be defined</u> (and in the same way).
@@ -67,15 +67,9 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 host;
 
             instance.host = host = instance.get('host');
-            if (host instanceof Y.ScrollView) {
-                Y.log('initializer', 'info', 'Itsa-InfiniteView');
-                host._itmsAvail = true;
-                instance._bindUI();
-            }
-            else {
-                Y.log('initializer --> cannot continue ataching eventlisteners: Host is not a ScrollView-instance',
-                      'warn', 'Itsa-InfiniteView');
-            }
+            Y.log('initializer', 'info', 'Itsa-InfiniteView');
+            host._itmsAvail = true;
+            instance._bindUI();
         },
 
         /**
@@ -152,7 +146,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 modelList = host.getModelListInUse(),
                 viewNode = host._viewNode,
                 axis = host.get('axis'),
-                yAxis = axis.y,
+                yAxis = axis && axis.y,
                 boundingBoxEdge, viewNodeEdge;
             if (modelList && host._itmsAvail) {
                 if (yAxis) {

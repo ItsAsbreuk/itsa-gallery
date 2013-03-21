@@ -3,13 +3,10 @@
 /**
  * The Itsa Dialogbox module.
  *
- * @module gallery-itsadialogbox
- */
-
-/**
+ *
  * Dialogbox with sugar messages
  *
- *
+ * @module gallery-itsadialogbox
  * @class ITSADialogbox
  * @extends Panel
  * @constructor
@@ -1207,15 +1204,9 @@ if (!Y.confirm) {
 // Y.ITSAFORMELEMENT should get an own module. For the short time being, we will keep it inside itsa-dialog
 
 /**
- * The Itsa Dialogbox module.
+ * Y.ITSAFORMELEMENT
  *
- * @module itsa-dialogbox
- */
-
-/**
- * Dialogbox with sugar messages
- *
- *
+ * @module gallery-itsadialogbox
  * @class ITSAFormelement
  * @extends Panel
  * @constructor

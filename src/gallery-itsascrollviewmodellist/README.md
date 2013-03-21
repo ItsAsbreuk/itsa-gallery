@@ -2,11 +2,12 @@ gallery-itsascrollviewmodellist
 ===============================
 
 
-Adds an Y.ModelList or Y.LazyModelList to a ScrollView instance, where the Models are rendered inside an unsorted-list
-lies within the scrollview's-contentBox. This results in an ul-list with Models. For performancereason, it is recommended to
+Widget Y.ITSAScrollViewModellist which extends Y.ScrollView by adding an Y.ModelList or Y.LazyModelList as an attribute 'modelList'.
+The Models from the ModelList will be used to rendered an unsorted-list inside the scrollview-instance. The ul-element
+lies within the scrollview's-contentBox. This results in an ul-list with Models. For performance-reasons, it is recommended to
 use Y.LazyModelList instead of Y.ModelList.
 
-Caution: you MUST set the axis-atribute before rendering! Because the content is empty at start, scrollview would otherwise
+Caution: you <b>MUST set the axis-atribute before rendering!</b> Because the content is empty at start, scrollview would otherwise
 fail autofind the value of axis.
 
 To make both Y.ModelList as well as Y.LazyModelList interchangable, this module adds 3 sugar-methods to Y.ModelList and Y.LazyModelList:
@@ -23,18 +24,18 @@ The templates must be passed through the attributes: <b>renderModel, groupHeader
 be processed through Y.Lang.sub, or Y.Template.Micro. The Model-attributes are referred through {someAttribute}, or in case of
 Y.Template.Micro: <%= someAttribute %>
 
-As long as there are no <b>initial items</b> (for the first time , the classes 'itsa-scrollviewmodellist-noinitialitems' and
-'itsa-scrollviewmodellist-view-noinitialitems' will be added to the boudingBox and viewNode.
+As long as there are no <b>initial items</b> (for the first time , the classes 'itsa-modellistview-noinitialitems' and
+'itsa-modellistview-view-noinitialitems' will be added to the boudingBox and viewNode.
 
-During each renderingprocess, as there are no items at that time, the classes 'itsa-scrollviewmodellist-noitems' and
-'itsa-scrollviewmodellist-view-noitems' will be added to the boudingBox and viewNode.
+During each renderingprocess, as there are no items at that time, the classes 'itsa-modellistview-noitems' and
+'itsa-modellistview-view-noitems' will be added to the boudingBox and viewNode.
 
 You can use css to style (f.i. hide) these node at will.
 
 
 Examples
 --------
-[Online example](http://projects.itsasbreuk.nl/examples/itsascrollviewmodellist/index.html)
+[Online example](http://projects.itsasbreuk.nl/examples/ITSAScrollViewModellist/index.html)
 
 Documentation
 --------------
@@ -82,24 +83,24 @@ by define your own styles, or by setting 'modelListStyled' and overrule some of 
 Creating your own styles:
 Redefine the next classes:
 ```js
-.itsa-scrollviewmodellist-noinitialitems {
+.itsa-modellistview-noinitialitems {
     visibility: hidden;
 }
 
-.itsa-scrollviewmodellist-groupheader1 {
+.itsa-modellistview-groupheader1 {
     background-color: #000;
     color: #FFF;
     padding: 3px 10px 2px 10px;
 }
 
-.itsa-scrollviewmodellist-groupheader2 {
+.itsa-modellistview-groupheader2 {
     background-color: #3E6495;
     color: #FFF;
     border-bottom: solid 1px #FFF;
     padding: 3px 10px 2px 10px;
 }
 
-.itsa-scrollviewmodellist-groupheader3 {
+.itsa-modellistview-groupheader3 {
     background-color: #DDD;
     color: #666;
     padding: 3px 10px 2px 10px;
@@ -141,12 +142,16 @@ Redefine the next classes:
     background-color: #4C7DBB;
 }
 
-.itsa-scrollviewmodellist-groupheader1.itsa-scrollviewmodellist-sequelgroupheader {
+.itsa-modellistview-groupheader1.itsa-modellistview-sequelgroupheader {
     margin-top: 38px;
 }
 
 .itsa-scrollviewmodel.itsa-scrollviewmodel-focus {
     background-color: #C0DCFF;
+}
+
+.itsa-scrollviewmodel.itsa-scrollviewmodel-focus.itsa-scrollviewmodel-selected {
+    background-color: #4C7DBB;
 }
 
 .itsa-scrollviewmodel.itsa-scrollviewmodel-changed {
@@ -159,92 +164,105 @@ Redefine the next classes:
     background-color: #D84A4A;
     color: #FF0;
 }
+
+.itsa-scrollviewmodel.itsa-modellistview-lastitem {
+    border-bottom: none;
+}
 ```
 
 Using 'modelListStyled' and redefine classes: make sure your new rule takes higher precedence, be sure you give it a finer declaration.
-In this example the finer definition as made by adjoining the class 'itsa-scrollviewmodellist' which always will be added to the boundingBox.
+When 'modelListStyled' is used, the 'itsa-modellistview-styled' class is appended to the boundingBox. This module has several css-rules
+for the right style. By adjoining 'itsa-modellistview' to 'itsa-modellistview-styled', youw own rules get precedence.
 ```js
-.itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-noinitialitems {
+.itsa-modellistview.itsa-modellistview-styled.itsa-modellistview-noinitialitems {
     visibility: hidden;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled {
     border: solid 1px #000;
     background-color: #DDD;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader1 {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader1 {
     background-color: #000;
     color: #FFF;
     padding: 3px 10px 2px 10px;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader2 {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader2 {
     background-color: #3E6495;
     color: #FFF;
     border-bottom: solid 1px #FFF;
     padding: 3px 10px 2px 10px;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader3 {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader3 {
     background-color: #DDD;
     color: #666;
     padding: 3px 10px 2px 10px;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel {
     padding: 10px;
     background-color: #FFF;
     color: #000;
     border-bottom: 1px solid #797F90;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel-even {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel-even {
     background-color: #EDF5FF;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel-odd.itsa-scrollviewmodel-selected {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel-odd.itsa-scrollviewmodel-selected {
     background-color: #4C7DBB;
     color: #FFF;
     border-color: #FFF;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel-even.itsa-scrollviewmodel-selected {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel-even.itsa-scrollviewmodel-selected {
     background-color: #4C7DBB;
     color: #FFF;
     border-color: #FFF;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel:hover {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel:hover {
     cursor: pointer;
     background-color: #C0DCFF;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
     background-color: #C0DCFF;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
     background-color: #4C7DBB;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader1.itsa-scrollviewmodellist-sequelgroupheader {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader1.itsa-modellistview-sequelgroupheader {
     margin-top: 38px;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-focus {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-focus {
     background-color: #C0DCFF;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed {
+.yui3-skin-sam .itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-focus.itsa-scrollviewmodel-selected {
+    background-color: #4C7DBB;
+}
+
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed {
     background-color: #D84A4A;
     color: #FF0;
 }
 
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed:hover,
-.yui3-skin-sam .itsa-scrollviewmodellist.itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed.itsa-scrollviewmodel-selected:hover {
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed:hover,
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed.itsa-scrollviewmodel-selected:hover {
     background-color: #D84A4A;
     color: #FF0;
+}
+
+.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-modellistview-lastitem {
+    border-bottom: none;
 }
 ```
 

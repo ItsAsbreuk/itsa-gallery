@@ -257,11 +257,11 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 }
                 //===================================================================================================================================
                 //
-                // Elements might be selectable when ItsaScrollViewModelList is available
+                // Elements might be selectable when ITSAScrollViewModellist is available
                 // We need other behaviour in that case: scrolling through the items instead of scrolling through the scrollview
                 //
                 //===================================================================================================================================
-                if (modelsSelectable) { // only when ItsaScrollViewModelList is active and host.get('modelsSelectable')===true
+                if (modelsSelectable) { // only when ITSAScrollViewModellist is active and host.get('modelsSelectable')===true
                     // models are selectable --> no scrolling but shifting through items
                     // UNLESS the selected items come out of view --> in that case we need to scroll again to get it into position.
                     modelList = host.getModelListInUse();
@@ -616,7 +616,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 yAxis = axis.y,
                 boundingSize = host.get('boundingBox').get(yAxis ? 'offsetHeight' : 'offsetWidth'),
                 i = 0,
-                hostModelList = host.getModelListInUse(), // only when ItsaScrollviewModelList is active
+                hostModelList = host.getModelListInUse(), // only when ITSAScrollViewModellist is active
                 viewNode = host._viewNode || host.get('srcNode').one('*'),
                 liElements = viewNode.get('children'),
                 listSize = (hostModelList && hostModelList.size()) || liElements.size(),

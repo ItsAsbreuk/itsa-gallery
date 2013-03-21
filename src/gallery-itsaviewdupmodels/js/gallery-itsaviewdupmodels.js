@@ -10,7 +10,7 @@
  *
  *
  * @module gallery-itsaviewdupmodels
- * @extends ITSAModellistViewExtention
+ * @extends ITSADupModelViewExtention
  * @constructor
  * @since 0.1
  *
@@ -19,4 +19,4 @@
  *
 */
 
-Y.Base.mix(Y.View, [Y.ITSADupModelViewExtention]);
+Y.Base.mix(Y.ITSAViewModellist, [Y.ITSADupModelViewExtention]);

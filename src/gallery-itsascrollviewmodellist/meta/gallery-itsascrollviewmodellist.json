@@ -1,6 +1,7 @@
 {
     "gallery-itsascrollviewmodellist": {
         "requires": [
+            "scrollview",
             "gallery-itsamodellistviewextention"
         ],
         "skinnable": true
