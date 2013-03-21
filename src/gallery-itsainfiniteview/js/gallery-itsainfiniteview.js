@@ -19,9 +19,9 @@
  * and options = {lastItem: 'lastModel.getAttrs()', loadSize: loadSize}. These values can be used by the remote to determine which and how many
  * items to load.
  *
- * When the ScrollView-instance is expanded, it will expand with 'batchSize' items (Models). Any already available in the (Lazy)ModelList will be used,
- * if not enaough available, the plugin will call the (Lazy)ModelList's 'sync' method to retreive more. The number of external items to be retreived is
- * managed with the attribute 'loadSize'.
+ * When the ScrollView-instance is expanded, it will expand with 'batchSize' items (Models). Any already available in the (Lazy)ModelList
+ * will be used, if not enaough available, the plugin will call the (Lazy)ModelList's 'sync' method to retreive more. The number of external items
+ * to be retreived is managed with the attribute 'loadSize'.
  *
  * Best practice is to make 'loadSize' higher than 'batchSize' --> each sync-call means an extra http-request. And a too high value of 'batchSize'
  * will mean a prefomancehit due to the expansion-rendering of the scrollview-instance.
@@ -69,7 +69,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
             instance.host = host = instance.get('host');
             if (host instanceof Y.ScrollView) {
                 Y.log('initializer', 'info', 'Itsa-InfiniteView');
-                host._moreItemsAvailable = true;
+                host._itmsAvail = true;
                 instance._bindUI();
             }
             else {
@@ -94,10 +94,10 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
 //=============================================================================================================================
             var instance = this,
                 host = instance.host,
-                modelList = host._abberantModelList || host.get('modelList'),
+                modelList = host.getModelListInUse(),
                 batchSize = instance.get('batchSize'),
                 prevLastModelIndex = host._prevLastModelIndex || -1,
-                needExpansion = host._moreItemsAvailable,
+                needExpansion = host._itmsAvail,
                 askForMoreData;
 
             if (modelList && needExpansion) {
@@ -118,7 +118,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 }
                 else {
                     Y.log('expandList expand with own modellist', 'info', 'Itsa-InfiniteView');
-                    host._renderView();
+                    host._renderView(null, {rebuild: false});
                     instance._fireExpansion(true);
                 }
             }
@@ -126,7 +126,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 if (!modelList) {
                     Y.log('checkExpansion modelList is undefined --> cannot expand the list', 'warn', 'Itsa-InfiniteView');
                 }
-                if (!host._moreItemsAvailable) {
+                if (!host._itmsAvail) {
                     Y.log('checkExpansion will not expand the list --> last item is already read', 'info', 'Itsa-InfiniteView');
                 }
             }
@@ -149,12 +149,12 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
             var instance = this,
                 host = instance.host,
                 boundingBox = host.get('boundingBox'),
-                modelList = host._abberantModelList || host.get('modelList'),
+                modelList = host.getModelListInUse(),
                 viewNode = host._viewNode,
                 axis = host.get('axis'),
                 yAxis = axis.y,
                 boundingBoxEdge, viewNodeEdge;
-            if (modelList && host._moreItemsAvailable) {
+            if (modelList && host._itmsAvail) {
                 if (yAxis) {
                     boundingBoxEdge = boundingBox.getY() + boundingBox.get('offsetHeight');
                     viewNodeEdge = viewNode.getY() + viewNode.get('offsetHeight');
@@ -176,7 +176,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 if (!modelList) {
                     Y.log('checkExpansion modelList is undefined --> cannot expand the list', 'warn', 'Itsa-InfiniteView');
                 }
-                if (!host._moreItemsAvailable) {
+                if (!host._itmsAvail) {
                     Y.log('checkExpansion will not expand the list --> last item is already read', 'info', 'Itsa-InfiniteView');
                 }
             }
@@ -199,7 +199,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
 //
 //=============================================================================================================================
             var host = this.host,
-                modelList = host._abberantModelList || host.get('modelList');
+                modelList = host.getModelListInUse();
 
             Y.log('loadAllItems', 'info', 'Itsa-InfiniteView');
             host._getNodeFromModelOrIndex(null, modelList.size()-1, maxExpansions);
@@ -258,7 +258,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 responseData = Y.JSON.parse(load.responseText);
                 newItems = (Lang.isArray(responseData) && (responseData.length>0));
                 if (!newItems) {
-                    instance.host._moreItemsAvailable = false;
+                    instance.host._itmsAvail = false;
                 }
                 if (newItems) {
                     // host._renderView(); will be called when new Models are added
@@ -267,7 +267,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
             }
             catch (e) {
                 Y.log('_expansionFinished error processing remote data', 'warn', 'Itsa-InfiniteView');
-                instance.host._moreItemsAvailable = false;
+                instance.host._itmsAvail = false;
             }
             instance._fireExpansion(true);
         },

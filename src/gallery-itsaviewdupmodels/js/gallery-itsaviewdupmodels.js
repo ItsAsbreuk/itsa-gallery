@@ -10,7 +10,7 @@
  *
  *
  * @module gallery-itsaviewdupmodels
- * @class ITSAViewDupModels
+ * @extends ITSAModellistViewExtention
  * @constructor
  * @since 0.1
  *

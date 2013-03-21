@@ -1,4 +1,94 @@
+.itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-noinitialitems {
+    visibility: hidden;
+}
 
-/**
- Your Code Goes Here
-*/
+.yui3-skin-sam .yui3-scrollview-disabled .yui3-scrollview-scrollbar {
+    display: none;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled {
+    border: solid 1px #000;
+    background-color: #DDD;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader1 {
+    background-color: #000;
+    color: #FFF;
+    padding: 3px 10px 2px 10px;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader2 {
+    background-color: #3E6495;
+    color: #FFF;
+    border-bottom: solid 1px #FFF;
+    padding: 3px 10px 2px 10px;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader3 {
+    background-color: #DDD;
+    color: #666;
+    padding: 3px 10px 2px 10px;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel {
+    padding: 10px;
+    background-color: #FFF;
+    color: #000;
+    border-bottom: 1px solid #797F90;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel-even {
+    background-color: #EDF5FF;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel-odd.itsa-scrollviewmodel-selected {
+    background-color: #4C7DBB;
+    color: #FFF;
+    border-color: #FFF;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel-even.itsa-scrollviewmodel-selected {
+    background-color: #4C7DBB;
+    color: #FFF;
+    border-color: #FFF;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel:hover {
+    cursor: pointer;
+    background-color: #C0DCFF;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
+    background-color: #C0DCFF;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
+    background-color: #4C7DBB;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodellist-groupheader1.itsa-scrollviewmodellist-sequelgroupheader {
+    margin-top: 38px;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-focus {
+    background-color: #C0DCFF;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed {
+    background-color: #D84A4A;
+    color: #FF0;
+}
+
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed:hover,
+.yui3-skin-sam .itsa-scrollviewmodellist-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed.itsa-scrollviewmodel-selected:hover {
+    background-color: #D84A4A;
+    color: #FF0;
+}
+
+.itsa-scrollviewmodellist .itsa-scrollviewmodel:-moz-focusring {
+    outline-color: rgba(0, 0, 0, 0.85);
+}
+
+.itsa-scrollviewmodellist .itsa-scrollviewmodel:focus {
+
+}

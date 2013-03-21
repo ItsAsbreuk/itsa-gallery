@@ -11,6 +11,7 @@
  * would otherwise fail autofind the value of axis.
  *
  * @module gallery-itsascrollviewmodellist
+ * @extends ITSAModellistViewExtention
  * @class ITSAScrollViewModelList
  * @constructor
  * @since 0.1

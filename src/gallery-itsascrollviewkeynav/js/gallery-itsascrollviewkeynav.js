@@ -183,7 +183,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 return nextNode && inRegion(nextNode, boundingBox);
             };
             lastListItemIsInView = function(liElem) {
-                return !host._moreItemsAvailable && inRegion(liElem.item(liElem.size()-1), boundingBox, 0, 0, rightborder, bottomborder);
+                return !host._itmsAvail && inRegion(liElem.item(liElem.size()-1), boundingBox, 0, 0, rightborder, bottomborder);
             };
             getFirstFullVisibleModelNode = function(liElem) {
                 var visibleNode;
@@ -264,7 +264,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 if (modelsSelectable) { // only when ItsaScrollViewModelList is active and host.get('modelsSelectable')===true
                     // models are selectable --> no scrolling but shifting through items
                     // UNLESS the selected items come out of view --> in that case we need to scroll again to get it into position.
-                    modelList = host._abberantModelList || host.get('modelList');
+                    modelList = host.getModelListInUse();
                     if (itemHome) {
                         scrollHome();
                     }
@@ -439,7 +439,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                         }
                         if (itemEnd && !lastListItemIsInView(liElements)) {
                             // Be aware that if ITSAInifiniteView is plugged in, we need to be sure the items are available.
-                            if (infiniteScroll && host._moreItemsAvailable) {
+                            if (infiniteScroll && host._itmsAvail) {
                                 host.itsainfiniteview.loadAllItems();
                                 totalCount = pagination.get('total');
                             }
@@ -616,7 +616,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 yAxis = axis.y,
                 boundingSize = host.get('boundingBox').get(yAxis ? 'offsetHeight' : 'offsetWidth'),
                 i = 0,
-                hostModelList = host._abberantModelList || host.get('modelList'), // only when ItsaScrollviewModelList is active
+                hostModelList = host.getModelListInUse(), // only when ItsaScrollviewModelList is active
                 viewNode = host._viewNode || host.get('srcNode').one('*'),
                 liElements = viewNode.get('children'),
                 listSize = (hostModelList && hostModelList.size()) || liElements.size(),

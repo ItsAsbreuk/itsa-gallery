@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamodellistviewextention', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -3341,3 +3343,19 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 }, true);
 
 Y.ITSAModellistViewExtention = ITSAModellistViewExtention;
+
+}, '@VERSION@', {
+    "requires": [
+        "base-build",
+        "node-base",
+        "node-event-delegate",
+        "dom-screen",
+        "pluginhost-base",
+        "event-mouseenter",
+        "event-custom",
+        "model",
+        "model-list",
+        "lazy-model-list",
+        "template-micro"
+    ]
+});
