@@ -98,14 +98,14 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 batchSize = instance.get('batchSize'),
                 prevLastModelIndex = host._prevLastModelIndex || -1,
                 needExpansion = host._itmsAvail,
-                askForMoreData;
+                askExternalData;
 
             if (modelList && needExpansion) {
                 instance._fireExpansion(false);
                 // Need to distinquish between a need to call for external data, or expand from within the current modellist
                 // The data MIGHT be available in the current modellist, but not rendered in the viewnode yet
-                askForMoreData = (prevLastModelIndex === (modelList.size() - 1));
-                if (askForMoreData) {
+                askExternalData = (prevLastModelIndex >= (modelList.size() - 1));
+                if (askExternalData) {
                     Y.log('expandList search external data', 'info', 'Itsa-InfiniteView');
                     modelList.sync(
                         'readMore',
