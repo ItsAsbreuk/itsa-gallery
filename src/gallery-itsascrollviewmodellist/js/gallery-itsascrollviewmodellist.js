@@ -25,7 +25,7 @@
 
 var Lang = Y.Lang,
     MODEL_CLASS = 'itsa-scrollviewmodel',
-    MODELLIST_CLASS = 'itsa-scrollviewmodellist',
+    MODELLIST_CLASS = 'itsa-modellistview',
     GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader',
     GETSTYLE = function(node, style) {
         return parseInt(node.getStyle(style), 10);
@@ -41,7 +41,6 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
          * @type Boolean
         */
         _lastItemTopInit : false,
-        test : 9,
 
         /**
          * Equals scrollview.scrollTo, but makes sure we keep between the correct boundaries.
@@ -109,7 +108,8 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                 viewNode = instance._viewNode,
                 infiniteView = instance.itsainfiniteview,
                 paginatorPlugin = instance.pages,
-                modelNodeEdge, currentOffset, maxOffset, newOffset, modelNode, liElements, getNodePosition,
+                showHeaders = options && Lang.isBoolean(options.showHeaders) && options.showHeaders,
+                modelNodeEdge, currentOffset, newOffset, modelNode, liElements, getNodePosition,
                 onTop, nodePosition, modelNodeSize, corrected, prevNode;
 
             getNodePosition = function(node) {
@@ -145,7 +145,7 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                 nodePosition = getNodePosition(modelNode);
                 if (paginatorPlugin && (nodePosition!==0)) {
                     // increase the modelIndex --> paginator is pased on all LI's, not just the Models
-                    liElements = viewNode.all('>li');
+                    liElements = viewNode.get('children');
                     liElements.some(
                         function(node, index) {
                             if (!node.hasClass(MODEL_CLASS)) {
@@ -174,79 +174,90 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                     );
                 }
             }
-            if (!options || !Lang.isBoolean(options.noFocus) || !options.noFocus) {
-                instance._focusModelNode(modelNode);
-            }
-            if ((modelNode) && (nodePosition!==0)) {
-                Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
-                onTop = (nodePosition===-1);
-                if (onTop && options && Lang.isBoolean(options.showHeaders) && options.showHeaders) {
-                    // we need to bring into view the headernode
+            if (modelNode) {
+                if (!options || !Lang.isBoolean(options.noFocus) || !options.noFocus) {
+                    instance._focusModelNode(modelNode);
+                }
+                if ((nodePosition===0) && showHeaders){
+                    // might be in view, while the header is not
+                    // therefore check if headers are within view
                     prevNode = modelNode.previous();
                     while (prevNode && prevNode.hasClass(GROUPHEADER_CLASS)) {
                         modelNode = prevNode;
                         prevNode = prevNode.previous();
                     }
+                    nodePosition = getNodePosition(modelNode);
                 }
-                if (yAxis) {
-                    modelNodeEdge = modelNode.getY();
-                    currentOffset = instance.get('scrollY');
-                    modelNodeSize = modelNode.get('offsetHeight') + GETSTYLE(modelNode, 'marginTop') + GETSTYLE(modelNode, 'marginBottom');
-                    maxOffset = viewNode.get('offsetHeight') - boundingBoxSize;
-                }
-                else {
-                    modelNodeEdge = modelNode.getX();
-                    currentOffset = instance.get('scrollX');
-                    modelNodeSize = modelNode.get('offsetWidth') + GETSTYLE(modelNode, 'marginLeft') + GETSTYLE(modelNode, 'marginRight');
-                    maxOffset = viewNode.get('offsetWidth') - boundingBoxSize;
-                }
-                // You might need to expand the list in case ITSAInifiniteView is pluged-in AND maxOffset<newOffset
-                // Only 1 time is needed: getNodeFromModel already has expanded a number of times to make the Node available
-                if (infiniteView && !onTop) {
-    //=============================================================================================================================
-    //
-    // NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-    //
-    //=============================================================================================================================
-                    infiniteView.checkExpansion();
-                }
-                if (paginatorPlugin) {
-                    if (!onTop) {
-                        while ((modelNodeSize<boundingBoxSize) && (item>0)) {
-                            corrected = true;
+                if (nodePosition!==0) {
+                    Y.log('scrollIntoView', 'info', 'Itsa-ScrollViewModelList');
+                    onTop = (nodePosition===-1);
+                    if (onTop && showHeaders) {
+                        // we need to bring into view the headernode
+                        prevNode = modelNode.previous();
+                        while (prevNode && prevNode.hasClass(GROUPHEADER_CLASS)) {
                             item--;
-                            modelNode = modelNode.previous('li');
-                            if (yAxis) {
-                                modelNodeSize += modelNode.get('offsetHeight')+GETSTYLE(modelNode, 'marginTop')+GETSTYLE(modelNode, 'marginBottom');
-                            }
-                            else {
-                                modelNodeSize += modelNode.get('offsetWidth')+GETSTYLE(modelNode, 'marginLeft')+GETSTYLE(modelNode, 'marginRight');
-                            }
+                            modelNode = prevNode;
+                            prevNode = prevNode.previous();
                         }
-                        if (corrected) {
-                            item++;
-                        }
-                        item = Math.min(item, instance._getMaxPaginatorGotoIndex(item, maxExpansions));
                     }
-                    paginatorPlugin.scrollToIndex(item);
-                }
-                else {
-                    newOffset = Math.round(currentOffset + modelNodeEdge - boundingBoxEdge - (onTop ? 0 : (boundingBoxSize-modelNodeSize)));
                     if (yAxis) {
-                        instance.saveScrollTo(null, newOffset);
+                        modelNodeEdge = modelNode.getY();
+                        currentOffset = instance.get('scrollY');
+                        modelNodeSize = modelNode.get('offsetHeight') + GETSTYLE(modelNode, 'marginTop') + GETSTYLE(modelNode, 'marginBottom');
                     }
                     else {
-                        instance.saveScrollTo(newOffset, null);
+                        modelNodeEdge = modelNode.getX();
+                        currentOffset = instance.get('scrollX');
+                        modelNodeSize = modelNode.get('offsetWidth') + GETSTYLE(modelNode, 'marginLeft') + GETSTYLE(modelNode, 'marginRight');
                     }
-                }
-            }
-            else {
-                if (!modelNode) {
-                    Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ScrollViewModelList');
+                    // You might need to expand the list in case ITSAInifiniteView is pluged-in
+                    // Only 1 time is needed: getNodeFromModel already has expanded a number of times to make the Node available
+                    if (infiniteView && !onTop) {
+        //=============================================================================================================================
+        //
+        // NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
+        //
+        //=============================================================================================================================
+                        infiniteView.checkExpansion();
+                    }
+                    if (paginatorPlugin) {
+                        if (!onTop) {
+                            while ((modelNodeSize<boundingBoxSize) && (item>0)) {
+                                corrected = true;
+                                item--;
+                                modelNode = modelNode.previous('li');
+                                if (yAxis) {
+                                    modelNodeSize += modelNode.get('offsetHeight') +
+                                                     GETSTYLE(modelNode, 'marginTop') + GETSTYLE(modelNode, 'marginBottom');
+                                }
+                                else {
+                                    modelNodeSize += modelNode.get('offsetWidth') +
+                                                     GETSTYLE(modelNode, 'marginLeft') + GETSTYLE(modelNode, 'marginRight');
+                                }
+                            }
+                            if (corrected) {
+                                item++;
+                            }
+                            item = Math.min(item, instance._getMaxPaginatorGotoIndex(item, maxExpansions));
+                        }
+                        paginatorPlugin.scrollToIndex(item);
+                    }
+                    else {
+                        newOffset = Math.round(currentOffset + modelNodeEdge - boundingBoxEdge - (onTop ? 0 : (boundingBoxSize-modelNodeSize)));
+                        if (yAxis) {
+                            instance.saveScrollTo(null, newOffset);
+                        }
+                        else {
+                            instance.saveScrollTo(newOffset, null);
+                        }
+                    }
                 }
                 else {
                     Y.log('scrollIntoView --> no change needed: model is inside view', 'info', 'Itsa-ScrollViewModelList');
                 }
+            }
+            else {
+                Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ScrollViewModelList');
             }
         },
 

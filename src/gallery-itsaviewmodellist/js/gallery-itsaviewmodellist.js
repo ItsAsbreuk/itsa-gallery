@@ -20,12 +20,8 @@
  *
 */
 var Lang = Y.Lang,
-    MODEL_CLASS = 'itsa-scrollviewmodel',
-    MODELLIST_CLASS = 'itsa-scrollviewmodellist',
-    GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader',
-    GETSTYLE = function(node, style) {
-        return parseInt(node.getStyle(style), 10);
-    };
+    MODELLIST_CLASS = 'itsa-modellistview',
+    GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader';
 
 Y.ITSAViewModellist = Y.Base.create('itsaviewmodellist', Y.Widget, [Y.ITSAModellistViewExtention], {
 
@@ -52,11 +48,38 @@ Y.ITSAViewModellist = Y.Base.create('itsaviewmodellist', Y.Widget, [Y.ITSAModell
          * @since 0.1
         */
         scrollIntoView : function(item, options, maxExpansions) {
-    //=============================================================================================================================
-    //
-    // NEED SOME WORK HERE: MIGHT BE ASYNCHROUS --> WE NEED TO RETURN A PROMISE
-    //
-    //=============================================================================================================================
+            var instance = this,
+                showHeaders = options && Lang.isBoolean(options.showHeaders) && options.showHeaders,
+                modelNode, firstHeaderNodeNode, prevNode;
+
+            if (!(item instanceof Y.Node)) {
+                if (Lang.isNumber(item)) {
+                    modelNode = instance.getNodeFromIndex(item, maxExpansions);
+                }
+                else {
+                    modelNode = item && instance.getNodeFromModel(item, maxExpansions);
+                }
+            }
+            if (modelNode) {
+                Y.log('scrollIntoView', 'info', 'Itsa-ViewModelList');
+                if (!options || !Lang.isBoolean(options.noFocus) || !options.noFocus) {
+                    instance._focusModelNode(modelNode);
+                }
+                if (showHeaders) {
+                    prevNode = modelNode.previous();
+                    while (prevNode && prevNode.hasClass(GROUPHEADER_CLASS)) {
+                        firstHeaderNodeNode = prevNode;
+                        prevNode = prevNode.previous();
+                    }
+                    if (firstHeaderNodeNode) {
+                        firstHeaderNodeNode.scrollIntoView();
+                    }
+                }
+                modelNode.scrollIntoView();
+            }
+            else {
+                Y.log('scrollIntoView --> no model', 'warn', 'Itsa-ViewModelList');
+            }
         }
 
     }, {

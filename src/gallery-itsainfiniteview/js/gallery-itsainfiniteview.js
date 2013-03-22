@@ -4,15 +4,16 @@
  * ScrollView KeyNav Plugin
  *
  *
- * Plugin that enables infinite-scroll with scrollview-modellist.
+ * Plugin that enables infinite-scroll with Y.DataTable, Y.ITSAViewModellist and Y.ITSAScrollViewModellist.
  *
- * <b>Caution1:</b>Only use this plugin when you create the scrollview through a (lazy)ModelList (extention: ITSAScrollViewModellist).
+ * <u>Behaviour Y.DataTable</u>
+ * Y.DataTable will render all the Models that are within the attribute 'data'. This plugin will extend these by calling
+ * the ModelList's sync-method with 'readMore'. Thus Y.DataTable will always only expand with external data.
  *
- * <b>Caution2:</b> If used, the the ModelList's 'add'-event does not update the list, but will append the new items at the bottom.
- * Thus, in order to work, <u>both ModelList.comparator and the sorting-method on the remote datasupplier must be defined</u> (and in the same way).
- *
- * <b>Caution3:</b> Be sure to plug-in <u>before</u> you render the ScrollView-instance. If you don't then all innitial available itmes will
- * be rendered, regardsless of the 'batchSize'. By the way, this could be limited if you use the attribute 'limitItems'
+ * <u>Behaviour Y.ITSAViewModellist and Y.ITSAScrollViewModellist</u>
+ * These widgets have the capability of rendering just the 'batchSize' (attribute), even if there are more items within the (Lazy)ModelList.
+ * <b>Caution:</b> Be sure to plug-in <u>before</u> you render the ScrollView-instance. If you don't then all innitial available items will
+ * be rendered, regardsless of the 'batchSize'. Although you can overcome this, if you use also limit the items by using the attribute 'limitItems'.
  *
  *
  * To trigger external data (Models) to be loaded, this plugin enables the scrollview to call the ModelList's sync method with action='readMore'
@@ -48,11 +49,15 @@
 
 
 var Lang = Y.Lang,
-    YArray = Y.Array;
+    YArray = Y.Array,
+    PARSTEINT = function(value) {
+        return parseInt(value, 10);
+    };
 
 Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Plugin.Base, [], {
 
         _eventhandlers : [],
+        _window : null,
         host : null,
 
         /**
@@ -69,6 +74,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
             instance.host = host = instance.get('host');
             Y.log('initializer', 'info', 'Itsa-InfiniteView');
             host._itmsAvail = true;
+            instance._window = Y.one('window');
             instance._bindUI();
         },
 
@@ -88,7 +94,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
 //=============================================================================================================================
             var instance = this,
                 host = instance.host,
-                modelList = host.getModelListInUse(),
+                modelList = (host.getModelListInUse && host.getModelListInUse()) || host.get('data'),
                 batchSize = instance.get('batchSize'),
                 prevLastModelIndex = host._prevLastModelIndex || -1,
                 needExpansion = host._itmsAvail,
@@ -110,7 +116,7 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                         Y.rbind(instance._expansionFinished, instance)
                     );
                 }
-                else {
+                else if (host._renderView) {
                     Y.log('expandList expand with own modellist', 'info', 'Itsa-InfiniteView');
                     host._renderView(null, {rebuild: false});
                     instance._fireExpansion(true);
@@ -142,23 +148,37 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
 //=============================================================================================================================
             var instance = this,
                 host = instance.host,
+                window = instance._window,
                 boundingBox = host.get('boundingBox'),
-                modelList = host.getModelListInUse(),
+                modelList = (host.getModelListInUse && host.getModelListInUse()) || host.get('data'),
                 viewNode = host._viewNode,
                 axis = host.get('axis'),
+                xAxis = axis && axis.x,
                 yAxis = axis && axis.y,
-                boundingBoxEdge, viewNodeEdge;
+                boundingBoxEdge, viewNodeEdge, buffer, docHeight, winHeight, currentScroll;
             if (modelList && host._itmsAvail) {
                 if (yAxis) {
+                    // ITSAScrollViewModelList with xAxis
                     boundingBoxEdge = boundingBox.getY() + boundingBox.get('offsetHeight');
                     viewNodeEdge = viewNode.getY() + viewNode.get('offsetHeight');
+                    buffer = (viewNodeEdge-boundingBoxEdge);
                 }
-                else {
-                    // assume xAxis
+                else if (xAxis) {
+                    // ITSAScrollViewModelList with xAxis
                     boundingBoxEdge = boundingBox.getX() + boundingBox.get('offsetWidth');
                     viewNodeEdge = viewNode.getX() + viewNode.get('offsetWidth');
+                    buffer = (viewNodeEdge-boundingBoxEdge);
                 }
-                if ((viewNodeEdge-boundingBoxEdge)<instance.get('expansionArea')) {
+                else {
+                    // no ITSAScrollViewModelList, but ITSAViewModelList
+                    if (window) {
+                        winHeight = PARSTEINT(window.get('winHeight'));
+                        docHeight = PARSTEINT(window.get('docHeight')); // --> in Safari this returns the winHeight instead of docheight !!!
+                        currentScroll = PARSTEINT(window.get('docScrollY'));
+                        buffer = docHeight-winHeight-currentScroll;
+                    }
+                }
+                if (buffer<instance.get('expansionArea')) {
                     Y.log('checkExpansion will trigger expandList', 'info', 'Itsa-InfiniteView');
                     instance.expandList();
                 }
@@ -222,15 +242,27 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
          * @since 0.1
         */
         _bindUI : function() {
-            var instance = this;
+            var instance = this,
+                host = instance.host,
+                hostIsScrollView = host.get('axis');
 
             Y.log('_bindUI', 'info', 'Itsa-InfiniteView');
-            instance._eventhandlers.push(
-                instance.host.after(
-                    'scrollEnd',
-                    Y.rbind(instance.checkExpansion, instance)
-                )
-            );
+            if (hostIsScrollView) {
+                instance._eventhandlers.push(
+                    host.after(
+                        'scrollEnd',
+                        Y.rbind(instance.checkExpansion, instance)
+                    )
+                );
+            }
+            else {
+                instance._eventhandlers.push(
+                    Y.after(
+                        'scroll',
+                        Y.rbind(instance.checkExpansion, instance)
+                    )
+                );
+            }
         },
 
         /**

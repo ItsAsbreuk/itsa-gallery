@@ -57,7 +57,7 @@ function ITSAModellistAttrExtention() {}
 Y.mix(ITSAModellistAttrExtention.prototype, {
 
     /**
-     * Gets an attribute-value from a Model OR object. Depends on the state (Lazy or not).
+     * Gets an attribute-value from a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
      * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
      *
      * @method getModelAttr
@@ -73,7 +73,7 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
     },
 
     /**
-     * Sets an attribute-value of a Model OR object. Depends on the state (Lazy or not).
+     * Sets an attribute-value of a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
      * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
      * If you want to be sure the Model fires an attributeChange-event, then set 'revive' true. This way
      * lazy-Models will become true Models and fire an attributeChange-event. When the attibute was lazy before,
@@ -1295,7 +1295,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Gets an attribute-value from a Model OR object. Depends on the state (Lazy or not).
+     * Gets an attribute-value from a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
      * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
      *
      * @method getModelAttr
@@ -1311,7 +1311,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Sets an attribute-value of a Model OR object. Depends on the state (Lazy or not).
+     * Sets an attribute-value of a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
      * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
      * If you want to be sure the Model fires an attributeChange-event, then set 'revive' true. This way
      * lazy-Models will become true Models and fire an attributeChange-event. When the attibute was lazy before,
