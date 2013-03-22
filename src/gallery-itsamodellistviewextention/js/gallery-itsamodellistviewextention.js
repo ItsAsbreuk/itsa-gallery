@@ -2731,8 +2731,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         else {
             // start with the last index
             viewNode.all('.'+SVML_LASTMODEL_CLASS).removeClass(SVML_LASTMODEL_CLASS);
-            i = (instance._prevLastModelIndex || 0);
-            i--; // will be increased at start loop
+            i = (instance._prevLastModelIndex || -1); // i will be increased at start loop
         }
         if (!options.incrementbuild) {
             newViewNode = YNode.create(VIEW_TEMPLATE);
@@ -2800,7 +2799,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             modelNode[modelNode.length-1].addClass(SVML_LASTMODEL_CLASS);
         }
         // _prevLastModelIndex is needed by the plugin infinitescroll
-        instance._prevLastModelIndex = i - 1;
+        instance._prevLastModelIndex = i;
         if (!options.incrementbuild) {
             if (options.keepstyles) {
                 // we must retain the marked nodes --> copy these classes from viewNode to newViewNode first
