@@ -6,6 +6,7 @@
             "calendar-base",
             "model",
             "model-list",
+            "lazy-model-list",
             "datatype-date-math",
             "gallery-itsacalendarmarkeddates"
         ]
