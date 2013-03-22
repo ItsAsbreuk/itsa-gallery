@@ -496,6 +496,27 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
     /**
+     * Template to render an additional className to the rendered element. In fact: every Model will be rendered inside a <li>-element.
+     * The innercontent of the LI-element is determined by 'renderModel' while renderClassName can add additional classes to the li-element.
+     * The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+     * where Y.Lang.sub is more lightweight.
+     * <b>Example with Y.Lang.sub:</b> '{gender}'
+     * <b>Example with Y.Template.Micro:</b>
+     * '<% if (data.age>18) {%>adult<% } %>'
+     * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+     *
+     * @attribute renderClassName
+     * @type {String}
+     * @default '{clientId}'
+     * @since 0.1
+     */
+    renderClassName: {
+        value: null,
+        validator: function(v){ return Lang.isString(v); },
+        setter: '_setRenderClass'
+    },
+
+    /**
      * Template for rendering of groupHeader1. If not set, renderGroupHeader1 will render the same as the attribute 'groupHeader1'.
      * If you want the rendered content other than groupHeader1 generates, you can override this method. This is handy when the rendered
      * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader1').
@@ -847,6 +868,15 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @type Boolean
     */
     _renderModelInit : false,
+
+    /**
+     * Internal flag to tell whether the attribute 'renderClassName' is initiated.
+     * @property _renderClassInit
+     * @private
+     * @default false
+     * @type Boolean
+    */
+    _renderClassInit : false,
 
     /**
      * Internal flag to tell whether the attribute 'dupComparator' is initiated.
@@ -1762,7 +1792,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute groupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGrpH1
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1774,7 +1804,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._grpH1Init) {
             instance._templFns = instance._getAllTemplateFuncs({groupHeader1: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({groupHeader1: val});
+                instance._renderView();
             }
         }
         else {
@@ -1786,7 +1816,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute groupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGrpH2
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1798,7 +1828,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._grpH2Init) {
             instance._templFns = instance._getAllTemplateFuncs({groupHeader2: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({groupHeader2: val});
+                instance._renderView();
             }
         }
         else {
@@ -1810,7 +1840,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute groupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setGrpH3
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1822,7 +1852,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._grpH3Init) {
             instance._templFns = instance._getAllTemplateFuncs({groupHeader3: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({groupHeader3: val});
+                instance._renderView();
             }
         }
         else {
@@ -1834,7 +1864,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute renderGroupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGrH1
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1846,7 +1876,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._renderGrpH1Init) {
             instance._templFns = instance._getAllTemplateFuncs({renderGroupHeader1: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({renderGroupHeader1: val});
+                instance._renderView();
             }
         }
         else {
@@ -1858,7 +1888,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute renderGroupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGrH2
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1870,7 +1900,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._renderGrpH2Init) {
             instance._templFns = instance._getAllTemplateFuncs({renderGroupHeader2: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({renderGroupHeader2: val});
+                instance._renderView();
             }
         }
         else {
@@ -1882,7 +1912,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute renderGroupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderGrH3
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1894,7 +1924,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._renderGrpH3Init) {
             instance._templFns = instance._getAllTemplateFuncs({renderGroupHeader3: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({renderGroupHeader3: val});
+                instance._renderView();
             }
         }
         else {
@@ -1906,7 +1936,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * Setter for attribute renderModel. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setRenderModel
-     * @param {Function} val the new set value for this attribute
+     * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
@@ -1918,11 +1948,35 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (instance._renderModelInit) {
             instance._templFns = instance._getAllTemplateFuncs({renderModel: val});
             if (instance._rerendAttrChg) {
-                instance._renderView({renderModel: val});
+                instance._renderView();
             }
         }
         else {
             instance._renderModelInit = true;
+        }
+    },
+
+    /**
+     * Setter for attribute renderClassName. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     *
+     * @method _setRenderClass
+     * @param {String} val the new set value for this attribute
+     * @private
+     * @since 0.1
+     *
+    */
+    _setRenderClass : function(val) {
+        var instance = this;
+
+        Y.log('_setRenderClass', 'info', 'Itsa-ModellistViewExtention');
+        if (instance._renderClassInit) {
+            instance._templFns = instance._getAllTemplateFuncs({renderClassName: val});
+            if (instance._rerendAttrChg) {
+                instance._renderView();
+            }
+        }
+        else {
+            instance._renderClassInit = true;
         }
     },
 
@@ -2418,26 +2472,28 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @method _getAllTemplateFuncs
      * @param {Object} [setterAttrs] Definition of fields which called this method internally. Only for internal use within some attribute-setters.
      * @private
-     * @return {Object} All templates --> an object with the fields: <b>renderModel, groupH1, groupH2, groupH3, renderGH1, renderGH1, renderGH1,
-     * activeGH1, activeGH2, activeGH3</b>. The last 3 keys are Booleans, the other are templates.
+     * @return {Object} All templates --> an object with the fields: <b>renderModel, renderClassName, groupH1, groupH2, groupH3,
+     * renderGH1, renderGH2, renderGH3, activeClass, activeGH1, activeGH2, activeGH3</b>. The last 4 keys are Booleans, the other are templates.
      * @since 0.1
      *
     */
     _getAllTemplateFuncs : function(setterAttrs) {
         var instance = this,
             renderModel = (setterAttrs && setterAttrs.renderModel) || instance.get('renderModel'),
+            renderClassName = (setterAttrs && setterAttrs.renderModel) || instance.get('renderClassName'),
             groupH1 = (setterAttrs && setterAttrs.groupHeader1) || instance.get('groupHeader1'),
             groupH2 = (setterAttrs && setterAttrs.groupHeader2) || instance.get('groupHeader2'),
             groupH3 = (setterAttrs && setterAttrs.groupHeader3) || instance.get('groupHeader3'),
             renderGH1 = (setterAttrs && setterAttrs.renderGroupHeader1) || instance.get('renderGroupHeader1') || groupH1,
             renderGH2 = (setterAttrs && setterAttrs.renderGroupHeader2) || instance.get('renderGroupHeader2') || groupH2,
             renderGH3 = (setterAttrs && setterAttrs.renderGroupHeader3) || instance.get('renderGroupHeader3') || groupH3,
+            activeClass = renderClassName && (renderClassName.length>0),
             activeGH1 = groupH1 && (groupH1.length>0),
             activeGH2 = groupH2 && (groupH2.length>0),
             activeGH3 = groupH3 && (groupH3.length>0),
             modelEngine, compiledModelEngine, groupH1Engine, compiledGroupH1Engine, groupH2Engine, compiledGroupH2Engine, groupH3Engine,
             compiledGroupH3Engine, renderGH1Engine, compiledRenderGH1Engine, renderGH2Engine, compiledRenderGH2Engine, renderGH3Engine,
-            compiledRenderGH3Engine, templateObject, isMicroTemplate;
+            compiledRenderGH3Engine, templateObject, isMicroTemplate, classNameEngine;
 
         Y.log('_getAllTemplateFuncs', 'info', 'Itsa-ModellistViewExtention');
         isMicroTemplate = function(template) {
@@ -2453,6 +2509,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         else {
             modelEngine = function(model) {
                 return Lang.sub(renderModel, instance.getModelToJSON(model));
+            };
+        }
+        if (isMicroTemplate(renderClassName)) {
+            compiledModelEngine = YTemplateMicro.compile(renderClassName);
+            classNameEngine = function(model) {
+                return compiledModelEngine(instance.getModelToJSON(model));
+            };
+        }
+        else {
+            classNameEngine = function(model) {
+                return Lang.sub(renderClassName, instance.getModelToJSON(model));
             };
         }
         if (activeGH1 && isMicroTemplate(groupH1)) {
@@ -2523,12 +2590,14 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         }
         templateObject = {
             renderModel : modelEngine,
+            renderClassName : classNameEngine,
             groupH1 : groupH1Engine,
             groupH2 : groupH2Engine,
             groupH3 : groupH3Engine,
             renderGH1 : renderGH1Engine,
             renderGH2 : renderGH2Engine,
             renderGH3 : renderGH3Engine,
+            activeClass : activeClass,
             activeGH1 : activeGH1,
             activeGH2 : activeGH2,
             activeGH3 : activeGH3
@@ -2860,6 +2929,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             }
         }
         modelNode.setData('modelClientId', modelClientId);
+        if (allTemplateFuncs.activeClass) {
+            modelNode.addClass(allTemplateFuncs.renderClassName(model));
+        }
         modelNode.addClass(MODEL_CLASS);
         modelNode.addClass(modelClientId);
         modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
