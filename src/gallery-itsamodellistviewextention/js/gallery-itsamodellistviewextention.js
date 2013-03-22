@@ -2731,7 +2731,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         else {
             // start with the last index
             viewNode.all('.'+SVML_LASTMODEL_CLASS).removeClass(SVML_LASTMODEL_CLASS);
-            i = (instance._prevLastModelIndex || -1); // will be increased at start loop
+            i = (instance._prevLastModelIndex || 0);
+            i--; // will be increased at start loop
         }
         if (!options.incrementbuild) {
             newViewNode = YNode.create(VIEW_TEMPLATE);
