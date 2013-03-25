@@ -1,29 +1,7 @@
 'use strict';
 
 /**
- *
- * This widget renderes Y.Model-instances -or just plain objects- inside the widgets contentBox.
- * It uses Y.View under the hood, where Y.View.container is bound to the 'contentBox'. The render-method must be defined
- * by the widget's attribute 'template'. The Model (or object) must be set through the attribute 'model'.
- *
- * Events can be set through the attribute 'events' and follow the same pattern as Y.View does. As a matter of fact, all attributes
- * (template, model, events) are passed through to the widgets Y.View instance (which has the property 'view').
- *
- *
- * Using this widget is great to render Model on the page, where the widget keeps synced with the model. Whenever a new Model-instance
- * is attached to the widget, or another template is used, the wodget will be re-rendered automaticly.
- *
- *
- * Attaching Y.Model-instances or objects?
- *
- *
- * Both can be attached. Whenever widgetattribute change, the widget will be re-rendered is needed (template- or model-attribute). This also
- * counts for attached objects. However, changes inside an object itself (updated property-value) cannot be caught by the widget, so you need
- * to call syncUI() yourself after an object-change. Y.Model-instances -on the other hand- do fire a *:change-event which is caught by the widget.
- * This makes the widget re-render after a Model-instance changes some of its attributes.
- *
- *
- * By default, the widget comes with its own style. You can disable this by setting the attribute 'styled' to false.
+ * ViewModel Widget
  *
  *
  * @module gallery-itsaviewmodel
@@ -159,11 +137,27 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 )
             );
             eventhandlers.push(
-                view.after('*:change', Y.bind(view.render, view))
+                view.after('*:change', Y.bind(view.render, view, false))
             );
             eventhandlers.push(
-                view.after('model:destroy', Y.rbind(view.render, view, true))
+                view.after('model:destroy', Y.bind(view.render, view, true))
             );
+        },
+
+        /**
+         * Returns the Model as an object. Regardless whether it is a Model-instance, or an item of a LazyModelList
+         * which might be an Object or a Model. Caution: If it is a Model-instance, than you get a Clone. If not
+         * -in case of an object from a LazyModelList- than you get the reference to the original object.
+         *
+         * @method getModelToJSON
+         * @param {Y.Model} model Model or Object
+         * @return {Object} Object or model.toJSON()
+         * @since 0.1
+         *
+        */
+        getModelToJSON : function(model) {
+            Y.log('getModelToJSON', 'info', 'Itsa-ViewModel');
+            return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
         },
 
         /**
@@ -194,23 +188,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         //===============================================================================================
 
         /**
-         * Returns the Model as an object. Regardless whether it is a Model-instance, or an item of a LazyModelList
-         * which might be an Object or a Model. Caution: If it is a Model-instance, than you get a Clone. If not
-         * -in case of an object from a LazyModelList- than you get the reference to the original object.
-         *
-         * @method _getModelToJSON
-         * @param {Y.Model} model Model or Object
-         * @private
-         * @return {Object} Object or model.toJSON()
-         * @since 0.1
-         *
-        */
-        _getModelToJSON : function(model) {
-            Y.log('_getModelToJSON', 'info', 'Itsa-ViewModel');
-            return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
-        },
-
-        /**
          * Function-factory that binds a function to the property '_modelTemplate'. '_modelTemplate' will be defined like
          * _modelTemplate = function(model) {return {String}};
          * which means: it will return a rendered String that is modified by the attribute 'template'. The rendering
@@ -234,12 +211,12 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (isMicroTemplate()) {
                 compiledModelEngine = YTemplateMicro.compile(template);
                 instance._modelTemplate = function(model) {
-                    return compiledModelEngine(instance._getModelToJSON(model));
+                    return compiledModelEngine(instance.getModelToJSON(model));
                 };
             }
             else {
                 instance._modelTemplate = function(model) {
-                    return Lang.sub(template, instance._getModelToJSON(model));
+                    return Lang.sub(template, instance.getModelToJSON(model));
                 };
             }
         },
@@ -377,7 +354,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          *
          * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
          *
-         * @attribute template
+         * @attribute _modelTemplate
          * @type {String}
          * @default '{clientId}'
          * @since 0.1
