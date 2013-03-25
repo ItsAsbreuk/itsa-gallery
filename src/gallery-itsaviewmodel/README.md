@@ -59,7 +59,7 @@ YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
 });
 ```
 
-<b>ITSAViewModel with Y.Lang.sub as template:</b>
+<b>ITSAViewModel with Y.Template.Micro as template:</b>
 ```js
 YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
 
@@ -79,7 +79,7 @@ YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
             'Everybody'
         ]
     });
-    modeltemplate2 =
+    modeltemplate =
         '‹b›Artist:‹/b› ‹%= data.artist %›‹br /›'+
         '‹b›First album:‹/b› ‹%= data.firstAlbum %›‹br /›'+
         '‹b›Released:‹/b› ‹%= data.firstAlbumRelease %›‹br /›'+
