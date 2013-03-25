@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -390,3 +392,5 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "widget", "view", "template-micro", "model"], "skinnable": true});

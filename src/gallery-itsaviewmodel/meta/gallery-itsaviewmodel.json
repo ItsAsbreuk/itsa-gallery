@@ -1,7 +1,12 @@
 {
     "gallery-itsaviewmodel": {
         "requires": [
-            "yui-base"
-        ]
+            "base-build",
+            "widget",
+            "view",
+            "template-micro",
+            "model"
+        ],
+        "skinnable": true
     }
 }

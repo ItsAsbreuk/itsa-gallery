@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -84,7 +86,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 styled = instance.get('styled'),
                 view;
 
-            Y.log('initializer', 'info', 'Itsa-ViewModel');
             if (styled) {
                 boundingBox.addClass(MODELVIEW_STYLED);
             }
@@ -113,7 +114,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 eventhandlers = instance._eventhandlers,
                 view = instance.view;
 
-            Y.log('bindUI', 'info', 'Itsa-ViewModel');
             eventhandlers.push(
                 instance.after(
                     'modelChange',
@@ -184,7 +184,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         destructor: function() {
             var instance = this;
 
-            Y.log('destructor', 'info', 'Itsa-ViewModel');
             instance._clearEventhandlers();
             instance.view.destroy();
         },
@@ -206,7 +205,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          *
         */
         _getModelToJSON : function(model) {
-            Y.log('_getModelToJSON', 'info', 'Itsa-ViewModel');
             return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
         },
 
@@ -226,7 +224,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             var instance = this,
                 isMicroTemplate, compiledModelEngine;
 
-            Y.log('_clearEventhandlers', 'info', 'Itsa-ViewModel');
             isMicroTemplate = function() {
                 var microTemplateRegExp = /<%(.+)%>/;
                 return microTemplateRegExp.test(template);
@@ -261,7 +258,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
               model = view.get('model'),
               html = clear ? '' : instance._modelTemplate(model);
 
-          Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
           // Render this view's HTML into the container element.
           container.setHTML(html);
           return instance;
@@ -276,7 +272,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-ViewModel');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -390,3 +385,5 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "widget", "view", "template-micro", "model"], "skinnable": true});
