@@ -20,12 +20,17 @@ into view and be highlighted. See the API Docs for further information.
 This module can also generate headers above the listitems. This is handy when you need f.i. alphabetical- or Date- headers.
 
 To render the items (and if you wish also the headers), you must define a 'template' for the Models and Headers. There are 3 header-levels to use.
-The templates must be passed through the attributes: <b>renderModel, groupHeader1, groupHeader2 and groupHeader3</b>. A template is a String that can
+The templates must be passed through the attributes: <b>modelTemplate, groupHeader1, groupHeader2 and groupHeader3</b>. A template is a String that can
 be processed through Y.Lang.sub, or Y.Template.Micro. The Model-attributes are referred through {someAttribute}, or in case of
 Y.Template.Micro: <%= someAttribute %>
 
+The module can generate the view with an unsorted list, or table. This can be set with the attribute 'listType' (see example). Be aware that
+-should you use 'table'- the templates need to render the td-elements.
+
 As long as there are no <b>initial items</b> (for the first time , the classes 'itsa-modellistview-noinitialitems' and
-'itsa-modellistview-view-noinitialitems' will be added to the boudingBox and viewNode.
+'itsa-modellistview-view-noinitialitems' will be added to the boudingBox and viewNode. These can be used for styling. The messages that are use defaults
+to 'No data to display' and 'Loading...'. The latter will only be shown if the attribute 'showLoadMessage' is set true (and you didn't not use
+'itsa-modellistview-noinitialitems' to hide the widget...)
 
 During each renderingprocess, as there are no items at that time, the classes 'itsa-modellistview-noitems' and
 'itsa-modellistview-view-noitems' will be added to the boudingBox and viewNode.
@@ -44,6 +49,7 @@ Documentation
 Usage
 -----
 
+<b>View rendered as unsorted list</b>
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('scrollview', 'gallery-itsamodellistviewextention', 'lazy-model-list', function(Y) {
 
@@ -62,8 +68,7 @@ var myScrollview = new Y.ScrollView({
     boundingBox: "#myscrollview",
     height:'600px',
     width:'240px',
-    modelListStyled: true,
-    renderModel: rendermodel,
+    modelTemplate: rendermodel,
     groupHeader1: groupheader,
     axis: 'y',
     modelList: myModellist
@@ -74,6 +79,36 @@ myScrollview.render();
 });
 ```
 
+<b>View rendered as table</b>
+```js
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('scrollview', 'gallery-itsamodellistviewextention', 'lazy-model-list', function(Y) {
+
+var myModellist = new Y.LazyModelList();
+myModellist.add([
+    {Country: 'The Netherlands'},
+    {Country: 'USA'},
+    {},
+    ....
+]);
+
+var rendermodel = '<\td>{Country}<\\td>';
+var groupheader = '<\td><%= data.Country.substr(0,1) %><\\td>';
+
+var myScrollview = new Y.ScrollView({
+    boundingBox: "#myscrollview",
+    listType: 'table,'
+    height:'600px',
+    width:'240px',
+    modelTemplate: rendermodel,
+    groupHeader1: groupheader,
+    axis: 'y',
+    modelList: myModellist
+});
+
+myScrollview.render();
+
+});
+```
 <u><b>Custom styling:</b></u>
 
 The module will add several css-classes to the scrollview-instance and listelements. By default, there will be no styling and you

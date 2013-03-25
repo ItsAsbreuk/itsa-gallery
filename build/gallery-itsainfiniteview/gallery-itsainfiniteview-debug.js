@@ -1,3 +1,5 @@
+YUI.add('gallery-itsainfiniteview', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -432,3 +434,5 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "plugin", "node-base", "json-parse"]});

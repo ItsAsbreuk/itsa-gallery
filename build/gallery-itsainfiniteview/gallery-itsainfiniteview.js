@@ -1,3 +1,5 @@
+YUI.add('gallery-itsainfiniteview', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -72,7 +74,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 host;
 
             instance.host = host = instance.get('host');
-            Y.log('initializer', 'info', 'Itsa-InfiniteView');
             host._itmsAvail = true;
             instance._window = Y.one('window');
             instance._bindUI();
@@ -106,7 +107,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 // The data MIGHT be available in the current modellist, but not rendered in the viewnode yet
                 askExternalData = (prevLastModelIndex >= (modelList.size() - 1));
                 if (askExternalData) {
-                    Y.log('expandList search external data', 'info', 'Itsa-InfiniteView');
                     modelList.sync(
                         'readMore',
                         {
@@ -117,17 +117,14 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                     );
                 }
                 else if (host._renderView) {
-                    Y.log('expandList expand with own modellist', 'info', 'Itsa-InfiniteView');
                     host._renderView(null, {rebuild: false});
                     instance._fireExpansion(true);
                 }
             }
             else {
                 if (!modelList) {
-                    Y.log('checkExpansion modelList is undefined --> cannot expand the list', 'warn', 'Itsa-InfiniteView');
                 }
                 if (!host._itmsAvail) {
-                    Y.log('checkExpansion will not expand the list --> last item is already read', 'info', 'Itsa-InfiniteView');
                 }
             }
             return needExpansion;
@@ -180,19 +177,15 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                     }
                 }
                 if (buffer<expansionArea) {
-                    Y.log('checkExpansion will trigger expandList', 'info', 'Itsa-InfiniteView');
                     instance.expandList();
                 }
                 else {
-                    Y.log('checkExpansion no expansion required: buffer:'+buffer+', expansionArea:'+expansionArea, 'info', 'Itsa-InfiniteView');
                 }
             }
             else {
                 if (!modelList) {
-                    Y.log('checkExpansion modelList is undefined --> cannot expand the list', 'warn', 'Itsa-InfiniteView');
                 }
                 if (!host._itmsAvail) {
-                    Y.log('checkExpansion will not expand the list --> last item is already read', 'info', 'Itsa-InfiniteView');
                 }
             }
         },
@@ -216,7 +209,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
             var host = this.host,
                 modelList = host.getModelListInUse();
 
-            Y.log('loadAllItems', 'info', 'Itsa-InfiniteView');
             host._getNodeFromModelOrIndex(null, modelList.size()-1, maxExpansions);
         },
 
@@ -227,7 +219,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
          * @since 0.1
         */
         destructor : function() {
-            Y.log('destructor', 'info', 'Itsa-InfiniteView');
             this._clearEventhandlers();
         },
 
@@ -247,7 +238,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 host = instance.host,
                 hostIsScrollView = host.get('axis');
 
-            Y.log('_bindUI', 'info', 'Itsa-InfiniteView');
             if (hostIsScrollView) {
                 instance._eventhandlers.push(
                     host.after(
@@ -282,7 +272,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 lastItemOnTop = host.get('lastItemOnTop'),
                 newItems, responseData;
 
-            Y.log('_expansionFinished', 'info', 'Itsa-InfiniteView');
             try {
                 responseData = Y.JSON.parse(load.responseText);
                 newItems = (Lang.isArray(responseData) && (responseData.length>0));
@@ -295,7 +284,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
                 }
             }
             catch (e) {
-                Y.log('_expansionFinished error processing remote data', 'warn', 'Itsa-InfiniteView');
                 host._itmsAvail = false;
             }
             // now tricky one: you might need to add the last empty item
@@ -319,7 +307,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
         _fireExpansion : function (finished) {
             var instance = this;
 
-            Y.log('_fireExpansion fireing modelExpansion:'+(finished ? 'end' : 'start'), 'info', 'Itsa-InfiniteView');
             /**
              * Is fired before a 'scrollview-expansion' takes place.
              *
@@ -344,7 +331,6 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-InfiniteView');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -432,3 +418,5 @@ Y.namespace('Plugin').ITSAInifiniteView = Y.Base.create('itsainfiniteview', Y.Pl
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "plugin", "node-base", "json-parse"]});

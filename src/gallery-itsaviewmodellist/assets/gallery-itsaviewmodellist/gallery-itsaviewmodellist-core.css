@@ -1,3 +1,7 @@
+.yui3-itsaviewmodellist table {
+    empty-cells: show;
+}
+
 .itsa-modellistview-unselectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;

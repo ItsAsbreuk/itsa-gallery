@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * ScrollView ModelList Extention
+ * ScrollViewModelList Widget
  *
  *
  * Adds an Y.ModelList  or Y.LazyModelList to a ScrollView instance, where the Models are rendered inside an ul-element
  * which lies within the scrollview's-contentBox. This results in an ul-list with rendered Models. The Models are rendered
- * through a template (Y.Lang.sub or Y.Template.Micro) which needs to be defined with the <b>'renderModel'-attribute</b>.
+ * through a template (Y.Lang.sub or Y.Template.Micro) which needs to be defined with the <b>'modelTemplate'-attribute</b>.
  *
  * Caution: you MUST set the axis-atribute before rendering! Because the content is empty at start, scrollview
  * would otherwise fail autofind the value of axis.
@@ -142,36 +142,40 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
             }
             if (modelNode || Lang.isNumber(item)) {
                 modelNode = modelNode || instance.getNodeFromIndex(item, maxExpansions);
-                nodePosition = getNodePosition(modelNode);
-                if (paginatorPlugin && (nodePosition!==0)) {
-                    // increase the modelIndex --> paginator is pased on all LI's, not just the Models
-                    liElements = viewNode.get('children');
-                    liElements.some(
-                        function(node, index) {
-                            if (!node.hasClass(MODEL_CLASS)) {
-                                item++;
+                if (modelNode) {
+                    nodePosition = getNodePosition(modelNode);
+                    if (paginatorPlugin && (nodePosition!==0)) {
+                        // increase the modelIndex --> paginator is pased on all LI's, not just the Models
+                        liElements = viewNode.get('children');
+                        liElements.some(
+                            function(node, index) {
+                                if (!node.hasClass(MODEL_CLASS)) {
+                                    item++;
+                                }
+                                return index===item;
                             }
-                            return index===item;
-                        }
-                    );
+                        );
+                    }
                 }
             }
             else {
                 modelNode = item && instance.getNodeFromModel(item, maxExpansions);
                 nodePosition = getNodePosition(modelNode);
-                if (paginatorPlugin && (nodePosition!==0)) {
-                    // transform model to an index
-                    liElements = viewNode.all('>li');
-                    item = 0;
-                    liElements.some(
-                        function(node, index) {
-                            var found = (node===modelNode);
-                            if (found) {
-                                item = index;
+                if (modelNode) {
+                    if (paginatorPlugin && (nodePosition!==0)) {
+                        // transform model to an index
+                        liElements = viewNode.all('>li');
+                        item = 0;
+                        liElements.some(
+                            function(node, index) {
+                                var found = (node===modelNode);
+                                if (found) {
+                                    item = index;
+                                }
+                                return found;
                             }
-                            return found;
-                        }
-                    );
+                        );
+                    }
                 }
             }
             if (modelNode) {
@@ -212,14 +216,6 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                     }
                     // You might need to expand the list in case ITSAInifiniteView is pluged-in
                     // Only 1 time is needed: getNodeFromModel already has expanded a number of times to make the Node available
-                    if (infiniteView && !onTop) {
-        //=============================================================================================================================
-        //
-        // NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
-        //
-        //=============================================================================================================================
-                        infiniteView.checkExpansion();
-                    }
                     if (paginatorPlugin) {
                         if (!onTop) {
                             while ((modelNodeSize<boundingBoxSize) && (item>0)) {
@@ -250,6 +246,14 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                         else {
                             instance.saveScrollTo(newOffset, null);
                         }
+                    }
+                    if (infiniteView && !onTop) {
+        //=============================================================================================================================
+        //
+        // NEED SOME WORK HERE: infiniteScrollPlugin.expandList IS ASYNCHROUS --> WE NEED PROMISES TO BE SURE IT HAS FINISHED HIS JOB
+        //
+        //=============================================================================================================================
+                        infiniteView.checkExpansion();
                     }
                 }
                 else {
