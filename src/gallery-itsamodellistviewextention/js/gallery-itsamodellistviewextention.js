@@ -1165,7 +1165,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
      * at the <b>max of ITSAInifiniteView.get('maxExpansions') times by default</b>. If you are responsible for the external data and
      * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
-     * @return {Y.Node} Li-Node that corresponds with the model.
+     * @return {Y.Node|null} Li-Node that corresponds with the model, or null if no Li-node is rendered for this index.
      * @since 0.1
     */
     getNodeFromIndex : function(index, maxExpansions) {
@@ -1190,7 +1190,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
      * at the <b>max of ITSAInifiniteView.get('maxExpansions') times by default</b>. If you are responsible for the external data and
      * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
-     * @return {Y.Node} Li-Node that corresponds with the model.
+     * @return {Y.Node|null} Li-Node that corresponds with the model, or null if no Li-node is rendered for this model.
      * @since 0.1
     */
     getNodeFromModel : function(model, maxExpansions) {
@@ -1791,7 +1791,10 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     // which let you drag anchors to the desktop
                     e.preventDefault();
                 },
-                'a'
+                function() {
+                    var tagName = this.get('tagName');
+                    return ((tagName==='A') || (tagName==='IMG'));
+                }
             )
         );
         // Re-render the view when a model is added to or removed from the modelList
@@ -2993,6 +2996,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         }
         if (viewNode.getHTML()==='') {
             noDataTemplate = (instance.get('listType')==='ul') ? VIEW_EMPTY_ELEMENT_TEMPLATE_UL : VIEW_EMPTY_ELEMENT_TEMPLATE_TABLE,
+            if (instance._microTemplateUsed) {
+                viewNode.cleanup();
+            }
             viewNode.setHTML(Lang.sub(noDataTemplate, {cols: 1, content: NO_DATA_MESSAGE}));
         }
         if (modelNode && (lastItemOnTop>0) && (!infiniteView || !instance._itmsAvail || listIsLimited)) {
@@ -3197,7 +3203,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
      * at the <b>max of ITSAInifiniteView.get('maxExpansions') times by default</b>. If you are responsible for the external data and
      * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
-     * @return {Y.Node} Li-Node that corresponds with the model.
+     * @return {Y.Node|null} Li-Node that corresponds with the model, or null if no Li-node is rendered.
      * @private
      * @since 0.1
     */
