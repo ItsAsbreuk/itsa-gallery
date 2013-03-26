@@ -3,8 +3,29 @@ YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
 'use strict';
 
 /**
- * ViewModel Widget
  *
+ * Widget ITSAViewModel
+ *
+ *
+ * This widget renderes Y.Model-instances -or just plain objects- inside the widgets contentBox.
+ * It uses Y.View under the hood, where Y.View.container is bound to the 'contentBox'. The render-method must be defined
+ * by the widget's attribute 'template'. The Model (or object) must be set through the attribute 'model'.
+ *
+ * Events can be set through the attribute 'events' and follow the same pattern as Y.View does. As a matter of fact, all attributes
+ * (template, model, events) are passed through to the widgets Y.View instance (which has the property 'view').
+ *
+ *
+ * Using this widget is great to render Model on the page, where the widget keeps synced with the model. Whenever a new Model-instance
+ * is attached to the widget, or another template is used, the wodget will be re-rendered automaticly.
+ *
+ * Attaching Y.Model-instances or objects?
+ * Both can be attached. Whenever widgetattribute change, the widget will be re-rendered is needed (template- or model-attribute). This also
+ * counts for attached objects. However, changes inside an object itself (updated property-value) cannot be caught by the widget, so you need
+ * to call syncUI() yourself after an object-change. Y.Model-instances -on the other hand- do fire a *:change-event which is caught by the widget.
+ * This makes the widget re-render after a Model-instance changes some of its attributes.
+ *
+ *
+ * By default, the widget comes with its own style. You can disable this by setting the attribute 'styled' to false.
  *
  * @module gallery-itsaviewmodel
  * @extends Widget
@@ -23,35 +44,33 @@ var Lang = Y.Lang,
     MODELVIEW_STYLED = 'itsa-modelview-styled';
 
 //===============================================================================================
-// First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes
-// We mix it to both Y.LazyModelList as well as Y.ModelList
-// this way we can always call these methods regardsless of a ModelList or LazyModelList as used
+//
+// First: extend Y.Node with the method cleanup()
+//
 //===============================================================================================
 
 function ITSANodeCleanup() {}
 
 Y.mix(ITSANodeCleanup.prototype, {
 
-    /**
-     * Gets an attribute-value from a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
-     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
-     *
-     * @method getModelAttr
-     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
-     * @param {String} name Attribute name or object property path.
-     * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
-     * @since 0.1
-     *
-    */
+    //
+    // Cleansup the node by calling destroy(true) on all its children, as well as destroying all widgets that lie
+    // within the node by calling widget.destroy(true);
+    //
+    // @method cleanup
+    // @since 0.1
+    //
+    //
     cleanup: function() {
-        var node = this;
+        var node = this,
+            YWidget = Y.Widget;
 
         Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
-        if (Y.Widget) {
+        if (YWidget) {
             node.all('.yui3-widget').each(
                 function(widgetNode) {
                     if (node.one('#'+widgetNode.get('id'))) {
-                        var widgetInstance = Y.Widget.getByNode(widgetNode);
+                        var widgetInstance = YWidget.getByNode(widgetNode);
                         if (widgetInstance) {
                             widgetInstance.destroy(true);
                         }
@@ -69,9 +88,9 @@ Y.Node.ITSANodeCleanup = ITSANodeCleanup;
 Y.Base.mix(Y.Node, [ITSANodeCleanup]);
 
 //===============================================================================================
-// First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes
-// We mix it to both Y.LazyModelList as well as Y.ModelList
-// this way we can always call these methods regardsless of a ModelList or LazyModelList as used
+//
+// Next we create the widget
+//
 //===============================================================================================
 
 Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
@@ -422,7 +441,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          *
          * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
          *
-         * @attribute _modelTemplate
+         * @attribute template
          * @type {String}
          * @default '{clientId}'
          * @since 0.1

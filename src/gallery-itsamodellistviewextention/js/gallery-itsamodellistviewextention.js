@@ -145,9 +145,52 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
 Y.ITSAModellistAttrExtention = ITSAModellistAttrExtention;
 
 Y.Base.mix(Y.ModelList, [ITSAModellistAttrExtention]);
-//Y.Base.mix(Y.LazyModelList, [ITSAModellistAttrExtention]);
 
-// -- Mixing extra Methods to Y.ScrollView -----------------------------------
+//===============================================================================================
+//
+// First: extend Y.Node with the method cleanup()
+//
+//===============================================================================================
+
+function ITSANodeCleanup() {}
+
+Y.mix(ITSANodeCleanup.prototype, {
+
+    /**
+     * Cleansup the node by calling destroy(true) on all its children, as well as destroying all widgets that lie
+     * within the node by calling widget.destroy(true);
+     *
+     * @method cleanup
+     * @since 0.1
+     *
+    */
+    cleanup: function() {
+        var node = this,
+            YWidget = Y.Widget;
+
+        Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
+        if (YWidget) {
+            node.all('.yui3-widget').each(
+                function(widgetNode) {
+                    if (node.one('#'+widgetNode.get('id'))) {
+                        var widgetInstance = YWidget.getByNode(widgetNode);
+                        if (widgetInstance) {
+                            widgetInstance.destroy(true);
+                        }
+                    }
+                }
+            );
+        }
+        node.all('children').destroy(true);
+    }
+
+}, true);
+
+Y.Node.ITSANodeCleanup = ITSANodeCleanup;
+
+Y.Base.mix(Y.Node, [ITSANodeCleanup]);
+
+// -- Now creating extention -----------------------------------
 
 function ITSAModellistViewExtention() {}
 
@@ -1053,6 +1096,15 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @type Boolean
     */
     _even : false,
+
+    /**
+     * Internal flag that tells wheter a Template.Micro is being used.
+     * @property _microTemplateUsed
+     * @private
+     * @default null
+     * @type Boolean
+    */
+    _microTemplateUsed : null,
 
     //-------------------------------------------------------------------------------------
     //---- Public methods -----------------------------------------------------------------
@@ -2577,14 +2629,20 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             activeGH3 = groupH3 && (groupH3.length>0),
             modelEngine, compiledModelEngine, groupH1Engine, compiledGroupH1Engine, groupH2Engine, compiledGroupH2Engine, groupH3Engine,
             compiledGroupH3Engine, renderGH1Engine, compiledRenderGH1Engine, renderGH2Engine, compiledRenderGH2Engine, renderGH3Engine,
-            compiledRenderGH3Engine, templateObject, isMicroTemplate, classNameEngine;
+            compiledRenderGH3Engine, templateObject, isMicroTemplate, classNameEngine, microModelTemplate,
+            microRenderGH1, microRenderGH2, microRenderGH3;
 
         Y.log('_getAllTemplateFuncs', 'info', 'Itsa-ModellistViewExtention');
         isMicroTemplate = function(template) {
             var microTemplateRegExp = /<%(.+)%>/;
             return microTemplateRegExp.test(template);
         };
-        if (isMicroTemplate(modelTemplate)) {
+        microModelTemplate = isMicroTemplate(modelTemplate);
+        microRenderGH1 = activeGH1 && isMicroTemplate(renderGH1);
+        microRenderGH2 = activeGH2 && isMicroTemplate(renderGH2);
+        microRenderGH3 = activeGH3 && isMicroTemplate(renderGH3);
+        instance._microTemplateUsed = (microModelTemplate || microRenderGH1 || microRenderGH2 || microRenderGH3);
+        if (microModelTemplate) {
             compiledModelEngine = YTemplateMicro.compile(modelTemplate);
             modelEngine = function(model) {
                 return compiledModelEngine(instance.getModelToJSON(model));
@@ -2639,7 +2697,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 return Lang.sub(groupH3, instance.getModelToJSON(model));
             };
         }
-        if (activeGH1 && isMicroTemplate(renderGH1)) {
+        if (microRenderGH1) {
             compiledRenderGH1Engine = YTemplateMicro.compile(renderGH1);
             renderGH1Engine = function(model) {
                 return compiledRenderGH1Engine(instance.getModelToJSON(model));
@@ -2650,7 +2708,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 return Lang.sub(renderGH1, instance.getModelToJSON(model));
             };
         }
-        if (activeGH2 && isMicroTemplate(renderGH2)) {
+        if (microRenderGH2) {
             compiledRenderGH2Engine = YTemplateMicro.compile(renderGH2);
             renderGH2Engine = function(model) {
                 return compiledRenderGH2Engine(instance.getModelToJSON(model));
@@ -2661,7 +2719,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 return Lang.sub(renderGH2, instance.getModelToJSON(model));
             };
         }
-        if (activeGH3 && isMicroTemplate(renderGH3)) {
+        if (microRenderGH3) {
             compiledRenderGH3Engine = YTemplateMicro.compile(renderGH3);
             renderGH3Engine = function(model) {
                 return compiledRenderGH3Engine(instance.getModelToJSON(model));
@@ -2925,6 +2983,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                         }
                     }
                 );
+            }
+            if (instance._microTemplateUsed) {
+                viewNode.cleanup();
             }
             viewNode.replace(newViewNode);
             instance._viewNode = newViewNode;
