@@ -22,6 +22,58 @@ var Lang = Y.Lang,
     YTemplateMicro = Y.Template.Micro,
     MODELVIEW_STYLED = 'itsa-modelview-styled';
 
+//===============================================================================================
+// First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes
+// We mix it to both Y.LazyModelList as well as Y.ModelList
+// this way we can always call these methods regardsless of a ModelList or LazyModelList as used
+//===============================================================================================
+
+function ITSANodeCleanup() {}
+
+Y.mix(ITSANodeCleanup.prototype, {
+
+    /**
+     * Gets an attribute-value from a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
+     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
+     *
+     * @method getModelAttr
+     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
+     * @param {String} name Attribute name or object property path.
+     * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
+     * @since 0.1
+     *
+    */
+    cleanup: function() {
+        var node = this;
+
+        Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
+        if (Y.Widget) {
+            node.all('.yui3-widget').each(
+                function(widgetNode) {
+                    if (node.one('#'+widgetNode.get('id'))) {
+                        var widgetInstance = Y.Widget.getByNode(widgetNode);
+                        if (widgetInstance) {
+                            widgetInstance.destroy(true);
+                        }
+                    }
+                }
+            );
+        }
+        node.all('children').destroy(true);
+    }
+
+}, true);
+
+Y.Node.ITSANodeCleanup = ITSANodeCleanup;
+
+Y.Base.mix(Y.Node, [ITSANodeCleanup]);
+
+//===============================================================================================
+// First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes
+// We mix it to both Y.LazyModelList as well as Y.ModelList
+// this way we can always call these methods regardsless of a ModelList or LazyModelList as used
+//===============================================================================================
+
 Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
         /**
@@ -30,6 +82,15 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          * @type Y.View
         */
         view : null,
+
+        /**
+         * Internal flag that tells wheter a Template.Micro is being used.
+         * @property _isMicroTemplate
+         * @private
+         * @default null
+         * @type Boolean
+        */
+        _isMicroTemplate : null,
 
         /**
          * Internal Function that is generated to automaticly make use of the template.
@@ -203,14 +264,15 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         */
         _setTemplateRenderer : function(template) {
             var instance = this,
-                isMicroTemplate, compiledModelEngine;
+                isMicroTemplate, ismicrotemplate, compiledModelEngine;
 
             Y.log('_clearEventhandlers', 'info', 'Itsa-ViewModel');
             isMicroTemplate = function() {
                 var microTemplateRegExp = /<%(.+)%>/;
                 return microTemplateRegExp.test(template);
             };
-            if (isMicroTemplate()) {
+            ismicrotemplate = instance._isMicroTemplate = isMicroTemplate();
+            if (ismicrotemplate) {
                 compiledModelEngine = YTemplateMicro.compile(template);
                 instance._modelTemplate = function(model) {
                     return compiledModelEngine(instance.getModelToJSON(model));
@@ -242,6 +304,10 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
           Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
           // Render this view's HTML into the container element.
+          // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
+          if (instance._isMicroTemplate) {
+              container.cleanup();
+          }
           container.setHTML(html);
           return instance;
         },
