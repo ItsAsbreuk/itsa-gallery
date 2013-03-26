@@ -1,0 +1,7 @@
+{
+    "gallery-itsascrollviewloop": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}

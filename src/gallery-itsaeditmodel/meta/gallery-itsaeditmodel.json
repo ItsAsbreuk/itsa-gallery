@@ -1,0 +1,7 @@
+{
+    "gallery-itsaeditmodel": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}

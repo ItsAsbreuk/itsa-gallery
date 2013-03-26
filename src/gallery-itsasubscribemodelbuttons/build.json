@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsasubscribemodelbuttons",
+    "builds": {
+        "gallery-itsasubscribemodelbuttons": {
+            "jsfiles": [
+                "js/gallery-itsasubscribemodelbuttons.js"
+            ]
+        }
+    }
+}

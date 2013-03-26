@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsachangemodeltemplate",
+    "builds": {
+        "gallery-itsachangemodeltemplate": {
+            "jsfiles": [
+                "js/gallery-itsachangemodeltemplate.js"
+            ]
+        }
+    }
+}

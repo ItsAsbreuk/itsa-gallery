@@ -1,0 +1,7 @@
+{
+    "gallery-itsasubscribemodelbuttons": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}

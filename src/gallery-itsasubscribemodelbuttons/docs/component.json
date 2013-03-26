@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsasubscribemodelbuttons",
+    "displayName": "Gallery: gallery-itsasubscribemodelbuttons",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsasubscribemodelbuttons" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

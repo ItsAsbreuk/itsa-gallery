@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsascrollviewloop",
+    "builds": {
+        "gallery-itsascrollviewloop": {
+            "jsfiles": [
+                "js/gallery-itsascrollviewloop.js"
+            ]
+        }
+    }
+}

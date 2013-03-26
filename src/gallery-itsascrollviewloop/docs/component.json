@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsascrollviewloop",
+    "displayName": "Gallery: gallery-itsascrollviewloop",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsascrollviewloop" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

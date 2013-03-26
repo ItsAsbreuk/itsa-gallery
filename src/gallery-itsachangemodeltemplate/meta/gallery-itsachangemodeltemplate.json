@@ -1,0 +1,7 @@
+{
+    "gallery-itsachangemodeltemplate": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}
