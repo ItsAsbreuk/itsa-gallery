@@ -1,12 +1,18 @@
 'use strict';
 
 /**
- * ScrollView KeyNav Plugin
+ * ITSAScrollViewKeyNav Plugin
  *
  *
  * Plugin that enables scrollview-navigation with keys.
  *
- * The scrollview-instance needs to have foces (either set by myScrollView.focus() or by setting the attribute 'initialFocus' to true).
+ * In order to response to key-events, the scrollview-instance needs to have focus. This can be set either by myScrollView.focus() -or blur()-
+ * or by setting the attribute 'initialFocus' to true. The plugin also works when Plugin.ScrollViewPaginator is plugged-in. The behaviour will be
+ * different, because the scrolling is paginated in that case.
+ *
+ *
+ * If this plugin is plugged into a Y.ITSAScrollViewModellist-instance, then the keynavigation will scroll through the items in case
+ * the attribute 'modelsSelectable' is set to true.
  *
  *
  * @module gallery-itsascrollviewkeynav
@@ -521,7 +527,7 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav'
                 pagination = host && host.pages,
                 itsainfiniteview = host && host.itsainfiniteview;
 
-            Y.log('_focusHost', 'info', 'Itsa-ScrollViewKeyNav');
+            Y.log('_paginatorScrollToIndex', 'info', 'Itsa-ScrollViewKeyNav');
             if (pagination) {
                 if (itsainfiniteview) {
 //=============================================================================================================================
