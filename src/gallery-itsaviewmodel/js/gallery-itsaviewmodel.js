@@ -21,9 +21,9 @@ var Lang = Y.Lang,
     MODELVIEW_STYLED = 'itsa-modelview-styled';
 
 //===============================================================================================
-// First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes
-// We mix it to both Y.LazyModelList as well as Y.ModelList
-// this way we can always call these methods regardsless of a ModelList or LazyModelList as used
+//
+// First: extend Y.Node with the method cleanup()
+//
 //===============================================================================================
 
 function ITSANodeCleanup() {}
@@ -31,25 +31,23 @@ function ITSANodeCleanup() {}
 Y.mix(ITSANodeCleanup.prototype, {
 
     /**
-     * Gets an attribute-value from a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
-     * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
+     * Cleansup the node by calling destroy(true) on all its children, as well as destroying all widgets that lie
+     * within the node by calling widget.destroy(true);
      *
-     * @method getModelAttr
-     * @param {Y.Model} model the model (or extended class) from which the attribute has to be read.
-     * @param {String} name Attribute name or object property path.
-     * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
+     * @method cleanup
      * @since 0.1
      *
     */
     cleanup: function() {
-        var node = this;
+        var node = this,
+            YWidget = Y.Widget;
 
         Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
-        if (Y.Widget) {
+        if (YWidget) {
             node.all('.yui3-widget').each(
                 function(widgetNode) {
                     if (node.one('#'+widgetNode.get('id'))) {
-                        var widgetInstance = Y.Widget.getByNode(widgetNode);
+                        var widgetInstance = YWidget.getByNode(widgetNode);
                         if (widgetInstance) {
                             widgetInstance.destroy(true);
                         }
@@ -67,9 +65,9 @@ Y.Node.ITSANodeCleanup = ITSANodeCleanup;
 Y.Base.mix(Y.Node, [ITSANodeCleanup]);
 
 //===============================================================================================
-// First: extend Y.LazyModelList with 2 sugar methods for set- and get- attributes
-// We mix it to both Y.LazyModelList as well as Y.ModelList
-// this way we can always call these methods regardsless of a ModelList or LazyModelList as used
+//
+// Next we create the widget
+//
 //===============================================================================================
 
 Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
