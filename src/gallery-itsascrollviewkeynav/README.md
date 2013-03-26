@@ -27,6 +27,7 @@ Documentation
 Usage
 -----
 
+<b>Initial focus (immediate response to key-events):</b>
 ```js
 YUI().use('scrollview', 'gallery-itsascrollviewkeynav', function(Y) {
 
@@ -38,6 +39,28 @@ YUI().use('scrollview', 'gallery-itsascrollviewkeynav', function(Y) {
 
     scrollView.plug(Y.Plugin.ITSAScrollViewKeyNav, {initialFocus: true});
     scrollView.render();
+
+});
+```
+
+<b>No initial focus, but focus later on (response to key-events after 5 seconds)</b>
+```js
+YUI().use('scrollview', 'gallery-itsascrollviewkeynav', function(Y) {
+
+    var scrollView = new Y.ScrollView({
+            srcNode: '#scrollview-content',
+            height: 500,
+            axis: 'y'
+        });
+
+    scrollView.plug(Y.Plugin.ITSAScrollViewKeyNav);
+    scrollView.render();
+
+    Y.later(
+        5000,
+        scrollView,
+        scrollView.focus
+    );
 
 });
 ```
