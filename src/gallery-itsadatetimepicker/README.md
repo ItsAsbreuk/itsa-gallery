@@ -77,7 +77,9 @@ Usage
 
 <b>HTML:</b>
 ```
-<span id='datefield'></span><span id='status'></span>
+<body class='yui3-skin-sam itsa-datetimepicker-loading'>
+<span id='datefield'></span><button id='dateselector' class='yui3-button itsa-button-datetime'><span class='itsa-datetimepicker-icondate'></span></button><span id='status'></span>
+</body>
 ```
 
 <b>Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
@@ -88,12 +90,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     var date = new Date();
     var datefield = Y.one('#datefield');
     var status = Y.one('#status');
-
-    // creating a nice 'datebutton' and append it to the html
-    // this also could have been done with HTML-code (better)
-    // Y.ItsaDateTimePicker.dateNode() returns an Y.Node
-    var btnDate = Y.ItsaDateTimePicker.dateNode();
-    Y.one('body').append(btnDate);
+    var btnDate = Y.one('#dateselector');
 
     btnDate.on('click', function(e){
         status.setHTML('');
