@@ -78,7 +78,8 @@ Usage
 <b>HTML:</b>
 ```
 <body class='yui3-skin-sam itsa-datetimepicker-loading'>
-<span id='datefield'></span><button id='dateselector' class='yui3-button itsa-button-datetime'><span class='itsa-datetimepicker-icondate'></span></button><span id='status'></span>
+<span id='datefield'></span><button id='dateselector' class='yui3-button itsa-button-datetime'>
+<span class='itsa-datetimepicker-icondate'></span></button><span id='status'></span>
 </body>
 ```
 
