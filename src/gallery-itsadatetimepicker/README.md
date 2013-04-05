@@ -48,7 +48,7 @@ There are 3 methods taht create buttonNodes. Remember that you have to insert th
 * <b>Y.ItsaDateTimePicker.timeNode</b>()
 * <b>Y.ItsaDateTimePicker.datetimeNode</b>()
 
-If you want to insert the html yourself right away (prefered way), you need to use this html:
+However, the <u>prefered way is to insert the html of the buttonNodes yourself</u>. In that case, you need to use this html:
 ```
 <button class="yui3-button itsa-button-datetime"><span class="itsa-datetimepicker-icondate"></span></button>
 <button class="yui3-button itsa-button-datetime"><span class="itsa-datetimepicker-icontime"></span></button>
