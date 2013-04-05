@@ -61,7 +61,7 @@ Be aware that the css for the nodemarkup needs to be loaded. Without any precaut
     display: none;
 }
 ```
-Once the module is available, it will remove 'datetimepicker-loading' from the body-node (should it be applied).
+Once the module is available, it will remove the class 'itsa-datetimepicker-loading' from the body-node (should it be applied).
 
 
 Examples
