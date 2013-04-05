@@ -1,7 +1,11 @@
 {
     "gallery-itsaform": {
         "requires": [
-            "widget"
+            "base-build",
+            "widget",
+            "node-base",
+            "io",
+            "gallery-itsadialogbox"
         ],
         "skinnable": true
     }

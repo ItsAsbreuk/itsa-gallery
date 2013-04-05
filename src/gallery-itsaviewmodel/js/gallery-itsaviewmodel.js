@@ -52,7 +52,7 @@ function ITSANodeCleanup() {}
 Y.mix(ITSANodeCleanup.prototype, {
 
     //
-    // Cleansup the node by calling destroy(true) on all its children, as well as destroying all widgets that lie
+    // Cleansup the node by calling node.empty(), as well as destroying all widgets that lie
     // within the node by calling widget.destroy(true);
     //
     // @method cleanup
@@ -70,13 +70,13 @@ Y.mix(ITSANodeCleanup.prototype, {
                     if (node.one('#'+widgetNode.get('id'))) {
                         var widgetInstance = YWidget.getByNode(widgetNode);
                         if (widgetInstance) {
-                            widgetInstance.destroy(true);
+                            widgetInstance.destroy();
                         }
                     }
                 }
             );
         }
-        node.all('children').destroy(true);
+        node.empty();
     }
 
 }, true);
@@ -111,13 +111,13 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
         /**
          * Internal Function that is generated to automaticly make use of the template.
-         * The function has the structure of: _modelTemplate = function(model) {return {String}};
-         * @property _modelTemplate
+         * The function has the structure of: _modelRenderer = function(model) {return {String}};
+         * @property _modelRenderer
          * @private
          * @default function(model) {return ''};
          * @type Function
         */
-        _modelTemplate : null,
+        _modelRenderer : null,
 
         /**
          * Internal list of all eventhandlers bound by this widget.
@@ -196,7 +196,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                         var newTemplate = e.newVal;
                         view.template = newTemplate;
                         instance._setTemplateRenderer(newTemplate);
-                        view.render();
+                        if (!instance.hasPlugin('itsaeditmodel')) {
+                            view.render();
+                        }
                     }
                 )
             );
@@ -268,8 +270,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         //===============================================================================================
 
         /**
-         * Function-factory that binds a function to the property '_modelTemplate'. '_modelTemplate' will be defined like
-         * _modelTemplate = function(model) {return {String}};
+         * Function-factory that binds a function to the property '_modelRenderer'. '_modelRenderer' will be defined like
+         * _modelRenderer = function(model) {return {String}};
          * which means: it will return a rendered String that is modified by the attribute 'template'. The rendering
          * is done either by Y.Lang.sub or by Y.Template.Micro, depending on the value of 'template'.
          *
@@ -291,12 +293,12 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             ismicrotemplate = instance._isMicroTemplate = isMicroTemplate();
             if (ismicrotemplate) {
                 compiledModelEngine = YTemplateMicro.compile(template);
-                instance._modelTemplate = function(model) {
+                instance._modelRenderer = function(model) {
                     return compiledModelEngine(instance.getModelToJSON(model));
                 };
             }
             else {
-                instance._modelTemplate = function(model) {
+                instance._modelRenderer = function(model) {
                     return Lang.sub(template, instance.getModelToJSON(model));
                 };
             }
@@ -317,12 +319,13 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
               view = instance.view,
               container = view.get('container'),
               model = view.get('model'),
-              html = clear ? '' : instance._modelTemplate(model);
+              itsaeditmodel = instance.itsaeditmodel,
+              html = clear ? '' : (itsaeditmodel ? itsaeditmodel.editRenderer(model) : instance._modelRenderer(model));
 
           Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
           // Render this view's HTML into the container element.
           // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
-          if (instance._isMicroTemplate) {
+          if (instance._isMicroTemplate || itsaeditmodel) {
               container.cleanup();
           }
           container.setHTML(html);

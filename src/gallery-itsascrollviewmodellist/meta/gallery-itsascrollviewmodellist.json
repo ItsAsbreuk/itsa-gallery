@@ -3,7 +3,8 @@
         "requires": [
             "base-build",
             "scrollview",
-            "gallery-itsamodellistviewextention"
+            "gallery-itsamodellistviewextention",
+            "gallery-itsachangemodeltemplate"
         ],
         "skinnable": true
     }

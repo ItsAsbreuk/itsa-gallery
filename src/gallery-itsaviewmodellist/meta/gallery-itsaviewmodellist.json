@@ -3,7 +3,8 @@
         "requires": [
             "base-build",
             "widget",
-            "gallery-itsamodellistviewextention"
+            "gallery-itsamodellistviewextention",
+            "gallery-itsachangemodeltemplate"
         ],
         "skinnable": true
     }

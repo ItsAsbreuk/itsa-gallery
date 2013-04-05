@@ -23,7 +23,7 @@ var Lang = Y.Lang,
     MODELLIST_CLASS = 'itsa-modellistview',
     GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader';
 
-Y.ITSAViewModellist = Y.Base.create('itsaviewmodellist', Y.Widget, [Y.ITSAModellistViewExtention], {
+Y.ITSAViewModellist = Y.Base.create('itsaviewmodellist', Y.Widget, [Y.ITSAModellistViewExtention, Y.ITSAChangeModelTemplate], {
 
         /**
          * Makes the Model scroll into the View. Items that are already in the view: no scroll appears. Items that are above: will appear

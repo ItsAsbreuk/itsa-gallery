@@ -12,6 +12,7 @@
             "model-list",
             "lazy-model-list",
             "template-micro"
-        ]
+        ],
+        "skinnable": true
     }
 }

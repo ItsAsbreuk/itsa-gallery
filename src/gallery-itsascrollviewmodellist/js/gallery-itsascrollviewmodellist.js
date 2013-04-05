@@ -24,14 +24,14 @@
 */
 
 var Lang = Y.Lang,
-    MODEL_CLASS = 'itsa-scrollviewmodel',
+    MODEL_CLASS = 'itsa-model',
     MODELLIST_CLASS = 'itsa-modellistview',
     GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader',
     GETSTYLE = function(node, style) {
         return parseInt(node.getStyle(style), 10);
     };
 
-Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollView, [Y.ITSAModellistViewExtention], {
+Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollView, [Y.ITSAModellistViewExtention, Y.ITSAChangeModelTemplate], {
 
         /**
          * Internal flag to tell whether the attribute 'lastItemOnTop' is initiated.

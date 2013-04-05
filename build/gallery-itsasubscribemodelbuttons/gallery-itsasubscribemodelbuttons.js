@@ -1,3 +1,5 @@
+YUI.add('gallery-itsasubscribemodelbuttons', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -60,7 +62,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
         initializer : function() {
             var instance = this;
 
-            Y.log('initializer', 'info', 'Itsa-SubscribeModelButtons');
             instance.host = instance.get('host');
             instance._bindUI();
         },
@@ -72,7 +73,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
          * @since 0.1
         */
         destructor : function() {
-            Y.log('destructor', 'info', 'Itsa-SubscribeModelButtons');
             this._clearEventhandlers();
         },
 
@@ -92,7 +92,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 host = instance.host,
                 contentBox = host.get('contentBox');
 
-            Y.log('_bindUI', 'info', 'Itsa-SubscribeModelButtons');
             instance._eventhandlers.push(
                 contentBox.delegate(
                     'click',
@@ -135,7 +134,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 host = instance.host,
                 model, node, clientId, modelList;
 
-            Y.log('_fireEvent', 'info', 'Itsa-SubscribeModelButtons');
             // In case the host is an Y.ITSAViewModel-instance, then the attribute 'model' is available
             // In case the host is an Y.ITSAViewModelList or Y.ITSAScrollViewModelList, look for a node with class 'itsa-model'
             model = host.get('model');
@@ -154,7 +152,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
 
             }
             if (model) {
-                Y.log('_fireEvent fires event '+eventname, 'info', 'Itsa-SubscribeModelButtons');
                 /**
                  * Is fired when the user clicks on a Button.
                  *
@@ -179,7 +176,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 host.fire(eventname, e);
             }
             else {
-                Y.log('_fireEvent cannot fire event '+eventname+ ' --> no model found', 'warn', 'Itsa-SubscribeModelButtons');
 
             }
         },
@@ -193,7 +189,6 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-SubscribeModelButtons');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -208,3 +203,5 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "node-base", "event-custom", "node-event-delegate", "plugin"]});

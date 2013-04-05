@@ -1,3 +1,5 @@
+YUI.add('gallery-itsasubscribemodelbuttons', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -208,3 +210,5 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
         }
     }
 );
+
+}, '@VERSION@', {"requires": ["base-build", "node-base", "event-custom", "node-event-delegate", "plugin"]});
