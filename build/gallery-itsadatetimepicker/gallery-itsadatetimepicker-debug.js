@@ -24,6 +24,7 @@ var Lang = Y.Lang,
     YNode = Y.Node,
     YArray = Y.Array,
     WIDGET_CLASS = 'itsa-datetimepicker',
+    LOADING_CLASS = WIDGET_CLASS + 'loading',
     PANEL_CLASS = WIDGET_CLASS + '-panel',
     TIME_CHANGED_CLASS = WIDGET_CLASS + '-timechanged',
     RENDERDELAY = 1000, //Time in ms to wait for the datetimepicker to render. Because you probably won't need it right away,
@@ -147,6 +148,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             instance._window = Y.one('window');
             instance._renderUI();
             instance._bindUI();
+            Y.one('body').removeClass(LOADING_CLASS);
          },
 
         /**

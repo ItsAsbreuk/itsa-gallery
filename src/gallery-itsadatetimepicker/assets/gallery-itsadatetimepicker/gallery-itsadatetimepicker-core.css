@@ -1,3 +1,7 @@
+.yui3-js-enabled .itsa-datetimepicker-loading .itsa-button-datetime {
+    display: none;
+}
+
 .itsa-datetimepicker-icondate, .itsa-datetimepicker-icontime, .itsa-datetimepicker-icondatetime {
     display: inline-block;
     height: 20px;
