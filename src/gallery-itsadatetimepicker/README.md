@@ -83,7 +83,7 @@ Usage
 </body>
 ```
 
-<b>Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
+<b>Example 1: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
@@ -112,7 +112,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 });
 ```
 
-<b>date- and time-picker which is modal, centered on the page and dragable</b>
+<b>Example 2: Date- and time-picker which is modal, centered on the page and dragable:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
