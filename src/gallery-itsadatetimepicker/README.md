@@ -8,35 +8,35 @@ Module Y.ITSADateTimePicker.
 Widget that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
 
 
-There are several options that can make the picker to be modal, align next to the button that launched it and passing an initial date-time value. The Module also can render 3 <button> Nodes with calendar-icon, time-icon or both.
+There are several options that can make the picker to be modal, align next to the button that launched it and passing an initial date-time value. The Module also can render 3 button-Nodes with calendar-icon, time-icon or both.
 
-So, the Moduoe generates one instance Y.ItsaDateTimePicker which is available right away, acroos multiple YUI-instances. Actually only 1 instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the panel be needed before, then rendering will start when needed.
+So, the Module generates one instance Y.ItsaDateTimePicker which is available right away, acroos multiple YUI-instances. Actually only 1 instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the panel be needed before, then rendering will start when needed.
 
-There are 3 Promises that can be asked for:
+There are <u>3 Promises</u> that can be asked for:
 
-* Y.ItsaDateTimePicker.getDate(initialDate, activationNode, config)
-* Y.ItsaDateTimePicker.getTime(initialDate, activationNode, config)
-* Y.ItsaDateTimePicker.getDateTime(initialDate, activationNode, config)
+* <b>Y.ItsaDateTimePicker.getDate</b>(initialDate, activationNode, config)
+* <b>Y.ItsaDateTimePicker.getTime</b>(initialDate, activationNode, config)
+* <b>Y.ItsaDateTimePicker.getDateTime</b>(initialDate, activationNode, config)
 
 These promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
 
-* initialDate: date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-* activationNode: the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
-* config: object to adjust the behaviour of the panel.
+* <b>initialDate</b>: <i>{Date}</i> date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
+* <b>activationNode</b>: <i>{Y.Node}</i> the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
+* <b>config</b>: <i>{Object}</i> object to adjust the behaviour of the panel.
 
-config is an object through which you can adjust the behaviour of the panel-instance. The next fields may be set:
-* config.title: {String }Title on the Panel-instance
-* config.modal: {Boolean} Whether the Panel-instance should appear modal
-* config.dragable {Boolean} Whether the Panel-instance is dragable
-* config.timeformat {String} Format of the rendered timestring (default = '%H:%M')
-* config.customRenderer {Object} customRenderer that is passed to the Calendar-instance
-* config.showPrevMonth {Boolean} showPrevMonth that is passed to the Calendar-instance
-* config.showNextMonth {Boolean} showNextMonth that is passed to the Calendar-instance
-* config.headerRenderer {String} headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
-* config.minimumDate {Date} minimumDate that is passed to the Calendar-instance
-* config.maximumDate {Date} maximumDate that is passed to the Calendar-instance
-* config.enabledDatesRule {String} enabledDatesRule that is passed to the Calendar-instance
-* config.disabledDatesRule {String} disabledDatesRule that is passed to the Calendar-instance
+config is an object through which you can adjust the behaviour of the panel-instance. The next properties may be set:
+* <b>title</b>: <i>{String}</i> Title on the Panel-instance
+* <b>modal</b>: <i>{Boolean}</i> Whether the Panel-instance should appear modal
+* <b>dragable</b>: <i>{Boolean}</i> Whether the Panel-instance is dragable
+* <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring (default = '%H:%M')
+* <b>customRenderer</b>: <i>{Object}</i> customRenderer that is passed to the Calendar-instance
+* <b>showPrevMonth</b>: <i>{Boolean}</i> showPrevMonth that is passed to the Calendar-instance
+* <b>showNextMonth</b>: <i>{Boolean}</i> showNextMonth that is passed to the Calendar-instance
+* <b>headerRenderer</b>: <i>{String}</i> headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
+* <b>minimumDate</b>: <i>{Date}</i> minimumDate that is passed to the Calendar-instance
+* <b>maximumDate</b>: <i>{Date}</i> maximumDate that is passed to the Calendar-instance
+* <b>enabledDatesRule</b>: <i>{String}</i> enabledDatesRule that is passed to the Calendar-instance
+* <b>disabledDatesRule</b>: <i>{String}</i> disabledDatesRule that is passed to the Calendar-instance
 
 <b>Calling the Promise by buttons</b>
 Most likely you will have a button-element on the page with a sort of calendar-icon. When pressed, you'll ask for one of the 3 Promises. This module has 3 methods that will create button-Nodes with nice css. Event better way is, to include the right html directly into the page.
@@ -44,9 +44,9 @@ Most likely you will have a button-element on the page with a sort of calendar-i
 <u>Methods to create button-Nodes</u>
 There are 3 methods taht create buttonNodes. Remember that you have to insert them into the DOM yourself.
 
-* Y.ItsaDateTimePicker.dateNode()
-* Y.ItsaDateTimePicker.timeNode()
-* Y.ItsaDateTimePicker.datetimeNode()
+* <b>Y.ItsaDateTimePicker.dateNode</b>()
+* <b>Y.ItsaDateTimePicker.timeNode</b>()
+* <b>Y.ItsaDateTimePicker.datetimeNode</b>()
 
 If you want to insert the html yourself right away (prefered way), you need to use this html:
 ```
@@ -55,7 +55,13 @@ If you want to insert the html yourself right away (prefered way), you need to u
 <button class="yui3-button itsa-button-datetime"><span class="itsa-datetimepicker-icondatetime"></span></button>
 ```
 
-Be aware that the css for the nodemarkup needs to be loaded. Without any precautions, you will suffer changes in the markup, just the same as with any widget that needs to be rendered. To overcomde this, it is suggested you add the class 'itsa-datetimepicker-loading' to the body-element. The module hass css that will hide elements with class '.yui3-js-enabled .itsa-datetimepicker-loading .itsa-button-datetime'. Once the module is available, it will remove 'datetimepicker-loading' from the body-node (should it be applied).
+Be aware that the css for the nodemarkup needs to be loaded. Without any precautions, you will suffer changes in the markup, just the same as with any widget that needs to be rendered. To overcomde this, it is suggested you add the class 'itsa-datetimepicker-loading' to the body-element. The module hass css that will hide elements with class:
+```css
+.yui3-js-enabled .itsa-datetimepicker-loading .itsa-button-datetime {
+    display: none;
+}
+```
+Once the module is available, it will remove 'datetimepicker-loading' from the body-node (should it be applied).
 
 
 Examples
