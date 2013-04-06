@@ -99,6 +99,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
             ...
         }
     );
+
 });
 ```
 
@@ -140,6 +141,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
             ...
         }
     );
+
 });
 ```
 
@@ -181,6 +183,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
             }
         );
     });
+
 });
 ```
 
@@ -217,6 +220,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
             }
         );
     });
+
 });
 ```
 
