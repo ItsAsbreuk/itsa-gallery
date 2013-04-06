@@ -47,7 +47,7 @@ config is an object through which you can adjust the behaviour of the panel-inst
 Most likely you will have a button-element on the page with a sort of calendar-icon. When pressed, you'll ask for one of the 3 Promises. This module has 3 methods that will create button-Nodes with nice css. Event better way is, to include the right html directly into the page.
 
 <u>Methods to create button-Nodes</u>
-There are 3 methods taht create buttonNodes. Remember that you have to insert them into the DOM yourself.
+There are 3 methods who create buttonNodes. Remember that you have to insert them into the DOM yourself.
 
 * <b>Y.ItsaDateTimePicker.dateNode</b>()
 * <b>Y.ItsaDateTimePicker.timeNode</b>()
