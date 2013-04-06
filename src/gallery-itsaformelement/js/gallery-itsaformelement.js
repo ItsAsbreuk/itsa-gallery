@@ -16,6 +16,8 @@
 */
 
 var Lang  = Y.Lang,
+    YArray = Y.Array,
+    yDateFormat = Y.Date.format,
     ITSAFORMELEMENT_CLASS = 'itsaformelement',
     yClassNameManagerGetClassName = Y.ClassNameManager.getClassName,
     ITSAFORMELEMENT_ELEMENT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS),
@@ -24,14 +26,18 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_FIRSTFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'firstfocus'),
     ITSAFORMELEMENT_SELECTONFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'selectall'),
     ITSAFORMELEMENT_KEYVALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'keyvalidation'),
-    ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validation', 'message'),
+    ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validationmessage'),
     ITSAFORMELEMENT_AUTOCORRECT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'autocorrect'),
     ITSAFORMELEMENT_LOADING_CHECKBOX_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_SELECTLIST_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_COMBOBOX_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_RADIOGROUP_CLASS = 'yui3-enabled widget-loading',
-    ITSAFORMELEMENT_LOADING_DATETIME_CLASS = 'yui3-enabled widget-loading',
+    ITSAFORMELEMENT_INLINEBUTTON_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inlinebutton'),
     YUI3BUTTON_CLASS = 'yui3-button',
+    YUI3BUTTON_DATETIME_CLASS = 'yui3-button-datetime',
+    ITSAFORMELEMENT_DATE_CLASS = 'itsa-datetimepicker-icondate',
+    ITSAFORMELEMENT_TIME_CLASS = 'itsa-datetimepicker-icontime',
+    ITSAFORMELEMENT_DATETIME_CLASS = 'itsa-datetimepicker-icondatetime',
 
     ELEMENT_INPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
     ELEMENT_TEXTAREA = '<textarea id="{id}" name="{name}"{classname} />{value}</textarea>',
@@ -40,11 +46,25 @@ var Lang  = Y.Lang,
     ELEMENT_BUTTON = '<input id="{id}" type="{type}" name="{name}" value="{value}"{classname} />',
     ELEMENT_VALIDATION = '<div class="'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS+' '+ITSAFORMELEMENT_HIDDEN_CLASS+'">{validation}</div>',
 
-    ELEMENT_CHECKBOX = '<div id="{id}"{classname} /><input id="{id}_checkbox" type="checkbox" name="{name}" {checked}class="'+ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
-    ELEMENT_SELECTLIST = '<div id="{id}"{classname} /><select id="{id}_selectlist" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+'" /><option value="" selected="selected"></option></select></div>',
-    ELEMENT_COMBOBOX = '<div id="{id}"{classname} /><select id="{id}_combobox" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+'" /><option value="" selected="selected"></option></select></div>',
-    ELEMENT_RADIOGROUP = '<div id="{id}"{classname} /><input id="{id}_radiogroup" type="radio" name="{name}" value="" checked="checked" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
-    ELEMENT_DATETIME = '<span id="{id}"{classname} />{value}</span><div id="{id}_datetime" class="'+ITSAFORMELEMENT_LOADING_DATETIME_CLASS+'"></div>';
+    ELEMENT_CHECKBOX = '<div id="{id}"{classname} /><input id="{id}_checkbox" type="checkbox" name="{name}" {checked}class="'+
+                       ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
+    ELEMENT_SELECTLIST = '<div id="{id}"{classname} /><select id="{id}_selectlist" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+
+                          '" /><option value="" selected="selected"></option></select></div>',
+    ELEMENT_COMBOBOX = '<div id="{id}"{classname} /><select id="{id}_combobox" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+
+                        '" /><option value="" selected="selected"></option></select></div>',
+    ELEMENT_RADIOGROUP = '<div id="{id}"{classname} /><input id="{id}_radiogroup" type="radio" name="{name}" value="" checked="checked" class="'+
+                         ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
+    ELEMENT_DATE = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+YUI3BUTTON_DATETIME_CLASS+
+                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'"><span class="'+ITSAFORMELEMENT_DATE_CLASS+'"></span></button>',
+    ELEMENT_TIME = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+YUI3BUTTON_DATETIME_CLASS+
+                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'"><span class="'+ITSAFORMELEMENT_TIME_CLASS+'"></span></button>',
+    ELEMENT_DATETIME = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+
+                       YUI3BUTTON_DATETIME_CLASS+' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'"><span class="'+ITSAFORMELEMENT_DATETIME_CLASS+
+                       '"></span></button>',
+
+    ELEMENT_AUTOCOMPLETE = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
+    ELEMENT_TOKENINPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
+    ELEMENT_TOKENAUTOCOMPLETE = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />';
 
 Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
 
@@ -55,6 +75,8 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @type String
         */
         _id: '',
+        _eventhandlers : [],
+        _typechangeHandler : null,
 
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
@@ -63,12 +85,16 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @protected
         */
         initializer : function() {
+            var instance = this;
+
             Y.log('initializer', 'cmas', 'ITSAFORMELEMENT');
-            this._id = Y.guid();
+            instance._id = Y.guid();
+            instance._bindUI();
+            instance._typechangeHandler = instance.after('typeChange', instance._bindUI, instance);
         },
 
         /**
-         * @description DOM-node where the elementNode is bound to.<br>
+         * DOM-node where the elementNode is bound to.<br>
          * It will only return a Node when the result of getNode() has been inserted into the page by yourself.
          * Otherwise returns null.
          * Readonly
@@ -95,6 +121,8 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                 element = '',
                 name = instance.get('name'),
                 type = instance.get('type'),
+                value = instance.get('value'),
+                dateFormat = instance.get('dateFormat'),
                 autoCorrection = instance.get('autoCorrection'),
                 validation = !autoCorrection && instance.get('validation'),
                 classnameAttr = instance.get('className'),
@@ -128,18 +156,54 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                     element += ELEMENT_VALIDATION;
                 }
             }
-            else if (type==='hidden') {
-                element = ELEMENT_HIDDEN;
-            }
             else if (instance._isButton()) {
                 element = ELEMENT_BUTTON;
+            }
+            else if (type==='checkbox') {
+                element = ELEMENT_CHECKBOX;
+            }
+            else if (type==='radiogroup') {
+                element = ELEMENT_RADIOGROUP;
+            }
+            else if (type==='selectlist') {
+                element = ELEMENT_SELECTLIST;
+            }
+            else if (type==='combobox') {
+                element = ELEMENT_COMBOBOX;
+            }
+            else if (type==='date') {
+                element = ELEMENT_DATE;
+                dateFormat = dateFormat || '%x';
+                value = yDateFormat(value, {format: dateFormat});
+            }
+            else if (type==='time') {
+                element = ELEMENT_TIME;
+                dateFormat = dateFormat || '%X';
+                value = yDateFormat(value, {format: dateFormat});
+            }
+            else if (type==='datetime') {
+                element = ELEMENT_DATETIME;
+                dateFormat = dateFormat || '%x %X';
+                value = yDateFormat(value, {format: dateFormat});
+            }
+            else if (type==='autocomplete') {
+                element = ELEMENT_AUTOCOMPLETE;
+            }
+            else if (type==='tokeninput') {
+                element = ELEMENT_TOKENINPUT;
+            }
+            else if (type==='tokenautocomplete') {
+                element = ELEMENT_TOKENAUTOCOMPLETE;
+            }
+            else if (type==='hidden') {
+                element = ELEMENT_HIDDEN;
             }
             return Lang.sub(
                             element,
                             {
                                 id: instance._id,
                                 name: name,
-                                value: instance.get('value'),
+                                value: value,
                                 classname: classname,
                                 type: type,
                                 validation: instance.get('validationMessage')
@@ -177,17 +241,85 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @protected
         */
         destructor : function() {
+            var instance = this;
+
             Y.log('destructor', 'cmas', 'ITSAFORMELEMENT');
+            if (instance._typechangeHandler) {
+                instance._typechangeHandler.detach();
+            }
+            instance._clearEventhandlers();
         },
 
         //------------------------------------------------------------------------------------------------------
         // private methods
         //------------------------------------------------------------------------------------------------------
 
+        _bindUI : function() {
+            var instance = this;
+
+            Y.log('_bindUI', 'cmas', 'ITSAFORMELEMENT');
+            if (instance._isDateTime()) {
+                Y.use('gallery-itsadatetimepicker', function(Y) {
+                    instance._eventhandlers.push(
+                        Y.one('body').delegate(
+                            'click',
+                            function(e) {
+                                var button = e.currentTarget,
+                                    span = button.one('span'),
+                                    picker = Y.ItsaDateTimePicker,
+                                    promise;
+                                if (span.hasClass(ITSAFORMELEMENT_DATE_CLASS)) {
+                                    promise = picker.getDate;
+                                }
+                                else if (span.hasClass(ITSAFORMELEMENT_TIME_CLASS)) {
+                                    promise = picker.getTime;
+                                }
+                                else if (span.hasClass(ITSAFORMELEMENT_DATETIME_CLASS)) {
+                                    promise = picker.getDateTime;
+                                }
+                                promise.then(
+                                    function(newdate) {
+alert(newdate);
+                                    }
+                                );
+                            },
+                            '.'+ITSAFORMELEMENT_INLINEBUTTON_CLASS
+                        )
+                    );
+                });
+            }
+        },
+
+        /**
+         * Cleaning up all eventlisteners
+         *
+         * @method _clearEventhandlers
+         * @private
+         * @since 0.1
+        */
+        _clearEventhandlers : function() {
+            var eventhandlers = this._eventhandlers;
+
+            Y.log('_clearEventhandlers', 'info', 'ITSAFORMELEMENT');
+            YArray.each(
+                eventhandlers,
+                function(item){
+                    item.detach();
+                }
+            );
+            eventhandlers.length = 0;
+        },
+
         _isButton: function() {
             Y.log('_isButton', 'cmas', 'ITSAFORMELEMENT');
             var type = this.get('type');
             return (type==='button') || (type==='submit') || (type==='reset');
+        },
+
+        _isDateTime : function() {
+            Y.log('_isDateTime', 'cmas', 'ITSAFORMELEMENT');
+            var type = this.get('type');
+            return (type==='date') || (type==='time') || (type==='datetime');
         }
 
     }, {
@@ -227,16 +359,19 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                             ((val==='input') ||
                              (val==='password') ||
                              (val==='textarea') ||
-                             (val==='checkbox') ||
-                             (val==='radiogroup') ||
-                             (val==='selectlist') ||
-                             (val==='combobox') ||
+                             (val==='checkbox') ||  // not ready yet
+//                             (val==='radiogroup') ||  // not ready yet
+//                             (val==='selectlist') ||  // not ready yet
+//                             (val==='combobox') ||  // not ready yet
                              (val==='date') ||
                              (val==='time') ||
                              (val==='datetime') ||
                              (val==='button') ||
                              (val==='reset') ||
                              (val==='submit') ||
+//                             (val==='autocomplete') ||  // not ready yet
+//                             (val==='tokeninput') ||  // not ready yet
+//                             (val==='tokenautocomplete') ||  // not ready yet
                              (val==='hidden')
                             )
                     );
@@ -248,13 +383,16 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
              * @type String | Boolean | Array(String)
             */
             value : {
-                value: null,
+                value: '',
                 setter: function(val) {
                     var node = this.get('elementNode');
                     if (node) {
                         node.set('value', val);
                     }
                     return val;
+                },
+                validator: function(val) {
+                    return (Lang.isString(val) || Lang.isBoolean(val) || Lang.isArray(val) || Lang.isDate(val));
                 }
             },
             /**
@@ -322,6 +460,18 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
              * @type String|null
             */
             className : {
+                value: null,
+                validator: function(val) {
+                    return (Lang.isString(val) || null);
+                }
+            },
+            /**
+             * @description To format the value<br>
+             * Only applies for Date-types (attribute type).
+             * @attribute className
+             * @type String|null
+            */
+            dateFormat : {
                 value: null,
                 validator: function(val) {
                     return (Lang.isString(val) || null);
