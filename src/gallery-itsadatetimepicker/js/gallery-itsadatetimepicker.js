@@ -471,13 +471,16 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         _clearEventhandlers : function() {
+            var eventhandlers = this._eventhandlers;
+
             Y.log('_clearEventhandlers', 'info', 'Itsa-DateTimePicker');
             YArray.each(
-                this._eventhandlers,
+                eventhandlers,
                 function(item){
                     item.detach();
                 }
             );
+            eventhandlers.length = 0;
         },
 
         /**
