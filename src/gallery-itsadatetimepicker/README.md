@@ -80,17 +80,6 @@ Documentation
 Usage
 -----
 
-<b>HTML:</b>
-```
-<body class='yui3-skin-sam itsa-datetimepicker-loading'>
-    <span id='datefield'></span>
-    <button id='dateselector' class='yui3-button itsa-button-datetime'>
-        <span class='itsa-datepicker-icondate'></span>
-    </button>
-    <span id='status'></span>
-</body>
-```
-
 <b>Example 1: Getting a timevalue and process the promise in one statement:</b>
 ```js
 YUI().use('gallery-itsadatetimepicker', function(Y) {
@@ -153,6 +142,17 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
 });
 ```
 
+<b>HTML Example 3:</b>
+```
+<body class='yui3-skin-sam itsa-datetimepicker-loading'>
+    <span id='datefield'></span>
+    <button id='dateselector' class='yui3-button itsa-button-datetime'>
+        <span class='itsa-datepicker-icondate'></span>
+    </button>
+    <span id='status'></span>
+</body>
+```
+
 <b>Example 3: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
@@ -182,6 +182,13 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 });
 ```
 
+<b>HTML Example 4:</b>
+```
+<body class='yui3-skin-sam itsa-datetimepicker-loading'>
+    <span id='datefield'></span>
+</body>
+```
+
 <b>Example 4: Date- and time-picker which is modal, centered on the page and dragable:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
@@ -190,7 +197,6 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     var picker = Y.ItsaDateTimePicker; // for shorter reference
     var date = new Date();
     var datefield = Y.one('#datefield');
-    var status = Y.one('#status');
 
     // creating a nice 'datebutton' and append it to the html
     // this also could have been done with HTML-code (better)
@@ -199,17 +205,12 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     Y.one('body').append(btnDateTime);
 
     btnDateTime.on('click', function(e){
-        status.setHTML('');
         // Y.ItsaDateTimePicker.getDateTime() returns an Y.Promise
         // first parameter holds the initial date.
         picker.getDateTime(date, {modal: true, dragable: true}).then(
             function(newdate) {
                 date.setTime(newdate.getTime());
                 datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y %l:%M %p'}));
-                status.setHTML('new date and time is set');
-            },
-            function(reason) {
-                status.setHTML('no date or time set: '+reason);
             }
         );
     });
