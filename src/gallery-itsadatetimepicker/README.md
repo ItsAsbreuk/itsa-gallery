@@ -60,7 +60,8 @@ However, the <u>prefered way is to insert the html of the buttonNodes yourself</
 <button class="yui3-button itsa-button-datetime"><span class="itsa-datetimepicker-icondatetime"></span></button>
 ```
 
-Be aware that the css for the nodemarkup needs to be loaded. Without any precautions, you will suffer changes in the markup, just the same as with any widget that needs to be rendered. To overcome this, it is suggested you add the class <b>'itsa-datetimepicker-loading'</b> to the body-element. The module hass css that will hide elements with next class:
+Be aware that the css for the nodemarkup needs to be loaded. Without any precautions, you will suffer changes in the markup, just the same as with any widget that needs to be rendered. To overcome this, it is suggested you add the class:
+<b>'itsa-datetimepicker-loading'</b> to the body-element. The module has css that will hide elements with next class:
 ```css
 .yui3-js-enabled .itsa-datetimepicker-loading .itsa-button-datetime {
     display: none;
