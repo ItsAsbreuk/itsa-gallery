@@ -5,7 +5,7 @@
  * Class ITSADateTimePicker
  *
  *
- * Class that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
+ * Class that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.<br />
  * The Class also can render 3 button-Nodes with calendar-icon, time-icon or both.
  *
  * @module gallery-itsadatetimepicker
@@ -45,7 +45,7 @@ var Lang = Y.Lang,
     BUTTON_DATETIME = '<button class="'+YUI3BUTTON_CLASS+' '+ITSA_BUTTON_DATETIME_CLASS+'"><span class="'+BUTTON_DATETIME_CLASS+'"></span></button>',
     BUTTON_TIME = '<button class="'+YUI3BUTTON_CLASS+' '+ITSA_BUTTON_DATETIME_CLASS+'"><span class="'+BUTTON_TIME_CLASS+'"></span></button>',
 
-    EVENT_DATEPICKER = 'datetimepicker:',
+    EVENT_DATEPICKER = '_datetimepicker:',
     EVENT_SELECTDATE = EVENT_DATEPICKER + 'selectdate',
     EVENT_SELECTBUTTON = EVENT_DATEPICKER + 'selected',
     EVENT_CANCEL = EVENT_DATEPICKER + 'cancel',
@@ -433,8 +433,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             function() {
                                 /**
                                 * Fired when the Panel is closed without saving the values.
+                                * No need to listen to --> the promises are using this event internally.
                                 *
-                                * @event datetimepicker:cancel
+                                * @event _datetimepicker:cancel
+                                * @private
                                 * @since 0.1
                                 */
                                 Y.fire(EVENT_CANCEL);
@@ -570,8 +572,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 newdate = e.newSelection[0];
                 /**
                 * Fired when a new Date is selected from the Panel's Calendar-instance.
+                * No need to listen to --> the promises are using this event internally.
                 *
-                * @event datetimepicker:selectdate
+                * @event _datetimepicker:selectdate
                 * @param {Date} newDate the selected date
                 * @since 0.1
                 */
@@ -603,8 +606,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     /**
                     * Fired when new values are selected by the Panel by pressing the 'Select'-button
                     * Only will appear when the time can be selected (otherwise there won't be a select-button in the first place)
+                    * No need to listen to --> the promises are using this event internally.
                     *
-                    * @event datetimepicker:selected
+                    * @event _datetimepicker:selected
                     * @since 0.1
                     */
                     Y.fire(EVENT_SELECTBUTTON);
