@@ -565,6 +565,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 *
                 * @event _datetimepicker:selectdate
                 * @param {Date} newDate the selected date
+                * @private
                 * @since 0.1
                 */
                 Y.fire(EVENT_SELECTDATE, {newDate: newdate});
@@ -597,6 +598,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     * No need to listen to --> the promises are using this event internally.
                     *
                     * @event _datetimepicker:selected
+                    * @private
                     * @since 0.1
                     */
                     Y.fire(EVENT_SELECTBUTTON);
