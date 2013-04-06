@@ -18,7 +18,7 @@ There are <u>3 Promises</u> that can be asked for:
 * <b>Y.ItsaDateTimePicker.getTime</b>(initialDate, activationNode, config)
 * <b>Y.ItsaDateTimePicker.getDateTime</b>(initialDate, activationNode, config)
 
-These promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
+All Promises return a Date-object (if fulfilled). When calling 'getDate()' you get dd-mm-yyyy 00:00:00,000. Calling 'getTime()' gives you 01-01-1900 hh:mm:00,000 and Calling 'getDateTime()' gives you dd-mm-yyyy hh:mm:00,000. The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
 
 * <b>initialDate</b>: <i>{Date}</i> date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
 * <b>activationNode</b>: <i>{Y.Node}</i> the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
@@ -83,7 +83,26 @@ Usage
 </body>
 ```
 
-<b>Example 1: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
+<b>Example 1: Getting a timevalue:</b>
+```js
+YUI().use('gallery-itsadatetimepicker', function(Y) {
+    // Y.ItsaDateTimePicker is ready to be used...
+
+    Y.ItsaDateTimePicker.getTime().then(
+        function(newdate) {
+            // newdate is a Date-object
+            // newdate.getHours() and newdate.getMinutes() contain the responsevalues
+            // the other fields are empty: 01-01-1900 hh:mm:00,000
+        },
+        function(reason) {
+            // user closed the panel without selecting the new time
+            // 'reason' will contain: new Error('canceled');
+        }
+    );
+});
+```
+
+<b>Example 2: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
@@ -112,7 +131,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 });
 ```
 
-<b>Example 2: Date- and time-picker which is modal, centered on the page and dragable:</b>
+<b>Example 3: Date- and time-picker which is modal, centered on the page and dragable:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
