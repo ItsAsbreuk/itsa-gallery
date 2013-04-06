@@ -154,7 +154,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * Generates an Y.Node of the type 'button'. Is NOT part of the DOM yet --> you need to place it inside the DOM yourself.
          * This method is available in order you create a nice button which can be used to call for a datetime-Promise.
          *
-         * @method createDateNode
+         * @method dateNode
          * @return {Y.Node} Node of the type 'button' with a calendaricon inside.
          * @since 0.1
         */
