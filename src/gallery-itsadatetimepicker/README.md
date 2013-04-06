@@ -23,14 +23,14 @@ All Promises return a Date-object (if fulfilled). Which fields of the Date-objec
 * Y.ItsaDateTimePicker.getTime() --> 01-01-1900 hh:mm:00,000
 * Y.ItsaDateTimePicker.getDateTime() --> dd-mm-yyyy hh:mm:00,000
 
-The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
+The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 2 paramers which are optional:
 
 * <b>initialDate</b>: <i>{Date}</i> date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-* <b>activationNode</b>: <i>{Y.Node}</i> the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
 * <b>config</b>: <i>{Object}</i> object to adjust the behaviour of the panel.
 
 config is an object through which you can adjust the behaviour of the panel-instance. The next properties may be set:
 * <b>title</b>: <i>{String}</i> Title on the Panel-instance
+* <b>alignToNode</b>: <i>{Y.Node}</i> When set, the selector-panel is aligned to this Node
 * <b>modal</b>: <i>{Boolean}</i> Whether the Panel-instance should appear modal
 * <b>dragable</b>: <i>{Boolean}</i> Whether the Panel-instance is dragable
 * <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring (default = '%H:%M')
@@ -125,9 +125,9 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     btnDate.on('click', function(e){
         status.setHTML('');
         // Y.ItsaDateTimePicker.getDate() returns an Y.Promise
-        // first parameter holds the initial date. Second parameter is the node that causes the panel to appear.
-        // By setting this, the panel is aligned to this Node.
-        Y.ItsaDateTimePicker.getDate(date, e.currentTarget).then(
+        // first parameter holds the initial date.
+        // in the second parameter, the node that causes the panel to appear is used to align the panel.
+        Y.ItsaDateTimePicker.getDate(date, {alignToNode: e.currentTarget}).then(
             function(newdate) {
                 date.setTime(newdate.getTime());
                 datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y'}));
@@ -161,7 +161,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
         status.setHTML('');
         // Y.ItsaDateTimePicker.getDateTime() returns an Y.Promise
         // first parameter holds the initial date.
-        picker.getDateTime(date, null, {modal: true, dragable: true}).then(
+        picker.getDateTime(date, {modal: true, dragable: true}).then(
             function(newdate) {
                 date.setTime(newdate.getTime());
                 datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y %l:%M %p'}));

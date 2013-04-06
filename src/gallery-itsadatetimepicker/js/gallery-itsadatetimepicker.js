@@ -181,9 +181,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          *
          * @method getDate
          * @param {Date} [initialDate] date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-         * @param {Y.Node} [activationNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Object} [config] object to adjust the behaviour of the panel.
          * @param {String} [config.title] Title on the Panel-instance
+         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
@@ -199,12 +199,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * If the Date-picker was closed, the promise is Rejected.
          * @since 0.1
         */
-        getDate : function(initialDate, activationNode, config) {
+        getDate : function(initialDate, config) {
             var instance = this,
                 testPromise;
 
             Y.log('getDate', 'info', 'Itsa-DateTimePicker');
-            instance._saveShow(1, initialDate, activationNode, config);
+            instance._saveShow(1, initialDate, config);
             testPromise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
@@ -246,9 +246,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          *
          * @method getDateTime
          * @param {Date} [initialDateTime] date-object that holds the initial date-time for the panel. If not set then the current date-time is used.
-         * @param {Y.Node} [activationNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Object} [config] object to adjust the behaviour of the panel.
          * @param {String} [config.title] Title on the Panel-instance
+         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
@@ -264,12 +264,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * If the DateTime-picker was closed, the promise is Rejected.
          * @since 0.1
         */
-        getDateTime : function(initialDateTime, activationNode, config) {
+        getDateTime : function(initialDateTime, config) {
             var instance = this,
                 testPromise;
 
             Y.log('getDateTime', 'info', 'Itsa-DateTimePicker');
-            instance._saveShow(2, initialDateTime, activationNode, config);
+            instance._saveShow(2, initialDateTime, config);
             testPromise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
@@ -315,9 +315,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          *
          * @method getTime
          * @param {Date} [initialTime] date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-         * @param {Y.Node} [activationNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Object} [config] object to adjust the behaviour of the panel.
          * @param {String} [config.title] Title on the Panel-instance
+         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
@@ -333,12 +333,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * If the Time-picker was closed, the promise is Rejected.
          * @since 0.1
         */
-        getTime : function(initialTime, activationNode, config) {
+        getTime : function(initialTime, config) {
             var instance = this,
                 testPromise;
 
             Y.log('getTime', 'info', 'Itsa-DateTimePicker');
-            instance._saveShow(3, initialTime, activationNode, config);
+            instance._saveShow(3, initialTime, config);
             testPromise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
@@ -683,9 +683,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @method _saveShow
          * @param {Int} modus internal type to tell whether a date, datetime or time needs to be picked (1,2 or 3)
          * @param {Date} [initialDateTime] date-object that holds the initial date-time for the panel. If not set then the current date-time is used.
-         * @param {Y.Node} [activationNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Object} [config] object to adjust the behaviour of the panel.
          * @param {String} [config.title] Title on the Panel-instance
+         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
@@ -700,19 +700,19 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @private
          * @since 0.1
         */
-        _saveShow : function(modus, initialDateTime, activationNode, config) {
+        _saveShow : function(modus, initialDateTime, config) {
             var instance = this,
                 panel = instance.panel;
 
             Y.log('_saveShow', 'info', 'Itsa-DateTimePicker');
             if (panel.get('rendered')) {
-                instance._show(modus, initialDateTime, activationNode, config);
+                instance._show(modus, initialDateTime, config);
             }
             else {
                 panel.onceAfter(
                     'render',
                     function() {
-                        instance._show(modus, initialDateTime, activationNode, config);
+                        instance._show(modus, initialDateTime, config);
                     }
                 );
             }
@@ -728,9 +728,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @method _show
          * @param {Int} modus internal type to tell whether a date, datetime or time needs to be picked (1,2 or 3)
          * @param {Date} [initialDateTime] date-object that holds the initial date-time for the panel. If not set then the current date-time is used.
-         * @param {Y.Node} [activationNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Object} [config] object to adjust the behaviour of the panel.
          * @param {String} [config.title] Title on the Panel-instance
+         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
@@ -745,12 +745,13 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @private
          * @since 0.1
         */
-        _show : function(modus, initialDateTime, activationNode, config) {
+        _show : function(modus, initialDateTime, config) {
             var instance = this,
                 panel = instance.panel,
                 presentedDate = initialDateTime || new Date(),
                 timeNode = instance._timeNode,
                 modal = config && config.modal,
+                alignToNode = config && config.alignToNode,
                 rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours, dialvalue, minPanelWidth;
 
             Y.log('_show modus '+modus, 'info', 'Itsa-DateTimePicker');
@@ -803,7 +804,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             else {
                 instance._toggleTimePicker(false);
             }
-            if (activationNode) {
+            if (alignToNode instanceof Y.Node) {
                 window = instance._window;
                 if (window) {
                     winWidth = PARSTEINT(window.get('winWidth'));
@@ -819,12 +820,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                         break;
                     }
                     panelWidth = Math.max(panel.get('boundingBox').get('offsetWidth'), minPanelWidth);
-                    nodeX = activationNode.getX();
-                    nodeWidth = activationNode.get('offsetWidth');
+                    nodeX = alignToNode.getX();
+                    nodeWidth = alignToNode.get('offsetWidth');
                     rightAlign = ((nodeX+nodeWidth+panelWidth)<(currentScroll+winWidth)) || ((nodeX+nodeWidth)<panelWidth);
                 }
                 panel.align(
-                    activationNode,
+                    alignToNode,
                     (rightAlign ? [Y.WidgetPositionAlign.TL, Y.WidgetPositionAlign.TR] : [Y.WidgetPositionAlign.TR, Y.WidgetPositionAlign.BR])
                 );
             }
