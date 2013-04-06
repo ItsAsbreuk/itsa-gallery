@@ -91,7 +91,7 @@ Usage
 </body>
 ```
 
-<b>Example 1: Getting a timevalue:</b>
+<b>Example 1: Getting a timevalue and process the promise in one statement:</b>
 ```js
 YUI().use('gallery-itsadatetimepicker', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
@@ -99,7 +99,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
     Y.ItsaDateTimePicker.getTime().then(
         function(newdate) {
             // newdate is a Date-object
-            // newdate.getHours() and newdate.getMinutes() contain the responsevalues
+            // newdate.getHours() and newdate.getMinutes() contain the responsevalue
             // the other fields are empty: 01-01-1900 hh:mm:00,000
             ...
         },
@@ -112,7 +112,48 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
 });
 ```
 
-<b>Example 2: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
+<b>Example 2: Getting a datevalue and handle it later on:</b>
+```js
+YUI().use('gallery-itsadatetimepicker', function(Y) {
+    // Y.ItsaDateTimePicker is ready to be used...
+
+    var datepromise = Y.ItsaDateTimePicker.getDate();
+    // datepromise now will promise to hold a datevalue within the .then() method
+    // which can be used later on. Y.ItsaDateTimePicker.getDate() will show the datepicker
+    // in a non-blocking way.
+
+    // You must use .then() to be sure the promise is fulfilled (or rejected) so you can process the value:
+    datepromise.then(
+        function(newdate) {
+            // newdate is a Date-object
+            // newdate.getFullYear(), newdate.getMonth() and newdate.getDate() contain the responsevalue
+            // the other fields are empty: dd-mm-yyyy 00:00:00,000
+            ...
+        },
+        function(reason) {
+            // user closed the panel without selecting the new time
+            // 'reason' will contain: new Error('canceled');
+            ...
+        }
+    );
+
+    // any time later, you can ask for the returned date-value again.
+    // this DOES NOT show the datepicker again --> the promise will be fulfilled only once
+    datepromise.then(
+        function(newdate) {
+            // use the same selected 'newdate' again
+            ...
+        },
+        function(reason) {
+            // user closed the panel without selecting the new time
+            // 'reason' will contain: new Error('canceled');
+            ...
+        }
+    );
+});
+```
+
+<b>Example 3: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
@@ -141,7 +182,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 });
 ```
 
-<b>Example 3: Date- and time-picker which is modal, centered on the page and dragable:</b>
+<b>Example 4: Date- and time-picker which is modal, centered on the page and dragable:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
