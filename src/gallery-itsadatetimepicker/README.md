@@ -18,7 +18,12 @@ There are <u>3 Promises</u> that can be asked for:
 * <b>Y.ItsaDateTimePicker.getTime</b>(initialDate, activationNode, config)
 * <b>Y.ItsaDateTimePicker.getDateTime</b>(initialDate, activationNode, config)
 
-All Promises return a Date-object (if fulfilled). When calling 'getDate()' you get dd-mm-yyyy 00:00:00,000. Calling 'getTime()' gives you 01-01-1900 hh:mm:00,000 and Calling 'getDateTime()' gives you dd-mm-yyyy hh:mm:00,000. The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
+All Promises return a Date-object (if fulfilled). Which fields of the Date-object are filled depends of the called Promise:
+* getDate() --> dd-mm-yyyy 00:00:00,000
+* getTime() --> 01-01-1900 hh:mm:00,000
+* getDateTime() --> dd-mm-yyyy hh:mm:00,000
+
+The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
 
 * <b>initialDate</b>: <i>{Date}</i> date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
 * <b>activationNode</b>: <i>{Y.Node}</i> the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
@@ -136,6 +141,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
 
+    var picker = Y.ItsaDateTimePicker; // for shorter reference
     var date = new Date();
     var datefield = Y.one('#datefield');
     var status = Y.one('#status');
@@ -143,14 +149,14 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     // creating a nice 'datebutton' and append it to the html
     // this also could have been done with HTML-code (better)
     // Y.ItsaDateTimePicker.dateNode() returns an Y.Node
-    var btnDateTime = Y.ItsaDateTimePicker.datetimeNode();
+    var btnDateTime = picker.datetimeNode();
     Y.one('body').append(btnDateTime);
 
     btnDateTime.on('click', function(e){
         status.setHTML('');
         // Y.ItsaDateTimePicker.getDateTime() returns an Y.Promise
         // first parameter holds the initial date.
-        Y.ItsaDateTimePicker.getDate(date, null, {modal: true, dragable: true}).then(
+        picker.getDateTime(date, null, {modal: true, dragable: true}).then(
             function(newdate) {
                 date.setTime(newdate.getTime());
                 datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y %l:%M %p'}));
