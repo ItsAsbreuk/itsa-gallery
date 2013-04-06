@@ -2,10 +2,11 @@
 
 /**
  *
- * Widget ITSADateTimePicker
+ * Class ITSADateTimePicker
  *
  *
- * This widget ....
+ * Class that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
+ * The Class also can render 3 button-Nodes with calendar-icon, time-icon or both.
  *
  * @module gallery-itsadatetimepicker
  * @extends Base

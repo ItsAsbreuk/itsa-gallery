@@ -5,10 +5,10 @@ gallery-itsadatetimepicker
 Module Y.ITSADateTimePicker.
 
 
-Widget that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
+Class that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
 
 
-There are several options that can make the picker to be modal, align next to the button that launched it and passing an initial date-time value. The Module also can render 3 button-Nodes with calendar-icon, time-icon or both.
+There are several options that can make the picker to be modal, align next to the button that launched it and passing an initial date-time value. The Class also can render 3 button-Nodes with calendar-icon, time-icon or both.
 
 So, the Module generates one instance Y.ItsaDateTimePicker which is available right away, acroos multiple YUI-instances. Actually only 1 instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the panel be needed before, then rendering will start when needed.
 
@@ -85,7 +85,7 @@ Usage
 <body class='yui3-skin-sam itsa-datetimepicker-loading'>
     <span id='datefield'></span>
     <button id='dateselector' class='yui3-button itsa-button-datetime'>
-        <span class='itsa-datetimepicker-icondate'></span>
+        <span class='itsa-datepicker-icondate'></span>
     </button>
     <span id='status'></span>
 </body>
