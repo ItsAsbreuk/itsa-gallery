@@ -10,7 +10,7 @@ Class that pickes dates and times using Promises. It can be used as a date-picke
 
 There are several options that can make the picker to be modal, align next to the button that launched it and passing an initial date-time value. The Class also can render 3 button-Nodes with calendar-icon, time-icon or both.
 
-So, the Module generates one instance Y.ItsaDateTimePicker which is available right away, acroos multiple YUI-instances. Actually only 1 instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the panel be needed before, then rendering will start when needed.
+So, the Module has a class Y.ItsaDateTimePicker which generates only one panel-instance, which is available right away, across multiple YUI-instances. Only one Panel-instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the panel be needed before, then rendering will start when needed.
 
 There are <u>3 Promises</u> that can be asked for:
 
