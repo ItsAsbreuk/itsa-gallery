@@ -158,10 +158,12 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
 
-    var date = new Date();
+    var date = new Date(2010, 05, 20);
     var datefield = Y.one('#datefield');
     var status = Y.one('#status');
     var btnDate = Y.one('#dateselector');
+
+    datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y'}));
 
     btnDate.on('click', function(e){
         status.setHTML('');
@@ -194,8 +196,10 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     // Y.ItsaDateTimePicker is ready to be used...
 
     var picker = Y.ItsaDateTimePicker; // for shorter reference
-    var date = new Date();
+    var date = new Date(2010, 05, 20);
     var datefield = Y.one('#datefield');
+
+    datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y'}));
 
     // creating a nice 'datebutton' and append it to the html
     // this also could have been done with HTML-code (better)
