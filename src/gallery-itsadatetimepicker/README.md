@@ -142,7 +142,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
 });
 ```
 
-<b>HTML Example 3:</b>
+<b>Example 3: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
 ```
 <body class='yui3-skin-sam itsa-datetimepicker-loading'>
     <span id='datefield'></span>
@@ -153,7 +153,6 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
 </body>
 ```
 
-<b>Example 3: Date-picker which will be aligned next to the button-node with a calendar-icon:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
@@ -182,14 +181,13 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 });
 ```
 
-<b>HTML Example 4:</b>
+<b>Example 4: Date- and time-picker which is modal, centered on the page and dragable:</b>
 ```
 <body class='yui3-skin-sam itsa-datetimepicker-loading'>
     <span id='datefield'></span>
 </body>
 ```
 
-<b>Example 4: Date- and time-picker which is modal, centered on the page and dragable:</b>
 ```js
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
