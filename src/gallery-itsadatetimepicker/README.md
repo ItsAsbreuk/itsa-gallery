@@ -19,9 +19,9 @@ There are <u>3 Promises</u> that can be asked for:
 * <b>Y.ItsaDateTimePicker.getDateTime</b>(initialDate, activationNode, config)
 
 All Promises return a Date-object (if fulfilled). Which fields of the Date-object are filled depends of the called Promise:
-* getDate() --> dd-mm-yyyy 00:00:00,000
-* getTime() --> 01-01-1900 hh:mm:00,000
-* getDateTime() --> dd-mm-yyyy hh:mm:00,000
+* Y.ItsaDateTimePicker.getDate() --> dd-mm-yyyy 00:00:00,000
+* Y.ItsaDateTimePicker.getTime() --> 01-01-1900 hh:mm:00,000
+* Y.ItsaDateTimePicker.getDateTime() --> dd-mm-yyyy hh:mm:00,000
 
 The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 3 paramers which are all optional:
 

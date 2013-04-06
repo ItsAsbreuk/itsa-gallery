@@ -201,11 +201,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         getDate : function(initialDate, activationNode, config) {
-            var instance = this;
+            var instance = this,
+                testPromise;
 
             Y.log('getDate', 'info', 'Itsa-DateTimePicker');
             instance._saveShow(1, initialDate, activationNode, config);
-            return new Y.Promise(
+            testPromise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
                     // use Y.once --> it will automaticly detach the subscription!
@@ -220,6 +221,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             selectedDate.setHours(0);
                             instance._hide();
                             resolve(selectedDate);
+                            // we don't want closures: 'null' the promise
+                            testPromise = null;
                         }
                     );
                     rejecthandler = Y.once(
@@ -230,10 +233,13 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             // just for sure, also hide the calendarinstance
                             instance.calendar.hide();
                             reject(new Error('canceled'));
+                            // we don't want closures: 'null' the promise
+                            testPromise = null;
                         }
                     );
                 }
             );
+            return testPromise;
          },
 
         /**
@@ -260,11 +266,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         getDateTime : function(initialDateTime, activationNode, config) {
-            var instance = this;
+            var instance = this,
+                testPromise;
 
             Y.log('getDateTime', 'info', 'Itsa-DateTimePicker');
             instance._saveShow(2, initialDateTime, activationNode, config);
-            return new Y.Promise(
+            testPromise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
                     // use Y.once --> it will automaticly detach the subscription!
@@ -282,6 +289,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             selectedDateTime.setHours(newHours);
                             instance._hide();
                             resolve(selectedDateTime);
+                            // we don't want closures: 'null' the promise
+                            testPromise = null;
                         }
                     );
                     rejecthandler = Y.once(
@@ -293,10 +302,13 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance.calendar.hide();
                             instance._toggleTimePicker(false);
                             reject(new Error('canceled'));
+                            // we don't want closures: 'null' the promise
+                            testPromise = null;
                         }
                     );
                 }
             );
+            return testPromise;
          },
 
         /**
@@ -323,11 +335,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         getTime : function(initialTime, activationNode, config) {
-            var instance = this;
+            var instance = this,
+                testPromise;
 
             Y.log('getTime', 'info', 'Itsa-DateTimePicker');
             instance._saveShow(3, initialTime, activationNode, config);
-            return new Y.Promise(
+            testPromise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
                     // use Y.once --> it will automaticly detach the subscription!
@@ -341,6 +354,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                                 selectedTime = new Date(1900, 0, 1, newHours, newMinutes, 0, 0);
                             instance._hide();
                             resolve(selectedTime);
+                            // we don't want closures: 'null' the promise
+                            testPromise = null;
                         }
                     );
                     rejecthandler = Y.once(
@@ -351,10 +366,13 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             // just for sure, also hide the calendarinstance
                             instance._toggleTimePicker(false);
                             reject(new Error('canceled'));
+                            // we don't want closures: 'null' the promise
+                            testPromise = null;
                         }
                     );
                 }
             );
+            return testPromise;
          },
 
         /**
