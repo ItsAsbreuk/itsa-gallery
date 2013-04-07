@@ -2,7 +2,7 @@ gallery-itsadatetimepicker
 ==========================
 
 
-Module Y.ITSADateTimePicker.
+Class Y.ITSADateTimePicker.
 
 
 Class that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
