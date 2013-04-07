@@ -53,6 +53,28 @@ var Lang = Y.Lang,
     EVENT_SELECTBUTTON = EVENT_DATEPICKER + 'selected',
     EVENT_CANCEL = EVENT_DATEPICKER + 'cancel',
 
+    DEFAULT_CONFIG = {
+        titleDate: HEADERCONTENT_DATE,
+        titleDateTime: HEADERCONTENT_DATETIME,
+        titleTime: HEADERCONTENT_TIME,
+        alignToNode: null,
+        modal: false,
+        dragable: false,
+        forceSelectdate: false,
+        timeFormat: '%H:%M',
+        resetStr: 'Reset',
+        tooltipHandle: 'Drag to set time',
+        selectOnRelease: true,
+        customRenderer: {},
+        showPrevMonth: false,
+        showNextMonth: false,
+        headerRenderer: '%B %Y',
+        minimumDate: null,
+        maximumDate: null,
+        enabledDatesRule: null,
+        disabledDatesRule: null
+    },
+
     PARSTEINT = function(value) {
         return parseInt(value, 10);
     };
@@ -99,6 +121,16 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         _closebutton : null,
 
         /**
+         * Internal reference to the dialhandle-Node.
+         * @property _dialHandle
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _dialHandle : null,
+
+        /**
          * Internal list of all eventhandlers bound by this widget.
          * @property _eventhandlers
          * @private
@@ -119,14 +151,14 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         _panelRendererDelay : null,
 
         /**
-         * Reference to the Node inside Y.Dial-instance that draws the selected time.
-         * @property _timeNode
+         * Internal reference to the resetnode.
+         * @property _resetNode
          * @private
          * @default null
          * @type Y.Node
          * @since 0.1
         */
-        _timeNode : null,
+        _resetNode : null,
 
         /**
          * Internal property that holds the format of how the Dial-time should be rendered in the Dial-instance.
@@ -139,7 +171,27 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         _timeFormat : null,
 
         /**
-         * Internal state of the panel to be closable or not
+         * Reference to the Node inside Y.Dial-instance that draws the selected time.
+         * @property _timeNode
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _timeNode : null,
+
+        /**
+         * Internal backupstate of getTime()'s config.selectOnRelease.
+         * @property _timepickerSelectOnRelease
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _timepickerSelectOnRelease : null,
+
+        /**
+         * Internal state of the picker to be closable or not
          * @property _unclosable
          * @private
          * @default null
@@ -200,18 +252,17 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * Picks a date using a pop-up Calendar.
          *
          * @method getDate
-         * @param {Date} [initialDate] date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-         * @param {Object} [config] object to adjust the behaviour of the panel.
+         * @param {Date} [initialDate] Date-object that holds the initial date-time for the picker. If not set, then the current date-time is used.
+         * @param {Object} [config] Object to adjust the behaviour of the picker. Defaults to the attribute 'defaultConfig'.
          * @param {String} [config.title] Title on the Panel-instance
-         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
+         * @param {Y.Node} [config.alignToNode] The node that causes the picker to appear. When set, the picker is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
-         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
-         * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
+         * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
          * @param {Boolean} [config.showNextMonth] showNextMonth that is passed to the Calendar-instance
-         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
+         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance
          * @param {Date} [config.minimumDate] minimumDate that is passed to the Calendar-instance
          * @param {Date} [config.maximumDate] maximumDate that is passed to the Calendar-instance
          * @param {String} [config.enabledDatesRule] enabledDatesRule that is passed to the Calendar-instance
@@ -248,7 +299,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                         EVENT_CANCEL,
                         function() {
                             resolvehandler.detach();
-                            // panel will automaticly be hidden.
+                            // picker will automaticly be hidden.
                             // just for sure, also hide the calendarinstance
                             instance.calendar.hide();
                             reject(new Error('canceled'));
@@ -265,18 +316,20 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * Picks a date+time using a pop-up Calendar+Dial.
          *
          * @method getDateTime
-         * @param {Date} [initialDateTime] date-object that holds the initial date-time for the panel. If not set then the current date-time is used.
-         * @param {Object} [config] object to adjust the behaviour of the panel.
+         * @param {Date} [initialDateTime] Date-object that holds the initial values for the picker. If not set then the current date-time is used.
+         * @param {Object} [config] Object to adjust the behaviour of the picker. Defaults to the attribute 'defaultConfig'.
          * @param {String} [config.title] Title on the Panel-instance
-         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
+         * @param {Y.Node} [config.alignToNode] The node that causes the panel to appear. When set, the picker is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
-         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
-         * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
+         * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {String} [config.timeformat] Format of the rendered timestring
+         * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
          * @param {Boolean} [config.showNextMonth] showNextMonth that is passed to the Calendar-instance
-         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
+         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance
          * @param {Date} [config.minimumDate] minimumDate that is passed to the Calendar-instance
          * @param {Date} [config.maximumDate] maximumDate that is passed to the Calendar-instance
          * @param {String} [config.enabledDatesRule] enabledDatesRule that is passed to the Calendar-instance
@@ -289,6 +342,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             var instance = this,
                 promise;
 
+            config = config || {};
+            config.selectOnRelease = false;
             instance._saveShow(2, initialDateTime, config);
             promise = new Y.Promise(
                 function(resolve, reject) {
@@ -316,10 +371,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                         EVENT_CANCEL,
                         function() {
                             resolvehandler.detach();
-                            // panel will automaticly be hidden.
+                            // picker will automaticly be hidden.
                             // just for sure, also hide the calendarinstance
                             instance.calendar.hide();
-                            instance._toggleTimePicker(false);
+                            instance._toggleTimePicker(false, false);
                             reject(new Error('canceled'));
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -334,22 +389,17 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * Picks a time using a pop-up Dial.
          *
          * @method getTime
-         * @param {Date} [initialTime] date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-         * @param {Object} [config] object to adjust the behaviour of the panel.
+         * @param {Date} [initialTime] Date-object that holds the initial values for the picker. If not set, then the current date-time is used.
+         * @param {Object} [config] Object to adjust the behaviour of the picker. Defaults to the attribute 'defaultConfig'.
          * @param {String} [config.title] Title on the Panel-instance
-         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
+         * @param {Y.Node} [config.alignToNode] The node that causes the panel to appear. When set, the picker is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
-         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
-         * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
-         * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
-         * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
-         * @param {Boolean} [config.showNextMonth] showNextMonth that is passed to the Calendar-instance
-         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
-         * @param {Date} [config.minimumDate] minimumDate that is passed to the Calendar-instance
-         * @param {Date} [config.maximumDate] maximumDate that is passed to the Calendar-instance
-         * @param {String} [config.enabledDatesRule] enabledDatesRule that is passed to the Calendar-instance
-         * @param {String} [config.disabledDatesRule] disabledDatesRule that is passed to the Calendar-instance
+         * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {String} [config.timeformat] Format of the rendered timestring
+         * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.selectOnRelease] When only timepicker: select time when mouse releases the dial, without a Selectbutton.
          * @return {Y.Promise} the promised selected Date-object. The Fulfilled-function has 1 parameter: newDate.
          * If the Time-picker was closed, the promise is Rejected.
          * @since 0.1
@@ -381,9 +431,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                         EVENT_CANCEL,
                         function() {
                             resolvehandler.detach();
-                            // panel will automaticly be hidden.
+                            // picker will automaticly be hidden.
                             // just for sure, also hide the calendarinstance
-                            instance._toggleTimePicker(false);
+                            instance._toggleTimePicker(false, false);
                             reject(new Error('canceled'));
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -519,22 +569,24 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 min:0,
                 max:1440,
                 stepsPerRevolution: 720,
-                strings: {
-                    label: '0:00',
-                    resetStr: 'Reset',
-                    tooltipHandle: 'Drag to set time'
-                },
                 value: 0
             });
             timedial.onceAfter(
                 'render',
                 function() {
                     instance._timeNode = contentBox.one('.yui3-dial-label-string');
+                    instance._resetNode = contentBox.one('.yui3-dial-reset-string');
+                    instance._dialHandle = contentBox.one('.yui3-dial-handle');
+                    timedial._dd1.on(
+                        'drag:end',
+                        instance._afterDialChange,
+                        instance
+                    );
                 }
             );
             timedial.render(contentBox.one('#'+TIMEDIAL_ID));
             instance._eventhandlers.push(
-                timedial.on(
+                timedial.after(
                     'valueChange',
                     function(e) {
                         var newVal = parseInt(e.newVal, 10),
@@ -546,6 +598,14 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     }
                 )
             );
+        },
+
+        _afterDialChange : function() {
+            var instance = this;
+
+            if (instance._timepickerSelectOnRelease) {
+                Y.fire(EVENT_SELECTBUTTON);
+            }
         },
 
         /**
@@ -640,7 +700,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         },
 
         /**
-         * Hides the panel-instance.
+         * Hides the picker-instance.
          *
          * @method _hide
          * @private
@@ -651,7 +711,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
 
             // ALSO hide calendar --> its inline style might be set to 'visible' resulting it to be kept on the screen
             instance.calendar.hide();
-            instance._toggleTimePicker(false);
+            instance._toggleTimePicker(false, false);
             instance.panel.hide();
          },
 
@@ -669,11 +729,11 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             var instance = this,
                 time = new Date(1900, 0, 1, hours, minutes, 0, 0);
 
-            return Y.Date.format(time, {format: instance._timeFormat || '%H:%M'});
+            return Y.Date.format(time, {format: instance._timeFormat || instance.get('defaultConfig').timeFormat});
         },
 
         /**
-         * Renderes the Panel. The innerContent of the panel -however- will be rendered with a delay by the method: '_fillPanel'.
+         * Renderes the Picker-panel. The innerContent of the panel -however- will be rendered with a delay by the method: '_fillPanel'.
          *
          * @method _renderUI
          * @private
@@ -694,22 +754,25 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         },
 
         /**
-         * Will call _show() but only if the panel is rendered. If not, than it will wait for the rendering to be finished.
+         * Will call _show() but only if the picker-panel is rendered. If not, than it will wait for the rendering to be finished.
          *
          * @method _saveShow
          * @param {Int} modus internal type to tell whether a date, datetime or time needs to be picked (1,2 or 3)
-         * @param {Date} [initialDateTime] date-object that holds the initial date-time for the panel. If not set then the current date-time is used.
-         * @param {Object} [config] object to adjust the behaviour of the panel.
+         * @param {Date} [initialDateTime] date-object that holds the initial values for the picker. If not set then the current date-time is used.
+         * @param {Object} [config] object to adjust the behaviour of the picker.
          * @param {String} [config.title] Title on the Panel-instance
-         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
+         * @param {Y.Node} [config.alignToNode] The node that causes the picker to appear. When set, the picker is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
-         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
+         * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.selectOnRelease] When only timepicker: select time when mouse releases the dial, without a Selectbutton.
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
          * @param {Boolean} [config.showNextMonth] showNextMonth that is passed to the Calendar-instance
-         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
+         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance
          * @param {Date} [config.minimumDate] minimumDate that is passed to the Calendar-instance
          * @param {Date} [config.maximumDate] maximumDate that is passed to the Calendar-instance
          * @param {String} [config.enabledDatesRule] enabledDatesRule that is passed to the Calendar-instance
@@ -722,13 +785,13 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 panel = instance.panel;
 
             if (panel.get('rendered')) {
-                instance._show(modus, initialDateTime, config);
+                instance._show(modus, initialDateTime, config || {});
             }
             else {
                 panel.onceAfter(
                     'render',
                     function() {
-                        instance._show(modus, initialDateTime, config);
+                        instance._show(modus, initialDateTime, config || {});
                     }
                 );
             }
@@ -739,22 +802,25 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         },
 
         /**
-         * Shows the panel-instance, ready to select a date and/or time.
+         * Shows the picker-instance, ready to select a date and/or time.
          *
          * @method _show
          * @param {Int} modus internal type to tell whether a date, datetime or time needs to be picked (1,2 or 3)
-         * @param {Date} [initialDateTime] date-object that holds the initial date-time for the panel. If not set then the current date-time is used.
-         * @param {Object} [config] object to adjust the behaviour of the panel.
+         * @param {Date} [initialDateTime] date-object that holds the initial values for the picker. If not set then the current date-time is used.
+         * @param {Object} [config] object to adjust the behaviour of the picker.
          * @param {String} [config.title] Title on the Panel-instance
-         * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
+         * @param {Y.Node} [config.alignToNode] The node that causes the picker to appear. When set, the picker is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
-         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
+         * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
+         * @param {String} [config.selectOnRelease] When only timepicker: select time when mouse releases the dial, without a Selectbutton.
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
          * @param {Boolean} [config.showNextMonth] showNextMonth that is passed to the Calendar-instance
-         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
+         * @param {String} [config.headerRenderer] headerRenderer that is passed to the Calendar-instance
          * @param {Date} [config.minimumDate] minimumDate that is passed to the Calendar-instance
          * @param {Date} [config.maximumDate] maximumDate that is passed to the Calendar-instance
          * @param {String} [config.enabledDatesRule] enabledDatesRule that is passed to the Calendar-instance
@@ -767,41 +833,47 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 panel = instance.panel,
                 presentedDate = initialDateTime || new Date(),
                 timeNode = instance._timeNode,
-                modal = (config && config.modal) || false,
-                forceSelectdate = (config && config.forceSelectdate) || false,
-                alignToNode = (config && config.alignToNode) || false,
-                rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours, dialvalue, minPanelWidth;
+                userConfig = instance.get('defaultConfig'),
+                timedial = instance.timedial,
+                calendar = instance.calendar,
+                rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours,
+                dialvalue, minPanelWidth, alignToNode;
 
+            Y.mix(userConfig, config, true);
+            alignToNode = userConfig.alignToNode;
             if (panel.get('visible')) {
-                // previous panel is up --> we need to reject the promise by firing an EVENT_CANCEL-event:
+                // previous picker is up --> we need to reject the promise by firing an EVENT_CANCEL-event:
                 Y.fire(EVENT_CANCEL);
-                // also hide the panel ourselves --> the cancel-event does not do this
-                // we need this, because the panel wmigt be redrawed with other settings (like model-change)
+                // also hide the picker ourselves --> the cancel-event does not do this
+                // we need this, because the picker might be redrawed with other settings (like model-change)
                 instance.panel.hide();
             }
             if (modus<3) {
-                instance.calendar.deselectDates();
-                instance.calendar.selectDates(presentedDate);
+                calendar.deselectDates();
+                calendar.selectDates(presentedDate);
+                calendar.set('date', presentedDate);
                 if (Lang.isObject(config)) {
                     // Only accept limited properties. Also reset to default on new requests
                     calAttrs = {
-                        customRenderer: config.customRenderer || {},
-                        showPrevMonth: config.showPrevMonth || false,
-                        showNextMonth: config.showNextMonth || false,
-                        headerRenderer: config.headerRenderer || '%B %Y',
-                        minimumDate: config.minimumDate || null,
-                        maximumDate: config.maximumDate || null,
-                        enabledDatesRule: config.enabledDatesRule || null,
-                        disabledDatesRule: config.disabledDatesRule || null
+                        customRenderer: userConfig.customRenderer,
+                        showPrevMonth: userConfig.showPrevMonth,
+                        showNextMonth: userConfig.showNextMonth,
+                        headerRenderer: userConfig.headerRenderer,
+                        minimumDate: userConfig.minimumDate,
+                        maximumDate: userConfig.maximumDate,
+                        enabledDatesRule: userConfig.enabledDatesRule,
+                        disabledDatesRule: userConfig.disabledDatesRule
                     };
-                    instance.calendar.setAttrs(calAttrs);
+                    calendar.setAttrs(calAttrs);
                 }
-                instance.calendar.show();
+                calendar.show();
             }
             else {
-                instance.calendar.hide();
+                calendar.hide();
             }
             if (modus>1) {
+                instance._resetNode.setHTML(userConfig.resetStr);
+                instance._dialHandle.setAttribute('title', userConfig.tooltipHandle);
                 if (Lang.isObject(config) && Lang.isString(config.timeformat)) {
                     instance._timeFormat = config.timeformat;
                 }
@@ -811,17 +883,17 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 hours = presentedDate.getHours();
                 minutes = presentedDate.getMinutes();
                 dialvalue = minutes+60*hours;
-                instance.timedial.set('value', dialvalue);
-                instance.timedial._originalValue = dialvalue;
+                timedial.set('value', dialvalue);
+                timedial._originalValue = dialvalue;
                 timeNode.setHTML(instance._renderDialTime(hours, minutes));
                 timeNode.removeClass(TIME_CHANGED_CLASS);
-                instance._toggleTimePicker(true);
+                instance._toggleTimePicker(true, !userConfig.selectOnRelease);
 
             }
             else {
-                instance._toggleTimePicker(false);
+                instance._toggleTimePicker(false, false);
             }
-            if (alignToNode instanceof Y.Node) {
+            if (userConfig.alignToNode instanceof Y.Node) {
                 window = instance._window;
                 if (window) {
                     winWidth = PARSTEINT(window.get('winWidth'));
@@ -849,21 +921,16 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             else {
                 panel.centered();
             }
-            if (Lang.isBoolean(modal)) {
-                panel.set('modal', modal);
-            }
-            else {
-                panel.set('modal', false);
-            }
+            panel.set('modal', userConfig.modal);
             switch (modus) {
-                case 1: panel.set('headerContent', (config && config.title) || HEADERCONTENT_DATE);
+                case 1: panel.set('headerContent', userConfig.title || userConfig.titleDate);
                     break;
-                case 2: panel.set('headerContent', (config && config.title) || HEADERCONTENT_DATETIME);
+                case 2: panel.set('headerContent', userConfig.title || userConfig.titleDateTime);
                     break;
-                case 3: panel.set('headerContent', (config && config.title) || HEADERCONTENT_TIME);
+                case 3: panel.set('headerContent', userConfig.title || userConfig.titleTime);
             }
-            if (config && Lang.isBoolean(config.dragable)) {
-                if (config.dragable && !panel.hasPlugin('dd')) {
+            if (userConfig.dragable) {
+                if (!panel.hasPlugin('dd')) {
                     panel.plug(Y.Plugin.Drag);
                     panel.dd.addHandle('.yui3-widget-hd');
                 }
@@ -874,8 +941,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             else if (panel.hasPlugin('dd')) {
                 panel.unplug('dd');
             }
-            instance._unclosable = forceSelectdate;
-            instance._closebutton.toggleClass(UNCLOSABLE_CLASS, forceSelectdate);
+            // backup 2 properties for later use
+            instance._unclosable = userConfig.forceSelectdate;
+            instance._timepickerSelectOnRelease = userConfig.selectOnRelease;
+            instance._closebutton.toggleClass(UNCLOSABLE_CLASS, instance._unclosable);
             panel.show();
          },
 
@@ -883,19 +952,59 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * Toggles the visibility of the timepicker (Y.Dial-instance) together with the Select-button.
          *
          * @method _toggleTimePicker
-         * @param {Boolean} visible whether the time-selector will be visible or not
+         * @param {Boolean} timeVisible whether the time-selector will be visible or not
+         * @param {Boolean} selectButtonVisible whether the selectButton will be visible or not
          * @private
          * @since 0.1
         */
-        _toggleTimePicker : function(visible) {
+        _toggleTimePicker : function(timeVisible, selectButtonVisible) {
             var instance = this;
 
-            instance.timedial.get('boundingBox').toggleClass(TIMEDIAL_HIDDEN, !visible);
-            instance.panel.get('contentBox').one('.yui3-widget-ft').toggleClass(TIMEDIAL_HIDDEN, !visible);
+            instance.timedial.get('boundingBox').toggleClass(TIMEDIAL_HIDDEN, !timeVisible);
+            instance._resetNode.toggleClass(TIMEDIAL_HIDDEN, !selectButtonVisible);
+            instance.panel.get('contentBox').one('.yui3-widget-ft').toggleClass(TIMEDIAL_HIDDEN, !selectButtonVisible);
         }
 
     }, {
         ATTRS : {
+            /**
+             * @description Determines the default layout and behaviour of the date-time picker. The finale appearance
+             * of the picker can be overruled per promisecall (with an own config-object)
+             *
+             * <b>defaultConfig.titleDate</b>: <i>(default='Select date')</i> Title on the Date-picker
+             * <b>defaultConfig.titleDateTime</b>: <i>(default='Select date and time')</i> Title on the DateTime-picker
+             * <b>defaultConfig.titleTime</b>: <i>(default='Select time')</i> Title on the Time-picker
+             * <b>defaultConfig.alignToNode</b>: <i>(default=null)</i> The node that causes the picker to appear.
+               When set, the picker is aligned to this Node.
+             * <b>defaultConfig.modal</b>: <i>(default=false)</i> Whether the Panel-instance should appear modal
+             * <b>defaultConfig.dragable</b>: <i>(default=false)</i> Whether the Panel-instance is dragable
+             * <b>defaultConfig.forceSelectdate</b>: <i>(default=false)</i> Force the promise always to become fulfilled by hiding the close-button
+             * <b>defaultConfig.timeformat</b>: <i>(default='%H:%M')</i> Format of the rendered timestring
+             * <b>defaultConfig.resetStr</b>: <i>(default='Reset')</i> resetStr that is passed to the Dial-instance (timepicker)
+             * <b>defaultConfig.tooltipHandle</b>: <i>(default='Drag to set time')</i> tooltipHandle that is passed to the Dial-instance (timepicker)
+             * <b>defaultConfig.selectOnRelease</b>: <i>(default=true)</i> When only timepicker: select time when mouse releases the dial,
+               without a Selectbutton.
+             * <b>defaultConfig.customRenderer</b>: <i>(default={})</i> customRenderer that is passed to the Calendar-instance
+             * <b>defaultConfig.showPrevMonth</b>: <i>(default=false)</i> showPrevMonth that is passed to the Calendar-instance
+             * <b>defaultConfig.showNextMonth</b>: <i>(default=false)</i> showNextMonth that is passed to the Calendar-instance
+             * <b>defaultConfig.headerRenderer</b>: <i>(default='%B %Y')</i> headerRenderer that is passed to the Calendar-instance
+             * <b>defaultConfig.minimumDate</b>: <i>(default=null)</i> minimumDate that is passed to the Calendar-instance
+             * <b>defaultConfig.maximumDate</b>: <i>(default=null)</i> maximumDate that is passed to the Calendar-instance
+             * <b>defaultConfig.enabledDatesRule</b>: <i>(default=null)</i> enabledDatesRule that is passed to the Calendar-instance
+             * <b>defaultConfig.disabledDatesRule</b>: <i>(default=null)</i> disabledDatesRule that is passed to the Calendar-instance
+             * @attribute defaultConfig
+             * @type Object
+            */
+            defaultConfig : {
+                value: DEFAULT_CONFIG,
+                validator: function(val) {
+                    return (Lang.isObject(val));
+                },
+                setter: function(val) {
+                    Y.mix(val, DEFAULT_CONFIG, false);
+                    return val;
+                }
+            }
         }
     }
 );

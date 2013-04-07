@@ -6,6 +6,13 @@
     display: none;
 }
 
+.yui3-dial-content .yui3-dial-ring .itsa-datetimepicker-hidden v\:oval, .yui3-dial-content .yui3-dial-ring .itsa-datetimepicker-hidden {
+    filter: alpha(opacity=0);
+    -moz-opacity: 0;
+    -webkit-opacity: 0;
+    opacity: 0;
+}
+
 .itsa-datetimepicker-icondate, .itsa-datetimepicker-icontime, .itsa-datetimepicker-icondatetime {
     display: inline-block;
     height: 20px;

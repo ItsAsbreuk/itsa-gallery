@@ -34,15 +34,20 @@ config is an object through which you can adjust the behaviour of the panel-inst
 * <b>modal</b>: <i>{Boolean}</i> Whether the Panel-instance should appear modal
 * <b>dragable</b>: <i>{Boolean}</i> Whether the Panel-instance is dragable
 * <b>forceSelectdate</b>: <i>{Boolean}</i> Force the promise always to become fulfilled by hiding the close-button
-* <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring (default = '%H:%M')
+* <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring
+* <b>resetStr</b>: <i>{String}</i> resetStr that is passed to the Dial-instance (timepicker)
+* <b>tooltipHandle</b>: <i>{String}</i> tooltipHandle that is passed to the Dial-instance (timepicker)
+* <b>selectOnRelease</b>: <i>{boolean}</i> When only timepicker: select time when mouse releases the dial, without a Selectbutton
 * <b>customRenderer</b>: <i>{Object}</i> customRenderer that is passed to the Calendar-instance
 * <b>showPrevMonth</b>: <i>{Boolean}</i> showPrevMonth that is passed to the Calendar-instance
 * <b>showNextMonth</b>: <i>{Boolean}</i> showNextMonth that is passed to the Calendar-instance
-* <b>headerRenderer</b>: <i>{String}</i> headerRenderer that is passed to the Calendar-instance (default = '%B %Y')
+* <b>headerRenderer</b>: <i>{String}</i> headerRenderer that is passed to the Calendar-instance
 * <b>minimumDate</b>: <i>{Date}</i> minimumDate that is passed to the Calendar-instance
 * <b>maximumDate</b>: <i>{Date}</i> maximumDate that is passed to the Calendar-instance
 * <b>enabledDatesRule</b>: <i>{String}</i> enabledDatesRule that is passed to the Calendar-instance
 * <b>disabledDatesRule</b>: <i>{String}</i> disabledDatesRule that is passed to the Calendar-instance
+
+The applied config is a mix of the picker's attribute 'defaultConfig', combined with the 'config' of the promise-call. If you find yourself supplying the same config dor all promise-calls over and over again, you better change the 'defaultConfig' with <b>Y.ItsaDateTimePicker.set('defaultConfig', {...});</b>. You only need to define the properties you want to be overruled: they get mixed with a baseConfig that holds the initial config-properties.
 
 <b>Calling the Promise by buttons</b>
 Most likely you will have a button-element on the page with a sort of calendar-icon. When pressed, you'll ask for one of the 3 Promises. This module has 3 methods that will create button-Nodes with nice css. Event better way is, to include the right html directly into the page.
@@ -231,6 +236,9 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     var picker = Y.ItsaDateTimePicker; // for shorter reference
     var date = new Date(2010, 05, 20);
     var datefield = Y.one('#datefield');
+
+    // Redefine default config for the picker --> this way it will be used with every new promisecalls:
+    picker.set('defaultConfig', {dragable: true, titleDateTime: 'Select date and time and confirm with the select-button'});
 
     datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y'}));
 
