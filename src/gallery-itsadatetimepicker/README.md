@@ -70,21 +70,23 @@ Be aware that the css for the nodemarkup needs to be loaded. Without any precaut
 Once the module is available, it will remove the class 'itsa-datetimepicker-loading' from the body-node (should it be applied).
 
 <b>Multiple instance of Y.ITSADateTimePicker</b>
-When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple picker at the same time, you can create more instances. But <b>you must take care to destroy them yourself as soon as the promise is resolved</b>.
+
+When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple picker at the same time, you can create more instances. But <i>you must take care to destroy them yourself as soon as the promise is resolved</i>.
 
 ```js
-    var extrapicker = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
-    extraDate = extrapicker.getDate(iconDate);
+    var extraPicker = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
+    extraDate = extraPicker.getDate(iconDate);
     extraDate.then(
         function(newdate) {
             ...
-            if (!extrapicker.get('destroyed')) {
-                extrapicker.destroy();
+            if (!extraPicker.get('destroyed')) {
+                extraPicker.destroy();
             }
         }
         function(reason) {
-            if (!extrapicker.get('destroyed')) {
-                extrapicker.destroy();
+            ...
+            if (!extraPicker.get('destroyed')) {
+                extraPicker.destroy();
             }
         }
     );
@@ -265,7 +267,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
 
-    var picker1 = Y.ItsaDateTimePicker; // for shorter reference --> default picker that is always available
+    var picker1 = Y.ItsaDateTimePicker; // for shorter reference --> default picker which is always available
     var picker2 = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
     var iconDate1 = Y.one('#dateicon1');
     var iconDate2 = Y.one('#dateicon2');
