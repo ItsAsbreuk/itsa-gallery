@@ -329,7 +329,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
-         * @param {String} [config.timeformat] Format of the rendered timestring
+         * @param {String} [config.timeformat] Format of the timestring inside the Dial-instance
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
@@ -405,7 +405,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
-         * @param {String} [config.timeformat] Format of the rendered timestring
+         * @param {String} [config.timeformat] Format of the timestring inside the Dial-instance
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
          * @param {String} [config.selectOnRelease] When only timepicker: select time when mouse releases the dial, without a Selectbutton.
