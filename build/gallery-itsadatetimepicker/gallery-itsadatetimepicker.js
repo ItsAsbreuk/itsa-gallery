@@ -61,6 +61,8 @@ var Lang = Y.Lang,
         modal: false,
         dragable: false,
         forceSelectdate: false,
+        minTime: '00:00',
+        maxTime: '24:00',
         timeFormat: '%H:%M',
         resetStr: 'Reset',
         tooltipHandle: 'Drag to set time',
@@ -323,6 +325,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
+         * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.timeformat] Format of the rendered timestring
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
@@ -396,6 +400,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
+         * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.timeformat] Format of the rendered timestring
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
@@ -731,7 +737,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             var instance = this,
                 time = new Date(1900, 0, 1, hours, minutes, 0, 0);
 
-            return Y.Date.format(time, {format: instance._timeFormat || instance.get('defaultConfig').timeFormat});
+            return Y.Date.format(time, {format: instance._timeFormat});
         },
 
         /**
@@ -767,6 +773,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
+         * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
+         * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
@@ -815,7 +823,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
-         * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
+         * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
+         * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
+         * @param {String} [config.timeformat] Format of the rendered timestring
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
          * @param {String} [config.selectOnRelease] When only timepicker: select time when mouse releases the dial, without a Selectbutton.
@@ -839,7 +849,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 timedial = instance.timedial,
                 calendar = instance.calendar,
                 rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours,
-                dialvalue, minPanelWidth, alignToNode;
+                dialvalue, minPanelWidth, alignToNode, minTime, maxTime, minTimeValue, maxTimeValue, timesplitArray,
+                minMinutes, maxMinutes, minHours, maxHours;
 
             alignToNode = userConfig.alignToNode;
             if (panel.get('visible')) {
@@ -875,15 +886,46 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             if (modus>1) {
                 instance._resetNode.setHTML(userConfig.resetStr);
                 instance._dialHandle.setAttribute('title', userConfig.tooltipHandle);
-                if (Lang.isObject(config) && Lang.isString(config.timeformat)) {
-                    instance._timeFormat = config.timeformat;
+                instance._timeFormat = userConfig.timeFormat;
+                minTime = userConfig.minTime;
+                maxTime = userConfig.maxTime;
+                if (typeof minTime === 'string') {
+                    timesplitArray = minTime.split(':');
+                    if (timesplitArray.length===2) {
+                        minHours = parseInt(timesplitArray[0], 10);
+                        minMinutes = parseInt(timesplitArray[1], 10);
+                        minTimeValue = minMinutes+60*minHours;
+                    }
                 }
-                else {
-                    instance._timeFormat = null;
+                if (typeof maxTime === 'string') {
+                    timesplitArray = maxTime.split(':');
+                    if (timesplitArray.length===2) {
+                        maxHours = parseInt(timesplitArray[0], 10);
+                        maxMinutes = parseInt(timesplitArray[1], 10);
+                        maxTimeValue = maxMinutes+60*maxHours;
+                    }
                 }
+                if (!minTimeValue) {
+                    minTimeValue = 0;
+                }
+                if (!maxTimeValue) {
+                    maxTimeValue = 1440;
+                }
+                timedial.set('min', minTimeValue);
+                timedial.set('max', maxTimeValue);
                 hours = presentedDate.getHours();
                 minutes = presentedDate.getMinutes();
                 dialvalue = minutes+60*hours;
+                if (dialvalue<minTimeValue) {
+                    dialvalue=minTimeValue;
+                    hours = minHours;
+                    minutes = minMinutes;
+                }
+                if (dialvalue>maxTimeValue) {
+                    dialvalue=maxTimeValue;
+                    hours = maxHours;
+                    minutes = maxMinutes;
+                }
                 timedial.set('value', dialvalue);
                 timedial._originalValue = dialvalue;
                 timeNode.setHTML(instance._renderDialTime(hours, minutes));
@@ -981,6 +1023,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
              * <b>defaultConfig.dragable</b>: <i>(default=false)</i> Whether the Panel-instance is dragable<br />
              * <b>defaultConfig.forceSelectdate</b>: <i>(default=false)</i>
              * Force the promise always to become fulfilled by hiding the close-button<br />
+             * <b>defaultConfig.minTime</b>: <i>(default='00:00')</i> Lowest timevalue that can be picked.
+               Should be in format 'h:m', 'h:mm' or 'hh:mm'<br />
+             * <b>defaultConfig.maxTime</b>: <i>(default='24:00')</i> Highest timevalue that can be picked.
+               Should be in format 'h:m', 'h:mm' or 'hh:mm'<br />
              * <b>defaultConfig.timeformat</b>: <i>(default='%H:%M')</i> Format of the rendered timestring<br />
              * <b>defaultConfig.resetStr</b>: <i>(default='Reset')</i> resetStr that is passed to the Dial-instance (timepicker)<br />
              * <b>defaultConfig.tooltipHandle</b>: <i>(default='Drag to set time')</i>

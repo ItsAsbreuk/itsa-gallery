@@ -34,6 +34,8 @@ config is an object through which you can adjust the behaviour of the Picker. Th
 * <b>modal</b>: <i>{Boolean}</i> Whether the Picker should appear modal
 * <b>dragable</b>: <i>{Boolean}</i> Whether the Picker is dragable
 * <b>forceSelectdate</b>: <i>{Boolean}</i> Force the promise always to become fulfilled by hiding the close-button
+* <b>defaultConfig.minTime</b>: <i>{String}</i> Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
+* <b>defaultConfig.maxTime</b>: <i>{String}</i> Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
 * <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring
 * <b>resetStr</b>: <i>{String}</i> resetStr that is passed to the Dial-instance (timepicker)
 * <b>tooltipHandle</b>: <i>{String}</i> tooltipHandle that is passed to the Dial-instance (timepicker)
