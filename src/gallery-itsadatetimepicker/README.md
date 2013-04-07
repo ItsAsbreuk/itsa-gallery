@@ -71,7 +71,7 @@ Once the module is available, it will remove the class 'itsa-datetimepicker-load
 
 <b>Multiple instance of Y.ITSADateTimePicker</b>
 
-When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple picker at the same time, you can create more instances. But <i>you must take care to destroy them yourself as soon as the promise is resolved</i>.
+When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple picker at the same time, you can create more instances. <i>But you must take care to destroy them yourself as soon as the promise is resolved</i>.
 
 ```js
     var extraPicker = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
@@ -93,7 +93,7 @@ When the module is loaded, already 1 instance of Y.ITSADateTimePicker is availab
 
 });
 ```
-In this code, extraDate is a promise, where extraDate.then() that can be more times, even if extrapicker is destroyed. See Example 5.
+In this code, extraDate is a promise, where extraDate.then() that can be more times, even if extraPicker is destroyed. See Example 5.
 
 Examples
 --------
