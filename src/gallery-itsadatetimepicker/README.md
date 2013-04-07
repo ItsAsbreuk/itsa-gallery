@@ -69,6 +69,29 @@ Be aware that the css for the nodemarkup needs to be loaded. Without any precaut
 ```
 Once the module is available, it will remove the class 'itsa-datetimepicker-loading' from the body-node (should it be applied).
 
+<b>Multiple instance of Y.ITSADateTimePicker</b>
+When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple picker at the same time, you can create more instances. But <b>you must take care to destroy them yourself as soon as the promise is resolved</b>.
+
+```js
+    var extrapicker = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
+    extraDate = extrapicker.getDate(iconDate);
+    extraDate.then(
+        function(newdate) {
+            ...
+            if (!extrapicker.get('destroyed')) {
+                extrapicker.destroy();
+            }
+        }
+        function(reason) {
+            if (!extrapicker.get('destroyed')) {
+                extrapicker.destroy();
+            }
+        }
+    );
+
+});
+```
+In this code, extraDate is a promise, where extraDate.then() that can be more times, even if extrapicker is destroyed. See Example 5.
 
 Examples
 --------
@@ -220,6 +243,70 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
             }
         );
     });
+
+});
+```
+
+<b>Example 5: Using multilpe datetime-pickers at the same time:</b>
+```
+<body class='yui3-skin-sam itsa-datetimepicker-loading'>
+    <span id='datefield1'></span>
+    <div id='dateicon1' class='yui3-button itsa-button-datetime'>
+        <span class='itsa-datepicker-icondate'></span>
+    </div>
+    <span id='datefield2'></span>
+    <div id='dateicon2' class='yui3-button itsa-button-datetime'>
+        <span class='itsa-datepicker-icondate'></span>
+    </div>
+</body>
+```
+
+```js
+YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
+    // Y.ItsaDateTimePicker is ready to be used...
+
+    var picker1 = Y.ItsaDateTimePicker; // for shorter reference --> default picker that is always available
+    var picker2 = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
+    var iconDate1 = Y.one('#dateicon1');
+    var iconDate2 = Y.one('#dateicon2');
+    var datefield1 = Y.one('#datefield1');
+    var datefield2 = Y.one('#datefield2');
+
+    // we display right away:
+    picker1.getDate(iconDate1).then(
+        function(newdate) {
+            datefield1.setHTML(Y.Date.format(newdate, {format: '%d/%m/%Y %l:%M %p'}));
+        }
+    );
+
+    secondDate = picker2.getDate(iconDate2);
+
+    secondDate.then(
+        function(newdate) {
+            datefield2.setHTML(Y.Date.format(newdate, {format: '%d/%m/%Y %l:%M %p'}));
+            // Do not forget to destroy picker2 to save memory!
+            // Because it might already have been handled by another 'seconddate.then()'
+            // you need to check its excistance first.
+            // remember: secondDate will still remain and secondDate.then() can be called at any time!
+            if (!picker2.get('destroyed')) {
+                picker2.destroy();
+            }
+        }
+    );
+
+    // Even if picker2 might have been destroyed, secondDate,then() still can be called
+    secondDate.then(
+        function(newdate) {
+            datefield2.setHTML(Y.Date.format(newdate, {format: '%d/%m/%Y %l:%M %p'}));
+            // Do not forget to destroy picker2 to save memory!
+            // Because it might already have been handled by another 'seconddate.then()'
+            // you need to check its excistance first.
+            // remember: secondDate will still remain and secondDate.then() can be called at any time!
+            if (!picker2.get('destroyed')) {
+                picker2.destroy();
+            }
+        }
+    );
 
 });
 ```
