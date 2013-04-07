@@ -26,6 +26,7 @@ var Lang = Y.Lang,
     YArray = Y.Array,
     WIDGET_CLASS = 'itsa-datetimepicker',
     LOADING_CLASS = WIDGET_CLASS + '-loading',
+    UNCLOSABLE_CLASS = WIDGET_CLASS + '-unclosable',
     PANEL_CLASS = WIDGET_CLASS + '-panel',
     TIME_CHANGED_CLASS = WIDGET_CLASS + '-timechanged',
     RENDERDELAY = 1000, //Time in ms to wait for the datetimepicker to render. Because you probably won't need it right away,
@@ -88,6 +89,16 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         timedial : null,
 
         /**
+         * Internal reference to the closebutton.
+         * @property _closebutton
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _closebutton : null,
+
+        /**
          * Internal list of all eventhandlers bound by this widget.
          * @property _eventhandlers
          * @private
@@ -106,16 +117,6 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         _panelRendererDelay : null,
-
-        /**
-         * Reference to Y.one('window')
-         * @property _window
-         * @private
-         * @default null
-         * @type Y.Node
-         * @since 0.1
-        */
-        _window : null,
 
         /**
          * Reference to the Node inside Y.Dial-instance that draws the selected time.
@@ -138,6 +139,26 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         _timeFormat : null,
 
         /**
+         * Internal state of the panel to be closable or not
+         * @property _unclosable
+         * @private
+         * @default null
+         * @type Boolean
+         * @since 0.1
+        */
+        _unclosable : null,
+
+        /**
+         * Reference to Y.one('window')
+         * @property _window
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _window : null,
+
+        /**
          * @method initializer
          * @protected
          * @since 0.1
@@ -155,7 +176,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * Generates an Y.Node of the type 'button'. Is NOT part of the DOM yet --> you need to place it inside the DOM yourself.
          * This method is available in order you create a nice button which can be used to call for a datetime-Promise.
          *
-         * @method createDateNode
+         * @method dateNode
          * @return {Y.Node} Node of the type 'button' with a calendaricon inside.
          * @since 0.1
         */
@@ -185,6 +206,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -200,10 +222,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         */
         getDate : function(initialDate, config) {
             var instance = this,
-                testPromise;
+                promise;
 
             instance._saveShow(1, initialDate, config);
-            testPromise = new Y.Promise(
+            promise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
                     // use Y.once --> it will automaticly detach the subscription!
@@ -219,7 +241,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance._hide();
                             resolve(selectedDate);
                             // we don't want closures: 'null' the promise
-                            testPromise = null;
+                            promise = null;
                         }
                     );
                     rejecthandler = Y.once(
@@ -231,12 +253,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance.calendar.hide();
                             reject(new Error('canceled'));
                             // we don't want closures: 'null' the promise
-                            testPromise = null;
+                            promise = null;
                         }
                     );
                 }
             );
-            return testPromise;
+            return promise;
          },
 
         /**
@@ -249,6 +271,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -264,10 +287,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         */
         getDateTime : function(initialDateTime, config) {
             var instance = this,
-                testPromise;
+                promise;
 
             instance._saveShow(2, initialDateTime, config);
-            testPromise = new Y.Promise(
+            promise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
                     // use Y.once --> it will automaticly detach the subscription!
@@ -286,7 +309,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance._hide();
                             resolve(selectedDateTime);
                             // we don't want closures: 'null' the promise
-                            testPromise = null;
+                            promise = null;
                         }
                     );
                     rejecthandler = Y.once(
@@ -299,12 +322,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance._toggleTimePicker(false);
                             reject(new Error('canceled'));
                             // we don't want closures: 'null' the promise
-                            testPromise = null;
+                            promise = null;
                         }
                     );
                 }
             );
-            return testPromise;
+            return promise;
          },
 
         /**
@@ -317,6 +340,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -332,10 +356,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         */
         getTime : function(initialTime, config) {
             var instance = this,
-                testPromise;
+                promise;
 
             instance._saveShow(3, initialTime, config);
-            testPromise = new Y.Promise(
+            promise = new Y.Promise(
                 function(resolve, reject) {
                     var resolvehandler, rejecthandler;
                     // use Y.once --> it will automaticly detach the subscription!
@@ -350,7 +374,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance._hide();
                             resolve(selectedTime);
                             // we don't want closures: 'null' the promise
-                            testPromise = null;
+                            promise = null;
                         }
                     );
                     rejecthandler = Y.once(
@@ -362,12 +386,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             instance._toggleTimePicker(false);
                             reject(new Error('canceled'));
                             // we don't want closures: 'null' the promise
-                            testPromise = null;
+                            promise = null;
                         }
                     );
                 }
             );
-            return testPromise;
+            return promise;
          },
 
         /**
@@ -420,8 +444,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             panel.onceAfter(
                 'render',
                 function() {
+                    var closebutton;
+                    instance._closebutton = closebutton = panel.get('boundingBox').one('.yui3-button-close');
                     eventhandlers.push(
-                        panel.get('boundingBox').one('.yui3-button-close').on(
+                        closebutton.on(
                             'click',
                             function() {
                                 /**
@@ -432,7 +458,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                                 * @private
                                 * @since 0.1
                                 */
-                                Y.fire(EVENT_CANCEL);
+                                if (!instance._unclosable) {
+                                    Y.fire(EVENT_CANCEL);
+                                }
                             }
                         )
                     );
@@ -464,12 +492,15 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         _clearEventhandlers : function() {
+            var eventhandlers = this._eventhandlers;
+
             YArray.each(
-                this._eventhandlers,
+                eventhandlers,
                 function(item){
                     item.detach();
                 }
             );
+            eventhandlers.length = 0;
         },
 
         /**
@@ -537,7 +568,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             });
             instance._eventhandlers.push(
                 instance.calendar.on(
-                    'selectionChange',
+                    'dateClick',
                     Y.rbind(instance._calendarNewDate, instance)
                 )
             );
@@ -558,7 +589,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
 
             // only if the calendar is visible --> there is also a new date set before showing up!
             if (instance.calendar.get('visible')) {
-                newdate = e.newSelection[0];
+                newdate = e.date;
                 /**
                 * Fired when a new Date is selected from the Panel's Calendar-instance.
                 * No need to listen to --> the promises are using this event internally.
@@ -673,6 +704,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -717,6 +749,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -734,8 +767,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 panel = instance.panel,
                 presentedDate = initialDateTime || new Date(),
                 timeNode = instance._timeNode,
-                modal = config && config.modal,
-                alignToNode = config && config.alignToNode,
+                modal = (config && config.modal) || false,
+                forceSelectdate = (config && config.forceSelectdate) || false,
+                alignToNode = (config && config.alignToNode) || false,
                 rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours, dialvalue, minPanelWidth;
 
             if (panel.get('visible')) {
@@ -840,6 +874,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             else if (panel.hasPlugin('dd')) {
                 panel.unplug('dd');
             }
+            instance._unclosable = forceSelectdate;
+            instance._closebutton.toggleClass(UNCLOSABLE_CLASS, forceSelectdate);
             panel.show();
          },
 

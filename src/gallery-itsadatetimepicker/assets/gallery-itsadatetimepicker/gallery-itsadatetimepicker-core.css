@@ -2,6 +2,10 @@
     display: none;
 }
 
+.yui3-button.yui3-button-close.itsa-datetimepicker-unclosable {
+    display: none;
+}
+
 .itsa-datetimepicker-icondate, .itsa-datetimepicker-icontime, .itsa-datetimepicker-icondatetime {
     display: inline-block;
     height: 20px;

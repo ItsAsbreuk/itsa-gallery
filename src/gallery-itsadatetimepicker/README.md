@@ -33,6 +33,7 @@ config is an object through which you can adjust the behaviour of the panel-inst
 * <b>alignToNode</b>: <i>{Y.Node}</i> When set, the selector-panel is aligned to this Node
 * <b>modal</b>: <i>{Boolean}</i> Whether the Panel-instance should appear modal
 * <b>dragable</b>: <i>{Boolean}</i> Whether the Panel-instance is dragable
+* <b>forceSelectdate</b>: <i>{Boolean}</i> Force the promise always to become fulfilled by hiding the close-button
 * <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring (default = '%H:%M')
 * <b>customRenderer</b>: <i>{Object}</i> customRenderer that is passed to the Calendar-instance
 * <b>showPrevMonth</b>: <i>{Boolean}</i> showPrevMonth that is passed to the Calendar-instance
@@ -68,6 +69,10 @@ Be aware that the css for the nodemarkup needs to be loaded. Without any precaut
 }
 ```
 Once the module is available, it will remove the class 'itsa-datetimepicker-loading' from the body-node (should it be applied).
+
+<b>When you need to handle the 'onRejected-callback'</b>
+
+When a date-time promise is requested, the user might click the close-button, by which the promise will be rejected. You can supress the close-button by setting <i>config.forceSelectdate=true</i>. In that case, the picker comes without close-button and you don't need to handle the 'onRejected-callback' for the promise will never be rejected.
 
 <b>Multiple instance of Y.ITSADateTimePicker</b>
 

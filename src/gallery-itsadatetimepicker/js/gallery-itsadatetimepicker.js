@@ -24,6 +24,7 @@ var Lang = Y.Lang,
     YArray = Y.Array,
     WIDGET_CLASS = 'itsa-datetimepicker',
     LOADING_CLASS = WIDGET_CLASS + '-loading',
+    UNCLOSABLE_CLASS = WIDGET_CLASS + '-unclosable',
     PANEL_CLASS = WIDGET_CLASS + '-panel',
     TIME_CHANGED_CLASS = WIDGET_CLASS + '-timechanged',
     RENDERDELAY = 1000, //Time in ms to wait for the datetimepicker to render. Because you probably won't need it right away,
@@ -86,6 +87,16 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         timedial : null,
 
         /**
+         * Internal reference to the closebutton.
+         * @property _closebutton
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _closebutton : null,
+
+        /**
          * Internal list of all eventhandlers bound by this widget.
          * @property _eventhandlers
          * @private
@@ -106,16 +117,6 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         _panelRendererDelay : null,
 
         /**
-         * Reference to Y.one('window')
-         * @property _window
-         * @private
-         * @default null
-         * @type Y.Node
-         * @since 0.1
-        */
-        _window : null,
-
-        /**
          * Reference to the Node inside Y.Dial-instance that draws the selected time.
          * @property _timeNode
          * @private
@@ -134,6 +135,26 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @since 0.1
         */
         _timeFormat : null,
+
+        /**
+         * Internal state of the panel to be closable or not
+         * @property _unclosable
+         * @private
+         * @default null
+         * @type Boolean
+         * @since 0.1
+        */
+        _unclosable : null,
+
+        /**
+         * Reference to Y.one('window')
+         * @property _window
+         * @private
+         * @default null
+         * @type Y.Node
+         * @since 0.1
+        */
+        _window : null,
 
         /**
          * @method initializer
@@ -186,6 +207,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -251,6 +273,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -320,6 +343,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -427,8 +451,10 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             panel.onceAfter(
                 'render',
                 function() {
+                    var closebutton;
+                    instance._closebutton = closebutton = panel.get('boundingBox').one('.yui3-button-close');
                     eventhandlers.push(
-                        panel.get('boundingBox').one('.yui3-button-close').on(
+                        closebutton.on(
                             'click',
                             function() {
                                 /**
@@ -439,7 +465,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                                 * @private
                                 * @since 0.1
                                 */
-                                Y.fire(EVENT_CANCEL);
+                                if (!instance._unclosable) {
+                                    Y.fire(EVENT_CANCEL);
+                                }
                             }
                         )
                     );
@@ -550,7 +578,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             });
             instance._eventhandlers.push(
                 instance.calendar.on(
-                    'selectionChange',
+                    'dateClick',
                     Y.rbind(instance._calendarNewDate, instance)
                 )
             );
@@ -572,7 +600,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             Y.log('_calendarNewDate', 'info', 'Itsa-DateTimePicker');
             // only if the calendar is visible --> there is also a new date set before showing up!
             if (instance.calendar.get('visible')) {
-                newdate = e.newSelection[0];
+                newdate = e.date;
                 /**
                 * Fired when a new Date is selected from the Panel's Calendar-instance.
                 * No need to listen to --> the promises are using this event internally.
@@ -691,6 +719,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -736,6 +765,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Y.Node} [config.alignToNode] the node that causes the panel to appear. When set, the selector-panel is aligned to this Node.
          * @param {Boolean} [config.modal] Whether the Panel-instance should appear modal
          * @param {Boolean} [config.dragable] Whether the Panel-instance is dragable
+         * @param {Boolean} [forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.timeformat] Format of the rendered timestring (default = '%H:%M')
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
          * @param {Boolean} [config.showPrevMonth] showPrevMonth that is passed to the Calendar-instance
@@ -753,8 +783,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 panel = instance.panel,
                 presentedDate = initialDateTime || new Date(),
                 timeNode = instance._timeNode,
-                modal = config && config.modal,
-                alignToNode = config && config.alignToNode,
+                modal = (config && config.modal) || false,
+                forceSelectdate = (config && config.forceSelectdate) || false,
+                alignToNode = (config && config.alignToNode) || false,
                 rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours, dialvalue, minPanelWidth;
 
             Y.log('_show modus '+modus, 'info', 'Itsa-DateTimePicker');
@@ -860,6 +891,8 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             else if (panel.hasPlugin('dd')) {
                 panel.unplug('dd');
             }
+            instance._unclosable = forceSelectdate;
+            instance._closebutton.toggleClass(UNCLOSABLE_CLASS, forceSelectdate);
             panel.show();
          },
 
