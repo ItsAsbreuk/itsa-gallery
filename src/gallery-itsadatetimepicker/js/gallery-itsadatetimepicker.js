@@ -850,14 +850,13 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 panel = instance.panel,
                 presentedDate = initialDateTime || new Date(),
                 timeNode = instance._timeNode,
-                userConfig = instance.get('defaultConfig'),
+                userConfig = Y.merge(instance.get('defaultConfig'), config),
                 timedial = instance.timedial,
                 calendar = instance.calendar,
                 rightAlign, window, winWidth, currentScroll, panelWidth, nodeX, nodeWidth, calAttrs, minutes, hours,
                 dialvalue, minPanelWidth, alignToNode;
 
             Y.log('_show modus '+modus, 'info', 'Itsa-DateTimePicker');
-            Y.mix(userConfig, config, true);
             alignToNode = userConfig.alignToNode;
             if (panel.get('visible')) {
                 // previous picker is up --> we need to reject the promise by firing an EVENT_CANCEL-event:
@@ -1020,8 +1019,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     return (Lang.isObject(val));
                 },
                 setter: function(val) {
-                    Y.mix(val, DEFAULT_CONFIG, false);
-                    return val;
+                    return Y.merge(DEFAULT_CONFIG, val);
                 }
             }
         }
