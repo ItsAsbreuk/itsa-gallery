@@ -238,7 +238,10 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     var datefield = Y.one('#datefield');
 
     // Redefine default config for the picker --> this way it will be used with every new promisecalls:
-    picker.set('defaultConfig', {dragable: true, titleDateTime: 'Select date and time and confirm with the select-button'});
+    picker.set('defaultConfig', {
+        dragable: true,
+        titleDateTime: 'Select date and time and confirm with the select-button'
+    });
 
     datefield.setHTML(Y.Date.format(date, {format: '%d/%m/%Y'}));
 
