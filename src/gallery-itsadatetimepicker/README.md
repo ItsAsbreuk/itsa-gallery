@@ -98,7 +98,7 @@ When the module is loaded, already 1 instance of Y.ITSADateTimePicker is availab
 
 });
 ```
-In this code, extraDate is a promise, where extraDate.then() that can be more times, even if extraPicker is destroyed. See Example 5.
+In this code, extraDate is a promise. extraDate.then() can be used multiple times, even if extraPicker is destroyed. See Example 5.
 
 Examples
 --------
