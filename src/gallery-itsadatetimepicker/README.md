@@ -8,9 +8,9 @@ Class Y.ITSADateTimePicker.
 Class that pickes dates and times using Promises. It can be used as a date-picker, time-picker or both.
 
 
-There are several options that can make the picker to be modal, align next to the button that launched it and passing an initial date-time value. The Class also can render 3 button-Nodes with calendar-icon, time-icon or both.
+There are several options that can make the Picker to be modal, align next to the button that launched it and passing an initial date-time value. The Class also can render 3 button-Nodes with calendar-icon, time-icon or both.
 
-So, the Module has a class Y.ItsaDateTimePicker which generates only one panel-instance, which is available right away, across multiple YUI-instances. Only one Panel-instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the panel be needed before, then rendering will start when needed.
+So, the Module has a class Y.ItsaDateTimePicker which generates only one Picker-instance, which is available right away, across multiple YUI-instances. Only one Picker-instance is created to save unnecessary rendering. The real rendering of the panel-, calendar- and dial-instances are also delayed for 1 second for performancereason. Should the Picker be needed before, then rendering will start when needed.
 
 There are <u>3 Promises</u> that can be asked for:
 
@@ -23,16 +23,16 @@ All Promises return a Date-object (if fulfilled). Which fields of the Date-objec
 * Y.ItsaDateTimePicker.getTime() --> 01-01-1900 hh:mm:00,000
 * Y.ItsaDateTimePicker.getDateTime() --> dd-mm-yyyy hh:mm:00,000
 
-The promises can be called at any time and will pop-up the panel-instance. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 2 paramers which are optional:
+The promises can be called at any time and will pop-up the Picker. Which will return the Promise. Most likely, these promises are called when a user presses a button (more about that later). The Promises can receive 2 paramers which are optional:
 
-* <b>initialDate</b>: <i>{Date}</i> date-object that holds the initial date-time for the panel. If not set, then the current date-time is used.
-* <b>config</b>: <i>{Object}</i> object to adjust the behaviour of the panel.
+* <b>initialDate</b>: <i>{Date}</i> date-object that holds the initial date-time for the Picker. If not set, then the current date-time is used.
+* <b>config</b>: <i>{Object}</i> object to adjust the behaviour of the Picker.
 
-config is an object through which you can adjust the behaviour of the panel-instance. The next properties may be set:
-* <b>title</b>: <i>{String}</i> Title on the Panel-instance
-* <b>alignToNode</b>: <i>{Y.Node}</i> When set, the selector-panel is aligned to this Node
-* <b>modal</b>: <i>{Boolean}</i> Whether the Panel-instance should appear modal
-* <b>dragable</b>: <i>{Boolean}</i> Whether the Panel-instance is dragable
+config is an object through which you can adjust the behaviour of the Picker. The next properties may be set:
+* <b>title</b>: <i>{String}</i> Title on the Picker
+* <b>alignToNode</b>: <i>{Y.Node}</i> When set, the Picker is aligned to this Node
+* <b>modal</b>: <i>{Boolean}</i> Whether the Picker should appear modal
+* <b>dragable</b>: <i>{Boolean}</i> Whether the Picker is dragable
 * <b>forceSelectdate</b>: <i>{Boolean}</i> Force the promise always to become fulfilled by hiding the close-button
 * <b>timeformat</b>: <i>{String}</i> Format of the rendered timestring
 * <b>resetStr</b>: <i>{String}</i> resetStr that is passed to the Dial-instance (timepicker)
@@ -47,7 +47,7 @@ config is an object through which you can adjust the behaviour of the panel-inst
 * <b>enabledDatesRule</b>: <i>{String}</i> enabledDatesRule that is passed to the Calendar-instance
 * <b>disabledDatesRule</b>: <i>{String}</i> disabledDatesRule that is passed to the Calendar-instance
 
-The applied config is a mix of the picker's attribute <i>'defaultConfig'</i>, combined with the 'config' of the promise-call. If you find yourself supplying the same config for all promise-calls over and over again, you better change the 'defaultConfig' with <b>Y.ItsaDateTimePicker.set('defaultConfig', {...});</b>. You only need to define the properties you want to be overruled: they get mixed with a baseConfig that holds the initial config-properties.
+The applied config is a mix of the Picker's attribute <i>'defaultConfig'</i>, combined with the 'config' of the promise-call. If you find yourself supplying the same config for all promise-calls over and over again, you better change the 'defaultConfig' with <b>Y.ItsaDateTimePicker.set('defaultConfig', {...});</b>. You only need to define the properties you want to be overruled: they get mixed with a baseConfig that holds the initial config-properties.
 
 <b>Calling the Promise by buttons</b>
 Most likely you will have a button-element on the page with a sort of calendar-icon. When pressed, you'll ask for one of the 3 Promises. This module has 3 methods that will create button-Nodes with nice css. Event better way is, to include the right html directly into the page.
@@ -77,11 +77,11 @@ Once the module is available, it will remove the class 'itsa-datetimepicker-load
 
 <b>When you need to handle the 'onRejected-callback'</b>
 
-When a date-time promise is requested, the user might click the close-button, by which the promise will be rejected. You can supress the close-button by setting <i>config.forceSelectdate=true</i>. In that case, the picker comes without close-button and you don't need to handle the 'onRejected-callback' for the promise will never be rejected.
+When a date-time promise is requested, the user might click the close-button, by which the promise will be rejected. You can supress the close-button by setting <i>config.forceSelectdate=true</i>. In that case, the Picker comes without close-button and you don't need to handle the 'onRejected-callback' for the promise will never be rejected.
 
 <b>Multiple instance of Y.ITSADateTimePicker</b>
 
-When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple picker at the same time, you can create more instances. <i>But you must take care to destroy them yourself as soon as the promise is resolved</i>.
+When the module is loaded, already 1 instance of Y.ITSADateTimePicker is available for use: <i>Y.ItsaDateTimePicker</i>. When you need multiple Pickers at the same time, you can create more instances. <i>But you must take care to destroy them yourself as soon as the promise is resolved</i>.
 
 ```js
     var extraPicker = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
@@ -129,7 +129,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
             ...
         },
         function(reason) {
-            // user closed the panel without selecting the new time
+            // user closed the Picker without selecting the new time
             // 'reason' will contain: new Error('canceled');
             ...
         }
@@ -157,7 +157,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
             ...
         },
         function(reason) {
-            // user closed the panel without selecting the new time
+            // user closed the Picker without selecting the new time
             // 'reason' will contain: new Error('canceled');
             ...
         }
@@ -171,7 +171,7 @@ YUI().use('gallery-itsadatetimepicker', function(Y) {
             ...
         },
         function(reason) {
-            // user closed the panel without selecting the new time
+            // user closed the Picker without selecting the new time
             // 'reason' will contain: new Error('canceled');
             ...
         }
@@ -206,7 +206,8 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
         status.setHTML('');
         // Y.ItsaDateTimePicker.getDate() returns an Y.Promise
         // first parameter holds the initial date.
-        // in the second parameter, the node that causes the panel to appear is used to align the panel.
+        // in the second parameter, the node that causes the Picker to appear,
+        // is used to align the Picker-panel against.
         Y.ItsaDateTimePicker.getDate(date, {alignToNode: e.currentTarget}).then(
             function(newdate) {
                 date.setTime(newdate.getTime());
@@ -237,7 +238,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
     var date = new Date(2010, 05, 20);
     var datefield = Y.one('#datefield');
 
-    // Redefine default config for the picker --> this way it will be used with every new promisecalls:
+    // Redefine default config for the Picker --> this way it will be used with every new promisecalls:
     picker.set('defaultConfig', {
         dragable: true,
         titleDateTime: 'Select date and time and confirm with the select-button'
@@ -283,7 +284,7 @@ YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function
 YUI().use('node', 'gallery-itsadatetimepicker', 'datatype-date-format', function(Y) {
     // Y.ItsaDateTimePicker is ready to be used...
 
-    var picker1 = Y.ItsaDateTimePicker; // for shorter reference --> default picker which is always available
+    var picker1 = Y.ItsaDateTimePicker; // for shorter reference --> default Picker which is always available
     var picker2 = new Y.ITSADateTimePicker(); // create a second instance of Y.ITSADateTimePicker
     var iconDate1 = Y.one('#dateicon1');
     var iconDate2 = Y.one('#dateicon2');
