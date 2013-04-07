@@ -586,10 +586,12 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     instance._timeNode = contentBox.one('.yui3-dial-label-string');
                     instance._resetNode = contentBox.one('.yui3-dial-reset-string');
                     instance._dialHandle = contentBox.one('.yui3-dial-handle');
-                    timedial._dd1.on(
-                        'drag:end',
-                        instance._afterDialChange,
-                        instance
+                    instance._eventhandlers.push(
+                        timedial._dd1.on(
+                            'drag:end',
+                            instance._afterDialChange,
+                            instance
+                        )
                     );
                 }
             );
@@ -987,28 +989,30 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         ATTRS : {
             /**
              * @description Determines the default layout and behaviour of the date-time picker. The finale appearance
-             * of the picker can be overruled per promisecall (with an own config-object)
-             *
-             * <b>defaultConfig.titleDate</b>: <i>(default='Select date')</i> Title on the Date-picker
-             * <b>defaultConfig.titleDateTime</b>: <i>(default='Select date and time')</i> Title on the DateTime-picker
-             * <b>defaultConfig.titleTime</b>: <i>(default='Select time')</i> Title on the Time-picker
+             * of the picker can be overruled per promisecall (with an own config-object)<br />
+             * <br />
+             * <b>defaultConfig.titleDate</b>: <i>(default='Select date')</i> Title on the Date-picker<br />
+             * <b>defaultConfig.titleDateTime</b>: <i>(default='Select date and time')</i> Title on the DateTime-picker<br />
+             * <b>defaultConfig.titleTime</b>: <i>(default='Select time')</i> Title on the Time-picker<br />
              * <b>defaultConfig.alignToNode</b>: <i>(default=null)</i> The node that causes the picker to appear.
-               When set, the picker is aligned to this Node.
-             * <b>defaultConfig.modal</b>: <i>(default=false)</i> Whether the Panel-instance should appear modal
-             * <b>defaultConfig.dragable</b>: <i>(default=false)</i> Whether the Panel-instance is dragable
-             * <b>defaultConfig.forceSelectdate</b>: <i>(default=false)</i> Force the promise always to become fulfilled by hiding the close-button
-             * <b>defaultConfig.timeformat</b>: <i>(default='%H:%M')</i> Format of the rendered timestring
-             * <b>defaultConfig.resetStr</b>: <i>(default='Reset')</i> resetStr that is passed to the Dial-instance (timepicker)
-             * <b>defaultConfig.tooltipHandle</b>: <i>(default='Drag to set time')</i> tooltipHandle that is passed to the Dial-instance (timepicker)
+               When set, the picker is aligned to this Node.<br />
+             * <b>defaultConfig.modal</b>: <i>(default=false)</i> Whether the Panel-instance should appear modal<br />
+             * <b>defaultConfig.dragable</b>: <i>(default=false)</i> Whether the Panel-instance is dragable<br />
+             * <b>defaultConfig.forceSelectdate</b>: <i>(default=false)</i>
+             * Force the promise always to become fulfilled by hiding the close-button<br />
+             * <b>defaultConfig.timeformat</b>: <i>(default='%H:%M')</i> Format of the rendered timestring<br />
+             * <b>defaultConfig.resetStr</b>: <i>(default='Reset')</i> resetStr that is passed to the Dial-instance (timepicker)<br />
+             * <b>defaultConfig.tooltipHandle</b>: <i>(default='Drag to set time')</i>
+             * tooltipHandle that is passed to the Dial-instance (timepicker)<br />
              * <b>defaultConfig.selectOnRelease</b>: <i>(default=true)</i> When only timepicker: select time when mouse releases the dial,
-               without a Selectbutton.
-             * <b>defaultConfig.customRenderer</b>: <i>(default={})</i> customRenderer that is passed to the Calendar-instance
-             * <b>defaultConfig.showPrevMonth</b>: <i>(default=false)</i> showPrevMonth that is passed to the Calendar-instance
-             * <b>defaultConfig.showNextMonth</b>: <i>(default=false)</i> showNextMonth that is passed to the Calendar-instance
-             * <b>defaultConfig.headerRenderer</b>: <i>(default='%B %Y')</i> headerRenderer that is passed to the Calendar-instance
-             * <b>defaultConfig.minimumDate</b>: <i>(default=null)</i> minimumDate that is passed to the Calendar-instance
-             * <b>defaultConfig.maximumDate</b>: <i>(default=null)</i> maximumDate that is passed to the Calendar-instance
-             * <b>defaultConfig.enabledDatesRule</b>: <i>(default=null)</i> enabledDatesRule that is passed to the Calendar-instance
+               without a Selectbutton.<br />
+             * <b>defaultConfig.customRenderer</b>: <i>(default={})</i> customRenderer that is passed to the Calendar-instance<br />
+             * <b>defaultConfig.showPrevMonth</b>: <i>(default=false)</i> showPrevMonth that is passed to the Calendar-instance<br />
+             * <b>defaultConfig.showNextMonth</b>: <i>(default=false)</i> showNextMonth that is passed to the Calendar-instance<br />
+             * <b>defaultConfig.headerRenderer</b>: <i>(default='%B %Y')</i> headerRenderer that is passed to the Calendar-instance<br />
+             * <b>defaultConfig.minimumDate</b>: <i>(default=null)</i> minimumDate that is passed to the Calendar-instance<br />
+             * <b>defaultConfig.maximumDate</b>: <i>(default=null)</i> maximumDate that is passed to the Calendar-instance<br />
+             * <b>defaultConfig.enabledDatesRule</b>: <i>(default=null)</i> enabledDatesRule that is passed to the Calendar-instance<br />
              * <b>defaultConfig.disabledDatesRule</b>: <i>(default=null)</i> disabledDatesRule that is passed to the Calendar-instance
              * @attribute defaultConfig
              * @type Object
