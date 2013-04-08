@@ -51,7 +51,7 @@ var Lang = Y.Lang,
     };
 
 
-Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsscrollviewkeynav', Y.Plugin.Base, [], {
+Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsascrollviewkeynav', Y.Plugin.Base, [], {
 
         _eventhandlers : [],
         host : null,
