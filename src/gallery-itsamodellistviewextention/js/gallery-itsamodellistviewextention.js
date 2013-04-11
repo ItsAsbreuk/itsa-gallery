@@ -77,7 +77,7 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
     */
     getModelAttr: function(model, name) {
         Y.log('getModelAttr', 'info', 'Itsa-LazyModelListAttr');
-        return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
+        return model && ((model.get && (typeof model.get === 'function')) ? model.get(name) : model[name]);
     },
 
     /**
@@ -103,7 +103,7 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
 
         Y.log('setModelAttr', 'info', 'Itsa-LazyModelListAttr');
         if (model) {
-            modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
+            modelIsLazy = !model.get || (typeof model.get !== 'function');
             if (modelIsLazy) {
                 revivedModel = instance.revive(model);
                 model[name] = value;
@@ -137,7 +137,7 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
     */
     getModelToJSON : function(model) {
         Y.log('getModelToJSON', 'info', 'Itsa-LazyModelListAttr');
-        return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
+        return (model.get && (typeof model.get === 'function')) ? model.toJSON() : model;
     }
 
 }, true);
@@ -1466,7 +1466,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     */
     getModelAttr: function(model, name) {
         Y.log('getModelAttr', 'info', 'Itsa-ModellistViewExtention');
-        return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
+        return model && ((model.get && (typeof model.get === 'function')) ? model.get(name) : model[name]);
     },
 
     /**
@@ -1492,7 +1492,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('setModelAttr', 'info', 'Itsa-ModellistViewExtention');
         if (model) {
-            modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
+            modelIsLazy = !model.get || (typeof model.get !== 'function');
             if (modelIsLazy) {
                 modelList = instance.get('modelList');
                 revivedModel = modelList.revive(model);
@@ -1527,7 +1527,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     */
     getModelToJSON : function(model) {
         Y.log('getModelToJSON', 'info', 'Itsa-ModellistViewExtention');
-        return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
+        return (model.get && (typeof model.get === 'function')) ? model.toJSON() : model;
     },
 
     /**

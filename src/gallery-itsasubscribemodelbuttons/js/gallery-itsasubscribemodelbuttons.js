@@ -43,7 +43,10 @@ var YArray = Y.Array,
     MODEL_CLASS = 'itsa-model',
     FIREMODEL = 'firemodel',
     ANCHOREVENT = 'anchorclick',
-    BUTTONEVENT = 'buttonclick';
+    BUTTONEVENT = 'buttonclick',
+    ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
+    FORMELEMENT_CLASS = 'yui3-itsaformelement',
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = 'yui3-itsaformelement-inputbutton';
 
 Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemodelbuttons', Y.Plugin.Base, [], {
 
@@ -96,26 +99,16 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
             instance._eventhandlers.push(
                 contentBox.delegate(
                     'click',
-                    Y.rbind(instance._fireEvent, instance, BUTTONEVENT),
+                    Y.rbind(instance._checkAndFire, instance),
                     function() {
                         var node = this,
-                            tagName = node.get('tagName'),
-                            lastScrolledAmt = host.lastScrolledAmt,
-                            scrollingInAction = lastScrolledAmt && (Math.abs(host.lastScrolledAmt) > host.get('clickSensivity'));
-                        return (!scrollingInAction && (tagName==='BUTTON'));
-                    }
-                )
-            );
-            instance._eventhandlers.push(
-                contentBox.delegate(
-                    'click',
-                    Y.rbind(instance._fireEvent, instance, ANCHOREVENT),
-                    function() {
-                        var node = this,
-                            tagName = node.get('tagName'),
-                            lastScrolledAmt = host.lastScrolledAmt,
-                            scrollingInAction = lastScrolledAmt && (Math.abs(host.lastScrolledAmt) > host.get('clickSensivity'));
-                        return (!scrollingInAction && ((tagName==='A') && node.hasClass(FIREMODEL)));
+                            tagName = node.get('tagName');
+                        return (
+                            (tagName==='BUTTON') ||
+                            ((tagName==='A') && node.hasClass(FIREMODEL)) ||
+                            node.hasClass(ITSABUTTON_DATETIME_CLASS) ||
+                            node.hasClass(ITSAFORMELEMENT_BUTTONTYPE_CLASS
+                        );
                     }
                 )
             );
@@ -124,63 +117,69 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
         /**
          * Handles the keydown-events. Can perform several things: scolling and (multi)-selecting.
          *
-         * @method _fireEvent
+         * @method _checkAndFire
          * @param {EventTarget} e
          * @private
          * @since 0.1
          *
         */
-        _fireEvent : function(e, eventname) {
+        _checkAndFire : function(e) {
             var instance = this,
                 host = instance.host,
+                eventname = e.type,
+                lastScrolledAmt = host.lastScrolledAmt,
+                scrollingInAction = lastScrolledAmt && (Math.abs(host.lastScrolledAmt) > host.get('clickSensivity')),
                 model, node, clientId, modelList;
 
-            Y.log('_fireEvent', 'info', 'Itsa-SubscribeModelButtons');
-            // In case the host is an Y.ITSAViewModel-instance, then the attribute 'model' is available
-            // In case the host is an Y.ITSAViewModelList or Y.ITSAScrollViewModelList, look for a node with class 'itsa-model'
-            model = host.get('model');
-            if (!model) {
-                // assume Y.ITSAViewModelList or Y.ITSAScrollViewModelList
-                node = e.currentTarget.get('parentNode');
-                while (node && !node.hasClass(MODEL_CLASS)) {
-                    node = node.get('parentNode');
-                }
-                if (node && node.hasClass(MODEL_CLASS)) {
-                    // found the node-element that holds the model
-                    clientId = node.getData('modelClientId');
-                    modelList = host.getModelListInUse && host.getModelListInUse();
-                    model = modelList && modelList.getByClientId(clientId);
-                }
-
-            }
-            if (model) {
-                Y.log('_fireEvent fires event '+eventname, 'info', 'Itsa-SubscribeModelButtons');
-                /**
-                 * Is fired when the user clicks on a Button.
-                 *
-                 * @event buttonclick
-                 * @param {Y.Node} currentTarget the node that was clicked.
-                 * @param {Y.Model|Object} model the rendered-model and holds the button as a childnode. In case of LazyModelList: type is an object.
-                 * @since 0.1
-                **/
-
-                /**
-                 * Is fired when the user clicks on a anchor-element with className 'firemodel'.
-                 *
-                 * @event anchorclick
-                 * @param {Y.Node} currentTarget the node that was clicked.
-                 * @param {Y.Model|Object} model the rendered-model and holds the button as a childnode. In case of LazyModelList: type is an object.
-                 * @since 0.1
-                **/
-                e.model = model;
-                if (eventname===ANCHOREVENT) {
-                    e.preventDefault();
-                }
-                host.fire(eventname, e);
+            // stop the original event to prevent double events
+            e.halt();
+            if (scrollingInAction) {
+                Y.log('_checkAndFire halted: scrolling the scrollview-instance', 'info', 'Itsa-SubscribeModelButtons');
             }
             else {
-                Y.log('_fireEvent cannot fire event '+eventname+ ' --> no model found', 'warn', 'Itsa-SubscribeModelButtons');
+                Y.log('_checkAndFire proceeding (not scrolling a scrollview-instance)', 'info', 'Itsa-SubscribeModelButtons');
+                // In case the host is an Y.ITSAViewModel-instance, then the attribute 'model' is available
+                // In case the host is an Y.ITSAViewModelList or Y.ITSAScrollViewModelList, look for a node with class 'itsa-model'
+                model = host.get('model');
+                if (!model) {
+                    // assume Y.ITSAViewModelList or Y.ITSAScrollViewModelList
+                    node = e.currentTarget.get('parentNode');
+                    while (node && !node.hasClass(MODEL_CLASS)) {
+                        node = node.get('parentNode');
+                    }
+                    if (node && node.hasClass(MODEL_CLASS)) {
+                        // found the node-element that holds the model
+                        clientId = node.getData('modelClientId');
+                        modelList = host.getModelListInUse && host.getModelListInUse();
+                        model = modelList && modelList.getByClientId(clientId);
+                    }
 
+                }
+                if (model) {
+                    Y.log('_checkAndFire fires event '+eventname, 'info', 'Itsa-SubscribeModelButtons');
+                    /**
+                     * Is fired when the user clicks on a Button.
+                     *
+                     * @event buttonclick
+                     * @param {Y.Node} currentTarget the node that was clicked.
+                     * @param {Y.Model|Object} model the rendered-model and holds the button as a childnode. In case of LazyModelList: type is an object.
+                     * @since 0.1
+                    **/
+
+                    /**
+                     * Is fired when the user clicks on a anchor-element with className 'firemodel'.
+                     *
+                     * @event anchorclick
+                     * @param {Y.Node} currentTarget the node that was clicked.
+                     * @param {Y.Model|Object} model the rendered-model and holds the button as a childnode. In case of LazyModelList: type is an object.
+                     * @since 0.1
+                    **/
+                    e.model = model;
+                    host.fire(eventname, e);
+                }
+                else {
+                    Y.log('_checkAndFire cannot fire event '+eventname+ ' --> no model found', 'warn', 'Itsa-SubscribeModelButtons');
+                }
             }
         },
 
