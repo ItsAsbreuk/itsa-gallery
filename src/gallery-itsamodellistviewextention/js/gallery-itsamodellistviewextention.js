@@ -207,7 +207,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelList: {
         value: null,
-        validator: function(v){ return (v instanceof Y.ModelList) || (v instanceof Y.LazyModelList) || (v === null);},
+        validator: function(v){ return (v.getByClientId) || (v === null);},
         setter: '_setModelList'
     },
 
@@ -1831,7 +1831,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this;
 
         Y.log('_setModelList', 'info', 'Itsa-ModellistViewExtention');
-        instance._listLazy = (val instanceof Y.LazyModelList);
+        instance._listLazy = (val.revive);
         instance._itmsAvail = val && (val.size()>0);
     },
 

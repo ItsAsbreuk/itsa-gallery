@@ -138,7 +138,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 contentBox = instance.get('contentBox'),
                 events = instance.get('events'),
                 model = instance.get('model'),
-                template = instance.get('template'),
+                modelEditable = instance.get('modelEditable'),
+                template = (modelEditable && model.itsaeditmodel) ? model.itsaeditmodel.get('template') : instance.get('template'),
                 styled = instance.get('styled'),
                 view;
 
@@ -168,6 +169,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         bindUI: function() {
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
+                model = instance.get('model'),
                 eventhandlers = instance._eventhandlers,
                 view = instance.view;
 
@@ -190,13 +192,66 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 )
             );
             eventhandlers.push(
-                instance.after(
+                model.after(
                     'templateChange',
                     function(e) {
-                        var newTemplate = e.newVal;
-                        view.template = newTemplate;
-                        instance._setTemplateRenderer(newTemplate);
-                        if (!instance.hasPlugin('itsaeditmodel')) {
+                        var newTemplate = e.newVal,
+                            modelEditable = instance.get('modelEditable');
+                        if (!modelEditable || !model.itsaeditmodel) {
+                            view.template = newTemplate;
+                            instance._setTemplateRenderer(newTemplate);
+                            view.render();
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                instance.after(
+                    'modelEditableChange',
+                    function(e) {
+                        var newEditable = e.newVal,
+                            template;
+                        // if model.itsaeditmodel exists, then we need to rerender
+                        if (model.itsaeditmodel) {
+                            template = newEditable ? model.itsaeditmodel.get('template') : instance.get('template');
+                            view.template = template;
+                            instance._setTemplateRenderer(template);
+                            view.render();
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                instance.after(
+                    'editmodelConfigAttrsChange',
+                    function() {
+                        if (model.itsaeditmodel && instance.get('modelEditable')) {
+                            view.render();
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                model.after(
+                    'itsaeditmodel:destroy',
+                    function() {
+                        if (instance.get('modelEditable')) {
+                            var template = instance.get('template');
+                            view.template = template;
+                            instance._setTemplateRenderer(template);
+                            view.render();
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                model.after(
+                    'itsaeditmodel:init',
+                    function() {
+                        if (instance.get('modelEditable')) {
+                            var template = model.itsaeditmodel.get('template');
+                            view.template = template;
+                            instance._setTemplateRenderer(template);
                             view.render();
                         }
                     }
@@ -294,12 +349,18 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (ismicrotemplate) {
                 compiledModelEngine = YTemplateMicro.compile(template);
                 instance._modelRenderer = function(model) {
-                    return compiledModelEngine(instance.getModelToJSON(model));
+                    var modelEditable = instance.get('modelEditable'),
+                        jsondata = (modelEditable && model.itsaeditmodel) ? model.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs'))
+                                   : instance.getModelToJSON(model);
+                    return compiledModelEngine(jsondata);
                 };
             }
             else {
                 instance._modelRenderer = function(model) {
-                    return Lang.sub(template, instance.getModelToJSON(model));
+                    var modelEditable = instance.get('modelEditable'),
+                        jsondata = (modelEditable && model.itsaeditmodel) ? model.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs'))
+                                   : instance.getModelToJSON(model);
+                    return Lang.sub(template, jsondata);
                 };
             }
         },
@@ -319,13 +380,12 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
               view = instance.view,
               container = view.get('container'),
               model = view.get('model'),
-              itsaeditmodel = instance.itsaeditmodel,
-              html = clear ? '' : (itsaeditmodel ? itsaeditmodel.editRenderer(model) : instance._modelRenderer(model));
+              html = clear ? '' : instance._modelRenderer(model);
 
           Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
           // Render this view's HTML into the container element.
           // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
-          if (instance._isMicroTemplate || itsaeditmodel) {
+          if (instance._isMicroTemplate || (model.itsaeditmodel && instance.get('modelEditable'))) {
               container.cleanup();
           }
           container.setHTML(html);
@@ -352,6 +412,26 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
     }, {
         ATTRS : {
+            /**
+             * Every property of the object/model can be defined as a property of configAttrs as well.
+             * The value should also be an object: the config of the property that is passed to the ITSAFormElement.<br />
+             * Example: <br />
+             * editmodelConfigAttrs.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
+             * editmodelConfigAttrs.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
+             * editmodelConfigAttrs.property3 = {Object} config of property3 (as example, you should use a real property here)<br />
+             *
+             * @attribute editmodelConfigAttrs
+             * @type {Object}
+             * @default false
+             * @since 0.1
+             */
+            editmodelConfigAttrs: {
+                value: {},
+                validator: function(v){
+                    return Lang.isObject(v);
+                }
+            },
+
             /**
              * Hash of CSS selectors mapped to events to delegate to elements matching
              * those selectors.
@@ -395,6 +475,21 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             events: {
                 value: {},
                 validator: function(v){ return Lang.isObject(v);}
+            },
+
+            /**
+             * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
+             *
+             * @attribute modelEditable
+             * @type {Boolean}
+             * @default false
+             * @since 0.1
+             */
+            modelEditable: {
+                value: false,
+                validator: function(v){
+                    return Lang.isBoolean(v);
+                }
             },
 
             /**
