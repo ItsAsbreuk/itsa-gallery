@@ -507,8 +507,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             panel.onceAfter(
                 'render',
                 function() {
-                    var closebutton;
-                    instance._closebutton = closebutton = panel.get('boundingBox').one('.yui3-button-close');
+                    var boundingBox = panel.get('boundingBox'),
+                        closebutton;
+                    instance._closebutton = closebutton = boundingBox.one('.yui3-button-close');
                     eventhandlers.push(
                         closebutton.on(
                             'click',
@@ -527,6 +528,17 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             }
                         )
                     );
+                    eventhandlers.push(
+                        boundingBox.on(
+                            'keydown',
+                            function(e) {
+                                if ((e.keyCode === 27) && !instance._unclosable) { // escape
+                                    instance._hide();
+                                    Y.fire(EVENT_CANCEL);
+                                }
+                            }
+                        )
+                    );
                     instance._fillPanel();
                 }
             );
@@ -537,13 +549,6 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     instance._panelRendererDelay = null;
                     panel.render();
                 }
-            );
-            eventhandlers.push(
-                Y.one('body').delegate(
-                    'click',
-                    function(){},
-                    '.'+ITSA_BUTTON_DATETIME_CLASS
-                )
             );
         },
 
@@ -773,6 +778,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 visible: false,
                 render  : false, // we will render after some delaytime, specified with RENDERDELAY
                 fillHeight: null,
+                hideOn: [],
                 bodyContent : '<div id="'+CALENDAR_ID+'"></div><div id="'+TIMEDIAL_ID+'"></div>'
             });
         },

@@ -327,7 +327,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
-         * @param {String} [config.timeformat] Format of the rendered timestring
+         * @param {String} [config.timeformat] Format of the timestring inside the Dial-instance
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
          * @param {Object} [config.customRenderer] customRenderer that is passed to the Calendar-instance
@@ -402,7 +402,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
          * @param {Boolean} [config.forceSelectdate] Force the promise always to become fulfilled by hiding the close-button
          * @param {String} [config.minTime] Lowest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
          * @param {String} [config.maxTime] Highest timevalue that can be picked. Should be in format 'h:m', 'h:mm' or 'hh:mm'
-         * @param {String} [config.timeformat] Format of the rendered timestring
+         * @param {String} [config.timeformat] Format of the timestring inside the Dial-instance
          * @param {String} [config.resetStr] resetStr that is passed to the Dial-instance (timepicker)
          * @param {String} [config.tooltipHandle] tooltipHandle that is passed to the Dial-instance (timepicker)
          * @param {String} [config.selectOnRelease] When only timepicker: select time when mouse releases the dial, without a Selectbutton.
@@ -500,8 +500,9 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             panel.onceAfter(
                 'render',
                 function() {
-                    var closebutton;
-                    instance._closebutton = closebutton = panel.get('boundingBox').one('.yui3-button-close');
+                    var boundingBox = panel.get('boundingBox'),
+                        closebutton;
+                    instance._closebutton = closebutton = boundingBox.one('.yui3-button-close');
                     eventhandlers.push(
                         closebutton.on(
                             'click',
@@ -520,6 +521,17 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             }
                         )
                     );
+                    eventhandlers.push(
+                        boundingBox.on(
+                            'keydown',
+                            function(e) {
+                                if ((e.keyCode === 27) && !instance._unclosable) { // escape
+                                    instance._hide();
+                                    Y.fire(EVENT_CANCEL);
+                                }
+                            }
+                        )
+                    );
                     instance._fillPanel();
                 }
             );
@@ -530,13 +542,6 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                     instance._panelRendererDelay = null;
                     panel.render();
                 }
-            );
-            eventhandlers.push(
-                Y.one('body').delegate(
-                    'click',
-                    function(){},
-                    '.'+ITSA_BUTTON_DATETIME_CLASS
-                )
             );
         },
 
@@ -757,6 +762,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 visible: false,
                 render  : false, // we will render after some delaytime, specified with RENDERDELAY
                 fillHeight: null,
+                hideOn: [],
                 bodyContent : '<div id="'+CALENDAR_ID+'"></div><div id="'+TIMEDIAL_ID+'"></div>'
             });
         },
