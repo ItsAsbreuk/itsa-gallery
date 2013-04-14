@@ -18,6 +18,7 @@
 var Lang  = Y.Lang,
     YArray = Y.Array,
     yDateFormat = Y.Date.format,
+    ITSAFORMELEMENT_FOCUSABLE_CLASS = 'focusable',
     ITSAFORMELEMENT_CLASS = 'itsaformelement',
     yClassNameManagerGetClassName = Y.ClassNameManager.getClassName,
     ITSAFORMELEMENT_ELEMENT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS),
@@ -28,6 +29,8 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_KEYVALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'keyvalidation'),
     ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validationmessage'),
     ITSAFORMELEMENT_AUTOCORRECT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'autocorrect'),
+    ITSAFORMELEMENT_LIFECHANGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'lifechange'),
+    ITSAFORMELEMENT_CHANGED_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'changed'),
     ITSAFORMELEMENT_LOADING_CHECKBOX_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_SELECTLIST_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_COMBO_CLASS = 'yui3-enabled widget-loading',
@@ -59,11 +62,11 @@ var Lang  = Y.Lang,
     ELEMENT_RADIOGROUP = '<div id="{id}"{classname} /><input id="{id}_radiogroup" type="radio" name="{name}" value="" checked="checked" class="'+
                          ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
     ELEMENT_DATE = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+
-                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'"><span class="'+ITSAFORMELEMENT_DATE_CLASS+'"></span></button>',
+                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}""><span class="'+ITSAFORMELEMENT_DATE_CLASS+'"></span></button>',
     ELEMENT_TIME = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+
-                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'"><span class="'+ITSAFORMELEMENT_TIME_CLASS+'"></span></button>',
+                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}"><span class="'+ITSAFORMELEMENT_TIME_CLASS+'"></span></button>',
     ELEMENT_DATETIME = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+
-                       ITSABUTTON_DATETIME_CLASS+' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'"><span class="'+ITSAFORMELEMENT_DATETIME_CLASS+
+                       ITSABUTTON_DATETIME_CLASS+' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}"><span class="'+ITSAFORMELEMENT_DATETIME_CLASS+
                        '"></span></button>',
 
     ELEMENT_AUTOCOMPLETE = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
@@ -97,7 +100,8 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
         */
         render : function(config, nodeId) {
             var instance = this,
-                element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isButton;
+                element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname,
+                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo;
 
             Y.log('renderElement', 'cmas', 'ITSAFORMELEMENT');
             if (typeof config === 'object') {
@@ -110,17 +114,28 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             autoCorrection = instance.get('autoCorrection');
             validation = !autoCorrection && instance.get('validation');
             isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='destroy');
+            focusable = instance.get('focusable');
+            focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);
+            focusinfo = focusable ?
+                        (
+                            ITSAFORMELEMENT_FOCUSABLE_CLASS
+                            + (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '')
+                            + (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
+                        )
+                        : '';
+            withLifeChange = (type==='input') || (type==='textarea') || (type==='password');
             classnameAttr = instance.get('className');
             classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name)
                         + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type)
                         + (classnameAttr ? ' '+classnameAttr : '')
                         + (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '')
-                        + (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '')
-                        + (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
+                        + (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '')
                         + (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '')
                         + (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '')
                         + (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '')
+                        + (focusinfoOnClass ? ' '+focusinfo : '')
                         + '"';
+            classlevel2 = focusinfoOnClass ? '' : ' '+focusinfo;
             if (type==='input') {
                 element = ELEMENT_INPUT;
                 if (validation) {
@@ -192,6 +207,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                                 name: name,
                                 value: value,
                                 classname: classname,
+                                classlevel2: classlevel2,
                                 type: type,
                                 validation: instance.get('validationMessage')
                             }
@@ -294,6 +310,19 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                 }
             },
             /**
+             * @description Whether the element is focusable
+             * @attribute focusable
+             * @type Boolean
+             * @default true
+             * @since 0.1
+            */
+            focusable : {
+                value: true,
+                validator: function(val) {
+                    return (Lang.isBoolean(val));
+                }
+            },
+            /**
              * @description Must have one of the following values:
              * <ul><li>input</li><li>password</li><li>textarea</li><li>checkbox</li><li>radiogroup</li><li>selectbox</li><li>hidden</li></ul>
              * @attribute type
@@ -312,7 +341,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                             ((val==='input') ||
                              (val==='password') ||
                              (val==='textarea') ||
-                             (val==='checkbox') ||  // not ready yet
+//                             (val==='checkbox') ||  // not ready yet
 //                             (val==='radiogroup') ||  // not ready yet
 //                             (val==='selectlist') ||  // not ready yet
 //                             (val==='combo') ||  // not ready yet
