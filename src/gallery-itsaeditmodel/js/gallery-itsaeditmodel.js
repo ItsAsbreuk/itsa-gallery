@@ -39,6 +39,8 @@
 var Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
+    MESSAGE_WARN_MODELCHANGED = 'The data you are editing has been changed from outside the form. '+
+                                'If you save your data, then these former changed will be overridden.',
     EVT_DATETIMEPICKER_CLICK = 'editmodel:datetimepickerclick',
     ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
     ITSAFORMELEMENT_DATE_CLASS = 'itsa-datetimepicker-icondate',
@@ -78,6 +80,14 @@ var Lang = Y.Lang,
     EVT_SAVE_CLICK = 'saveclick',
     EVT_RESET_CLICK = 'resetclick',
     EVT_DESTROY_CLICK = 'destroyclick',
+   /**
+     * Fired to be caught by ItsaDialog. This event occurs when there is a warning (for example Model changed outside the editview).
+     * @event dialog:warn
+     * @param e {EventFacade} Event Facade including:
+     * @param e.message {String} The warningmessage.
+     * @since 0.1
+    **/
+    EVT_DIALOG_WARN = 'dialog:warn',
     /**
       * Event fired after an input-elements value is changed.
       * @event inputchange
@@ -110,8 +120,9 @@ var Lang = Y.Lang,
      * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
      * the sync layer submit-function returns an error.
      * @event error
-     * @param {Any} error Error message.
-     * @param {String} src Source of the error. May be one of the following (or any
+     * @param e {EventFacade} Event Facade including:
+     * @param e.error {any} Error message.
+     * @param e.src {String} Source of the error. May be one of the following (or any
      *                     custom error source defined by a Model subclass):
      *
      * `submit`: An error submitting the model from within a sync layer.
@@ -119,19 +130,27 @@ var Lang = Y.Lang,
      * `attributevalidation`: An error validating an attribute (or property). The attribute (or objectproperty)
      *                        that failed validation will be provided as the `attribute` property on the event facade.
      *
-     * @param {String} attribute The attribute/property that failed validation.
-     * @param {String} validationerror The errormessage in case of attribute-validation error.
+     * @param e.attribute {String} The attribute/property that failed validation.
+     * @param e.validationerror {String} The errormessage in case of attribute-validation error.
     **/
     EVT_ERROR = 'error',
    /**
      * Fired after model is submitted from the sync layer.
      * @event submit
-     * @param {Object} [options] The options=object that was passed to the sync-layer, if there was one.
-     * @param {Object} [parsed] The parsed version of the sync layer's response to the submit-request, if there was a response.
-     * @param {any} [response] The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param e {EventFacade} Event Facade including:
+     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
+     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
      * @since 0.1
     **/
-    EVT_SUBMIT = 'submit';
+    EVT_SUBMIT = 'submit',
+   /**
+     * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
+     * because the latter will be fired before the namespace Model.itsaeditmodel exists.
+     * @event pluggedin
+     * @since 0.1
+    **/
+    EVT_PLUGGEDIN = 'pluggedin';
 
 Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Base, [], {
 
@@ -146,6 +165,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         // internal flag that tells whether automaicly saving needs to happen in case properties have changed
         _needAutoSaved : false,
         _autoSaveTimer : null,
+        _fireEventTimer : null,
 
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
@@ -228,24 +248,23 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             );
             instance._bindUI();
-instance.addTarget(host);
-// now a VERY tricky one...
-// We need to fire an event that tells the plugin is pluged in, but it seemed that when listening in the host,
-// host.itsaeditmodel will be read imediately after the event fired --> this seems to be BEFORE the event is registred!!!
-// So, we wait until the real registering is finished and THEN fire the event!
-instance._secureFireEvent = Y.later(
-    50,
-    instance,
-    function() {
-        Y.log('timeout listener', 'warn', 'Itsa-EditModel');
-        if (host.itsaeditmodel) {
-            instance._secureFireEvent.cancel();
-            instance.fire('pluggedin');
-        }
-    },
-    null,
-    true
-);
+            instance.addTarget(host);
+            // now a VERY tricky one...
+            // We need to fire an event that tells the plugin is pluged in, but it seemed that when listening in the host,
+            // host.itsaeditmodel will be read imediately after the event fired --> this seems to be BEFORE the event is registred!!!
+            // So, we wait until the real registering is finished and THEN fire the event!
+            instance._fireEventTimer = Y.later(
+                50,
+                instance,
+                function() {
+                    if (host.itsaeditmodel) {
+                        instance._fireEventTimer.cancel();
+                        instance.fire(EVT_PLUGGEDIN);
+                    }
+                },
+                null,
+                true
+            );
         },
 
         /**
@@ -271,7 +290,7 @@ instance._secureFireEvent = Y.later(
          */
         getFormelement : function(propertyName, config, predefValue) {
             var instance = this,
-                value = predefValue || instance._getValue(propertyName),
+                value = predefValue || instance.host.get(propertyName),
                 useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: propertyName, value: value}),
                 renderedFormElement, nodeId;
 
@@ -360,7 +379,7 @@ instance._secureFireEvent = Y.later(
             instance._originalObject = {};
             instance._configAttrs = {};
             instance._elementIds = {};
-instance.removeTarget(instance.host);
+            instance.removeTarget(instance.host);
         },
 
         //===============================================================================================
@@ -405,7 +424,7 @@ instance.removeTarget(instance.host);
                             picker = Y.ItsaDateTimePicker,
                             propertyName = e.property,
                             propertyconfig = instance._configAttrs[propertyName],
-                            value = instance._getValue(propertyName),
+                            value = instance.host.get(propertyName),
                             widgetconfig = (propertyconfig && propertyconfig.widgetConfig) || {},
                             promise;
                         if (e.elementId===instance._elementIds[propertyName]) {
@@ -429,6 +448,10 @@ instance.removeTarget(instance.host);
                                     // then axtract the value from within
                                     newRenderedElement = instance.getFormelement(propertyName, propertyconfig, propertyconfig.value);
                                     valuespan.setHTML(instance._getDateTimeValueFromRender(newRenderedElement));
+                                    button.focus();
+                                },
+                                function() {
+                                    button.focus();
                                 }
                             );
                         }
@@ -473,10 +496,8 @@ instance.removeTarget(instance.host);
             // So the developer can use this to listen for these changes and rect on them
             instance.host.on(
                 '*:change',
-                function(e) {
-                    if (confirm('cancel input?')) {
-                        e.halt();
-                    }
+                function() {
+                    Y.fire(EVT_DIALOG_WARN, {message: MESSAGE_WARN_MODELCHANGED});
                 }
             );
             //============================================================================================
@@ -609,22 +630,6 @@ instance.removeTarget(instance.host);
 
             Y.log('_getDateTimeValueFromRender', 'info', 'Itsa-EditModel');
             return regexp.test(renderedElement) ? RegExp.$1 : '';
-        },
-
-        /**
-         * Returns the value of a property (or in case of Model, the attribute). Regardless which type the host is (object or model).
-         *
-         * @method _getValue
-         * @param propertyName {String} Propertyname or -in case or Model- attribute-name.
-         * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
-         * @since 0.1
-         *
-        */
-        _getValue: function(propertyName) {
-            var host = this.host;
-
-            Y.log('_getValue', 'info', 'Itsa-EditModel');
-            return propertyName && this.host.get(propertyName);
         },
 
         _isDateTimeType : function(type) {
@@ -913,11 +918,13 @@ if (!Y.Global.ITSAEditModelInstalled) {
     body.delegate(
         'click',
         function(e) {
+            var button = e.currentTarget,
+                span = button.previous('span');
             // stop the original event to prevent double events
             e.halt();
+            // set the focus manually. This will cause the View to be focussed as well --> now the focusmanager works for this View-instance
+            button.focus();
             Y.use('gallery-itsadatetimepicker', function(Y) {
-                var button = e.currentTarget,
-                    span = button.previous('span');
                 e.elementId = span.get('id');
                 e.type = EVT_DATETIMEPICKER_CLICK;
                 e.buttonNode = button;
@@ -960,6 +967,8 @@ if (!Y.Global.ITSAEditModelInstalled) {
                 classNames = button.getAttribute('class');
             // stop the original event to prevent double events
             e.halt();
+            // set the focus manually. This will cause the View to be focussed as well --> now the focusmanager works for this View-instance
+            button.focus();
             e.elementId = button.get('id');
             e.buttonNode = button;
             e.property = GET_PROPERTY_FROM_CLASS(button.getAttribute('class'));
