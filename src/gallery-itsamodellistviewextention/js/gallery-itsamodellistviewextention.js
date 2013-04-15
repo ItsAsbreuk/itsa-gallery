@@ -212,7 +212,7 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
    /**
-    * Whether duplicate values (rendered by the attributefunction 'modelTemplate') are possible.
+    * Whether duplicate values (rendered by the attributefunction 'template') are possible.
     * By default, this will be compared with the previous rendered Model.
     * If you want a more sophisticated dup-check, the set the dupComparator-attribute. But be careful: the dupComparator
     * has a significant performance-hit.
@@ -233,7 +233,7 @@ ITSAModellistViewExtention.ATTRS = {
     * Defines the listType. Use 'ul' for unsorted list, or 'table' for table-format.
     * This attrbute can only be set once during innitialisation.
     * <b>Caution:</b> if you set this attribute to 'table', then all items are tr-elements and you need to render the
-    * td-elements yourself within 'modelTemplate' and groupHeaders (with the right number of td's).
+    * td-elements yourself within 'template' and groupHeaders (with the right number of td's).
     *
     * @attribute listType
     * @type {String}
@@ -573,12 +573,12 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute modelTemplate
+     * @attribute template
      * @type {String}
      * @default '{clientId}'
      * @since 0.1
      */
-    modelTemplate: {
+    template: {
         value: '{clientId}', // default-template, so that there always is content. Best to be overwritten.
         validator: function(v){ return Lang.isString(v); },
         setter: '_setModelTemplate'
@@ -586,7 +586,7 @@ ITSAModellistViewExtention.ATTRS = {
 
     /**
      * Template to render an additional className to the rendered element. In fact: every Model will be rendered inside a <li>-element.
-     * The innercontent of the LI-element is determined by 'modelTemplate' while classNameTemplate can add additional classes to the li-element.
+     * The innercontent of the LI-element is determined by 'template' while classNameTemplate can add additional classes to the li-element.
      * The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
      * where Y.Lang.sub is more lightweight.
      *
@@ -697,7 +697,7 @@ ITSAModellistViewExtention.ATTRS = {
     /**
      * Attribute that identifies duplicate Models.
      * By default, this function is 'null', meaning that Models will be compared with the previous rendered Model to see if they are dups.
-     * (based on the value of 'modelTemplate').
+     * (based on the value of 'template').
      * If Set the dupComparator-attribute, you can have a more sophisticated dup-check which will loop through all the Models. Thus be careful:
      * the dupComparator has a significant performance-hit.
      * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered
@@ -981,7 +981,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     _gH3TemplateInit : false,
 
     /**
-     * Internal flag to tell whether the attribute 'modelTemplate' is initiated.
+     * Internal flag to tell whether the attribute 'template' is initiated.
      * @property _modelTemplateInit
      * @private
      * @default false
@@ -2072,7 +2072,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Setter for attribute modelTemplate. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute template. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
      * @method _setModelTemplate
      * @param {String} val the new set value for this attribute
@@ -2085,7 +2085,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('_setModelTemplate', 'info', 'Itsa-ModellistViewExtention');
         if (instance._modelTemplateInit) {
-            instance._templFns = instance._getAllTemplateFuncs({modelTemplate: val});
+            instance._templFns = instance._getAllTemplateFuncs({template: val});
             if (instance._rerendAttrChg) {
                 instance._renderView();
             }
@@ -2611,15 +2611,15 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @method _getAllTemplateFuncs
      * @param {Object} [setterAttrs] Definition of fields which called this method internally. Only for internal use within some attribute-setters.
      * @private
-     * @return {Object} All templates --> an object with the fields: <b>modelTemplate, classNameTemplate, groupH1, groupH2, groupH3,
+     * @return {Object} All templates --> an object with the fields: <b>template, classNameTemplate, groupH1, groupH2, groupH3,
      * renderGH1, renderGH2, renderGH3, activeClass, activeGH1, activeGH2, activeGH3</b>. The last 4 keys are Booleans, the other are templates.
      * @since 0.1
      *
     */
     _getAllTemplateFuncs : function(setterAttrs) {
         var instance = this,
-            modelTemplate = (setterAttrs && setterAttrs.modelTemplate) || instance.get('modelTemplate'),
-            classNameTemplate = (setterAttrs && setterAttrs.modelTemplate) || instance.get('classNameTemplate'),
+            template = (setterAttrs && setterAttrs.template) || instance.get('template'),
+            classNameTemplate = (setterAttrs && setterAttrs.template) || instance.get('classNameTemplate'),
             groupH1 = (setterAttrs && setterAttrs.groupHeader1) || instance.get('groupHeader1'),
             groupH2 = (setterAttrs && setterAttrs.groupHeader2) || instance.get('groupHeader2'),
             groupH3 = (setterAttrs && setterAttrs.groupHeader3) || instance.get('groupHeader3'),
@@ -2636,26 +2636,30 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             microRenderGH1, microRenderGH2, microRenderGH3;
 
         Y.log('_getAllTemplateFuncs', 'info', 'Itsa-ModellistViewExtention');
-        isMicroTemplate = function(template) {
+        isMicroTemplate = function(checkTemplate) {
             var microTemplateRegExp = /<%(.+)%>/;
-            return microTemplateRegExp.test(template);
+            return microTemplateRegExp.test(checkTemplate);
         };
-        microModelTemplate = isMicroTemplate(modelTemplate);
+        microModelTemplate = isMicroTemplate(template);
         microRenderGH1 = activeGH1 && isMicroTemplate(renderGH1);
         microRenderGH2 = activeGH2 && isMicroTemplate(renderGH2);
         microRenderGH3 = activeGH3 && isMicroTemplate(renderGH3);
         instance._microTemplateUsed = (microModelTemplate || microRenderGH1 || microRenderGH2 || microRenderGH3);
+
+
         if (microModelTemplate) {
-            compiledModelEngine = YTemplateMicro.compile(modelTemplate);
+            compiledModelEngine = YTemplateMicro.compile(template);
             modelEngine = function(model) {
                 return compiledModelEngine(instance.getModelToJSON(model));
             };
         }
         else {
             modelEngine = function(model) {
-                return Lang.sub(modelTemplate, instance.getModelToJSON(model));
+                return Lang.sub(template, instance.getModelToJSON(model));
             };
         }
+
+
         if (isMicroTemplate(classNameTemplate)) {
             compiledModelEngine = YTemplateMicro.compile(classNameTemplate);
             classNameEngine = function(model) {
@@ -2734,7 +2738,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             };
         }
         templateObject = {
-            modelTemplate : modelEngine,
+            template : modelEngine,
             classNameTemplate : classNameEngine,
             groupH1 : groupH1Engine,
             groupH2 : groupH2Engine,
@@ -2751,7 +2755,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Will try to render 'trymodel' through the template defined with tha attribute 'modelTemplate'.
+     * Will try to render 'trymodel' through the template defined with tha attribute 'template'.
      * Only succeeds if it passes all tests declared by the other params. Should it fail the tests, then 'false' is returned.
      * If succeeded, the the HTML (String) will be returned.
      *
@@ -2766,7 +2770,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @param {Object} allTemplateFuncs passed as a parameter for performancereasons
      * @private
      * @return {HTML|false} false if failed -possibly because it's a dup or falls out of the filter-, otherwise returns the rendered HTML: rendered
-     * through the 'modelTemplate'-template
+     * through the 'template'-template
      * @since 0.1
      *
     */
@@ -2792,10 +2796,10 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         };
         allowed = (!viewFilter || viewFilterBinded(trymodel)) &&
                       (!noDups ||
-                       (!dupComparator && ((renderedmodel = allTemplateFuncs.modelTemplate(trymodel))!==prevrenderedmodel)) ||
+                       (!dupComparator && ((renderedmodel = allTemplateFuncs.template(trymodel))!==prevrenderedmodel)) ||
                        (dupComparator && !dupAvailable(trymodel))
                       );
-        return allowed && (renderedmodel || allTemplateFuncs.modelTemplate(trymodel));
+        return allowed && (renderedmodel || allTemplateFuncs.template(trymodel));
     },
 
     _clearAbberantModelList : function() {
@@ -3097,7 +3101,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         modelNode.addClass(MODEL_CLASS);
         modelNode.addClass(modelClientId);
         modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
-        modelNode.setHTML(renderedModel || allTemplateFuncs.modelTemplate(model));
+        modelNode.setHTML(renderedModel || allTemplateFuncs.template(model));
         nodes.push(modelNode);
         return nodes;
     },
@@ -3121,7 +3125,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             itemOnTopValue = lastItemOnTop || instance.get('lastItemOnTop'),
             viewNode = instance._viewNode,
             listTypeUL = (instance.get('listType')==='ul'),
-            template = listTypeUL ? VIEW_EMPTY_ELEMENT_TEMPLATE_UL : VIEW_EMPTY_ELEMENT_TEMPLATE_TABLE,
+            itemTemplate = listTypeUL ? VIEW_EMPTY_ELEMENT_TEMPLATE_UL : VIEW_EMPTY_ELEMENT_TEMPLATE_TABLE,
             modelNode, viewsize, elementsize, modelElements,modelElementsSize, nrCells;
 
         Y.log('_addEmptyItem', 'info', 'Itsa-ModellistViewExtention');
@@ -3134,11 +3138,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             }
         }
         if (!listTypeUL) {
-            // table template --> we must set colspan
+            // table itemTemplate --> we must set colspan
             nrCells = lastModelNode.all('>td').size();
         }
-        template = Lang.sub(template, {cols: nrCells, content: ''});
-        modelNode = YNode.create(template),
+        itemTemplate = Lang.sub(itemTemplate, {cols: nrCells, content: ''});
+        modelNode = YNode.create(itemTemplate),
         modelNode.addClass(EMPTY_ELEMENT_CLASS);
         viewsize = boundingBox.get(yAxis ? 'offsetHeight' : 'offsetWidth');
         if (lastModelNode) {

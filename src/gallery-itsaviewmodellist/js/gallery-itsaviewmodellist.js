@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * ViewModelList Widget
+ * View ModelList Extention
  *
  *
  * Adds an Y.ModelList  or Y.LazyModelList to a View instance, where the Models are rendered inside an ul-element
  * which acts as the 'container'-attribute. This results in an ul-list with rendered Models. The Models are rendered
- * through a template (Y.Lang.sub or Y.Template.Micro) which needs to be defined with the <b>'modelTemplate'-attribute</b>.
+ * through a template (Y.Lang.sub or Y.Template.Micro) which needs to be defined with the <b>'template'-attribute</b>.
  *
  * @module gallery-itsaviewmodellist
  * @extends Widget
@@ -23,7 +23,7 @@ var Lang = Y.Lang,
     MODELLIST_CLASS = 'itsa-modellistview',
     GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader';
 
-Y.ITSAViewModellist = Y.Base.create('itsaviewmodellist', Y.Widget, [Y.ITSAModellistViewExtention, Y.ITSAChangeModelTemplate], {
+Y.ITSAViewModellist = Y.Base.create('itsaviewmodellist', Y.Widget, [Y.ITSAModellistViewExtention], {
 
         /**
          * Makes the Model scroll into the View. Items that are already in the view: no scroll appears. Items that are above: will appear

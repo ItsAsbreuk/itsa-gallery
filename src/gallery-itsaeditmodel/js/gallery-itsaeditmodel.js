@@ -50,6 +50,7 @@ var Lang = Y.Lang,
     ITSAFORMELEMENT_BUTTONTYPE_CLASS = FORMELEMENT_CLASS + '-inputbutton',
     ITSAFORMELEMENT_LIFECHANGE_CLASS = FORMELEMENT_CLASS + '-lifechange',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
+    ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = FORMELEMENT_CLASS + '-enternextfield',
     BUTTON_BUTTON_CLASS = FORMELEMENT_CLASS + '-button',
     SUBMIT_BUTTON_CLASS = FORMELEMENT_CLASS + '-submit',
     RESET_BUTTON_CLASS = FORMELEMENT_CLASS + '-reset',
@@ -80,6 +81,17 @@ var Lang = Y.Lang,
     EVT_SAVE_CLICK = 'saveclick',
     EVT_RESET_CLICK = 'resetclick',
     EVT_DESTROY_CLICK = 'destroyclick',
+
+
+
+   /**
+     * Fired to be caught by ItsaDialog. This event occurs when there is a warning (for example Model changed outside the editview).
+     * @event focusnext
+     * @param e {EventFacade} Event Facade including:
+     * @param e.message {String} The warningmessage.
+     * @since 0.1
+    **/
+    EVT_FOCUS_NEXT = 'focusnext',
    /**
      * Fired to be caught by ItsaDialog. This event occurs when there is a warning (for example Model changed outside the editview).
      * @event dialog:warn
@@ -116,34 +128,6 @@ var Lang = Y.Lang,
       * @param [e.model] {Y.Model} This modelinstance.
     **/
     EVT_BUTTON_CLICK = 'buttonclick',
-   /**
-     * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
-     * the sync layer submit-function returns an error.
-     * @event error
-     * @param e {EventFacade} Event Facade including:
-     * @param e.error {any} Error message.
-     * @param e.src {String} Source of the error. May be one of the following (or any
-     *                     custom error source defined by a Model subclass):
-     *
-     * `submit`: An error submitting the model from within a sync layer.
-     *
-     * `attributevalidation`: An error validating an attribute (or property). The attribute (or objectproperty)
-     *                        that failed validation will be provided as the `attribute` property on the event facade.
-     *
-     * @param e.attribute {String} The attribute/property that failed validation.
-     * @param e.validationerror {String} The errormessage in case of attribute-validation error.
-    **/
-    EVT_ERROR = 'error',
-   /**
-     * Fired after model is submitted from the sync layer.
-     * @event submit
-     * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
-     * @since 0.1
-    **/
-    EVT_SUBMIT = 'submit',
    /**
      * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
      * because the latter will be fired before the namespace Model.itsaeditmodel exists.
@@ -184,7 +168,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 Y.log('You should add a template-attribute to Y.plugin.ITSAEditModel, or Views will render empty!', 'warn', 'Itsa-EditModel');
             }
             instance._itsaformelement = new Y.ITSAFormElement();
-
             /**
               * Event fired the submitbutton is clicked.
               * defaultFunction = calling then model's sync method with action=submit
@@ -451,7 +434,10 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                                     button.focus();
                                 },
                                 function() {
-                                    button.focus();
+                                    // be carefull: button might not exist anymore, when the view is rerendered and making the promise to be rejected!
+                                    if (button) {
+                                        button.focus();
+                                    }
                                 }
                             );
                         }
@@ -467,6 +453,19 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             e.halt();
                             // make the host fire the event
                             instance._fireModelEvent(e.type, e);
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                Y.on(
+                    EVT_FOCUS_NEXT,
+                    function(e) {
+                        if (e.elementId===instance._elementIds[e.property]) {
+                            // stop the original event to prevent double events
+                            e.halt();
+                            // make the host fire the event
+                            instance.fire(EVT_FOCUS_NEXT, e);
                         }
                     }
                 )
@@ -560,6 +559,16 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
+         * The default submitFunction of the 'submitbutton'-event. Will call the server with all Model's properties.
+         * @method _defPluginSubmitFn
+         * @protected
+        */
+        _defPluginSubmitFn : function() {
+            Y.log('_defPluginSubmitFn', 'info', 'Itsa-EditModel');
+            this._defStoreFn('submit');
+        },
+
+        /**
          * Function that is used by _defPluginSaveFn and _defPluginSubmitFn to store the modelvalues.
          * @method _defPluginSaveFn
          * @protected
@@ -574,16 +583,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 instance._editFieldsToModel();
             }
             instance._syncModel(mode);
-        },
-
-        /**
-         * The default submitFunction of the 'submitbutton'-event. Will call the server with all Model's properties.
-         * @method _defPluginSubmitFn
-         * @protected
-        */
-        _defPluginSubmitFn : function() {
-            Y.log('_defPluginSubmitFn', 'info', 'Itsa-EditModel');
-            this._defStoreFn('submit');
         },
 
         /**
@@ -684,12 +683,24 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _storeProperty: function(node, propertyName, value, finished) {
             var instance = this,
                 updateMode = instance.get('updateMode'),
-                propertyconfig, setProperty;
+                isObject = Lang.isObject(value),
+                payload = {
+                    node: node,
+                    property: propertyName,
+                    newVal: (isObject ? Y.merge(value) : value),
+                    finished: finished
+                },
+                propertyconfig, setProperty, attributevalue;
 
             Y.log('_storeProperty', 'info', 'Itsa-EditModel');
             propertyconfig = instance._configAttrs[propertyName];
             if (propertyconfig) {
+                payload.prevValue = isObject ? Y.merge(propertyconfig.value) : propertyconfig.value;
                 propertyconfig.value = value;
+            }
+            else {
+                attributevalue = instance.host.get(propertyName);
+                payload.prevValue = isObject ? Y.merge(attributevalue) : attributevalue;
             }
             setProperty = ((updateMode===3) || ((updateMode===1) && finished));
             if (setProperty) {
@@ -701,6 +712,20 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     instance._needAutoSaved = true;
                 }
             }
+            /**
+              * Event fired when a property changed during editing. This is regardless of whether the property is changed.
+              * Using these events will help you -for instance- with hiding formelements based on property-values.<br />
+              * The evennames consist of the propertyname+'Change'.
+              * @event propertynameChange
+              * @param e {EventFacade} Event Facade including:
+              * @param e.node {Y.Node} The Node that was changed
+              * @param e.property {String} The Model's attribute-name that was changed.
+              * @param e.newVal {Any} The new value
+              * @param e.newVal {Any} The previous value
+              * @param e.finished {Boolean} Whether the attribute finished changing. Some attributes (input, textarea's) can fire
+              *        this event during editing while still busy (not blurring): they have finished set to false.
+            **/
+            instance.fire(propertyName+'Change', payload);
         },
 
         /**
@@ -847,73 +872,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
 // now we need to set global eventhandlers, but only once.
 // unfortunatly they need to keep in memory, even when unplugged.
 // however: they only get there once, so no memoryleaks
-function ITSAEditModelExtention() {}
 if (!Y.Global.ITSAEditModelInstalled) {
     Y.Global.ITSAEditModelInstalled = true;
-    // -- Mixing extra Methods to Y.Model -----------------------------------
-    Y.mix(ITSAEditModelExtention.prototype, {
-       /**
-         * Submits this model to the server.
-         *
-         * This method delegates to the `sync()` method to perform the actual submit
-         * operation, which is an asynchronous action. Specify a _callback_ function to
-         * be notified of success or failure.
-         *
-         * A successful submit-operation will fire a `submit` event, while an unsuccessful
-         * submit operation will fire an `error` event with the `src` value "submit".
-         *
-         * @method submit
-         * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
-         *                 implementation to determine what options it supports or requires, if any.
-         * @param {callback} [callback] Called when the sync operation finishes.
-         * @param {Error|null} callback.err If an error occurred, this parameter will
-         *                     contain the error. If the sync operation succeeded, _err_ will be `null`.
-         * @param {Any} callback.response The server's response. This value is set within e.response of the 'submit' event.
-         *              This value will also  be tried to parse using Y.JSON.parse method. If this succeeds, the eventFacade of the 'submit'
-         *              will have the parsed value set within a.parse.
-         * @chainable
-        **/
-        submit: function (options, callback) {
-            var self = this;
-
-            // Allow callback as only arg.
-            if (typeof options === 'function') {
-                callback = options;
-                options  = {};
-            }
-            options = options || {};
-            self.sync('submit', options, function (err, response) {
-                var facade = {
-                        options : options,
-                        response: response
-                    };
-                if (err) {
-                    facade.error = err;
-                    facade.src   = 'submit';
-                    self.fire(EVT_ERROR, facade);
-                }
-                else {
-                    // Lazy publish.
-                    if (!self._submitEvent) {
-                        self._submitEvent = self.publish(EVT_SUBMIT, {
-                            preventable: false
-                        });
-                    }
-                    try {
-                       facade.parsed = Y.JSON.parse(response);
-                    } catch (ex) {}
-                    self.fire(EVT_SUBMIT, facade);
-                }
-                if (callback) {
-                    callback.apply(null, arguments);
-                }
-            });
-            return self;
-        }
-    }, true);
-    Y.ITSAEditModelExtention = ITSAEditModelExtention;
-    Y.Base.mix(Y.Model, [ITSAEditModelExtention]);
-    //===============================================================================================
     var body = Y.one('body');
     body.delegate(
         'click',
@@ -959,6 +919,23 @@ if (!Y.Global.ITSAEditModelInstalled) {
             Y.fire(EVT_INPUT_CHANGE, e);
         },
         '.'+ITSAFORMELEMENT_LIFECHANGE_CLASS
+    );
+    body.delegate(
+        'keypress',
+        function(e) {
+            if (e.keyCode===13) {
+                // stop the original event to prevent double events
+                e.halt();
+                var inputnode = e.currentTarget;
+                // seems that e.halt() cannot be called here ???
+                e.elementId = inputnode.get('id');
+                e.inputNode = inputnode;
+                e.property = GET_PROPERTY_FROM_CLASS(inputnode.getAttribute('class'));
+                e.type = EVT_FOCUS_NEXT;
+                Y.fire(EVT_FOCUS_NEXT, e);
+            }
+        },
+        '.'+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS
     );
     body.delegate(
         'click',

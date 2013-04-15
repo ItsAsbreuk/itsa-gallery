@@ -42,7 +42,9 @@ var Lang = Y.Lang,
     MODELVIEW_STYLED = 'itsa-modelview-styled',
     MODELVIEW_STYLED_FORM = 'yui3-form',
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
-    ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed';
+    ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
+    EVT_FOCUS_NEXT = 'focusnext';
+
 
 //===============================================================================================
 //
@@ -209,6 +211,23 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     }
                 )
             );
+
+            eventhandlers.push(
+                model.after(
+                    'itsaeditmodel:templateChange',
+                    function(e) {
+                        var newTemplate = e.newVal,
+                            itsatabkeymanager = boundingBox.itsatabkeymanager,
+                            modelEditable = instance.get('modelEditable');
+                        if (modelEditable && model.itsaeditmodel) {
+                            view.template = newTemplate;
+                            instance._setTemplateRenderer(newTemplate, true);
+                            view.render();
+                        }
+                    }
+                )
+            );
+
             eventhandlers.push(
                 instance.after(
                     'modelEditableChange',
@@ -262,6 +281,21 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 )
             );
             eventhandlers.push(
+                view.after(
+                    'itsaeditmodel:focusnext',
+                    function() {
+                        var itsatabkeymanager = boundingBox.itsatabkeymanager;
+                        if (itsatabkeymanager && instance.get('focused')) {
+                            Y.log('focus to next field', 'info', 'Itsa-ViewModel');
+                            itsatabkeymanager.next();
+                        }
+                        else {
+                            Y.log('No focus to next field: Y.Plugin.ITSATabKeyManager not plugged in', 'info', 'Itsa-ViewModel');
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
                 instance.after(
                     'eventsChange',
                     function(e) {
@@ -302,9 +336,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox.after(
                     'click',
                     function() {
-                        var itsafocusmanager = boundingBox.itsafocusmanager;
-                        if (itsafocusmanager) {
-                            itsafocusmanager.retreiveFocus();
+                        var itsatabkeymanager = boundingBox.itsatabkeymanager;
+                        if (itsatabkeymanager) {
+                            itsatabkeymanager.retreiveFocus();
                             // this will automaticly focus the host=view-instance
                         }
                         else {
@@ -412,12 +446,21 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         _viewRenderer : function (clear) {
           var instance = this,
               boundingBox = instance.get('boundingBox'),
+              itsatabkeymanager = boundingBox.itsatabkeymanager,
               view = instance.view,
               container = view.get('container'),
               model = view.get('model'),
+              itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
               html = clear ? '' : instance._modelRenderer(model);
 
           Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
+          if (itsatabkeymanager) {
+              var item = itsatabkeymanager.get('activeItem');
+              if (item) {
+                  itsatabkeymanager.set('activeItem', null);
+                  item.blur();
+              }
+          }
           // Render this view's HTML into the container element.
           // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
           if (instance._isMicroTemplate || (model.itsaeditmodel && instance.get('modelEditable'))) {
@@ -425,8 +468,14 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
           }
           container.setHTML(html);
           // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
-          if (boundingBox.get('focused') && boundingBox.itsafocusmanager) {
-              boundingBox.itsafocusmanager.focusInitialItem();
+          if (itsatabkeymanager) {
+              itsatabkeymanager.refresh(boundingBox);
+              if (instance.get('focused')) {
+                  itsatabkeymanager.focusInitialItem();
+              }
+          }
+          if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
+              itsaDateTimePicker.hide(true);
           }
           return instance;
         },

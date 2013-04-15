@@ -82,20 +82,20 @@ Y.mix(ITSAChangeModelTemplate.prototype, {
      * Changes the template that is used for rendering this model to its second-version -defined with 'setSecondTemplate'.
      * Will do a re-render for only the modelnode that was bound to the model.
      *
-     * @method changeTemplate
+     * @method renderSecondTemplate
      * @param {Y.Model|Int} model Model-instance or index of the model-instance in the scrollview.
      * @since 0.1
      *
     */
-    changeTemplate: function(model) {
+    renderSecondTemplate: function(model) {
         var instance = this,
             alternateTemplate = instance._altTempl,
             modelNode;
 
         Y.log('changeTemplate', 'info', 'Itsa-ChangeModelTemplate');
-        modelNode = (Lang.isNumber(model) ? instance.getNodeFromIndex(model, 0)  : instance.getNodeFromModel(model, 0));
+        modelNode = (Lang.isNumber(model) ? instance.getNodeFromIndex(model, 0) : instance.getNodeFromModel(model, 0));
         if (modelNode && alternateTemplate) {
-            if (isMicroTemplate(instance.get('modelTemplate'))) {
+            if (isMicroTemplate(instance.get('template'))) {
                 modelNode.cleanup();
             }
             modelNode.setHTML(alternateTemplate(model));
@@ -116,15 +116,16 @@ Y.mix(ITSAChangeModelTemplate.prototype, {
             modelNode;
 
         Y.log('restoreTemplate', 'info', 'Itsa-ChangeModelTemplate');
-        modelNode = (Lang.isNumber(model) ? instance.getNodeFromIndex(model, 0)  : instance.getNodeFromModel(model, 0));
+        modelNode = (Lang.isNumber(model) ? instance.getNodeFromIndex(model, 0) : instance.getNodeFromModel(model, 0));
         if (modelNode) {
             if (instance._altTempl && instance._altTemplIsMicro) {
                 modelNode.cleanup();
             }
-            modelNode.setHTML(instance._templFns.modelTemplate(model));
+            modelNode.setHTML(instance._templFns.template(model));
         }
     }
 
 }, true);
 
 Y.ITSAChangeModelTemplate = ITSAChangeModelTemplate;
+Y.Base.mix(Y.ITSAModellistViewExtention, [ITSAChangeModelTemplate]);

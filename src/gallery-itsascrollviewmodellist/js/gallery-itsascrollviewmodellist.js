@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * ScrollViewModelList Widget
+ * ScrollView ModelList Extention
  *
  *
  * Adds an Y.ModelList  or Y.LazyModelList to a ScrollView instance, where the Models are rendered inside an ul-element
@@ -31,7 +31,7 @@ var Lang = Y.Lang,
         return parseInt(node.getStyle(style), 10);
     };
 
-Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollView, [Y.ITSAModellistViewExtention, Y.ITSAChangeModelTemplate], {
+Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollView, [Y.ITSAModellistViewExtention], {
 
         /**
          * Internal flag to tell whether the attribute 'lastItemOnTop' is initiated.

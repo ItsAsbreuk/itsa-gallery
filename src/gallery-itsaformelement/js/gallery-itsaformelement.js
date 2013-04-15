@@ -27,6 +27,7 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_FIRSTFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'firstfocus'),
     ITSAFORMELEMENT_SELECTONFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'selectall'),
     ITSAFORMELEMENT_KEYVALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'keyvalidation'),
+    ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'enternextfield'),
     ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validationmessage'),
     ITSAFORMELEMENT_AUTOCORRECT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'autocorrect'),
     ITSAFORMELEMENT_LIFECHANGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'lifechange'),
@@ -100,8 +101,8 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
         */
         render : function(config, nodeId) {
             var instance = this,
-                element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname,
-                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo;
+                element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,
+                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField;
 
             Y.log('renderElement', 'cmas', 'ITSAFORMELEMENT');
             if (typeof config === 'object') {
@@ -113,6 +114,8 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             dateFormat = instance.get('dateFormat');
             autoCorrection = instance.get('autoCorrection');
             validation = !autoCorrection && instance.get('validation');
+            enterNextField = (type==='input') || (type==='password');
+            isDateOrTime = (type==='date') || (type==='time') || (type==='datetime');
             isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='destroy');
             focusable = instance.get('focusable');
             focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);
@@ -128,6 +131,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name)
                         + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type)
                         + (classnameAttr ? ' '+classnameAttr : '')
+                        + (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '')
                         + (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '')
                         + (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '')
                         + (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '')
@@ -173,17 +177,14 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             else if (type==='date') {
                 element = ELEMENT_DATE;
                 dateFormat = dateFormat || '%x';
-                value = yDateFormat(value, {format: dateFormat});
             }
             else if (type==='time') {
                 element = ELEMENT_TIME;
                 dateFormat = dateFormat || '%X';
-                value = yDateFormat(value, {format: dateFormat});
             }
             else if (type==='datetime') {
                 element = ELEMENT_DATETIME;
                 dateFormat = dateFormat || '%x %X';
-                value = yDateFormat(value, {format: dateFormat});
             }
             else if (type==='autocomplete') {
                 element = ELEMENT_AUTOCOMPLETE;
@@ -199,6 +200,11 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             }
             else {
                 element = ELEMENT_UNDEFINED;
+            }
+            if (isDateOrTime) {
+                value = yDateFormat(value, {format: dateFormat});
+                // asynchronious preloading the module
+                Y.use('gallery-itsadatetimepicker');
             }
             return Lang.sub(
                             element,
