@@ -6,6 +6,7 @@
             "event-custom",
             "node-event-delegate",
             "plugin"
-        ]
+        ],
+        "skinnable": true
     }
 }
