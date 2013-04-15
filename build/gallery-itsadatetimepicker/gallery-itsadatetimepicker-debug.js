@@ -295,7 +295,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             selectedDate.setSeconds(0);
                             selectedDate.setMinutes(0);
                             selectedDate.setHours(0);
-                            instance._hide();
+                            instance.hide();
                             resolve(selectedDate);
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -370,7 +370,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             selectedDateTime.setSeconds(0);
                             selectedDateTime.setMinutes(newMinutes);
                             selectedDateTime.setHours(newHours);
-                            instance._hide();
+                            instance.hide();
                             resolve(selectedDateTime);
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -433,7 +433,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                                 newHours = Math.floor(timedialValue/60),
                                 newMinutes = timedialValue - (60*newHours),
                                 selectedTime = new Date(1900, 0, 1, newHours, newMinutes, 0, 0);
-                            instance._hide();
+                            instance.hide();
                             resolve(selectedTime);
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -525,18 +525,17 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                                 * @since 0.1
                                 */
                                 if (!instance._unclosable) {
-                                    Y.fire(EVENT_CANCEL);
+                                    instance.hide();
                                 }
                             }
                         )
                     );
                     eventhandlers.push(
-                        boundingBox.on(
+                        Y.on(
                             'keydown',
                             function(e) {
-                                if ((e.keyCode === 27) && !instance._unclosable) { // escape
-                                    instance._hide();
-                                    Y.fire(EVENT_CANCEL);
+                                if ((e.keyCode === 27) && !instance._unclosable && instance.panel.get('focused')) { // escape
+                                    instance.hide();
                                 }
                             }
                         )
@@ -728,20 +727,23 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
         },
 
         /**
-         * Hides the picker-instance.
+         * Hides the picker-instance and will make the Promise to be rejected.
          *
-         * @method _hide
-         * @private
+         * @method hide
+         * @param [force] {Boolean} Force closing, even when config.forceSelectdate is set to true
          * @since 0.1
         */
-        _hide : function() {
+        hide : function(force) {
             var instance = this;
 
             Y.log('_hide', 'info', 'Itsa-DateTimePicker');
-            // ALSO hide calendar --> its inline style might be set to 'visible' resulting it to be kept on the screen
-            instance.calendar.hide();
-            instance._toggleTimePicker(false, false);
-            instance.panel.hide();
+            force = Lang.isBoolean(force) && force;
+            if (instance.panel.get('visible') && (force || !instance._unclosable)) {
+                instance.calendar.hide();
+                instance._toggleTimePicker(false, false);
+                instance.panel.hide();
+                Y.fire(EVENT_CANCEL);
+            }
          },
 
         /**
@@ -881,10 +883,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             alignToNode = userConfig.alignToNode;
             if (panel.get('visible')) {
                 // previous picker is up --> we need to reject the promise by firing an EVENT_CANCEL-event:
-                Y.fire(EVENT_CANCEL);
-                // also hide the picker ourselves --> the cancel-event does not do this
-                // we need this, because the picker might be redrawed with other settings (like model-change)
-                instance.panel.hide();
+                instance.hide();
             }
             if (modus<3) {
                 calendar.deselectDates();
@@ -992,11 +991,14 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             }
             panel.set('modal', userConfig.modal);
             switch (modus) {
-                case 1: panel.set('headerContent', userConfig.title || userConfig.titleDate);
+                case 1:
+                    panel.set('headerContent', userConfig.title || userConfig.titleDate);
                     break;
-                case 2: panel.set('headerContent', userConfig.title || userConfig.titleDateTime);
+                case 2:
+                    panel.set('headerContent', userConfig.title || userConfig.titleDateTime);
                     break;
-                case 3: panel.set('headerContent', userConfig.title || userConfig.titleTime);
+                case 3:
+                    panel.set('headerContent', userConfig.title || userConfig.titleTime);
             }
             if (userConfig.dragable) {
                 if (!panel.hasPlugin('dd')) {
@@ -1015,6 +1017,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             instance._timepickerSelectOnRelease = userConfig.selectOnRelease;
             instance._closebutton.toggleClass(UNCLOSABLE_CLASS, instance._unclosable);
             panel.show();
+            panel.focus();
          },
 
         /**
