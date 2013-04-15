@@ -291,7 +291,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             selectedDate.setSeconds(0);
                             selectedDate.setMinutes(0);
                             selectedDate.setHours(0);
-                            instance.hide();
+                            instance.hide(true, false);
                             resolve(selectedDate);
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -365,7 +365,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                             selectedDateTime.setSeconds(0);
                             selectedDateTime.setMinutes(newMinutes);
                             selectedDateTime.setHours(newHours);
-                            instance.hide();
+                            instance.hide(true, false);
                             resolve(selectedDateTime);
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -427,7 +427,7 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                                 newHours = Math.floor(timedialValue/60),
                                 newMinutes = timedialValue - (60*newHours),
                                 selectedTime = new Date(1900, 0, 1, newHours, newMinutes, 0, 0);
-                            instance.hide();
+                            instance.hide(true, false);
                             resolve(selectedTime);
                             // we don't want closures: 'null' the promise
                             promise = null;
@@ -448,6 +448,28 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
                 }
             );
             return promise;
+         },
+
+        /**
+         * Hides the picker-instance. By firing the cancelEvent it will make the Promise to be rejected.
+         *
+         * @method hide
+         * @param [force] {Boolean} Force closing, even when config.forceSelectdate is set to true
+         * @param [force] {Boolean} Fire cancelevent
+         * @since 0.2
+        */
+        hide : function(force, fireCancelevent) {
+            var instance = this;
+
+            force = Lang.isBoolean(force) && force;
+            if (instance.panel.get('visible') && (force || !instance._unclosable)) {
+                instance.calendar.hide();
+                instance._toggleTimePicker(false, false);
+                instance.panel.hide();
+                if (fireCancelevent) {
+                    Y.fire(EVENT_CANCEL);
+                }
+            }
          },
 
         /**
@@ -710,25 +732,6 @@ Y.ITSADateTimePicker = Y.Base.create('itsadatetimepicker', Y.Base, [], {
             };
             panel.addButton(selectButton);
         },
-
-        /**
-         * Hides the picker-instance and will make the Promise to be rejected.
-         *
-         * @method hide
-         * @param [force] {Boolean} Force closing, even when config.forceSelectdate is set to true
-         * @since 0.1
-        */
-        hide : function(force) {
-            var instance = this;
-
-            force = Lang.isBoolean(force) && force;
-            if (instance.panel.get('visible') && (force || !instance._unclosable)) {
-                instance.calendar.hide();
-                instance._toggleTimePicker(false, false);
-                instance.panel.hide();
-                Y.fire(EVENT_CANCEL);
-            }
-         },
 
         /**
          * Renderes the time in the right format (stored inside the property '_timeFormat')
