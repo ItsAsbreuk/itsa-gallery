@@ -48,6 +48,7 @@ var Lang = Y.Lang,
     GROUPHEADER_SEQUEL_CLASS = MODELLIST_CLASS + '-sequelgroupheader',
     SVML_UNSELECTABLE = MODELLIST_CLASS + '-unselectable',
     SVML_SHOWLOADING_CLASS = MODELLIST_CLASS + '-showloading',
+    FORM_STYLE_CLASS = 'yui3-form',
     LOADING_MESSAGE = 'Loading...',
     NO_DATA_MESSAGE = 'No data to display',
     GETSTYLE = function(node, style) {
@@ -108,12 +109,6 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
                 revivedModel = instance.revive(model);
                 model[name] = value;
                 if (revivedModel) {
-                    //======================================================================================
-                    // due to a bug, we need to sync cliendId first https://github.com/yui/yui3/issues/530
-                    //
-                    revivedModel._set('clientId', model.clientId, {silent: true});
-                    //
-                    //======================================================================================
                     revivedModel.set(name, value, options);
                     instance.free(revivedModel);
                 }
@@ -212,7 +207,7 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
    /**
-    * Whether duplicate values (rendered by the attributefunction 'template') are possible.
+    * Whether duplicate values (rendered by the attributefunction 'modelTemplate') are possible.
     * By default, this will be compared with the previous rendered Model.
     * If you want a more sophisticated dup-check, the set the dupComparator-attribute. But be careful: the dupComparator
     * has a significant performance-hit.
@@ -233,7 +228,7 @@ ITSAModellistViewExtention.ATTRS = {
     * Defines the listType. Use 'ul' for unsorted list, or 'table' for table-format.
     * This attrbute can only be set once during innitialisation.
     * <b>Caution:</b> if you set this attribute to 'table', then all items are tr-elements and you need to render the
-    * td-elements yourself within 'template' and groupHeaders (with the right number of td's).
+    * td-elements yourself within 'modelTemplate' and groupHeaders (with the right number of td's).
     *
     * @attribute listType
     * @type {String}
@@ -573,20 +568,20 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute template
+     * @attribute modelTemplate
      * @type {String}
      * @default '{clientId}'
      * @since 0.1
      */
-    template: {
-        value: '{clientId}', // default-template, so that there always is content. Best to be overwritten.
+    modelTemplate: {
+        value: '{clientId}', // default-modelTemplate, so that there always is content. Best to be overwritten.
         validator: function(v){ return Lang.isString(v); },
         setter: '_setModelTemplate'
     },
 
     /**
      * Template to render an additional className to the rendered element. In fact: every Model will be rendered inside a <li>-element.
-     * The innercontent of the LI-element is determined by 'template' while classNameTemplate can add additional classes to the li-element.
+     * The innercontent of the LI-element is determined by 'modelTemplate' while classNameTemplate can add additional classes to the li-element.
      * The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
      * where Y.Lang.sub is more lightweight.
      *
@@ -697,7 +692,7 @@ ITSAModellistViewExtention.ATTRS = {
     /**
      * Attribute that identifies duplicate Models.
      * By default, this function is 'null', meaning that Models will be compared with the previous rendered Model to see if they are dups.
-     * (based on the value of 'template').
+     * (based on the value of 'modelTemplate').
      * If Set the dupComparator-attribute, you can have a more sophisticated dup-check which will loop through all the Models. Thus be careful:
      * the dupComparator has a significant performance-hit.
      * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered
@@ -981,7 +976,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     _gH3TemplateInit : false,
 
     /**
-     * Internal flag to tell whether the attribute 'template' is initiated.
+     * Internal flag to tell whether the attribute 'modelTemplate' is initiated.
      * @property _modelTemplateInit
      * @private
      * @default false
@@ -1319,9 +1314,10 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @method unselectModels
      * @param {Y.Model|Array} models Model or Array of Models to be checked
      * @param {boolean} [silent] set true if you don't want a 'modelSelectionChange'-event to be fired.
+     * @param {boolean} [force] set true if you always want the model to be unselected, even if 'modelsUnselectable' is true
      * @since 0.1
     */
-    unselectModels : function(models, silent) {
+    unselectModels : function(models, silent, force) {
         var instance = this,
             prevSize, contentBox;
 
@@ -1334,12 +1330,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             YArray.each(
                 models,
                 function(model) {
-                    instance._selectModel(model, false);
+                    instance._selectModel(model, false, null, force);
                 }
             );
         }
         else {
-            instance._selectModel(models, false);
+            instance._selectModel(models, false, null, force);
         }
         if (!silent && (prevSize!==contentBox.all('.'+SVML_SELECTED_CLASS).size())) {
             instance._fireSelectedModels();
@@ -1498,12 +1494,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 revivedModel = modelList.revive(model);
                 model[name] = value;
                 if (revivedModel) {
-                    //======================================================================================
-                    // due to a bug, we need to sync cliendId first https://github.com/yui/yui3/issues/530
-                    //
-                    revivedModel._set('clientId', model.clientId, {silent: true});
-                    //
-                    //======================================================================================
                     revivedModel.set(name, value, options);
                     modelList.free(revivedModel);
                 }
@@ -1718,6 +1708,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance.after('modelListChange', function (ev) {
                 var newmodellist = ev.newVal,
                     prevmodellist = ev.prevVal;
+                modellist = newmodellist;
                 if (prevmodellist) {
                     prevmodellist.removeTarget(instance);
                 }
@@ -1731,6 +1722,14 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     instance.get('contentBox').setHTML('');
                 }
             })
+        );
+        eventhandlers.push(
+            boundingBox.on(
+                'click',
+                function() {
+                    instance.focus();
+                }
+            )
         );
         // This was a though one!!
         // When paginator is plugged in, the scrollview-instance will make instance._gesture to become not null
@@ -1749,18 +1748,35 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 }
             )
         );
-        //========================================================
-        //
-        // LACK IN ModelList --> make resort after *:change
-        //
-        //=======================================================
         eventhandlers.push(
             instance.after(
-                '*:change',
-                function() {
-                    var modellist = instance.get('modelList');
-                    if (modellist && instance.get('modelList').comparator) {
-                        modellist.sort();
+                'model:change',
+                function(e) {
+                    var model = e.target;
+                    if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
+                        //========================================================
+                        //
+                        // LACK IN ModelList --> make resort after model:change
+                        //
+                        //=======================================================
+                        if (modellist && modellist.comparator) {
+                            modellist.sort();
+                        }
+                        instance._renderView();
+                    }
+                    if (instance.modelIsSelected(model)) {
+                        instance._fireSelectedModels();
+                    }
+                }
+            )
+        );
+        eventhandlers.push(
+            instance.after(
+                'model:destroy',
+                function(e) {
+                    var model = e.target;
+                    if (instance.modelIsSelected(model)) {
+                        instance._fireSelectedModels();
                     }
                 }
             )
@@ -1777,8 +1793,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     }
                 },
                 function() {
-                    var tagName = this.get('tagName');
-                    return ((tagName==='A') || (tagName==='BUTTON'));
+                    var node = this,
+                        tagName = node.get('tagName');
+                    return ((tagName==='A') || (tagName==='BUTTON') || (node.hasClass('focusable')));
                 }
             )
         );
@@ -1801,7 +1818,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         // because we made it bubble-up to the scrollview-instance, we attach the listener there.
         eventhandlers.push(
             instance.after(
-                ['modelList:remove', 'lazyModelList:remove', 'modelList:add', 'lazyModelList:add', '*:change'],
+                ['modelList:remove', 'lazyModelList:remove', 'modelList:add', 'lazyModelList:add'],
                 Y.bind(instance._renderView, instance, null, null)
             )
         );
@@ -2165,7 +2182,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this;
 
         Y.log('_setModelListStyled', 'info', 'Itsa-ModellistViewExtention');
-        instance.get('boundingBox').toggleClass(SVML_STYLE_CLASS, val);
+        instance.get('boundingBox').toggleClass(SVML_STYLE_CLASS, val).toggleClass(FORM_STYLE_CLASS, val);
     },
 
     /**
@@ -2301,21 +2318,23 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setMarkModelChange', 'info', 'Itsa-ModellistViewExtention');
         if (val && (val>0) && !instance._markModelChangeEv) {
             instance._markModelChangeEv = instance.after(
-                '*:change',
+                'model:change',
                 function(e) {
-                    var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
-                        node = instance.getNodeFromModel(model);
-                    if (node) {
-                        node.addClass(MODEL_CHANGED_CLASS);
-                        Y.later(
-                            val,
-                            instance,
-                            function() {
-                                if (node) {
-                                    node.removeClass(MODEL_CHANGED_CLASS);
+                    if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
+                        var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
+                            node = instance.getNodeFromModel(model);
+                        if (node) {
+                            node.addClass(MODEL_CHANGED_CLASS);
+                            Y.later(
+                                val,
+                                instance,
+                                function() {
+                                    if (node) {
+                                        node.removeClass(MODEL_CHANGED_CLASS);
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     }
                 }
             );
@@ -2618,7 +2637,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     */
     _getAllTemplateFuncs : function(setterAttrs) {
         var instance = this,
-            template = (setterAttrs && setterAttrs.template) || instance.get('template'),
+            itsacmtemplate = instance.itsacmtemplate,
+            template = (setterAttrs && setterAttrs.template) || instance.get('modelTemplate'),
             classNameTemplate = (setterAttrs && setterAttrs.template) || instance.get('classNameTemplate'),
             groupH1 = (setterAttrs && setterAttrs.groupHeader1) || instance.get('groupHeader1'),
             groupH2 = (setterAttrs && setterAttrs.groupHeader2) || instance.get('groupHeader2'),
@@ -2645,21 +2665,34 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         microRenderGH2 = activeGH2 && isMicroTemplate(renderGH2);
         microRenderGH3 = activeGH3 && isMicroTemplate(renderGH3);
         instance._microTemplateUsed = (microModelTemplate || microRenderGH1 || microRenderGH2 || microRenderGH3);
-
-
-        if (microModelTemplate) {
-            compiledModelEngine = YTemplateMicro.compile(template);
-            modelEngine = function(model) {
-                return compiledModelEngine(instance.getModelToJSON(model));
-            };
+        if (!itsacmtemplate) {
+            // default behaviour without Y.Plugin.ITSAChangeModelTemplate
+            if (microModelTemplate) {
+                compiledModelEngine = YTemplateMicro.compile(template);
+                modelEngine = function(model) {
+                    return compiledModelEngine(instance.getModelToJSON(model));
+                };
+            }
+            else {
+                modelEngine = function(model) {
+                    return Lang.sub(template, instance.getModelToJSON(model));
+                };
+            }
         }
         else {
-            modelEngine = function(model) {
-                return Lang.sub(template, instance.getModelToJSON(model));
-            };
+            // WITH Y.Plugin.ITSAChangeModelTemplate
+            if (microModelTemplate) {
+                compiledModelEngine = YTemplateMicro.compile(template);
+                modelEngine = function(model) {
+                    return itsacmtemplate._getModelEngine(model, null, compiledModelEngine);
+                };
+            }
+            else {
+                modelEngine = function(model) {
+                    return itsacmtemplate._getModelEngine(model, template);
+                };
+            }
         }
-
-
         if (isMicroTemplate(classNameTemplate)) {
             compiledModelEngine = YTemplateMicro.compile(classNameTemplate);
             classNameEngine = function(model) {
@@ -2755,7 +2788,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Will try to render 'trymodel' through the template defined with tha attribute 'template'.
+     * Will try to render 'trymodel' through the template defined with tha attribute 'modelTemplate'.
      * Only succeeds if it passes all tests declared by the other params. Should it fail the tests, then 'false' is returned.
      * If succeeded, the the HTML (String) will be returned.
      *
@@ -2770,7 +2803,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @param {Object} allTemplateFuncs passed as a parameter for performancereasons
      * @private
      * @return {HTML|false} false if failed -possibly because it's a dup or falls out of the filter-, otherwise returns the rendered HTML: rendered
-     * through the 'template'-template
+     * through the 'modelTemplate'-template
      * @since 0.1
      *
     */
@@ -3255,10 +3288,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
      * at the <b>max of ITSAInifiniteView.get('maxExpansions') times by default</b>. If you are responsible for the external data and
      * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
+     * @param {boolean} [force] set true if you always want the model to be unselected, even if 'modelsUnselectable' is true
      * @private
      * @since 0.1
     */
-    _selectModel : function(model, selectstatus, maxExpansions) {
+    _selectModel : function(model, selectstatus, maxExpansions, force) {
 //=============================================================================================================================
 //
 // NEED SOME WORK HERE: MIGHT BE ASYNCHROUS --> WE NEED TO RETURN A PROMISE
@@ -3270,7 +3304,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             itemUnselectable = (!selectstatus && instance.get('modelsUnselectable') && (YObject.size(instance._selectedModels)===1)),
             modelnode;
 
-        if (modelid && !itemUnselectable) {
+        if (modelid && (!itemUnselectable || force)) {
             Y.log('_selectModel '+instance.getModelAttr(model, "clientId")+' new selectstatus: '+selectstatus, 'info', 'Itsa-ModellistViewExtention');
             if (instance.hasPlugin('itsainfiniteview')) {
                 // make sure the node is rendered

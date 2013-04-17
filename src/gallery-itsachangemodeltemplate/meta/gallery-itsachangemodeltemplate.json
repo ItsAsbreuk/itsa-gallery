@@ -2,6 +2,9 @@
     "gallery-itsachangemodeltemplate": {
         "requires": [
             "yui-base",
+            "base-build",
+            "plugin-base",
+            "pluginhost-base",
             "template-micro"
         ]
     }

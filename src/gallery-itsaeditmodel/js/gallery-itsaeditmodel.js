@@ -39,6 +39,7 @@
 var Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
+    UNDEFINED_VALUE = 'undefined value',
     MESSAGE_WARN_MODELCHANGED = 'The data you are editing has been changed from outside the form. '+
                                 'If you save your data, then these former changed will be overridden.',
     EVT_DATETIMEPICKER_CLICK = 'editmodel:datetimepickerclick',
@@ -210,7 +211,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host.publish(
                 EVT_SAVE_CLICK,
                 {
-                    defaultFn: Y.rbind(instance._defPluginSaveFn, instance)
+                    defaultFn: Y.rbind(instance.save, instance)
                 }
             );
             /**
@@ -251,8 +252,48 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
-         * Renderes the property into a formelement. Best you specify 'config', so the renderer knows at least its type.
-         * Should you ommit 'config' then the renderer will try to find out the type automaticly.
+         * Renderes a button into a formelement. You must specify 'config', so the renderer knows at least its type.
+         *
+         * @method getFormelement
+         * @param buttonText {String} Text on the button.
+         * @param config {String} config that is passed through to ItsaFormElement
+         * @param config.type {String} Property-type --> see ItsaFormElement for the attribute 'type' for further information.
+         * @param [config.className] {String} Additional className that is passed on the value, during rendering.
+         * @param [config.initialFocus] {Boolean} Whether this element should have the initial focus.
+         * @param [config.selectOnFocus] {Boolean} Whether this element should completely be selected when it gets focus.
+         * @return {String} property (or attributes), rendered as a form-element. The rendered String should be added to the DOM yourself.
+         * @since 0.1
+         */
+        getButton : function(buttonText, config) {
+            var instance = this,
+                value = buttonText,
+                name = buttonText.replace(/ /g,'_'),
+                type = config.type,
+                useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: name, value: value}),
+                renderedFormElement, nodeId;
+
+            Y.log('getButton', 'info', 'Itsa-EditModel');
+            if (name && config && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') || (type==='destroy'))) {
+                instance._configAttrs[name] = useConfig;
+                if (!instance._elementIds[name]) {
+                    instance._elementIds[name] = Y.guid();
+                }
+                nodeId = instance._elementIds[name];
+                renderedFormElement = instance._itsaformelement.render(useConfig, nodeId);
+                // after rendering we are sure definitely sure what type we have (even if not specified)
+                if (instance._isDateTimeType(useConfig.type)) {
+                    Y.use('gallery-itsadatetimepicker');
+                }
+            }
+            else {
+                renderedFormElement = '';
+            }
+            return renderedFormElement;
+        },
+
+        /**
+         * Renderes the property (Model's attribute) into a formelement. You must specify 'config', so the renderer knows at least its type.
+         * Only call this method for existing attributes. If you need buttons, you can use 'getButton'.
          *
          * @method getFormelement
          * @param propertyName {String} the property (or attribute in case of Model) which should be rendered to a formelement
@@ -278,7 +319,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 renderedFormElement, nodeId;
 
             Y.log('getFormelement', 'info', 'Itsa-EditModel');
-            if (config) {
+            if (propertyName && config) {
                 instance._configAttrs[propertyName] = useConfig;
                 if (!instance._elementIds[propertyName]) {
                     instance._elementIds[propertyName] = Y.guid();
@@ -297,8 +338,19 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
-         * Renderes a copy of all object's properties, or in case of a Model, its attributes.
-         * Should you ommit 'configAttrs' then the renderer will try to find out the types automaticly.
+         * Saves all editable properties to the Model and calls the models synclayer.
+         * If you want to listen for the callback, the must specify the callbackfunctions within the attribute 'syncCallbacks.save'
+         * @method save
+         * @protected
+        */
+        save : function(silent) {
+            Y.log('save', 'info', 'Itsa-EditModel');
+            this._defStoreFn('save', silent);
+        },
+
+        /**
+         * Renderes a copy of all Model's attributes.
+         * Should you omit 'configAttrs' then the renderer will try to find out the types automaticly.
          *
          * @method toJSON
          * @param configAttrs {Object} Every property of the host object/model can be defined as a property of configAttrs as well.
@@ -334,6 +386,23 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                         }
                         else {
                             delete object[key];
+                        }
+                    }
+                );
+                // Next, we need to look for buttons tht are not part of the attributes
+                YObject.each(
+                    configAttrs,
+                    function(config, key) {
+                        var type = config.type;
+                        if ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') || (type==='destroy')) {
+                            useConfig = Y.merge(DEFAULTCONFIG, config, {name: key, value: config.buttonText || UNDEFINED_VALUE});
+                            key.name = key;
+                            key.value = config.buttonText;
+                            if (!instance._elementIds[key]) {
+                                instance._elementIds[key] = Y.guid();
+                            }
+                            nodeId = instance._elementIds[key];
+                            allproperties[key] = instance._itsaformelement.render(useConfig, nodeId);
                         }
                     }
                 );
@@ -545,17 +614,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
 
             Y.log('_defPluginResetFn will reset the Modeldata', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
-            instance.host.reset();
-        },
-
-        /**
-         * The default submitFunction of the 'savebutton'-event. Will call the server with all Model's properties.
-         * @method _defPluginSaveFn
-         * @protected
-        */
-        _defPluginSaveFn : function() {
-            Y.log('_defPluginSaveFn', 'info', 'Itsa-EditModel');
-            this._defStoreFn('save');
         },
 
         /**
@@ -569,20 +627,25 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
-         * Function that is used by _defPluginSaveFn and _defPluginSubmitFn to store the modelvalues.
-         * @method _defPluginSaveFn
+         * Function that is used by save and _defPluginSubmitFn to store the modelvalues.
+         * @method _defStoreFn
+         * @param mode {String} type of update
+         * @param [silent] {Boolean} when true, it doesn't call the synclayer
          * @protected
         */
-        _defStoreFn : function(mode) {
+        _defStoreFn : function(mode, silent) {
             var instance = this,
                 updateMode = instance.get('updateMode');
 
             Y.log('_defStoreFn', 'info', 'Itsa-EditModel');
+            silent = Lang.isBoolean(silent) ? silent : false;
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
             }
-            instance._syncModel(mode);
+            if (!silent) {
+                instance._syncModel(mode);
+            }
         },
 
         /**
@@ -747,7 +810,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 host.destroy(destroyOptions, syncCallbacks.destroy);
             }
             else {
-                host.sync(action, syncOptions[action] , syncCallbacks[action]);
+                host.sync(action, syncOptions[action], syncCallbacks[action]);
             }
        }
 
@@ -783,6 +846,25 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             true
                         );
                     }
+                }
+            },
+            /**
+             * Every property of the object/model can be defined as a property of configAttrs as well.
+             * The value should also be an object: the config of the property that is passed to the ITSAFormElement.<br />
+             * Example: <br />
+             * editmodelConfigAttrs.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
+             * editmodelConfigAttrs.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
+             * editmodelConfigAttrs.property3 = {Object} config of property3 (as example, you should use a real property here)<br />
+             *
+             * @attribute editmodelConfigAttrs
+             * @type {Object}
+             * @default false
+             * @since 0.1
+             */
+            editmodelConfigAttrs: {
+                value: {},
+                validator: function(v){
+                    return Lang.isObject(v);
                 }
             },
             /**

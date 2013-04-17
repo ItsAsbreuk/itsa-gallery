@@ -1,0 +1,13 @@
+{
+    "gallery-itsatabkeymanager": {
+        "requires": [
+            "yui-base",
+            "base-build",
+            "event-custom",
+            "plugin",
+            "node-pluginhost",
+            "event-focus",
+            "selector-css3"
+        ]
+    }
+}

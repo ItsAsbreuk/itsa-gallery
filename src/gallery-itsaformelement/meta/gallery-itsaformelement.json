@@ -5,6 +5,7 @@
             "node-base",
             "classnamemanager",
             "cssbutton"
-        ]
+        ],
+        "skinnable": true
     }
 }

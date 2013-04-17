@@ -16,7 +16,6 @@
 */
 
 var Lang  = Y.Lang,
-    YArray = Y.Array,
     yDateFormat = Y.Date.format,
     ITSAFORMELEMENT_FOCUSABLE_CLASS = 'focusable',
     ITSAFORMELEMENT_CLASS = 'itsaformelement',
@@ -31,11 +30,12 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validationmessage'),
     ITSAFORMELEMENT_AUTOCORRECT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'autocorrect'),
     ITSAFORMELEMENT_LIFECHANGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'lifechange'),
-    ITSAFORMELEMENT_CHANGED_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'changed'),
+/*
     ITSAFORMELEMENT_LOADING_CHECKBOX_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_SELECTLIST_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_COMBO_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_RADIOGROUP_CLASS = 'yui3-enabled widget-loading',
+*/
     ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inputbutton'),
     ITSAFORMELEMENT_INLINEBUTTON_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inlinebutton'),
     YUI3BUTTON_CLASS = 'yui3-button',
@@ -76,7 +76,6 @@ var Lang  = Y.Lang,
 
 Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
 
-        _eventhandlers : [],
         _typechangeHandler : null,
 
         /**
@@ -86,10 +85,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @protected
         */
         initializer : function() {
-            var instance = this;
-
             Y.log('initializer', 'cmas', 'ITSAFORMELEMENT');
-            instance._bindUI();
         },
 
         /**
@@ -258,39 +254,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             if (instance._typechangeHandler) {
                 instance._typechangeHandler.detach();
             }
-            instance._clearEventhandlers();
-        },
-
-        //------------------------------------------------------------------------------------------------------
-        // private methods
-        //------------------------------------------------------------------------------------------------------
-
-        _bindUI : function() {
-            var instance = this,
-                eventhandlers = instance._eventhandlers;
-
-            Y.log('_bindUI', 'cmas', 'ITSAFORMELEMENT');
-            instance._clearEventhandlers();
-        },
-
-        /**
-         * Cleaning up all eventlisteners
-         *
-         * @method _clearEventhandlers
-         * @private
-         * @since 0.1
-        */
-        _clearEventhandlers : function() {
-            var eventhandlers = this._eventhandlers;
-
-            Y.log('_clearEventhandlers', 'info', 'ITSAFORMELEMENT');
-            YArray.each(
-                eventhandlers,
-                function(item){
-                    item.detach();
-                }
-            );
-            eventhandlers.length = 0;
         }
 
     }, {
