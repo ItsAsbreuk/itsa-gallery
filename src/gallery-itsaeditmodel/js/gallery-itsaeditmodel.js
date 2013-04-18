@@ -42,7 +42,7 @@ var Lang = Y.Lang,
     UNDEFINED_VALUE = 'undefined value',
     MESSAGE_WARN_MODELCHANGED = 'The data you are editing has been changed from outside the form. '+
                                 'If you save your data, then these former changed will be overridden.',
-    EVT_DATETIMEPICKER_CLICK = 'editmodel:datetimepickerclick',
+    EVT_DATETIMEPICKER_CLICK = 'datetimepickerclick',
     ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
     ITSAFORMELEMENT_DATE_CLASS = 'itsa-datetimepicker-icondate',
     ITSAFORMELEMENT_TIME_CLASS = 'itsa-datetimepicker-icontime',
@@ -122,13 +122,13 @@ var Lang = Y.Lang,
     /**
       * Event fired when a normal button (elementtype) is clicked.
       * defaultFunction = calling then model's sync method with action=reset
-      * @event buttonclick
+      * @event inputbuttonclick
       * @param e {EventFacade} Event Facade including:
       * @param e.buttonNode {Y.Node} The Button-Node that was clicked
       * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
       * @param [e.model] {Y.Model} This modelinstance.
     **/
-    EVT_BUTTON_CLICK = 'buttonclick',
+    EVT_BUTTON_CLICK = 'inputbuttonclick',
    /**
      * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
      * because the latter will be fired before the namespace Model.itsaeditmodel exists.

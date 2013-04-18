@@ -88,18 +88,25 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         */
         setModelToOriginalTemplate: function(model, save) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId');
+                clientId = instance.host.getModelAttr(model, 'clientId'),
+                currentMode;
 
-            Y.log('setModelToOriginalTemplate', 'info', 'Itsa-ChangeModelTemplate');
-            if ((instance._getMode(model)===3) && save) {
-                model.itsaeditmodel.save();
+            currentMode = instance._getMode(model);
+            if (currentMode !== 1) {
+                Y.log('setModelToOriginalTemplate', 'info', 'Itsa-ChangeModelTemplate');
+                if ((instance._getMode(model)===3) && save) {
+                    model.itsaeditmodel.save();
+                }
+                instance._prevMode[clientId] = instance._getMode(model);
+                delete instance._alternateModels[clientId];
+                if (instance._editModels[clientId]) {
+                    instance._unplugItsaeditmodel(model, clientId);
+                }
+                instance._renderOriginalTemplate(model);
             }
-            instance._prevMode[clientId] = instance._getMode(model);
-            delete instance._alternateModels[clientId];
-            if (instance._editModels[clientId]) {
-                instance._unplugItsaeditmodel(model, clientId);
+            else {
+                Y.log('setModelToOriginalTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
             }
-            instance._renderOriginalTemplate(model);
         },
 
         /**
@@ -111,29 +118,43 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         */
         setModelToSecondTemplate: function(model, save) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId');
+                clientId = instance.host.getModelAttr(model, 'clientId'),
+                currentMode;
 
-            Y.log('setModelToSecondTemplate', 'info', 'Itsa-ChangeModelTemplate');
-            if ((instance._getMode(model)===3) && save) {
-                model.itsaeditmodel.save();
+            currentMode = instance._getMode(model);
+            if (currentMode !== 2) {
+                Y.log('setModelToSecondTemplate', 'info', 'Itsa-ChangeModelTemplate');
+                if ((instance._getMode(model)===3) && save) {
+                    model.itsaeditmodel.save();
+                }
+                instance._prevMode[clientId] = instance._getMode(model);
+                instance._alternateModels[clientId] = true;
+                if (instance._editModels[clientId]) {
+                    instance._unplugItsaeditmodel(model, clientId);
+                }
+                instance._renderSecondTemplate(model);
             }
-            instance._prevMode[clientId] = instance._getMode(model);
-            instance._alternateModels[clientId] = true;
-            if (instance._editModels[clientId]) {
-                instance._unplugItsaeditmodel(model, clientId);
+            else {
+                Y.log('setModelToSecondTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
             }
-            instance._renderSecondTemplate(model);
         },
 
         setModelToEditTemplate: function(model) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId');
+                clientId = instance.host.getModelAttr(model, 'clientId'),
+                currentMode;
 
-            Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
-            instance._prevMode[clientId] = instance._getMode(model);
-            instance._editModels[clientId] = true;
-            delete instance._alternateModels[clientId];
-            instance._renderEditTemplate(model);
+            currentMode = instance._getMode(model);
+            if (currentMode !== 3) {
+                Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
+                instance._prevMode[clientId] = currentMode;
+                instance._editModels[clientId] = true;
+                delete instance._alternateModels[clientId];
+                instance._renderEditTemplate(model);
+            }
+            else {
+                Y.log('setModelToEditTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
+            }
         },
 
         /**

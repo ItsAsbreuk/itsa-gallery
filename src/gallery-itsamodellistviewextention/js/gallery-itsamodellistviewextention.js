@@ -51,6 +51,9 @@ var Lang = Y.Lang,
     FORM_STYLE_CLASS = 'yui3-form',
     LOADING_MESSAGE = 'Loading...',
     NO_DATA_MESSAGE = 'No data to display',
+    ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
+    FORMELEMENT_CLASS = 'yui3-itsaformelement',
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = FORMELEMENT_CLASS + '-inputbutton',
     GETSTYLE = function(node, style) {
         return parseInt(node.getStyle(style), 10);
     };
@@ -1694,6 +1697,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     _extraBindUI : function() {
         var instance = this,
             boundingBox = instance.get('boundingBox'),
+            contentBox = instance.get('contentBox'),
             modellist = instance.get('modelList'),
             eventhandlers = instance._handlers;
 
@@ -1719,7 +1723,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 }
                 else {
                     boundingBox.removeClass(MODELLIST_CLASS);
-                    instance.get('contentBox').setHTML('');
+                    contentBox.setHTML('');
                 }
             })
         );
@@ -1782,8 +1786,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             )
         );
         // now make clicks on <a> an <button> elements prevented when scrollview does a scroll
+        // we set it on contentBox instead of BoundingBox to interupt as soon as posible
         eventhandlers.push(
-            boundingBox.delegate(
+            contentBox.delegate(
                 'click',
                 function(e) {
                     // Prevent links from navigating as part of a scroll gesture
@@ -1793,9 +1798,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     }
                 },
                 function() {
-                    var node = this,
-                        tagName = node.get('tagName');
-                    return ((tagName==='A') || (tagName==='BUTTON') || (node.hasClass('focusable')));
+                    return this.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
                 }
             )
         );
