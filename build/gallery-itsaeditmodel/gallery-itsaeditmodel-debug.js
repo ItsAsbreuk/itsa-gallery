@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaeditmodel', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -1191,3 +1193,18 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
       },
       '.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS
   );
+
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-build",
+        "node-base",
+        "node-delegate",
+        "plugin",
+        "lazy-model-list",
+        "event-valuechange",
+        "gallery-itsamodelsyncpromise",
+        "gallery-itsaformelement"
+    ]
+});

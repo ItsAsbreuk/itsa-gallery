@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaeditmodel', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -59,7 +61,6 @@ var body = Y.one('body'),
     GET_PROPERTY_FROM_CLASS = function(className) {
         var regexp = /yui3-itsaformelement-property-(\w+)/;
 
-        Y.log('_clearEventhandlers', 'info', 'Itsa-EditModel');
         return regexp.test(className) ? RegExp.$1 : null;
     },
     // next four events are declared within the initialiser:
@@ -208,10 +209,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 host;
 
-            Y.log('initializer', 'info', 'Itsa-EditModel');
             host = instance.host = instance.get('host');
             if (instance.get('template') === null) {
-                Y.log('You should add a template-attribute to Y.plugin.ITSAEditModel, or Views will render empty!', 'warn', 'Itsa-EditModel');
             }
             instance._itsaformelement = new Y.ITSAFormElement();
             /**
@@ -317,7 +316,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: name, value: value}),
                 renderedFormElement, nodeId;
 
-            Y.log('getButton', 'info', 'Itsa-EditModel');
             if (name && config && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') || (type==='destroy'))) {
                 instance._configAttrs[name] = useConfig;
                 if (!instance._elementIds[name]) {
@@ -363,7 +361,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: propertyName, value: value}),
                 renderedFormElement, nodeId;
 
-            Y.log('getFormelement', 'info', 'Itsa-EditModel');
             if (propertyName && config) {
                 instance._configAttrs[propertyName] = useConfig;
                 if (!instance._elementIds[propertyName]) {
@@ -418,7 +415,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 updateMode = instance.get('updateMode');
 
-            Y.log('savePromise', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
@@ -451,7 +447,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 updateMode = instance.get('updateMode');
 
-            Y.log('submitPromise', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
@@ -478,7 +473,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 host = instance.host,
                 allproperties, useConfig, nodeId;
 
-            Y.log('toJSON', 'info', 'Itsa-EditModel');
             if (configAttrs) {
                 allproperties = Y.merge(host.getAttrs());
                 // now modify all the property-values into formelements
@@ -533,7 +527,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         */
         destructor : function() {
             var instance = this;
-            Y.log('destructor', 'info', 'Itsa-EditModel');
             if (instance._autoSaveTimer) {
                 instance._autoSaveTimer.cancel();
             }
@@ -556,7 +549,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _autoStore : function() {
             var instance = this;
 
-            Y.log('_autoStore', 'info', 'Itsa-EditModel');
             if (instance._needAutoSaved) {
                 instance._editFieldsToModel();
                 instance._needAutoSaved = false;
@@ -575,7 +567,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 eventhandlers = instance._eventhandlers;
 
-            Y.log('_bindUI', 'info', 'Itsa-EditModel');
             eventhandlers.push(
                 Y.on(
                     EVT_DATETIMEPICKER_CLICK,
@@ -692,7 +683,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-EditModel');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -709,7 +699,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _defPluginDestroyFn : function() {
             var instance = this;
 
-            Y.log('_defPluginDestroyFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             instance._syncModel('destroy');
         },
@@ -722,7 +711,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _defPluginResetFn : function() {
             var instance = this;
 
-            Y.log('_defPluginResetFn will reset the Modeldata', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
         },
 
@@ -732,7 +720,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @protected
         */
         _defPluginSubmitFn : function() {
-            Y.log('_defPluginSubmitFn', 'info', 'Itsa-EditModel');
             this._defStoreFn('submit');
         },
 
@@ -742,7 +729,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @protected
         */
         _defSaveFn : function() {
-            Y.log('save', 'info', 'Itsa-EditModel');
             this._defStoreFn('save');
         },
 
@@ -756,7 +742,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 updateMode = instance.get('updateMode');
 
-            Y.log('_defStoreFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
@@ -777,7 +762,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 configAttrs = instance._configAttrs,
                 newModelAttrs = {};
 
-            Y.log('_editFieldsToModel', 'info', 'Itsa-EditModel');
             YObject.each(
                 configAttrs,
                 function(propertyvalue, property) {
@@ -800,7 +784,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _fireModelEvent: function(eventName, eventPayload) {
             var host = this.host;
 
-            Y.log('_fireModelEvent', 'info', 'Itsa-EditModel');
             eventPayload.model = host;
             host.fire(eventName, eventPayload);
         },
@@ -818,7 +801,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _getDateTimeValueFromRender : function(renderedElement) {
             var regexp = /<span[^>]+>([^<]*)</;
 
-            Y.log('_getDateTimeValueFromRender', 'info', 'Itsa-EditModel');
             return regexp.test(renderedElement) ? RegExp.$1 : '';
         },
 
@@ -833,7 +815,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          *
         */
         _isDateTimeType : function(type) {
-            Y.log('_isDateTime', 'info', 'Itsa-EditModel');
             return (type==='date') || (type==='time') || (type==='datetime');
         },
 
@@ -855,7 +836,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}' --> now the view knows it must not re-render.
                 propertyconfig;
 
-            Y.log('_setProperty', 'info', 'Itsa-EditModel');
             propertyconfig = instance._configAttrs[propertyName];
             if (propertyconfig) {
                 propertyconfig.value = value;
@@ -895,7 +875,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 },
                 propertyconfig, setProperty, attributevalue;
 
-            Y.log('_storeProperty', 'info', 'Itsa-EditModel');
             propertyconfig = instance._configAttrs[propertyName];
             if (propertyconfig) {
                 payload.prevValue = isObject ? Y.merge(propertyconfig.value) : propertyconfig.value;
@@ -941,7 +920,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 host = instance.host,
                 destroyOptions, syncOptions, syncCallbacks;
 
-            Y.log('_syncModel will sync with action: '+action, 'info', 'Itsa-EditModel');
             syncOptions = instance.get('syncOptions');
             syncCallbacks = instance.get('syncCallbacks');
             if (action==='destroy') {
@@ -971,7 +949,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     return ((typeof val === 'number') && (val>0) && (val<=3600));
                 },
                 setter: function(val) {
-                    Y.log('autosaveInterval setter: '+val, 'info', 'Itsa-EditModel');
                     var instance = this,
                         updateMode = instance.get('updateMode');
                     if (instance._autoSaveTimer) {
@@ -1068,7 +1045,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     return ((typeof val === 'number') && (val>=0) && (val<=3));
                 },
                 setter: function(val) {
-                    Y.log('updateMode setter: '+val, 'info', 'Itsa-EditModel');
                     var instance = this,
                         autosaveInterval = instance.get('autosaveInterval');
                     if (val) {
@@ -1191,3 +1167,18 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
       },
       '.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS
   );
+
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-build",
+        "node-base",
+        "node-delegate",
+        "plugin",
+        "lazy-model-list",
+        "event-valuechange",
+        "gallery-itsamodelsyncpromise",
+        "gallery-itsaformelement"
+    ]
+});
