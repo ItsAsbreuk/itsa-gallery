@@ -5,7 +5,7 @@
             "node-style",
             "base-base",
             "base-build",
-            "scrollview-base",
+            "scrollview",
             "gallery-itsamodellistviewextention"
         ],
         "skinnable": true
