@@ -38,6 +38,15 @@ During each renderingprocess, as there are no items at that time, the classes 'i
 You can use css to style (f.i. hide) these node at will.
 
 
+Available plugins
+-----------------
+* [Y.Plugin.ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav) <i>to support key navigation/scrolling</i>
+* [Y.Plugin.ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons) <i>make models fire model:buttonclick and model:anchorclick events-</i>
+* [Y.Plugin.ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) <i>enables models to toggle templates, either a second template or an edittemplate (see [ITSA-EditModel](src/gallery-itsaeditmodel))</i>
+* [Y.Plugin.ITSAViewPaginator](src/gallery-itsaviewpaginator) <i>under construction</i>
+* [Y.Plugin.ITSAInfiniteView](src/gallery-itsaviewpaginator) <i>under construction</i>
+* [Y.Plugin.ITSAScrollViewLoop](src/gallery-itsascrollviewloop) <i>under construction</i>
+
 Examples
 --------
 [Online example](http://projects.itsasbreuk.nl/examples/ITSAScrollViewModellist/index.html)

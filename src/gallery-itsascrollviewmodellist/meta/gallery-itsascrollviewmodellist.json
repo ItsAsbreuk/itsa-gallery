@@ -1,10 +1,12 @@
 {
     "gallery-itsascrollviewmodellist": {
         "requires": [
+            "yui-base",
+            "node-style",
+            "base-base",
             "base-build",
-            "scrollview",
-            "gallery-itsamodellistviewextention",
-            "gallery-itsachangemodeltemplate"
+            "scrollview-base",
+            "gallery-itsamodellistviewextention"
         ],
         "skinnable": true
     }

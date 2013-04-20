@@ -8,7 +8,7 @@ YUI.add('gallery-itsascrollviewmodellist', function (Y, NAME) {
  *
  * Adds an Y.ModelList  or Y.LazyModelList to a ScrollView instance, where the Models are rendered inside an ul-element
  * which lies within the scrollview's-contentBox. This results in an ul-list with rendered Models. The Models are rendered
- * through a template (Y.Lang.sub or Y.Template.Micro) which needs to be defined with the <b>'renderModel'-attribute</b>.
+ * through a template (Y.Lang.sub or Y.Template.Micro) which needs to be defined with the <b>'modelTemplate'-attribute</b>.
  *
  * Caution: you MUST set the axis-atribute before rendering! Because the content is empty at start, scrollview
  * would otherwise fail autofind the value of axis.
@@ -26,7 +26,7 @@ YUI.add('gallery-itsascrollviewmodellist', function (Y, NAME) {
 */
 
 var Lang = Y.Lang,
-    MODEL_CLASS = 'itsa-scrollviewmodel',
+    MODEL_CLASS = 'itsa-model',
     MODELLIST_CLASS = 'itsa-modellistview',
     GROUPHEADER_CLASS = MODELLIST_CLASS + '-groupheader',
     GETSTYLE = function(node, style) {
@@ -312,4 +312,14 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
     }
 );
 
-}, '@VERSION@', {"requires": ["scrollview", "gallery-itsamodellistviewextention"], "skinnable": true});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "node-style",
+        "base-base",
+        "base-build",
+        "scrollview-base",
+        "gallery-itsamodellistviewextention"
+    ],
+    "skinnable": true
+});
