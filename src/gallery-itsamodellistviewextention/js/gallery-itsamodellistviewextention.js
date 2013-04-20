@@ -1,7 +1,18 @@
 'use strict';
 
+//
+// TODO:
+//
+// 1. Expansion with promises
+// 2. _repositionModel() needs smarter code. Remove first, locally update the view,
+//    compare new position with lastemitem+1 and the highest of those 2 need to be inserted.
+//    except when paginator is running: then we need to compare the newposition with firstitem-1
+//    as well. Perhaps firstitem-1 needs to be inserted.
+//
+
 /**
- * ScrollView ModelList Extention
+ * Basic Extention that should not be used of its own.
+ * ITSAViewModelList and ITSAScrollViewModelList are based upon this extention.
  *
  *
  * @module gallery-itsamodellistviewextention
@@ -1765,8 +1776,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                         //=======================================================
                         if (modellist && modellist.comparator) {
                             modellist.sort();
+                            //====================================================
+                            //
+                            // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                            // As soon as issue is resolved, remove modellist.free() command
+                            //
+                            if (instance._listLazy) {
+                                modellist.free();
+                            }
+                            //======================================================
                         }
-                        instance._renderView();
+                        instance._repositionModel(model);
                     }
                     if (instance.modelIsSelected(model)) {
                         instance._fireSelectedModels();
@@ -2414,7 +2434,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setIntoViewChanged', 'info', 'Itsa-ModellistViewExtention');
         if ((val>0) && !instance._modelInViewChanged) {
             instance._modelInViewChanged = instance.after(
-                '*:change',
+                'model:change',
                 function(e) {
                     var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                         node = instance.getNodeFromModel(model);
@@ -3070,7 +3090,32 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         instance.fire('modelListRender');
     },
 
-// return {Array} array of Y.Node --> the last element is always the ModelNode, but it can be precede with headerNodes.
+    /**
+     * Repositions the model on a new position in the view. This method is called after a model:change-event.
+     *
+     * @method _repositionModel
+     * @param {Y.Model} [model] The model to reposition
+     * @private
+     * @since 0.1
+    */
+//    _repositionModel : function(model) {
+    _repositionModel : function() {
+        // NEEDS UPDATED CODE
+        // _renderView() is far too costly.
+        this._renderView();
+    },
+
+
+    /**
+     * Creates the node to be rendered <b>with its headers</b> (if applyable). This means that an array is returned,
+     * where the last item is the rendered-model.
+     *
+     * @method _repositionModel
+     * @param {Y.Model} [model] The model to reposition
+     * @private
+     * @return {Array} array of Y.Node --> the last element is always the ModelNode, but it can be precede with headerNodes.
+     * @since 0.1
+    */
     _createModelNode : function(model, renderedModel) {
         var instance = this,
             modelClientId = instance.getModelAttr(model, 'clientId'),

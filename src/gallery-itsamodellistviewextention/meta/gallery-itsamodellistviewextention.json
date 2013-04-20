@@ -1,9 +1,15 @@
 {
     "gallery-itsamodellistviewextention": {
         "requires": [
-            "base-build",
+            "yui-base",
             "node-base",
+            "node-style",
             "node-event-delegate",
+            "base-build",
+            "base-base",
+            "widget-base",
+            "oop",
+            "yui-later",
             "dom-screen",
             "pluginhost-base",
             "event-mouseenter",
@@ -11,6 +17,7 @@
             "model",
             "model-list",
             "lazy-model-list",
+            "template-base",
             "template-micro"
         ],
         "skinnable": true

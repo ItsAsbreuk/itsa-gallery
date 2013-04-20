@@ -2,8 +2,19 @@ YUI.add('gallery-itsamodellistviewextention', function (Y, NAME) {
 
 'use strict';
 
+//
+// TODO:
+//
+// 1. Expansion with promises
+// 2. _repositionModel() needs smarter code. Remove first, locally update the view,
+//    compare new position with lastemitem+1 and the highest of those 2 need to be inserted.
+//    except when paginator is running: then we need to compare the newposition with firstitem-1
+//    as well. Perhaps firstitem-1 needs to be inserted.
+//
+
 /**
- * ScrollView ModelList Extention
+ * Basic Extention that should not be used of its own.
+ * ITSAViewModelList and ITSAScrollViewModelList are based upon this extention.
  *
  *
  * @module gallery-itsamodellistviewextention
@@ -30,7 +41,7 @@ var Lang = Y.Lang,
     VIEW_MODEL_TEMPLATE_TABLE = '<tr role="presentation"></tr>',
     LOADING_TEMPLATE = '<div>{loading}</div>',
     EMPTY_ELEMENT_CLASS = 'itsa-scrollview-fillelement',
-    MODEL_CLASS = 'itsa-scrollviewmodel',
+    MODEL_CLASS = 'itsa-model',
     MODEL_CHANGED_CLASS = MODEL_CLASS + '-changed',
     MODELLIST_CLASS = 'itsa-modellistview',
     SVML_LASTMODEL_CLASS = MODELLIST_CLASS + '-lastitem',
@@ -50,8 +61,12 @@ var Lang = Y.Lang,
     GROUPHEADER_SEQUEL_CLASS = MODELLIST_CLASS + '-sequelgroupheader',
     SVML_UNSELECTABLE = MODELLIST_CLASS + '-unselectable',
     SVML_SHOWLOADING_CLASS = MODELLIST_CLASS + '-showloading',
+    FORM_STYLE_CLASS = 'yui3-form',
     LOADING_MESSAGE = 'Loading...',
     NO_DATA_MESSAGE = 'No data to display',
+    ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
+    FORMELEMENT_CLASS = 'yui3-itsaformelement',
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = FORMELEMENT_CLASS + '-inputbutton',
     GETSTYLE = function(node, style) {
         return parseInt(node.getStyle(style), 10);
     };
@@ -79,7 +94,7 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
     */
     getModelAttr: function(model, name) {
         Y.log('getModelAttr', 'info', 'Itsa-LazyModelListAttr');
-        return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
+        return model && ((model.get && (typeof model.get === 'function')) ? model.get(name) : model[name]);
     },
 
     /**
@@ -105,17 +120,11 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
 
         Y.log('setModelAttr', 'info', 'Itsa-LazyModelListAttr');
         if (model) {
-            modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
+            modelIsLazy = !model.get || (typeof model.get !== 'function');
             if (modelIsLazy) {
                 revivedModel = instance.revive(model);
                 model[name] = value;
                 if (revivedModel) {
-                    //======================================================================================
-                    // due to a bug, we need to sync cliendId first https://github.com/yui/yui3/issues/530
-                    //
-                    revivedModel._set('clientId', model.clientId, {silent: true});
-                    //
-                    //======================================================================================
                     revivedModel.set(name, value, options);
                     instance.free(revivedModel);
                 }
@@ -139,7 +148,7 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
     */
     getModelToJSON : function(model) {
         Y.log('getModelToJSON', 'info', 'Itsa-LazyModelListAttr');
-        return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
+        return (model.get && (typeof model.get === 'function')) ? model.toJSON() : model;
     }
 
 }, true);
@@ -147,9 +156,52 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
 Y.ITSAModellistAttrExtention = ITSAModellistAttrExtention;
 
 Y.Base.mix(Y.ModelList, [ITSAModellistAttrExtention]);
-//Y.Base.mix(Y.LazyModelList, [ITSAModellistAttrExtention]);
 
-// -- Mixing extra Methods to Y.ScrollView -----------------------------------
+//===============================================================================================
+//
+// First: extend Y.Node with the method cleanup()
+//
+//===============================================================================================
+
+function ITSANodeCleanup() {}
+
+Y.mix(ITSANodeCleanup.prototype, {
+
+    /**
+     * Cleansup the node by calling destroy(true) on all its children, as well as destroying all widgets that lie
+     * within the node by calling widget.destroy(true);
+     *
+     * @method cleanup
+     * @since 0.1
+     *
+    */
+    cleanup: function() {
+        var node = this,
+            YWidget = Y.Widget;
+
+        Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
+        if (YWidget) {
+            node.all('.yui3-widget').each(
+                function(widgetNode) {
+                    if (node.one('#'+widgetNode.get('id'))) {
+                        var widgetInstance = YWidget.getByNode(widgetNode);
+                        if (widgetInstance) {
+                            widgetInstance.destroy(true);
+                        }
+                    }
+                }
+            );
+        }
+        node.all('children').destroy(true);
+    }
+
+}, true);
+
+Y.Node.ITSANodeCleanup = ITSANodeCleanup;
+
+Y.Base.mix(Y.Node, [ITSANodeCleanup]);
+
+// -- Now creating extention -----------------------------------
 
 function ITSAModellistViewExtention() {}
 
@@ -166,12 +218,12 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelList: {
         value: null,
-        validator: function(v){ return (v instanceof Y.ModelList) || (v instanceof Y.LazyModelList) || (v === null);},
+        validator: function(v){ return (v.getByClientId) || (v === null);},
         setter: '_setModelList'
     },
 
    /**
-    * Whether duplicate values (rendered by the attributefunction 'renderModel') are possible.
+    * Whether duplicate values (rendered by the attributefunction 'modelTemplate') are possible.
     * By default, this will be compared with the previous rendered Model.
     * If you want a more sophisticated dup-check, the set the dupComparator-attribute. But be careful: the dupComparator
     * has a significant performance-hit.
@@ -192,7 +244,7 @@ ITSAModellistViewExtention.ATTRS = {
     * Defines the listType. Use 'ul' for unsorted list, or 'table' for table-format.
     * This attrbute can only be set once during innitialisation.
     * <b>Caution:</b> if you set this attribute to 'table', then all items are tr-elements and you need to render the
-    * td-elements yourself within 'renderModel' and groupHeaders (with the right number of td's).
+    * td-elements yourself within 'modelTemplate' and groupHeaders (with the right number of td's).
     *
     * @attribute listType
     * @type {String}
@@ -274,7 +326,7 @@ ITSAModellistViewExtention.ATTRS = {
 
    /**
     * Whether the Models is styled using the css of this module.
-    * In fact, just the classname 'itsa-scrollviewmodellist-styled' is added to the boundingBox
+    * In fact, just the classname 'itsa-modellistview-styled' is added to the boundingBox
     * and the css-rules do all the rest. The developer may override these rules, or set this value to false
     * while creatiung their own css. In the latter case it is advisable to take a look at all the css-rules
     * that are supplied by this module. In either cases, the modelList (is available) will add classes to all li-elements
@@ -350,7 +402,7 @@ ITSAModellistViewExtention.ATTRS = {
    /**
     * When set to a value > 0, the Models will be m highlighted whenever they change (or new added).
     * The attribute-value represents the <b>number of miliseconds</b> that the Model-node should be highlighted.
-    * Disable highlighting by set to 0. Hghlighting is done by adding the  class 'itsa-scrollviewmodel-changed' fors ome seconds.
+    * Disable highlighting by set to 0. Hghlighting is done by adding the  class 'itsa-model-changed' fors ome seconds.
     * You should define a css-rule for this className, or you should set the attribute 'modelListStyled' to true to make things visible.
     *
     * @attribute highlightAfterModelChange
@@ -433,7 +485,7 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
     /**
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader1')
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-modellistview-groupheader1')
      * just above all models (li-elements) whom encounter a change in the groupHeader1-value.
      * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
      * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
@@ -461,7 +513,7 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
     /**
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader2')
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-modellistview-groupheader2')
      * just above all models (li-elements) whom encounter a change in the groupHeader2-value.
      * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
      * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
@@ -489,7 +541,7 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
     /**
-     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-scrollviewmodellist-groupheader3')
+     * When defined, the ScrollView-instance will generate GroupHeaders (extra li-elements with class='itsa-modellistview-groupheader3')
      * just above all models (li-elements) whom encounter a change in the groupHeader3-value.
      * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
      * <i>Y.Lang.sub or Y.Template.Micro</i>, where Y.Lang.sub is more lightweight.
@@ -532,20 +584,20 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute renderModel
+     * @attribute modelTemplate
      * @type {String}
      * @default '{clientId}'
      * @since 0.1
      */
-    renderModel: {
-        value: '{clientId}', // default-template, so that there always is content. Best to be overwritten.
+    modelTemplate: {
+        value: '{clientId}', // default-modelTemplate, so that there always is content. Best to be overwritten.
         validator: function(v){ return Lang.isString(v); },
-        setter: '_setRenderModel'
+        setter: '_setModelTemplate'
     },
 
     /**
      * Template to render an additional className to the rendered element. In fact: every Model will be rendered inside a <li>-element.
-     * The innercontent of the LI-element is determined by 'renderModel' while renderClassName can add additional classes to the li-element.
+     * The innercontent of the LI-element is determined by 'modelTemplate' while classNameTemplate can add additional classes to the li-element.
      * The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
      * where Y.Lang.sub is more lightweight.
      *
@@ -555,19 +607,19 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute renderClassName
+     * @attribute classNameTemplate
      * @type {String}
      * @default '{clientId}'
      * @since 0.1
      */
-    renderClassName: {
+    classNameTemplate: {
         value: null,
         validator: function(v){ return Lang.isString(v); },
-        setter: '_setRenderClass'
+        setter: '_setClassNameTempl'
     },
 
     /**
-     * Template for rendering of groupHeader1. If not set, renderGroupHeader1 will render the same as the attribute 'groupHeader1'.
+     * Template for rendering of groupHeader1. If not set, groupHeader1Template will render the same as the attribute 'groupHeader1'.
      * If you want the rendered content other than groupHeader1 generates, you can override this method. This is handy when the rendered
      * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader1').
      * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
@@ -584,19 +636,19 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute renderGroupHeader1
+     * @attribute groupHeader1Template
      * @type {Function}
      * @default null
      * @since 0.1
      */
-    renderGroupHeader1: {
+    groupHeader1Template: {
         value: null,
         validator: function(v){ return Lang.isString(v) || v === null; },
-        setter: '_setRenderGrH1'
+        setter: '_setGH1Templ'
     },
 
     /**
-     * Template for rendering of groupHeader2. If not set, renderGroupHeader2 will render the same as the attribute 'groupHeader2'.
+     * Template for rendering of groupHeader2. If not set, groupHeader2Template will render the same as the attribute 'groupHeader2'.
      * If you want the rendered content other than groupHeader2 generates, you can override this method. This is handy when the rendered
      * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader2').
      * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
@@ -613,19 +665,19 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute renderGroupHeader2
+     * @attribute groupHeader2Template
      * @type {Function}
      * @default null
      * @since 0.1
      */
-    renderGroupHeader2: {
+    groupHeader2Template: {
         value: null,
         validator: function(v){ return Lang.isString(v) || v === null; },
-        setter: '_setRenderGrH2'
+        setter: '_setGH2Templ'
     },
 
     /**
-     * Template for rendering of groupHeader3. If not set, renderGroupHeader3 will render the same as the attribute 'groupHeader3'.
+     * Template for rendering of groupHeader3. If not set, groupHeader3Template will render the same as the attribute 'groupHeader3'.
      * If you want the rendered content other than groupHeader3 generates, you can override this method. This is handy when the rendered
      * heading (this attribute) defers from the 'header-determination' (attribute 'groupHeader3').
      * The attribute is a template that can be rendered and returns a String. The attribute MUST be a template that can be processed by either
@@ -642,21 +694,21 @@ ITSAModellistViewExtention.ATTRS = {
      *
      * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
      *
-     * @attribute renderGroupHeader3
+     * @attribute groupHeader3Template
      * @type {Function}
      * @default null
      * @since 0.1
      */
-    renderGroupHeader3: {
+    groupHeader3Template: {
         value: null,
         validator: function(v){ return Lang.isString(v) || v === null; },
-        setter: '_setRenderGrH3'
+        setter: '_setGH3Templ'
     },
 
     /**
      * Attribute that identifies duplicate Models.
      * By default, this function is 'null', meaning that Models will be compared with the previous rendered Model to see if they are dups.
-     * (based on the value of 'renderModel').
+     * (based on the value of 'modelTemplate').
      * If Set the dupComparator-attribute, you can have a more sophisticated dup-check which will loop through all the Models. Thus be careful:
      * the dupComparator has a significant performance-hit.
      * <u>If you set this attribute after the scrollview-instance is rendered, the scrollview-instance will be re-rendered
@@ -913,43 +965,43 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     _grpH3Init : false,
 
     /**
-     * Internal flag to tell whether the attribute 'renderGroupHeader1' is initiated.
-     * @property _renderGrpH1Init
+     * Internal flag to tell whether the attribute 'groupHeader1Template' is initiated.
+     * @property _gH1TemplateInit
      * @private
      * @default false
      * @type Boolean
     */
-    _renderGrpH1Init : false,
+    _gH1TemplateInit : false,
 
     /**
-     * Internal flag to tell whether the attribute 'renderGroupHeader2' is initiated.
-     * @property _renderGrpH2Init
+     * Internal flag to tell whether the attribute 'groupHeader2Template' is initiated.
+     * @property _gH2TemplateInit
      * @private
      * @default false
      * @type Boolean
     */
-    _renderGrpH2Init : false,
+    _gH2TemplateInit : false,
 
     /**
-     * Internal flag to tell whether the attribute 'renderGroupHeader3' is initiated.
-     * @property _renderGrpH3Init
+     * Internal flag to tell whether the attribute 'groupHeader3Template' is initiated.
+     * @property _gH3TemplateInit
      * @private
      * @default false
      * @type Boolean
     */
-    _renderGrpH3Init : false,
+    _gH3TemplateInit : false,
 
     /**
-     * Internal flag to tell whether the attribute 'renderModel' is initiated.
-     * @property _renderModelInit
+     * Internal flag to tell whether the attribute 'modelTemplate' is initiated.
+     * @property _modelTemplateInit
      * @private
      * @default false
      * @type Boolean
     */
-    _renderModelInit : false,
+    _modelTemplateInit : false,
 
     /**
-     * Internal flag to tell whether the attribute 'renderClassName' is initiated.
+     * Internal flag to tell whether the attribute 'classNameTemplate' is initiated.
      * @property _renderClassInit
      * @private
      * @default false
@@ -1055,6 +1107,15 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @type Boolean
     */
     _even : false,
+
+    /**
+     * Internal flag that tells wheter a Template.Micro is being used.
+     * @property _microTemplateUsed
+     * @private
+     * @default null
+     * @type Boolean
+    */
+    _microTemplateUsed : null,
 
     //-------------------------------------------------------------------------------------
     //---- Public methods -----------------------------------------------------------------
@@ -1269,9 +1330,10 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @method unselectModels
      * @param {Y.Model|Array} models Model or Array of Models to be checked
      * @param {boolean} [silent] set true if you don't want a 'modelSelectionChange'-event to be fired.
+     * @param {boolean} [force] set true if you always want the model to be unselected, even if 'modelsUnselectable' is true
      * @since 0.1
     */
-    unselectModels : function(models, silent) {
+    unselectModels : function(models, silent, force) {
         var instance = this,
             prevSize, contentBox;
 
@@ -1284,12 +1346,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             YArray.each(
                 models,
                 function(model) {
-                    instance._selectModel(model, false);
+                    instance._selectModel(model, false, null, force);
                 }
             );
         }
         else {
-            instance._selectModel(models, false);
+            instance._selectModel(models, false, null, force);
         }
         if (!silent && (prevSize!==contentBox.all('.'+SVML_SELECTED_CLASS).size())) {
             instance._fireSelectedModels();
@@ -1416,7 +1478,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     */
     getModelAttr: function(model, name) {
         Y.log('getModelAttr', 'info', 'Itsa-ModellistViewExtention');
-        return model && ((model.get && (Lang.type(model.get) === 'function')) ? model.get(name) : model[name]);
+        return model && ((model.get && (typeof model.get === 'function')) ? model.get(name) : model[name]);
     },
 
     /**
@@ -1442,18 +1504,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
         Y.log('setModelAttr', 'info', 'Itsa-ModellistViewExtention');
         if (model) {
-            modelIsLazy = !model.get || (Lang.type(model.get) !== 'function');
+            modelIsLazy = !model.get || (typeof model.get !== 'function');
             if (modelIsLazy) {
                 modelList = instance.get('modelList');
                 revivedModel = modelList.revive(model);
                 model[name] = value;
                 if (revivedModel) {
-                    //======================================================================================
-                    // due to a bug, we need to sync cliendId first https://github.com/yui/yui3/issues/530
-                    //
-                    revivedModel._set('clientId', model.clientId, {silent: true});
-                    //
-                    //======================================================================================
                     revivedModel.set(name, value, options);
                     modelList.free(revivedModel);
                 }
@@ -1477,7 +1533,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     */
     getModelToJSON : function(model) {
         Y.log('getModelToJSON', 'info', 'Itsa-ModellistViewExtention');
-        return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
+        return (model.get && (typeof model.get === 'function')) ? model.toJSON() : model;
     },
 
     /**
@@ -1566,7 +1622,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Focusses the modelNode and adds the className 'itsa-scrollviewmodel-focus'.
+     * Focusses the modelNode and adds the className 'itsa-model-focus'.
      * Previous focussed Node will be unmarked.
      *
      * @method _focusModelNode
@@ -1654,6 +1710,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     _extraBindUI : function() {
         var instance = this,
             boundingBox = instance.get('boundingBox'),
+            contentBox = instance.get('contentBox'),
             modellist = instance.get('modelList'),
             eventhandlers = instance._handlers;
 
@@ -1668,6 +1725,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance.after('modelListChange', function (ev) {
                 var newmodellist = ev.newVal,
                     prevmodellist = ev.prevVal;
+                modellist = newmodellist;
                 if (prevmodellist) {
                     prevmodellist.removeTarget(instance);
                 }
@@ -1678,9 +1736,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 }
                 else {
                     boundingBox.removeClass(MODELLIST_CLASS);
-                    instance.get('contentBox').setHTML('');
+                    contentBox.setHTML('');
                 }
             })
+        );
+        eventhandlers.push(
+            boundingBox.on(
+                'click',
+                function() {
+                    instance.focus();
+                }
+            )
         );
         // This was a though one!!
         // When paginator is plugged in, the scrollview-instance will make instance._gesture to become not null
@@ -1699,25 +1765,52 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 }
             )
         );
-        //========================================================
-        //
-        // LACK IN ModelList --> make resort after *:change
-        //
-        //=======================================================
         eventhandlers.push(
             instance.after(
-                '*:change',
-                function() {
-                    var modellist = instance.get('modelList');
-                    if (modellist && instance.get('modelList').comparator) {
-                        modellist.sort();
+                'model:change',
+                function(e) {
+                    var model = e.target;
+                    if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
+                        //========================================================
+                        //
+                        // LACK IN ModelList --> make resort after model:change
+                        //
+                        //=======================================================
+                        if (modellist && modellist.comparator) {
+                            modellist.sort();
+                            //====================================================
+                            //
+                            // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                            // As soon as issue is resolved, remove modellist.free() command
+                            //
+                            if (instance._listLazy) {
+                                modellist.free();
+                            }
+                            //======================================================
+                        }
+                        instance._repositionModel(model);
+                    }
+                    if (instance.modelIsSelected(model)) {
+                        instance._fireSelectedModels();
+                    }
+                }
+            )
+        );
+        eventhandlers.push(
+            instance.after(
+                'model:destroy',
+                function(e) {
+                    var model = e.target;
+                    if (instance.modelIsSelected(model)) {
+                        instance._fireSelectedModels();
                     }
                 }
             )
         );
         // now make clicks on <a> an <button> elements prevented when scrollview does a scroll
+        // we set it on contentBox instead of BoundingBox to interupt as soon as posible
         eventhandlers.push(
-            boundingBox.delegate(
+            contentBox.delegate(
                 'click',
                 function(e) {
                     // Prevent links from navigating as part of a scroll gesture
@@ -1727,8 +1820,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     }
                 },
                 function() {
-                    var tagName = this.get('tagName');
-                    return ((tagName==='A') || (tagName==='BUTTON'));
+                    return this.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
                 }
             )
         );
@@ -1741,14 +1833,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     // which let you drag anchors to the desktop
                     e.preventDefault();
                 },
-                'a'
+                function() {
+                    var tagName = this.get('tagName');
+                    return ((tagName==='A') || (tagName==='IMG'));
+                }
             )
         );
         // Re-render the view when a model is added to or removed from the modelList
         // because we made it bubble-up to the scrollview-instance, we attach the listener there.
         eventhandlers.push(
             instance.after(
-                ['modelList:remove', 'lazyModelList:remove', 'modelList:add', 'lazyModelList:add', '*:change'],
+                ['modelList:remove', 'lazyModelList:remove', 'modelList:add', 'lazyModelList:add'],
                 Y.bind(instance._renderView, instance, null, null)
             )
         );
@@ -1778,7 +1873,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this;
 
         Y.log('_setModelList', 'info', 'Itsa-ModellistViewExtention');
-        instance._listLazy = (val instanceof Y.LazyModelList);
+        instance._listLazy = (val.revive);
         instance._itmsAvail = val && (val.size()>0);
     },
 
@@ -1947,116 +2042,116 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Setter for attribute renderGroupHeader1. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute groupHeader1Template. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
-     * @method _setRenderGrH1
+     * @method _setGH1Templ
      * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderGrH1 : function(val) {
+    _setGH1Templ : function(val) {
         var instance = this;
 
-        Y.log('_setRenderGrH1', 'info', 'Itsa-ModellistViewExtention');
-        if (instance._renderGrpH1Init) {
-            instance._templFns = instance._getAllTemplateFuncs({renderGroupHeader1: val});
+        Y.log('_setGH1Templ', 'info', 'Itsa-ModellistViewExtention');
+        if (instance._gH1TemplateInit) {
+            instance._templFns = instance._getAllTemplateFuncs({groupHeader1Template: val});
             if (instance._rerendAttrChg) {
                 instance._renderView();
             }
         }
         else {
-            instance._renderGrpH1Init = true;
+            instance._gH1TemplateInit = true;
         }
     },
 
     /**
-     * Setter for attribute renderGroupHeader2. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute groupHeader2Template. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
-     * @method _setRenderGrH2
+     * @method _setGH2Templ
      * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderGrH2 : function(val) {
+    _setGH2Templ : function(val) {
         var instance = this;
 
-        Y.log('_setRenderGrH2', 'info', 'Itsa-ModellistViewExtention');
-        if (instance._renderGrpH2Init) {
-            instance._templFns = instance._getAllTemplateFuncs({renderGroupHeader2: val});
+        Y.log('_setGH2Templ', 'info', 'Itsa-ModellistViewExtention');
+        if (instance._gH2TemplateInit) {
+            instance._templFns = instance._getAllTemplateFuncs({groupHeader2Template: val});
             if (instance._rerendAttrChg) {
                 instance._renderView();
             }
         }
         else {
-            instance._renderGrpH2Init = true;
+            instance._gH2TemplateInit = true;
         }
     },
 
     /**
-     * Setter for attribute renderGroupHeader3. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute groupHeader3Template. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
-     * @method _setRenderGrH3
+     * @method _setGH3Templ
      * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderGrH3 : function(val) {
+    _setGH3Templ : function(val) {
         var instance = this;
 
-        Y.log('_setRenderGrH3', 'info', 'Itsa-ModellistViewExtention');
-        if (instance._renderGrpH3Init) {
-            instance._templFns = instance._getAllTemplateFuncs({renderGroupHeader3: val});
+        Y.log('_setGH3Templ', 'info', 'Itsa-ModellistViewExtention');
+        if (instance._gH3TemplateInit) {
+            instance._templFns = instance._getAllTemplateFuncs({groupHeader3Template: val});
             if (instance._rerendAttrChg) {
                 instance._renderView();
             }
         }
         else {
-            instance._renderGrpH3Init = true;
+            instance._gH3TemplateInit = true;
         }
     },
 
     /**
-     * Setter for attribute renderModel. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute template. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
-     * @method _setRenderModel
+     * @method _setModelTemplate
      * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderModel : function(val) {
+    _setModelTemplate : function(val) {
         var instance = this;
 
-        Y.log('_setRenderModel', 'info', 'Itsa-ModellistViewExtention');
-        if (instance._renderModelInit) {
-            instance._templFns = instance._getAllTemplateFuncs({renderModel: val});
+        Y.log('_setModelTemplate', 'info', 'Itsa-ModellistViewExtention');
+        if (instance._modelTemplateInit) {
+            instance._templFns = instance._getAllTemplateFuncs({template: val});
             if (instance._rerendAttrChg) {
                 instance._renderView();
             }
         }
         else {
-            instance._renderModelInit = true;
+            instance._modelTemplateInit = true;
         }
     },
 
     /**
-     * Setter for attribute renderClassName. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
+     * Setter for attribute classNameTemplate. Will re-render the view when changed UNLESS it is called from setWithoutRerender().
      *
-     * @method _setRenderClass
+     * @method _setClassNameTempl
      * @param {String} val the new set value for this attribute
      * @private
      * @since 0.1
      *
     */
-    _setRenderClass : function(val) {
+    _setClassNameTempl : function(val) {
         var instance = this;
 
-        Y.log('_setRenderClass', 'info', 'Itsa-ModellistViewExtention');
+        Y.log('_setClassNameTempl', 'info', 'Itsa-ModellistViewExtention');
         if (instance._renderClassInit) {
-            instance._templFns = instance._getAllTemplateFuncs({renderClassName: val});
+            instance._templFns = instance._getAllTemplateFuncs({classNameTemplate: val});
             if (instance._rerendAttrChg) {
                 instance._renderView();
             }
@@ -2100,7 +2195,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Setter for attribute modelListStyled. Adds or removes the class 'itsa-scrollviewmodellist-styled' to the boundingBox.
+     * Setter for attribute modelListStyled. Adds or removes the class 'itsa-modellistview-styled' to the boundingBox.
      *
      * @method _setModelListStyled
      * @param {Boolean} val
@@ -2112,7 +2207,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this;
 
         Y.log('_setModelListStyled', 'info', 'Itsa-ModellistViewExtention');
-        instance.get('boundingBox').toggleClass(SVML_STYLE_CLASS, val);
+        instance.get('boundingBox').toggleClass(SVML_STYLE_CLASS, val).toggleClass(FORM_STYLE_CLASS, val);
     },
 
     /**
@@ -2248,21 +2343,23 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setMarkModelChange', 'info', 'Itsa-ModellistViewExtention');
         if (val && (val>0) && !instance._markModelChangeEv) {
             instance._markModelChangeEv = instance.after(
-                '*:change',
+                'model:change',
                 function(e) {
-                    var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
-                        node = instance.getNodeFromModel(model);
-                    if (node) {
-                        node.addClass(MODEL_CHANGED_CLASS);
-                        Y.later(
-                            val,
-                            instance,
-                            function() {
-                                if (node) {
-                                    node.removeClass(MODEL_CHANGED_CLASS);
+                    if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
+                        var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
+                            node = instance.getNodeFromModel(model);
+                        if (node) {
+                            node.addClass(MODEL_CHANGED_CLASS);
+                            Y.later(
+                                val,
+                                instance,
+                                function() {
+                                    if (node) {
+                                        node.removeClass(MODEL_CHANGED_CLASS);
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     }
                 }
             );
@@ -2339,7 +2436,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setIntoViewChanged', 'info', 'Itsa-ModellistViewExtention');
         if ((val>0) && !instance._modelInViewChanged) {
             instance._modelInViewChanged = instance.after(
-                '*:change',
+                'model:change',
                 function(e) {
                     var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                         node = instance.getNodeFromModel(model);
@@ -2558,54 +2655,78 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @method _getAllTemplateFuncs
      * @param {Object} [setterAttrs] Definition of fields which called this method internally. Only for internal use within some attribute-setters.
      * @private
-     * @return {Object} All templates --> an object with the fields: <b>renderModel, renderClassName, groupH1, groupH2, groupH3,
+     * @return {Object} All templates --> an object with the fields: <b>template, classNameTemplate, groupH1, groupH2, groupH3,
      * renderGH1, renderGH2, renderGH3, activeClass, activeGH1, activeGH2, activeGH3</b>. The last 4 keys are Booleans, the other are templates.
      * @since 0.1
      *
     */
     _getAllTemplateFuncs : function(setterAttrs) {
         var instance = this,
-            renderModel = (setterAttrs && setterAttrs.renderModel) || instance.get('renderModel'),
-            renderClassName = (setterAttrs && setterAttrs.renderModel) || instance.get('renderClassName'),
+            itsacmtemplate = instance.itsacmtemplate,
+            template = (setterAttrs && setterAttrs.template) || instance.get('modelTemplate'),
+            classNameTemplate = (setterAttrs && setterAttrs.template) || instance.get('classNameTemplate'),
             groupH1 = (setterAttrs && setterAttrs.groupHeader1) || instance.get('groupHeader1'),
             groupH2 = (setterAttrs && setterAttrs.groupHeader2) || instance.get('groupHeader2'),
             groupH3 = (setterAttrs && setterAttrs.groupHeader3) || instance.get('groupHeader3'),
-            renderGH1 = (setterAttrs && setterAttrs.renderGroupHeader1) || instance.get('renderGroupHeader1') || groupH1,
-            renderGH2 = (setterAttrs && setterAttrs.renderGroupHeader2) || instance.get('renderGroupHeader2') || groupH2,
-            renderGH3 = (setterAttrs && setterAttrs.renderGroupHeader3) || instance.get('renderGroupHeader3') || groupH3,
-            activeClass = renderClassName && (renderClassName.length>0),
+            renderGH1 = (setterAttrs && setterAttrs.groupHeader1Template) || instance.get('groupHeader1Template') || groupH1,
+            renderGH2 = (setterAttrs && setterAttrs.groupHeader2Template) || instance.get('groupHeader2Template') || groupH2,
+            renderGH3 = (setterAttrs && setterAttrs.groupHeader3Template) || instance.get('groupHeader3Template') || groupH3,
+            activeClass = classNameTemplate && (classNameTemplate.length>0),
             activeGH1 = groupH1 && (groupH1.length>0),
             activeGH2 = groupH2 && (groupH2.length>0),
             activeGH3 = groupH3 && (groupH3.length>0),
             modelEngine, compiledModelEngine, groupH1Engine, compiledGroupH1Engine, groupH2Engine, compiledGroupH2Engine, groupH3Engine,
             compiledGroupH3Engine, renderGH1Engine, compiledRenderGH1Engine, renderGH2Engine, compiledRenderGH2Engine, renderGH3Engine,
-            compiledRenderGH3Engine, templateObject, isMicroTemplate, classNameEngine;
+            compiledRenderGH3Engine, templateObject, isMicroTemplate, classNameEngine, microModelTemplate,
+            microRenderGH1, microRenderGH2, microRenderGH3;
 
         Y.log('_getAllTemplateFuncs', 'info', 'Itsa-ModellistViewExtention');
-        isMicroTemplate = function(template) {
+        isMicroTemplate = function(checkTemplate) {
             var microTemplateRegExp = /<%(.+)%>/;
-            return microTemplateRegExp.test(template);
+            return microTemplateRegExp.test(checkTemplate);
         };
-        if (isMicroTemplate(renderModel)) {
-            compiledModelEngine = YTemplateMicro.compile(renderModel);
-            modelEngine = function(model) {
-                return compiledModelEngine(instance.getModelToJSON(model));
-            };
+        microModelTemplate = isMicroTemplate(template);
+        microRenderGH1 = activeGH1 && isMicroTemplate(renderGH1);
+        microRenderGH2 = activeGH2 && isMicroTemplate(renderGH2);
+        microRenderGH3 = activeGH3 && isMicroTemplate(renderGH3);
+        instance._microTemplateUsed = (microModelTemplate || microRenderGH1 || microRenderGH2 || microRenderGH3);
+        if (!itsacmtemplate) {
+            // default behaviour without Y.Plugin.ITSAChangeModelTemplate
+            if (microModelTemplate) {
+                compiledModelEngine = YTemplateMicro.compile(template);
+                modelEngine = function(model) {
+                    return compiledModelEngine(instance.getModelToJSON(model));
+                };
+            }
+            else {
+                modelEngine = function(model) {
+                    return Lang.sub(template, instance.getModelToJSON(model));
+                };
+            }
         }
         else {
-            modelEngine = function(model) {
-                return Lang.sub(renderModel, instance.getModelToJSON(model));
-            };
+            // WITH Y.Plugin.ITSAChangeModelTemplate
+            if (microModelTemplate) {
+                compiledModelEngine = YTemplateMicro.compile(template);
+                modelEngine = function(model) {
+                    return itsacmtemplate._getModelEngine(model, null, compiledModelEngine);
+                };
+            }
+            else {
+                modelEngine = function(model) {
+                    return itsacmtemplate._getModelEngine(model, template);
+                };
+            }
         }
-        if (isMicroTemplate(renderClassName)) {
-            compiledModelEngine = YTemplateMicro.compile(renderClassName);
+        if (isMicroTemplate(classNameTemplate)) {
+            compiledModelEngine = YTemplateMicro.compile(classNameTemplate);
             classNameEngine = function(model) {
                 return compiledModelEngine(instance.getModelToJSON(model));
             };
         }
         else {
             classNameEngine = function(model) {
-                return Lang.sub(renderClassName, instance.getModelToJSON(model));
+                return Lang.sub(classNameTemplate, instance.getModelToJSON(model));
             };
         }
         if (activeGH1 && isMicroTemplate(groupH1)) {
@@ -2641,7 +2762,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 return Lang.sub(groupH3, instance.getModelToJSON(model));
             };
         }
-        if (activeGH1 && isMicroTemplate(renderGH1)) {
+        if (microRenderGH1) {
             compiledRenderGH1Engine = YTemplateMicro.compile(renderGH1);
             renderGH1Engine = function(model) {
                 return compiledRenderGH1Engine(instance.getModelToJSON(model));
@@ -2652,7 +2773,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 return Lang.sub(renderGH1, instance.getModelToJSON(model));
             };
         }
-        if (activeGH2 && isMicroTemplate(renderGH2)) {
+        if (microRenderGH2) {
             compiledRenderGH2Engine = YTemplateMicro.compile(renderGH2);
             renderGH2Engine = function(model) {
                 return compiledRenderGH2Engine(instance.getModelToJSON(model));
@@ -2663,7 +2784,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 return Lang.sub(renderGH2, instance.getModelToJSON(model));
             };
         }
-        if (activeGH3 && isMicroTemplate(renderGH3)) {
+        if (microRenderGH3) {
             compiledRenderGH3Engine = YTemplateMicro.compile(renderGH3);
             renderGH3Engine = function(model) {
                 return compiledRenderGH3Engine(instance.getModelToJSON(model));
@@ -2675,8 +2796,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             };
         }
         templateObject = {
-            renderModel : modelEngine,
-            renderClassName : classNameEngine,
+            template : modelEngine,
+            classNameTemplate : classNameEngine,
             groupH1 : groupH1Engine,
             groupH2 : groupH2Engine,
             groupH3 : groupH3Engine,
@@ -2692,7 +2813,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Will try to render 'trymodel' through the template defined with tha attribute 'renderModel'.
+     * Will try to render 'trymodel' through the template defined with tha attribute 'modelTemplate'.
      * Only succeeds if it passes all tests declared by the other params. Should it fail the tests, then 'false' is returned.
      * If succeeded, the the HTML (String) will be returned.
      *
@@ -2707,7 +2828,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @param {Object} allTemplateFuncs passed as a parameter for performancereasons
      * @private
      * @return {HTML|false} false if failed -possibly because it's a dup or falls out of the filter-, otherwise returns the rendered HTML: rendered
-     * through the 'renderModel'-template
+     * through the 'modelTemplate'-template
      * @since 0.1
      *
     */
@@ -2733,10 +2854,10 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         };
         allowed = (!viewFilter || viewFilterBinded(trymodel)) &&
                       (!noDups ||
-                       (!dupComparator && ((renderedmodel = allTemplateFuncs.renderModel(trymodel))!==prevrenderedmodel)) ||
+                       (!dupComparator && ((renderedmodel = allTemplateFuncs.template(trymodel))!==prevrenderedmodel)) ||
                        (dupComparator && !dupAvailable(trymodel))
                       );
-        return allowed && (renderedmodel || allTemplateFuncs.renderModel(trymodel));
+        return allowed && (renderedmodel || allTemplateFuncs.template(trymodel));
     },
 
     _clearAbberantModelList : function() {
@@ -2928,6 +3049,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     }
                 );
             }
+            if (instance._microTemplateUsed) {
+                viewNode.cleanup();
+            }
             viewNode.replace(newViewNode);
             instance._viewNode = newViewNode;
             newViewNode.set('id', instance._viewId);
@@ -2968,7 +3092,32 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         instance.fire('modelListRender');
     },
 
-// return {Array} array of Y.Node --> the last element is always the ModelNode, but it can be precede with headerNodes.
+    /**
+     * Repositions the model on a new position in the view. This method is called after a model:change-event.
+     *
+     * @method _repositionModel
+     * @param {Y.Model} [model] The model to reposition
+     * @private
+     * @since 0.1
+    */
+//    _repositionModel : function(model) {
+    _repositionModel : function() {
+        // NEEDS UPDATED CODE
+        // _renderView() is far too costly.
+        this._renderView();
+    },
+
+
+    /**
+     * Creates the node to be rendered <b>with its headers</b> (if applyable). This means that an array is returned,
+     * where the last item is the rendered-model.
+     *
+     * @method _repositionModel
+     * @param {Y.Model} [model] The model to reposition
+     * @private
+     * @return {Array} array of Y.Node --> the last element is always the ModelNode, but it can be precede with headerNodes.
+     * @since 0.1
+    */
     _createModelNode : function(model, renderedModel) {
         var instance = this,
             modelClientId = instance.getModelAttr(model, 'clientId'),
@@ -3030,12 +3179,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         }
         modelNode.setData('modelClientId', modelClientId);
         if (allTemplateFuncs.activeClass) {
-            modelNode.addClass(allTemplateFuncs.renderClassName(model));
+            modelNode.addClass(allTemplateFuncs.classNameTemplate(model));
         }
         modelNode.addClass(MODEL_CLASS);
         modelNode.addClass(modelClientId);
         modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
-        modelNode.setHTML(renderedModel || allTemplateFuncs.renderModel(model));
+        modelNode.setHTML(renderedModel || allTemplateFuncs.template(model));
         nodes.push(modelNode);
         return nodes;
     },
@@ -3059,7 +3208,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             itemOnTopValue = lastItemOnTop || instance.get('lastItemOnTop'),
             viewNode = instance._viewNode,
             listTypeUL = (instance.get('listType')==='ul'),
-            template = listTypeUL ? VIEW_EMPTY_ELEMENT_TEMPLATE_UL : VIEW_EMPTY_ELEMENT_TEMPLATE_TABLE,
+            itemTemplate = listTypeUL ? VIEW_EMPTY_ELEMENT_TEMPLATE_UL : VIEW_EMPTY_ELEMENT_TEMPLATE_TABLE,
             modelNode, viewsize, elementsize, modelElements,modelElementsSize, nrCells;
 
         Y.log('_addEmptyItem', 'info', 'Itsa-ModellistViewExtention');
@@ -3072,11 +3221,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             }
         }
         if (!listTypeUL) {
-            // table template --> we must set colspan
+            // table itemTemplate --> we must set colspan
             nrCells = lastModelNode.all('>td').size();
         }
-        template = Lang.sub(template, {cols: nrCells, content: ''});
-        modelNode = YNode.create(template),
+        itemTemplate = Lang.sub(itemTemplate, {cols: nrCells, content: ''});
+        modelNode = YNode.create(itemTemplate),
         modelNode.addClass(EMPTY_ELEMENT_CLASS);
         viewsize = boundingBox.get(yAxis ? 'offsetHeight' : 'offsetWidth');
         if (lastModelNode) {
@@ -3189,10 +3338,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * expansion data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
      * at the <b>max of ITSAInifiniteView.get('maxExpansions') times by default</b>. If you are responsible for the external data and
      * that data is limited, you might choose to set this value that high to make sure all data is rendered in the scrollview.
+     * @param {boolean} [force] set true if you always want the model to be unselected, even if 'modelsUnselectable' is true
      * @private
      * @since 0.1
     */
-    _selectModel : function(model, selectstatus, maxExpansions) {
+    _selectModel : function(model, selectstatus, maxExpansions, force) {
 //=============================================================================================================================
 //
 // NEED SOME WORK HERE: MIGHT BE ASYNCHROUS --> WE NEED TO RETURN A PROMISE
@@ -3204,7 +3354,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             itemUnselectable = (!selectstatus && instance.get('modelsUnselectable') && (YObject.size(instance._selectedModels)===1)),
             modelnode;
 
-        if (modelid && !itemUnselectable) {
+        if (modelid && (!itemUnselectable || force)) {
             Y.log('_selectModel '+instance.getModelAttr(model, "clientId")+' new selectstatus: '+selectstatus, 'info', 'Itsa-ModellistViewExtention');
             if (instance.hasPlugin('itsainfiniteview')) {
                 // make sure the node is rendered
@@ -3295,9 +3445,15 @@ Y.ITSAModellistViewExtention = ITSAModellistViewExtention;
 
 }, '@VERSION@', {
     "requires": [
-        "base-build",
+        "yui-base",
         "node-base",
+        "node-style",
         "node-event-delegate",
+        "base-build",
+        "base-base",
+        "widget-base",
+        "oop",
+        "yui-later",
         "dom-screen",
         "pluginhost-base",
         "event-mouseenter",
@@ -3305,6 +3461,8 @@ Y.ITSAModellistViewExtention = ITSAModellistViewExtention;
         "model",
         "model-list",
         "lazy-model-list",
+        "template-base",
         "template-micro"
-    ]
+    ],
+    "skinnable": true
 });
