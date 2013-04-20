@@ -27,7 +27,7 @@ This makes the widget re-render after a Model-instance changes some of its attri
 
 Creating an editable modelview:
 By plugin Y.Plugin.ITSAEditModel and setting the attribute 'modelEditable' to true, you create an editable Model.
-[See ITSAEditModel](src/gallery-itsaeditmodel).
+[See ITSAEditModel](src/gallery-itsaeditmodel). This will also automaticly plugin [Y.Plugin.ITSATabKeyManager](src/gallery-itsatabkeymanager).
 
 
 By default, the widget comes with its own style. You can disable this by setting the attribute 'styled' to false.
