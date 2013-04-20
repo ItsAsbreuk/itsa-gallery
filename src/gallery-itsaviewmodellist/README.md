@@ -49,7 +49,7 @@ Examples
 
 Documentation
 --------------
-[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/ITSACalendarMarkedDates.html)
+[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/ITSAViewModelList.html)
 
 Usage
 -----
