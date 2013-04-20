@@ -1,10 +1,12 @@
 {
     "gallery-itsaviewmodellist": {
         "requires": [
+            "yui-base",
+            "node-style",
+            "base-base",
             "base-build",
             "widget",
-            "gallery-itsamodellistviewextention",
-            "gallery-itsachangemodeltemplate"
+            "gallery-itsamodellistviewextention"
         ],
         "skinnable": true
     }
