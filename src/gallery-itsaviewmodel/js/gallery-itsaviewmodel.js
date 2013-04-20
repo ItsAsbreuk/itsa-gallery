@@ -56,14 +56,15 @@ function ITSANodeCleanup() {}
 Y.mix(ITSANodeCleanup.prototype, {
 
     //
-    // Cleansup the node by calling node.empty(), as well as destroying all widgets that lie
-    // within the node by calling widget.destroy(true);
+    // Destroys all widgets inside the node by calling widget.destroy(true);
     //
     // @method cleanup
+    // @param destroyAllNodes {Boolean} If true, all nodes contained within the Widget are removed and destroyed.
+    //                        Defaults to false due to potentially high run-time cost.
     // @since 0.1
     //
     //
-    cleanup: function() {
+    cleanupWidgets: function(destroyAllNodes) {
         var node = this,
             YWidget = Y.Widget;
 
@@ -74,12 +75,27 @@ Y.mix(ITSANodeCleanup.prototype, {
                     if (node.one('#'+widgetNode.get('id'))) {
                         var widgetInstance = YWidget.getByNode(widgetNode);
                         if (widgetInstance) {
-                            widgetInstance.destroy();
+                            widgetInstance.destroy(destroyAllNodes);
                         }
                     }
                 }
             );
         }
+    },
+
+    //
+    // Cleansup the node by calling node.empty(), as well as destroying all widgets that lie
+    // within the node by calling widget.destroy(true);
+    //
+    // @method cleanup
+    // @since 0.1
+    //
+    //
+    cleanup: function() {
+        var node = this;
+
+        Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
+        node.cleanupWidgets(true);
         node.empty();
     }
 
@@ -141,11 +157,30 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         initializer : function() {
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
-                contentBox = instance.get('contentBox'),
-                events = instance.get('events'),
                 model = instance.get('model'),
                 modelEditable = instance.get('modelEditable'),
-                itsaeditmodel = (modelEditable && model.itsaeditmodel),
+                itsaeditmodel = (modelEditable && model.itsaeditmodel);
+
+            Y.log('initializer', 'info', 'Itsa-ViewModel');
+            if (itsaeditmodel && !boundingBox.itsatabkeymanager) {
+                Y.use('gallery-itsatabkeymanager', function(Y) {
+                    boundingBox.plug(Y.Plugin.ITSATabKeyManager);
+                    instance.initializeFurther(boundingBox, model, itsaeditmodel);
+                });
+            }
+            else {
+                instance.initializeFurther(boundingBox, model, itsaeditmodel);
+            }
+        },
+
+        /**
+         * @method initializer
+         * @protected
+        */
+        initializeFurther : function(boundingBox, model, itsaeditmodel) {
+            var instance = this,
+                contentBox = instance.get('contentBox'),
+                events = instance.get('events'),
                 template = itsaeditmodel ? model.itsaeditmodel.get('template') : instance.get('template'),
                 styled = instance.get('styled'),
                 view;
@@ -288,12 +323,17 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 view.after(
                     'itsaeditmodel:pluggedin',
                     function() {
-                        if (instance.get('modelEditable')) {
-                            var template = model.itsaeditmodel.get('template');
-                            view.template = template;
-                            instance._setTemplateRenderer(template, true);
-                            view.render();
-                        }
+                        Y.use('gallery-itsatabkeymanager', function(Y) {
+                            if (!boundingBox.itsatabkeymanager) {
+                                boundingBox.plug(Y.Plugin.ITSATabKeyManager);
+                            }
+                            if (instance.get('modelEditable')) {
+                                var template = model.itsaeditmodel.get('template');
+                                view.template = template;
+                                instance._setTemplateRenderer(template, true);
+                                view.render();
+                            }
+                        });
                     }
                 )
             );
@@ -403,6 +443,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             Y.log('destructor', 'info', 'Itsa-ViewModel');
             instance._clearEventhandlers();
             instance.view.destroy();
+            if (boundingBox.hasPlugin('itsatabkeymanager')) {
+                boundingBox.unplug('itsatabkeymanager');
+            }
         },
 
         //===============================================================================================
@@ -461,45 +504,46 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          *
         */
         _viewRenderer : function (clear) {
-          var instance = this,
-              boundingBox = instance.get('boundingBox'),
-              itsatabkeymanager = boundingBox.itsatabkeymanager,
-              view = instance.view,
-              container = view.get('container'),
-              model = view.get('model'),
-              itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
-              html = clear ? '' : instance._modelRenderer(model),
-              item;
+            var instance = this,
+                boundingBox = instance.get('boundingBox'),
+                itsatabkeymanager = boundingBox.itsatabkeymanager,
+                view = instance.view,
+                container = view.get('container'),
+                model = view.get('model'),
+                editMode = model.itsaeditmodel && instance.get('modelEditable'),
+                itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
+                html = clear ? '' : instance._modelRenderer(model),
+                item;
 
-          Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
-          if (itsatabkeymanager) {
-              item = itsatabkeymanager.get('activeItem');
-              if (item) {
-                  itsatabkeymanager.set('activeItem', null);
-                  item.blur();
-              }
-          }
-          // Render this view's HTML into the container element.
-          // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
-          if (instance._isMicroTemplate) {
-              container.cleanup();
-          }
-          if (model.itsaeditmodel && instance.get('modelEditable')) {
-              instance._initialEditAttrs = model.getAttrs();
-              container.cleanup();
-          }
-          container.setHTML(html);
-          // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
-          if (itsatabkeymanager) {
-              itsatabkeymanager.refresh(boundingBox);
-              if (instance.get('focused')) {
-                  itsatabkeymanager.focusInitialItem();
-              }
-          }
-          if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
-              itsaDateTimePicker.hide(true);
-          }
-          return instance;
+            Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
+//            if (itsatabkeymanager) {
+//                item = itsatabkeymanager.get('activeItem');
+//                if (item) {
+//                    itsatabkeymanager.set('activeItem', null);
+//                    item.blur();
+//                }
+//            }
+            // Render this view's HTML into the container element.
+            // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
+            if (editMode || instance._isMicroTemplate) {
+                if (editMode) {
+                    instance._initialEditAttrs = model.getAttrs();
+                }
+                container.cleanupWidgets(true);
+            }
+
+            container.setHTML(html);
+            // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
+            if (itsatabkeymanager) {
+                itsatabkeymanager.refresh(boundingBox);
+                if (instance.get('focused')) {
+                    itsatabkeymanager.focusInitialItem();
+                }
+            }
+            if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
+                itsaDateTimePicker.hide(true);
+            }
+            return instance;
         },
 
         /**

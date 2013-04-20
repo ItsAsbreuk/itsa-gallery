@@ -8,6 +8,7 @@
             "plugin",
             "lazy-model-list",
             "event-valuechange",
+            "gallery-itsamodelsyncpromise",
             "gallery-itsaformelement"
         ]
     }

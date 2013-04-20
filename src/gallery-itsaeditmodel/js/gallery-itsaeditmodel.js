@@ -211,7 +211,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host.publish(
                 EVT_SAVE_CLICK,
                 {
-                    defaultFn: Y.rbind(instance.save, instance)
+                    defaultFn: Y.rbind(instance._defSaveFn, instance)
                 }
             );
             /**
@@ -337,15 +337,81 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             return renderedFormElement;
         },
 
-        /**
-         * Saves all editable properties to the Model and calls the models synclayer.
-         * If you want to listen for the callback, the must specify the callbackfunctions within the attribute 'syncCallbacks.save'
-         * @method save
-         * @protected
-        */
-        save : function(silent) {
-            Y.log('save', 'info', 'Itsa-EditModel');
-            this._defStoreFn('save', silent);
+       /**
+        * Saves the editable field to the model and saves the model to the server.
+        * It is actually the same method as savePromise (gallery-itsamodelsyncpromise), with
+        * the exception that the editable fields are first synced to the model.
+        *
+        * This method delegates to the `sync()` method to perform the actual save
+        * operation, which is an asynchronous action. Specify a _callback_ function to
+        * be notified of success or failure.
+        *
+        * A successful save operation will fire a `save` event, while an unsuccessful
+        * save operation will fire an `error` event with the `src` value "save".
+        *
+        * If the save operation succeeds and one or more of the attributes returned in
+        * the server's response differ from this model's current attributes, a
+        * `change` event will be fired.
+        *
+        * @method savePromise
+        * @param {Object} [options] Options to be passed to `sync()` and to `set()`
+        *     when setting synced attributes. It's up to the custom sync implementation
+        *     to determine what options it supports or requires, if any.
+        *  @param {Function} [callback] Called when the sync operation finishes.
+        *     @param {Error|null} callback.err If an error occurred or validation
+        *     failed, this parameter will contain the error. If the sync operation
+        *     succeeded, _err_ will be `null`.
+        *     @param {Any} callback.response The server's response. This value will
+        *     be passed to the `parse()` method, which is expected to parse it and
+        *     return an attribute hash.
+        * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
+        *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
+        *              without a callback the promise would never be resolved. This is now caught with the timeout.
+        * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+        **/
+        savePromise : function(options, timeout) {
+            var instance = this,
+                updateMode = instance.get('updateMode');
+
+            Y.log('savePromise', 'info', 'Itsa-EditModel');
+            instance._needAutoSaved = false;
+            if (updateMode!==3) {
+                instance._editFieldsToModel();
+            }
+            return instance.host.savePromise(options, timeout);
+        },
+
+       /**
+         * Saves the editable field to the model and submits the model to the server.
+         * It is actually the same method as submitPromise (gallery-itsamodelsyncpromise), with
+         * the exception that the editable fields are first synced to the model.
+         *
+         * This method delegates to the `sync()` method to perform the actual submit
+         * operation, which is Y.Promise. Read the Promise.then() and look for resolve(response, options) OR reject(reason).
+         *
+         * A successful submit-operation will also fire a `submit` event, while an unsuccessful
+         * submit operation will fire an `error` event with the `src` value "submit".
+         *
+         * <b>CAUTION</b> The sync-method MUST call its callback-function to make the promised resolved. If there is no callback-function
+         * then the promise will be rejected after a timeout. When timeout is not specified,
+         * @method submitPromise
+         * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+         *                 implementation to determine what options it supports or requires, if any.
+         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
+         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
+         *              without a callback the promise would never be resolved. This is now caught with the timeout.
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+        **/
+        submitPromise: function(options, timeout) {
+            var instance = this,
+                updateMode = instance.get('updateMode');
+
+            Y.log('submitPromise', 'info', 'Itsa-EditModel');
+            instance._needAutoSaved = false;
+            if (updateMode!==3) {
+                instance._editFieldsToModel();
+            }
+            return instance.host.submitPromise(options, timeout);
         },
 
         /**
@@ -561,9 +627,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             );
             //============================================================================================
             // if the model gets changed and it wasn't this module, than fire an event.
-            // So the developer can use this to listen for these changes and rect on them
+            // So the developer can use this to listen for these changes and react on them
             instance.host.on(
-                '*:change',
+                'model:change',
                 function() {
                     Y.fire(EVT_DIALOG_WARN, {message: MESSAGE_WARN_MODELCHANGED});
                 }
@@ -627,25 +693,31 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
+         * Saves all editable properties to the Model and calls the models synclayer.
+         * @method _defSaveFn
+         * @protected
+        */
+        _defSaveFn : function() {
+            Y.log('save', 'info', 'Itsa-EditModel');
+            this._defStoreFn('save');
+        },
+
+        /**
          * Function that is used by save and _defPluginSubmitFn to store the modelvalues.
          * @method _defStoreFn
          * @param mode {String} type of update
-         * @param [silent] {Boolean} when true, it doesn't call the synclayer
          * @protected
         */
-        _defStoreFn : function(mode, silent) {
+        _defStoreFn : function(mode) {
             var instance = this,
                 updateMode = instance.get('updateMode');
 
             Y.log('_defStoreFn', 'info', 'Itsa-EditModel');
-            silent = Lang.isBoolean(silent) ? silent : false;
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
             }
-            if (!silent) {
-                instance._syncModel(mode);
-            }
+            instance._syncModel(mode);
         },
 
         /**

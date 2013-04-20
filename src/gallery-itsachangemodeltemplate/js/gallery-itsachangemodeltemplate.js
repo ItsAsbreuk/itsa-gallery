@@ -3,9 +3,10 @@
 /**
  * Plugin Y.Plugin.ChangeModelTemplate
  *
- * Extention to ITSAModellistViewExtention that makes it possible to toggle templates per model.
+ * Plugin for ITSAViewModellist and ITSAScrollViewModellist that makes it possible to toggle templates per model.
  * This might be useful if your (scroll)viewModellist has many rendered models, where you need to toggle
  * some of them. For instance: to transform from a 'normal'-state into 'editable'-state.
+ * To make the models editable, this plugin uses gallery-itsaeditmodel, to plugin Y.Plugin.ITSAEditModel when needed.
  *
  * @module gallery-itsachangemodeltemplate
  * @class ITSAChangeModelTemplate
@@ -61,6 +62,10 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         _eventhandlers : [],
 
+        _currentModelHasChanged : null,
+
+        _prevComparator : null,
+
         host : null,
 
         /**
@@ -83,26 +88,41 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          * Cleans up bindings and removes plugin
          * @method destructor
          * @param model {Y.Model}
-         * @param [save] {Boolean} in case you came from EditTemplate: save the changes (if present)
          * @since 0.1
         */
-        setModelToOriginalTemplate: function(model, save) {
+        setModelToOriginalTemplate: function(model) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId'),
+                host = instance.host,
+                clientId = host.getModelAttr(model, 'clientId'),
+                modellist = host.get('modelList'),
+                comparator = modellist && Y.bind(modellist.comparator, modellist),
                 currentMode;
 
             currentMode = instance._getMode(model);
             if (currentMode !== 1) {
                 Y.log('setModelToOriginalTemplate', 'info', 'Itsa-ChangeModelTemplate');
-                if ((instance._getMode(model)===3) && save) {
-                    model.itsaeditmodel.save();
-                }
                 instance._prevMode[clientId] = instance._getMode(model);
                 delete instance._alternateModels[clientId];
                 if (instance._editModels[clientId]) {
                     instance._unplugItsaeditmodel(model, clientId);
                 }
-                instance._renderOriginalTemplate(model);
+                if (instance._currentModelHasChanged && comparator && (instance._prevComparator!==comparator(model))) {
+                    modellist.sort();
+                    //====================================================
+                    //
+                    // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                    // As soon as issue is resolved, remove modellist.free() command
+                    //
+                    if (host._listLazy) {
+                        modellist.free();
+                    }
+                    //======================================================
+                    host._repositionModel(model);
+                }
+                else {
+                    instance._renderOriginalTemplate(model);
+                }
+                instance._currentModelHasChanged = false;
             }
             else {
                 Y.log('setModelToOriginalTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
@@ -113,26 +133,41 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          * Cleans up bindings and removes plugin
          * @method destructor
          * @param model {Y.Model}
-         * @param [save] {Boolean} in case you came from EditTemplate: save the changes (if present)
          * @since 0.1
         */
-        setModelToSecondTemplate: function(model, save) {
+        setModelToSecondTemplate: function(model) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId'),
+                host = instance.host,
+                clientId = host.getModelAttr(model, 'clientId'),
+                modellist = host.get('modelList'),
+                comparator = modellist && Y.bind(modellist.comparator, modellist),
                 currentMode;
 
             currentMode = instance._getMode(model);
             if (currentMode !== 2) {
                 Y.log('setModelToSecondTemplate', 'info', 'Itsa-ChangeModelTemplate');
-                if ((instance._getMode(model)===3) && save) {
-                    model.itsaeditmodel.save();
-                }
                 instance._prevMode[clientId] = instance._getMode(model);
                 instance._alternateModels[clientId] = true;
                 if (instance._editModels[clientId]) {
                     instance._unplugItsaeditmodel(model, clientId);
                 }
-                instance._renderSecondTemplate(model);
+                if (instance._currentModelHasChanged && comparator && (instance._prevComparator!==comparator(model))) {
+                    modellist.sort();
+                    //====================================================
+                    //
+                    // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                    // As soon as issue is resolved, remove modellist.free() command
+                    //
+                    if (host._listLazy) {
+                        modellist.free();
+                    }
+                    //======================================================
+                    host._renderView();
+                }
+                else {
+                    instance._renderSecondTemplate(model);
+                }
+                instance._currentModelHasChanged = false;
             }
             else {
                 Y.log('setModelToSecondTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
@@ -141,12 +176,17 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         setModelToEditTemplate: function(model) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId'),
+                host = instance.host,
+                modellist = host.get('modelList'),
+                comparator = modellist && Y.bind(modellist.comparator, modellist),
+                clientId = host.getModelAttr(model, 'clientId'),
                 currentMode;
 
             currentMode = instance._getMode(model);
             if (currentMode !== 3) {
                 Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
+                instance._currentModelHasChanged = false;
+                instance._prevComparator = comparator && comparator(model);
                 instance._prevMode[clientId] = currentMode;
                 instance._editModels[clientId] = true;
                 delete instance._alternateModels[clientId];
@@ -294,6 +334,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                         var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                             modelNode;
                         if (instance._getMode(model)===3) {
+                            instance._currentModelHasChanged = true;
                             modelNode = host.getNodeFromModel(model, 0);
                             modelNode.all('.'+ITSAFORMELEMENT_CHANGED_CLASS).removeClass(ITSAFORMELEMENT_CHANGED_CLASS);
 

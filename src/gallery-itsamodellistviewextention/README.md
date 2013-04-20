@@ -2,9 +2,8 @@ gallery-itsamodellistviewextention
 ==================================
 
 
-This module should not be used of its own.
-Use its derived modules: gallery-itsaviewmodellist or gallery-ITSAScrollViewModellist.
-
+Basic Extention that should not be used of its own.
+ITSAViewModelList and ITSAScrollViewModelList are based upon this extention.
 
 License
 -------
