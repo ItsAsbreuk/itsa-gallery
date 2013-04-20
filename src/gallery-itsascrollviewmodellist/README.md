@@ -3,7 +3,7 @@ gallery-itsascrollviewmodellist
 
 
 Widget Y.ITSAScrollViewModellist which extends Y.ScrollView by adding an Y.ModelList or Y.LazyModelList as an attribute 'modelList'.
-The Models from the ModelList will be used to rendered an unsorted-list inside the scrollview-instance. The ul-element
+The Models from the ModelList will be used to rendered an unsorted-list inside the scrollview-instance. The ul-element (viewNode)
 lies within the scrollview's-contentBox. This results in an ul-list with Models. For performance-reasons, it is recommended to
 use Y.LazyModelList instead of Y.ModelList.
 
@@ -59,8 +59,11 @@ Usage
 -----
 
 <b>View rendered as unsorted list</b>
+```html
+<div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
+```
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('scrollview', 'gallery-itsamodellistviewextention', 'lazy-model-list', function(Y) {
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
 
 var myModellist = new Y.LazyModelList();
 myModellist.add([
@@ -73,7 +76,7 @@ myModellist.add([
 var rendermodel = '{Country}';
 var groupheader = '<%= data.Country.substr(0,1) %>';
 
-var myScrollview = new Y.ScrollView({
+var myScrollview = new Y.ITSAScrollViewModellist({
     boundingBox: "#myscrollview",
     height:'600px',
     width:'240px',
@@ -89,8 +92,11 @@ myScrollview.render();
 ```
 
 <b>View rendered as table</b>
+```html
+<div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
+```
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('scrollview', 'gallery-itsamodellistviewextention', 'lazy-model-list', function(Y) {
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
 
 var myModellist = new Y.LazyModelList();
 myModellist.add([
@@ -103,7 +109,7 @@ myModellist.add([
 var rendermodel = '<\td>{Country}<\\td>';
 var groupheader = '<\td><%= data.Country.substr(0,1) %><\\td>';
 
-var myScrollview = new Y.ScrollView({
+var myScrollview = new Y.ITSAScrollViewModellist({
     boundingBox: "#myscrollview",
     listType: 'table,'
     height:'600px',
@@ -118,197 +124,14 @@ myScrollview.render();
 
 });
 ```
-<u><b>Custom styling:</b></u>
+Custom styling
+--------------
 
 The module will add several css-classes to the scrollview-instance and listelements. By default, there will be no styling and you
 may do so yourself. However, if the attribute 'modelListStyled' is set to true, everything gets a predefined style. You can style yourself
 by define your own styles, or by setting 'modelListStyled' and overrule some of its styles.
 
-Creating your own styles:
-Redefine the next classes:
-```js
-.itsa-modellistview-noinitialitems {
-    visibility: hidden;
-}
-
-.itsa-modellistview-groupheader1 {
-    background-color: #000;
-    color: #FFF;
-    padding: 3px 10px 2px 10px;
-}
-
-.itsa-modellistview-groupheader2 {
-    background-color: #3E6495;
-    color: #FFF;
-    border-bottom: solid 1px #FFF;
-    padding: 3px 10px 2px 10px;
-}
-
-.itsa-modellistview-groupheader3 {
-    background-color: #DDD;
-    color: #666;
-    padding: 3px 10px 2px 10px;
-}
-
-.itsa-scrollviewmodel {
-    padding: 10px;
-    background-color: #FFF;
-    color: #000;
-    border-bottom: 1px solid #797F90;
-}
-
-.itsa-scrollviewmodel-even {
-    background-color: #EDF5FF;
-}
-
-.itsa-scrollviewmodel-odd.itsa-scrollviewmodel-selected {
-    background-color: #4C7DBB;
-    color: #FFF;
-    border-color: #FFF;
-}
-
-.itsa-scrollviewmodel-even.itsa-scrollviewmodel-selected {
-    background-color: #4C7DBB;
-    color: #FFF;
-    border-color: #FFF;
-}
-
-.itsa-scrollviewmodel:hover {
-    cursor: pointer;
-    background-color: #C0DCFF;
-}
-
-.itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
-    background-color: #C0DCFF;
-}
-
-.itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
-    background-color: #4C7DBB;
-}
-
-.itsa-modellistview-groupheader1.itsa-modellistview-sequelgroupheader {
-    margin-top: 38px;
-}
-
-.itsa-scrollviewmodel.itsa-scrollviewmodel-focus {
-    background-color: #C0DCFF;
-}
-
-.itsa-scrollviewmodel.itsa-scrollviewmodel-focus.itsa-scrollviewmodel-selected {
-    background-color: #4C7DBB;
-}
-
-.itsa-scrollviewmodel.itsa-scrollviewmodel-changed {
-    background-color: #D84A4A;
-    color: #FF0;
-}
-
-.itsa-scrollviewmodel.itsa-scrollviewmodel-changed:hover,
-.itsa-scrollviewmodel.itsa-scrollviewmodel-changed.itsa-scrollviewmodel-selected:hover {
-    background-color: #D84A4A;
-    color: #FF0;
-}
-
-.itsa-scrollviewmodel.itsa-modellistview-lastitem {
-    border-bottom: none;
-}
-```
-
-Using 'modelListStyled' and redefine classes: make sure your new rule takes higher precedence, be sure you give it a finer declaration.
-When 'modelListStyled' is used, the 'itsa-modellistview-styled' class is appended to the boundingBox. This module has several css-rules
-for the right style. By adjoining 'itsa-modellistview' to 'itsa-modellistview-styled', youw own rules get precedence.
-```js
-.itsa-modellistview.itsa-modellistview-styled.itsa-modellistview-noinitialitems {
-    visibility: hidden;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled {
-    border: solid 1px #000;
-    background-color: #DDD;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader1 {
-    background-color: #000;
-    color: #FFF;
-    padding: 3px 10px 2px 10px;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader2 {
-    background-color: #3E6495;
-    color: #FFF;
-    border-bottom: solid 1px #FFF;
-    padding: 3px 10px 2px 10px;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader3 {
-    background-color: #DDD;
-    color: #666;
-    padding: 3px 10px 2px 10px;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel {
-    padding: 10px;
-    background-color: #FFF;
-    color: #000;
-    border-bottom: 1px solid #797F90;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel-even {
-    background-color: #EDF5FF;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel-odd.itsa-scrollviewmodel-selected {
-    background-color: #4C7DBB;
-    color: #FFF;
-    border-color: #FFF;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel-even.itsa-scrollviewmodel-selected {
-    background-color: #4C7DBB;
-    color: #FFF;
-    border-color: #FFF;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel:hover {
-    cursor: pointer;
-    background-color: #C0DCFF;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
-    background-color: #C0DCFF;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-selected:hover {
-    background-color: #4C7DBB;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-modellistview-groupheader1.itsa-modellistview-sequelgroupheader {
-    margin-top: 38px;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-focus {
-    background-color: #C0DCFF;
-}
-
-.yui3-skin-sam .itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-focus.itsa-scrollviewmodel-selected {
-    background-color: #4C7DBB;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed {
-    background-color: #D84A4A;
-    color: #FF0;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed:hover,
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-scrollviewmodel-changed.itsa-scrollviewmodel-selected:hover {
-    background-color: #D84A4A;
-    color: #FF0;
-}
-
-.yui3-skin-sam .itsa-modellistview.itsa-modellistview-styled .itsa-scrollviewmodel.itsa-modellistview-lastitem {
-    border-bottom: none;
-}
-```
+[View styles](src/assets/gallery-itsascrollviewmodellist-core.css)
 
 License
 -------
