@@ -86,8 +86,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         /**
          * Cleans up bindings and removes plugin
-         * @method destructor
-         * @param model {Y.Model}
+         * @method setModelToOriginalTemplate
+         * @param model {Y.Model | Object} The item from the modellist. May be a Mode, or an Object - in case of LazyModelList
          * @since 0.1
         */
         setModelToOriginalTemplate: function(model) {
@@ -131,8 +131,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         /**
          * Cleans up bindings and removes plugin
-         * @method destructor
-         * @param model {Y.Model}
+         * @method setModelToSecondTemplate
+         * @param model {Y.Model | Object} The item from the modellist. May be a Mode, or an Object - in case of LazyModelList
          * @since 0.1
         */
         setModelToSecondTemplate: function(model) {
@@ -174,6 +174,12 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             }
         },
 
+        /**
+         * Cleans up bindings and removes plugin
+         * @method setModelToEditTemplate
+         * @param model {Y.Model | Object} The item from the modellist. May be a Mode, or an Object - in case of LazyModelList
+         * @since 0.1
+        */
         setModelToEditTemplate: function(model) {
             var instance = this,
                 host = instance.host,
@@ -541,11 +547,25 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 if (editTemplateIsMicro) {
                     compiledModelEngine = Y.TemplateMicro.compile(template);
                     instance._editTempl = function(model) {
+                        var isModelInstance = model.get && (model.get === 'function');
+                        if (!isModelInstance) {
+                            model = instance.host.get('modelList').revive(model);
+                            if (!model.itsaeditmodel) {
+                                model.plug(Y.Plugin.ITSAEditModel, instance.get('editmodelConfig'));
+                            }
+                        }
                         return compiledModelEngine(model.itsaeditmodel.toJSON(model.itsaeditmodel.get('editmodelConfigAttrs')));
                     };
                 }
                 else {
                     instance._editTempl = function(model) {
+                        var isModelInstance = model.get && (model.get === 'function');
+                        if (!isModelInstance) {
+                            model = instance.host.get('modelList').revive(model);
+                            if (!model.itsaeditmodel) {
+                                model.plug(Y.Plugin.ITSAEditModel, instance.get('editmodelConfig'));
+                            }
+                        }
                         return Lang.sub(template, model.itsaeditmodel.toJSON(model.itsaeditmodel.get('editmodelConfigAttrs')));
                     };
                 }
