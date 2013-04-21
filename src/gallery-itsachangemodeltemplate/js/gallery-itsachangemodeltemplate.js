@@ -70,7 +70,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         /**
          * Internal flag to state is the edittemplate is a microtemplate
-         * @property _editTempl
+         * @property _editTemplIsMicro
          * @private
          * @default null
          * @type Boolean
@@ -79,7 +79,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         /**
          * Internal backuplist of the Models attributes, used when the editdata needs to be reset.
-         * @property _editTempl
+         * @property _initialEditAttrs
          * @private
          * @default {}
          * @type Object
@@ -106,7 +106,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         /**
          * Internal backuplist to keep track of the previous Mode of the Models, to enable restore the template to previous state.
-         * @property _editModels
+         * @property _prevMode
          * @private
          * @default {}
          * @type Object
@@ -814,7 +814,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
              * to define the editable template directly within 'editTemplate', because through this attribute are able to change the
              * editable-template later on. (The one within 'configForEditModel.editTemplate' is only read during initialisation).
              *
-             * @attribute secondTemplate
+             * @attribute editTemplate
              * @type {Boolean}
              * @default false
              * @since 0.1
