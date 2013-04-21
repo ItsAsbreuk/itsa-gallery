@@ -8,6 +8,8 @@
  * After pluged-in, Each property can be rendered into a form-element by using: <i>yourModel.itsaeditmodel.formelement()</i>
  * You can also retreive a copy of the model's attributes with: <i>yourModel.itsaeditmodel.toJSON()</i>
  *
+ * Use the attribute 'template' to specify how the rendering will look like.
+ *
  *
  * @module gallery-itsaeditmodel
  * @class ITSAEditModel
@@ -127,7 +129,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
        // -- Public Static Properties -------------------------------------------------
 
        /**
-        * The plugin's host, which should be a ScrollView-instance
+        * The plugin's host, which should be a Model-instance (or descendent)
         * @property host
         * @default null
         * @type ScrollView-instance
@@ -1038,7 +1040,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             },
             /**
              * Template of how to render the model in the view. You can <b>only use Y.Lang.sub templates</b> where the attribute/properties
-             * should be specified between brackets. Example: 'Name: {firstname} {lastname}'.
+             * should be specified between brackets. Example: 'Name: {firstname} {lastname}'.<br />
+             * Or you can use Y.Template.Micro: 'Name: <%= data.firstname + " " + data.lastename %>'
              * @attribute template
              * @type String
              * @default null

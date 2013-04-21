@@ -128,7 +128,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
        // -- Public Static Properties -------------------------------------------------
 
        /**
-        * The plugin's host, which should be a ScrollView-instance
+        * The plugin's host, which should be a Model-instance (or descendent)
         * @property host
         * @default null
         * @type ScrollView-instance

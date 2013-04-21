@@ -29,6 +29,8 @@ var Lang = Y.Lang,
 
 Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodeltemplate', Y.Plugin.Base, [], {
 
+        host : null,
+
         /**
          * Internal reference to the compiled alternate template.
          * @property _altTempl
@@ -48,6 +50,13 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         _altTemplIsMicro : null,
 
 
+        /**
+         * Internal reference to the compiled edit template.
+         * @property _editTempl
+         * @private
+         * @default null
+         * @type Boolean
+        */
         _editTempl : null,
 
         _editTemplIsMicro : null,
@@ -66,7 +75,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
         _prevComparator : null,
 
-        host : null,
 
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready

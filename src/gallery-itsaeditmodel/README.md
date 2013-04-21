@@ -5,6 +5,7 @@ Plugin for Y.Model that extends Y.Model-instances into having editable propertie
 After pluged-in, Each property can be rendered into a form-element by using: <b>yourModel.itsaeditmodel.formelement()</b>
 You can also retreive a copy of the model's (or object's) attributes with: <b>yourModel.itsaeditmodel.toJSON()</b>
 
+
 You may not need to call the plugin's methods yourself, but want to use one of the next 3 view-widgets who do this automaticly:
 
 * [ITSAViewModel](src/gallery-itsaviewmodel) --> you need to plug this plugin into to viewed model
@@ -14,7 +15,7 @@ You may not need to call the plugin's methods yourself, but want to use one of t
 
 The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, submit, save, cancel, destroy</i>. In order to do so, you must declare 2 attributes:
 
-* <b>'template'</b> where the Model's-attributes must be between brackets; it uses Y.Lan.sub() for this. Also the UI-buttons -which are not part of the model- can be declared between brackets: just make sure you use a unique name: '{firstname} {lastname} {send}'
+* <b>'template'</b> where the Model's-attributes can be between brackets (it uses Y.Lang.sub() for this), or conform the Y.Template.Micro-format. Also the UI-buttons -which are not part of the model- can be declared between brackets: just make sure you use a unique name: '{firstname} {lastname} {send}'.
 * <b>'editmodelConfigAttrs'</b> this is the configuration by which the plugin determines what type must be used for all specified properties within 'template'
 
 
