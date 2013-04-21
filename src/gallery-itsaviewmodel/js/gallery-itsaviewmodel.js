@@ -148,6 +148,13 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         */
         _eventhandlers : [],
 
+        /**
+         * Internal backup of the Models attributes, used when the editdata needs to be reset.
+         * @property _editTempl
+         * @private
+         * @default null
+         * @type Boolean
+        */
         _initialEditAttrs : null,
 
         /**

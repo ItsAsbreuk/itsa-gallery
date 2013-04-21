@@ -46,6 +46,7 @@ var Lang = Y.Lang,
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed';
 
+
 //===============================================================================================
 //
 // First: extend Y.Node with the method cleanup()
@@ -57,14 +58,15 @@ function ITSANodeCleanup() {}
 Y.mix(ITSANodeCleanup.prototype, {
 
     //
-    // Cleansup the node by calling node.empty(), as well as destroying all widgets that lie
-    // within the node by calling widget.destroy(true);
+    // Destroys all widgets inside the node by calling widget.destroy(true);
     //
     // @method cleanup
+    // @param destroyAllNodes {Boolean} If true, all nodes contained within the Widget are removed and destroyed.
+    //                        Defaults to false due to potentially high run-time cost.
     // @since 0.1
     //
     //
-    cleanup: function() {
+    cleanupWidgets: function(destroyAllNodes) {
         var node = this,
             YWidget = Y.Widget;
 
@@ -74,12 +76,26 @@ Y.mix(ITSANodeCleanup.prototype, {
                     if (node.one('#'+widgetNode.get('id'))) {
                         var widgetInstance = YWidget.getByNode(widgetNode);
                         if (widgetInstance) {
-                            widgetInstance.destroy();
+                            widgetInstance.destroy(destroyAllNodes);
                         }
                     }
                 }
             );
         }
+    },
+
+    //
+    // Cleansup the node by calling node.empty(), as well as destroying all widgets that lie
+    // within the node by calling widget.destroy(true);
+    //
+    // @method cleanup
+    // @since 0.1
+    //
+    //
+    cleanup: function() {
+        var node = this;
+
+        node.cleanupWidgets(true);
         node.empty();
     }
 
@@ -133,17 +149,44 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         _eventhandlers : [],
 
         /**
+         * Internal backup of the Models attributes, used when the editdata needs to be reset.
+         * @property _editTempl
+         * @private
+         * @default null
+         * @type Boolean
+        */
+        _initialEditAttrs : null,
+
+        /**
          * @method initializer
          * @protected
         */
         initializer : function() {
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
-                contentBox = instance.get('contentBox'),
-                events = instance.get('events'),
                 model = instance.get('model'),
                 modelEditable = instance.get('modelEditable'),
-                itsaeditmodel = (modelEditable && model.itsaeditmodel),
+                itsaeditmodel = (modelEditable && model.itsaeditmodel);
+
+            if (itsaeditmodel && !boundingBox.itsatabkeymanager) {
+                Y.use('gallery-itsatabkeymanager', function(Y) {
+                    boundingBox.plug(Y.Plugin.ITSATabKeyManager);
+                    instance.initializeFurther(boundingBox, model, itsaeditmodel);
+                });
+            }
+            else {
+                instance.initializeFurther(boundingBox, model, itsaeditmodel);
+            }
+        },
+
+        /**
+         * @method initializer
+         * @protected
+        */
+        initializeFurther : function(boundingBox, model, itsaeditmodel) {
+            var instance = this,
+                contentBox = instance.get('contentBox'),
+                events = instance.get('events'),
                 template = itsaeditmodel ? model.itsaeditmodel.get('template') : instance.get('template'),
                 styled = instance.get('styled'),
                 view;
@@ -190,13 +233,14 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                             newVal.addTarget(view);
                         }
                         view.set('model', newVal);
+                        model = instance.get('model');
                         view.render();
                     }
                 )
             );
             eventhandlers.push(
-                model.after(
-                    'templateChange',
+                view.after(
+                    'model:templateChange',
                     function(e) {
                         var newTemplate = e.newVal,
                             modelEditable = instance.get('modelEditable');
@@ -204,6 +248,38 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                             view.template = newTemplate;
                             instance._setTemplateRenderer(newTemplate, false);
                             view.render();
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                view.after(
+                    'itsaeditmodel:templateChange',
+                    function(e) {
+                        var newTemplate = e.newVal,
+                            modelEditable = instance.get('modelEditable');
+                        if (modelEditable && model.itsaeditmodel) {
+                            view.template = newTemplate;
+                            instance._setTemplateRenderer(newTemplate, true);
+                            view.render();
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                view.after(
+                    'model:resetclick',
+                    function(e) {
+                        var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
+                            container = view.get('container'),
+                            options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}'
+                                                             // --> now the view knows it must not re-render.
+                            buttonNode;
+                        model.setAttrs(instance._initialEditAttrs, options);
+                        view.render();
+                        buttonNode = container.one('#'+e.elementId);
+                        if (buttonNode) {
+                            buttonNode.focus();
                         }
                     }
                 )
@@ -226,7 +302,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             );
             eventhandlers.push(
                 instance.after(
-                    'editmodelConfigAttrsChange',
+                    'itsaeditmodel:editmodelConfigAttrsChange',
                     function() {
                         if (model.itsaeditmodel && instance.get('modelEditable')) {
                             view.render();
@@ -251,11 +327,29 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 view.after(
                     'itsaeditmodel:pluggedin',
                     function() {
-                        if (instance.get('modelEditable')) {
-                            var template = model.itsaeditmodel.get('template');
-                            view.template = template;
-                            instance._setTemplateRenderer(template, true);
-                            view.render();
+                        Y.use('gallery-itsatabkeymanager', function(Y) {
+                            if (!boundingBox.itsatabkeymanager) {
+                                boundingBox.plug(Y.Plugin.ITSATabKeyManager);
+                            }
+                            if (instance.get('modelEditable')) {
+                                var template = model.itsaeditmodel.get('template');
+                                view.template = template;
+                                instance._setTemplateRenderer(template, true);
+                                view.render();
+                            }
+                        });
+                    }
+                )
+            );
+            eventhandlers.push(
+                view.after(
+                    'itsaeditmodel:focusnext',
+                    function() {
+                        var itsatabkeymanager = boundingBox.itsatabkeymanager;
+                        if (itsatabkeymanager && instance.get('focused')) {
+                            itsatabkeymanager.next();
+                        }
+                        else {
                         }
                     }
                 )
@@ -278,7 +372,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             );
             eventhandlers.push(
                 view.after(
-                    '*:change',
+                    'model:change',
                     function() {
                         if (!instance.get('modelEditable') || !model.itsaeditmodel) {
                             view.render(false);
@@ -301,9 +395,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox.after(
                     'click',
                     function() {
-                        var itsafocusmanager = boundingBox.itsafocusmanager;
-                        if (itsafocusmanager) {
-                            itsafocusmanager.retreiveFocus();
+                        var itsatabkeymanager = boundingBox.itsatabkeymanager;
+                        if (itsatabkeymanager) {
+                            itsatabkeymanager.retreiveFocus();
                             // this will automaticly focus the host=view-instance
                         }
                         else {
@@ -349,6 +443,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
             instance._clearEventhandlers();
             instance.view.destroy();
+            if (boundingBox.hasPlugin('itsatabkeymanager')) {
+                boundingBox.unplug('itsatabkeymanager');
+            }
         },
 
         //===============================================================================================
@@ -381,14 +478,14 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (ismicrotemplate) {
                 compiledModelEngine = YTemplateMicro.compile(template);
                 instance._modelRenderer = function(model) {
-                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs'))
+                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(model.itsaeditmodel.get('editmodelConfigAttrs'))
                                    : instance.getModelToJSON(model);
                     return compiledModelEngine(jsondata);
                 };
             }
             else {
                 instance._modelRenderer = function(model) {
-                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs'))
+                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(model.itsaeditmodel.get('editmodelConfigAttrs'))
                                    : instance.getModelToJSON(model);
                     return Lang.sub(template, jsondata);
                 };
@@ -406,24 +503,45 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          *
         */
         _viewRenderer : function (clear) {
-          var instance = this,
-              boundingBox = instance.get('boundingBox'),
-              view = instance.view,
-              container = view.get('container'),
-              model = view.get('model'),
-              html = clear ? '' : instance._modelRenderer(model);
+            var instance = this,
+                boundingBox = instance.get('boundingBox'),
+                itsatabkeymanager = boundingBox.itsatabkeymanager,
+                view = instance.view,
+                container = view.get('container'),
+                model = view.get('model'),
+                editMode = model.itsaeditmodel && instance.get('modelEditable'),
+                itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
+                html = clear ? '' : instance._modelRenderer(model),
+                item;
 
-          // Render this view's HTML into the container element.
-          // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
-          if (instance._isMicroTemplate || (model.itsaeditmodel && instance.get('modelEditable'))) {
-              container.cleanup();
-          }
-          container.setHTML(html);
-          // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
-          if (boundingBox.get('focused') && boundingBox.itsafocusmanager) {
-              boundingBox.itsafocusmanager.focusInitialItem();
-          }
-          return instance;
+//            if (itsatabkeymanager) {
+//                item = itsatabkeymanager.get('activeItem');
+//                if (item) {
+//                    itsatabkeymanager.set('activeItem', null);
+//                    item.blur();
+//                }
+//            }
+            // Render this view's HTML into the container element.
+            // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
+            if (editMode || instance._isMicroTemplate) {
+                if (editMode) {
+                    instance._initialEditAttrs = model.getAttrs();
+                }
+                container.cleanupWidgets(true);
+            }
+
+            container.setHTML(html);
+            // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
+            if (itsatabkeymanager) {
+                itsatabkeymanager.refresh(boundingBox);
+                if (instance.get('focused')) {
+                    itsatabkeymanager.focusInitialItem();
+                }
+            }
+            if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
+                itsaDateTimePicker.hide(true);
+            }
+            return instance;
         },
 
         /**
@@ -445,26 +563,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
     }, {
         ATTRS : {
-            /**
-             * Every property of the object/model can be defined as a property of configAttrs as well.
-             * The value should also be an object: the config of the property that is passed to the ITSAFormElement.<br />
-             * Example: <br />
-             * editmodelConfigAttrs.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
-             * editmodelConfigAttrs.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
-             * editmodelConfigAttrs.property3 = {Object} config of property3 (as example, you should use a real property here)<br />
-             *
-             * @attribute editmodelConfigAttrs
-             * @type {Object}
-             * @default false
-             * @since 0.1
-             */
-            editmodelConfigAttrs: {
-                value: {},
-                validator: function(v){
-                    return Lang.isObject(v);
-                }
-            },
-
             /**
              * Hash of CSS selectors mapped to events to delegate to elements matching
              * those selectors.
