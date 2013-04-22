@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * ScrollView DupModel Extention
+ * ITSAViewDupModels is an Extention to ITSAViewModellist
  *
- * Coorporates with gallery-ITSAScrollViewModellist --> it will load this module when not already loaded
+ * Coorporates with gallery-itsascrollviewmodellist --> it will load this module when not already loaded
  *
  * Adds the posibility to duplicate items from a ModelList, when these items have an 'endDate' or Interval set.
  * See the attribute <b>modelConfig</b> for more info.
