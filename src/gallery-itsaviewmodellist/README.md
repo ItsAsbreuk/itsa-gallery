@@ -45,7 +45,7 @@ Available plugins
 
 Examples
 --------
-[Online example](http://projects.itsasbreuk.nl/examples/ITSAScrollViewModellist/index.html)
+[Online example](http://projects.itsasbreuk.nl/examples/itsaviewmodellist/index.html)
 
 Documentation
 --------------
@@ -60,8 +60,9 @@ Usage
 ```
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('scrollview', 'gallery-itsaviewmodellist', 'lazy-model-list', function(Y) {
+var myModellist, rendermodel, groupheader, myView;
 
-var myModellist = new Y.LazyModelList();
+myModellist = new Y.LazyModelList();
 myModellist.add([
     {Country: 'The Netherlands'},
     {Country: 'USA'},
@@ -69,10 +70,10 @@ myModellist.add([
     ....
 ]);
 
-var rendermodel = '{Country}';
-var groupheader = '<%= data.Country.substr(0,1) %>';
+rendermodel = '{Country}';
+groupheader = '<%= data.Country.substr(0,1) %>';
 
-var myScrollview = new Y.ITSAViewModellist({
+myView = new Y.ITSAViewModellist({
     boundingBox: "#myscrollview",
     height:'600px',
     width:'240px',
@@ -81,7 +82,7 @@ var myScrollview = new Y.ITSAViewModellist({
     modelList: myModellist
 });
 
-myScrollview.render();
+myView.render();
 
 });
 ```
@@ -92,8 +93,9 @@ myScrollview.render();
 ```
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsaviewmodellist', 'lazy-model-list', function(Y) {
+var myModellist, rendermodel, groupheader, myView;
 
-var myModellist = new Y.LazyModelList();
+myModellist = new Y.LazyModelList();
 myModellist.add([
     {Country: 'The Netherlands'},
     {Country: 'USA'},
@@ -101,10 +103,10 @@ myModellist.add([
     ....
 ]);
 
-var rendermodel = '<\td>{Country}<\\td>';
-var groupheader = '<\td><%= data.Country.substr(0,1) %><\\td>';
+rendermodel = '<\td>{Country}<\\td>';
+groupheader = '<\td><%= data.Country.substr(0,1) %><\\td>';
 
-var myScrollview = new Y.ITSAViewModellist({
+myView = new Y.ITSAViewModellist({
     boundingBox: "#myscrollview",
     listType: 'table,'
     height:'600px',
@@ -114,7 +116,7 @@ var myScrollview = new Y.ITSAViewModellist({
     modelList: myModellist
 });
 
-myScrollview.render();
+myView.render();
 
 });
 ```
