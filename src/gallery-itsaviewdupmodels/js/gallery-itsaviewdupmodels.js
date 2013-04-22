@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * View DupModel Extention
+ * ITSAViewDupModels is an Extention to ITSAViewModellist
  *
  * Coorporates with gallery-itsaviewmodellist --> it will load this module when not already loaded
  *
