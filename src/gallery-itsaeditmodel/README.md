@@ -22,7 +22,7 @@ The plugin can create form-elements of all Model's-attributes. It also can creat
 
 Examples
 --------
-[Online example](http://itsasbreuk.nl)
+[Online example](http://projects.itsasbreuk.nl/examples/itsaeditmodel/index.html)
 
 Documentation
 --------------
