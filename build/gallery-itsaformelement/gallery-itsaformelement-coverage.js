@@ -1,0 +1,622 @@
+if (typeof _yuitest_coverage == "undefined"){
+    _yuitest_coverage = {};
+    _yuitest_coverline = function(src, line){
+        var coverage = _yuitest_coverage[src];
+        if (!coverage.lines[line]){
+            coverage.calledLines++;
+        }
+        coverage.lines[line]++;
+    };
+    _yuitest_coverfunc = function(src, name, line){
+        var coverage = _yuitest_coverage[src],
+            funcId = name + ":" + line;
+        if (!coverage.functions[funcId]){
+            coverage.calledFunctions++;
+        }
+        coverage.functions[funcId]++;
+    };
+}
+_yuitest_coverage["build/gallery-itsaformelement/gallery-itsaformelement.js"] = {
+    lines: {},
+    functions: {},
+    coveredLines: 0,
+    calledLines: 0,
+    coveredFunctions: 0,
+    calledFunctions: 0,
+    path: "build/gallery-itsaformelement/gallery-itsaformelement.js",
+    code: []
+};
+_yuitest_coverage["build/gallery-itsaformelement/gallery-itsaformelement.js"].code=["YUI.add('gallery-itsaformelement', function (Y, NAME) {","","'use strict';","","/**"," * Class ITSAFormElement"," *"," * Basic Class that should not be used of its own: purely made for ITSAEditModel to use."," *"," *"," * @module gallery-itsaformelement"," * @class ITSAFORMELEMENT"," * @extends Base"," * @constructor"," * @since 0.1"," *"," * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>"," * YUI BSD License - http://developer.yahoo.com/yui/license.html"," *","*/","","var Lang  = Y.Lang,","    yDateFormat = Y.Date.format,","    ITSAFORMELEMENT_FOCUSABLE_CLASS = 'focusable',","    ITSAFORMELEMENT_CLASS = 'itsaformelement',","    yClassNameManagerGetClassName = Y.ClassNameManager.getClassName,","    ITSAFORMELEMENT_ELEMENT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS),","    ITSAFORMELEMENT_VALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validation'),","    ITSAFORMELEMENT_HIDDEN_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'hidden'),","    ITSAFORMELEMENT_FIRSTFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'firstfocus'),","    ITSAFORMELEMENT_SELECTONFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'selectall'),","    ITSAFORMELEMENT_KEYVALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'keyvalidation'),","    ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'enternextfield'),","    ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validationmessage'),","    ITSAFORMELEMENT_AUTOCORRECT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'autocorrect'),","    ITSAFORMELEMENT_LIFECHANGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'lifechange'),","/*","    ITSAFORMELEMENT_LOADING_CHECKBOX_CLASS = 'yui3-enabled widget-loading',","    ITSAFORMELEMENT_LOADING_SELECTLIST_CLASS = 'yui3-enabled widget-loading',","    ITSAFORMELEMENT_LOADING_COMBO_CLASS = 'yui3-enabled widget-loading',","    ITSAFORMELEMENT_LOADING_RADIOGROUP_CLASS = 'yui3-enabled widget-loading',","*/","    ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inputbutton'),","    ITSAFORMELEMENT_INLINEBUTTON_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inlinebutton'),","    YUI3BUTTON_CLASS = 'yui3-button',","    ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',","    ITSAFORMELEMENT_DATE_CLASS = 'itsa-datetimepicker-icondate',","    ITSAFORMELEMENT_TIME_CLASS = 'itsa-datetimepicker-icontime',","    ITSAFORMELEMENT_DATETIME_CLASS = 'itsa-datetimepicker-icondatetime',","","    ELEMENT_UNDEFINED = '<span id=\"{id}\">UNDEFINED ELEMENTTYPE</span>',","    ELEMENT_INPUT = '<input id=\"{id}\" type=\"text\" name=\"{name}\" value=\"{value}\"{classname} />',","    ELEMENT_TEXTAREA = '<textarea id=\"{id}\" name=\"{name}\"{classname} />{value}</textarea>',","    ELEMENT_PASSWORD = '<input id=\"{id}\" type=\"password\" name=\"{name}\" value=\"{value}\"{classname} />',","    ELEMENT_HIDDEN = '<input id=\"{id}\" type=\"hidden\" name=\"{name}\" value=\"{value}\"{classname} />',","","    ELEMENT_BUTTON = '<input id=\"{id}\" type=\"{type}\" name=\"{name}\" value=\"{value}\"{classname} />',","","    ELEMENT_VALIDATION = '<div class=\"'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS+' '+ITSAFORMELEMENT_HIDDEN_CLASS+'\">{validation}</div>',","","    ELEMENT_CHECKBOX = '<div id=\"{id}\"{classname} /><input id=\"{id}_checkbox\" type=\"checkbox\" name=\"{name}\" {checked}class=\"'+","                       ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + ITSAFORMELEMENT_HIDDEN_CLASS+'\" /></div>',","    ELEMENT_SELECTLIST = '<div id=\"{id}\"{classname} /><select id=\"{id}_selectlist\" name=\"{name}\" class=\"'+ITSAFORMELEMENT_HIDDEN_CLASS+","                         ' ' + ITSAFORMELEMENT_ELEMENT_CLASS + '\" /><option value=\"\" selected=\"selected\"></option></select></div>',","    ELEMENT_COMBO = '<div id=\"{id}\"{classname} /><select id=\"{id}_combo\" name=\"{name}\" class=\"'+ITSAFORMELEMENT_HIDDEN_CLASS+","                    ' ' + ITSAFORMELEMENT_ELEMENT_CLASS + '\" /><option value=\"\" selected=\"selected\"></option></select></div>',","    ELEMENT_RADIOGROUP = '<div id=\"{id}\"{classname} /><input id=\"{id}_radiogroup\" type=\"radio\" name=\"{name}\" value=\"\" checked=\"checked\" class=\"'+","                         ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + ITSAFORMELEMENT_HIDDEN_CLASS+'\" /></div>',","    ELEMENT_DATE = '<span id=\"{id}\"{classname} />{value}</span><button id=\"{id}_datetime\" class=\"'+YUI3BUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+","                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}\"\"><span class=\"'+ITSAFORMELEMENT_DATE_CLASS+'\"></span></button>',","    ELEMENT_TIME = '<span id=\"{id}\"{classname} />{value}</span><button id=\"{id}_datetime\" class=\"'+YUI3BUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+","                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}\"><span class=\"'+ITSAFORMELEMENT_TIME_CLASS+'\"></span></button>',","    ELEMENT_DATETIME = '<span id=\"{id}\"{classname} />{value}</span><button id=\"{id}_datetime\" class=\"'+YUI3BUTTON_CLASS+' '+","                       ITSABUTTON_DATETIME_CLASS+' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}\"><span class=\"'+ITSAFORMELEMENT_DATETIME_CLASS+","                       '\"></span></button>',","","    ELEMENT_AUTOCOMPLETE = '<input id=\"{id}\" type=\"text\" name=\"{name}\" value=\"{value}\"{classname} />',","    ELEMENT_TOKENINPUT = '<input id=\"{id}\" type=\"text\" name=\"{name}\" value=\"{value}\"{classname} />',","    ELEMENT_TOKENAUTOCOMPLETE = '<input id=\"{id}\" type=\"text\" name=\"{name}\" value=\"{value}\"{classname} />';","","Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {","","        /**","         * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready","         *","         * @method initializer","         * @protected","        */","        initializer : function() {","        },","","        /**","         * Renderes a String that contains the completeFormElement definition.<br>","         * To be used in an external Form","         * @method render","         * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.","         * @param nodeId {String} The unique id of the node","         * @return {String} rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAFORM","        */","        render : function(config, nodeId) {","            var instance = this,","                element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,","                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField;","","            if (typeof config === 'object') {","                instance.setAttrs(config);","            }","            name = instance.get('name');","            type = instance.get('type');","            value = instance.get('value');","            dateFormat = instance.get('dateFormat');","            autoCorrection = instance.get('autoCorrection');","            validation = !autoCorrection && instance.get('validation');","            enterNextField = (type==='input') || (type==='password');","            isDateOrTime = (type==='date') || (type==='time') || (type==='datetime');","            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='destroy');","            focusable = instance.get('focusable');","            focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);","            focusinfo = focusable ?","                        (","                            ITSAFORMELEMENT_FOCUSABLE_CLASS","                            + (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '')","                            + (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')","                        )","                        : '';","            withLifeChange = (type==='input') || (type==='textarea') || (type==='password');","            classnameAttr = instance.get('className');","            classname = ' class=\"' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name)","                        + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type)","                        + (classnameAttr ? ' '+classnameAttr : '')","                        + (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '')","                        + (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '')","                        + (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '')","                        + (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '')","                        + (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '')","                        + (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '')","                        + (focusinfoOnClass ? ' '+focusinfo : '')","                        + '\"';","            classlevel2 = focusinfoOnClass ? '' : ' '+focusinfo;","            if (type==='input') {","                element = ELEMENT_INPUT;","                if (validation) {","                    element += ELEMENT_VALIDATION;","                }","            }","            else if (type==='textarea') {","                element = ELEMENT_TEXTAREA;","                if (validation) {","                    element += ELEMENT_VALIDATION;","                }","            }","            else if (type==='password') {","                element = ELEMENT_PASSWORD;","                if (validation) {","                    element += ELEMENT_VALIDATION;","                }","            }","            else if (isButton) {","                type = 'button';","                element = ELEMENT_BUTTON;","            }","            else if (type==='checkbox') {","                element = ELEMENT_CHECKBOX;","            }","            else if (type==='radiogroup') {","                element = ELEMENT_RADIOGROUP;","            }","            else if (type==='selectlist') {","                element = ELEMENT_SELECTLIST;","            }","            else if (type==='combo') {","                element = ELEMENT_COMBO;","            }","            else if (type==='date') {","                element = ELEMENT_DATE;","                dateFormat = dateFormat || '%x';","            }","            else if (type==='time') {","                element = ELEMENT_TIME;","                dateFormat = dateFormat || '%X';","            }","            else if (type==='datetime') {","                element = ELEMENT_DATETIME;","                dateFormat = dateFormat || '%x %X';","            }","            else if (type==='autocomplete') {","                element = ELEMENT_AUTOCOMPLETE;","            }","            else if (type==='tokeninput') {","                element = ELEMENT_TOKENINPUT;","            }","            else if (type==='tokenautocomplete') {","                element = ELEMENT_TOKENAUTOCOMPLETE;","            }","            else if (type==='hidden') {","                element = ELEMENT_HIDDEN;","            }","            else {","                element = ELEMENT_UNDEFINED;","            }","            if (isDateOrTime) {","                value = yDateFormat(value, {format: dateFormat});","                // asynchronious preloading the module","                Y.use('gallery-itsadatetimepicker');","            }","            return Lang.sub(","                            element,","                            {","                                id: nodeId,","                                name: name,","                                value: value,","                                classname: classname,","                                classlevel2: classlevel2,","                                type: type,","                                validation: instance.get('validationMessage')","                            }","            );","        },","","        /**","         * Hides the validationmessage","         * @method hideValidation","         * @param nodeId {String} Node's id","        */","        hideValidation : function(nodeId) {","            var elementNode = Y.one('#' + nodeId);","            if (elementNode) {","                elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, true);","            }","        },","","        /**","         * Shows the validationmessage","         * @method showValidation","         * @param nodeId {String} Node's id","        */","        showValidation : function(nodeId) {","            var elementNode = Y.one('#' + nodeId);","            if (elementNode) {","                elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, false);","            }","        },","","        /**","         * Cleans up bindings","         * @method destructor","         * @protected","        */","        destructor : function() {","        }","","    }, {","        ATTRS : {","            /**","             * @description The name of the element. You always need to set this attribute. It is used by the template to render.","             * @attribute name","             * @type String","             * @default 'undefined-name'","             * @since 0.1","            */","            name : {","                value: 'undefined-name',","                validator: function(val) {","                    return (Lang.isString(val));","                }","            },","            /**","             * @description Whether the element is focusable","             * @attribute focusable","             * @type Boolean","             * @default true","             * @since 0.1","            */","            focusable : {","                value: true,","                validator: function(val) {","                    return (Lang.isBoolean(val));","                }","            },","            /**","             * @description Must have one of the following values:","             * <ul><li>input</li><li>password</li><li>textarea</li><li>checkbox</li><li>radiogroup</li><li>selectbox</li><li>hidden</li></ul>","             * @attribute type","             * @type String","             * @default ''","             * @since 0.1","            */","            type : {","                value: '',","                setter: function(val) {","                    if (Lang.isString(val)) {val=val.toLowerCase();}","                    return val;","                },","                validator: function(val) {","                    return (Lang.isString(val) &&","                            ((val==='input') ||","                             (val==='password') ||","                             (val==='textarea') ||","//                             (val==='checkbox') ||  // not ready yet","//                             (val==='radiogroup') ||  // not ready yet","//                             (val==='selectlist') ||  // not ready yet","//                             (val==='combo') ||  // not ready yet","                             (val==='date') ||","                             (val==='time') ||","                             (val==='datetime') ||","","                             (val==='button') ||","                             (val==='reset') ||","                             (val==='submit') ||","                             (val==='save') ||","                             (val==='destroy') ||","//                             (val==='autocomplete') ||  // not ready yet","//                             (val==='tokeninput') ||  // not ready yet","//                             (val==='tokenautocomplete') ||  // not ready yet","                             (val==='hidden')","                            )","                    );","                }","            },","            /**","             * @description The value of the element","             * @attribute value","             * @type String | Boolean | Array(String)","             * @default ''","             * @since 0.1","            */","            value : {","                value: '',","                validator: function(val) {","                    return (Lang.isString(val) || Lang.isBoolean(val) || Lang.isArray(val) || Lang.isDate(val));","                }","            },","            /**","             * @description Validation during every keypress. The function that is passed will receive the keyevent, that can thus be prevented.<br>","             * Only has effect if the masterform knows how to use it through delegation: therefore it adds","             * the className 'itsa-formelement-keyvalidation'","             * The function MUST return true or false.","             * @attribute keyValidation","             * @type Function","             * @default null","             * @since 0.1","            */","            keyValidation : {","                value: null,","                validator: function(val) {","                    return (Lang.isFunction(val));","                }","            },","            /**","             * @description Validation after changing the value (onblur). The function should return true or false.","             * In case of false, the validationerror is thrown.<br>","             * Only has effect if the masterform knows how to use it through delegation: therefore it adds","             * the className 'itsa-formelement-validation'.","             * The function MUST return true or false.","             * Either use validation, or autocorrection.","             * @attribute validation","             * @type Function","             * @default null","             * @since 0.1","            */","            validation : {","                value: null,","                validator: function(val) {","                    return (Lang.isFunction(val));","                }","            },","            /**","             * @description The message that will be returned on a validationerror, this will be set within e.message.","             * @attribute validationMessage","             * @type String","             * @default ''","             * @since 0.1","            */","            validationMessage : {","                value: '',","                validator: function(val) {","                    return (Lang.isString(val));","                }","            },","            /**","             * @description If set, inputvalue will be replaced by the returnvalue of this function. <br>","             * Only has effect if the masterform knows how to use it through delegation: therefore it adds","             * the className 'itsa-formelement-autocorrect'.","             * The function MUST return a valid type for the given element.","             * Either use validation, or autocorrection.","             * @attribute autocorrection","             * @type Function","             * @return Boolean","             * @default null","             * @since 0.1","            */","            autoCorrection : {","                value: null,","                validator: function(val) {","                    return (Lang.isFunction(val));","                }","            },","            /**","             * @description Additional className that is passed on the value, during rendering.<br>","             * Only applies to rendering in tableform render(true).","             * @attribute className","             * @type String|null","             * @default null","             * @since 0.1","            */","            className : {","                value: null,","                validator: function(val) {","                    return (Lang.isString(val) || null);","                }","            },","            /**","             * @description To format the value<br>","             * Only applies for Date-types (attribute type).","             * @attribute dateFormat","             * @type String|null","             * @default null","             * @since 0.1","            */","            dateFormat : {","                value: null,","                validator: function(val) {","                    return (Lang.isString(val) || null);","                }","            },","            /**","             * @description Determines whether this element should have the initial focus.<br>","             * Only has effect if the masterform knows how to use it (in fact, just the className 'itsa-formelement-firstfocus' is added).","             * @attribute initialFocus","             * @type Boolean","             * @default false","             * @since 0.1","            */","            initialFocus : {","                value: false,","                validator: function(val) {","                    return (Lang.isBoolean(val));","                }","            },","            /**","             * @description Determines whether this element should completely be selected when it gets focus.<br>","             * Only has effect if the masterform knows how to use it (in fact, just the className 'itsa-formelement-selectall' is added).","             * @attribute selectOnFocus","             * @type Boolean","             * @default false","             * @since 0.1","            */","            selectOnFocus : {","                value: false,","                validator: function(val) {","                    return (Lang.isBoolean(val));","                }","            },","            /**","             * @description config that will be added to the underlying widget (in case of Date/Time values)","             * @attribute widgetConfig","             * @type Object","             * @default {}","             * @since 0.1","             */","            widgetConfig : {","                value: {},","                validator: function(val) {","                    return (Lang.isObject(val));","                }","            }","        }","    }",");","","}, '@VERSION@', {","    \"requires\": [","        \"yui-base\",","        \"base\",","        \"node-core\",","        \"node-base\",","        \"datatype-date-format\",","        \"classnamemanager\",","        \"cssbutton\"","    ],","    \"skinnable\": true","});"];
+_yuitest_coverage["build/gallery-itsaformelement/gallery-itsaformelement.js"].lines = {"1":0,"3":0,"22":0,"81":0,"101":0,"105":0,"106":0,"108":0,"109":0,"110":0,"111":0,"112":0,"113":0,"114":0,"115":0,"116":0,"117":0,"118":0,"119":0,"126":0,"127":0,"128":0,"139":0,"140":0,"141":0,"142":0,"143":0,"146":0,"147":0,"148":0,"149":0,"152":0,"153":0,"154":0,"155":0,"158":0,"159":0,"160":0,"162":0,"163":0,"165":0,"166":0,"168":0,"169":0,"171":0,"172":0,"174":0,"175":0,"176":0,"178":0,"179":0,"180":0,"182":0,"183":0,"184":0,"186":0,"187":0,"189":0,"190":0,"192":0,"193":0,"195":0,"196":0,"199":0,"201":0,"202":0,"204":0,"206":0,"226":0,"227":0,"228":0,"238":0,"239":0,"240":0,"264":0,"277":0,"291":0,"292":0,"295":0,"330":0,"346":0,"364":0,"377":0,"395":0,"409":0,"423":0,"437":0,"451":0,"464":0};
+_yuitest_coverage["build/gallery-itsaformelement/gallery-itsaformelement.js"].functions = {"render:100":0,"hideValidation:225":0,"showValidation:237":0,"validator:263":0,"validator:276":0,"setter:290":0,"validator:294":0,"validator:329":0,"validator:345":0,"validator:363":0,"validator:376":0,"validator:394":0,"validator:408":0,"validator:422":0,"validator:436":0,"validator:450":0,"validator:463":0,"(anonymous 1):1":0};
+_yuitest_coverage["build/gallery-itsaformelement/gallery-itsaformelement.js"].coveredLines = 89;
+_yuitest_coverage["build/gallery-itsaformelement/gallery-itsaformelement.js"].coveredFunctions = 18;
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 1);
+YUI.add('gallery-itsaformelement', function (Y, NAME) {
+
+_yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "(anonymous 1)", 1);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 3);
+'use strict';
+
+/**
+ * Class ITSAFormElement
+ *
+ * Basic Class that should not be used of its own: purely made for ITSAEditModel to use.
+ *
+ *
+ * @module gallery-itsaformelement
+ * @class ITSAFORMELEMENT
+ * @extends Base
+ * @constructor
+ * @since 0.1
+ *
+ * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
+ * YUI BSD License - http://developer.yahoo.com/yui/license.html
+ *
+*/
+
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 22);
+var Lang  = Y.Lang,
+    yDateFormat = Y.Date.format,
+    ITSAFORMELEMENT_FOCUSABLE_CLASS = 'focusable',
+    ITSAFORMELEMENT_CLASS = 'itsaformelement',
+    yClassNameManagerGetClassName = Y.ClassNameManager.getClassName,
+    ITSAFORMELEMENT_ELEMENT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS),
+    ITSAFORMELEMENT_VALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validation'),
+    ITSAFORMELEMENT_HIDDEN_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'hidden'),
+    ITSAFORMELEMENT_FIRSTFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'firstfocus'),
+    ITSAFORMELEMENT_SELECTONFOCUS_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'selectall'),
+    ITSAFORMELEMENT_KEYVALIDATION_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'keyvalidation'),
+    ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'enternextfield'),
+    ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'validationmessage'),
+    ITSAFORMELEMENT_AUTOCORRECT_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'autocorrect'),
+    ITSAFORMELEMENT_LIFECHANGE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'lifechange'),
+/*
+    ITSAFORMELEMENT_LOADING_CHECKBOX_CLASS = 'yui3-enabled widget-loading',
+    ITSAFORMELEMENT_LOADING_SELECTLIST_CLASS = 'yui3-enabled widget-loading',
+    ITSAFORMELEMENT_LOADING_COMBO_CLASS = 'yui3-enabled widget-loading',
+    ITSAFORMELEMENT_LOADING_RADIOGROUP_CLASS = 'yui3-enabled widget-loading',
+*/
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inputbutton'),
+    ITSAFORMELEMENT_INLINEBUTTON_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inlinebutton'),
+    YUI3BUTTON_CLASS = 'yui3-button',
+    ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
+    ITSAFORMELEMENT_DATE_CLASS = 'itsa-datetimepicker-icondate',
+    ITSAFORMELEMENT_TIME_CLASS = 'itsa-datetimepicker-icontime',
+    ITSAFORMELEMENT_DATETIME_CLASS = 'itsa-datetimepicker-icondatetime',
+
+    ELEMENT_UNDEFINED = '<span id="{id}">UNDEFINED ELEMENTTYPE</span>',
+    ELEMENT_INPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
+    ELEMENT_TEXTAREA = '<textarea id="{id}" name="{name}"{classname} />{value}</textarea>',
+    ELEMENT_PASSWORD = '<input id="{id}" type="password" name="{name}" value="{value}"{classname} />',
+    ELEMENT_HIDDEN = '<input id="{id}" type="hidden" name="{name}" value="{value}"{classname} />',
+
+    ELEMENT_BUTTON = '<input id="{id}" type="{type}" name="{name}" value="{value}"{classname} />',
+
+    ELEMENT_VALIDATION = '<div class="'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS+' '+ITSAFORMELEMENT_HIDDEN_CLASS+'">{validation}</div>',
+
+    ELEMENT_CHECKBOX = '<div id="{id}"{classname} /><input id="{id}_checkbox" type="checkbox" name="{name}" {checked}class="'+
+                       ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
+    ELEMENT_SELECTLIST = '<div id="{id}"{classname} /><select id="{id}_selectlist" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+
+                         ' ' + ITSAFORMELEMENT_ELEMENT_CLASS + '" /><option value="" selected="selected"></option></select></div>',
+    ELEMENT_COMBO = '<div id="{id}"{classname} /><select id="{id}_combo" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+
+                    ' ' + ITSAFORMELEMENT_ELEMENT_CLASS + '" /><option value="" selected="selected"></option></select></div>',
+    ELEMENT_RADIOGROUP = '<div id="{id}"{classname} /><input id="{id}_radiogroup" type="radio" name="{name}" value="" checked="checked" class="'+
+                         ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
+    ELEMENT_DATE = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+
+                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}""><span class="'+ITSAFORMELEMENT_DATE_CLASS+'"></span></button>',
+    ELEMENT_TIME = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+
+                   ' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}"><span class="'+ITSAFORMELEMENT_TIME_CLASS+'"></span></button>',
+    ELEMENT_DATETIME = '<span id="{id}"{classname} />{value}</span><button id="{id}_datetime" class="'+YUI3BUTTON_CLASS+' '+
+                       ITSABUTTON_DATETIME_CLASS+' '+ITSAFORMELEMENT_INLINEBUTTON_CLASS+'{classlevel2}"><span class="'+ITSAFORMELEMENT_DATETIME_CLASS+
+                       '"></span></button>',
+
+    ELEMENT_AUTOCOMPLETE = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
+    ELEMENT_TOKENINPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
+    ELEMENT_TOKENAUTOCOMPLETE = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />';
+
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 81);
+Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
+
+        /**
+         * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
+         *
+         * @method initializer
+         * @protected
+        */
+        initializer : function() {
+        },
+
+        /**
+         * Renderes a String that contains the completeFormElement definition.<br>
+         * To be used in an external Form
+         * @method render
+         * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
+         * @param nodeId {String} The unique id of the node
+         * @return {String} rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAFORM
+        */
+        render : function(config, nodeId) {
+            _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "render", 100);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 101);
+var instance = this,
+                element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,
+                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField;
+
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 105);
+if (typeof config === 'object') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 106);
+instance.setAttrs(config);
+            }
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 108);
+name = instance.get('name');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 109);
+type = instance.get('type');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 110);
+value = instance.get('value');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 111);
+dateFormat = instance.get('dateFormat');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 112);
+autoCorrection = instance.get('autoCorrection');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 113);
+validation = !autoCorrection && instance.get('validation');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 114);
+enterNextField = (type==='input') || (type==='password');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 115);
+isDateOrTime = (type==='date') || (type==='time') || (type==='datetime');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 116);
+isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='destroy');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 117);
+focusable = instance.get('focusable');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 118);
+focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 119);
+focusinfo = focusable ?
+                        (
+                            ITSAFORMELEMENT_FOCUSABLE_CLASS
+                            + (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '')
+                            + (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
+                        )
+                        : '';
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 126);
+withLifeChange = (type==='input') || (type==='textarea') || (type==='password');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 127);
+classnameAttr = instance.get('className');
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 128);
+classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name)
+                        + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type)
+                        + (classnameAttr ? ' '+classnameAttr : '')
+                        + (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '')
+                        + (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '')
+                        + (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '')
+                        + (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '')
+                        + (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '')
+                        + (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '')
+                        + (focusinfoOnClass ? ' '+focusinfo : '')
+                        + '"';
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 139);
+classlevel2 = focusinfoOnClass ? '' : ' '+focusinfo;
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 140);
+if (type==='input') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 141);
+element = ELEMENT_INPUT;
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 142);
+if (validation) {
+                    _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 143);
+element += ELEMENT_VALIDATION;
+                }
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 146);
+if (type==='textarea') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 147);
+element = ELEMENT_TEXTAREA;
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 148);
+if (validation) {
+                    _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 149);
+element += ELEMENT_VALIDATION;
+                }
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 152);
+if (type==='password') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 153);
+element = ELEMENT_PASSWORD;
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 154);
+if (validation) {
+                    _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 155);
+element += ELEMENT_VALIDATION;
+                }
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 158);
+if (isButton) {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 159);
+type = 'button';
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 160);
+element = ELEMENT_BUTTON;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 162);
+if (type==='checkbox') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 163);
+element = ELEMENT_CHECKBOX;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 165);
+if (type==='radiogroup') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 166);
+element = ELEMENT_RADIOGROUP;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 168);
+if (type==='selectlist') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 169);
+element = ELEMENT_SELECTLIST;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 171);
+if (type==='combo') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 172);
+element = ELEMENT_COMBO;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 174);
+if (type==='date') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 175);
+element = ELEMENT_DATE;
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 176);
+dateFormat = dateFormat || '%x';
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 178);
+if (type==='time') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 179);
+element = ELEMENT_TIME;
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 180);
+dateFormat = dateFormat || '%X';
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 182);
+if (type==='datetime') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 183);
+element = ELEMENT_DATETIME;
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 184);
+dateFormat = dateFormat || '%x %X';
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 186);
+if (type==='autocomplete') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 187);
+element = ELEMENT_AUTOCOMPLETE;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 189);
+if (type==='tokeninput') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 190);
+element = ELEMENT_TOKENINPUT;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 192);
+if (type==='tokenautocomplete') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 193);
+element = ELEMENT_TOKENAUTOCOMPLETE;
+            }
+            else {_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 195);
+if (type==='hidden') {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 196);
+element = ELEMENT_HIDDEN;
+            }
+            else {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 199);
+element = ELEMENT_UNDEFINED;
+            }}}}}}}}}}}}}}}
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 201);
+if (isDateOrTime) {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 202);
+value = yDateFormat(value, {format: dateFormat});
+                // asynchronious preloading the module
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 204);
+Y.use('gallery-itsadatetimepicker');
+            }
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 206);
+return Lang.sub(
+                            element,
+                            {
+                                id: nodeId,
+                                name: name,
+                                value: value,
+                                classname: classname,
+                                classlevel2: classlevel2,
+                                type: type,
+                                validation: instance.get('validationMessage')
+                            }
+            );
+        },
+
+        /**
+         * Hides the validationmessage
+         * @method hideValidation
+         * @param nodeId {String} Node's id
+        */
+        hideValidation : function(nodeId) {
+            _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "hideValidation", 225);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 226);
+var elementNode = Y.one('#' + nodeId);
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 227);
+if (elementNode) {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 228);
+elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, true);
+            }
+        },
+
+        /**
+         * Shows the validationmessage
+         * @method showValidation
+         * @param nodeId {String} Node's id
+        */
+        showValidation : function(nodeId) {
+            _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "showValidation", 237);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 238);
+var elementNode = Y.one('#' + nodeId);
+            _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 239);
+if (elementNode) {
+                _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 240);
+elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, false);
+            }
+        },
+
+        /**
+         * Cleans up bindings
+         * @method destructor
+         * @protected
+        */
+        destructor : function() {
+        }
+
+    }, {
+        ATTRS : {
+            /**
+             * @description The name of the element. You always need to set this attribute. It is used by the template to render.
+             * @attribute name
+             * @type String
+             * @default 'undefined-name'
+             * @since 0.1
+            */
+            name : {
+                value: 'undefined-name',
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 263);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 264);
+return (Lang.isString(val));
+                }
+            },
+            /**
+             * @description Whether the element is focusable
+             * @attribute focusable
+             * @type Boolean
+             * @default true
+             * @since 0.1
+            */
+            focusable : {
+                value: true,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 276);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 277);
+return (Lang.isBoolean(val));
+                }
+            },
+            /**
+             * @description Must have one of the following values:
+             * <ul><li>input</li><li>password</li><li>textarea</li><li>checkbox</li><li>radiogroup</li><li>selectbox</li><li>hidden</li></ul>
+             * @attribute type
+             * @type String
+             * @default ''
+             * @since 0.1
+            */
+            type : {
+                value: '',
+                setter: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "setter", 290);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 291);
+if (Lang.isString(val)) {val=val.toLowerCase();}
+                    _yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 292);
+return val;
+                },
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 294);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 295);
+return (Lang.isString(val) &&
+                            ((val==='input') ||
+                             (val==='password') ||
+                             (val==='textarea') ||
+//                             (val==='checkbox') ||  // not ready yet
+//                             (val==='radiogroup') ||  // not ready yet
+//                             (val==='selectlist') ||  // not ready yet
+//                             (val==='combo') ||  // not ready yet
+                             (val==='date') ||
+                             (val==='time') ||
+                             (val==='datetime') ||
+
+                             (val==='button') ||
+                             (val==='reset') ||
+                             (val==='submit') ||
+                             (val==='save') ||
+                             (val==='destroy') ||
+//                             (val==='autocomplete') ||  // not ready yet
+//                             (val==='tokeninput') ||  // not ready yet
+//                             (val==='tokenautocomplete') ||  // not ready yet
+                             (val==='hidden')
+                            )
+                    );
+                }
+            },
+            /**
+             * @description The value of the element
+             * @attribute value
+             * @type String | Boolean | Array(String)
+             * @default ''
+             * @since 0.1
+            */
+            value : {
+                value: '',
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 329);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 330);
+return (Lang.isString(val) || Lang.isBoolean(val) || Lang.isArray(val) || Lang.isDate(val));
+                }
+            },
+            /**
+             * @description Validation during every keypress. The function that is passed will receive the keyevent, that can thus be prevented.<br>
+             * Only has effect if the masterform knows how to use it through delegation: therefore it adds
+             * the className 'itsa-formelement-keyvalidation'
+             * The function MUST return true or false.
+             * @attribute keyValidation
+             * @type Function
+             * @default null
+             * @since 0.1
+            */
+            keyValidation : {
+                value: null,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 345);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 346);
+return (Lang.isFunction(val));
+                }
+            },
+            /**
+             * @description Validation after changing the value (onblur). The function should return true or false.
+             * In case of false, the validationerror is thrown.<br>
+             * Only has effect if the masterform knows how to use it through delegation: therefore it adds
+             * the className 'itsa-formelement-validation'.
+             * The function MUST return true or false.
+             * Either use validation, or autocorrection.
+             * @attribute validation
+             * @type Function
+             * @default null
+             * @since 0.1
+            */
+            validation : {
+                value: null,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 363);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 364);
+return (Lang.isFunction(val));
+                }
+            },
+            /**
+             * @description The message that will be returned on a validationerror, this will be set within e.message.
+             * @attribute validationMessage
+             * @type String
+             * @default ''
+             * @since 0.1
+            */
+            validationMessage : {
+                value: '',
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 376);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 377);
+return (Lang.isString(val));
+                }
+            },
+            /**
+             * @description If set, inputvalue will be replaced by the returnvalue of this function. <br>
+             * Only has effect if the masterform knows how to use it through delegation: therefore it adds
+             * the className 'itsa-formelement-autocorrect'.
+             * The function MUST return a valid type for the given element.
+             * Either use validation, or autocorrection.
+             * @attribute autocorrection
+             * @type Function
+             * @return Boolean
+             * @default null
+             * @since 0.1
+            */
+            autoCorrection : {
+                value: null,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 394);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 395);
+return (Lang.isFunction(val));
+                }
+            },
+            /**
+             * @description Additional className that is passed on the value, during rendering.<br>
+             * Only applies to rendering in tableform render(true).
+             * @attribute className
+             * @type String|null
+             * @default null
+             * @since 0.1
+            */
+            className : {
+                value: null,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 408);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 409);
+return (Lang.isString(val) || null);
+                }
+            },
+            /**
+             * @description To format the value<br>
+             * Only applies for Date-types (attribute type).
+             * @attribute dateFormat
+             * @type String|null
+             * @default null
+             * @since 0.1
+            */
+            dateFormat : {
+                value: null,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 422);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 423);
+return (Lang.isString(val) || null);
+                }
+            },
+            /**
+             * @description Determines whether this element should have the initial focus.<br>
+             * Only has effect if the masterform knows how to use it (in fact, just the className 'itsa-formelement-firstfocus' is added).
+             * @attribute initialFocus
+             * @type Boolean
+             * @default false
+             * @since 0.1
+            */
+            initialFocus : {
+                value: false,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 436);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 437);
+return (Lang.isBoolean(val));
+                }
+            },
+            /**
+             * @description Determines whether this element should completely be selected when it gets focus.<br>
+             * Only has effect if the masterform knows how to use it (in fact, just the className 'itsa-formelement-selectall' is added).
+             * @attribute selectOnFocus
+             * @type Boolean
+             * @default false
+             * @since 0.1
+            */
+            selectOnFocus : {
+                value: false,
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 450);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 451);
+return (Lang.isBoolean(val));
+                }
+            },
+            /**
+             * @description config that will be added to the underlying widget (in case of Date/Time values)
+             * @attribute widgetConfig
+             * @type Object
+             * @default {}
+             * @since 0.1
+             */
+            widgetConfig : {
+                value: {},
+                validator: function(val) {
+                    _yuitest_coverfunc("build/gallery-itsaformelement/gallery-itsaformelement.js", "validator", 463);
+_yuitest_coverline("build/gallery-itsaformelement/gallery-itsaformelement.js", 464);
+return (Lang.isObject(val));
+                }
+            }
+        }
+    }
+);
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base",
+        "node-core",
+        "node-base",
+        "datatype-date-format",
+        "classnamemanager",
+        "cssbutton"
+    ],
+    "skinnable": true
+});

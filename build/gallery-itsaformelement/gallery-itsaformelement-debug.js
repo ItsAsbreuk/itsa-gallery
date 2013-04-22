@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaformelement', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -470,3 +472,16 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
         }
     }
 );
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base",
+        "node-core",
+        "node-base",
+        "datatype-date-format",
+        "classnamemanager",
+        "cssbutton"
+    ],
+    "skinnable": true
+});

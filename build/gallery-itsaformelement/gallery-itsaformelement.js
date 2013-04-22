@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaformelement', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -85,7 +87,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @protected
         */
         initializer : function() {
-            Y.log('initializer', 'cmas', 'ITSAFORMELEMENT');
         },
 
         /**
@@ -101,7 +102,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                 element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,
                 focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField;
 
-            Y.log('renderElement', 'cmas', 'ITSAFORMELEMENT');
             if (typeof config === 'object') {
                 instance.setAttrs(config);
             }
@@ -223,7 +223,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @param nodeId {String} Node's id
         */
         hideValidation : function(nodeId) {
-            Y.log('hideValidation', 'cmas', 'ITSAFORMELEMENT');
             var elementNode = Y.one('#' + nodeId);
             if (elementNode) {
                 elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, true);
@@ -236,7 +235,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @param nodeId {String} Node's id
         */
         showValidation : function(nodeId) {
-            Y.log('showValidation', 'cmas', 'ITSAFORMELEMENT');
             var elementNode = Y.one('#' + nodeId);
             if (elementNode) {
                 elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, false);
@@ -249,7 +247,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @protected
         */
         destructor : function() {
-            Y.log('destructor', 'cmas', 'ITSAFORMELEMENT');
         }
 
     }, {
@@ -470,3 +467,16 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
         }
     }
 );
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base",
+        "node-core",
+        "node-base",
+        "datatype-date-format",
+        "classnamemanager",
+        "cssbutton"
+    ],
+    "skinnable": true
+});
