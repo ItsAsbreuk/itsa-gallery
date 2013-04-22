@@ -11,7 +11,7 @@
  * @module gallery-itsaviewmodellist
  * @extends Widget
  * @uses ITSAModellistViewExtention
- * @class ITSAViewModelList
+ * @class ITSAViewModellist
  * @constructor
  * @since 0.1
  *
