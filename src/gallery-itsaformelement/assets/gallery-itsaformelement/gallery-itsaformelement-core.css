@@ -15,7 +15,9 @@
 .yui3-form .yui3-itsaformelement-date,
 .yui3-form .yui3-itsaformelement-time,
 .yui3-form .yui3-itsaformelement-datetime {
-   -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;
     border: 1px solid #CCCCCC;
     border-radius: 4px 4px 4px 4px;
     box-shadow: 0 1px 3px #DDDDDD inset;
