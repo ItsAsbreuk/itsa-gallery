@@ -1,3 +1,5 @@
+YUI.add('gallery-itsatabkeymanager', function (Y, NAME) {
+
 'use strict';
 //==============================================================================
 //==============================================================================
@@ -459,7 +461,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             var instance = this,
                 host;
 
-            Y.log('initializer', 'info', 'Itsa-TabKeyManager');
             instance.host = host = instance.get('host');
             instance._bindUI();
             instance.set('keys', {});
@@ -473,7 +474,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          * @since 0.1
         */
         destructor : function() {
-            Y.log('destructor', 'info', 'Itsa-TabKeyManager');
             this._clearEventhandlers();
         },
 
@@ -500,7 +500,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 i                = 0,
                 allItems;
 
-            Y.log('first', 'info', 'Itsa-TabKeyManager');
             while (item && disabledSelector && item.test(disabledSelector)) {
                 allItems = allItems || container.all(itemSelector);
                 item = (++i<allItems.size()) ? allItems.item(i) : null;
@@ -523,7 +522,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             var instance = this,
                 focusitem;
 
-            Y.log('focusInitialItem', 'info', 'Itsa-TabKeyManager');
             focusitem = instance.first({selector: '.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS}) || instance.first();
             if (focusitem) {
                 focusitem.focus();
@@ -550,7 +548,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 i                = allItems.size() - 1,
                 item             = allItems.pop();
 
-            Y.log('last', 'info', 'Itsa-TabKeyManager');
             options = options || {};
             while (item && disabledSelector && item.test(disabledSelector)) {
                 item = (--i>=0) ? allItems.item(i) : null;
@@ -581,7 +578,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 activeItem       = instance.get('activeItem'),
                 disabledSelector, nextItem, index, itemSize, allItems;
 
-            Y.log('next', 'info', 'Itsa-TabKeyManager');
             options = options || {};
             if (!activeItem) {
                 return instance.first(options);
@@ -629,7 +625,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 activeItem       = instance.get('activeItem'),
                 disabledSelector, prevItem, index, allItems;
 
-            Y.log('previous', 'info', 'Itsa-TabKeyManager');
             options = options || {};
             if (!activeItem) {
                 return instance.first(options);
@@ -694,7 +689,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 container = instance.get('host'),
                 nodeisfocusable = instance._nodeIsFocusable(node);
 
-            Y.log('setFirstFocus', 'info', 'Itsa-TabKeyManager');
             if (nodeisfocusable) {
                 container.all('.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS).removeClass(ITSAFORMELEMENT_FIRSTFOCUS_CLASS);
                 node.addClass(ITSAFORMELEMENT_FIRSTFOCUS_CLASS);
@@ -716,7 +710,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 container = instance.get('host'),
                 nodeisfocusable, itemSelector, disabledSelector, allNodes;
 
-            Y.log('setSelectText', 'info', 'Itsa-TabKeyManager');
             if (node) {
                 // only 1 node needs to be set
                 nodeisfocusable = instance._nodeIsFocusable(node);
@@ -754,13 +747,11 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         _bindUI : function() {
             var instance = this;
 
-            Y.log('_bindUI', 'info', 'Itsa-TabKeyManager');
             instance._eventhandlers.push(
                 instance.host.on(
                     'keydown',
                     function(e) {
                         if (e.keyCode === 9) { // tab
-                            Y.log('tabkey pressed', 'info', 'Itsa-TabKeyManager');
                             e.preventDefault();
                             if (e.shiftKey) {
                                 instance.previous();
@@ -783,7 +774,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-TabKeyManager');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -809,7 +799,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 isFocusable;
 
             isFocusable = (item && item.test(itemSelector) && (!disabledSelector || !item.test(disabledSelector)));
-            Y.log('_nodeIsFocusable: '+isFocusable, 'info', 'Itsa-TabKeyManager');
             return isFocusable;
         },
 
@@ -822,7 +811,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          *
         */
         _selectNode : function(node) {
-            Y.log('_selectNode', 'info', 'Itsa-TabKeyManager');
             if (node && node.test('.'+FORMELEMENT_INPUT_CLASS, '.'+FORMELEMENT_PASSWORD_CLASS, '.'+FORMELEMENT_TEXTAREA_CLASS)) {
                 if (node.hasClass(ITSAFORMELEMENT_SELECTONFOCUS_CLASS)) {
                     node.select();
@@ -866,3 +854,17 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         }
     }
 );
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "oop",
+        "base-base",
+        "base-build",
+        "event-custom",
+        "plugin",
+        "node-pluginhost",
+        "event-focus",
+        "selector-css3"
+    ]
+});

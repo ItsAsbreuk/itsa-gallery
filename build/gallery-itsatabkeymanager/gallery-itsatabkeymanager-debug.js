@@ -1,3 +1,5 @@
+YUI.add('gallery-itsatabkeymanager', function (Y, NAME) {
+
 'use strict';
 //==============================================================================
 //==============================================================================
@@ -866,3 +868,17 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         }
     }
 );
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "oop",
+        "base-base",
+        "base-build",
+        "event-custom",
+        "plugin",
+        "node-pluginhost",
+        "event-focus",
+        "selector-css3"
+    ]
+});
