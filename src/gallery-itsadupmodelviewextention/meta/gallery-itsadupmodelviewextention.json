@@ -1,9 +1,12 @@
 {
     "gallery-itsadupmodelviewextention": {
         "requires": [
+            "yui-base",
             "base-build",
             "node-base",
+            "oop",
             "model-list",
+            "lazy-model-list",
             "datatype-date-math"
         ]
     }

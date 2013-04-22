@@ -1,13 +1,9 @@
 'use strict';
 
 /**
- * DupModel View Extention
  *
- * Coorporates with gallery-itsamodellistviewextention --> it will load this module when not already loaded
- *
- * Adds the posibility to duplicate items from a ModelList, when these items have an 'endDate' or Interval set.
- * See the attribute <b>modelConfig</b> for more info.
- *
+ * Basic Extention that should not be used of its own.
+ * ITSAViewDupModels and ITSAScrollViewDupModels are based upon this extention.
  *
  * @module gallery-itsadupmodelviewextention
  * @class ITSADupModelViewExtention
@@ -52,9 +48,16 @@ ITSADupModelViewExtention.ATTRS = {
 
     /**
      * Definition of the Model's <b>date</b>, <b>enddate</b>, <b>count</b>, <b>intervalMinutes</b>,
-     * <b>intervalHours</b>, <b>intervalDays</b>, <b>intervalMonths</b> and <b>duplicateEveryMinutes</b> attributes.
+     * <b>intervalHours</b>, <b>intervalDays</b>, <b>intervalMonths</b> and <b>splitDays</b> attributes.
      * These values are Strings and represent the attributenames in the Models. The actual values (and its types)
-     * come form the Models itsself.
+     * come form the Models itself. The types that the Model should use for these attributes are: Date for date and enddate,
+     * String for count and all intervalattributes and Boolean for splitDays <br /><br />
+
+     * The 'interval'-attributes come in conjunction with 'count'. The item will be repeated 'count'-times with an interval
+     * specified by onde of the 'interval'-attributes.<br /><br />
+     * There is also the attribute 'splitDays'. When the model has, which may be set true. This attribute is reaponsible to split
+     * every single item (more when 'count' is working), into multiple items. The split is done, based on 'date' and 'enddate'.
+     * This way, when an event has a date of 1-jan-2013, 0:0:00 and an endate of 2-jan-2013, 23:59,
      *
      * For example: {date: 'startDate'}, which means that yourModel.get('startDate') should return a Date-object.
      * When not specified, the module tries to find a valid <b>modelConfig.date</b> which it can use,
@@ -62,7 +65,7 @@ ITSADupModelViewExtention.ATTRS = {
      *
      * @attribute modelConfig
      * @type {Object} with fields: <b>date</b>, <b>enddate</b>, <b>count</b>, <b>intervalMinutes</b>,
-     * <b>intervalHours</b>, <b>intervalDays</b>, <b>intervalMonths</b> and <b>duplicateEveryMinutes</b>
+     * <b>intervalHours</b>, <b>intervalDays</b>, <b>intervalMonths</b> and <b>splitDays</b>
      * @default null
      * @since 0.1
      */
@@ -141,14 +144,14 @@ Y.mix(ITSADupModelViewExtention.prototype, {
             attrIntervalHours = modelconfig && modelconfig.intervalHours,
             attrIntervalDays = modelconfig && modelconfig.intervalDays,
             attrIntervalMonths = modelconfig && modelconfig.intervalMonths,
-            attrDuplicateEveryMinutes = modelconfig && modelconfig.duplicateEveryMinutes,
+            attrDuplicateEveryMinutes = modelconfig && modelconfig.splitDays,
             getModelAttr = Y.rbind(instance.getModelAttr, instance),
             setModelAttr = Y.rbind(instance.setModelAttr, instance),
             modelfunc, duppedModel, markOriginal, dupmodel, pushDate, genModel, i, firstIndex, lastIndex;
 
         Y.log('_generateAbberantModelList', 'info', 'Itsa-ScrollViewDupModels');
         // duppedModel duplicates a Model-instance, but changes the startdate to the specified new Date.
-        duppedModel = function(model, newStartDate, endDate, duplicateEveryMinutes, forceSetEndDate) {
+        duppedModel = function(model, newStartDate, endDate, splitDays, forceSetEndDate) {
             var modelIsLazy = (Lang.type(model.get) !== 'function'),
                 dupModel, maxEndDate;
             if (modelIsLazy) {
@@ -163,7 +166,7 @@ Y.mix(ITSADupModelViewExtention.prototype, {
             }
             if (endDate) {
                 maxEndDate = dateCopyObject(newStartDate);
-                dateAddMinutes(maxEndDate, duplicateEveryMinutes);
+                dateAddMinutes(maxEndDate, splitDays);
                 if (YDate.isGreater(endDate, maxEndDate)) {
                     setModelAttr(dupModel, attrEnddate, maxEndDate);
                 }
@@ -197,19 +200,19 @@ Y.mix(ITSADupModelViewExtention.prototype, {
             modelfunc = function(model) {
                 var modelDate = getModelAttr(model, attrDate),
                     modelEndDate = getModelAttr(model, attrEnddate),
-                    duplicateEveryMinutes = (attrDuplicateEveryMinutes && getModelAttr(model, attrDuplicateEveryMinutes));
+                    splitDays = (attrDuplicateEveryMinutes && getModelAttr(model, attrDuplicateEveryMinutes));
                 if (dateIsValid(modelDate) && dateIsValid(modelEndDate)) {
-                    if (!Lang.isNumber(duplicateEveryMinutes)) {
-                        duplicateEveryMinutes = 1440;
+                    if (!Lang.isNumber(splitDays)) {
+                        splitDays = 1440;
                     }
                     pushDate = dateCopyObject(modelDate);
-                    dupmodel = duppedModel(model, pushDate, modelEndDate, duplicateEveryMinutes);
+                    dupmodel = duppedModel(model, pushDate, modelEndDate, splitDays);
                     instance._abModelList.add(dupmodel);
                     markOriginal(dupmodel, model);
                     while (dayisGreater(modelEndDate, pushDate)) {
                         // duplicate pushDate, otherwise all subModels remain the same Date
-                        dateAddMinutes(pushDate, duplicateEveryMinutes);
-                        dupmodel = duppedModel(model, pushDate, modelEndDate, duplicateEveryMinutes);
+                        dateAddMinutes(pushDate, splitDays);
+                        dupmodel = duppedModel(model, pushDate, modelEndDate, splitDays);
                         instance._abModelList.add(dupmodel);
                         markOriginal(dupmodel, model);
                     }
@@ -282,16 +285,16 @@ Y.mix(ITSADupModelViewExtention.prototype, {
                     modelIntervalHours = (attrIntervalHours && getModelAttr(model, attrIntervalHours)),
                     modelIntervalDays = (attrIntervalDays && getModelAttr(model, attrIntervalDays)),
                     modelIntervalMonths = (attrIntervalMonths && getModelAttr(model, attrIntervalMonths)),
-                    duplicateEveryMinutes = (attrDuplicateEveryMinutes && getModelAttr(model, attrDuplicateEveryMinutes)),
+                    splitDays = (attrDuplicateEveryMinutes && getModelAttr(model, attrDuplicateEveryMinutes)),
                     stepMinutes, startPushDate, endPushDate, i, validModelEndDate;
                 if (!dateIsValid(modelDate)) {
                     instance._abModelList.add(model);
                 }
                 else {
-                    if (!Lang.isNumber(duplicateEveryMinutes)) {
-                        duplicateEveryMinutes = 1440;
+                    if (!Lang.isNumber(splitDays)) {
+                        splitDays = 1440;
                     }
-                    dupmodel = duppedModel(model, modelDate, modelEndDate, duplicateEveryMinutes);
+                    dupmodel = duppedModel(model, modelDate, modelEndDate, splitDays);
                     instance._abModelList.add(dupmodel);
                     markOriginal(dupmodel, model);
                     validModelEndDate = dateIsValid(modelEndDate);
@@ -323,8 +326,8 @@ Y.mix(ITSADupModelViewExtention.prototype, {
                     if (validModelEndDate) {
                         pushDate = dateCopyObject(startPushDate);
                         while (dayisGreater(endPushDate, pushDate)) {
-                            dateAddMinutes(pushDate, duplicateEveryMinutes);
-                            dupmodel = duppedModel(model, pushDate, endPushDate, duplicateEveryMinutes);
+                            dateAddMinutes(pushDate, splitDays);
+                            dupmodel = duppedModel(model, pushDate, endPushDate, splitDays);
                             instance._abModelList.add(dupmodel);
                             markOriginal(dupmodel, model);
                         }
@@ -339,15 +342,15 @@ Y.mix(ITSADupModelViewExtention.prototype, {
                             dateAddMonths(startPushDate, modelIntervalMonths);
                             dateAddMonths(endPushDate, modelIntervalMonths);
                         }
-                        dupmodel = duppedModel(model, startPushDate, endPushDate, duplicateEveryMinutes, true);
+                        dupmodel = duppedModel(model, startPushDate, endPushDate, splitDays, true);
                         instance._abModelList.add(dupmodel);
                         markOriginal(dupmodel, model);
                         // also duplicate based on enddate
                         if (validModelEndDate) {
                             pushDate = dateCopyObject(startPushDate);
                             while (dayisGreater(endPushDate, pushDate)) {
-                                dateAddMinutes(pushDate, duplicateEveryMinutes);
-                                dupmodel = duppedModel(model, pushDate, endPushDate, duplicateEveryMinutes, true);
+                                dateAddMinutes(pushDate, splitDays);
+                                dupmodel = duppedModel(model, pushDate, endPushDate, splitDays, true);
                                 instance._abModelList.add(dupmodel);
                                 markOriginal(dupmodel, model);
                             }
