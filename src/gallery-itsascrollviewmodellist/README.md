@@ -49,7 +49,7 @@ Available plugins
 
 Examples
 --------
-[Online example](http://projects.itsasbreuk.nl/examples/ITSAScrollViewModellist/index.html)
+[Online example](http://projects.itsasbreuk.nl/examples/itsascrollviewmodellist/index.html)
 
 Documentation
 --------------
@@ -64,8 +64,12 @@ Usage
 ```
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
+var myModellist, rendermodel, groupheader, myScrollview;
 
-var myModellist = new Y.LazyModelList();
+myModellist = new Y.LazyModelList();
+myModellist.comparator = function (model) {
+    return model.Continental.toUpperCase() + model.Country.toUpperCase();
+};
 myModellist.add([
     {Country: 'The Netherlands'},
     {Country: 'USA'},
@@ -73,10 +77,10 @@ myModellist.add([
     ....
 ]);
 
-var rendermodel = '{Country}';
-var groupheader = '<%= data.Country.substr(0,1) %>';
+rendermodel = '{Continental}';
+groupheader = '<%= data.Country.substr(0,1).toUpperCase() %>';
 
-var myScrollview = new Y.ITSAScrollViewModellist({
+myScrollview = new Y.ITSAScrollViewModellist({
     boundingBox: "#myscrollview",
     height:'600px',
     width:'240px',
@@ -97,8 +101,12 @@ myScrollview.render();
 ```
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
+var myModellist, rendermodel, groupheader, myScrollview;
 
-var myModellist = new Y.LazyModelList();
+myModellist = new Y.LazyModelList();
+myModellist.comparator = function (model) {
+    return model.Continental.toUpperCase() + model.Country.toUpperCase();
+};
 myModellist.add([
     {Country: 'The Netherlands'},
     {Country: 'USA'},
@@ -106,10 +114,10 @@ myModellist.add([
     ....
 ]);
 
-var rendermodel = '<\td>{Country}<\\td>';
-var groupheader = '<\td><%= data.Country.substr(0,1) %><\\td>';
+rendermodel = '<\td>{Continental} %><\\td>';
+groupheader = '<\td><%= data.Country.substr(0,1).toUpperCase() %><\\td>';
 
-var myScrollview = new Y.ITSAScrollViewModellist({
+myScrollview = new Y.ITSAScrollViewModellist({
     boundingBox: "#myscrollview",
     listType: 'table,'
     height:'600px',
