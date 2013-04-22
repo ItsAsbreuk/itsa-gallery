@@ -28,19 +28,6 @@
 
 // -- Public Static Properties -------------------------------------------------
 
-/**
- * Internal list that holds event-references
- * @property _eventhandlers
- * @private
- * @type Array
- */
-
-/**
- * The plugin's host, which should be a ScrollView-instance
- * @property host
- * @type ScrollView-instance
- */
-
 
 var Lang = Y.Lang,
     YArray = Y.Array,
@@ -53,7 +40,19 @@ var Lang = Y.Lang,
 
 Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsascrollviewkeynav', Y.Plugin.Base, [], {
 
+        /**
+         * Internal list that holds event-references
+         * @property _eventhandlers
+         * @private
+         * @type Array
+         */
         _eventhandlers : [],
+
+        /**
+         * The plugin's host, which should be a ScrollView-instance
+         * @property host
+         * @type ScrollView-instance
+         */
         host : null,
 
         /**
