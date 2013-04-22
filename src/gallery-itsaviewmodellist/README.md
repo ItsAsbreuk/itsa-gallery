@@ -38,10 +38,15 @@ Available plugins
 -----------------
 * [Y.Plugin.ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav) <i>to support key navigation/scrolling</i>
 * [Y.Plugin.ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons) <i>make models fire model:buttonclick and model:anchorclick events-</i>
-* [Y.Plugin.ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) <i>enables models to toggle templates, either a second template or an edittemplate (see [ITSA-EditModel](src/gallery-itsaeditmodel))</i>
+* [Y.Plugin.ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) <i>enables models to toggle templates, either a second template or an edittemplate
+       (see [ITSA-EditModel](src/gallery-itsaeditmodel))</i>
 * [Y.Plugin.ITSAViewPaginator](src/gallery-itsaviewpaginator) <i>under construction</i>
 * [Y.Plugin.ITSAInfiniteView](src/gallery-itsaviewpaginator) <i>under construction</i>
 * [Y.Plugin.ITSAScrollViewLoop](src/gallery-itsascrollviewloop) <i>under construction</i>
+
+Available extentions
+--------------------
+* [Y.Plugin.ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels) <i>to support duplicated models, based on a Date-interval</i>
 
 Examples
 --------
@@ -124,9 +129,7 @@ myView.render();
 Custom styling
 --------------
 
-The module will add several css-classes to the scrollview-instance and listelements. By default, there will be no styling and you
-may do so yourself. However, if the attribute 'modelListStyled' is set to true, everything gets a predefined style. You can style yourself
-by define your own styles, or by setting 'modelListStyled' and overrule some of its styles.
+The module will add several css-classes to the scrollview-instance and listelements. <b>By default, the ModelList is styled.</b> This is defined by the attribute 'modelListStyled'. However, if the attribute 'modelListStyled' is set to false, you can style yourself by define your own styles. You could also set 'modelListStyled' to 'true' and overrule some of its styles.
 
 [View styles](src/assets/gallery-itsaviewmodellist-core.css)
 
