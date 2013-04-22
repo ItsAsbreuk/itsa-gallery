@@ -1,0 +1,1 @@
+YUI.add("gallery-itsaviewdupmodels",function(e,t){"use strict";e.Base.mix(e.ITSAViewModellist,[e.ITSADupModelViewExtention])},"@VERSION@",{requires:["gallery-itsadupmodelviewextention","gallery-itsaviewmodellist"]});

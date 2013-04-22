@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewdupmodels', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -10,9 +12,7 @@
  *
  *
  * @module gallery-itsaviewdupmodels
- * @extends ITSAViewModellist
- * @uses ITSADupModelViewExtention
- * @class ITSAViewDupModels
+ * @extends ITSADupModelViewExtention
  * @constructor
  * @since 0.1
  *
@@ -22,3 +22,6 @@
 */
 
 Y.Base.mix(Y.ITSAViewModellist, [Y.ITSADupModelViewExtention]);
+
+
+}, '@VERSION@', {"requires": ["gallery-itsadupmodelviewextention", "gallery-itsaviewmodellist"]});
