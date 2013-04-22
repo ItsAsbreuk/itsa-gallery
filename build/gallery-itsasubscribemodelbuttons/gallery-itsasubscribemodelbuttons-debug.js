@@ -33,19 +33,6 @@ YUI.add('gallery-itsasubscribemodelbuttons', function (Y, NAME) {
 
 // -- Public Static Properties -------------------------------------------------
 
-/**
- * Internal list that holds event-references
- * @property _eventhandlers
- * @private
- * @type Array
- */
-
-/**
- * The plugin's host
- * @property host
- * @type ScrollView-instance
- */
-
 var YArray = Y.Array,
     MODEL_CLASS = 'itsa-model',
     FIREMODEL = 'firemodel',
