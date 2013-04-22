@@ -1,6 +1,0 @@
-{
-    "js/gallery-itsadupmodelviewextention.js": {
-        "classes": "Lang, LazyModelList, ModelList, YUI",
-        "requires": ["yui-base", "lazy-model-list", "model-list", "yui-log", "oop"]
-    }
-}
