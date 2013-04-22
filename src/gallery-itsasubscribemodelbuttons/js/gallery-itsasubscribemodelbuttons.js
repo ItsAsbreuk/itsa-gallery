@@ -6,16 +6,17 @@
  *
  * Plugin for ITSAViewModelList, ITSAScrollViewModelList and ITSAViewModel
  *
- * The plugin makes that clicking on some elements within the Model making the Modelinstance fire the event. You can listen on the
- * ITSAScrollViewModelList- or ITSAViewModel-instance for these model-events to happen.
+ * The plugin makes that clicking on some elements within the Model causes the <i>Modelinstance</i> fire an event.
  *
  * Be aware that -in case of LazyModelList- the objects are revived into Modelinstances and not freed. You may want to use
  * ITSAViewModel.get('modelList').free(model) in the subscriber after handling the event.
  * This also means that -within the subscriber- e.target is always a Modelinstance.
  *
- * 1) <b>buttons</b> or <b>input[type=button]</b> fire a <b>'model:buttonclick'</b>-event
- * 2) <b>a</b> (anchor)-elements with class <b>.firemodel</b> will fire a <b>'model:anchorclick'</b>-event <i>instead of the default behaviour</i>
- * 3) <b>DateTime-buttons</b> fire a <b>'model:datetimeclick'</b>-event <i>determined by the class '.itsa-button-datetime'</i>
+ * 1. <i>buttons</i> or <i>input[type=button]</i> fire a <b>'model:buttonclick'</b>-event
+ * 2. <i>a (anchor)-elements with class '.firemodel'</i> will fire a <b>'model:anchorclick'</b>-event <i>instead of the default behaviour</i>
+ * 3. <i>DateTime-buttons</i> fire a <b>'model:datetimeclick'</b>-event <i>determined by the class '.itsa-button-datetime'</i>
+ *
+ * NS: 'itsamodelbtn'
  *
  * @module gallery-itsasubscribemodelbuttons
  * @class ITSASubscribeModelButtons
@@ -55,7 +56,19 @@ var YArray = Y.Array,
 
 Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemodelbuttons', Y.Plugin.Base, [], {
 
+        /**
+         * Internal list that holds event-references
+         * @property _eventhandlers
+         * @private
+         * @type Array
+         */
         _eventhandlers : [],
+
+        /**
+         * The plugin's host, which should be a ScrollView-instance
+         * @property host
+         * @type Y.ITSAViewModellist|Y.ITSAScrollViewModellist-instance
+         */
         host : null,
 
         /**
@@ -114,7 +127,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
         },
 
         /**
-         * Will fire an even with extra property: e.model. In case of a LazyModelList, e.model is an object.
+         * Will make the model fire an event (either model:buttonclick, model:anchorclick or model:datetimeclick).
          *
          * @method _fireCustomEvent
          * @param {EventTarget} e
@@ -173,7 +186,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 /**
                  * Is fired when the user clicks on a <b>button</b> or a <input[type=button]</b>.
                  *
-                 * @event buttonclick
+                 * @event model:buttonclick
                  * @param node {Y.Node} the button - or input[type=button] - that was clicked.
                  * @since 0.1
                 **/
@@ -181,7 +194,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 /**
                  * Is fired when the user clicks on a anchor-element with className 'firemodel'.
                  *
-                 * @event anchorclick
+                 * @event model:anchorclick
                  * @param node {Y.Node} the anchor-elementnode that was clicked.
                  * @since 0.1
                 **/
@@ -189,7 +202,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 /**
                  * Is fired when the user clicks on a datetime-icon (see gallery-itsadatetimepicker).
                  *
-                 * @event datetimeclick
+                 * @event model:datetimeclick
                  * @param node {Y.Node} the node that was clicked.
                  * @since 0.1
                 **/

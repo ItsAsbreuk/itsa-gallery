@@ -1,8 +1,11 @@
 {
     "gallery-itsasubscribemodelbuttons": {
         "requires": [
+            "yui-base",
+            "base-base",
             "base-build",
             "node-base",
+            "oop",
             "event-custom",
             "node-event-delegate",
             "plugin"
