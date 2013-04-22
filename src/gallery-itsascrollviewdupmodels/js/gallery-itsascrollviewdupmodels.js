@@ -10,7 +10,9 @@
  *
  *
  * @module gallery-itsascrollviewdupmodels
- * @extends ITSADupModelViewExtention
+ * @extends ITSAScrollViewModellist
+ * @uses ITSADupModelViewExtention
+ * @class ITSAScrollViewDupModels
  * @constructor
  * @since 0.1
  *
