@@ -445,7 +445,19 @@ var YArray = Y.Array,
 
 Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.Plugin.FocusManager, [], {
 
+        /**
+         * Internal list that holds event-references
+         * @property _eventhandlers
+         * @private
+         * @type Array
+         */
         _eventhandlers : [],
+
+        /**
+         * The plugin's host, which should be a ScrollView-instance
+         * @property host
+         * @type Y.Node
+         */
         host : null,
 
         /**
