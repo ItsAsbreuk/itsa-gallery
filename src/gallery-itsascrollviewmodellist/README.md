@@ -3,7 +3,10 @@ gallery-itsascrollviewmodellist
 
 
 Widget Y.ITSAScrollViewModellist which extends Y.ScrollView by adding an Y.ModelList or Y.LazyModelList as an attribute 'modelList'.
-The Models from the ModelList will be used to rendered an unsorted-list inside the scrollview-instance. The ul-element (viewNode)
+
+
+Y.ITSAScrollViewModellist <i>does not use Progressive Enhancement</i>, but uses the 'modelList'-attribute for rendering.
+The Models from the ModelList will be used to render an unsorted-list inside the scrollview-instance. The ul-element (viewNode)
 lies within the scrollview's-contentBox. This results in an ul-list with Models. For performance-reasons, it is recommended to
 use Y.LazyModelList instead of Y.ModelList.
 
