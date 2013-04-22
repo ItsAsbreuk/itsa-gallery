@@ -1,3 +1,5 @@
+YUI.add('gallery-itsachangemodeltemplate', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -862,3 +864,16 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         }
     }
 );
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "node-core",
+        "base-base",
+        "base-build",
+        "plugin-base",
+        "pluginhost-base",
+        "oop",
+        "template-micro"
+    ]
+});

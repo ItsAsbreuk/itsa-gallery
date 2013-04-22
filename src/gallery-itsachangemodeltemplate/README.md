@@ -27,6 +27,8 @@ If you need the buttons with the same style on the normal template as how are st
 through to Y.Plugin.ITSAEditModel.</i>
 
 
+NS: <b>itsacmtemplate</b>
+
 Examples
 --------
 [Online example](http://projects.itsasbreuk.nl/examples/itsachangemodeltemplate/index.html)
@@ -38,18 +40,82 @@ Documentation
 Usage
 -----
 
-<b>View rendered as unsorted list</b>
+<b>Change Models into detailed form</b>
 ```html
 <div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
 ```
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
-var myModellist, rendermodel, groupheader, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
+var myModellist, rendermodel, secondrendermodel, myScrollview, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
 myModellist = new Y.LazyModelList();
 myModellist.comparator = function (model) {
-    return model.Continental.toUpperCase() + model.Country.toUpperCase();
+    return model.Country.toUpperCase();
+};
+myModellist.add([
+    {Country: 'The Netherlands', Continental: 'Europe'},
+    {Country: 'USA', Continental: 'North-America'},
+    {},
+    ....
+]);
+//--------------------------------------------------------------------------------------
+
+
+rendermodel = '{Country} <input type="button" value="show details" class="yui3-button" />';
+
+myScrollview = new Y.ITSAScrollViewModellist({
+    boundingBox: "#myscrollview",
+    height:'600px',
+    width:'240px',
+    modelTemplate: rendermodel,
+    axis: 'y',
+    modelList: myModellist
+});
+
+
+//----- defining everything we need to know about Y.Plugin.ITSAChangeModelTemplate -----
+secondrendermodel = '{Country} is part of continental {Continental} <input type="button" value="hide details" class="yui3-button" />';
+
+changeModelTemplateConfig = {
+    secondTemplate: secondrendermodel
+};
+//--------------------------------------------------------------------------------------
+scrollview.plug(Y.Plugin.ITSAChangeModelTemplate, changeModelTemplateConfig);
+
+myScrollview.render();
+
+//--------------------------------------------------------------------------------------
+myScrollview.on(
+    'model:buttonclick',
+    function(e){
+        var model = e.target,
+            node = e.node;
+        if (node.getAttribute('value')==='show details') {
+            myScrollview.itsacmtemplate.setModelToSecondTemplate(model);
+        }
+        if (node.getAttribute('value')==='hide details') {
+            myScrollview.itsacmtemplate.setModelToOriginalTemplate(model);
+        }
+    }
+);
+//--------------------------------------------------------------------------------------
+
+});
+```
+
+<b>Change Models into editable form</b>
+```html
+<div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
+```
+```js
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
+var myModellist, rendermodel, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
+
+//----- defining the LazyModelList -----------------------------------------------------
+myModellist = new Y.LazyModelList();
+myModellist.comparator = function (model) {
+    return model.Country.toUpperCase();
 };
 myModellist.add([
     {Country: 'The Netherlands'},
@@ -60,15 +126,13 @@ myModellist.add([
 //--------------------------------------------------------------------------------------
 
 
-rendermodel = '{Continental}';
-groupheader = '<%= data.Country.substr(0,1).toUpperCase() %>';
+rendermodel = '{Country} <input type="button" value="edit" class="yui3-button" />';
 
 myScrollview = new Y.ITSAScrollViewModellist({
     boundingBox: "#myscrollview",
     height:'600px',
     width:'240px',
     modelTemplate: rendermodel,
-    groupHeader1: groupheader,
     axis: 'y',
     modelList: myModellist
 });
@@ -77,13 +141,14 @@ myScrollview = new Y.ITSAScrollViewModellist({
 //----- defining everything we need to know about Y.Plugin.ITSAChangeModelTemplate -----
 editmodeltemplate = 'continental: {Continental}<br />'+
                         'country: {Country}<br />'+
-                        '{Save} {Reset}';
+                        '{Reset} {Cancel} {Save}';
 
 editmodelConfigAttrs = {
     Continental: {type: 'input', selectOnFocus: true},
     Country: {type: 'textarea', initialFocus: true},
-    Save: {type: 'save', buttonText: 'bewaren'},
-    Reset: {type: 'reset', buttonText: 'resetten'}
+    Save: {type: 'save', buttonText: 'save'},
+    Cancel: {type: 'cancel', buttonText: 'cancel'},
+    Reset: {type: 'reset', buttonText: 'reset'}
 };
 
 configForEditModel = {
@@ -99,8 +164,31 @@ changeModelTemplateConfig = {
 //--------------------------------------------------------------------------------------
 scrollview.plug(Y.Plugin.ITSAChangeModelTemplate, changeModelTemplateConfig);
 
-
 myScrollview.render();
+
+//--------------------------------------------------------------------------------------
+myScrollview.on(
+    'model:buttonclick',
+    function(e){
+        var model = e.target,
+            node = e.node;
+        if (node.getAttribute('value')==='edit') {
+            myScrollview.itsacmtemplate.setModelToEditTemplate(model);
+        }
+        if (node.getAttribute('value')==='cancel') {
+            myScrollview.itsacmtemplate.setModelToOriginalTemplate(model);
+        }
+    }
+);
+myScrollview.after(
+    'model:saveclick',
+    function(e){
+        var model = e.target,
+            node = e.node;
+        myScrollview.itsacmtemplate.setModelToOriginalTemplate(model);
+    }
+);
+//--------------------------------------------------------------------------------------
 
 });
 ```

@@ -1,3 +1,5 @@
+YUI.add('gallery-itsachangemodeltemplate', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -154,7 +156,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             var instance = this,
                 host;
 
-            Y.log('initializer', 'info', 'Itsa-ChangeModelTemplate');
             instance.host = host = instance.get('host');
             instance._bindUI();
         },
@@ -175,7 +176,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
             currentMode = instance._getMode(model);
             if (currentMode !== 1) {
-                Y.log('setModelToOriginalTemplate', 'info', 'Itsa-ChangeModelTemplate');
                 instance._prevMode[clientId] = instance._getMode(model);
                 delete instance._secondModels[clientId];
                 delete instance._initialEditAttrs[clientId];
@@ -202,7 +202,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 instance._currentModelHasChanged = false;
             }
             else {
-                Y.log('setModelToOriginalTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -222,7 +221,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
             currentMode = instance._getMode(model);
             if (currentMode !== 2) {
-                Y.log('setModelToSecondTemplate', 'info', 'Itsa-ChangeModelTemplate');
                 delete instance._initialEditAttrs[clientId];
                 instance._prevMode[clientId] = instance._getMode(model);
                 instance._secondModels[clientId] = true;
@@ -249,7 +247,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 instance._currentModelHasChanged = false;
             }
             else {
-                Y.log('setModelToSecondTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -269,7 +266,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
             currentMode = instance._getMode(model);
             if (currentMode !== 3) {
-                Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
                 instance._currentModelHasChanged = false;
                 instance._prevComparator[clientId] = comparator && comparator(model);
                 instance._prevMode[clientId] = currentMode;
@@ -278,7 +274,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 instance._renderEditTemplate(model);
             }
             else {
-                Y.log('setModelToEditTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -294,7 +289,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 clientId = instance.host.getModelAttr(model, 'clientId'),
                 mode = instance._prevMode[clientId] || 1;
 
-            Y.log('restoreTemplate restore to mode '+mode, 'info', 'Itsa-ChangeModelTemplate');
             switch (mode) {
                 case 1: instance.setModelToOriginalTemplate(model);
                 break;
@@ -314,7 +308,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         destructor : function() {
             var instance = this;
 
-            Y.log('destructor', 'info', 'Itsa-ChangeModelTemplate');
             instance._clearEventhandlers();
             instance._initialEditAttrs = {};
             instance._secondModels = {};
@@ -340,7 +333,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 boundingBox = host.get('boundingBox'),
                 eventhandlers = instance._eventhandlers;
 
-            Y.log('_bindUI', 'info', 'Itsa-ChangeModelTemplate');
             eventhandlers.push(
                 boundingBox.delegate(
                     'click',
@@ -368,15 +360,12 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                         if (modelnode) {
                             itsatabkeymanager = modelnode.itsatabkeymanager;
                             if (itsatabkeymanager && modelnode.hasClass('itsa-model-focus')) {
-                                Y.log('focus to next field', 'info', 'Itsa-ViewModel');
                                 itsatabkeymanager.next();
                             }
                             else {
-                                Y.log('No focus to next field: Y.Plugin.ITSATabKeyManager not plugged in', 'info', 'Itsa-ViewModel');
                             }
                         }
                         else {
-                            Y.log('No focus to next field: modelnode not found', 'info', 'Itsa-ViewModel');
                         }
                     }
                 )
@@ -469,7 +458,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-ChangeModelTemplate');
             YArray.each(
                 this._eventhandlers,
                 function(item){
@@ -496,7 +484,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 clientId = instance.host.getModelAttr(model, 'clientId'),
                 mode = 1;
 
-            Y.log('_getMode', 'info', 'Itsa-ChangeModelTemplate');
             if (instance._secondModels[clientId]) {
                 mode = 2;
             }
@@ -524,7 +511,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 modus = instance._getMode(model),
                 modelJSON, engine;
 
-            Y.log('_getModelEngine', 'info', 'Itsa-ModellistViewExtention');
             switch (modus) {
                 case 1: // default: the standard modelTemplate
                     modelJSON = host.getModelToJSON(model);
@@ -554,7 +540,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 modelNode, modelInstance, revivedModel, usemodel;
 
-            Y.log('_renderEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
             modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
             if (modelNode) {
                 if (ISMICROTEMPLATE(instance.get('template')) || (instance._secondTempl && instance._secondTemplIsMicro)) {
@@ -590,7 +575,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 }
             }
             else {
-                Y.log('_renderEditTemplate could not proceed: no valid model found', 'warn', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -609,7 +593,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 alternateTemplate = instance._secondTempl || host._templFns.template,
                 modelNode;
 
-            Y.log('_renderSecondTemplate', 'info', 'Itsa-ChangeModelTemplate');
             modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
             if (modelNode && alternateTemplate) {
                 if (ISMICROTEMPLATE(instance.get('template')) || model.itsaeditmodel) {
@@ -618,7 +601,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 modelNode.setHTML(alternateTemplate(model));
             }
             else {
-                Y.log('_renderSecondTemplate could not proceed: no valid model found', 'warn', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -636,7 +618,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 modelNode;
 
-            Y.log('_renderOriginalTemplate', 'info', 'Itsa-ChangeModelTemplate');
             modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
             if (modelNode) {
                 if ((instance._secondTempl && instance._secondTemplIsMicro) || model.itsaeditmodel) {
@@ -647,7 +628,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 modelNode.setHTML(host._templFns.template(model));
             }
             else {
-                Y.log('_renderOriginalTemplate could not proceed: no valid model found', 'warn', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -665,7 +645,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 compiledModelEngine, editTemplateIsMicro;
 
-            Y.log('_setEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
             if (!template || (template==='')) {
                 instance._editTempl = host._templFns.template;
             }
@@ -715,7 +694,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 compiledModelEngine, alternateTemplateIsMicro;
 
-            Y.log('_setSecondTemplate', 'info', 'Itsa-ChangeModelTemplate');
             if (!val || (val==='')) {
                 instance._secondTempl = null;
             }
@@ -751,7 +729,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 modelInstance, modelNode;
 
-            Y.log('_unplugITSAEditModel', 'info', 'Itsa-ChangeModelTemplate');
             // IMPORTANT: model could be an object in case of LazyModelList
             // we need to revive it first
             modelInstance = model.get && (typeof model.get === 'function');
@@ -862,3 +839,16 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         }
     }
 );
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "node-core",
+        "base-base",
+        "base-build",
+        "plugin-base",
+        "pluginhost-base",
+        "oop",
+        "template-micro"
+    ]
+});
