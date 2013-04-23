@@ -6,13 +6,13 @@ This repo contains open source YUI components that have been contributed to the
 [YUI Gallery](http://yuilibrary.com/gallery/) by [Its Asbreuk](http://itsasbreuk.nl).
 
 
-### Core
---------
+## Core
+-------
 [ITSADialogBox](src/gallery-itsadialogbox)
 
 
-### Infrastructure
---------------
+## Infrastructure
+-------------
 [ITSAViewModel](src/gallery-itsaviewmodel)
 
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
@@ -35,8 +35,8 @@ This repo contains open source YUI components that have been contributed to the
 [ITSAEditModel](src/gallery-itsaeditmodel)
 
 
-### Utilities
--------------
+## Utilities
+------------
 [ITSADateTimePicker](src/gallery-itsadatetimepicker)
 
 #### extentions
@@ -58,8 +58,8 @@ This repo contains open source YUI components that have been contributed to the
 [ITSADTColumnReorder](src/gallery-itsadtcolumnreorder)
 
 
-### Widgets
------------
+## Widgets
+----------
 [ITSASelectList](src/gallery-itsaselectlist)
 
 [ITSAForm](src/gallery-itsaform)
@@ -67,8 +67,9 @@ This repo contains open source YUI components that have been contributed to the
 [ITSAFileManager](src/gallery-itsafilemanager)
 
 
-License
--------
+
+###License
+----------
 
 Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
 
