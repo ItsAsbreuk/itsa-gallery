@@ -14,11 +14,11 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Infrastructure
-[ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist) --under construction--
+[ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
 
 [ITSAViewModel](src/gallery-itsaviewmodel) --on cdn--
 
-[ITSAViewModellist](src/gallery-itsaviewmodellist) --under construction--
+[ITSAViewModellist](src/gallery-itsaviewmodellist)
 
 #### plugins
 [ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) --under construction--
@@ -31,7 +31,9 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAScrollViewLoop](src/gallery-itsascrollviewloop) --under construction--
 
-[ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons) --under construction--
+[ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
+
+[ITSATabkKeyManager](src/gallery-itsatabkeymanager)
 
 [ITSAViewPaginator](src/gallery-itsaviewpaginator) --under construction--
 
@@ -45,7 +47,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSACalendarModellist](src/gallery-itsacalendarmodellist) --on cdn--
 
-[ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise) --under construction--
+[ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise)
 
 [ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels) --under construction--
 
