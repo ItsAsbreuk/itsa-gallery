@@ -3,8 +3,7 @@ Itsa Asbreuk YUI Gallery Modules
 
 
 This repo contains open source YUI components that have been contributed to the
-[YUI Gallery](http://yuilibrary.com/gallery/) by
-[Its Asbreuk](http://itsasbreuk.nl).
+[YUI Gallery](http://yuilibrary.com/gallery/) by [Its Asbreuk](http://itsasbreuk.nl).
 
 
 ### Core
@@ -15,40 +14,56 @@ This repo contains open source YUI components that have been contributed to the
 ### Infrastructure
 --------------
 [ITSAViewModel](src/gallery-itsaviewmodel)
+
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
+
 [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
 
-### plugins
+#### plugins
 [ITSAViewPaginator](src/gallery-itsaviewpaginator)
+
 [ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
+
 [ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate)
+
 [ITSAScrollViewLoop](src/gallery-itsascrollviewloop)
+
 [ITSAInfiniteView](src/gallery-itsainfiniteview)
+
 [ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav)
-[gallery-ITSAEditModel](src/gallery-itsaeditmodel)
+
+[ITSAEditModel](src/gallery-itsaeditmodel)
 
 
 ### Utilities
 -------------
 [ITSADateTimePicker](src/gallery-itsadatetimepicker)
 
-### extentions
+#### extentions
 [ITSACalendarMarkedDates](src/gallery-itsacalendarmarkeddates)
+
 [ITSACalendarModellist](src/gallery-itsacalendarmodellist)
+
 [ITSAViewDupModels](src/gallery-itsaviewdupmodels)
+
 [ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels)
+
 [ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise)
 
-### plugins
+#### plugins
 [ITSADTColumnResize](src/gallery-itsadtcolumnresize)
+
 [ITSAToolbar](src/gallery-itsatoolbar)
+
 [ITSADTColumnReorder](src/gallery-itsadtcolumnreorder)
 
 
 ### Widgets
 -----------
 [ITSASelectList](src/gallery-itsaselectlist)
+
 [ITSAForm](src/gallery-itsaform)
+
 [ITSAFileManager](src/gallery-itsafilemanager)
 
 
