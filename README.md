@@ -33,7 +33,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
 
-[ITSATabkKeyManager](src/gallery-itsatabkeymanager)
+[ITSATabKeyManager](src/gallery-itsatabkeymanager)
 
 [ITSAViewPaginator](src/gallery-itsaviewpaginator) --under construction--
 
