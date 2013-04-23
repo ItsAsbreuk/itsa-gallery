@@ -39,7 +39,7 @@ Usage
 
 <b>Loading Model-data with Model.loadPromise</b>
 ```js
-YUI().use('model', 'gallery-itsamodelsyncpromise', function(Y) {
+YUI().use('model', 'gallery-itsamodelsyncpromise', 'base-build', function(Y) {
 
     var piemodel;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
