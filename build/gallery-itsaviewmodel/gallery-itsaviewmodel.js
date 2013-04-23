@@ -148,13 +148,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         */
         _eventhandlers : [],
 
-        /**
-         * Internal backup of the Models attributes, used when the editdata needs to be reset.
-         * @property _editTempl
-         * @private
-         * @default null
-         * @type Boolean
-        */
         _initialEditAttrs : null,
 
         /**
@@ -391,21 +384,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     }
                 )
             );
-            eventhandlers.push(
-                boundingBox.after(
-                    'click',
-                    function() {
-                        var itsatabkeymanager = boundingBox.itsatabkeymanager;
-                        if (itsatabkeymanager) {
-                            itsatabkeymanager.retreiveFocus();
-                            // this will automaticly focus the host=view-instance
-                        }
-                        else {
-                            instance.focus();
-                        }
-                    }
-                )
-            );
         },
 
         /**
@@ -439,7 +417,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          * @protected
         */
         destructor: function() {
-            var instance = this;
+            var instance = this,
+                boundingBox = instance.get('boundingBox');
 
             instance._clearEventhandlers();
             instance.view.destroy();
@@ -511,16 +490,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 model = view.get('model'),
                 editMode = model.itsaeditmodel && instance.get('modelEditable'),
                 itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
-                html = clear ? '' : instance._modelRenderer(model),
-                item;
+                html = clear ? '' : instance._modelRenderer(model);
 
-//            if (itsatabkeymanager) {
-//                item = itsatabkeymanager.get('activeItem');
-//                if (item) {
-//                    itsatabkeymanager.set('activeItem', null);
-//                    item.blur();
-//                }
-//            }
             // Render this view's HTML into the container element.
             // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
             if (editMode || instance._isMicroTemplate) {
