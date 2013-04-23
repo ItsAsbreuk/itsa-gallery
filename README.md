@@ -1,124 +1,55 @@
 Itsa Asbreuk YUI Gallery Modules
 ===========================
 
+
 This repo contains open source YUI components that have been contributed to the
 [YUI Gallery](http://yuilibrary.com/gallery/) by
 [Its Asbreuk](http://itsasbreuk.nl).
 
 
-Modules
+Core
+----
+### [ITSADialogBox](src/gallery-itsadialogbox)
+
+
+Infrastructure
+--------------
+### [ITSAViewModel](src/gallery-itsaviewmodel)
+### [ITSAViewModellist](src/gallery-itsaviewmodellist)
+### [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
+
+-- plugins --
+### [ITSAViewPaginator](src/gallery-itsaviewpaginator)
+### [ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
+### [ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate)
+### [ITSAScrollViewLoop](src/gallery-itsascrollviewloop)
+### [ITSAInfiniteView](src/gallery-itsainfiniteview)
+### [ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav)
+### [gallery-ITSAEditModel](src/gallery-itsaeditmodel)
+
+
+Utilities
+---------
+### [ITSADateTimePicker](src/gallery-itsadatetimepicker)
+### [ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise)
+
+-- extentions --
+### [ITSACalendarMarkedDates](src/gallery-itsacalendarmarkeddates)
+### [ITSACalendarModellist](src/gallery-itsacalendarmodellist)
+### [ITSAViewDupModels](src/gallery-itsaviewdupmodels)
+### [ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels)
+
+-- plugins --
+### [ITSADTColumnResize](src/gallery-itsadtcolumnresize)
+### [ITSAToolbar](src/gallery-itsatoolbar)
+### [ITSADTColumnReorder](src/gallery-itsadtcolumnreorder)
+
+
+Widgets
 -------
-
-### [gallery-itsacalendarmarkeddates](src/gallery-itsacalendarmarkeddates)
-
-description...
-
-### [gallery-itsacalendarmodellist](src/gallery-itsacalendarmodellist)
-
-description...
-
-### [gallery-itsadatetimepicker](src/gallery-itsadatetimepicker)
-
-description...
-
-### [gallery-itsadialogbox](src/gallery-itsadialogbox)
-
-description...
-
-### [gallery-itsadtcolumnresize](src/gallery-itsadtcolumnresize)
-
-description...
-
-### [gallery-itsascrollviewkeynav](src/gallery-itsascrollviewkeynav)
-
-description...
-
-### [gallery-itsaselectlist](src/gallery-itsaselectlist)
-
-description...
-
-### [gallery-itsatoolbar](src/gallery-itsatoolbar)
-
-description...
-
-### [gallery-itsaviewmodel](src/gallery-itsaviewmodel)
-
-description...
-
-
-Works in Progress
------------------
-
-### [gallery-itsachangemodeltemplate](src/gallery-itsachangemodeltemplate)
-
-description...
-
-### [gallery-itsadtcolumnreorder](src/gallery-itsadtcolumnreorder)
-
-description...
-
-### [gallery-itsadupmodelviewextention](src/gallery-itsadupmodelviewextention)
-
-description...
-
-### [gallery-itsaeditmodel](src/gallery-itsaeditmodel)
-
-description...
-
-### [gallery-itsafilemanager](src/gallery-itsafilemanager)
-
-description...
-
-### [gallery-itsaform](src/gallery-itsaform)
-
-description...
-
-### [gallery-itsaformelement](src/gallery-itsaformelement)
-
-description...
-
-### [gallery-itsainfiniteview](src/gallery-itsainfiniteview)
-
-description...
-
-### [gallery-itsamodellistviewextention](src/gallery-itsamodellistviewextention)
-
-description...
-
-### [gallery-itsascrollviewdupmodels](src/gallery-itsascrollviewdupmodels)
-
-description...
-
-### [gallery-itsascrollviewloop](src/gallery-itsascrollviewloop)
-
-description...
-
-### [gallery-itsascrollviewmodellist](src/gallery-itsascrollviewmodellist)
-
-description...
-
-### [gallery-itsasubscribemodelbuttons](src/gallery-itsasubscribemodelbuttons)
-
-description...
-
-### [gallery-itsaviewdupmodels](src/gallery-itsaviewdupmodels)
-
-description...
-
-### [gallery-itsaviewmodellist](src/gallery-itsaviewmodellist)
-
-description...
-
-### [gallery-itsaviewpaginator](src/gallery-itsaviewpaginator)
-
-description...
-
-
-
-Useful Links
-------------
-
-* [API Docs](http://projects.itsasbreuk.nl/apidocs/)
+### [ITSASelectList](src/gallery-itsaselectlist)
+### [ITSAForm](src/gallery-itsaform)
+### [ITSAFileManager](src/gallery-itsafilemanager)
 
 
 License
