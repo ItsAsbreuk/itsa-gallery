@@ -9,12 +9,6 @@ This repo contains open source YUI components that have been contributed to the
 Modules
 -------
 
-<h1>test h1</h1>
-
-<h2>test h2</h2>
-
-<h3>test h3</h3>
-
 ### [gallery-itsacalendarmarkeddates](src/gallery-itsacalendarmarkeddates)
 
 description...
