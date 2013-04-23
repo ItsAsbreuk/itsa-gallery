@@ -206,17 +206,16 @@ function ITSAModellistViewExtention() {}
 ITSAModellistViewExtention.ATTRS = {
 
    /**
-    * The ModelList that is 'attached' to the Calendar, resulting in highlighted dates for each Model
-    * that has a 'Date-match'. For more info how a 'Date-match' is achieved: see the attribute modelConfig.
+    * The (Lazy)ModelList that is 'attached' to the instance. If you attach an Array, then it will be rebuild into a LazyModelList.
     *
     * @attribute modelList
-    * @type {ModelList}
+    * @type {ModelList|LazyModelList|Array}
     * @default null
     * @since 0.1
     */
     modelList: {
         value: null,
-        validator: function(v){ return (v.getByClientId) || (v === null);},
+        validator: function(v){ return (v === null) || (v.getByClientId) || Lang.isArray(v);},
         setter: '_setModelList'
     },
 
@@ -234,7 +233,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     noDups: {
         value: false,
-        validator: function(v){ return Lang.isBoolean(v);},
+        validator: function(v){ return (typeof v === 'boolean');},
         setter: '_setNoDups'
     },
 
@@ -265,7 +264,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     limitModels: {
         value: 0,
-        validator: function(v){ return Lang.isNumber(v);},
+        validator: function(v){ return (typeof v === 'number');},
         setter: '_setLimitModels'
     },
 
@@ -283,7 +282,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     viewFilter: {
         value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'function'); },
         setter: '_setViewFilter'
     },
 
@@ -301,7 +300,7 @@ ITSAModellistViewExtention.ATTRS = {
         value: null,
         lazyAdd: false,
         validator:  function(v) {
-            return ((v==='') || (v===null) || Lang.isBoolean(v) || (v==='single') || (v==='multi'));
+            return ((v===null) || (v==='') || (typeof v === 'boolean') || (v==='single') || (v==='multi'));
         },
         setter: '_setModelsSel'
     },
@@ -318,7 +317,7 @@ ITSAModellistViewExtention.ATTRS = {
     modelsUnselectable: {
         value: false,
         validator:  function(v) {
-            return Lang.isBoolean(v);
+            return (typeof v === 'boolean');
         }
     },
 
@@ -339,7 +338,7 @@ ITSAModellistViewExtention.ATTRS = {
         value: true,
         lazyAdd: false,
         validator:  function(v) {
-            return Lang.isBoolean(v);
+            return (typeof v === 'boolean');
         },
         setter: '_setModelListStyled'
     },
@@ -359,7 +358,7 @@ ITSAModellistViewExtention.ATTRS = {
     clickSensivity: {
         value: 2,
         validator:  function(v) {
-            return (Lang.isNumber(v) && (v>=0) && (v<11));
+            return ((typeof v === 'number') && (v>=0) && (v<11));
         }
     },
 
@@ -377,7 +376,7 @@ ITSAModellistViewExtention.ATTRS = {
     clickEvents: {
         value: false,
         lazyAdd: false,
-        validator: function(v) {return Lang.isBoolean(v);},
+        validator: function(v) {return (typeof v === 'boolean');},
         setter: '_setClkEv'
     },
 
@@ -393,7 +392,7 @@ ITSAModellistViewExtention.ATTRS = {
     dblclickEvents: {
         value: false,
         lazyAdd: false,
-        validator: function(v) {return Lang.isBoolean(v);},
+        validator: function(v) {return (typeof v === 'boolean');},
         setter: '_setDblclkEv'
     },
 
@@ -410,7 +409,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     highlightAfterModelChange: {
         value: 0,
-        validator: function(v) {return Lang.isNumber(v);},
+        validator: function(v) {return (typeof v === 'number');},
         setter: '_setMarkModelChange'
     },
 
@@ -427,7 +426,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelsIntoViewAfterAdd: {
         value: false,
-        validator: function(v) {return (Lang.isNumber(v) && (v>=0) && (v<=2));},
+        validator: function(v) {return ((typeof v === 'number') && (v>=0) && (v<=2));},
         setter: '_setIntoViewAdded'
     },
 
@@ -444,7 +443,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelsIntoViewAfterChange: {
         value: false,
-        validator: function(v) {return (Lang.isNumber(v) && (v>=0) && (v<=2));},
+        validator: function(v) {return ((typeof v === 'number') && (v>=0) && (v<=2));},
         setter: '_setIntoViewChanged'
     },
 
@@ -462,7 +461,7 @@ ITSAModellistViewExtention.ATTRS = {
     mouseDownUpEvents: {
         value: false,
         lazyAdd: false,
-        validator: function(v) {return Lang.isBoolean(v);},
+        validator: function(v){ return (typeof v === 'boolean'); },
         setter: '_setMouseDnUpEv'
     },
 
@@ -478,7 +477,7 @@ ITSAModellistViewExtention.ATTRS = {
     hoverEvents: {
         value: false,
         lazyAdd: false,
-        validator: function(v) {return Lang.isBoolean(v);},
+        validator: function(v){ return (typeof v === 'boolean'); },
         setter: '_setHoverEv'
     },
 
@@ -506,7 +505,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader1: {
         value: null,
-        validator: function(v){ return Lang.isString(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'string'); },
         setter: '_setGrpH1'
     },
 
@@ -534,7 +533,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader2: {
         value: null,
-        validator: function(v){ return Lang.isString(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'string'); },
         setter: '_setGrpH2'
     },
 
@@ -562,7 +561,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader3: {
         value: null,
-        validator: function(v){ return Lang.isString(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'string'); },
         setter: '_setGrpH3'
     },
 
@@ -589,7 +588,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     modelTemplate: {
         value: '{clientId}', // default-modelTemplate, so that there always is content. Best to be overwritten.
-        validator: function(v){ return Lang.isString(v); },
+        validator: function(v){ return (typeof v === 'string'); },
         setter: '_setModelTemplate'
     },
 
@@ -612,7 +611,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     classNameTemplate: {
         value: null,
-        validator: function(v){ return Lang.isString(v); },
+        validator: function(v){ return (typeof v === 'string'); },
         setter: '_setClassNameTempl'
     },
 
@@ -641,7 +640,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader1Template: {
         value: null,
-        validator: function(v){ return Lang.isString(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'string'); },
         setter: '_setGH1Templ'
     },
 
@@ -670,7 +669,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader2Template: {
         value: null,
-        validator: function(v){ return Lang.isString(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'string'); },
         setter: '_setGH2Templ'
     },
 
@@ -699,7 +698,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     groupHeader3Template: {
         value: null,
-        validator: function(v){ return Lang.isString(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'string'); },
         setter: '_setGH3Templ'
     },
 
@@ -719,7 +718,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     dupComparator: {
         value: null,
-        validator: function(v){ return Lang.isFunction(v) || v === null; },
+        validator: function(v){ return (v === null) || (typeof v === 'function'); },
         setter: '_setDupComp'
     },
 
@@ -734,7 +733,7 @@ ITSAModellistViewExtention.ATTRS = {
      */
     showLoadMessage: {
         value: false,
-        validator: function(v){ return Lang.isBoolean(v); }
+        validator: function(v){ return (typeof v === 'boolean'); }
     }
 
 };
@@ -1401,7 +1400,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
-     * Returns an Array with the Models that have the 'selected-status' in the ScrollView-instance set to true
+     * Returns an Array with the Models or Objects that have the 'selected-status' in the ScrollView-instance set to true
      *
      * @method getSelectedModels
      * @param {Boolean} original If set to true: the original Models will be returned (unique). If false (or undefined)<br>
@@ -1871,8 +1870,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this;
 
         Y.log('_setModelList', 'info', 'Itsa-ModellistViewExtention');
-        instance._listLazy = (val.revive);
+        if (Lang.isArray(val)) {
+            val = new Y.LazyModelList({items: val});
+        }
+        instance._listLazy = val && val.revive;
         instance._itmsAvail = val && (val.size()>0);
+        return val;
     },
 
     /**
@@ -3398,14 +3401,16 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         /**
          * Is fired when the user changes the modelselection. In case multiple Models are selected and the same Model is
          * more than once (in case of repeating Models), the Model is only once in the resultarray.
-         * Meaning: only original unique Models are returned.
+         * Meaning: only original unique Models are returned. In case of LazyModelList, the event
          *
          * @event modelSelectionChange
-         * @param {Array} newModelSelection contains [Model] with all modelList's Models that are selected:<br>
-         * -in case of repeated Models (see attribute 'modelConfig')- the subModel (dup or splitted) will be returned. This subModel
-         * <b>is not part</b> of the original ModelList.
-         * @param {Array} originalModelSelection contains [Model] with all modelList's unique original Models that are selected.
-         * These models also exists in the original ModelList.
+         * @param e {EventFacade} Event Facade including:
+         * @param e.newModelSelection {String} contains [Model|Object] with all modelList's Models (Objects in case of LazyModelList)
+         *  that are selected:<br />
+         * -in case of repeated Models (see attribute/property 'modelConfig')- the subModel (dup or splitted) will be returned. This subModel
+         * <b>is not part</b> of the original (Lazy)ModelList.
+         * @param e.originalModelSelection {Array} contains [Model|Object] with all modelList's unique original Models
+         * (Objects in case of LazyModelList) that are selected. These Models/Objects also exists in the original (Lazy)ModelList.
          * @since 0.1
         **/
         selectedModels = instance.getSelectedModels();
