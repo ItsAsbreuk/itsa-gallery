@@ -396,20 +396,14 @@ Y.namespace('Plugin').FocusManager = FocusManager;
  * ITSAScrollViewKeyNav Plugin
  *
  *
- * Plugin that enables scrollview-navigation with keys.
- *
- * In order to response to key-events, the scrollview-instance needs to have focus. This can be set either by myScrollView.focus() -or blur()-
- * or by setting the attribute 'initialFocus' to true. The plugin also works when Plugin.ScrollViewPaginator is plugged-in. The behaviour will be
- * different, because the scrolling is paginated in that case.
+ * Plugin that <b>extends gallery-sm-focusmanager</b> by navigate with TAB and Shift-TAB.
+ * The plugin needs to be done on a container-Node. By default focusing is done with nodes that have the class <b>'.focusable'</b>,
+ * but this can be overruled with the attribite 'itemSelector'.
  *
  *
- * If this plugin is plugged into a Y.ITSAScrollViewModellist-instance, then the keynavigation will scroll through the items in case
- * the attribute 'modelsSelectable' is set to true.
- *
- *
- * @module gallery-itsascrollviewkeynav
- * @class ITSAScrollViewKeyNav
- * @extends Plugin.Base
+ * @module gallery-itsatabkeymanager
+ * @class ITSATabKeyManager
+ * @extends Plugin.FocusManager
  * @constructor
  * @since 0.1
  *
@@ -419,19 +413,6 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 */
 
 // -- Public Static Properties -------------------------------------------------
-
-/**
- * Internal list that holds event-references
- * @property _eventhandlers
- * @private
- * @type Array
- */
-
-/**
- * The plugin's host, which should be a ScrollView-instance
- * @property host
- * @type ScrollView-instance
- */
 
 var YArray = Y.Array,
     DEFAULT_ITEM_SELECTOR = '.focusable',
@@ -796,6 +777,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          *
          * @method _nodeIsFocusable
          * @param node {Y.Node} the node to check if it's a focusable node within the host-container.
+         * @private
          * @return {Boolean} focusable or not
          * @since 0.1
         */
