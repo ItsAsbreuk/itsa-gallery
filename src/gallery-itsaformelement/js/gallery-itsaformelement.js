@@ -7,7 +7,7 @@
  *
  *
  * @module gallery-itsaformelement
- * @class ITSAFORMELEMENT
+ * @class ITSAFormElement
  * @extends Base
  * @constructor
  * @since 0.1
