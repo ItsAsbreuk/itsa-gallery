@@ -33,7 +33,7 @@ Usage
 
 <b>ITSAViewModel with Y.Lang.sub as template:</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsasubscribemodelbuttons', function(Y) {
 
     var viewmodel, model, modeltemplate;
     model = new Y.Model({
@@ -51,6 +51,7 @@ YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
         template: modeltemplate,
         model: model
     });
+    viewmodel.plug(Y.Plugin.ITSASubscribeModelButtons)
     viewmodel.render();
 
     viewmodel.on(
