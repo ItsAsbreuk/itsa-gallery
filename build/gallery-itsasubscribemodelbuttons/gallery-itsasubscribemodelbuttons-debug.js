@@ -10,7 +10,7 @@ YUI.add('gallery-itsasubscribemodelbuttons', function (Y, NAME) {
  *
  * The plugin makes that clicking on some elements within the Model causes the <i>Modelinstance</i> fire an event.
  *
- * Be aware that -in case of LazyModelList- the objects are revived into Modelinstances and not freed. You may want to use
+ * Be aware that -in case of LazyModelList- the objects are revived into <b>Model-instances</b> and not freed. You may want to use
  * ITSAViewModel.get('modelList').free(model) in the subscriber after handling the event.
  * This also means that -within the subscriber- e.target is always a Modelinstance.
  *
@@ -174,6 +174,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
                 Y.log('_checkAndFire fires event '+eventtype, 'info', 'Itsa-SubscribeModelButtons');
                 /**
                  * Is fired when the user clicks on a <b>button</b> or a <input[type=button]</b>.
+                 * e.target <i>always</i> is a Model-instance.
                  *
                  * @event model:buttonclick
                  * @param node {Y.Node} the button - or input[type=button] - that was clicked.
@@ -182,6 +183,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
 
                 /**
                  * Is fired when the user clicks on a anchor-element with className 'firemodel'.
+                 * e.target <i>always</i> is a Model-instance.
                  *
                  * @event model:anchorclick
                  * @param node {Y.Node} the anchor-elementnode that was clicked.
@@ -190,6 +192,7 @@ Y.namespace('Plugin').ITSASubscribeModelButtons = Y.Base.create('itsasubscribemo
 
                 /**
                  * Is fired when the user clicks on a datetime-icon (see gallery-itsadatetimepicker).
+                 * e.target <i>always</i> is a Model-instance.
                  *
                  * @event model:datetimeclick
                  * @param node {Y.Node} the node that was clicked.

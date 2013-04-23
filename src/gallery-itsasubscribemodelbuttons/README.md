@@ -42,7 +42,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsasubscribemodelbuttons',
     });
     modeltemplate = '{artist}<br />'+
                     '{country}<br />'+
-                    '<a href="moreabout'+{artist}+'.html" class=".firemodel">read more...</a>';
+                    '<a href="moreabout{artist}.html" class=".firemodel">read more...</a>';
 
     viewmodel = new Y.ITSAViewModel({
         boundingBox: "#myview",
@@ -58,7 +58,9 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsasubscribemodelbuttons',
         'model:anchorclick',
         function(e) {
             var model = e.target;
-            ... // handle here how to show 'more info' instead of loading 'moreaboutmadonna.html'
+            ...
+            // handle here how to show 'more info' instead of loading 'moreaboutmadonna.html'
+            // BE AWARE that you always have a Model-instance here and not an Object (should you use Y.ItsaViewModellist with a LazyModelList)
         }
     );
 
