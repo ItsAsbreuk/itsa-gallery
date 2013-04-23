@@ -7,12 +7,12 @@ This repo contains open source YUI components that have been contributed to the
 [Its Asbreuk](http://itsasbreuk.nl).
 
 
-Core
+### Core
 ----
 [ITSADialogBox](src/gallery-itsadialogbox)
 
 
-Infrastructure
+#### Infrastructure
 --------------
 [ITSAViewModel](src/gallery-itsaviewmodel)
 ## [ITSAViewModellist](src/gallery-itsaviewmodellist)
