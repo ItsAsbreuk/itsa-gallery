@@ -5,7 +5,7 @@ gallery-itsamodelsyncpromise
 This module comes with 2 extentions:
 
 
-<b<Extention Y.ITSAModelSyncPromise</b>
+### Extention Y.ITSAModelSyncPromise
 
 Extends Y.Model with Promised sync-methods. The synclayer can be made just as usual. But instead of calling
 Model.load and Model.save and Model.destroy, you can use:
@@ -16,7 +16,7 @@ Model.load and Model.save and Model.destroy, you can use:
 * Model.<b>destroyPromise()</b>
 
 
-<b<Extention Y.ITSAModellistSyncPromise</b>
+### Extention Y.ITSAModellistSyncPromise
 
 Extends Y.ModelList with Promised sync-methods. The synclayer can be made just as usual. But instead of calling
 ModelList.load you can use:
