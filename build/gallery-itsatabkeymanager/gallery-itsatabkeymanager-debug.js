@@ -438,16 +438,25 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 var YArray = Y.Array,
     DEFAULT_ITEM_SELECTOR = '.focusable',
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
-    FORMELEMENT_INPUT_CLASS = FORMELEMENT_CLASS + '-input',
-    FORMELEMENT_PASSWORD_CLASS = FORMELEMENT_CLASS + '-password',
-    FORMELEMENT_TEXTAREA_CLASS = FORMELEMENT_CLASS + '-textarea',
     ITSAFORMELEMENT_SELECTONFOCUS_CLASS = FORMELEMENT_CLASS + '-selectall',
     ITSAFORMELEMENT_FIRSTFOCUS_CLASS = FORMELEMENT_CLASS + '-firstfocus';
 
 
 Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.Plugin.FocusManager, [], {
 
+        /**
+         * Internal list that holds event-references
+         * @property _eventhandlers
+         * @private
+         * @type Array
+         */
         _eventhandlers : [],
+
+        /**
+         * The plugin's host, which should be a ScrollView-instance
+         * @property host
+         * @type Y.Node
+         */
         host : null,
 
         /**
@@ -660,43 +669,23 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         },
 
         /**
-         * Retreive the focus agian. Focus will be set on the 'activeItem', or -when none- on the initial Item.
-         *
-         * @method retreiveFocus
-         * @since 0.1
-        */
-        retreiveFocus : function() {
-            var instance   = this,
-                container  = instance._host,
-                activeItem = instance.get('activeItem');
-
-            if (container.focus) {
-                // adding focus-class to container
-                container.focus();
-            }
-            if (activeItem) {
-                activeItem.focus();
-                instance._selectNode(activeItem);
-            }
-            else {
-                instance.focusInitialItem();
-            }
-        },
-
-        /**
          * Sets the specified Node as the node that should retreive first focus.
          * (=first focus once the container gets focus and no element has focus yet)
          *
          * @method retreiveFocus
-         * @param node {Y.Node} the node that should gain first focus. Has to be inside the host (container) and focusable.
+         * @param node {Y.Node|String} the Node that should gain first focus. Has to be inside the host (container) and focusable.
          * @since 0.1
         */
         setFirstFocus : function(node) {
             var instance = this,
                 container = instance.get('host'),
-                nodeisfocusable = instance._nodeIsFocusable(node);
+                nodeisfocusable;
 
             Y.log('setFirstFocus', 'info', 'Itsa-TabKeyManager');
+            if (typeof node === 'string') {
+                node = Y.one(node);
+            }
+            nodeisfocusable = node && instance._nodeIsFocusable(node);
             if (nodeisfocusable) {
                 container.all('.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS).removeClass(ITSAFORMELEMENT_FIRSTFOCUS_CLASS);
                 node.addClass(ITSAFORMELEMENT_FIRSTFOCUS_CLASS);
@@ -705,11 +694,11 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
 
         /**
          * Makes the Node to be in a state that all text will be selected once the Node gets Focus. Enables or disables the state.
-         * Only applyable for input- and textarea-elements.
+         * Be aware that this has only effect on Nodes of the type: <b>'input[type=text], input[type=password], textarea'</b>.
          *
          * @method setSelectText
          * @param select {Boolean} whether the 'selectall' option is active or not
-         * @param [node] {Y.Node} the node to be set. Has to be inside the host (container) and focusable.
+         * @param [node] {Y.Node|String} the Node, Nodelist or Selector of the nodes to be set. Has to be inside the host (container) and focusable.
                   If undefined, than the new setting will be applyable to all focusable text-Nodes.
          * @since 0.1
         */
@@ -719,7 +708,10 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 nodeisfocusable, itemSelector, disabledSelector, allNodes;
 
             Y.log('setSelectText', 'info', 'Itsa-TabKeyManager');
-            if (node) {
+            if (typeof node === 'string') {
+                node = Y.all(node);
+            }
+            if (node && (node instanceof Y.Node)) {
                 // only 1 node needs to be set
                 nodeisfocusable = instance._nodeIsFocusable(node);
                 if (nodeisfocusable && node.test('input[type=text], input[type=password], textarea')) {
@@ -727,10 +719,10 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 }
             }
             else {
-                // all nodes need to be set
+                allNodes = node || container.all(itemSelector);
+                // allNodes need to be set --> this is a NodeList
                 itemSelector = instance.get('itemSelector');
                 disabledSelector = instance.get('disabledSelector');
-                allNodes = container.all(itemSelector);
                 allNodes.each(
                     function(oneNode) {
                         if (oneNode.test('input[type=text], input[type=password], textarea')
@@ -754,11 +746,12 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          * @since 0.1
         */
         _bindUI : function() {
-            var instance = this;
+            var instance = this,
+                host = instance.host;
 
             Y.log('_bindUI', 'info', 'Itsa-TabKeyManager');
             instance._eventhandlers.push(
-                instance.host.on(
+                host.on(
                     'keydown',
                     function(e) {
                         if (e.keyCode === 9) { // tab
@@ -772,6 +765,12 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                             }
                         }
                     }
+                )
+            );
+            instance._eventhandlers.push(
+                host.after(
+                    'click',
+                    Y.rbind(instance._retreiveFocus, instance)
                 )
             );
         },
@@ -803,16 +802,38 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          * @since 0.1
         */
         _nodeIsFocusable : function(node) {
-            var instance         = this,
-                container        = instance.get('host'),
-                disabledSelector = instance.get('disabledSelector'),
-                itemSelector     = instance.get('itemSelector'),
-                item             = node && container.one(node),
+            var instance            = this,
+                container           = instance.get('host'),
+                disabledSelector    = instance.get('disabledSelector'),
+                itemSelector        = instance.get('itemSelector'),
+                nodeInsideContainer = node && container.contains(node),
                 isFocusable;
 
-            isFocusable = (item && item.test(itemSelector) && (!disabledSelector || !item.test(disabledSelector)));
+            isFocusable = (nodeInsideContainer && node.test(itemSelector) && (!disabledSelector || !node.test(disabledSelector)));
             Y.log('_nodeIsFocusable: '+isFocusable, 'info', 'Itsa-TabKeyManager');
             return isFocusable;
+        },
+
+        /**
+         * Retreive the focus agian on the 'activeItem', or -when none- on the initial Item.
+         * Is called when the host-node gets focus.
+         *
+         * @method _retreiveFocus
+         * @private
+         * @since 0.1
+        */
+        _retreiveFocus : function() {
+            var instance   = this,
+                activeItem = instance.get('activeItem');
+
+            Y.log('_retreiveFocus', 'info', 'Itsa-TabKeyManager');
+            if (activeItem) {
+                activeItem.focus();
+                instance._selectNode(activeItem);
+            }
+            else {
+                instance.focusInitialItem();
+            }
         },
 
         /**
@@ -825,7 +846,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         _selectNode : function(node) {
             Y.log('_selectNode', 'info', 'Itsa-TabKeyManager');
-            if (node && node.test('.'+FORMELEMENT_INPUT_CLASS, '.'+FORMELEMENT_PASSWORD_CLASS, '.'+FORMELEMENT_TEXTAREA_CLASS)) {
+            if (node && node.test('input[type=text], input[type=password], textarea')) {
                 if (node.hasClass(ITSAFORMELEMENT_SELECTONFOCUS_CLASS)) {
                     node.select();
                 }
