@@ -10,67 +10,66 @@ This repo contains open source YUI components that have been contributed to the
 
 ## Core
 -------
-[ITSADialogBox](src/gallery-itsadialogbox)
+[ITSADialogBox](src/gallery-itsadialogbox) --under redesign--
 
 
 
 ## Infrastructure
 -----------------
-[ITSAViewModel](src/gallery-itsaviewmodel)
+[ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist) --under construction--
 
-[ITSAViewModellist](src/gallery-itsaviewmodellist)
+[ITSAViewModel](src/gallery-itsaviewmodel) --on cdn--
 
-[ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
+[ITSAViewModellist](src/gallery-itsaviewmodellist) --under construction--
 
 #### plugins
-[ITSAViewPaginator](src/gallery-itsaviewpaginator)
+[ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) --under construction--
 
-[ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
+[ITSAEditModel](src/gallery-itsaeditmodel) --under construction--
 
-[ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate)
+[ITSAInfiniteView](src/gallery-itsainfiniteview) --under construction--
 
-[ITSAScrollViewLoop](src/gallery-itsascrollviewloop)
+[ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav) --on cdn--
 
-[ITSAInfiniteView](src/gallery-itsainfiniteview)
+[ITSAScrollViewLoop](src/gallery-itsascrollviewloop) --under construction--
 
-[ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav)
+[ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons) --under construction--
 
-[ITSAEditModel](src/gallery-itsaeditmodel)
+[ITSAViewPaginator](src/gallery-itsaviewpaginator) --under construction--
 
 
 
 ## Utilities
 ------------
-[ITSADateTimePicker](src/gallery-itsadatetimepicker)
+[ITSADateTimePicker](src/gallery-itsadatetimepicker) --on cdn--
 
 #### extentions
-[ITSACalendarMarkedDates](src/gallery-itsacalendarmarkeddates)
+[ITSACalendarMarkedDates](src/gallery-itsacalendarmarkeddates) --on cdn--
 
-[ITSACalendarModellist](src/gallery-itsacalendarmodellist)
+[ITSACalendarModellist](src/gallery-itsacalendarmodellist) --on cdn--
 
-[ITSAViewDupModels](src/gallery-itsaviewdupmodels)
+[ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise) --under construction--
 
-[ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels)
+[ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels) --under construction--
 
-[ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise)
+[ITSAViewDupModels](src/gallery-itsaviewdupmodels) --under construction--
 
 #### plugins
-[ITSADTColumnResize](src/gallery-itsadtcolumnresize)
+[ITSADTColumnReorder](src/gallery-itsadtcolumnreorder) --under construction--
 
-[ITSAToolbar](src/gallery-itsatoolbar)
+[ITSADTColumnResize](src/gallery-itsadtcolumnresize) --on cdn--
 
-[ITSADTColumnReorder](src/gallery-itsadtcolumnreorder)
+[ITSAToolbar](src/gallery-itsatoolbar) --on cdn--
 
 
 
 ## Widgets
 ----------
-[ITSASelectList](src/gallery-itsaselectlist)
+[ITSAFileManager](src/gallery-itsafilemanager) --under construction--
 
-[ITSAForm](src/gallery-itsaform)
+[ITSAForm](src/gallery-itsaform) --under construction--
 
-[ITSAFileManager](src/gallery-itsafilemanager)
-
+[ITSASelectList](src/gallery-itsaselectlist) --on cdn--
 
 
 
