@@ -51,7 +51,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsasubscribemodelbuttons',
         template: modeltemplate,
         model: model
     });
-    viewmodel.plug(Y.Plugin.ITSASubscribeModelButtons)
+    viewmodel.plug(Y.Plugin.ITSASubscribeModelButtons);
     viewmodel.render();
 
     viewmodel.on(
