@@ -9,14 +9,14 @@ This repo contains open source YUI components that have been contributed to the
 
 Core
 ----
-### [ITSADialogBox](src/gallery-itsadialogbox)
+[ITSADialogBox](src/gallery-itsadialogbox)
 
 
 Infrastructure
 --------------
-### [ITSAViewModel](src/gallery-itsaviewmodel)
-### [ITSAViewModellist](src/gallery-itsaviewmodellist)
-### [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
+[ITSAViewModel](src/gallery-itsaviewmodel)
+## [ITSAViewModellist](src/gallery-itsaviewmodellist)
+# [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
 
 -- plugins --
 ### [ITSAViewPaginator](src/gallery-itsaviewpaginator)
