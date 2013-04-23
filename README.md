@@ -2,8 +2,10 @@ Itsa Asbreuk YUI Gallery Modules
 ===========================
 
 
+
 This repo contains open source YUI components that have been contributed to the
 [YUI Gallery](http://yuilibrary.com/gallery/) by [Its Asbreuk](http://itsasbreuk.nl).
+
 
 
 ## Core
@@ -11,8 +13,9 @@ This repo contains open source YUI components that have been contributed to the
 [ITSADialogBox](src/gallery-itsadialogbox)
 
 
+
 ## Infrastructure
--------------
+-----------------
 [ITSAViewModel](src/gallery-itsaviewmodel)
 
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
@@ -33,6 +36,7 @@ This repo contains open source YUI components that have been contributed to the
 [ITSAScrollViewKeyNav](src/gallery-itsascrollviewkeynav)
 
 [ITSAEditModel](src/gallery-itsaeditmodel)
+
 
 
 ## Utilities
@@ -58,6 +62,7 @@ This repo contains open source YUI components that have been contributed to the
 [ITSADTColumnReorder](src/gallery-itsadtcolumnreorder)
 
 
+
 ## Widgets
 ----------
 [ITSASelectList](src/gallery-itsaselectlist)
@@ -65,6 +70,7 @@ This repo contains open source YUI components that have been contributed to the
 [ITSAForm](src/gallery-itsaform)
 
 [ITSAFileManager](src/gallery-itsafilemanager)
+
 
 
 
