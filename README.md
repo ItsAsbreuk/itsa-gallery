@@ -9,13 +9,11 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Core
--------
 [ITSADialogBox](src/gallery-itsadialogbox) --under redesign--
 
 
 
 ## Infrastructure
------------------
 [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist) --under construction--
 
 [ITSAViewModel](src/gallery-itsaviewmodel) --on cdn--
@@ -40,7 +38,6 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Utilities
-------------
 [ITSADateTimePicker](src/gallery-itsadatetimepicker) --on cdn--
 
 #### extentions
@@ -64,7 +61,6 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Widgets
-----------
 [ITSAFileManager](src/gallery-itsafilemanager) --under construction--
 
 [ITSAForm](src/gallery-itsaform) --under construction--
