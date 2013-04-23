@@ -339,24 +339,9 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         _bindUI : function() {
             var instance = this,
                 host = instance.host,
-                boundingBox = host.get('boundingBox'),
                 eventhandlers = instance._eventhandlers;
 
             Y.log('_bindUI', 'info', 'Itsa-ChangeModelTemplate');
-            eventhandlers.push(
-                boundingBox.delegate(
-                    'click',
-                    function(e) {
-                        var modelNode = e.currentTarget,
-                            itsatabkeymanager = modelNode.itsatabkeymanager;
-                        if (itsatabkeymanager) {
-                            itsatabkeymanager.retreiveFocus();
-                            // this will automaticly focus the host=view-instance
-                        }
-                    },
-                    '.itsa-model'
-                )
-            );
             eventhandlers.push(
                 host.after(
                     'itsaeditmodel:focusnext',

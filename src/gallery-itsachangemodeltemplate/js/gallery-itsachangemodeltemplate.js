@@ -337,7 +337,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         _bindUI : function() {
             var instance = this,
                 host = instance.host,
-                boundingBox = host.get('boundingBox'),
                 eventhandlers = instance._eventhandlers;
 
             Y.log('_bindUI', 'info', 'Itsa-ChangeModelTemplate');
