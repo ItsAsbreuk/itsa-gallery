@@ -39,7 +39,7 @@ Documentation
 Usage
 -----
 
-<b>View rendered as unsorted list</b>
+<b>View events split into several days</b>
 ```html
 <div id='myview' class='itsa-modellistview-noinitialitems'></div>
 ```
@@ -53,8 +53,16 @@ myModellist.comparator = function (model) {
     return (startdate && startdate.getTime && startdate.getTime()) || 0;
 };
 myModellist.add([
-    {Happening: 'Concert', Start: new Date(2013, 1, 1), End: new Date(2013, 1, 2)},
-    {Happening: 'Another Concert', Start: new Date(2013, 1, 14), End: new Date(2013, 1, 16)},
+    {
+        Happening: 'Concert',
+        Start: new Date(2013, 1, 1),
+        End: new Date(2013, 1, 2)
+    },
+    {
+        Happening: 'Another Concert',
+        Start: new Date(2013, 1, 14),
+        End: new Date(2013, 1, 16)
+    },
     ....
 ]);
 
@@ -64,7 +72,7 @@ modelTemplate = '<%= data.Country %><br />'+
                 'Enddate: <%= Y.Date.format(data.End, {format:"%d-%m-%Y"}) %>';
 
 modelconfig = {
-    date: 'Start'
+    date: 'Start',
     enddate: 'End'
 };
 
@@ -74,7 +82,65 @@ myView = new Y.ITSAViewModellist({
     width:'240px',
     modelTemplate: rendermodel,
     groupHeader1: groupheader,
-    axis: 'y',
+    modelList: myModellist,
+    modelConfig: modelconfig,
+    splitDays: true
+});
+
+myView.render();
+
+});
+```
+
+<b>View events split into several days and repeat them using 'Repeat'</b>
+```html
+<div id='myview' class='itsa-modellistview-noinitialitems'></div>
+```
+```js
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsaviewmodellist', 'gallery-itsaviewdupmodels', 'lazy-model-list', 'datatype-date-format', function(Y) {
+var myModellist, rendermodel, groupheader, myView, modelconfig;
+
+myModellist = new Y.LazyModelList();
+myModellist.comparator = function (model) {
+    var startdate = model.Start;
+    return (startdate && startdate.getTime && startdate.getTime()) || 0;
+};
+myModellist.add([
+    {
+        Happening: 'Concert',
+        Start: new Date(2013, 1, 1),
+        End: new Date(2013, 1, 2),
+        Repeat: 4,
+        StepMonths: 1
+    },
+    {
+        Happening: 'Another Concert',
+        Start: new Date(2013, 1, 14),
+        End: new Date(2013, 1, 16),
+        Repeat: 6,
+        StepMonths: 1
+    },
+    ....
+]);
+
+groupHeader = '<%= Y.Date.format(data.Start, {format:"%d-%m-%Y"}) %>';
+modelTemplate = '<%= data.Country %><br />'+
+                'Startdate: <%= Y.Date.format(data.Start, {format:"%d-%m-%Y"}) %>'+
+                'Enddate: <%= Y.Date.format(data.End, {format:"%d-%m-%Y"}) %>';
+
+modelconfig = {
+    date: 'Start',
+    enddate: 'End',
+    count: 'Repeat',
+    intervalMonths: 'StepMonths'
+};
+
+myView = new Y.ITSAViewModellist({
+    boundingBox: "#myview",
+    height:'600px',
+    width:'240px',
+    modelTemplate: rendermodel,
+    groupHeader1: groupheader,
     modelList: myModellist,
     modelConfig: modelconfig,
     splitDays: true
