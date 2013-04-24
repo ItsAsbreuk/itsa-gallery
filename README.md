@@ -49,9 +49,9 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise)
 
-[ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels) --under construction--
+[ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels)
 
-[ITSAViewDupModels](src/gallery-itsaviewdupmodels) --under construction--
+[ITSAViewDupModels](src/gallery-itsaviewdupmodels)
 
 #### plugins
 [ITSADTColumnReorder](src/gallery-itsadtcolumnreorder) --under construction--
