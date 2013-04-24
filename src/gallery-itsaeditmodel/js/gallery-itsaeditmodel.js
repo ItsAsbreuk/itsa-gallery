@@ -991,8 +991,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             },
             /**
-             * Every property of the object/model can be defined as a property of configAttrs as well.
-             * The value should also be an object: the config of the property that is passed to the ITSAFormElement.<br />
+             * Every property of the object/model you want to edit, should be defined as a property of configAttrs.
+             * Every property-definition is an object: the config of the property that is passed to the ITSAFormElement.<br />
              * Example: <br />
              * editmodelConfigAttrs.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
              * editmodelConfigAttrs.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
@@ -1000,7 +1000,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
              *
              * @attribute editmodelConfigAttrs
              * @type {Object}
-             * @default false
+             * @default {}
              * @since 0.1
              */
             editmodelConfigAttrs: {
