@@ -26,8 +26,8 @@ _yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"
     path: "build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js",
     code: []
 };
-_yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].code=["YUI.add('gallery-itsaviewdupmodels', function (Y, NAME) {","","'use strict';","","/**"," * ITSAViewDupModels is an Extention to ITSAViewModellist"," *"," * Coorporates with gallery-itsaviewmodellist --> it will load this module when not already loaded"," *"," * Adds the posibility to duplicate items from a ModelList, when these items have an 'endDate' or Interval set."," * See the attribute <b>modelConfig</b> for more info."," *"," *"," * @module gallery-itsaviewdupmodels"," * @extends ITSADupModelViewExtention"," * @constructor"," * @since 0.1"," *"," * <i>Copyright (c) 2013 Marco Asbreuk - http://itsasbreuk.nl</i>"," * YUI BSD License - http://developer.yahoo.com/yui/license.html"," *","*/","","Y.Base.mix(Y.ITSAViewModellist, [Y.ITSADupModelViewExtention]);","","","}, '@VERSION@', {\"requires\": [\"gallery-itsadupmodelviewextention\", \"gallery-itsaviewmodellist\"]});"];
-_yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].lines = {"1":0,"3":0,"24":0};
+_yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].code=["YUI.add('gallery-itsaviewdupmodels', function (Y, NAME) {","","'use strict';","","/**"," * ITSAViewDupModels is an Extention to ITSAViewModellist"," *"," * Coorporates with gallery-itsaviewmodellist --> it will load this module when not already loaded"," *"," * Adds the posibility to duplicate items from a ModelList, when these items have an 'endDate' or Interval set."," * See the attribute <b>modelConfig</b> for more info."," *"," *"," * @module gallery-itsaviewdupmodels"," * @extends ITSAViewModellist"," * @uses ITSADupModelViewExtention"," * @class ITSAViewDupModels"," * @constructor"," * @since 0.1"," *"," * <i>Copyright (c) 2013 Marco Asbreuk - http://itsasbreuk.nl</i>"," * YUI BSD License - http://developer.yahoo.com/yui/license.html"," *","*/","","Y.Base.mix(Y.ITSAViewModellist, [Y.ITSADupModelViewExtention]);","","}, '@VERSION@', {\"requires\": [\"base-base\", \"gallery-itsadupmodelviewextention\", \"gallery-itsaviewmodellist\"]});"];
+_yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].lines = {"1":0,"3":0,"26":0};
 _yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].functions = {"(anonymous 1):1":0};
 _yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].coveredLines = 3;
 _yuitest_coverage["build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js"].coveredFunctions = 1;
@@ -48,7 +48,9 @@ _yuitest_coverline("build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js
  *
  *
  * @module gallery-itsaviewdupmodels
- * @extends ITSADupModelViewExtention
+ * @extends ITSAViewModellist
+ * @uses ITSADupModelViewExtention
+ * @class ITSAViewDupModels
  * @constructor
  * @since 0.1
  *
@@ -57,8 +59,7 @@ _yuitest_coverline("build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js
  *
 */
 
-_yuitest_coverline("build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js", 24);
+_yuitest_coverline("build/gallery-itsaviewdupmodels/gallery-itsaviewdupmodels.js", 26);
 Y.Base.mix(Y.ITSAViewModellist, [Y.ITSADupModelViewExtention]);
 
-
-}, '@VERSION@', {"requires": ["gallery-itsadupmodelviewextention", "gallery-itsaviewmodellist"]});
+}, '@VERSION@', {"requires": ["base-base", "gallery-itsadupmodelviewextention", "gallery-itsaviewmodellist"]});

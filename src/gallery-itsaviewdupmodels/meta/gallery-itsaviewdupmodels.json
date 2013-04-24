@@ -1,6 +1,7 @@
 {
     "gallery-itsaviewdupmodels": {
         "requires": [
+            "base-base",
             "gallery-itsadupmodelviewextention",
             "gallery-itsaviewmodellist"
         ]

@@ -12,7 +12,9 @@ YUI.add('gallery-itsaviewdupmodels', function (Y, NAME) {
  *
  *
  * @module gallery-itsaviewdupmodels
- * @extends ITSADupModelViewExtention
+ * @extends ITSAViewModellist
+ * @uses ITSADupModelViewExtention
+ * @class ITSAViewDupModels
  * @constructor
  * @since 0.1
  *
@@ -23,5 +25,4 @@ YUI.add('gallery-itsaviewdupmodels', function (Y, NAME) {
 
 Y.Base.mix(Y.ITSAViewModellist, [Y.ITSADupModelViewExtention]);
 
-
-}, '@VERSION@', {"requires": ["gallery-itsadupmodelviewextention", "gallery-itsaviewmodellist"]});
+}, '@VERSION@', {"requires": ["base-base", "gallery-itsadupmodelviewextention", "gallery-itsaviewmodellist"]});
