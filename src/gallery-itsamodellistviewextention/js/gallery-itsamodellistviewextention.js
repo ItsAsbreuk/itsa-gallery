@@ -1739,14 +1739,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 }
             })
         );
-        eventhandlers.push(
-            boundingBox.on(
-                'click',
-                function() {
-                    instance.focus();
-                }
-            )
-        );
         // This was a though one!!
         // When paginator is plugged in, the scrollview-instance will make instance._gesture to become not null
         // when clicking without movement. This would lead th ePaginatorPlugin to make y-movement=null within pages._afterHostGestureMoveEnd()
@@ -2232,10 +2224,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance._selModelEv = contentBox.delegate(
                 'click',
                 Y.rbind(instance._handleModelSelectionChange, instance),
-                function() {
+                function(node, e) {
                     // Only handle click-event when there was motion less than 'clickSensivity' pixels
-                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity'));
-                    return (!scrollingInAction && this.hasClass(MODEL_CLASS));
+                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
+                        buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
+                                       ',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
+                    return (!scrollingInAction && !buttonOrLink && this.hasClass(MODEL_CLASS));
                 }
             );
         }
@@ -2277,10 +2271,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                         model = modelList && modelList.getByClientId(modelClientId);
                     instance.fire('modelClick', {node: node, model: model});
                 },
-                function() {
+                function(node, e) {
                     // Only handle click-event when there was motion less than 'clickSensivity' pixels
-                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity'));
-                    return (!scrollingInAction && this.hasClass(MODEL_CLASS));
+                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
+                        buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
+                                       ',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
+                    return (!scrollingInAction && !buttonOrLink && this.hasClass(MODEL_CLASS));
                 }
             );
         }
