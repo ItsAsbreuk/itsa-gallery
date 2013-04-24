@@ -33,22 +33,26 @@ Usage
 
 <b>Usage in conjunction with ITSAViewModel</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
+YUI().use('model', 'gallery-itsaviewmodel', 'datatype-date-format', function(Y) {
 
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
         artist: 'Madonna',
-        country: 'USA'
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1)
     });
-    modeltemplate = '{artist}<br />'+
-                    '{country}';
+    modeltemplate = '<%= data.artist %><br />'+
+                    '<%= country %><br />'+
+                    'First album released: <%= Y.Date.format(data.firstRelease, {format:"%d-%m-%Y"}) %>';
     edittemplate = 'Artist: {artist}<br />'+
                    'Country: {country}<br />'+
+                   'First album released: {firstRelease}<br />'+
                    '{cancelButton} {saveButton}';
 
     editmodelConfigAttrs = {
         artist: {type: 'input'},
         country: {type: 'input'},
+        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
         cancelButton: {type: 'cancel', buttonText: 'cancel'},
         saveButton: {type: 'save', buttonText: 'save'}
     };
@@ -70,31 +74,36 @@ YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
 
 <b>Usage in conjunction with ITSAViewModellist</b>
 ```js
-YUI().use('model', 'lazy-model-list', 'gallery-itsaviewmodellist', 'gallery-itsachangemodeltemplate', function(Y) {
+YUI().use('model', 'lazy-model-list', 'gallery-itsaviewmodellist', 'gallery-itsachangemodeltemplate', 'datatype-date-format', function(Y) {
 
     var viewmodellist, onemodel, modellist, items, modeltemplate, edittemplate, editmodelConfigAttrs;
     items = [
         {
             artist: 'Madonna',
-            country: 'USA'
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1)
         },
         {
             artist: 'Marillion',
-            country: 'UK'
+            country: 'UK',
+            firstRelease: new Date(1983, 1, 1)
         }
     ];
 
     modellist = new Y.LazyModelList(items: items);
 
-    modeltemplate = '{artist}<br />'+
-                    '{country}';
+    modeltemplate = '<%= data.artist %><br />'+
+                    '<%= country %><br />'+
+                    'First album released: <%= Y.Date.format(data.firstRelease, {format:"%d-%m-%Y"}) %>';
     edittemplate = 'Artist: {artist}<br />'+
                    'Country: {country}<br />'+
+                   'First album released: {firstRelease}<br />'+
                    '{cancelButton} {saveButton}';
 
     editmodelConfigAttrs = {
         artist: {type: 'input'},
         country: {type: 'input'},
+        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
         cancelButton: {type: 'cancel', buttonText: 'cancel'},
         saveButton: {type: 'save', buttonText: 'save'}
     };
