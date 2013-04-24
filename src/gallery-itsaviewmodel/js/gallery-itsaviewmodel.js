@@ -226,6 +226,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox = instance.get('boundingBox'),
                 model = instance.get('model'),
                 eventhandlers = instance._eventhandlers,
+                itsatabkeymanager = boundingBox.itsatabkeymanager,
                 view = instance.view;
 
             Y.log('bindUI', 'info', 'Itsa-ViewModel');
@@ -280,15 +281,12 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     'model:resetclick',
                     function(e) {
                         var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
-                            container = view.get('container'),
-                            options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}'
+                            options = {fromEditModel: true}; // set Attribute with option: '{fromEditModel: true}'
                                                              // --> now the view knows it must not re-render.
-                            buttonNode;
                         model.setAttrs(instance._initialEditAttrs, options);
                         view.render();
-                        buttonNode = container.one('#'+e.elementId);
-                        if (buttonNode) {
-                            buttonNode.focus();
+                        if (itsatabkeymanager) {
+                            itsatabkeymanager.focusInitialItem();
                         }
                     }
                 )

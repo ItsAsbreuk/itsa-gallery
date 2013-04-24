@@ -108,7 +108,6 @@ var body = Y.one('body'),
     EVT_VALUE_CHANGE = 'inputvaluechange',
     /**
       * Event fired when a normal button (elementtype) is clicked.
-      * defaultFunction = calling then model's sync method with action=reset
       * @event inputbuttonclick
       * @param e {EventFacade} Event Facade including:
       * @param e.buttonNode {Y.Node} The Button-Node that was clicked
