@@ -16,7 +16,8 @@ YUI.add('gallery-itsachangemodeltemplate', function (Y, NAME) {
  * Be aware that 'secondTemplate' and 'editTemplate' are used for rendering all Models.
  *
  * To make the models editable, this plugin uses gallery-itsaeditmodel under the hood. The attribute 'configForEditModel' is passed
- * through to Y.Plugin.ITSAEditModel.
+ * through to Y.Plugin.ITSAEditModel. Should you use a LazyModelList, then the editable Object is revived into a Model. For performancereason,
+ * the revived models will not be freed: you may want to do this yourself.
  *
  * @module gallery-itsachangemodeltemplate
  * @class ITSAChangeModelTemplate
@@ -171,7 +172,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 clientId = host.getModelAttr(model, 'clientId'),
                 modellist = host.get('modelList'),
-                comparator = modellist && Y.bind(modellist.comparator, modellist),
+                comparator = modellist && modellist.comparator,
                 currentMode;
 
             currentMode = instance._getMode(model);
@@ -182,7 +183,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 if (instance._editModels[clientId]) {
                     instance._unplugITSAEditModel(model, clientId);
                 }
-                if (instance._currentModelHasChanged && comparator && (instance._prevComparator[clientId]!==comparator(model))) {
+                if (instance._currentModelHasChanged && comparator &&
+                   (instance._prevComparator[clientId]!==instance._getComparator(modellist, comparator, model))) {
                     modellist.sort();
                     //====================================================
                     //
@@ -227,7 +229,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 if (instance._editModels[clientId]) {
                     instance._unplugITSAEditModel(model, clientId);
                 }
-                if (instance._currentModelHasChanged && comparator && (instance._prevComparator[clientId]!==comparator(model))) {
+                if (instance._currentModelHasChanged && comparator &&
+                   (instance._prevComparator[clientId]!==instance._getComparator(modellist, comparator, model))) {
                     modellist.sort();
                     //====================================================
                     //
@@ -264,14 +267,26 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 clientId = host.getModelAttr(model, 'clientId'),
                 currentMode;
 
-            currentMode = instance._getMode(model);
-            if (currentMode !== 3) {
-                instance._currentModelHasChanged = false;
-                instance._prevComparator[clientId] = comparator && comparator(model);
-                instance._prevMode[clientId] = currentMode;
-                instance._editModels[clientId] = true;
-                delete instance._secondModels[clientId];
-                instance._renderEditTemplate(model);
+            if (instance.get('modelsEditable')) {
+                currentMode = instance._getMode(model);
+                if (currentMode !== 3) {
+                    instance._currentModelHasChanged = false;
+                    instance._prevComparator[clientId] = comparator && instance._getComparator(modellist, comparator, model);
+                    instance._prevMode[clientId] = currentMode;
+                    instance._editModels[clientId] = true;
+                    delete instance._secondModels[clientId];
+                    instance._renderEditTemplate(
+                        model,
+                        function() {
+                            var modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
+                            if (modelNode && modelNode.itsatabkeymanager) {
+                                modelNode.itsatabkeymanager.focusInitialItem();
+                            }
+                        }
+                    );
+                }
+                else {
+                }
             }
             else {
             }
@@ -361,17 +376,21 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     function(e) {
                         var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                             options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}'
-                                                             // --> now the view knows it must not re-render.
-                            initialEditAttrs = instance._initialEditAttrs[model.get('clientId')],
-                            buttonNode;
+                                                             // --> now the view knows it must not re-render completely.
+                                                             // however, we MUST re-render the only item.
+                            initialEditAttrs = instance._initialEditAttrs[model.get('clientId')];
                         if (initialEditAttrs) {
                             model.setAttrs(initialEditAttrs, options);
                             if (instance._getMode(model)===3) {
-                                instance.setModelToEditTemplate(model);
-                                buttonNode = Y.one('#'+e.elementId);
-                                if (buttonNode) {
-                                    buttonNode.focus();
-                                }
+                                instance._renderEditTemplate(
+                                    model,
+                                    function() {
+                                        var modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
+                                        if (modelNode && modelNode.itsatabkeymanager) {
+                                            modelNode.itsatabkeymanager.focusInitialItem();
+                                        }
+                                    }
+                                );
                             }
                             if (host.modelIsSelected(model)) {
                                 host._fireSelectedModels();
@@ -452,6 +471,33 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         },
 
         /**
+         * Gets the comparator-result of a Modelinstance. Because you might face a LazyModelList with a revived model, you need to
+         * excecute 'comparator' with the object in those cases. This Method will take care of a correct calculation of the comparator
+         * in all cases.
+         * @method _getComparator
+         * @param modellist {Y.ModelList|Y.LazyModelList} host's (lazy)modellist
+         * @param comparator {Function} host's comparator
+         * @param model {Y.Model | Object} The item from the modellist. May be a Model, or an Object - in case of LazyModelList
+         * @private
+         * @since 0.1
+        */
+        _getComparator : function(modellist, comparator, model) {
+            var instance = this,
+                host = instance.host,
+                item, usemodel;
+
+            if (host._listLazy && model.get && (typeof model.get === 'function')) {
+                // need to retreive the object instead!
+                item = modellist.indexOf(model);
+                usemodel = modellist.item(item);
+            }
+            else {
+                usemodel = model;
+            }
+            return comparator(usemodel);
+        },
+
+        /**
          * Returns the current 'Mode' of the Models rendering. Meaning: what Template is currently being used. This might be:<br />
          * 1: original template<br />
          * 2: secondTemplate<br />
@@ -517,10 +563,11 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          * @method _renderEditTemplate
          * @private
          * @param model {Y.Model | Object} The item from the modellist. May be a Model, or an Object - in case of LazyModelList
+         * @param callback {Function} callbackfunction to be executed once renerding is finished
          * @since 0.1
          *
         */
-        _renderEditTemplate: function(model) {
+        _renderEditTemplate: function(model, callback) {
             var instance = this,
                 host = instance.host,
                 modelNode, modelInstance, revivedModel, usemodel;
@@ -531,33 +578,41 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     modelNode.cleanup();
                 }
                 Y.use('gallery-itsatabkeymanager', function(Y) {
-                    modelNode.plug(Y.Plugin.ITSATabKeyManager);
-                });
-                // IMPORTANT: model could be an object in case of LazyModelList
-                // we need to revive it first
-                modelInstance = model.get && (typeof model.get === 'function');
-                if (!modelInstance && host._listLazy) {
-                    revivedModel = host.get('modelList').revive(model);
-                }
-                usemodel = revivedModel || model;
-                instance._initialEditAttrs[usemodel.get('clientId')] = usemodel.getAttrs();
-                if (!usemodel.itsaeditmodel) {
-                    Y.use('gallery-itsaeditmodel', function(Y) {
-                        usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                    if (!modelNode.itsatabkeymanager) {
+                        modelNode.plug(Y.Plugin.ITSATabKeyManager);
+                    }
+                    // IMPORTANT: model could be an object in case of LazyModelList
+                    // we need to revive it first
+                    modelInstance = model.get && (typeof model.get === 'function');
+                    if (!modelInstance && host._listLazy) {
+                        revivedModel = host.get('modelList').revive(model);
+                    }
+                    usemodel = revivedModel || model;
+                    instance._initialEditAttrs[usemodel.get('clientId')] = usemodel.getAttrs();
+                    if (!usemodel.itsaeditmodel) {
+                        Y.use('gallery-itsaeditmodel', function(Y) {
+                            usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                            if (!instance._editTempl) {
+                                instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template')
+                                                                                       || ERROR_MESSAGE_NOTEMPLATE);
+                            }
+                            modelNode.setHTML(instance._editTempl(usemodel));
+                            if (typeof callback === 'function') {
+                                callback();
+                            }
+                        });
+                    }
+                    else {
                         if (!instance._editTempl) {
                             instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template')
                                                                                    || ERROR_MESSAGE_NOTEMPLATE);
                         }
                         modelNode.setHTML(instance._editTempl(usemodel));
-                    });
-                }
-                else {
-                    if (!instance._editTempl) {
-                        instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template')
-                                                                               || ERROR_MESSAGE_NOTEMPLATE);
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
                     }
-                    modelNode.setHTML(instance._editTempl(usemodel));
-                }
+                });
             }
             else {
             }
@@ -790,15 +845,16 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             },
 
             /**
-             * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
+             * Makes the View able to render the editable-version of the Model. By setting to false, you can make a controller to
+             * disable the edit-functionality of the whole host-list.
              *
              * @attribute modelsEditable
              * @type {Boolean}
-             * @default false
+             * @default true
              * @since 0.1
              */
             modelsEditable: {
-                value: false,
+                value: true,
                 lazyAdd: false,
                 validator: function(v){
                     return Lang.isBoolean(v);
@@ -825,13 +881,14 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
     }
 );
 
+
 }, '@VERSION@', {
     "requires": [
         "yui-base",
         "node-core",
         "base-base",
         "base-build",
-        "plugin-base",
+        "plugin",
         "pluginhost-base",
         "oop",
         "template-micro"
