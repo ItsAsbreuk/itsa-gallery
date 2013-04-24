@@ -15,17 +15,23 @@ where you need to toggle some of them. There are three different states:
  3. 'editTemplate' (can be set up within this plugin: to edit the Models)
 
 
-Be aware that 'secondTemplate' and 'editTemplate' are used for rendering <i>all Models</i> that are in stae 2 or 3.
+Be aware that 'secondTemplate' and 'editTemplate' are used for rendering <i>all Models</i> that are in state 2 or 3.
 
 
 If you need the buttons with the same style on the normal template as how are styled inside the editTemplate, then use:
 ```html
 <input type="button" value="edit" class="yui3-button" />
 ```
+<b>Note:</b> If you use buttons on every model-item, it is strongly suggested to plugin [Y.Plugin.ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
+
 
 <i>To make the models editable, this plugin uses gallery-itsaeditmodel under the hood. The attribute 'configForEditModel' is passed
-through to Y.Plugin.ITSAEditModel.</i>
+through to Y.Plugin.ITSAEditModel.</i> Should you use a LazyModelList, then the editable Object is revived into a Model. For performance-reasons,
+the revived models will not be freed: you may want to do this yourself.
 
+
+<b>Caution:</b> If you do not need to change templates, then better not use this plugin. The plugin will slower rendering of all items,
+because the host needs to check what template to use for every single item.
 
 NS: <b>itsacmtemplate</b>
 
@@ -45,7 +51,7 @@ Usage
 <div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
 ```
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', 'gallery-itsasubscribemodelbuttons', function(Y) {
 var myModellist, rendermodel, secondrendermodel, myScrollview, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
@@ -81,7 +87,8 @@ changeModelTemplateConfig = {
     secondTemplate: secondrendermodel
 };
 //--------------------------------------------------------------------------------------
-scrollview.plug(Y.Plugin.ITSAChangeModelTemplate, changeModelTemplateConfig);
+myScrollview.plug(Y.Plugin.ITSAChangeModelTemplate, changeModelTemplateConfig);
+myScrollview.plug(Y.Plugin.ITSASubscribeModelButtons); // making models to fie 'model:buttonclick'
 
 myScrollview.render();
 
@@ -109,7 +116,7 @@ myScrollview.on(
 <div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
 ```
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', function(Y) {
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'lazy-model-list', 'gallery-itsasubscribemodelbuttons', function(Y) {
 var myModellist, rendermodel, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
@@ -147,7 +154,7 @@ editmodelConfigAttrs = {
     Continental: {type: 'input', selectOnFocus: true},
     Country: {type: 'textarea', initialFocus: true},
     Save: {type: 'save', buttonText: 'save'},
-    Cancel: {type: 'cancel', buttonText: 'cancel'},
+    Cancel: {type: 'button', buttonText: 'cancel'},
     Reset: {type: 'reset', buttonText: 'reset'}
 };
 
@@ -156,7 +163,6 @@ configForEditModel = {
 };
 
 changeModelTemplateConfig = {
-    modelsEditable: true,
     editTemplate: editmodeltemplate,
     editmodelConfigAttrs: editmodelConfigAttrs,
     configForEditModel: configForEditModel

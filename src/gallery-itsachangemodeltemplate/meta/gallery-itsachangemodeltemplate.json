@@ -5,7 +5,7 @@
             "node-core",
             "base-base",
             "base-build",
-            "plugin-base",
+            "plugin",
             "pluginhost-base",
             "oop",
             "template-micro"

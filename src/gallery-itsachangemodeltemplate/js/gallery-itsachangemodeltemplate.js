@@ -267,18 +267,23 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 clientId = host.getModelAttr(model, 'clientId'),
                 currentMode;
 
-            currentMode = instance._getMode(model);
-            if (currentMode !== 3) {
-                Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
-                instance._currentModelHasChanged = false;
-                instance._prevComparator[clientId] = comparator && comparator(model);
-                instance._prevMode[clientId] = currentMode;
-                instance._editModels[clientId] = true;
-                delete instance._secondModels[clientId];
-                instance._renderEditTemplate(model);
+            if (instance.get('modelsEditable')) {
+                currentMode = instance._getMode(model);
+                if (currentMode !== 3) {
+                    Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
+                    instance._currentModelHasChanged = false;
+                    instance._prevComparator[clientId] = comparator && comparator(model);
+                    instance._prevMode[clientId] = currentMode;
+                    instance._editModels[clientId] = true;
+                    delete instance._secondModels[clientId];
+                    instance._renderEditTemplate(model);
+                }
+                else {
+                    Y.log('setModelToEditTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
+                }
             }
             else {
-                Y.log('setModelToEditTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
+                Y.log('setModelToEditTemplate will not proceed: modelsEditable is set to false', 'warn', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -813,15 +818,16 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             },
 
             /**
-             * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
+             * Makes the View able to render the editable-version of the Model. By setting to false, you can make a controller to
+             * disable the edit-functionality of the whole host-list.
              *
              * @attribute modelsEditable
              * @type {Boolean}
-             * @default false
+             * @default true
              * @since 0.1
              */
             modelsEditable: {
-                value: false,
+                value: true,
                 lazyAdd: false,
                 validator: function(v){
                     return Lang.isBoolean(v);
