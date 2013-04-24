@@ -1,6 +1,7 @@
 {
     "gallery-itsascrollviewdupmodels": {
         "requires": [
+            "base-base",
             "gallery-itsadupmodelviewextention",
             "gallery-itsascrollviewmodellist"
         ]

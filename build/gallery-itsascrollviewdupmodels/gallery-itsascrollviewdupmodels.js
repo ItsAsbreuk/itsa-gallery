@@ -12,7 +12,9 @@ YUI.add('gallery-itsascrollviewdupmodels', function (Y, NAME) {
  *
  *
  * @module gallery-itsascrollviewdupmodels
- * @extends ITSADupModelViewExtention
+ * @extends ITSAScrollViewModellist
+ * @uses ITSADupModelViewExtention
+ * @class ITSAScrollViewDupModels
  * @constructor
  * @since 0.1
  *
@@ -23,4 +25,4 @@ YUI.add('gallery-itsascrollviewdupmodels', function (Y, NAME) {
 
 Y.Base.mix(Y.ITSAScrollViewModellist, [Y.ITSADupModelViewExtention]);
 
-}, '@VERSION@', {"requires": ["gallery-itsadupmodelviewextention", "gallery-itsascrollviewmodellist"]});
+}, '@VERSION@', {"requires": ["base-base", "gallery-itsadupmodelviewextention", "gallery-itsascrollviewmodellist"]});

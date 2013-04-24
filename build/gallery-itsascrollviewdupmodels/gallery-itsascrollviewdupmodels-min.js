@@ -1,1 +1,1 @@
-YUI.add("gallery-itsascrollviewdupmodels",function(e,t){"use strict";e.Base.mix(e.ITSAScrollViewModellist,[e.ITSADupModelViewExtention])},"@VERSION@",{requires:["gallery-itsadupmodelviewextention","gallery-itsascrollviewmodellist"]});
+YUI.add("gallery-itsascrollviewdupmodels",function(e,t){"use strict";e.Base.mix(e.ITSAScrollViewModellist,[e.ITSADupModelViewExtention])},"@VERSION@",{requires:["base-base","gallery-itsadupmodelviewextention","gallery-itsascrollviewmodellist"]});
