@@ -7,7 +7,7 @@ gallery-itsasubscribemodelbuttons
 Plugin for ITSAViewModelList, ITSAScrollViewModelList and ITSAViewModel
 
 
-The plugin makes that clicking on some elements within the Model causes the <i>Modelinstance</i> fire an event.
+The plugin makes that clicking on some elements within the Model causes the Model-instancefire an event.
 
 
 Be aware that -in case of LazyModelList- the objects are revived into Modelinstances and not freed. You may want to use
