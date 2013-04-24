@@ -150,34 +150,46 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
         _initialEditAttrs : null,
 
+
+
         /**
          * @method initializer
          * @protected
         */
         initializer : function() {
+            Y.log('initializer', 'info', 'Itsa-ViewModel');
+        },
+
+       /**
+         * Overruled renderer-method, to make sure rendering is done after asynchronious initialisation.
+         *
+         * @method renderer
+         * @protected
+        */
+        renderer : function() {
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
                 model = instance.get('model'),
                 modelEditable = instance.get('modelEditable'),
                 itsaeditmodel = (modelEditable && model.itsaeditmodel);
 
-            Y.log('initializer', 'info', 'Itsa-ViewModel');
+            Y.log('renderer', 'info', 'Itsa-ViewModel');
             if (itsaeditmodel && !boundingBox.itsatabkeymanager) {
                 Y.use('gallery-itsatabkeymanager', function(Y) {
                     boundingBox.plug(Y.Plugin.ITSATabKeyManager);
-                    instance.initializeFurther(boundingBox, model, itsaeditmodel);
+                    instance.renderFurther(boundingBox, model, itsaeditmodel);
                 });
             }
             else {
-                instance.initializeFurther(boundingBox, model, itsaeditmodel);
+                instance.renderFurther(boundingBox, model, itsaeditmodel);
             }
         },
 
         /**
-         * @method initializer
+         * @method renderFurther
          * @protected
         */
-        initializeFurther : function(boundingBox, model, itsaeditmodel) {
+        renderFurther : function(boundingBox, model, itsaeditmodel) {
             var instance = this,
                 contentBox = instance.get('contentBox'),
                 events = instance.get('events'),
@@ -185,7 +197,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 styled = instance.get('styled'),
                 view;
 
-            Y.log('initializer', 'info', 'Itsa-ViewModel');
+            Y.log('renderFurther', 'info', 'Itsa-ViewModel');
             if (styled) {
                 boundingBox.addClass(MODELVIEW_STYLED).addClass(MODELVIEW_STYLED_FORM);
             }
@@ -200,6 +212,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (model && model.addTarget) {
                 model.addTarget(view);
             }
+            instance.constructor.superclass.renderer.apply(instance);
          },
 
         /**

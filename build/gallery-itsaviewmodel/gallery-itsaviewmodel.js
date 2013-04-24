@@ -150,11 +150,22 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
         _initialEditAttrs : null,
 
+
+
         /**
          * @method initializer
          * @protected
         */
         initializer : function() {
+        },
+
+       /**
+         * Overruled renderer-method, to make sure rendering is done after asynchronious initialisation.
+         *
+         * @method renderer
+         * @protected
+        */
+        renderer : function() {
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
                 model = instance.get('model'),
@@ -164,19 +175,19 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (itsaeditmodel && !boundingBox.itsatabkeymanager) {
                 Y.use('gallery-itsatabkeymanager', function(Y) {
                     boundingBox.plug(Y.Plugin.ITSATabKeyManager);
-                    instance.initializeFurther(boundingBox, model, itsaeditmodel);
+                    instance.renderFurther(boundingBox, model, itsaeditmodel);
                 });
             }
             else {
-                instance.initializeFurther(boundingBox, model, itsaeditmodel);
+                instance.renderFurther(boundingBox, model, itsaeditmodel);
             }
         },
 
         /**
-         * @method initializer
+         * @method renderFurther
          * @protected
         */
-        initializeFurther : function(boundingBox, model, itsaeditmodel) {
+        renderFurther : function(boundingBox, model, itsaeditmodel) {
             var instance = this,
                 contentBox = instance.get('contentBox'),
                 events = instance.get('events'),
@@ -198,6 +209,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (model && model.addTarget) {
                 model.addTarget(view);
             }
+            instance.constructor.superclass.renderer.apply(instance);
          },
 
         /**
