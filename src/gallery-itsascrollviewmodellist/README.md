@@ -131,8 +131,8 @@ myModellist.add([
     ....
 ]);
 
-rendermodel = '<\td>{Continental} %><\\td>';
-groupheader = '<\td><%= data.Country.substr(0,1).toUpperCase() %><\\td>';
+rendermodel = '<td>{Continental} %></td>';
+groupheader = '<td><%= data.Country.substr(0,1).toUpperCase() %></td>';
 
 myScrollview = new Y.ITSAScrollViewModellist({
     boundingBox: "#myscrollview",
