@@ -207,6 +207,8 @@ ITSAModellistViewExtention.ATTRS = {
 
    /**
     * The (Lazy)ModelList that is 'attached' to the instance. If you attach an Array, then it will be rebuild into a LazyModelList.
+    * CAUTION: when attaching an Array, be sure it is ordered in the right way, because you don't have a ModelList.comparator.
+    * Without a right order, 'headers' can appear in an unexpected way.
     *
     * @attribute modelList
     * @type {ModelList|LazyModelList|Array}
