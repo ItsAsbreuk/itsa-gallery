@@ -301,7 +301,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         /**
          * Renderes a button to a formelement. You must specify 'config', so the renderer knows at least its type.
          *
-         * @method getFormelement
+         * @method getButton
          * @param buttonText {String} Text on the button.
          * @param config {String} config that is passed through to ItsaFormElement
          * @param config.type {String} Property-type --> see ItsaFormElement for the attribute 'type' for further information.
@@ -342,7 +342,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * Renderes the property (Model's attribute) into a formelement. You must specify 'config', so the renderer knows at least its type.
          * Only call this method for existing attributes. If you need buttons, you can use 'getButton'.
          *
-         * @method getFormelement
+         * @method getElement
          * @param propertyName {String} the property (or attribute in case of Model) which should be rendered to a formelement
          * @param config {String} config that is passed through to ItsaFormElement
          * @param config.type {String} Property-type --> see ItsaFormElement for the attribute 'type' for further information.
@@ -359,13 +359,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @return {String} property (or attributes), rendered as a form-element. The rendered String should be added to the DOM yourself.
          * @since 0.1
          */
-        getFormelement : function(propertyName, config, predefValue) {
+        getElement : function(propertyName, config, predefValue) {
             var instance = this,
                 value = predefValue || instance.host.get(propertyName),
                 useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: propertyName, value: value}),
                 renderedFormElement, nodeId;
 
-            Y.log('getFormelement', 'info', 'Itsa-EditModel');
+            Y.log('getElement', 'info', 'Itsa-EditModel');
             if (propertyName && config) {
                 instance._configAttrs[propertyName] = useConfig;
                 if (!instance._elementIds[propertyName]) {
@@ -610,7 +610,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                                     // the view does not re-render. We change the fieldvalue ourselves
                                     // first ask for ITSAFormElement how the render will look like
                                     // then axtract the value from within
-                                    newRenderedElement = instance.getFormelement(propertyName, propertyconfig, propertyconfig.value);
+                                    newRenderedElement = instance.getElement(propertyName, propertyconfig, propertyconfig.value);
                                     valuespan.setHTML(instance._getDateTimeValueFromRender(newRenderedElement));
                                     button.focus();
                                 },
