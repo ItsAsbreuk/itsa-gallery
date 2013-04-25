@@ -745,380 +745,6 @@ ITSAModellistViewExtention.ATTRS = {
 Y.mix(ITSAModellistViewExtention.prototype, {
 
     //-------------------------------------------------------------------------------------
-    //---- Private properties -------------------------------------------------------------
-    //-------------------------------------------------------------------------------------
-
-    /**
-     * Internal list that holds event-references
-     * @property _handlers
-     * @private
-     * @default []
-     * @type Array
-    */
-    _handlers : [],
-
-    /**
-     * Internal reference to the original models, which is only used when DupModels are avaialble.
-     * It makes it posible to return the original models on a modelClick-event.
-     * @property _origModels
-     * @private
-     * @default []
-     * @type Array
-    */
-    _origModels : [],
-
-    /**
-     * Internal eventhandle, defined when the attribute 'selectedModels' is used.
-     * @property _selModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _selModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'clickEvents' is used.
-     * @property _clkModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _clkModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'dblclickEvents' is used.
-     * @property _dblclkModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _dblclkModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'hoverEvents' is used.
-     * @property _mouseentModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _mouseentModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'mouseDownUpEvents' is used.
-     * @property _mouseUpModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _mouseUpModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'mouseDownUpEvents' is used.
-     * @property _mouseDnModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _mouseDnModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'hoverEvents' is used.
-     * @property _mouseleaveModelEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _mouseleaveModelEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'highlightAfterModelChange' is used.
-     * @property _markModelChangeEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _markModelChangeEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'highlightAfterModelChange' is used.
-     * @property _markModelAddEv
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _markModelAddEv : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'modelsIntoViewAfterChange' is used.
-     * @property _modelInViewChanged
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _modelInViewChanged : null,
-
-    /**
-     * Internal eventhandle, defined when the attribute 'modelsIntoViewAfterAdd' is used.
-     * @property _modelInViewAdded
-     * @private
-     * @default null
-     * @type Y.EventHandle
-    */
-    _modelInViewAdded : null,
-
-    /**
-     * Internal object with references to all selected Models.
-     * @property _selectedModels
-     * @private
-     * @default {}
-     * @type Object
-    */
-    _selectedModels : {},
-
-    /**
-     * Internal reference to the viewNode
-     * @property _viewNode
-     * @private
-     * @default null
-     * @type Y.Node
-    */
-    _viewNode : null,
-
-    /**
-     * The id of _viewNode
-     * @property _viewId
-     * @private
-     * @default null
-     * @type String
-    */
-    _viewId : null,
-
-    /**
-     * Internal reference to the current viewpage. Only used when ITSAViewPaginator is pluged-in.
-     * @property _currentViewPg
-     * @private
-     * @default 0
-     * @type Int
-    */
-    _currentViewPg : 0,
-
-    /**
-     * Internal Object with all template-functions. See the Method '_getAllTemplateFuncs' to find out what the Object consists of.
-     * @property _templFns
-     * @private
-     * @default null
-     * @type Object
-    */
-    _templFns : null,
-
-    /**
-     * Internal reference to the last Model that was clicked.
-     * @property _lastClkModel
-     * @private
-     * @default null
-     * @type Y.Model
-    */
-    _lastClkModel : null,
-
-    /**
-     * An abbarant (copy) (Lazy)ModelList that will be used (filled) with Models that can be duplicated in case of DupModelExtention.
-     * @property _abModelList
-     * @private
-     * @default null
-     * @type Y.ModelList | Y.LazyModelList
-    */
-    _abModelList : null,
-
-    /**
-     * Internal flag to tell whether the attribute 'viewFilter' is initiated.
-     * @property _viewFilterInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _viewFilterInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'groupHeader1' is initiated.
-     * @property _grpH1Init
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _grpH1Init : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'groupHeader2' is initiated.
-     * @property _grpH2Init
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _grpH2Init : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'groupHeader3' is initiated.
-     * @property _grpH3Init
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _grpH3Init : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'groupHeader1Template' is initiated.
-     * @property _gH1TemplateInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _gH1TemplateInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'groupHeader2Template' is initiated.
-     * @property _gH2TemplateInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _gH2TemplateInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'groupHeader3Template' is initiated.
-     * @property _gH3TemplateInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _gH3TemplateInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'modelTemplate' is initiated.
-     * @property _modelTemplateInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _modelTemplateInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'classNameTemplate' is initiated.
-     * @property _renderClassInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _renderClassInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'dupComparator' is initiated.
-     * @property _dupCompInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _dupCompInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'noDups' is initiated.
-     * @property _noDupsInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _noDupsInit : false,
-
-    /**
-     * Internal flag to tell whether the attribute 'limitModels' is initiated.
-     * @property _limModelsInit
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _limModelsInit : false,
-
-    /**
-     * Internal flag to tell whether attributes can cause the view to re-render. See 'setWithoutRerender' for more information.
-     * @property _rerendAttrChg
-     * @private
-     * @default true
-     * @type Boolean
-    */
-    _rerendAttrChg : true,
-
-    /**
-     * Internal flag that tells whether more Items are available. Only when ITSAInfiniteView is pluged-in.
-     * @property _itmsAvail
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _itmsAvail : false, // must initially be set true
-
-    /**
-     * Internal refrence to the index of the last rendered Model in the View.
-     * @property _prevLastModelIndex
-     * @private
-     * @default -1
-     * @type Int
-    */
-    _prevLastModelIndex : -1,
-
-    /**
-     * Internal flag that tells is the used ModelList is a LazyModelList.
-     * @property _listLazy
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _listLazy : false,
-
-    /**
-     * The content of the last rendered Header1
-     * @property _prevH1
-     * @private
-     * @default null
-     * @type String|null
-    */
-    _prevH1 : null,
-
-    /**
-     * The content of the last rendered Header2
-     * @property _prevH2
-     * @private
-     * @default null
-     * @type String|null
-    */
-    _prevH2 : null,
-
-    /**
-     * The content of the last rendered Header3
-     * @property _prevH3
-     * @private
-     * @default null
-     * @type String|null
-    */
-    _prevH3 : null,
-
-    /**
-     * Whether the last rendered item was even or odd. Needed to draw the right class in the next item.
-     * @property _even
-     * @private
-     * @default false
-     * @type Boolean
-    */
-    _even : false,
-
-    /**
-     * Internal flag that tells wheter a Template.Micro is being used.
-     * @property _microTemplateUsed
-     * @private
-     * @default null
-     * @type Boolean
-    */
-    _microTemplateUsed : null,
-
-    //-------------------------------------------------------------------------------------
     //---- Public methods -----------------------------------------------------------------
     //-------------------------------------------------------------------------------------
 
@@ -1133,7 +759,380 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this;
 
         Y.log('initializer', 'info', 'Itsa-ModellistViewExtention');
+        //-------------------------------------------------------------------------------------
+        //---- Private properties -------------------------------------------------------------
+        //-------------------------------------------------------------------------------------
+
+        /**
+         * Internal list that holds event-references
+         * @property _handlers
+         * @private
+         * @default []
+         * @type Array
+        */
+        instance._handlers = [];
+
+        /**
+         * Internal reference to the original models, which is only used when DupModels are avaialble.
+         * It makes it posible to return the original models on a modelClick-event.
+         * @property _origModels
+         * @private
+         * @default []
+         * @type Array
+        */
+        instance._origModels = [];
+
+        /**
+         * Internal eventhandle, defined when the attribute 'selectedModels' is used.
+         * @property _selModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._selModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'clickEvents' is used.
+         * @property _clkModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._clkModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'dblclickEvents' is used.
+         * @property _dblclkModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._dblclkModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'hoverEvents' is used.
+         * @property _mouseentModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._mouseentModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'mouseDownUpEvents' is used.
+         * @property _mouseUpModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._mouseUpModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'mouseDownUpEvents' is used.
+         * @property _mouseDnModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._mouseDnModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'hoverEvents' is used.
+         * @property _mouseleaveModelEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._mouseleaveModelEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'highlightAfterModelChange' is used.
+         * @property _markModelChangeEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._markModelChangeEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'highlightAfterModelChange' is used.
+         * @property _markModelAddEv
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._markModelAddEv = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'modelsIntoViewAfterChange' is used.
+         * @property _modelInViewChanged
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._modelInViewChanged = null;
+
+        /**
+         * Internal eventhandle, defined when the attribute 'modelsIntoViewAfterAdd' is used.
+         * @property _modelInViewAdded
+         * @private
+         * @default null
+         * @type Y.EventHandle
+        */
+        instance._modelInViewAdded = null;
+
+        /**
+         * Internal object with references to all selected Models.
+         * @property _selectedModels
+         * @private
+         * @default {}
+         * @type Object
+        */
+        instance._selectedModels = {};
+
+        /**
+         * Internal reference to the viewNode
+         * @property _viewNode
+         * @private
+         * @default null
+         * @type Y.Node
+        */
+        instance._viewNode = null;
+
+        /**
+         * The id of _viewNode
+         * @property _viewId
+         * @private
+         * @default Y.guid()
+         * @type String
+        */
         instance._viewId = Y.guid();
+
+        /**
+         * Internal reference to the current viewpage. Only used when ITSAViewPaginator is pluged-in.
+         * @property _currentViewPg
+         * @private
+         * @default 0
+         * @type Int
+        */
+        instance._currentViewPg = 0;
+
+        /**
+         * Internal Object with all template-functions. See the Method '_getAllTemplateFuncs' to find out what the Object consists of.
+         * @property _templFns
+         * @private
+         * @default null
+         * @type Object
+        */
+        instance._templFns = null;
+
+        /**
+         * Internal reference to the last Model that was clicked.
+         * @property _lastClkModel
+         * @private
+         * @default null
+         * @type Y.Model
+        */
+        instance._lastClkModel = null;
+
+        /**
+         * An abbarant (copy) (Lazy)ModelList that will be used (filled) with Models that can be duplicated in case of DupModelExtention.
+         * @property _abModelList
+         * @private
+         * @default null
+         * @type Y.ModelList | Y.LazyModelList
+        */
+        instance._abModelList = null;
+
+        /**
+         * Internal flag to tell whether the attribute 'viewFilter' is initiated.
+         * @property _viewFilterInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._viewFilterInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'groupHeader1' is initiated.
+         * @property _grpH1Init
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._grpH1Init = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'groupHeader2' is initiated.
+         * @property _grpH2Init
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._grpH2Init = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'groupHeader3' is initiated.
+         * @property _grpH3Init
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._grpH3Init = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'groupHeader1Template' is initiated.
+         * @property _gH1TemplateInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._gH1TemplateInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'groupHeader2Template' is initiated.
+         * @property _gH2TemplateInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._gH2TemplateInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'groupHeader3Template' is initiated.
+         * @property _gH3TemplateInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._gH3TemplateInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'modelTemplate' is initiated.
+         * @property _modelTemplateInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._modelTemplateInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'classNameTemplate' is initiated.
+         * @property _renderClassInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._renderClassInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'dupComparator' is initiated.
+         * @property _dupCompInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._dupCompInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'noDups' is initiated.
+         * @property _noDupsInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._noDupsInit = false;
+
+        /**
+         * Internal flag to tell whether the attribute 'limitModels' is initiated.
+         * @property _limModelsInit
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._limModelsInit = false;
+
+        /**
+         * Internal flag to tell whether attributes can cause the view to re-render. See 'setWithoutRerender' for more information.
+         * @property _rerendAttrChg
+         * @private
+         * @default true
+         * @type Boolean
+        */
+        instance._rerendAttrChg = true;
+
+        /**
+         * Internal flag that tells whether more Items are available. Only when ITSAInfiniteView is pluged-in.
+         * @property _itmsAvail
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._itmsAvail = false; // must initially be set true
+
+        /**
+         * Internal refrence to the index of the last rendered Model in the View.
+         * @property _prevLastModelIndex
+         * @private
+         * @default -1
+         * @type Int
+        */
+        instance._prevLastModelIndex = -1;
+
+        /**
+         * Internal flag that tells is the used ModelList is a LazyModelList.
+         * @property _listLazy
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._listLazy = false;
+
+        /**
+         * The content of the last rendered Header1
+         * @property _prevH1
+         * @private
+         * @default null
+         * @type String|null
+        */
+        instance._prevH1 = null;
+
+        /**
+         * The content of the last rendered Header2
+         * @property _prevH2
+         * @private
+         * @default null
+         * @type String|null
+        */
+        instance._prevH2 = null,
+
+        /**
+         * The content of the last rendered Header3
+         * @property _prevH3
+         * @private
+         * @default null
+         * @type String|null
+        */
+        instance._prevH3 = null;
+
+        /**
+         * Whether the last rendered item was even or odd. Needed to draw the right class in the next item.
+         * @property _even
+         * @private
+         * @default false
+         * @type Boolean
+        */
+        instance._even = false;
+
+        /**
+         * Internal flag that tells wheter a Template.Micro is being used.
+         * @property _microTemplateUsed
+         * @private
+         * @default null
+         * @type Boolean
+        */
+        instance._microTemplateUsed = null;
+
         instance._handlers.push(
             instance.after(
                 'render',
