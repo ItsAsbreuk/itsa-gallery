@@ -41,111 +41,6 @@ var Lang = Y.Lang,
 
 Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodeltemplate', Y.Plugin.Base, [], {
 
-        host : null,
-
-        /**
-         * Internal reference to the compiled alternate template.
-         * @property _secondTempl
-         * @private
-         * @default null
-         * @type Function
-        */
-        _secondTempl : null,
-
-        /**
-         * Internal flag to state whether the alternate template is of the type Y.Template.Micro
-         * @property _secondTemplIsMicro
-         * @private
-         * @default null
-         * @type Boolean
-        */
-        _secondTemplIsMicro : null,
-
-
-        /**
-         * Internal reference to the compiled edit template.
-         * @property _editTempl
-         * @private
-         * @default null
-         * @type Function
-        */
-        _editTempl : null,
-
-        /**
-         * Internal flag to state is the edittemplate is a microtemplate
-         * @property _editTemplIsMicro
-         * @private
-         * @default null
-         * @type Boolean
-        */
-        _editTemplIsMicro : null,
-
-        /**
-         * Internal backuplist of the Models attributes, used when the editdata needs to be reset.
-         * @property _initialEditAttrs
-         * @private
-         * @default {}
-         * @type Object
-        */
-        _initialEditAttrs : {},
-
-        /**
-         * Internal backuplist to keep track of which models live in the state of the secondTemplate
-         * @property _secondModels
-         * @private
-         * @default {}
-         * @type Object
-        */
-        _secondModels : {},
-
-        /**
-         * Internal backuplist to keep track of which models live in the state of the editTemplate
-         * @property _editModels
-         * @private
-         * @default {}
-         * @type Object
-        */
-        _editModels : {},
-
-        /**
-         * Internal backuplist to keep track of the previous Mode of the Models, to enable restore the template to previous state.
-         * @property _prevMode
-         * @private
-         * @default {}
-         * @type Object
-        */
-        _prevMode : {},
-
-        /**
-         * Internal list of all eventhandlers bound by this widget.
-         * @property _eventhandlers
-         * @private
-         * @default []
-         * @type Array
-        */
-        _eventhandlers : [],
-
-        /**
-         * Internal flag that tells whether -in editMode- the user has changed the content of a Model. This way the module knows it
-         * doesn't need to do a thorough re-render of the list.
-         * @property _currentModelHasChanged
-         * @private
-         * @default false
-         * @type Boolean
-        */
-        _currentModelHasChanged : false,
-
-        /**
-         * Internal backuplist of the Models previous 'comparator-result', used determine if the comparators-value has changed after
-         * the models has been edited.  This way the module knows it doesn't need to do a thorough re-render of the list.
-         * @property _prevComparator
-         * @private
-         * @default {}
-         * @type Object
-        */
-        _prevComparator : {},
-
-
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
          *
@@ -154,11 +49,120 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          * @since 0.1
          */
         initializer : function() {
-            var instance = this,
-                host;
+            var instance = this;
 
             Y.log('initializer', 'info', 'Itsa-ChangeModelTemplate');
-            instance.host = host = instance.get('host');
+
+            /**
+             * Reference to the plugins host.
+             * @property host
+             * @default plugins host
+             * @type Object
+            */
+            instance.host = instance.get('host');
+
+            /**
+             * Internal reference to the compiled alternate template.
+             * @property _secondTempl
+             * @private
+             * @default null
+             * @type Function
+            */
+            instance._secondTempl = null;
+
+            /**
+             * Internal flag to state whether the alternate template is of the type Y.Template.Micro
+             * @property _secondTemplIsMicro
+             * @private
+             * @default null
+             * @type Boolean
+            */
+            instance._secondTemplIsMicro = null;
+
+
+            /**
+             * Internal reference to the compiled edit template.
+             * @property _editTempl
+             * @private
+             * @default null
+             * @type Function
+            */
+            instance._editTempl = null;
+
+            /**
+             * Internal flag to state is the edittemplate is a microtemplate
+             * @property _editTemplIsMicro
+             * @private
+             * @default null
+             * @type Boolean
+            */
+            instance._editTemplIsMicro = null;
+
+            /**
+             * Internal backuplist of the Models attributes, used when the editdata needs to be reset.
+             * @property _initialEditAttrs
+             * @private
+             * @default {}
+             * @type Object
+            */
+            instance._initialEditAttrs = {};
+
+            /**
+             * Internal backuplist to keep track of which models live in the state of the secondTemplate
+             * @property _secondModels
+             * @private
+             * @default {}
+             * @type Object
+            */
+            instance._secondModels = {};
+
+            /**
+             * Internal backuplist to keep track of which models live in the state of the editTemplate
+             * @property _editModels
+             * @private
+             * @default {}
+             * @type Object
+            */
+            instance._editModels = {};
+
+            /**
+             * Internal backuplist to keep track of the previous Mode of the Models, to enable restore the template to previous state.
+             * @property _prevMode
+             * @private
+             * @default {}
+             * @type Object
+            */
+            instance._prevMode = {};
+
+            /**
+             * Internal list of all eventhandlers bound by this widget.
+             * @property _eventhandlers
+             * @private
+             * @default []
+             * @type Array
+            */
+            instance._eventhandlers = [];
+
+            /**
+             * Internal flag-list that tells whether -in editMode- the user has changed the content of each Model. This way the module knows it
+             * doesn't need to do a thorough re-render of the list.
+             * @property _currentModelHasChanged
+             * @private
+             * @default false
+             * @type Object
+            */
+            instance._currentModelHasChanged = {};
+
+            /**
+             * Internal backuplist of the Models previous 'comparator-result', used determine if the comparators-value has changed after
+             * the models has been edited.  This way the module knows it doesn't need to do a thorough re-render of the list.
+             * @property _prevComparator
+             * @private
+             * @default {}
+             * @type Object
+            */
+            instance._prevComparator = {};
+
             instance._bindUI();
         },
 
@@ -182,10 +186,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 instance._prevMode[clientId] = instance._getMode(model);
                 delete instance._secondModels[clientId];
                 delete instance._initialEditAttrs[clientId];
-                if (instance._editModels[clientId]) {
-                    instance._unplugITSAEditModel(model, clientId);
-                }
-                if (instance._currentModelHasChanged && comparator &&
+                delete instance._editModels[clientId];
+                if (instance._currentModelHasChanged[clientId] && comparator &&
                    (instance._prevComparator[clientId]!==instance._getComparator(modellist, comparator, model))) {
                     modellist.sort();
                     //====================================================
@@ -203,7 +205,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     instance._renderOriginalTemplate(model);
                 }
                 delete instance._prevComparator[clientId];
-                instance._currentModelHasChanged = false;
+                delete instance._currentModelHasChanged[clientId];
             }
             else {
                 Y.log('setModelToOriginalTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
@@ -230,10 +232,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 delete instance._initialEditAttrs[clientId];
                 instance._prevMode[clientId] = instance._getMode(model);
                 instance._secondModels[clientId] = true;
-                if (instance._editModels[clientId]) {
-                    instance._unplugITSAEditModel(model, clientId);
-                }
-                if (instance._currentModelHasChanged && comparator &&
+                delete instance._editModels[clientId];
+                if (instance._currentModelHasChanged[clientId] && comparator &&
                    (instance._prevComparator[clientId]!==instance._getComparator(modellist, comparator, model))) {
                     modellist.sort();
                     //====================================================
@@ -251,10 +251,10 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     instance._renderSecondTemplate(model);
                 }
                 delete instance._prevComparator[clientId];
-                instance._currentModelHasChanged = false;
+                delete instance._currentModelHasChanged[clientId];
             }
             else {
-                Y.log('setModelToSecondTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
+                Y.log('setModelToSecondTemplate will not proceed: already second template', 'info', 'Itsa-ChangeModelTemplate');
             }
         },
 
@@ -271,12 +271,11 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 comparator = modellist && Y.bind(modellist.comparator, modellist),
                 clientId = host.getModelAttr(model, 'clientId'),
                 currentMode;
-
             if (instance.get('modelsEditable')) {
                 currentMode = instance._getMode(model);
                 if (currentMode !== 3) {
                     Y.log('setModelToEditTemplate', 'info', 'Itsa-ChangeModelTemplate');
-                    instance._currentModelHasChanged = false;
+                    delete instance._currentModelHasChanged[clientId];
                     instance._prevComparator[clientId] = comparator && instance._getComparator(modellist, comparator, model);
                     instance._prevMode[clientId] = currentMode;
                     instance._editModels[clientId] = true;
@@ -292,7 +291,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     );
                 }
                 else {
-                    Y.log('setModelToEditTemplate will not proceed: already original template', 'info', 'Itsa-ChangeModelTemplate');
+                    Y.log('setModelToEditTemplate will not proceed: already edit-template', 'info', 'Itsa-ChangeModelTemplate');
                 }
             }
             else {
@@ -339,6 +338,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             instance._editModels = {};
             instance._prevMode = {};
             instance._prevComparator = {};
+            instance._currentModelHasChanged = {};
         },
 
         //===============================================================================================
@@ -443,9 +443,10 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     'model:change',
                     function(e) {
                         var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
-                            modelNode;
+                            modelNode, clientId;
                         if (instance._getMode(model)===3) {
-                            instance._currentModelHasChanged = true;
+                            clientId = host.getModelAttr(model, 'clientId');
+                            instance._currentModelHasChanged[clientId] = true;
                             modelNode = host.getNodeFromModel(model, 0);
                             modelNode.all('.'+ITSAFORMELEMENT_CHANGED_CLASS).removeClass(ITSAFORMELEMENT_CHANGED_CLASS);
 
@@ -499,18 +500,20 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         _getComparator : function(modellist, comparator, model) {
             var instance = this,
                 host = instance.host,
-                item, usemodel;
+                objectFromList;
 
             Y.log('_getComparator', 'info', 'Itsa-ChangeModelTemplate');
-            if (host._listLazy && model.get && (typeof model.get === 'function')) {
-                // need to retreive the object instead!
-                item = modellist.indexOf(model);
-                usemodel = modellist.item(item);
+            if (model) {
+                if (host._listLazy && model.get && (typeof model.get === 'function')) {
+                    // caution: the revived models might be freed while 'model' is the previous revived model!
+                    // indexOf doesn't work then. We need to search by clientId.
+                    objectFromList = modellist.getByClientId(model.get('clientId'));
+                }
+                return comparator(objectFromList || model);
             }
             else {
-                usemodel = model;
+                return 0;
             }
-            return comparator(usemodel);
         },
 
         /**
@@ -531,13 +534,13 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 clientId = instance.host.getModelAttr(model, 'clientId'),
                 mode = 1;
 
-            Y.log('_getMode', 'info', 'Itsa-ChangeModelTemplate');
             if (instance._secondModels[clientId]) {
                 mode = 2;
             }
             if (modelsEditable && instance._editModels[clientId]) {
                 mode = 3;
             }
+            Y.log('_getMode --> '+mode, 'info', 'Itsa-ChangeModelTemplate');
             return mode;
         },
 
@@ -718,28 +721,32 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 if (editTemplateIsMicro) {
                     compiledModelEngine = Y.TemplateMicro.compile(template);
                     instance._editTempl = function(model) {
-                        var modelInstance = model.get && (model.get === 'function');
+                        var modelInstance = model.get && (model.get === 'function'),
+                            usemodel, revivedmodel;
                         if (!modelInstance && host._listLazy) {
-                            model = host.get('modelList').revive(model);
-                            if (!model.itsaeditmodel) {
-                                model.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                            revivedmodel = host.get('modelList').revive(model);
+                            if (!revivedmodel.itsaeditmodel) {
+                                revivedmodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
                             }
                         }
-                        return compiledModelEngine(model.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs')
-                               || model.itsaeditmodel.get('editmodelConfigAttrs')));
+                        usemodel = revivedmodel || model;
+                        return compiledModelEngine(usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs')
+                               || usemodel.itsaeditmodel.get('editmodelConfigAttrs')));
                     };
                 }
                 else {
                     instance._editTempl = function(model) {
-                        var modelInstance = model.get && (model.get === 'function');
+                        var modelInstance = model.get && (model.get === 'function'),
+                            usemodel, revivedmodel;
                         if (!modelInstance && host._listLazy) {
-                            model = host.get('modelList').revive(model);
-                            if (!modelInstance && host._listLazy) {
-                                model.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                            revivedmodel = host.get('modelList').revive(model);
+                            if (!revivedmodel.itsaeditmodel) {
+                                revivedmodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
                             }
                         }
-                        return Lang.sub(template, model.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs')
-                               || model.itsaeditmodel.get('editmodelConfigAttrs')));
+                        usemodel = revivedmodel || model;
+                        return Lang.sub(template, usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs')
+                               || usemodel.itsaeditmodel.get('editmodelConfigAttrs')));
                     };
                 }
             }
@@ -776,39 +783,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                         return Lang.sub(val, host.getModelToJSON(model));
                     };
                 }
-            }
-        },
-
-        /**
-         * Unplugs both Y.Plugin.ITSAEditModel as well as Y.Plugin.ITSATabKeyManager from the model.
-         *
-         * @method _unplugITSAEditModel
-         * @param template {String} The new secondTemplate to be used. Must be of type Y.Lang.sub() or Y.Template.Micro()
-         * @param model {Y.Model || Object} The model (or revived model) from the modellist/lazymodellist.
-         * @param cliendId {Int} Model's clientId
-         * @private
-         * @since 0.1
-         *
-        */
-        _unplugITSAEditModel : function(model, clientId) {
-            var instance = this,
-                host = instance.host,
-                modelInstance, modelNode;
-
-            Y.log('_unplugITSAEditModel', 'info', 'Itsa-ChangeModelTemplate');
-            // IMPORTANT: model could be an object in case of LazyModelList
-            // we need to revive it first
-            modelInstance = model.get && (typeof model.get === 'function');
-            if (!modelInstance && host._listLazy) {
-                model = host.get('modelList').revive(model);
-            }
-            if (model.unplug) {
-                model.unplug('itsaeditmodel');
-            }
-            delete instance._editModels[clientId];
-            modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
-            if (modelNode) {
-                modelNode.unplug('itsatabkeymanager');
             }
         }
 
@@ -907,7 +881,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         }
     }
 );
-
 
 }, '@VERSION@', {
     "requires": [
