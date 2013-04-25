@@ -66,6 +66,7 @@ var body = Y.one('body'),
         Y.log('_clearEventhandlers', 'info', 'Itsa-EditModel');
         return regexp.test(className) ? RegExp.$1 : null;
     },
+    EVT_INTERNAL = 'internal',
     // next four events are declared within the initialiser:
     EVT_SUBMIT_CLICK = 'submitclick',
     EVT_SAVE_CLICK = 'saveclick',
@@ -110,7 +111,6 @@ var body = Y.one('body'),
     EVT_VALUE_CHANGE = 'inputvaluechange',
     /**
       * Event fired when a normal button (elementtype) is clicked.
-      * defaultFunction = calling then model's sync method with action=reset
       * @event inputbuttonclick
       * @param e {EventFacade} Event Facade including:
       * @param e.buttonNode {Y.Node} The Button-Node that was clicked
@@ -128,79 +128,6 @@ var body = Y.one('body'),
 
 Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Base, [], {
 
-       // -- Public Static Properties -------------------------------------------------
-
-       /**
-        * The plugin's host, which should be a Model-instance (or descendent)
-        * @property host
-        * @default null
-        * @type ScrollView-instance
-        */
-        host : null,
-
-       /**
-        * Internal list that holds event-references
-        * @property _eventhandlers
-        * @default []
-        * @private
-        * @type Array
-        */
-        _eventhandlers : [],
-
-       /**
-        * An instance of Y.ITSAFormElement that is used to generate the form-html of the elements.
-        * @property _itsaformelement
-        * @default null
-        * @private
-        * @type Y.ITSAFormElement-instance
-        */
-        _itsaformelement : null,
-
-       /**
-        * internal backup of all property-configs
-        * @property _configAttrs
-        * @default {}
-        * @private
-        * @type Object
-        */
-        _configAttrs : {},
-
-       /**
-        * internal backup of all rendered node-id's
-        * @property _elementIds
-        * @default {}
-        * @private
-        * @type Object
-        */
-        _elementIds : {},
-
-       /**
-        * internal flag that tells whether automaicly saving needs to happen in case properties have changed
-        * @property _needAutoSaved
-        * @default false
-        * @private
-        * @type Boolean
-        */
-        _needAutoSaved : false,
-
-       /**
-        * Internal reference to Y.later timerobject for autosaving
-        * @property _autoSaveTimer
-        * @default null
-        * @private
-        * @type timer-Object
-        */
-        _autoSaveTimer : null,
-
-       /**
-        * Internal reference to Y.later timerobject that is used to fire a 'pluggedin'-event once 'itsaeditmodel' is available on the host.
-        * @property _fireEventTimer
-        * @default null
-        * @private
-        * @type timer-Object
-        */
-        _fireEventTimer : null,
-
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
          *
@@ -213,10 +140,80 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 host;
 
             Y.log('initializer', 'info', 'Itsa-EditModel');
-            host = instance.host = instance.get('host');
-            if (instance.get('template') === null) {
-                Y.log('You should add a template-attribute to Y.plugin.ITSAEditModel, or Views will render empty!', 'warn', 'Itsa-EditModel');
-            }
+           // -- Public Properties -------------------------------------------------
+
+           /**
+            * The plugin's host, which should be a Model-instance (or descendent)
+            * @property host
+            * @default host-instance
+            * @type Y.Model
+            */
+            instance.host = instance.get('host');
+
+           /**
+            * Internal list that holds event-references
+            * @property _eventhandlers
+            * @default []
+            * @private
+            * @type Array
+            */
+            instance._eventhandlers = [];
+
+           /**
+            * An instance of Y.ITSAFormElement that is used to generate the form-html of the elements.
+            * @property _itsaformelement
+            * @default null
+            * @private
+            * @type Y.ITSAFormElement-instance
+            */
+            instance._itsaformelement = null;
+
+           /**
+            * internal backup of all property-configs
+            * @property _configAttrs
+            * @default {}
+            * @private
+            * @type Object
+            */
+            instance._configAttrs = {};
+
+           /**
+            * internal backup of all rendered node-id's
+            * @property _elementIds
+            * @default {}
+            * @private
+            * @type Object
+            */
+            instance._elementIds = {};
+
+           /**
+            * internal flag that tells whether automaicly saving needs to happen in case properties have changed
+            * @property _needAutoSaved
+            * @default false
+            * @private
+            * @type Boolean
+            */
+            instance._needAutoSaved = false;
+
+           /**
+            * Internal reference to Y.later timerobject for autosaving
+            * @property _autoSaveTimer
+            * @default null
+            * @private
+            * @type timer-Object
+            */
+            instance._autoSaveTimer = null;
+
+           /**
+            * Internal reference to Y.later timerobject that is used to fire a 'pluggedin'-event once 'itsaeditmodel' is available on the host.
+            * @property _fireEventTimer
+            * @default null
+            * @private
+            * @type timer-Object
+            */
+            instance._fireEventTimer = null;
+
+            host = instance.host;
             instance._itsaformelement = new Y.ITSAFormElement();
             /**
               * Event fired the submitbutton is clicked.
@@ -317,8 +314,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 value = buttonText,
                 name = buttonText.replace(/ /g,'_'),
-                type = config.type,
                 useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: name, value: value}),
+                type = useConfig.type,
                 renderedFormElement, nodeId;
 
             Y.log('getButton', 'info', 'Itsa-EditModel');
@@ -480,19 +477,22 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         toJSON : function(configAttrs) {
             var instance = this,
                 host = instance.host,
-                allproperties, useConfig, nodeId;
+                allproperties, useConfig, nodeId, mergedConfigAttrs;
 
             Y.log('toJSON', 'info', 'Itsa-EditModel');
             if (configAttrs) {
+                // we NEED to use clone() and NOT merge()
+                // In case of more simultanious instances, they must not have the same source or they would interfere
+                mergedConfigAttrs = Y.clone(configAttrs);
                 allproperties = Y.merge(host.getAttrs());
                 // now modify all the property-values into formelements
                 YObject.each(
                     allproperties,
                     function(value, key, object) {
-                        useConfig = Y.merge(DEFAULTCONFIG, (configAttrs && configAttrs[key]) || {}, {name: key, value: value});
-                        if (configAttrs[key]) {
-                            configAttrs[key].name = key;
-                            configAttrs[key].value = value;
+                        useConfig = Y.merge(DEFAULTCONFIG, (mergedConfigAttrs && mergedConfigAttrs[key]) || {}, {name: key, value: value});
+                        if (mergedConfigAttrs[key]) {
+                            mergedConfigAttrs[key].name = key;
+                            mergedConfigAttrs[key].value = value;
                             if (!instance._elementIds[key]) {
                                 instance._elementIds[key] = Y.guid();
                             }
@@ -506,13 +506,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 );
                 // Next, we need to look for buttons tht are not part of the attributes
                 YObject.each(
-                    configAttrs,
+                    mergedConfigAttrs,
                     function(config, key) {
                         var type = config.type;
                         if ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') || (type==='destroy')) {
                             useConfig = Y.merge(DEFAULTCONFIG, config, {name: key, value: config.buttonText || UNDEFINED_VALUE});
-                            key.name = key;
-                            key.value = config.buttonText;
                             if (!instance._elementIds[key]) {
                                 instance._elementIds[key] = Y.guid();
                             }
@@ -521,11 +519,12 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                         }
                     }
                 );
+                instance._configAttrs = mergedConfigAttrs;
             }
             else {
                 allproperties = '';
+                instance._configAttrs = {};
             }
-            instance._configAttrs = configAttrs;
             return allproperties;
         },
 
@@ -629,9 +628,10 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             );
             eventhandlers.push(
                 Y.on(
-                    [EVT_RESET_CLICK, EVT_SUBMIT_CLICK, EVT_SAVE_CLICK, EVT_BUTTON_CLICK, EVT_DESTROY_CLICK],
+                    [EVT_INTERNAL+EVT_RESET_CLICK, EVT_INTERNAL+EVT_SUBMIT_CLICK, EVT_INTERNAL+EVT_SAVE_CLICK, EVT_INTERNAL+EVT_BUTTON_CLICK,
+                                                                                                              EVT_INTERNAL+EVT_DESTROY_CLICK],
                     function(e) {
-                        if (e.elementId===instance._elementIds[e.property]) {
+                        if ((e.elementId===instance._elementIds[e.property])) {
                             // stop the original event to prevent double events
                             e.halt();
                             // make the host fire the event
@@ -792,11 +792,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
-         * Returns the value of a property (or in case of Model, the attribute). Regardless which type the host is.
+         * Lets the host-model fire an model:eventName event
          *
          * @method _fireModelEvent
-         * @param propertyName {String} Propertyname or -in case or Model- attribute-name.
-         * @return {Any} Attribute value, or `undefined` if the attribute doesn't exist, or 'null' if no model is passed.
+         * @param eventName {String} event to be fired (model:eventName)
+         * @param eventPayLoad {eventTarget} payload
          * @private
          * @since 0.1
          *
@@ -805,7 +805,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var host = this.host;
 
             Y.log('_fireModelEvent', 'info', 'Itsa-EditModel');
-            eventPayload.model = host;
+            eventPayload.target = host;
             host.fire(eventName, eventPayload);
         },
 
@@ -1096,6 +1096,10 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
     }
 );
 
+//===================================================================
+// adding plug and unplug features to Y.Model:
+Y.augment(Y.Model, Y.Plugin.Host);
+
 // now we need to set global eventhandlers, but only once.
 // unfortunatly they need to keep in memory, even when unplugged.
 // however: they only get there once, so no memoryleaks
@@ -1175,36 +1179,36 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
           e.property = GET_PROPERTY_FROM_CLASS(button.getAttribute('class'));
           if (classNames.indexOf(SUBMIT_BUTTON_CLASS) !== -1) {
               e.type = EVT_SUBMIT_CLICK;
-              Y.fire(EVT_SUBMIT_CLICK, e);
+              Y.fire(EVT_INTERNAL+EVT_SUBMIT_CLICK, e);
           }
           else if (classNames.indexOf(BUTTON_BUTTON_CLASS) !== -1) {
               e.type = EVT_BUTTON_CLICK;
-              Y.fire(EVT_BUTTON_CLICK, e);
+              Y.fire(EVT_INTERNAL+EVT_BUTTON_CLICK, e);
           }
           else if (classNames.indexOf(RESET_BUTTON_CLASS) !== -1) {
               e.type = EVT_RESET_CLICK;
-              Y.fire(EVT_RESET_CLICK, e);
+              Y.fire(EVT_INTERNAL+EVT_RESET_CLICK, e);
           }
           else if (classNames.indexOf(SAVE_BUTTON_CLASS) !== -1) {
               e.type = EVT_SAVE_CLICK;
-              Y.fire(EVT_SAVE_CLICK, e);
+              Y.fire(EVT_INTERNAL+EVT_SAVE_CLICK, e);
           }
           else if (classNames.indexOf(DESTROY_BUTTON_CLASS) !== -1) {
               e.type = EVT_DESTROY_CLICK;
-              Y.fire(EVT_DESTROY_CLICK, e);
+              Y.fire(EVT_INTERNAL+EVT_DESTROY_CLICK, e);
           }
       },
       '.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS
   );
-
 
 }, '@VERSION@', {
     "requires": [
         "yui-base",
         "base-build",
         "node-base",
-        "node-delegate",
+        "node-event-delegate",
         "plugin",
+        "pluginhost-base",
         "lazy-model-list",
         "event-valuechange",
         "gallery-itsamodelsyncpromise",
