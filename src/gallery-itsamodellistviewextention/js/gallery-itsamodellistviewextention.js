@@ -2902,7 +2902,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             lastItemOnTop = (setterAttrs && setterAttrs.lastItemOnTop) || instance.get('lastItemOnTop'),
             infiniteView = instance.itsainfiniteview,
             currentPaginatorIndex, maxPaginatorIndex, findNodeByClientId, previousViewModels, newViewModels,
-            modelConfig, modelNode, renderedModel, prevRenderedModel, renderListLength, listIsLimited, newViewNode, pageSwitch,
+            modelConfig, splitDays, modelNode, renderedModel, prevRenderedModel, renderListLength, listIsLimited, newViewNode, pageSwitch,
             i, j, model, modelListItems, batchSize, items, modelListItemsLength, table, noDataTemplate;
 
         Y.log('_renderView', 'info', 'Itsa-ModellistViewExtention');
@@ -2925,7 +2925,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             }
             instance._set('srcNode', contentBox);
         }
-        // if it finds out there is a 'modelconfig'-attribute, then we need to make extra steps:
+        // if it finds out there is a 'modelconfig'-attribute, or 'splitDays' is true, then we need to make extra steps:
         // we do not render the standard 'modelList', but we create a second modellist that might have more models: these
         // will be the models that are repeated due to a count-value or an enddate when duplicateWhenDurationCrossesMultipleDays is true.
         modelListItems = modelList._items.concat();
@@ -2952,7 +2952,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         }
         if (instance._generateAbberantModelList) {
             modelConfig = (setterAttrs && setterAttrs.modelConfig) || instance.get('modelConfig');
-            if (modelConfig && modelConfig.date && (modelConfig.enddate || modelConfig.count)) {
+            splitDays = (setterAttrs && setterAttrs.splitDays) || instance.get('splitDays');
+            if (modelConfig && modelConfig.date && ((splitDays && modelConfig.enddate) || modelConfig.count)) {
                 instance._generateAbberantModelList(infiniteView, options.rebuild);
                 modelList = instance._abModelList;
                 // reset next 2 items
