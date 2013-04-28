@@ -63,7 +63,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'datatype-date-format', function(Y) 
         boundingBox: "#myview",
         width:'280px',
         height:'284px',
-        template: modeltemplate,
+        template: modeltemplate,  // <-- is NOT the active template, because edittemplate is used. But you can turn back to this one.
         modelEditable: true,
         model: model
     });
@@ -112,14 +112,14 @@ YUI().use('model', 'lazy-model-list', 'gallery-itsaviewmodellist', 'gallery-itsa
         boundingBox: "#myview",
         width:'280px',
         height:'600px',
-        modelTemplate: modeltemplate,
+        modelTemplate: modeltemplate, // <-- all models have this template as default
         modelList: modellist
     });
     viewmodellist.plug(Y.Plugin.ITSAChangeModelTemplate, {modelsEditable: true, editmodelConfig: editmodelconfig});
     viewmodellist.render();
 
     onemodel = modellist.item(0); // no need to revive, ITSAChangeModelTemplate does this onder the hood
-    scrollview.itsacmtemplate.setModelToEditTemplate(model);
+    scrollview.itsacmtemplate.setModelToEditTemplate(onemodel); // <-- render the first model with edittemplate
 
 });
 ```
