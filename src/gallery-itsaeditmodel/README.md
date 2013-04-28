@@ -8,9 +8,9 @@ You can also retreive a copy of the model's (or object's) attributes with: <b>yo
 
 You may not need to call the plugin's methods yourself, but want to use one of the next 3 view-widgets who do this automaticly:
 
-* [ITSAViewModel](src/gallery-itsaviewmodel) --> you need to plug this plugin into to viewed model
-* [ITSAViewModelList](src/gallery-itsaviewmodellist) --> you need [Y.Plugin.ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) to activate editmode
-* [ITSAScrollViewModelList](src/gallery-itsascrollviewmodellist) --> you need [Y.Plugin.ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate) to activate editmode
+* [ITSAViewModel](../gallery-itsaviewmodel) --> you need to plug this plugin into to viewed model
+* [ITSAViewModelList](../gallery-itsaviewmodellist) --> you need [Y.Plugin.ITSAChangeModelTemplate](../gallery-itsachangemodeltemplate) to activate editmode
+* [ITSAScrollViewModelList](../gallery-itsascrollviewmodellist) --> you need [Y.Plugin.ITSAChangeModelTemplate](../gallery-itsachangemodeltemplate) to activate editmode
 
 
 The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, submit, save, cancel, destroy</i>. In order to do so, you must declare 2 attributes:
