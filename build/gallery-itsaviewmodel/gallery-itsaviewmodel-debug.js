@@ -219,7 +219,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox.addClass(MODELVIEW_STYLED).addClass(MODELVIEW_STYLED_FORM);
             }
             view = instance.view = new Y.View({
-                container: instance._getViewContainer(),
+                container: instance.get('contentBox'),
                 model: model
             });
             view.events = events;
@@ -255,6 +255,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
             Y.log('_widgetRenderer', 'info', 'Itsa-ViewModel');
             instance.constructor.superclass.renderer.apply(instance);
+            instance.view.render();
         },
 
         /**
@@ -458,16 +459,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         getModelToJSON : function(model) {
             Y.log('getModelToJSON', 'info', 'Itsa-ViewModel');
             return (model.get && (Lang.type(model.get) === 'function')) ? model.toJSON() : model;
-        },
-
-        /**
-         * Updates the widget-content by calling view.render();
-         *
-         * @method syncUI
-         * @protected
-         */
-        syncUI: function() {
-            this.view.render();
         },
 
         /**
