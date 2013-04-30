@@ -283,8 +283,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 )
             );
             eventhandlers.push(
-                view.after(
-                    'model:templateChange',
+                instance.after(
+                    'templateChange',
                     function(e) {
                         var newTemplate = e.newVal,
                             modelEditable = instance.get('modelEditable');
