@@ -34,6 +34,21 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     Y.WidgetPositionConstrain,
     Y.WidgetStack
 ], {
+
+    /**
+     * Calls the original Y.Widget.renderer
+     *
+     * @method _widgetRenderer
+     * @private
+     * @protected
+    */
+    _widgetRenderer : function() {
+        var instance = this;
+
+        Y.log('_widgetRenderer', 'info', 'Itsa-ViewModel');
+        instance.constructor.superclass.constructor.superclass.renderer.apply(instance);
+    },
+
     // -- Public Properties ----------------------------------------------------
 
     /**

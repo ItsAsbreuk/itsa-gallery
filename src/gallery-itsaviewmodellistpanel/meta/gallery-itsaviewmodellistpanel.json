@@ -1,6 +1,8 @@
 {
     "gallery-itsaviewmodellistpanel": {
         "requires": [
+            "base-build",
+            "classnamemanager",
             "gallery-itsaviewmodellist",
             "widget-autohide",
             "widget-buttons",

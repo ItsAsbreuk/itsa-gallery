@@ -1,6 +1,8 @@
 {
     "gallery-itsascrollviewmodellistpanel": {
         "requires": [
+            "base-build",
+            "classnamemanager",
             "gallery-itsascrollviewmodellist",
             "widget-autohide",
             "widget-buttons",

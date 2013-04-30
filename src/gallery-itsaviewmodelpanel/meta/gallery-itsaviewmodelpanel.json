@@ -1,6 +1,8 @@
 {
     "gallery-itsaviewmodelpanel": {
         "requires": [
+            "base-build",
+            "classnamemanager",
             "gallery-itsaviewmodel",
             "widget-autohide",
             "widget-buttons",
