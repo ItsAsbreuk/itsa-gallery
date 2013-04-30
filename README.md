@@ -16,15 +16,15 @@ This repo contains open source YUI components that have been contributed to the
 ## Infrastructure
 [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
 
-[ITSAScrollViewModellistPanel](src/gallery-itsascrollviewmodellistpanel)
+[ITSAScrollViewModellistPanel](src/gallery-itsascrollviewmodellistpanel) --under construction--
 
 [ITSAViewModel](src/gallery-itsaviewmodel) --on cdn--
 
-[ITSAViewModelPanel](src/gallery-itsaviewmodelpanel)
+[ITSAViewModelPanel](src/gallery-itsaviewmodelpanel) --under construction--
 
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
 
-[ITSAViewModellistPanel](src/gallery-itsaviewmodellistpanel)
+[ITSAViewModellistPanel](src/gallery-itsaviewmodellistpanel) --under construction--
 
 #### plugins
 [ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate)
