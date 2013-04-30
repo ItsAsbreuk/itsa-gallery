@@ -113,42 +113,6 @@ Y.Base.mix(Y.Node, [ITSANodeCleanup]);
 
 Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
-        /**
-         * Internally generated Y.View-instance that has its 'container' bound to the 'contentBox'
-         * @property view
-         * @type Y.View
-        */
-        view : null,
-
-        /**
-         * Internal flag that tells wheter a Template.Micro is being used.
-         * @property _isMicroTemplate
-         * @private
-         * @default null
-         * @type Boolean
-        */
-        _isMicroTemplate : null,
-
-        /**
-         * Internal Function that is generated to automaticly make use of the template.
-         * The function has the structure of: _modelRenderer = function(model) {return {String}};
-         * @property _modelRenderer
-         * @private
-         * @default function(model) {return ''};
-         * @type Function
-        */
-        _modelRenderer : null,
-
-        /**
-         * Internal list of all eventhandlers bound by this widget.
-         * @property _eventhandlers
-         * @private
-         * @default []
-         * @type Array
-        */
-        _eventhandlers : [],
-
-        _initialEditAttrs : null,
 
 
 
@@ -157,7 +121,53 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          * @protected
         */
         initializer : function() {
+            var instance = this;
             Y.log('initializer', 'info', 'Itsa-ViewModel');
+            /**
+             * Internally generated Y.View-instance that has its 'container' bound to the 'contentBox'
+             * @property view
+             * @type Y.View
+            */
+            instance.view = null;
+
+            /**
+             * Internal flag that tells wheter a Template.Micro is being used.
+             * @property _isMicroTemplate
+             * @private
+             * @default null
+             * @type Boolean
+            */
+            instance._isMicroTemplate = null;
+
+            /**
+             * Internal Function that is generated to automaticly make use of the template.
+             * The function has the structure of: _modelRenderer = function(model) {return {String}};
+             * @property _modelRenderer
+             * @private
+             * @default function(model) {return ''};
+             * @type Function
+            */
+            instance._modelRenderer = null;
+
+            /**
+             * Internal list of all eventhandlers bound by this widget.
+             * @property _eventhandlers
+             * @private
+             * @default []
+             * @type Array
+            */
+            instance._eventhandlers = [];
+
+            /**
+             * Backup of the original state of the attribute-values. Needed to make reset posible in case
+             * Y.Plugin.ITSAEditModel is plugged in
+             *
+             * @property _initialEditAttrs
+             * @private
+             * @default null
+             * @type Object
+            */
+            instance._initialEditAttrs = null;
         },
 
        /**
@@ -177,19 +187,25 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (itsaeditmodel && !boundingBox.itsatabkeymanager) {
                 Y.use('gallery-itsatabkeymanager', function(Y) {
                     boundingBox.plug(Y.Plugin.ITSATabKeyManager);
-                    instance.renderFurther(boundingBox, model, itsaeditmodel);
+                    instance._renderFurther(boundingBox, model, itsaeditmodel);
                 });
             }
             else {
-                instance.renderFurther(boundingBox, model, itsaeditmodel);
+                instance._renderFurther(boundingBox, model, itsaeditmodel);
             }
         },
 
         /**
+         * More renderer, but we are always sure itsatabkeymanager is loaded (when needed)
+         *
          * @method renderFurther
+         * @param boundingBox {Y.Node}
+         * @param model {Y.Model}
+         * @param itsaeditmodel {Y.Plugin.ITSAEditModel}
+         * @private
          * @protected
         */
-        renderFurther : function(boundingBox, model, itsaeditmodel) {
+        _renderFurther : function(boundingBox, model, itsaeditmodel) {
             var instance = this,
                 contentBox = instance.get('contentBox'),
                 events = instance.get('events'),
@@ -212,8 +228,22 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (model && model.addTarget) {
                 model.addTarget(view);
             }
+            instance._widgetRenderer();
+        },
+
+        /**
+         * Calls the original Y.Widget.renderer
+         *
+         * @method _widgetRenderer
+         * @private
+         * @protected
+        */
+        _widgetRenderer : function() {
+            var instance = this;
+
+            Y.log('_widgetRenderer', 'info', 'Itsa-ViewModel');
             instance.constructor.superclass.renderer.apply(instance);
-         },
+        },
 
         /**
          * Sets up DOM and CustomEvent listeners for the widget.
