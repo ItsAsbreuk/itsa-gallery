@@ -207,7 +207,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         */
         _renderFurther : function(boundingBox, model, itsaeditmodel) {
             var instance = this,
-                contentBox = instance.get('contentBox'),
                 events = instance.get('events'),
                 template = itsaeditmodel ? model.itsaeditmodel.get('template') : instance.get('template'),
                 styled = instance.get('styled'),
@@ -218,7 +217,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox.addClass(MODELVIEW_STYLED).addClass(MODELVIEW_STYLED_FORM);
             }
             view = instance.view = new Y.View({
-                container: contentBox,
+                container: instance._getViewContainer(),
                 model: model
             });
             view.events = events;
@@ -229,6 +228,17 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 model.addTarget(view);
             }
             instance._widgetRenderer();
+        },
+
+        /**
+         * returns the view-container, which equals this.get('contentBox')
+         *
+         * @method _getViewContainer
+         * @private
+        */
+        _getViewContainer : function() {
+            Y.log('_getViewContainer', 'info', 'Itsa-ViewModel');
+            return this.get('contentBox');
         },
 
         /**
