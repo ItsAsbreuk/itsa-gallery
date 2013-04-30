@@ -46,6 +46,7 @@
     margin-left: 0px;
 }
 
+.itsa-modellistview-styled.yui3-form .itsa-model-selected button:focus,
 .itsa-modellistview-styled.yui3-form .itsa-model-selected input:focus,
 .itsa-modellistview-styled.yui3-form .itsa-model-selected select:focus,
 .itsa-modellistview-styled.yui3-form .itsa-model-selected textarea.yui3-itsaformelement:focus,

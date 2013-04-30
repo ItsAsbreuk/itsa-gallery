@@ -52,7 +52,7 @@ var Lang  = Y.Lang,
     ELEMENT_PASSWORD = '<input id="{id}" type="password" name="{name}" value="{value}"{classname} />',
     ELEMENT_HIDDEN = '<input id="{id}" type="hidden" name="{name}" value="{value}"{classname} />',
 
-    ELEMENT_BUTTON = '<input id="{id}" type="{type}" name="{name}" value="{value}"{classname} />',
+    ELEMENT_BUTTON = '<button id="{id}" type="{type}" name="{name}"{classname}>{value}</button>',
 
     ELEMENT_VALIDATION = '<div class="'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS+' '+ITSAFORMELEMENT_HIDDEN_CLASS+'">{validation}</div>',
 
