@@ -38,7 +38,7 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_LOADING_COMBO_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_RADIOGROUP_CLASS = 'yui3-enabled widget-loading',
 */
-    ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inputbutton'),
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'button'),
     ITSAFORMELEMENT_INLINEBUTTON_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inlinebutton'),
     YUI3BUTTON_CLASS = 'yui3-button',
     ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',

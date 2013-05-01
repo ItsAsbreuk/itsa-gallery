@@ -35,7 +35,7 @@ var body = Y.one('body'),
     ITSAFORMELEMENT_TIME_CLASS = 'itsa-datetimepicker-icontime',
     ITSAFORMELEMENT_DATETIME_CLASS = 'itsa-datetimepicker-icondatetime',
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
-    ITSAFORMELEMENT_BUTTONTYPE_CLASS = FORMELEMENT_CLASS + '-inputbutton',
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = FORMELEMENT_CLASS + '-button',
     ITSAFORMELEMENT_LIFECHANGE_CLASS = FORMELEMENT_CLASS + '-lifechange',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
     ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = FORMELEMENT_CLASS + '-enternextfield',
@@ -111,13 +111,13 @@ var body = Y.one('body'),
     EVT_VALUE_CHANGE = 'inputvaluechange',
     /**
       * Event fired when a normal button (elementtype) is clicked.
-      * @event inputbuttonclick
+      * @event buttonclick
       * @param e {EventFacade} Event Facade including:
       * @param e.buttonNode {Y.Node} The Button-Node that was clicked
       * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
       * @param [e.model] {Y.Model} This modelinstance.
     **/
-    EVT_BUTTON_CLICK = 'inputbuttonclick',
+    EVT_BUTTON_CLICK = 'buttonclick',
    /**
      * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
      * because the latter will be fired before the namespace Model.itsaeditmodel exists.
@@ -222,7 +222,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
               * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-              * @param [e.model] {Y.Model} This modelinstance.
             **/
             host.publish(
                 EVT_SUBMIT_CLICK,
@@ -235,9 +234,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               * defaultFunction = calling then model's sync method with action=reset
               * @event addclick
               * @param e {EventFacade} Event Facade including:
+              * @param e.newModel {Y.Model} The new model-instance.
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
               * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-              * @param [e.model] {Y.Model} This modelinstance.
             **/
             host.publish(
                 EVT_ADD_CLICK,
@@ -252,7 +251,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
               * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-              * @param [e.model] {Y.Model} This modelinstance.
             **/
             host.publish(
                 EVT_RESET_CLICK,
@@ -267,7 +265,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
               * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-              * @param [e.model] {Y.Model} This modelinstance.
             **/
             host.publish(
                 EVT_SAVE_CLICK,
@@ -282,7 +279,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
               * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-              * @param [e.model] {Y.Model} This modelinstance.
             **/
             host.publish(
                 EVT_DESTROY_CLICK,
@@ -644,7 +640,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             eventhandlers.push(
                 Y.on(
                     [EVT_INTERNAL+EVT_RESET_CLICK, EVT_INTERNAL+EVT_SUBMIT_CLICK, EVT_INTERNAL+EVT_SAVE_CLICK, EVT_INTERNAL+EVT_BUTTON_CLICK,
-                                                                              EVT_INTERNAL+EVT_DESTROY_CLICK, EVT_INTERNAL+EVT_DESTROY_CLICK],
+                                                                              EVT_INTERNAL+EVT_ADD_CLICK, EVT_INTERNAL+EVT_DESTROY_CLICK],
                     function(e) {
                         if ((e.elementId===instance._elementIds[e.property])) {
                             // stop the original event to prevent double events
@@ -725,12 +721,15 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method _defPluginDestroyFn
          * @protected
         */
-        _defPluginDestroyFn : function() {
-            var instance = this;
+        _defPluginDestroyFn : function(e) {
+            var instance = this,
+                syncOptions = instance.get('syncOptions'),
+                options;
 
             Y.log('_defPluginDestroyFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
-            instance._syncModel('destroy');
+            options = Y.merge({remove: true}, syncOptions['destroy']);
+            e.promise = instance.host.destroyPromise(options);
         },
 
         /**
@@ -741,7 +740,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _defPluginAddFn : function() {
             var instance = this;
 
-            Y.log('_defPluginResetFn will reset the Modeldata', 'info', 'Itsa-EditModel');
+            Y.log('_defPluginAddFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             // no sync('create') --> leave this to the view
         },
@@ -754,7 +753,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _defPluginResetFn : function() {
             var instance = this;
 
-            Y.log('_defPluginResetFn will reset the Modeldata', 'info', 'Itsa-EditModel');
+            Y.log('_defPluginResetFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             // no sync('reset') --> leave this to the view
         },
@@ -764,9 +763,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method _defPluginSubmitFn
          * @protected
         */
-        _defPluginSubmitFn : function() {
+        _defPluginSubmitFn : function(e) {
             Y.log('_defPluginSubmitFn', 'info', 'Itsa-EditModel');
-            this._defStoreFn('submit');
+            this._defStoreFn(e, 'submit');
         },
 
         /**
@@ -774,9 +773,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method _defSaveFn
          * @protected
         */
-        _defSaveFn : function() {
+        _defSaveFn : function(e) {
             Y.log('save', 'info', 'Itsa-EditModel');
-            this._defStoreFn('save');
+            this._defStoreFn(e, 'save');
         },
 
         /**
@@ -785,16 +784,24 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @param mode {String} type of update
          * @protected
         */
-        _defStoreFn : function(mode) {
+        _defStoreFn : function(e, mode) {
             var instance = this,
-                updateMode = instance.get('updateMode');
+                syncOptions = instance.get('syncOptions'),
+                updateMode = instance.get('updateMode'),
+                options;
 
             Y.log('_defStoreFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
             }
-            instance._syncModel(mode);
+            options = syncOptions[mode];
+            if (mode === 'save') {
+                e.promise = instance.host.savePromise(options);
+            }
+            else if (mode === 'submit') {
+                e.promise = instance.host.submitPromise(options);
+            }
         },
 
         /**
@@ -831,10 +838,20 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          *
         */
         _fireModelEvent: function(eventName, eventPayload) {
-            var host = this.host;
+            var instance = this,
+                host = instance.host,
+                modelClass, ModelAttrs, currentConfig, newModel;
 
             Y.log('_fireModelEvent', 'info', 'Itsa-EditModel');
             eventPayload.target = host;
+            if (eventName === EVT_ADD_CLICK) {
+                ModelClass = instance.get('newModelClass');
+                modelAttrs = YObject.clone(instance.get('newModelDefinition'));
+                newModel = new ModelClass(modelAttrs);
+                currentConfig = Y.clone(instance.getAttrs());
+                newModel.plug(Y.Plugin.ITSAEditModel, currentConfig);
+                e.newModel = newModel;
+            }
             host.fire(eventName, eventPayload);
         },
 
@@ -962,30 +979,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               *        this event during editing while still busy (not blurring): they have finished set to false.
             **/
             instance.fire(propertyName+'Change', payload);
-        },
-
-        /**
-         * The default submitFunction of the 'submitbutton'-event. Will call the server with all Model's properties.
-         * @method _defPluginSubmitFn
-         * @protected
-        */
-        _syncModel : function(action) {
-            var instance = this,
-                host = instance.host,
-                destroyOptions, syncOptions, syncCallbacks;
-
-            Y.log('_syncModel will sync with action: '+action, 'info', 'Itsa-EditModel');
-            syncOptions = instance.get('syncOptions');
-            syncCallbacks = instance.get('syncCallbacks');
-            if (action==='destroy') {
-                destroyOptions = syncOptions.destroy || {};
-                destroyOptions.remove = true;
-                host.destroy(destroyOptions, syncCallbacks.destroy);
-            }
-            else {
-                host.sync(action, syncOptions[action], syncCallbacks[action]);
-            }
-       }
+        }
 
     }, {
         NS : 'itsaeditmodel',
@@ -1071,16 +1065,26 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             },
             /**
              * Specifies how <b>new models</b> will look like. When creating new Models, they get cloned from this object.
-             * @attribute newDefinition
+             * @attribute newModelDefinition
              * @type Object
              * @default {}
              * @since 0.1
             */
-            newDefinition : {
+            newModelDefinition : {
                 value: {},
                 validator: function(val) {
                     return (Lang.isObject(val));
                 }
+            },
+            /**
+             * Specifies the Class of new created Models (that is, when a model:addclick event occurs).
+             * @attribute newModelClass
+             * @type Model
+             * @default Y.Model
+             * @since 0.1
+            */
+            newModelClass : {
+                value: Y.Model
             },
             /**
              * Template of how to render the model in the view. You can <b>only use Y.Lang.sub templates</b> where the attribute/properties
@@ -1223,10 +1227,6 @@ Y.augment(Y.Model, Y.Plugin.Host);
               e.type = EVT_SUBMIT_CLICK;
               Y.fire(EVT_INTERNAL+EVT_SUBMIT_CLICK, e);
           }
-          else if (classNames.indexOf(BUTTON_BUTTON_CLASS) !== -1) {
-              e.type = EVT_BUTTON_CLICK;
-              Y.fire(EVT_INTERNAL+EVT_BUTTON_CLICK, e);
-          }
           else if (classNames.indexOf(RESET_BUTTON_CLASS) !== -1) {
               e.type = EVT_RESET_CLICK;
               Y.fire(EVT_INTERNAL+EVT_RESET_CLICK, e);
@@ -1242,6 +1242,11 @@ Y.augment(Y.Model, Y.Plugin.Host);
           else if (classNames.indexOf(ADD_BUTTON_CLASS) !== -1) {
               e.type = EVT_ADD_CLICK;
               Y.fire(EVT_INTERNAL+EVT_ADD_CLICK, e);
+          }
+          else if (classNames.indexOf(BUTTON_BUTTON_CLASS) !== -1) {
+              // check this one as the last one: the others ALL have this class as well
+              e.type = EVT_BUTTON_CLICK;
+              Y.fire(EVT_INTERNAL+EVT_BUTTON_CLICK, e);
           }
       },
       '.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS

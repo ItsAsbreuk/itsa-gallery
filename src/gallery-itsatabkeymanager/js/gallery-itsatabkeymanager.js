@@ -416,27 +416,13 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 
 var YArray = Y.Array,
     DEFAULT_ITEM_SELECTOR = '.focusable',
+    YUI_PRIMARYBUTTON_CLASS = 'yui3-button-primary',
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
     ITSAFORMELEMENT_SELECTONFOCUS_CLASS = FORMELEMENT_CLASS + '-selectall',
     ITSAFORMELEMENT_FIRSTFOCUS_CLASS = FORMELEMENT_CLASS + '-firstfocus';
 
 
 Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.Plugin.FocusManager, [], {
-
-        /**
-         * Internal list that holds event-references
-         * @property _eventhandlers
-         * @private
-         * @type Array
-         */
-        _eventhandlers : [],
-
-        /**
-         * The plugin's host, which should be a ScrollView-instance
-         * @property host
-         * @type Y.Node
-         */
-        host : null,
 
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
@@ -450,6 +436,19 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 host;
 
             Y.log('initializer', 'info', 'Itsa-TabKeyManager');
+            /**
+             * Internal list that holds event-references
+             * @property _eventhandlers
+             * @private
+             * @type Array
+             */
+            instance._eventhandlers = [];
+
+            /**
+             * The plugin's host, which should be a ScrollView-instance
+             * @property host
+             * @type Y.Node
+             */
             instance.host = host = instance.get('host');
             instance._bindUI();
             instance.set('keys', {});
@@ -483,9 +482,9 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             options = options || {};
 
             var instance         = this,
-                container        = instance.get('host'),
+                container        = (options && options.container) || instance.host,
                 disabledSelector = instance.get('disabledSelector'),
-                itemSelector     = options.selector || instance.get('itemSelector'),
+                itemSelector     = (options && options.selector) || instance.get('itemSelector'),
                 item             = container.one(itemSelector),
                 i                = 0,
                 allItems;
@@ -511,10 +510,14 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         focusInitialItem : function() {
             var instance = this,
-                focusitem;
+                focusitem, widgetbd, widgetft;
 
             Y.log('focusInitialItem', 'info', 'Itsa-TabKeyManager');
-            focusitem = instance.first({selector: '.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS}) || instance.first();
+            focusitem = instance.first({selector: '.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS}) ||
+                        instance.first({selector: '.'+YUI_PRIMARYBUTTON_CLASS}) ||
+                        ((widgetbd=instance.host.one('.yui3-widget-bd')) ? instance.first({container: widgetbd}) : null) ||
+                        ((widgetft=instance.host.one('.yui3-widget-ft')) ? instance.first({container: widgetft}) : null) ||
+                        instance.first();
             if (focusitem) {
                 focusitem.focus();
                 instance._selectNode(focusitem);
@@ -534,7 +537,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         **/
         last: function (options) {
             var instance         = this,
-                container        = instance._host,
+                container        = (options && options.container) || instance.host,
                 disabledSelector = instance.get('disabledSelector'),
                 allItems         = container.all(instance.get('itemSelector')),
                 i                = allItems.size() - 1,
@@ -567,7 +570,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         **/
         next: function (options) {
             var instance         = this,
-                container        = instance._host,
+                container        = (options && options.container) || instance.host,
                 activeItem       = instance.get('activeItem'),
                 disabledSelector, nextItem, index, itemSize, allItems;
 
@@ -615,7 +618,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         **/
         previous: function (options) {
             var instance         = this,
-                container        = instance._host,
+                container        = (options && options.container) || instance.host,
                 activeItem       = instance.get('activeItem'),
                 disabledSelector, prevItem, index, allItems;
 
@@ -657,7 +660,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         setFirstFocus : function(node) {
             var instance = this,
-                container = instance.get('host'),
+                container = instance.host,
                 nodeisfocusable;
 
             Y.log('setFirstFocus', 'info', 'Itsa-TabKeyManager');
@@ -683,7 +686,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         setSelectText : function(select, node) {
             var instance = this,
-                container = instance.get('host'),
+                container = instance.host,
                 nodeisfocusable, itemSelector, disabledSelector, allNodes;
 
             Y.log('setSelectText', 'info', 'Itsa-TabKeyManager');
@@ -704,8 +707,8 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 disabledSelector = instance.get('disabledSelector');
                 allNodes.each(
                     function(oneNode) {
-                        if (oneNode.test('input[type=text], input[type=password], textarea')
-                            && (!disabledSelector || !oneNode.test(disabledSelector))) {
+                        if (oneNode.test('input[type=text], input[type=password], textarea') &&
+                            (!disabledSelector || !oneNode.test(disabledSelector))) {
                             oneNode.toggleClass(ITSAFORMELEMENT_SELECTONFOCUS_CLASS, select);
                         }
                     }
@@ -783,7 +786,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         _nodeIsFocusable : function(node) {
             var instance            = this,
-                container           = instance.get('host'),
+                container           = instance.host,
                 disabledSelector    = instance.get('disabledSelector'),
                 itemSelector        = instance.get('itemSelector'),
                 nodeInsideContainer = node && container.contains(node),

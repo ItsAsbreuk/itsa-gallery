@@ -3,6 +3,7 @@
         "requires": [
             "base-build",
             "classnamemanager",
+            "pluginhost-base",
             "gallery-itsaviewmodel",
             "widget-autohide",
             "widget-buttons",

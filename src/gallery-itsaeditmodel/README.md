@@ -13,12 +13,25 @@ You may not need to call the plugin's methods yourself, but want to use one of t
 * [ITSAScrollViewModelList](../gallery-itsascrollviewmodellist) --> you need [Y.Plugin.ITSAChangeModelTemplate](../gallery-itsachangemodeltemplate) to activate editmode
 
 
-The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, submit, save, cancel, destroy</i>. In order to do so, you must declare 2 attributes:
+##Custom buttons
+The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, add, submit, save, cancel, destroy</i>. In order to do so, you must declare 2 attributes:
 
 * <b>'template'</b> where the Model's-attributes can be between brackets (it uses Y.Lang.sub() for this), or conform the Y.Template.Micro-format. Also the UI-buttons -which are not part of the model- can be declared between brackets: just make sure you use a unique name: '{firstname} {lastname} {send}'.
 * <b>'editmodelConfigAttrs'</b> this is the configuration by which the plugin determines what type must be used for all specified properties within 'template'
 
 
+##Events
+The custom buttons have their defaultFunction which correspons with their names. When listening to these events, you catch a buttonclick immediately, but
+the real action may take some time. The action performed are <b>not</b> model.load etc, but model.loadPromise, which is supplied by [ITSAModelSyncPromise](../gallery-itsamodelsyncpromise). The defaultfunctions will generate e.savePromise, e.destroyPromise or e.submitPromise to the eventTarget:
+
+* button  --> event 'model:buttonclick'
+* add     --> event 'model:addclick'
+* cancel  --> event 'model:cancelclick'
+* submit  --> event 'model:submitclick'  --> e.submitPromise
+* save    --> event 'model:saveclick'    --> e.destroyPromise
+* destroy --> event 'model:destroyclick' --> e.destroyPromise
+
+Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
 
 Examples
 --------
