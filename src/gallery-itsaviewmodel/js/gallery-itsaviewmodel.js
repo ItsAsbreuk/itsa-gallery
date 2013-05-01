@@ -16,11 +16,12 @@
  * Using this widget is great to render Model on the page, where the widget keeps synced with the model. Whenever a new Model-instance
  * is attached to the widget, or another template is used, the wodget will be re-rendered automaticly.
  *
- * Attaching Y.Model-instances or objects?
+ * Attaching 'model' with Y.Model-instances or objects?
  * Both can be attached. Whenever widgetattribute change, the widget will be re-rendered is needed (template- or model-attribute). This also
  * counts for attached objects. However, changes inside an object itself (updated property-value) cannot be caught by the widget, so you need
  * to call syncUI() yourself after an object-change. Y.Model-instances -on the other hand- do fire a *:change-event which is caught by the widget.
- * This makes the widget re-render after a Model-instance changes some of its attributes.
+ * This makes the widget re-render after a Model-instance changes some of its attributes. In fact, you can attach 'string'-values as well, which will
+ * lead to 'just rendering' the text without property-fields.
  *
  *
  * By default, the widget comes with its own style. You can disable this by setting the attribute 'styled' to false.
@@ -168,6 +169,16 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
              * @type Object
             */
             instance._initialEditAttrs = null;
+
+            /**
+             * Internal template to be used when 'model' is no model but just clear text.
+             *
+             * @property _textTemplate
+             * @private
+             * @default null
+             * @type String
+            */
+            instance._textTemplate = null;
         },
 
        /**
@@ -322,7 +333,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     function(e) {
                         var newTemplate = e.newVal,
                             modelEditable = instance.get('modelEditable');
-                        if (!modelEditable || !model.itsaeditmodel) {
+                        if (!modelEditable || (model && !model.itsaeditmodel)) {
                             view.template = newTemplate;
                             instance._setTemplateRenderer(newTemplate, false);
                             view.render();
@@ -336,7 +347,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     function(e) {
                         var newTemplate = e.newVal,
                             modelEditable = instance.get('modelEditable');
-                        if (modelEditable && model.itsaeditmodel) {
+                        if (modelEditable && model && model.itsaeditmodel) {
                             view.template = newTemplate;
                             instance._setTemplateRenderer(newTemplate, true);
                             view.render();
@@ -366,7 +377,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                         var newEditable = e.newVal,
                             template;
                         // if model.itsaeditmodel exists, then we need to rerender
-                        if (model.itsaeditmodel) {
+                        if (model && model.itsaeditmodel) {
                             template = newEditable ? model.itsaeditmodel.get('template') : instance.get('template');
                             view.template = template;
                             instance._setTemplateRenderer(template, newEditable);
@@ -557,9 +568,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 view = instance.view,
                 container = view.get('container'),
                 model = view.get('model'),
-                editMode = model.itsaeditmodel && instance.get('modelEditable'),
+                editMode = model && model.itsaeditmodel && instance.get('modelEditable'),
                 itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
-                html = clear ? '' : instance._modelRenderer(model);
+                html = (clear || !model) ? '' : instance._modelRenderer(model);
 
             Y.log('_viewRenderer', 'info', 'Itsa-ViewModel');
             // Render this view's HTML into the container element.
@@ -601,6 +612,42 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     item.detach();
                 }
             );
+        },
+
+        /**
+         * Setter for attribute 'model'
+         *
+         * @method _setModel
+         * @private
+         * @param v {String|Object|Model}
+         * @since 0.1
+         *
+        */
+        _setModel: function(v) {
+            var instance = this,
+                view = instance.view,
+                templatechange, modelEditable, newTemplate;
+            // in case model is a string --> not a real model is set: we just need to render clear text.
+            // to achieve this, we create a new model-object with no properties and we define this._textTemplate
+            // which can be used as the template (= text without properties)
+            if (typeof v === 'string') {
+                templatechange = !instance._textTemplate;
+                instance._textTemplate = v;
+                v = {};
+            }
+            else {
+                templatechange = instance._textTemplate;
+                instance._textTemplate = null;
+            }
+            if (templatechange && view) {
+                modelEditable = instance.get('modelEditable');
+                if (!modelEditable || (v && !v.itsaeditmodel)) {
+                    newTemplate = instance.get('template');
+                    view.template = newTemplate;
+                    instance._setTemplateRenderer(newTemplate, false);
+                }
+            }
+            return v;
         }
 
     }, {
@@ -668,16 +715,18 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
 
             /**
              * The Y.Model that will be rendered in the view. May also be an Object, which is handy in case the source is an
-             * item of a Y.LazyModelList
+             * item of a Y.LazyModelList. If you pass a String-value, then the text is rendered as it is, assuming no model-instance.
              *
              * @attribute model
-             * @type {Y.Model|Object}
+             * @type {Y.Model|Object|String}
              * @default {}
              * @since 0.1
              */
             model: {
                 value: null,
-                validator: function(v){ return ((v instanceof Y.Model) || Lang.isObject(v) || (v===null)); }
+                validator: function(v){ return ((v===null) || Lang.isObject(v) || (typeof v === 'string')
+                                                || (v.get && (typeof v.get === 'function') && v.get('clientId'))); },
+                setter: '_setModel'
             },
 
            /**
@@ -718,7 +767,11 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          */
             template: {
                 value: '{clientId}',
-                validator: function(v){ return Lang.isString(v); }
+                validator: function(v){ return Lang.isString(v); },
+                getter: function(v) {
+                    // Because _textTemplate might exists in case of clear text instead of a model, we need to return the right template.
+                    return this._textTemplate || v;
+                }
             }
 
         }
