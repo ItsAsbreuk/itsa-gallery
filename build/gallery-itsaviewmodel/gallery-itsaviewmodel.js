@@ -237,6 +237,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (model && model.addTarget) {
                 model.addTarget(view);
             }
+            view.addTarget(instance);
             instance._bindViewUI();
             instance.view.render();
         },
@@ -497,8 +498,14 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
         */
         destructor: function() {
             var instance = this,
+                view = instance.view,
+                model = instance.get('model'),
                 boundingBox = instance.get('boundingBox');
 
+            if (model) {
+                model.removeTarget(view);
+            }
+            view.removeTarget(instance);
             instance._clearEventhandlers();
             instance.view.destroy();
             if (boundingBox.hasPlugin('itsatabkeymanager')) {
