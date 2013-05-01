@@ -113,29 +113,29 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             validation = !autoCorrection && instance.get('validation');
             enterNextField = (type==='input') || (type==='password');
             isDateOrTime = (type==='date') || (type==='time') || (type==='datetime');
-            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='destroy');
+            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='add') || (type==='destroy');
             focusable = instance.get('focusable');
             focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);
             focusinfo = focusable ?
                         (
-                            ITSAFORMELEMENT_FOCUSABLE_CLASS
-                            + (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '')
-                            + (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
+                            ITSAFORMELEMENT_FOCUSABLE_CLASS +
+                            (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '') +
+                            (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
                         )
                         : '';
             withLifeChange = (type==='input') || (type==='textarea') || (type==='password');
             classnameAttr = instance.get('className');
-            classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name)
-                        + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type)
-                        + (classnameAttr ? ' '+classnameAttr : '')
-                        + (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '')
-                        + (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '')
-                        + (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '')
-                        + (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '')
-                        + (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '')
-                        + (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '')
-                        + (focusinfoOnClass ? ' '+focusinfo : '')
-                        + '"';
+            classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name) +
+                        ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type) +
+                        (classnameAttr ? ' '+classnameAttr : '') +
+                        (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '') +
+                        (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '') +
+                        (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '') +
+                        (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '') +
+                        (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '') +
+                        (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '') +
+                        (focusinfoOnClass ? ' '+focusinfo : '') +
+                        '"';
             classlevel2 = focusinfoOnClass ? '' : ' '+focusinfo;
             if (type==='input') {
                 element = ELEMENT_INPUT;
@@ -311,6 +311,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                              (val==='reset') ||
                              (val==='submit') ||
                              (val==='save') ||
+                             (val==='add') ||
                              (val==='destroy') ||
 //                             (val==='autocomplete') ||  // not ready yet
 //                             (val==='tokeninput') ||  // not ready yet
