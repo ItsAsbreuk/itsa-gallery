@@ -180,9 +180,10 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox = instance.get('boundingBox'),
                 model = instance.get('model'),
                 modelEditable = instance.get('modelEditable'),
-                itsaeditmodel = (modelEditable && model.itsaeditmodel);
+                itsaeditmodel = (modelEditable && model.itsaeditmodel),
+                panelwidgetbd = boundingBox.one('.yui3-widget-bd');
 
-            if (itsaeditmodel && !boundingBox.itsatabkeymanager) {
+            if ((itsaeditmodel || panelwidgetbd) && !boundingBox.itsatabkeymanager) {
                 Y.use('gallery-itsatabkeymanager', function(Y) {
                     boundingBox.plug(Y.Plugin.ITSATabKeyManager);
                     instance._renderFurther(boundingBox, model, itsaeditmodel);
@@ -213,8 +214,9 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (styled) {
                 boundingBox.addClass(MODELVIEW_STYLED).addClass(MODELVIEW_STYLED_FORM);
             }
+            instance._widgetRenderer();
             view = instance.view = new Y.View({
-                container: instance.get('contentBox'),
+                container: instance._getViewContainer(),
                 model: model
             });
             view.events = events;
@@ -224,7 +226,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (model && model.addTarget) {
                 model.addTarget(view);
             }
-            instance._widgetRenderer();
+            instance._bindViewUI();
+            instance.view.render();
         },
 
         /**
@@ -248,7 +251,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             var instance = this;
 
             instance.constructor.superclass.renderer.apply(instance);
-            instance.view.render();
         },
 
         /**
@@ -258,6 +260,30 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          * @protected
          */
         bindUI: function() {
+            // Only declare listeners here that have no relationship with this.view, because this.view does not exists here.
+            var instance = this,
+                eventhandlers = instance._eventhandlers,
+                boundingBox = instance.get('boundingBox');
+
+            eventhandlers.push(
+                instance.after(
+                    'styledChange',
+                    function(e) {
+                        boundingBox.toggleClass(MODELVIEW_STYLED, e.newVal).toggleClass(MODELVIEW_STYLED_FORM, e.newVal);
+                    }
+                )
+            );
+        },
+
+        /**
+         * Sets up extra DOM and CustomEvent listeners for the widget which are bound to this.view
+         *
+         * @method _bindViewUI
+         * @private
+         * @protected
+         */
+        _bindViewUI: function() {
+            // Only declare listeners here that have relationship with this.view, because this.view only exists from this point.
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
                 model = instance.get('model'),
@@ -401,14 +427,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                     'eventsChange',
                     function(e) {
                         view.events = e.newVal;
-                    }
-                )
-            );
-            eventhandlers.push(
-                instance.after(
-                    'styledChange',
-                    function(e) {
-                        boundingBox.toggleClass(MODELVIEW_STYLED, e.newVal).toggleClass(MODELVIEW_STYLED_FORM, e.newVal);
                     }
                 )
             );
