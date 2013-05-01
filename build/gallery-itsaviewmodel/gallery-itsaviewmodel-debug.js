@@ -373,6 +373,17 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 )
             );
             eventhandlers.push(
+                view.after(
+                    'model:addclick',
+                    function(e) {
+                        var newModel = e.newModel;
+                        if (newModel) {
+                            instance.set('model', newModel);
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
                 instance.after(
                     'modelEditableChange',
                     function(e) {
@@ -726,8 +737,8 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
              */
             model: {
                 value: null,
-                validator: function(v){ return ((v===null) || Lang.isObject(v) || (typeof v === 'string')
-                                                || (v.get && (typeof v.get === 'function') && v.get('clientId'))); },
+                validator: function(v){ return ((v===null) || Lang.isObject(v) || (typeof v === 'string') ||
+                                                (v.get && (typeof v.get === 'function') && v.get('clientId'))); },
                 setter: '_setModel'
             },
 
