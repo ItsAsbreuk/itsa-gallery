@@ -687,9 +687,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             // if the model gets changed and it wasn't this module, than fire an event.
             // So the developer can use this to listen for these changes and react on them
             instance.host.on(
-                'model:change',
-                function() {
-                    Y.fire(EVT_DIALOG_WARN, {message: MESSAGE_WARN_MODELCHANGED});
+                '*:change',
+                function(e) {
+                    if (e.target instanceof Y.Model) {
+                        Y.fire(EVT_DIALOG_WARN, {message: MESSAGE_WARN_MODELCHANGED});
+                    }
                 }
             );
             //============================================================================================
@@ -722,8 +724,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         */
         _defPluginDestroyFn : function() {
             var instance = this;
-            //    syncOptions = instance.get('syncOptions'),
-            //    options;
+//                syncOptions = instance.get('syncOptions'),
+//                options;
 
             Y.log('_defPluginDestroyFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
@@ -853,16 +855,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _fireModelEvent: function(eventName, eventPayload) {
             var instance = this,
                 host = instance.host,
-                ModelClass, modelAttrs, currentConfig, newModel, syncOptions, options;
+                ModelClass, currentConfig, newModel, syncOptions, options;
 
             Y.log('_fireModelEvent', 'info', 'Itsa-EditModel');
             eventPayload.target = host;
             if (eventName === EVT_ADD_CLICK) {
                 ModelClass = instance.get('newModelClass');
-                modelAttrs = Y.clone(instance.get('newModelDefinition'));
-                newModel = new ModelClass(modelAttrs);
-                // now reattach the synclayer
-                newModel.sync = host.sync;
+                newModel = new ModelClass();
                 currentConfig = Y.clone(instance.getAttrs());
                 newModel.plug(Y.Plugin.ITSAEditModel, currentConfig);
                 eventPayload.newModel = newModel;
@@ -1080,19 +1079,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 value: {},
                 validator: function(val) {
                     return Lang.isObject(val);
-                }
-            },
-            /**
-             * Specifies how <b>new models</b> will look like. When creating new Models, they get cloned from this object.
-             * @attribute newModelDefinition
-             * @type Object
-             * @default {}
-             * @since 0.1
-            */
-            newModelDefinition : {
-                value: {},
-                validator: function(val) {
-                    return (Lang.isObject(val));
                 }
             },
             /**
