@@ -384,28 +384,31 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             );
             eventhandlers.push(
                 host.after(
-                    'model:resetclick',
+                    '*:resetclick',
                     function(e) {
                         var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                             options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}'
                                                              // --> now the view knows it must not re-render completely.
                                                              // however, we MUST re-render the only item.
+                            initialEditAttrs;
+                        if (model instanceof Y.Model) {
                             initialEditAttrs = instance._initialEditAttrs[model.get('clientId')];
-                        if (initialEditAttrs) {
-                            model.setAttrs(initialEditAttrs, options);
-                            if (instance._getMode(model)===3) {
-                                instance._renderEditTemplate(
-                                    model,
-                                    function() {
-                                        var modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model, 0) : host.getNodeFromModel(model, 0));
-                                        if (modelNode && modelNode.itsatabkeymanager) {
-                                            modelNode.itsatabkeymanager.focusInitialItem();
+                            if (initialEditAttrs) {
+                                model.setAttrs(initialEditAttrs, options);
+                                if (instance._getMode(model)===3) {
+                                    instance._renderEditTemplate(
+                                        model,
+                                        function() {
+                                            var modelNode = (Lang.isNumber(model) ? host.getNodeFromIndex(model,0) : host.getNodeFromModel(model,0));
+                                            if (modelNode && modelNode.itsatabkeymanager) {
+                                                modelNode.itsatabkeymanager.focusInitialItem();
+                                            }
                                         }
-                                    }
-                                );
-                            }
-                            if (host.modelIsSelected(model)) {
-                                host._fireSelectedModels();
+                                    );
+                                }
+                                if (host.modelIsSelected(model)) {
+                                    host._fireSelectedModels();
+                                }
                             }
                         }
                     }
@@ -438,11 +441,11 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             );
             eventhandlers.push(
                 host.after(
-                    'model:change',
+                    '*:change',
                     function(e) {
                         var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                             modelNode, clientId;
-                        if (instance._getMode(model)===3) {
+                        if ((model instanceof Y.Model) && (instance._getMode(model)===3)) {
                             clientId = host.getModelAttr(model, 'clientId');
                             instance._currentModelHasChanged[clientId] = true;
                             modelNode = host.getNodeFromModel(model, 0);
@@ -454,12 +457,14 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             );
             eventhandlers.push(
                 host.on(
-                    'model:destroy',
+                    '*:destroy',
                     function(e) {
                         var model = e.target; // NOT e.currentTarget: that is the (scroll)View-instance (?)
-                        delete instance._editModels[model.get('clientId')];
-                        if (host.modelIsSelected(model)) {
-                            host.unselectModels(model, false, true); // will fire an event itself
+                        if (model instanceof Y.Model) {
+                            delete instance._editModels[model.get('clientId')];
+                            if (host.modelIsSelected(model)) {
+                                host.unselectModels(model, false, true); // will fire an event itself
+                            }
                         }
                     }
                 )

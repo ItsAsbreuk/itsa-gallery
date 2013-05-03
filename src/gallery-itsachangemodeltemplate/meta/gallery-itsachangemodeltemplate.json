@@ -5,6 +5,7 @@
             "node-core",
             "base-base",
             "base-build",
+            "model",
             "plugin",
             "pluginhost-base",
             "oop",
