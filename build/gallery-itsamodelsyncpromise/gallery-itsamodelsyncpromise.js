@@ -15,6 +15,8 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
  * <b>Model.submitPromise</b>
  * <b>Model.destroyPromise</b>
  *
+ * <b>The sync-layer MUST call the callback-function of its related promise-method, otherwise the promises are not resolved.</b>
+ *
  * @module gallery-itsamodelsyncpromise
  * @extends Model
  * @class ITSAModelSyncPromise
@@ -27,8 +29,6 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
 */
 
    var YArray = Y.Array,
-       DEFAULT_TIMEOUT = 60000,
-       TIMEOUT_MESSAGE = 'Model sync-method did not return a callback in time. Please read the Docs how to setup the sync-method.',
    /**
      * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
      * the sync layer submit-function returns an error.
@@ -97,58 +97,37 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
          * A successful submit-operation will also fire a `submit` event, while an unsuccessful
          * submit operation will fire an `error` event with the `src` value "submit".
          *
-         * <b>CAUTION</b> The sync-method MUST call its callback-function to make the promised resolved. If there is no callback-function
-         * then the promise will be rejected after a timeout. When timeout is not specified,
+         * <b>CAUTION</b> The sync-method MUST call its callback-function to make the promised resolved.
+         *
          * @method submitPromise
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
-         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-         *              without a callback the promise would never be resolved. This is now caught with the timeout.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        submitPromise: function(options, timeout) {
+        submitPromise: function(options) {
             options = options || {};
             var instance = this,
                 submitpromise = new Y.Promise(function (resolve, reject) {
-                    var timeoutHandler = Y.later(
-                        timeout || DEFAULT_TIMEOUT,
-                        instance,
-                        function() {
-                            var facade = {
-                                    src     : 'submit',
-                                    options : options,
-                                    error   : TIMEOUT_MESSAGE
-                                };
-                            instance.fire(EVT_ERROR, facade);
-                            reject(new Error(TIMEOUT_MESSAGE));
-                        }
-                    );
                     instance.sync('submit', options, function (err, response) {
-                        if (timeoutHandler) {
-                            timeoutHandler.cancel();
+                        var facade = {
+                                options : options,
+                                response: response
+                            };
+                        if (err) {
+                            facade.error = err;
+                            facade.src   = 'submit';
+                            instance.fire(EVT_ERROR, facade);
+                            reject(new Error(err));
                         }
-                        if (submitpromise.getStatus()==='pending') {
-                            var facade = {
-                                    options : options,
-                                    response: response
-                                };
-                            if (err) {
-                                facade.error = err;
-                                facade.src   = 'submit';
-                                instance.fire(EVT_ERROR, facade);
-                                reject(new Error(err));
+                        else {
+                            // Lazy publish.
+                            if (!instance._submitEvent) {
+                                instance._submitEvent = instance.publish(EVT_SUBMIT, {
+                                    preventable: false
+                                });
                             }
-                            else {
-                                // Lazy publish.
-                                if (!instance._submitEvent) {
-                                    instance._submitEvent = instance.publish(EVT_SUBMIT, {
-                                        preventable: false
-                                    });
-                                }
-                                instance.fire(EVT_SUBMIT, facade);
-                                resolve(response, options);
-                            }
+                            instance.fire(EVT_SUBMIT, facade);
+                            resolve(response, options);
                         }
                     });
                 });
@@ -171,57 +150,36 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
          * @method loadPromise
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
-         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-         *              without a callback the promise would never be resolved. This is now caught with the timeout.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        loadPromise: function (options, timeout) {
+        loadPromise: function (options) {
             options = options || {};
             var instance = this,
                 loadpromise = new Y.Promise(function (resolve, reject) {
-                    var timeoutHandler = Y.later(
-                        timeout || DEFAULT_TIMEOUT,
-                        instance,
-                        function() {
-                            var facade = {
-                                    src     : 'load',
-                                    options : options,
-                                    error   : TIMEOUT_MESSAGE
-                                };
-                            instance.fire(EVT_ERROR, facade);
-                            reject(new Error(TIMEOUT_MESSAGE));
-                        }
-                    );
                     instance.sync('read', options, function (err, response) {
-                        if (timeoutHandler) {
-                            timeoutHandler.cancel();
+                        var parsed,
+                            facade = {
+                                options : options,
+                                response: response
+                            };
+                        if (err) {
+                            facade.error = err;
+                            facade.src   = 'load';
+                            instance.fire(EVT_ERROR, facade);
+                            reject(new Error(err));
                         }
-                        if (loadpromise.getStatus()==='pending') {
-                            var parsed,
-                                facade = {
-                                    options : options,
-                                    response: response
-                                };
-                            if (err) {
-                                facade.error = err;
-                                facade.src   = 'load';
-                                instance.fire(EVT_ERROR, facade);
-                                reject(new Error(err));
+                        else {
+                            // Lazy publish.
+                            if (!instance._loadEvent) {
+                                instance._loadEvent = instance.publish(EVT_LOAD, {
+                                    preventable: false
+                                });
                             }
-                            else {
-                                // Lazy publish.
-                                if (!instance._loadEvent) {
-                                    instance._loadEvent = instance.publish(EVT_LOAD, {
-                                        preventable: false
-                                    });
-                                }
-                                parsed = facade.parsed = PARSED(response);
-                                instance.setAttrs(parsed, options);
-                                instance.changed = {};
-                                instance.fire(EVT_LOAD, facade);
-                                resolve(response, options);
-                            }
+                            parsed = facade.parsed = PARSED(response);
+                            instance.setAttrs(parsed, options);
+                            instance.changed = {};
+                            instance.fire(EVT_LOAD, facade);
+                            resolve(response, options);
                         }
                     });
                 });
@@ -245,20 +203,16 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
         * @method savePromise
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
-         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-         *              without a callback the promise would never be resolved. This is now caught with the timeout.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        savePromise: function (options, timeout) {
+        savePromise: function (options) {
             options = options || {};
             var instance = this,
                 savepromise = new Y.Promise(function (resolve, reject) {
                     var facade = {
                             options : options,
                             src     :'save'
-                        },
-                        timeoutHandler;
+                        };
                     instance._validate(instance.toJSON(), function (validateErr) {
                         if (validateErr) {
                             facade.error = validateErr;
@@ -266,43 +220,27 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                             reject(new Error(validateErr));
                         }
                         else {
-                            timeoutHandler = Y.later(
-                                timeout || DEFAULT_TIMEOUT,
-                                instance,
-                                function() {
-                                    var facade = {
-                                            error   : TIMEOUT_MESSAGE
-                                        };
-                                    instance.fire(EVT_ERROR, facade);
-                                    reject(new Error(TIMEOUT_MESSAGE));
-                                }
-                            );
                             instance.sync(instance.isNew() ? 'create' : 'update', options, function (err, response) {
-                                if (timeoutHandler) {
-                                    timeoutHandler.cancel();
+                                var parsed;
+                                facade.response = response;
+                                if (err) {
+                                    facade.error = err;
+                                    facade.src   = 'save';
+                                    instance.fire(EVT_ERROR, facade);
+                                    reject(new Error(err));
                                 }
-                                if (savepromise.getStatus()==='pending') {
-                                    var parsed;
-                                    facade.response = response;
-                                    if (err) {
-                                        facade.error = err;
-                                        facade.src   = 'save';
-                                        instance.fire(EVT_ERROR, facade);
-                                        reject(new Error(err));
+                                else {
+                                    // Lazy publish.
+                                    if (!instance._saveEvent) {
+                                        instance._saveEvent = instance.publish(EVT_SAVE, {
+                                            preventable: false
+                                        });
                                     }
-                                    else {
-                                        // Lazy publish.
-                                        if (!instance._saveEvent) {
-                                            instance._saveEvent = instance.publish(EVT_SAVE, {
-                                                preventable: false
-                                            });
-                                        }
-                                        parsed = facade.parsed = PARSED(response);
-                                        instance.setAttrs(parsed, options);
-                                        instance.changed = {};
-                                        instance.fire(EVT_SAVE, facade);
-                                        resolve(response, options);
-                                    }
+                                    parsed = facade.parsed = PARSED(response);
+                                    instance.setAttrs(parsed, options);
+                                    instance.changed = {};
+                                    instance.fire(EVT_SAVE, facade);
+                                    resolve(response, options);
                                 }
                             });
                         }
@@ -326,26 +264,12 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
          * @method destroyPromise
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
-         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-         *              without a callback the promise would never be resolved. This is now caught with the timeout.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        destroyPromise: function (options, timeout) {
+        destroyPromise: function (options) {
             options = options || {};
             var instance = this,
                 destroypromise = new Y.Promise(function (resolve, reject) {
-                    var timeoutHandler = Y.later(
-                            timeout || DEFAULT_TIMEOUT,
-                            instance,
-                            function() {
-                                var facade = {
-                                        error   : TIMEOUT_MESSAGE
-                                    };
-                                instance.fire(EVT_ERROR, facade);
-                                reject(new Error(TIMEOUT_MESSAGE));
-                            }
-                        );
                     instance.onceAfter('destroy', function () {
                         function finish() {
                             YArray.each(instance.lists.concat(), function (list) {
@@ -354,33 +278,23 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                         }
                         if (options.remove || options['delete']) {
                             instance.sync('delete', options, function (err) {
-                                if (timeoutHandler) {
-                                    timeoutHandler.cancel();
+                                if (err) {
+                                    var facade = {
+                                        error   : err,
+                                        src     : 'destroy',
+                                        options : options
+                                    };
+                                    instance.fire(EVT_ERROR, facade);
+                                    reject(new Error(err));
                                 }
-                                if (destroypromise.getStatus()==='pending') {
-                                    if (err) {
-                                        var facade = {
-                                            error   : err,
-                                            src     : 'destroy',
-                                            options : options
-                                        };
-                                        instance.fire(EVT_ERROR, facade);
-                                        reject(new Error(err));
-                                    }
-                                    else {
-                                        finish();
-                                        resolve(options);
-                                    }
+                                else {
+                                    finish();
+                                    resolve(options);
                                 }
                             });
                         } else {
-                            if (timeoutHandler) {
-                                timeoutHandler.cancel();
-                            }
-                            if (destroypromise.getStatus()==='pending') {
-                                finish();
-                                resolve(options);
-                            }
+                            finish();
+                            resolve(options);
                         }
                     });
                 });
@@ -433,56 +347,35 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
          * @method loadPromise
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
-         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-         *              without a callback the promise would never be resolved. This is now caught with the timeout.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        loadPromise: function (options, timeout) {
+        loadPromise: function (options) {
             options = options || {};
             var instance = this,
                 loadpromise = new Y.Promise(function (resolve, reject) {
-                    var timeoutHandler = Y.later(
-                        timeout || DEFAULT_TIMEOUT,
-                        instance,
-                        function() {
-                            var facade = {
-                                    src     : 'load',
-                                    options : options,
-                                    error   : TIMEOUT_MESSAGE
-                                };
-                            instance.fire(EVT_ERROR, facade);
-                            reject(new Error(TIMEOUT_MESSAGE));
-                        }
-                    );
                     instance.sync('read', options, function (err, response) {
-                        if (timeoutHandler) {
-                            timeoutHandler.cancel();
+                        var parsed,
+                            facade = {
+                                options : options,
+                                response: response
+                            };
+                        if (err) {
+                            facade.error = err;
+                            facade.src   = 'load';
+                            instance.fire(EVT_ERROR, facade);
+                            reject(new Error(err));
                         }
-                        if (loadpromise.getStatus()==='pending') {
-                            var parsed,
-                                facade = {
-                                    options : options,
-                                    response: response
-                                };
-                            if (err) {
-                                facade.error = err;
-                                facade.src   = 'load';
-                                instance.fire(EVT_ERROR, facade);
-                                reject(new Error(err));
+                        else {
+                            // Lazy publish.
+                            if (!instance._loadEvent) {
+                                instance._loadEvent = instance.publish(EVT_LOAD, {
+                                    preventable: false
+                                });
                             }
-                            else {
-                                // Lazy publish.
-                                if (!instance._loadEvent) {
-                                    instance._loadEvent = instance.publish(EVT_LOAD, {
-                                        preventable: false
-                                    });
-                                }
-                                parsed = facade.parsed = PARSED(response);
-                                instance.reset(parsed, options);
-                                instance.fire(EVT_LOAD, facade);
-                                resolve(response, options);
-                            }
+                            parsed = facade.parsed = PARSED(response);
+                            instance.reset(parsed, options);
+                            instance.fire(EVT_LOAD, facade);
+                            resolve(response, options);
                         }
                     });
                 });
@@ -491,8 +384,6 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
     }, true);
     Y.ITSAModellistSyncPromise = ITSAModellistSyncPromise;
     Y.Base.mix(Y.ModelList, [ITSAModellistSyncPromise]);
-
-    //==============================================================================
 
 }, '@VERSION@', {
     "requires": [
