@@ -1759,41 +1759,43 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         );
         eventhandlers.push(
             instance.after(
-                'model:change',
+                '*:change',
                 function(e) {
                     var model = e.target;
-                    if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
-                        //========================================================
-                        //
-                        // LACK IN ModelList --> make resort after model:change
-                        //
-                        //=======================================================
-                        if (modellist && modellist.comparator) {
-                            modellist.sort();
-                            //====================================================
+                    if (model instanceof Y.Model) {
+                        if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
+                            //========================================================
                             //
-                            // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
-                            // As soon as issue is resolved, remove modellist.free() command
+                            // LACK IN ModelList --> make resort after model:change
                             //
-                            if (instance._listLazy) {
-                                modellist.free();
+                            //=======================================================
+                            if (modellist && modellist.comparator) {
+                                modellist.sort();
+                                //====================================================
+                                //
+                                // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                                // As soon as issue is resolved, remove modellist.free() command
+                                //
+                                if (instance._listLazy) {
+                                    modellist.free();
+                                }
+                                //======================================================
                             }
-                            //======================================================
+                            instance._repositionModel(model);
                         }
-                        instance._repositionModel(model);
-                    }
-                    if (instance.modelIsSelected(model)) {
-                        instance._fireSelectedModels();
+                        if (instance.modelIsSelected(model)) {
+                            instance._fireSelectedModels();
+                        }
                     }
                 }
             )
         );
         eventhandlers.push(
             instance.after(
-                'model:destroy',
+                '*:destroy',
                 function(e) {
                     var model = e.target;
-                    if (instance.modelIsSelected(model)) {
+                    if ((model instanceof Y.Model) && instance.modelIsSelected(model)) {
                         instance._fireSelectedModels();
                     }
                 }
@@ -1835,14 +1837,22 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         // because we made it bubble-up to the scrollview-instance, we attach the listener there.
         eventhandlers.push(
             instance.after(
-                ['modelList:remove', 'lazyModelList:remove', 'modelList:add', 'lazyModelList:add'],
-                Y.bind(instance._renderView, instance, null, null)
+                ['*:remove', '*:add'],
+                function(e) {
+                    if (e.target instanceof Y.ModelList) {
+                        instance._renderView();
+                    }
+                }
             )
         );
         eventhandlers.push(
             instance.after(
-                ['modelList:reset', 'lazyModelList:reset'],
-                Y.bind(instance._renderView, instance, null, {keepstyles: false})
+                ['*:reset'],
+                function(e) {
+                    if (e.target instanceof Y.ModelList) {
+                        instance._renderView(null, {keepstyles: false});
+                    }
+                }
             )
         );
         // only now we must initiate 3 binders --> if we would have done this with lazyAdd=false,
@@ -2343,11 +2353,13 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setMarkModelChange', 'info', 'Itsa-ModellistViewExtention');
         if (val && (val>0) && !instance._markModelChangeEv) {
             instance._markModelChangeEv = instance.after(
-                'model:change',
+                '*:change',
                 function(e) {
-                    if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
-                        var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
-                            node = instance.getNodeFromModel(model);
+                    var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
+                        node;
+                    if ((model instanceof Y.Model) && (!e.fromEditModel || !instance.itsacmtemplate ||
+                                                       !instance.itsacmtemplate.get('modelsEditable'))) {
+                        node = instance.getNodeFromModel(model);
                         if (node) {
                             node.addClass(MODEL_CHANGED_CLASS);
                             Y.later(
@@ -2370,20 +2382,22 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         }
         if (val && (val>0) && !instance._markModelAddEv) {
             instance._markModelAddEv = instance.after(
-                ['modelList:add', 'lazyModelList:add'],
+                '*:add',
                 function(e) {
-                    var node = instance.getNodeFromIndex(e.index);
-                    if (node) {
-                        node.addClass(MODEL_CHANGED_CLASS);
-                        Y.later(
-                            val,
-                            instance,
-                            function() {
-                                if (node) {
-                                    node.removeClass(MODEL_CHANGED_CLASS);
+                    if (e.target instanceof Y.ModelList) {
+                        var node = instance.getNodeFromIndex(e.index);
+                        if (node) {
+                            node.addClass(MODEL_CHANGED_CLASS);
+                            Y.later(
+                                val,
+                                instance,
+                                function() {
+                                    if (node) {
+                                        node.removeClass(MODEL_CHANGED_CLASS);
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     }
                 }
             );
@@ -2409,9 +2423,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setIntoViewAdded', 'info', 'Itsa-ModellistViewExtention');
         if ((val >0) && !instance._modelInViewAdded) {
             instance._modelInViewAdded = instance.after(
-                ['modelList:add', 'lazyModelList:add'],
+                '*:add',
                 function(e) {
-                    instance.scrollIntoView(e.index, {noFocus: true, showHeaders: (val===2)});
+                    if (e.target instanceof Y.ModelList) {
+                        instance.scrollIntoView(e.index, {noFocus: true, showHeaders: (val===2)});
+                    }
                 }
             );
         }
@@ -2436,12 +2452,15 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setIntoViewChanged', 'info', 'Itsa-ModellistViewExtention');
         if ((val>0) && !instance._modelInViewChanged) {
             instance._modelInViewChanged = instance.after(
-                'model:change',
+                '*:change',
                 function(e) {
                     var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
+                        node;
+                    if (model instanceof Y.Model) {
                         node = instance.getNodeFromModel(model);
-                    if (node) {
-                        instance.scrollIntoView(node, {noFocus: true, showHeaders: (val===2)});
+                        if (node) {
+                            instance.scrollIntoView(node, {noFocus: true, showHeaders: (val===2)});
+                        }
                     }
                 }
             );
@@ -2904,7 +2923,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             lastItemOnTop = (setterAttrs && setterAttrs.lastItemOnTop) || instance.get('lastItemOnTop'),
             infiniteView = instance.itsainfiniteview,
             currentPaginatorIndex, maxPaginatorIndex, findNodeByClientId, previousViewModels, newViewModels,
-            modelConfig, modelNode, renderedModel, prevRenderedModel, renderListLength, listIsLimited, newViewNode, pageSwitch,
+            modelConfig, splitDays, modelNode, renderedModel, prevRenderedModel, renderListLength, listIsLimited, newViewNode, pageSwitch,
             i, j, model, modelListItems, batchSize, items, modelListItemsLength, table, noDataTemplate;
 
         Y.log('_renderView', 'info', 'Itsa-ModellistViewExtention');
@@ -2915,6 +2934,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         options.incrementbuild = Lang.isBoolean(options.incrementbuild) ? options.incrementbuild : !options.rebuild;
         options.keepstyles = Lang.isBoolean(options.keepstyles) ? options.keepstyles : true;
         if (!contentBox.one('#'+instance._viewId)) {
+            contentBox = contentBox.one('.yui3-widget-bd') || contentBox;
             if (instance.get('listType')==='ul') {
                 contentBox.setHTML(viewNode);
             }
@@ -2927,7 +2947,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             }
             instance._set('srcNode', contentBox);
         }
-        // if it finds out there is a 'modelconfig'-attribute, then we need to make extra steps:
+        // if it finds out there is a 'modelconfig'-attribute, or 'splitDays' is true, then we need to make extra steps:
         // we do not render the standard 'modelList', but we create a second modellist that might have more models: these
         // will be the models that are repeated due to a count-value or an enddate when duplicateWhenDurationCrossesMultipleDays is true.
         modelListItems = modelList._items.concat();
@@ -2954,7 +2974,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         }
         if (instance._generateAbberantModelList) {
             modelConfig = (setterAttrs && setterAttrs.modelConfig) || instance.get('modelConfig');
-            if (modelConfig && modelConfig.date && (modelConfig.enddate || modelConfig.count)) {
+            splitDays = (setterAttrs && setterAttrs.splitDays) || instance.get('splitDays');
+            if (modelConfig && modelConfig.date && ((splitDays && modelConfig.enddate) || modelConfig.count)) {
                 instance._generateAbberantModelList(infiniteView, options.rebuild);
                 modelList = instance._abModelList;
                 // reset next 2 items

@@ -2355,7 +2355,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 function(e) {
                     var model = e.target, // NOT e.currentTarget: that is the (scroll)View-instance (?)
                         node;
-                    if ((model instanceof Y.Model) && (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable'))) {
+                    if ((model instanceof Y.Model) && (!e.fromEditModel || !instance.itsacmtemplate ||
+                                                       !instance.itsacmtemplate.get('modelsEditable'))) {
                         node = instance.getNodeFromModel(model);
                         if (node) {
                             node.addClass(MODEL_CHANGED_CLASS);
@@ -2931,6 +2932,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         options.incrementbuild = Lang.isBoolean(options.incrementbuild) ? options.incrementbuild : !options.rebuild;
         options.keepstyles = Lang.isBoolean(options.keepstyles) ? options.keepstyles : true;
         if (!contentBox.one('#'+instance._viewId)) {
+            contentBox = contentBox.one('.yui3-widget-bd') || contentBox;
             if (instance.get('listType')==='ul') {
                 contentBox.setHTML(viewNode);
             }
