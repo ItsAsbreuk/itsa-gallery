@@ -20,7 +20,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAViewModel](src/gallery-itsaviewmodel) --on cdn--
 
-[ITSAViewModelPanel](src/gallery-itsaviewmodelpanel) --under construction--
+[ITSAViewModelPanel](src/gallery-itsaviewmodelpanel)
 
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
 
