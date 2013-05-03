@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewmodelpanel', function (Y, NAME) {
+
 /**
  *
  * Widget ITSAViewModelPanel
@@ -577,4 +579,23 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         }
 
     }
+});
+
+
+}, '@VERSION@', {
+    "requires": [
+        "base-build",
+        "classnamemanager",
+        "pluginhost-base",
+        "gallery-itsaviewmodel",
+        "widget-autohide",
+        "widget-buttons",
+        "widget-modality",
+        "widget-position",
+        "widget-position-align",
+        "widget-position-constrain",
+        "widget-stack",
+        "widget-stdmod"
+    ],
+    "skinnable": true
 });

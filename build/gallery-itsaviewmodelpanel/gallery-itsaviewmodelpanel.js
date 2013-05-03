@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewmodelpanel', function (Y, NAME) {
+
 /**
  *
  * Widget ITSAViewModelPanel
@@ -113,7 +115,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         var instance = this,
             title = instance.get('title');
 
-        Y.log('initializer', 'info', 'Itsa-ViewModelPanel');
         if (title) {
             instance.set('headerContent', title);
         }
@@ -129,7 +130,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
             view = instance.view,
             panelheader;
 
-        Y.log('_bindViewUI', 'info', 'Itsa-ViewModelPanel');
         if (staticPosition) {
             boundingBox.addClass('itsa-staticposition');
             // remove style position=relative, which is added by WidgetPosition
@@ -198,7 +198,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
             model = instance.get('model'),
             ModelClass, modelAttrs, currentConfig, newModel;
 
-        Y.log('_addModel', 'info', 'Itsa-ViewModelPanel');
         if (model) {
             e.buttonNode = e.target;
             e.target = model;
@@ -230,7 +229,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         var instance = this,
             model = instance.get('model');
 
-        Y.log('_closeModel', 'info', 'Itsa-ViewModelPanel');
         if (model) {
             e.buttonNode = e.target;
             e.target = model;
@@ -251,7 +249,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         var instance = this,
             model = instance.get('model');
 
-        Y.log('_destroyModel', 'info', 'Itsa-ViewModelPanel');
         if (model) {
             e.buttonNode = e.target;
             e.target = model;
@@ -274,7 +271,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         var instance = this,
             model = instance.get('model');
 
-        Y.log('_resetModel', 'info', 'Itsa-ViewModelPanel');
         if (model) {
             button = e.target,
             // set the focus manually. This will cause the View to be focussed as well --> now the focusmanager works for this View-instance
@@ -297,7 +293,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         var instance = this,
             model = instance.get('model');
 
-        Y.log('_saveModel', 'info', 'Itsa-ViewModelPanel');
         if (model) {
             button = e.target,
             // set the focus manually. This will cause the View to be focussed as well --> now the focusmanager works for this View-instance
@@ -323,7 +318,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         var instance = this,
             model = instance.get('model');
 
-        Y.log('_submitModel', 'info', 'Itsa-ViewModelPanel');
         if (model) {
             button = e.target,
             // set the focus manually. This will cause the View to be focussed as well --> now the focusmanager works for this View-instance
@@ -345,7 +339,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
      * @private
     */
     _getViewContainer : function() {
-        Y.log('_getViewContainer', 'info', 'Itsa-ViewModelPanel');
         return this.getStdModNode(Y.WidgetStdMod.BODY);
     },
 
@@ -359,7 +352,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     _widgetRenderer : function() {
         var instance = this;
 
-        Y.log('_widgetRenderer', 'info', 'Itsa-ViewModelPanel');
         instance.constructor.superclass.constructor.superclass.renderer.apply(instance);
     },
 
@@ -577,4 +569,23 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         }
 
     }
+});
+
+
+}, '@VERSION@', {
+    "requires": [
+        "base-build",
+        "classnamemanager",
+        "pluginhost-base",
+        "gallery-itsaviewmodel",
+        "widget-autohide",
+        "widget-buttons",
+        "widget-modality",
+        "widget-position",
+        "widget-position-align",
+        "widget-position-constrain",
+        "widget-stack",
+        "widget-stdmod"
+    ],
+    "skinnable": true
 });
