@@ -132,8 +132,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         Y.log('_bindViewUI', 'info', 'Itsa-ViewModelPanel');
         if (staticPosition) {
             boundingBox.addClass('itsa-staticposition');
-            // remove style position=relative, which is added by WidgetPosition
-            boundingBox.setStyle('position', '');
         }
         if (instance.get('dragable') && !staticPosition) {
             panelheader = instance.getStdModNode(Y.WidgetStdMod.HEADER);
@@ -372,6 +370,7 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
      * @return {Number} Normalized zIndex
      */
     _setZIndex: function(zIndex) {
+        Y.log('_setZIndex', 'info', 'Itsa-ViewModelPanel');
         if (typeof zIndex === 'string') {
             zIndex = parseInt(zIndex, 10);
         }
@@ -382,6 +381,14 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
             zIndex = 1;
         }
         return zIndex;
+    },
+
+    _uiSetXY : function(val) {
+        Y.log('_uiSetXY', 'info', 'Itsa-ViewModelPanel');
+        var instance = this;
+        if (!instance.get('staticPosition')) {
+            instance._posNode.setXY(val);
+        }
     },
 
     // -- Public Properties ----------------------------------------------------
