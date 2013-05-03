@@ -531,20 +531,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         },
 
         /**
-         * Specifies how <b>new models</b> will look like. When creating new Models, they get cloned from this object.
-         * @attribute newModelDefinition
-         * @type Object
-         * @default {}
-         * @since 0.1
-        */
-        newModelDefinition : {
-            value: {},
-            validator: function(val) {
-                return (Lang.isObject(val));
-            }
-        },
-
-        /**
          * Specifies the Class of new created Models (that is, when a model:addclick event occurs).
          * @attribute newModelClass
          * @type Model
