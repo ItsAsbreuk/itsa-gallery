@@ -157,7 +157,7 @@ YUI().use('model', 'gallery-itsaviewmodelpanel', 'gallery-itsaeditmodel', functi
         model: model,
         modelEditable: true,
         newModelDefinition: newmodel,
-        buttons: ['close', 'reset', add', 'save']
+        buttons: ['close', 'reset', 'add', 'save']
     });
     viewmodel.render();
 
