@@ -226,7 +226,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host.publish(
                 EVT_SUBMIT_CLICK,
                 {
-                    defaultFn: Y.rbind(instance._defPluginSubmitFn, instance)
+                    defaultFn: Y.rbind(instance._defPluginSubmitFn, instance),
+                    emitFacade: true
                 }
             );
             /**
@@ -241,7 +242,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host.publish(
                 EVT_ADD_CLICK,
                 {
-                    defaultFn: Y.rbind(instance._defPluginAddFn, instance)
+                    defaultFn: Y.rbind(instance._defPluginAddFn, instance),
+                    emitFacade: true
                 }
             );
             /**
@@ -255,7 +257,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host.publish(
                 EVT_RESET_CLICK,
                 {
-                    defaultFn: Y.rbind(instance._defPluginResetFn, instance)
+                    defaultFn: Y.rbind(instance._defPluginResetFn, instance),
+                    emitFacade: true
                 }
             );
             /**
@@ -269,7 +272,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host.publish(
                 EVT_SAVE_CLICK,
                 {
-                    defaultFn: Y.rbind(instance._defSaveFn, instance)
+                    defaultFn: Y.rbind(instance._defPluginSaveFn, instance),
+                    emitFacade: true
                 }
             );
             /**
@@ -285,7 +289,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 {
                     // DO NOT use _defDestroyFn --> this is used by the model itself and would make _defDestroyFn of the model
                     // to be excecuted when the plugin is unplugged (!????)
-                    defaultFn: Y.rbind(instance._defPluginDestroyFn, instance)
+                    defaultFn: Y.rbind(instance._defPluginDestroyFn, instance),
+                    emitFacade: true
                 }
             );
             instance._bindUI();
@@ -421,12 +426,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         *     @param {Any} callback.response The server's response. This value will
         *     be passed to the `parse()` method, which is expected to parse it and
         *     return an attribute hash.
-        * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-        *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-        *              without a callback the promise would never be resolved. This is now caught with the timeout.
         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        savePromise : function(options, timeout) {
+        savePromise : function(options) {
             var instance = this,
                 updateMode = instance.get('updateMode');
 
@@ -435,7 +437,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             if (updateMode!==3) {
                 instance._editFieldsToModel();
             }
-            return instance.host.savePromise(options, timeout);
+            return instance.host.savePromise(options);
         },
 
        /**
@@ -449,17 +451,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * A successful submit-operation will also fire a `submit` event, while an unsuccessful
          * submit operation will fire an `error` event with the `src` value "submit".
          *
-         * <b>CAUTION</b> The sync-method MUST call its callback-function to make the promised resolved. If there is no callback-function
-         * then the promise will be rejected after a timeout. When timeout is not specified,
+         * <b>CAUTION</b> The sync-method MUST call its callback-function to make the promised resolved.
          * @method submitPromise
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
-         * @param {Int} [timeout] when no response within this timesetting, then the Promise will be rejected. When not specified,
-         *              a timeout of 60000 (1 minute) is taken. We need this, because we need to be sure the sync-functions has a callback.
-         *              without a callback the promise would never be resolved. This is now caught with the timeout.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
-        submitPromise: function(options, timeout) {
+        submitPromise: function(options) {
             var instance = this,
                 updateMode = instance.get('updateMode');
 
@@ -468,7 +466,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             if (updateMode!==3) {
                 instance._editFieldsToModel();
             }
-            return instance.host.submitPromise(options, timeout);
+            return instance.host.submitPromise(options);
         },
 
         /**
@@ -646,7 +644,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             // stop the original event to prevent double events
                             e.halt();
                             // make the host fire the event
-                            instance._fireModelEvent(e.type, e);
+                            var payload = {type: e.type};
+                            Y.rbind(instance._fireModelEvent, instance, e.type, payload)();
                         }
                     }
                 )
@@ -721,15 +720,19 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method _defPluginDestroyFn
          * @protected
         */
-        _defPluginDestroyFn : function(e) {
-            var instance = this,
-                syncOptions = instance.get('syncOptions'),
-                options;
+        _defPluginDestroyFn : function() {
+            var instance = this;
+            //    syncOptions = instance.get('syncOptions'),
+            //    options;
 
             Y.log('_defPluginDestroyFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
-            options = Y.merge({remove: true}, syncOptions['destroy']);
-            e.promise = instance.host.destroyPromise(options);
+            // I would love to have the next method here: because the could be prevented this way (as part of defaultFunc)
+            // However, within the defaultFunc, it seems we cannot augment the eventFacade... ); --> https://github.com/yui/yui3/issues/685
+            // That's why the functions are transported to the method '_fireModelEvent'
+
+            // options = Y.merge({remove: true}, syncOptions.destroy || {}});
+            // e.promise = instance.host.destroyPromise(options);
         },
 
         /**
@@ -763,9 +766,10 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method _defPluginSubmitFn
          * @protected
         */
-        _defPluginSubmitFn : function(e) {
+        _defPluginSubmitFn : function() {
+            // Within the defaultFunc, it seems we cannot augment the eventFacade... );
             Y.log('_defPluginSubmitFn', 'info', 'Itsa-EditModel');
-            this._defStoreFn(e, 'submit');
+            this._defStoreFn('submit');
         },
 
         /**
@@ -773,9 +777,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method _defSaveFn
          * @protected
         */
-        _defSaveFn : function(e) {
-            Y.log('save', 'info', 'Itsa-EditModel');
-            this._defStoreFn(e, 'save');
+        _defPluginSaveFn : function() {
+            // Within the defaultFunc, it seems we cannot augment the eventFacade... );
+            Y.log('_defPluginSaveFn', 'info', 'Itsa-EditModel');
+
+            this._defStoreFn('save');
         },
 
         /**
@@ -784,24 +790,31 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @param mode {String} type of update
          * @protected
         */
-        _defStoreFn : function(e, mode) {
+        _defStoreFn : function() {
             var instance = this,
-                syncOptions = instance.get('syncOptions'),
-                updateMode = instance.get('updateMode'),
-                options;
+                updateMode = instance.get('updateMode');
+//                syncOptions, options;
 
             Y.log('_defStoreFn', 'info', 'Itsa-EditModel');
             instance._needAutoSaved = false;
             if (updateMode!==3) {
                 instance._editFieldsToModel();
             }
-            options = syncOptions[mode];
+            // I would love to have the next methods here: because the could be prevented this way (as part of defaultFunc)
+            // However, within the defaultFunc, it seems we cannot augment the eventFacade... ); --> https://github.com/yui/yui3/issues/685
+            // That's why the functions are transported to the method '_fireModelEvent'
+/*
             if (mode === 'save') {
+                syncOptions = instance.get('syncOptions');
+                options = syncOptions[mode] || {};
                 e.promise = instance.host.savePromise(options);
             }
             else if (mode === 'submit') {
+                syncOptions = instance.get('syncOptions');
+                options = syncOptions[mode] || {};
                 e.promise = instance.host.submitPromise(options);
             }
+*/
         },
 
         /**
@@ -840,17 +853,37 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _fireModelEvent: function(eventName, eventPayload) {
             var instance = this,
                 host = instance.host,
-                modelClass, ModelAttrs, currentConfig, newModel;
+                ModelClass, modelAttrs, currentConfig, newModel, syncOptions, options;
 
             Y.log('_fireModelEvent', 'info', 'Itsa-EditModel');
             eventPayload.target = host;
             if (eventName === EVT_ADD_CLICK) {
                 ModelClass = instance.get('newModelClass');
-                modelAttrs = YObject.clone(instance.get('newModelDefinition'));
+                modelAttrs = Y.clone(instance.get('newModelDefinition'));
                 newModel = new ModelClass(modelAttrs);
+                // now reattach the synclayer
+                newModel.sync = host.sync;
                 currentConfig = Y.clone(instance.getAttrs());
                 newModel.plug(Y.Plugin.ITSAEditModel, currentConfig);
-                e.newModel = newModel;
+                eventPayload.newModel = newModel;
+            }
+            // I would love to have the next methods inside _defStoreFn: because the could be prevented this way (as part of defaultFunc)
+            // However, within the defaultFunc, it seems we cannot augment the eventFacade... ); --> https://github.com/yui/yui3/issues/685
+            // That's why the functions are transported to here
+            if (eventName === EVT_SAVE_CLICK) {
+                syncOptions = instance.get('syncOptions');
+                options = syncOptions.save || {};
+                eventPayload.promise = instance.host.savePromise(options);
+            }
+            else if (eventName === EVT_SUBMIT_CLICK) {
+                syncOptions = instance.get('syncOptions');
+                options = syncOptions.submit || {};
+                eventPayload.promise = instance.host.submitPromise(options);
+            }
+            else if (eventName === EVT_DESTROY_CLICK) {
+                syncOptions = instance.get('syncOptions');
+                options = Y.merge({remove: true}, syncOptions.destroy || {});
+                eventPayload.promise = instance.host.destroyPromise(options);
             }
             host.fire(eventName, eventPayload);
         },
@@ -1032,20 +1065,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 value: {},
                 validator: function(v){
                     return Lang.isObject(v);
-                }
-            },
-            /**
-             * Object with the properties: <b>destroy</b>, <b>save</b> and <b>submit</b>. For every property you might want to
-             * specify a callbackFunction.
-             * @attribute syncCallbacks
-             * @type Object
-             * @default {}
-             * @since 0.1
-            */
-            syncCallbacks : {
-                value: {},
-                validator: function(val) {
-                    return Lang.isObject(val);
                 }
             },
             /**
