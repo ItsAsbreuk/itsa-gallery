@@ -113,7 +113,8 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             validation = !autoCorrection && instance.get('validation');
             enterNextField = (type==='input') || (type==='password');
             isDateOrTime = (type==='date') || (type==='time') || (type==='datetime');
-            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='add') || (type==='destroy');
+            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') ||
+                       (type==='add') || (type==='destroy') || (type==='stopedit');
             focusable = instance.get('focusable');
             focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);
             focusinfo = focusable ?
@@ -313,6 +314,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                              (val==='save') ||
                              (val==='add') ||
                              (val==='destroy') ||
+                             (val==='stopedit') ||
 //                             (val==='autocomplete') ||  // not ready yet
 //                             (val==='tokeninput') ||  // not ready yet
 //                             (val==='tokenautocomplete') ||  // not ready yet

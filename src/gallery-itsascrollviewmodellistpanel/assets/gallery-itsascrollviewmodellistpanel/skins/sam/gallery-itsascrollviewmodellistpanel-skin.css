@@ -35,13 +35,22 @@
     padding: 8px;
 }
 .yui3-skin-sam .yui3-itsascrollviewmodellistpanel .yui3-widget-bd {
-    padding: 10px;
     overflow-y: auto;
 }
 .yui3-skin-sam .yui3-itsascrollviewmodellistpanel .yui3-widget-ft {
     background: #EDF5FF;
     padding: 8px;
     text-align: right;
+}
+.yui3-skin-sam .yui3-itsascrollviewmodellistpanel .yui3-widget-hd .yui3-button {
+    margin-left: 4px;
+    margin-top: -4px;
+    padding: 0.2em 0.27em;
+}
+.yui3-skin-sam .yui3-itsascrollviewmodellistpanel .yui3-widget-hd .yui3-button.yui3-button-close {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-left: 10px;
 }
 .yui3-skin-sam .yui3-itsascrollviewmodellistpanel .yui3-widget-ft .yui3-button {
     margin-left: 8px;

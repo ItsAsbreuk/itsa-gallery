@@ -296,7 +296,7 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
     }, {
         ATTRS : {
             /**
-             * Can make the last element be fixed to the bottom/right edge, but to the top/left edge.
+             * Can make the last element in the scrollview be fixed to the bottom/right edge, but to the top/left edge.
              * 0 = not active (normal behaviour, bottom/right)
              * 1 = active: on top/left edge
              * 2 = active: on top/left edge <b>but with headerdefinition</b> if the definition was just before the last item

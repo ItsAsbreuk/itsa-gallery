@@ -14,7 +14,7 @@ You may not need to call the plugin's methods yourself, but want to use one of t
 
 
 ##Custom buttons
-The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, add, submit, save, cancel, destroy</i>. In order to do so, you must declare 2 attributes:
+The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, add, submit, save, destroy, stopedit</i>. In order to do so, you must declare 2 attributes:
 
 * <b>'template'</b> where the Model's-attributes can be between brackets (it uses Y.Lang.sub() for this), or conform the Y.Template.Micro-format. Also the UI-buttons -which are not part of the model- can be declared between brackets: just make sure you use a unique name: '{firstname} {lastname} {send}'.
 * <b>'editmodelConfigAttrs'</b> this is the configuration by which the plugin determines what type must be used for all specified properties within 'template'
@@ -24,12 +24,12 @@ The plugin can create form-elements of all Model's-attributes. It also can creat
 The custom buttons have their defaultFunction which correspons with their names. When listening to these events, you catch a buttonclick immediately, but
 the real action may take some time. The action performed are <b>not</b> model.load etc, but model.loadPromise, which is supplied by [ITSAModelSyncPromise](../gallery-itsamodelsyncpromise). Some defaultfunctions will add e.promise to the eventTarget:
 
-* button  --> event 'model:buttonclick'
-* add     --> event 'model:addclick'
-* cancel  --> event 'model:cancelclick'
-* submit  --> event 'model:submitclick'  --> e.promise
-* save    --> event 'model:saveclick'    --> e.promise
-* destroy --> event 'model:destroyclick' --> e.promise
+* button   --> event 'model:buttonclick'
+* add      --> event 'model:addclick'
+* stopedit --> event 'model:stopeditclick'
+* submit   --> event 'model:submitclick'  --> e.promise
+* save     --> event 'model:saveclick'    --> e.promise
+* destroy  --> event 'model:destroyclick' --> e.promise
 
 Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
 
@@ -66,7 +66,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-da
         artist: {type: 'input'},
         country: {type: 'input'},
         firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
-        cancelButton: {type: 'cancel', buttonText: 'cancel'},
+        cancelButton: {type: 'stopedit', buttonText: 'cancel'},
         saveButton: {type: 'save', buttonText: 'save'}
     };
 
@@ -85,55 +85,68 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-da
 });
 ```
 
-<b>Usage in conjunction with ITSAViewModellist</b>
+<b>Usage in conjunction with ITSAScrollViewModellist</b>
 ```js
-YUI().use('model', 'lazy-model-list', 'gallery-itsaviewmodellist', 'gallery-itsachangemodeltemplate', 'datatype-date-format', function(Y) {
-// 'gallery-itsachangemodeltemplate' uses 'gallery-itsaeditmodel' under the hood
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', function(Y) {
+var myModellist, rendertemplate, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
 
-    var viewmodellist, onemodel, modellist, items, modeltemplate, edittemplate, editmodelConfigAttrs;
-    items = [
-        {
-            artist: 'Madonna',
-            country: 'USA',
-            firstRelease: new Date(1983, 1, 1)
-        },
-        {
-            artist: 'Marillion',
-            country: 'UK',
-            firstRelease: new Date(1983, 1, 1)
-        }
-    ];
+//----- defining the LazyModelList -----------------------------------------------------
 
-    modellist = new Y.LazyModelList(items: items);
+myModellist = new Y.LazyModelList();
+myModellist.comparator = function (model) {
+    return model.Country.toUpperCase();
+};
+myModellist.add([
+    {Country: 'The Netherlands'},
+    {Country: 'USA'},
+    {},
+    ....
+]);
 
-    modeltemplate = '<%= data.artist %><br />'+
-                    '<%= country %><br />'+
-                    'First album released: <%= Y.Date.format(data.firstRelease, {format:"%d-%m-%Y"}) %>';
-    edittemplate = 'Artist: {artist}<br />'+
-                   'Country: {country}<br />'+
-                   'First album released: {firstRelease}<br />'+
-                   '{cancelButton} {saveButton}';
+//--------------------------------------------------------------------------------------
 
-    editmodelConfigAttrs = {
-        artist: {type: 'input'},
-        country: {type: 'input'},
-        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
-        cancelButton: {type: 'cancel', buttonText: 'cancel'},
-        saveButton: {type: 'save', buttonText: 'save'}
-    };
+rendertemplate = '{Country} <button type="button" class="yui3-button edittemplate">edit</button>';
 
-    viewmodelllist = new Y.ITSAViewModellist({
-        boundingBox: "#myview",
-        width:'280px',
-        height:'600px',
-        modelTemplate: modeltemplate, // <-- all models have this template as default
-        modelList: modellist
-    });
-    viewmodellist.plug(Y.Plugin.ITSAChangeModelTemplate, {modelsEditable: true, editmodelConfig: editmodelconfig});
-    viewmodellist.render();
+myScrollview = new Y.ITSAScrollViewModellist({
+    boundingBox: "#myscrollview",
+    height:'600px',
+    width:'240px',
+    modelTemplate: rendertemplate,
+    axis: 'y',
+    modelList: myModellist
+});
 
-    onemodel = modellist.item(0); // no need to revive, ITSAChangeModelTemplate does this onder the hood
-    scrollview.itsacmtemplate.setModelToEditTemplate(onemodel); // <-- render the first model with edittemplate
+//----- defining everything we need to know about Y.Plugin.ITSAChangeModelTemplate -----
+
+editmodeltemplate = 'continental: {Continental}<br />'+
+                        'country: {Country}<br />'+
+                        '{Reset} {Close} {Save}';
+
+editmodelConfigAttrs = {
+    Continental: {type: 'input', selectOnFocus: true},
+    Country: {type: 'textarea', initialFocus: true},
+    Reset: {type: 'reset', buttonText: 'reset'},
+    Close: {type: 'stopedit', buttonText: 'close'},
+    Save: {type: 'save', buttonText: 'save'}
+};
+
+configForEditModel = {
+    updateMode: 1
+};
+
+changeModelTemplateConfig = {
+    editTemplate: editmodeltemplate,
+    editmodelConfigAttrs: editmodelConfigAttrs,
+    configForEditModel: configForEditModel
+};
+
+//--------------------------------------------------------------------------------------
+
+scrollview.plug(Y.Plugin.ITSAChangeModelTemplate, changeModelTemplateConfig);
+
+myScrollview.render();
+
+//--------------------------------------------------------------------------------------
 
 });
 ```
@@ -160,7 +173,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-da
         artist: {type: 'input'},
         country: {type: 'input'},
         firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
-        cancelButton: {type: 'cancel', buttonText: 'cancel'},
+        cancelButton: {type: 'stopedit', buttonText: 'cancel'},
         saveButton: {type: 'save', buttonText: 'save'}
     };
 

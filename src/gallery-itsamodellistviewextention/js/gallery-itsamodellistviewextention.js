@@ -147,6 +147,39 @@ Y.mix(ITSAModellistAttrExtention.prototype, {
     getModelToJSON : function(model) {
         Y.log('getModelToJSON', 'info', 'Itsa-LazyModelListAttr');
         return (model.get && (typeof model.get === 'function')) ? model.toJSON() : model;
+    },
+
+    /**
+     * Returns whether Model is modified. Regardless whether it is a Model-instance, or an item of a LazyModelList
+     * which might be an Object or a Model.
+     *
+     * @method isModifiedModel
+     * @param {Y.Model} model Model or Object from the (Lazy)ModelList
+     * @return {Boolean} Whether Model or Object is modified
+     * @since 0.1
+     *
+    */
+    isModifiedModel : function(model) {
+        var modelIsLazy = !model.get || (typeof model.get !== 'function');
+
+        Y.log('isModifiedModel', 'info', 'Itsa-LazyModelListAttr');
+        // model._changed is self defines field for objects inseide LazyModelList
+        return this.isNewModel(model) || (modelIsLazy ? model._changed : !YObject.isEmpty(model.changed));
+    },
+
+    /**
+     * Returns whether Model is new. Regardless whether it is a Model-instance, or an item of a LazyModelList
+     * which might be an Object or a Model.
+     *
+     * @method isNewModel
+     * @param {Y.Model} model Model or Object from the (Lazy)ModelList
+     * @return {Boolean} Whether Model or Object is new
+     * @since 0.1
+     *
+    */
+    isNewModel : function(model) {
+        Y.log('isNewModel', 'info', 'Itsa-LazyModelListAttr');
+        return !Lang.isValue(this.getModelAttr(model, 'id'));
     }
 
 }, true);
@@ -399,7 +432,7 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
    /**
-    * When set to a value > 0, the Models will be m highlighted whenever they change (or new added).
+    * When set to a value > 0, the Models will be highlighted whenever they change (or new added).
     * The attribute-value represents the <b>number of miliseconds</b> that the Model-node should be highlighted.
     * Disable highlighting by set to 0. Hghlighting is done by adding the  class 'itsa-model-changed' fors ome seconds.
     * You should define a css-rule for this className, or you should set the attribute 'modelListStyled' to true to make things visible.
@@ -416,10 +449,12 @@ ITSAModellistViewExtention.ATTRS = {
     },
 
    /**
-    * Use this attribute you want the models to be scrolled into the viewport after they are added to the list.
-    * 0 = no scroll into view
-    * 1 = active: scroll into view
-    * 2 = active: scroll into view <b>with headerdefinition</b> if the headers are just before the last item
+    * Use this attribute you want the models to be scrolled into the viewport after they are added to the list.<br />
+    * 0 = no scroll into view<br />
+    * 1 = active: scroll into view<br />
+    * 2 = active: scroll into view with headerdefinition if the headers are just before the last item<br />
+    * 3 = active: scroll into view, scroll to top<br />
+    * 4 = active: scroll into view with headerdefinition if the headers are just before the last item, scroll to top<br />
     *
     * @attribute modelsIntoViewAfterAdd
     * @type {Int}
@@ -428,7 +463,7 @@ ITSAModellistViewExtention.ATTRS = {
     */
     modelsIntoViewAfterAdd: {
         value: false,
-        validator: function(v) {return ((typeof v === 'number') && (v>=0) && (v<=2));},
+        validator: function(v) {return ((typeof v === 'number') && (v>=0) && (v<=4));},
         setter: '_setIntoViewAdded'
     },
 
@@ -760,6 +795,18 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         //-------------------------------------------------------------------------------------
         //---- Private properties -------------------------------------------------------------
         //-------------------------------------------------------------------------------------
+
+
+            instance.publish(
+                'modelListRender',
+                {
+//                    defaultFn: Y.rbind(instance._defPluginAddFn, instance),
+                    emitFacade: true
+                }
+            );
+
+
+
 
         /**
          * Internal list that holds event-references
@@ -1130,14 +1177,18 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @type Boolean
         */
         instance._microTemplateUsed = null;
+    },
 
-        instance._handlers.push(
-            instance.after(
-                'render',
-                instance._render,
-                instance
-            )
-        );
+   /**
+     * Overruled renderer-method, to make sure rendering is done after asynchronious initialisation.
+     *
+     * @method renderer
+     * @protected
+    */
+    renderer : function() {
+        var instance = this;
+        instance.constructor.superclass.renderer.apply(instance);
+        instance._render();
     },
 
     /**
@@ -1464,6 +1515,25 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     },
 
     /**
+     * Gets the Model (or Object, in case of LazyModelList) from the specific Node.
+     * The Node should be a Node that represent the listitems.
+     *
+     * @method getModelFromNode
+     * @param {Y.Node} node
+     * @return {Y.model|Object|null} The Model-instance, Object (in case of LazyModelList) or null in case of an invalid node
+     * @since 0.1
+     *
+    */
+    getModelFromNode : function(node) {
+        var instance = this,
+            modelList = instance.get('modelList'),
+            modelClientId = node.getData('modelClientId');
+
+        Y.log('getModelFromNode', 'info', 'Itsa-ModellistViewExtention');
+        return modelList && modelList.getByClientId(modelClientId);
+    },
+
+    /**
      * Gets an attribute-value from a Model OR object. Depends on the class (Y.ModelList v.s. Y.LazyModelList).
      * Will always work, whether an Y.ModelList or Y.LazyModelList is attached.
      *
@@ -1498,12 +1568,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     */
     setModelAttr: function(model, name, value, options) {
         var instance = this,
-            modelIsLazy, modelList, revivedModel;
+            modelList, revivedModel;
 
         Y.log('setModelAttr', 'info', 'Itsa-ModellistViewExtention');
         if (model) {
-            modelIsLazy = !model.get || (typeof model.get !== 'function');
-            if (modelIsLazy) {
+            if (instance._listLazy) {
                 modelList = instance.get('modelList');
                 revivedModel = modelList.revive(model);
                 model[name] = value;
@@ -1532,6 +1601,39 @@ Y.mix(ITSAModellistViewExtention.prototype, {
     getModelToJSON : function(model) {
         Y.log('getModelToJSON', 'info', 'Itsa-ModellistViewExtention');
         return (model.get && (typeof model.get === 'function')) ? model.toJSON() : model;
+    },
+
+    /**
+     * Returns whether Model is modified. Regardless whether it is a Model-instance, or an item of a LazyModelList
+     * which might be an Object or a Model.
+     *
+     * @method isModifiedModel
+     * @param {Y.Model} model Model or Object from the (Lazy)ModelList
+     * @return {Boolean} Whether Model or Object is modified
+     * @since 0.1
+     *
+    */
+    isModifiedModel : function(model) {
+        var instance = this;
+
+        Y.log('isModifiedModel', 'info', 'Itsa-LazyModelListAttr');
+        // model._changed is self defines field for objects inseide LazyModelList
+        return instance.isNewModel(model) || (instance._listLazy ? model._changed : !YObject.isEmpty(model.changed));
+    },
+
+    /**
+     * Returns whether Model is new. Regardless whether it is a Model-instance, or an item of a LazyModelList
+     * which might be an Object or a Model.
+     *
+     * @method isNewModel
+     * @param {Y.Model} model Model or Object from the (Lazy)ModelList
+     * @return {Boolean} Whether Model or Object is new
+     * @since 0.1
+     *
+    */
+    isNewModel : function(model) {
+        Y.log('isNewModel', 'info', 'Itsa-LazyModelListAttr');
+        return !Lang.isValue(this.getModelAttr(model, 'id'));
     },
 
     /**
@@ -1601,10 +1703,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             modellist = instance.get('modelList'),
             listType = instance.get('listType'),
             boundingBox = instance.get('boundingBox'),
+            contentBox = instance.get('contentBox'),
             viewNode;
 
         Y.log('_render', 'info', 'Itsa-ModellistViewExtention');
-        instance.get('contentBox').setHTML(Lang.sub(LOADING_TEMPLATE, {loading: LOADING_MESSAGE}));
+        contentBox = contentBox.one('.yui3-widget-bd') || contentBox;
+        contentBox.setHTML(Lang.sub(LOADING_TEMPLATE, {loading: LOADING_MESSAGE}));
         instance._viewNode = viewNode = YNode.create((listType==='ul') ? VIEW_TEMPLATE_UL : VIEW_TEMPLATE_TBODY);
         viewNode.set('id', instance._viewId);
         viewNode.addClass(SVML_VIEW_NOITEMS_CLASS).addClass(SVML_VIEW_NOINITIALITEMS_CLASS);
@@ -1848,7 +1952,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 ['*:reset'],
                 function(e) {
                     if (e.target instanceof Y.ModelList) {
-                        instance._renderView(null, {keepstyles: false});
+                        instance._renderView(null, {keepstyles: false, initbuild: true});
+                    }
+                }
+            )
+        );
+        eventhandlers.push(
+            instance.after(
+                ['itsamodellistviewextention:destroy', 'itsamodellistviewextention:pluggedin'],
+                function(e) {
+                    if (e.target instanceof Y.ModelList) {
+                        instance._renderView(null, {keepstyles: false, initbuild: true});
                     }
                 }
             )
@@ -2275,9 +2389,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'click',
                 function(e) {
                     var node = e.currentTarget,
-                        modelList = instance.get('modelList'),
-                        modelClientId = node.getData('modelClientId'),
-                        model = modelList && modelList.getByClientId(modelClientId);
+                        model = instance.getModelFromNode(node);
                     instance.fire('modelClick', {node: node, model: model});
                 },
                 function(node, e) {
@@ -2322,9 +2434,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'dblclick',
                 function(e) {
                     var node = e.currentTarget,
-                        modelList = instance.get('modelList'),
-                        modelClientId = node.getData('modelClientId'),
-                        model = modelList && modelList.getByClientId(modelClientId);
+                        model = instance.getModelFromNode(node);
                     instance.fire('modelDblclick', {node: node, model: model});
                 },
                 '.'+MODEL_CLASS
@@ -2408,6 +2518,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
 
     /**
      * Sets or removes scrollIntoView effects when a Model is added to the list.
+     * Meaning val:
+     * 0 = no scroll into view
+     * 1 = active: scroll into view
+     * 2 = active: scroll into view with headerdefinition if the headers are just before the last item
+     * 3 = active: scroll into view, always on top of page
+     * 4 = active: scroll into view with headerdefinition if the headers are just before the last item, always on top of page
      *
      * @method _setIntoViewAdded
      * @param {Boolean} val
@@ -2424,7 +2540,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 '*:add',
                 function(e) {
                     if (e.target instanceof Y.ModelList) {
-                        instance.scrollIntoView(e.index, {noFocus: true, showHeaders: (val===2)});
+                        instance.scrollIntoView(e.index, {noFocus: true, forceTop: (val>2), showHeaders: ((val===2) || (val===4))});
                     }
                 }
             );
@@ -2497,9 +2613,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'mousedown',
                 function(e) {
                     var node = e.currentTarget,
-                        modelList = instance.get('modelList'),
-                        modelClientId = node.getData('modelClientId'),
-                        model = modelList && modelList.getByClientId(modelClientId);
+                        model = instance.getModelFromNode(node);
                     instance.fire('modelMouseDown', {node: node, model: model});
                 },
                 '.' + MODEL_CLASS
@@ -2522,9 +2636,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'mouseup',
                 function(e) {
                     var node = e.currentTarget,
-                        modelList = instance.get('modelList'),
-                        modelClientId = node.getData('modelClientId'),
-                        model = modelList && modelList.getByClientId(modelClientId);
+                        model = instance.getModelFromNode(node);
                     instance.fire('modelMouseUp', {node: node, model: model});
                 },
                 '.' + MODEL_CLASS
@@ -2563,9 +2675,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'mouseenter',
                 function(e) {
                     var node = e.currentTarget,
-                        modelList = instance.get('modelList'),
-                        modelClientId = node.getData('modelClientId'),
-                        model = modelList && modelList.getByClientId(modelClientId);
+                        model = instance.getModelFromNode(node);
                     instance.fire('modelMouseEnter', {node: node, model: model});
                 },
                 '.'+MODEL_CLASS
@@ -2588,9 +2698,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'mouseleave',
                 function(e) {
                     var node = e.currentTarget,
-                        modelList = instance.get('modelList'),
-                        modelClientId = node.getData('modelClientId'),
-                        model = modelList && modelList.getByClientId(modelClientId);
+                        model = instance.getModelFromNode(node);
                     instance.fire('modelMouseLeave', {node: node, model: model});
                 },
                 '.'+MODEL_CLASS
@@ -2920,6 +3028,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             allTemplateFuncs = instance._templFns,
             lastItemOnTop = (setterAttrs && setterAttrs.lastItemOnTop) || instance.get('lastItemOnTop'),
             infiniteView = instance.itsainfiniteview,
+            widgetStdMod = contentBox.one('.yui3-widget-bd'),
             currentPaginatorIndex, maxPaginatorIndex, findNodeByClientId, previousViewModels, newViewModels,
             modelConfig, splitDays, modelNode, renderedModel, prevRenderedModel, renderListLength, listIsLimited, newViewNode, pageSwitch,
             i, j, model, modelListItems, batchSize, items, modelListItemsLength, table, noDataTemplate;
@@ -2932,18 +3041,28 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         options.incrementbuild = Lang.isBoolean(options.incrementbuild) ? options.incrementbuild : !options.rebuild;
         options.keepstyles = Lang.isBoolean(options.keepstyles) ? options.keepstyles : true;
         if (!contentBox.one('#'+instance._viewId)) {
+            instance._set('srcNode', contentBox);
             contentBox = contentBox.one('.yui3-widget-bd') || contentBox;
             if (instance.get('listType')==='ul') {
-                contentBox.setHTML(viewNode);
+                if (widgetStdMod) {
+                    instance.set('bodyContent', viewNode);
+                }
+                else {
+                    contentBox.setHTML(viewNode);
+                }
             }
             else {
-                contentBox.setHTML(TEMPLATE_TABLE);
+                if (widgetStdMod) {
+                    instance.set('bodyContent', TEMPLATE_TABLE);
+                }
+                else {
+                    contentBox.setHTML(TEMPLATE_TABLE);
+                }
                 table = contentBox.one('table');
                 if (table) {
                     table.append(viewNode);
                 }
             }
-            instance._set('srcNode', contentBox);
         }
         // if it finds out there is a 'modelconfig'-attribute, or 'splitDays' is true, then we need to make extra steps:
         // we do not render the standard 'modelList', but we create a second modellist that might have more models: these
@@ -3071,8 +3190,13 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             if (instance._microTemplateUsed) {
                 viewNode.cleanup();
             }
-            viewNode.replace(newViewNode);
-            instance._viewNode = newViewNode;
+            if (widgetStdMod) {
+                instance.set('bodyContent', newViewNode);
+            }
+            else {
+                viewNode.replace(newViewNode);
+            }
+            viewNode = instance._viewNode = newViewNode;
             newViewNode.set('id', instance._viewId);
         }
         if (viewNode.getHTML()==='') {

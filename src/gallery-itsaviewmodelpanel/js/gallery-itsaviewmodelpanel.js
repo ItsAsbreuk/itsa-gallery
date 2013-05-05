@@ -110,13 +110,10 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
 ], {
 
     initializer : function() {
-        var instance = this,
-            title = instance.get('title');
+        var instance = this;
 
         Y.log('initializer', 'info', 'Itsa-ViewModelPanel');
-        if (title) {
-            instance.set('headerContent', title);
-        }
+
         // declare bodyContent: this must be rendered.
         instance.set('bodyContent', '');
     },
@@ -532,8 +529,30 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         */
         title : {
             value: null,
+            lazyAdd: false,
             validator: function(val) {
                 return (typeof val === 'string');
+            },
+            setter: function(val) {
+                this.set('headerContent', val);
+            }
+        },
+
+        /**
+         * Title to appear in the footer
+         * @attribute statusText
+         * @type String
+         * @default null
+         * @since 0.1
+        */
+        statusText : {
+            value: null,
+            lazyAdd: false,
+            validator: function(val) {
+                return (typeof val === 'string');
+            },
+            setter: function(val) {
+                this.set('footerContent', val);
             }
         },
 

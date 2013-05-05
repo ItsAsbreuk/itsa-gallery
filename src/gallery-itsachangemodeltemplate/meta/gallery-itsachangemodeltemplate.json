@@ -3,6 +3,7 @@
         "requires": [
             "yui-base",
             "node-core",
+            "node-event-delegate",
             "base-base",
             "base-build",
             "model",

@@ -16,6 +16,16 @@
     visibility: visible;
 }
 
+.itsa-modellistview-styled.itsa-modellistview-noinitialitems.itsa-modellistview-noitems td,
+.itsa-modellistview-styled.itsa-modellistview-noinitialitems.itsa-modellistview-noitems li {
+    padding-top: 0px;
+}
+
+.itsa-modellistview-styled.itsa-modellistview-noinitialitems td,
+.itsa-modellistview-styled.itsa-modellistview-noinitialitems li {
+    text-align: center;
+}
+
 .itsa-modellistview-styled.itsa-modellistview-noitems td,
 .itsa-modellistview-styled.itsa-modellistview-noitems li {
     text-align: center;

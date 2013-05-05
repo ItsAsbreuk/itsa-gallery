@@ -31,11 +31,23 @@ var Lang = Y.Lang,
     YArray = Y.Array,
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
-    ERROR_MESSAGE_NOTEMPLATE = 'Attribute editTemplate is undefined',
+    FORMELEMENT_BUTTON_ORIGINALTEMPLATE = 'originaltemplate',
+    FORMELEMENT_BUTTON_SECONDTEMPLATE = 'secondtemplate',
+    FORMELEMENT_BUTTON_EDITTEMPLATE = 'edittemplate',
+    MODEL_CLASS = 'itsa-model',
+    ERROR_MESSAGE_NOTEMPLATE = 'Error: Attribute editTemplate is undefined',
+    ERROR_MESSAGE_LOAD_ITSA_EDITMODEL_MODULE = 'Error: gallery-itsaeditmodel should be loaded in the loader',
     ISMICROTEMPLATE = function(template) {
         var microTemplateRegExp = /<%(.+)%>/;
         return microTemplateRegExp.test(template);
-    };
+    },
+   /**
+     * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
+     * because the latter will be fired before the namespace Model.itsaeditmodel exists.
+     * @event pluggedin
+     * @since 0.1
+    **/
+    EVT_PLUGGEDIN = 'pluggedin';
 
 Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodeltemplate', Y.Plugin.Base, [], {
 
@@ -47,7 +59,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          * @since 0.1
          */
         initializer : function() {
-            var instance = this;
+            var instance = this,
+                host;
 
             Y.log('initializer', 'info', 'Itsa-ChangeModelTemplate');
 
@@ -57,7 +70,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
              * @default plugins host
              * @type Object
             */
-            instance.host = instance.get('host');
+            host = instance.host = instance.get('host');
 
             /**
              * Internal reference to the compiled alternate template.
@@ -151,6 +164,15 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             */
             instance._currentModelHasChanged = {};
 
+           /**
+            * Internal reference to Y.later timerobject that is used to fire a 'pluggedin'-event once 'itsaeditmodel' is available on the host.
+            * @property _fireEventTimer
+            * @default null
+            * @private
+            * @type timer-Object
+            */
+            instance._fireEventTimer = null;
+
             /**
              * Internal backuplist of the Models previous 'comparator-result', used determine if the comparators-value has changed after
              * the models has been edited.  This way the module knows it doesn't need to do a thorough re-render of the list.
@@ -162,6 +184,23 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             instance._prevComparator = {};
 
             instance._bindUI();
+
+            // now a VERY tricky one...
+            // We need to fire an event that tells the plugin is pluged in, but it seemed that when listening in the host,
+            // host.itsacmtemplate will be read immediately after the event fired --> this seems to be BEFORE the event is registred!!!
+            // So, we wait until the real registering is finished and THEN fire the event!
+            instance._fireEventTimer = Y.later(
+                50,
+                instance,
+                function() {
+                    if (host.itsacmtemplate) {
+                        instance._fireEventTimer.cancel();
+                        instance.fire(EVT_PLUGGEDIN);
+                    }
+                },
+                null,
+                true
+            );
         },
 
         /**
@@ -330,6 +369,9 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             var instance = this;
 
             Y.log('destructor', 'info', 'Itsa-ChangeModelTemplate');
+            if (instance._fireEventTimer) {
+                instance._fireEventTimer.cancel();
+            }
             instance._clearEventhandlers();
             instance._initialEditAttrs = {};
             instance._secondModels = {};
@@ -360,8 +402,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host.after(
                     'itsaeditmodel:focusnext',
                     function(e) {
-                        var inputnode = e.inputNode,
-                            modelnode = inputnode.get('parentNode'),
+                        var model = e.target.get('host'),
+                            modelnode = host.getNodeFromModel(model),
                             itsatabkeymanager;
                         while (modelnode && !modelnode.hasClass('itsa-model')) {
                             modelnode = modelnode.get('parentNode');
@@ -425,6 +467,32 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 )
             );
             eventhandlers.push(
+                host.after(
+                    '*:submitclick',
+                    function(e) {
+                        var model = e.target;
+                        if (model instanceof Y.Model) {
+                            if (instance.get('restoreOnSubmit')) {
+                                instance.restoreTemplate(model);
+                            }
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
+                host.after(
+                    '*:saveclick',
+                    function(e) {
+                        var model = e.target;
+                        if (model instanceof Y.Model) {
+                            if (instance.get('restoreOnSave')) {
+                                instance.restoreTemplate(model);
+                            }
+                        }
+                    }
+                )
+            );
+            eventhandlers.push(
                 instance.after(
                     'modelsEditableChange',
                     Y.bind(host._renderView, host, null, null)
@@ -467,6 +535,48 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             }
                         }
                     }
+                )
+            );
+            eventhandlers.push(
+                host.on(
+                    'itsaeditmodel:destroy',
+                    function(e) {
+                        var model = e.target.get('host');
+                        instance.restoreTemplate(model);
+                    }
+                )
+            );
+            eventhandlers.push(
+                host.get('boundingBox').delegate(
+                    'click',
+                    function(e) {
+                        var button = e.currentTarget,
+                            isOriginalTemplate = button.hasClass(FORMELEMENT_BUTTON_ORIGINALTEMPLATE),
+                            isSecondTemplate = button.hasClass(FORMELEMENT_BUTTON_SECONDTEMPLATE),
+                            isEditTemplate = button.hasClass(FORMELEMENT_BUTTON_EDITTEMPLATE),
+                            node, model;
+
+                        if (isOriginalTemplate || isSecondTemplate || isEditTemplate) {
+                            node = button.get('parentNode');
+                            while (node && !node.hasClass(MODEL_CLASS)) {
+                                node = button.get('parentNode');
+                            }
+                            if (node) {
+                                // modelnode found
+                                model = host.getModelFromNode(node);
+                                if (isOriginalTemplate) {
+                                    instance.setModelToOriginalTemplate(model);
+                                }
+                                else if (isSecondTemplate) {
+                                    instance.setModelToSecondTemplate(model);
+                                }
+                                else if (isEditTemplate) {
+                                    instance.setModelToEditTemplate(model);
+                                }
+                            }
+                        }
+                    },
+                    'button'
                 )
             );
         },
@@ -534,14 +644,48 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         _getMode : function(model) {
             var instance = this,
                 modelsEditable = instance.get('modelsEditable'),
-                clientId = instance.host.getModelAttr(model, 'clientId'),
-                mode = 1;
-
-            if (instance._secondModels[clientId]) {
+                secondTemplate = instance.get('secondTemplate'),
+                editTemplate = instance.get('editTemplate'),
+                host = instance.host,
+                clientId = host.getModelAttr(model, 'clientId'),
+                mode = 1,
+                newModelMode, modelInstance, usemodel, revivedModel;
+            if (secondTemplate && instance._secondModels[clientId]) {
                 mode = 2;
             }
-            if (modelsEditable && instance._editModels[clientId]) {
+            else if (modelsEditable && editTemplate && instance._editModels[clientId]) {
                 mode = 3;
+            }
+            else if (host.isNewModel(model)) {
+                newModelMode = instance.get('newModelMode');
+                if ((newModelMode === 2) && secondTemplate) {
+                    mode = 2;
+                    clientId = host.getModelAttr(model, 'clientId');
+                    instance._secondModels[clientId] = true;
+                }
+                else if ((newModelMode === 3) && modelsEditable && editTemplate) {
+                    mode = 3;
+                    // Also: we might need to plugin ItsaEditModel
+                    // IMPORTANT: model could be an object in case of LazyModelList
+                    // we need to revive it first
+                    modelInstance = model.get && (typeof model.get === 'function');
+                    if (!modelInstance && host._listLazy) {
+                        revivedModel = host.get('modelList').revive(model);
+                    }
+                    usemodel = revivedModel || model;
+                    instance._initialEditAttrs[usemodel.get('clientId')] = usemodel.getAttrs();
+                    if (!usemodel.itsaeditmodel) {
+                        Y.use('gallery-itsaeditmodel', function(Y) {
+                            usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                            if (!instance._editTempl) {
+                                instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template') ||
+                                                                                          ERROR_MESSAGE_NOTEMPLATE);
+                            }
+                        });
+                    }
+                    clientId = host.getModelAttr(model, 'clientId');
+                    instance._editModels[clientId] = true;
+                }
             }
             Y.log('_getMode --> '+mode, 'info', 'Itsa-ChangeModelTemplate');
             return mode;
@@ -618,8 +762,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                         Y.use('gallery-itsaeditmodel', function(Y) {
                             usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
                             if (!instance._editTempl) {
-                                instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template')
-                                                                                       || ERROR_MESSAGE_NOTEMPLATE);
+                                instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template') ||
+                                                                                          ERROR_MESSAGE_NOTEMPLATE);
                             }
                             modelNode.setHTML(instance._editTempl(usemodel));
                             if (typeof callback === 'function') {
@@ -629,8 +773,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     }
                     else {
                         if (!instance._editTempl) {
-                            instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template')
-                                                                                   || ERROR_MESSAGE_NOTEMPLATE);
+                            instance._setEditTemplate(instance.get('editTemplate') || usemodel.itsaeditmodel.get('template') ||
+                                                                                      ERROR_MESSAGE_NOTEMPLATE);
                         }
                         modelNode.setHTML(instance._editTempl(usemodel));
                         if (typeof callback === 'function') {
@@ -724,32 +868,40 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 if (editTemplateIsMicro) {
                     compiledModelEngine = Y.TemplateMicro.compile(template);
                     instance._editTempl = function(model) {
-                        var modelInstance = model.get && (model.get === 'function'),
-                            usemodel, revivedmodel;
+                        var modelInstance, usemodel, revivedModel;
+                        modelInstance = model.get && (typeof model.get === 'function');
                         if (!modelInstance && host._listLazy) {
-                            revivedmodel = host.get('modelList').revive(model);
-                            if (!revivedmodel.itsaeditmodel) {
-                                revivedmodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
-                            }
+                            revivedModel = host.get('modelList').revive(model);
                         }
-                        usemodel = revivedmodel || model;
-                        return compiledModelEngine(usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs')
-                               || usemodel.itsaeditmodel.get('editmodelConfigAttrs')));
+                        usemodel = revivedModel || model;
+                        if (!usemodel.itsaeditmodel) {
+                            Y.use('gallery-itsaeditmodel', function(Y) {
+                                usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                            });
+                        }
+                        return usemodel.itsaeditmodel ?
+                               compiledModelEngine(usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs') ||
+                               usemodel.itsaeditmodel.get('editmodelConfigAttrs'))) :
+                               ERROR_MESSAGE_LOAD_ITSA_EDITMODEL_MODULE;
                     };
                 }
                 else {
                     instance._editTempl = function(model) {
-                        var modelInstance = model.get && (model.get === 'function'),
-                            usemodel, revivedmodel;
+                        var modelInstance, usemodel, revivedModel;
+                        modelInstance = model.get && (typeof model.get === 'function');
                         if (!modelInstance && host._listLazy) {
-                            revivedmodel = host.get('modelList').revive(model);
-                            if (!revivedmodel.itsaeditmodel) {
-                                revivedmodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
-                            }
+                            revivedModel = host.get('modelList').revive(model);
                         }
-                        usemodel = revivedmodel || model;
-                        return Lang.sub(template, usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs')
-                               || usemodel.itsaeditmodel.get('editmodelConfigAttrs')));
+                        usemodel = revivedModel || model;
+                        if (!usemodel.itsaeditmodel) {
+                            Y.use('gallery-itsaeditmodel', function(Y) {
+                                usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
+                            });
+                        }
+                        return usemodel.itsaeditmodel ?
+                               Lang.sub(template, usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs') ||
+                               usemodel.itsaeditmodel.get('editmodelConfigAttrs'))) :
+                               ERROR_MESSAGE_LOAD_ITSA_EDITMODEL_MODULE;
                     };
                 }
             }
@@ -860,6 +1012,55 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             modelsEditable: {
                 value: true,
                 lazyAdd: false,
+                validator: function(v){
+                    return Lang.isBoolean(v);
+                }
+            },
+
+            /**
+             * In what mode 'new' Models will be rendered. This mode should be posible (secondTemplate or editTemplate defined). If not,
+             * the default template will be the render-template.<br />
+             * 1: original template<br />
+             * 2: secondTemplate<br />
+             * 3: editTemplate
+             *
+             * @attribute newModelMode
+             * @type {Int}
+             * @default 1
+             * @since 0.1
+             */
+            newModelMode: {
+                value: true,
+                validator: function(v){
+                    return ((typeof v === 'number') && (v>0) && (v<4));
+                }
+            },
+
+            /**
+             * Will resyore the template to its previous form n a save-click.
+             *
+             * @attribute restoreOnSave
+             * @type {Boolean}
+             * @default true
+             * @since 0.1
+             */
+            restoreOnSave: {
+                value: true,
+                validator: function(v){
+                    return Lang.isBoolean(v);
+                }
+            },
+
+            /**
+             * Will resyore the template to its previous form n a submit-click.
+             *
+             * @attribute restoreOnSubmit
+             * @type {Boolean}
+             * @default true
+             * @since 0.1
+             */
+            restoreOnSubmit: {
+                value: true,
                 validator: function(v){
                     return Lang.isBoolean(v);
                 }
