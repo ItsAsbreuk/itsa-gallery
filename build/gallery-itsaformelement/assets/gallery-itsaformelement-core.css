@@ -46,10 +46,16 @@
     margin-left: 0px;
 }
 
+.itsa-modellistview-styled.yui3-form .itsa-model-selected button:focus,
 .itsa-modellistview-styled.yui3-form .itsa-model-selected input:focus,
 .itsa-modellistview-styled.yui3-form .itsa-model-selected select:focus,
 .itsa-modellistview-styled.yui3-form .itsa-model-selected textarea.yui3-itsaformelement:focus,
-.yui3-skin-sam .itsa-modellistview-styled.yui3-form .itsa-model-selected .itsa-button-datetime:focus {
+.yui3-skin-sam .itsa-modellistview-styled.yui3-form .itsa-model-selected .itsa-button-datetime:focus,
+.itsa-modelview-styled.yui3-form .itsa-model-selected button:focus,
+.itsa-modelview-styled.yui3-form .itsa-model-selected input:focus,
+.itsa-modelview-styled.yui3-form .itsa-model-selected select:focus,
+.itsa-modelview-styled.yui3-form .itsa-model-selected textarea.yui3-itsaformelement:focus,
+.yui3-skin-sam .itsa-modelview-styled.yui3-form .itsa-model-selected .itsa-button-datetime:focus {
     box-shadow: 0 0 2px 2px #FFF;
 }
 
@@ -59,4 +65,51 @@
     background-color: #FFF;
     color: #000;
     cursor: default;
+    float: left;
+}
+
+
+
+
+
+
+
+.itsa-modelview-styled.yui3-form .yui3-button,
+.itsa-modellistview-styled.yui3-form .yui3-button {
+  padding: 0.27em 0.31em;
+  display: inline-block;
+  border: 1px solid #ccc;
+  font-size: 0.8em;
+  box-shadow: inset 0 1px 3px #ddd;
+  border-radius: 4px;
+  -webkit-transition: 0.3s linear border;
+  -moz-transition: 0.3s linear border;
+  -ms-transition: 0.3s linear border;
+  -o-transition: 0.3s linear border;
+  transition: 0.3s linear border;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.itsa-modelview-styled.yui3-form .yui3-widget-ft .yui3-button,
+.itsa-modellistview-styled.yui3-form .yui3-widget-ft .yui3-button {
+    padding: 0.4em 1em 0.45em;
+    margin: 0.3em 0.6em;
+}
+
+.itsa-modelview-styled.yui3-form .yui3-button:focus,
+.itsa-modellistview-styled.yui3-form .yui3-button:focus {
+  outline: 0;
+  outline: thin dotted \9; /* IE6-9 */
+  border-color: #129FEA;
+}
+
+.itsa-modelview-styled.yui3-form .yui3-button.disabled,
+.itsa-modellistview-styled.yui3-form .yui3-button.disabled {
+  cursor: not-allowed;
+  background-color: #eaeded;
+  color: #cad2d3;
+  border-color: transparent;
 }

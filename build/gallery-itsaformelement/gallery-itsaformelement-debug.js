@@ -9,7 +9,7 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
  *
  *
  * @module gallery-itsaformelement
- * @class ITSAFORMELEMENT
+ * @class ITSAFormElement
  * @extends Base
  * @constructor
  * @since 0.1
@@ -40,7 +40,7 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_LOADING_COMBO_CLASS = 'yui3-enabled widget-loading',
     ITSAFORMELEMENT_LOADING_RADIOGROUP_CLASS = 'yui3-enabled widget-loading',
 */
-    ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inputbutton'),
+    ITSAFORMELEMENT_BUTTONTYPE_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'button'),
     ITSAFORMELEMENT_INLINEBUTTON_CLASS = yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'inlinebutton'),
     YUI3BUTTON_CLASS = 'yui3-button',
     ITSABUTTON_DATETIME_CLASS = 'itsa-button-datetime',
@@ -54,7 +54,7 @@ var Lang  = Y.Lang,
     ELEMENT_PASSWORD = '<input id="{id}" type="password" name="{name}" value="{value}"{classname} />',
     ELEMENT_HIDDEN = '<input id="{id}" type="hidden" name="{name}" value="{value}"{classname} />',
 
-    ELEMENT_BUTTON = '<input id="{id}" type="{type}" name="{name}" value="{value}"{classname} />',
+    ELEMENT_BUTTON = '<button id="{id}" type="{type}" name="{name}"{classname}>{value}</button>',
 
     ELEMENT_VALIDATION = '<div class="'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS+' '+ITSAFORMELEMENT_HIDDEN_CLASS+'">{validation}</div>',
 
@@ -115,29 +115,30 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             validation = !autoCorrection && instance.get('validation');
             enterNextField = (type==='input') || (type==='password');
             isDateOrTime = (type==='date') || (type==='time') || (type==='datetime');
-            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') || (type==='destroy');
+            isButton = (type==='button') || (type==='submit') || (type==='reset') || (type==='save') ||
+                       (type==='add') || (type==='destroy') || (type==='stopedit');
             focusable = instance.get('focusable');
             focusinfoOnClass = ((type==='input') || (type==='textarea') || (type==='password') || isButton);
             focusinfo = focusable ?
                         (
-                            ITSAFORMELEMENT_FOCUSABLE_CLASS
-                            + (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '')
-                            + (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
+                            ITSAFORMELEMENT_FOCUSABLE_CLASS +
+                            (instance.get('initialFocus') ? ' '+ITSAFORMELEMENT_FIRSTFOCUS_CLASS : '') +
+                            (instance.get('selectOnFocus') ? ' '+ITSAFORMELEMENT_SELECTONFOCUS_CLASS : '')
                         )
                         : '';
             withLifeChange = (type==='input') || (type==='textarea') || (type==='password');
             classnameAttr = instance.get('className');
-            classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name)
-                        + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type)
-                        + (classnameAttr ? ' '+classnameAttr : '')
-                        + (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '')
-                        + (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '')
-                        + (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '')
-                        + (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '')
-                        + (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '')
-                        + (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '')
-                        + (focusinfoOnClass ? ' '+focusinfo : '')
-                        + '"';
+            classname = ' class="' + ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, 'property', name) +
+                        ' ' + yClassNameManagerGetClassName(ITSAFORMELEMENT_CLASS, type) +
+                        (classnameAttr ? ' '+classnameAttr : '') +
+                        (enterNextField ? ' '+ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS : '') +
+                        (isButton ? ' '+YUI3BUTTON_CLASS+' '+ITSAFORMELEMENT_BUTTONTYPE_CLASS : '') +
+                        (withLifeChange ? ' '+ITSAFORMELEMENT_LIFECHANGE_CLASS : '') +
+                        (instance.get('keyValidation') ? ' '+ITSAFORMELEMENT_KEYVALIDATION_CLASS : '') +
+                        (validation ? ' '+ITSAFORMELEMENT_VALIDATION_CLASS : '') +
+                        (autoCorrection ? ' '+ITSAFORMELEMENT_AUTOCORRECT_CLASS : '') +
+                        (focusinfoOnClass ? ' '+focusinfo : '') +
+                        '"';
             classlevel2 = focusinfoOnClass ? '' : ' '+focusinfo;
             if (type==='input') {
                 element = ELEMENT_INPUT;
@@ -313,7 +314,9 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                              (val==='reset') ||
                              (val==='submit') ||
                              (val==='save') ||
+                             (val==='add') ||
                              (val==='destroy') ||
+                             (val==='stopedit') ||
 //                             (val==='autocomplete') ||  // not ready yet
 //                             (val==='tokeninput') ||  // not ready yet
 //                             (val==='tokenautocomplete') ||  // not ready yet
