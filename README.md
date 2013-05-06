@@ -24,7 +24,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
 
-[ITSAViewModellistPanel](src/gallery-itsaviewmodellistpanel) --under construction--
+[ITSAViewModellistPanel](src/gallery-itsaviewmodellistpanel)
 
 #### plugins
 [ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate)
