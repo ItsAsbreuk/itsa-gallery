@@ -20,7 +20,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAViewModel](src/gallery-itsaviewmodel) --on cdn--
 
-[ITSAViewModelPanel](src/gallery-itsaviewmodelpanel)
+[ITSAViewModelPanel](src/gallery-itsaviewmodelpanel) --on cdn--
 
 [ITSAViewModellist](src/gallery-itsaviewmodellist)
 
@@ -53,7 +53,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSACalendarModellist](src/gallery-itsacalendarmodellist) --on cdn--
 
-[ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise)
+[ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise) --on cdn--
 
 [ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels)
 
