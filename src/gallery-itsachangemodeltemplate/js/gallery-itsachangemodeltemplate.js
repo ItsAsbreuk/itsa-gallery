@@ -159,10 +159,20 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
              * doesn't need to do a thorough re-render of the list.
              * @property _currentModelHasChanged
              * @private
-             * @default false
+             * @default {}
              * @type Object
             */
             instance._currentModelHasChanged = {};
+
+            /**
+             * Internal flag-list that tells whether new Models may change their template. New Models would go to their 'newModelMode' by default,
+             * but when clicked on 'close' or 'save' they must be able to go to the originalTemplate, even if they don't have an id yet.
+             * @property _newModelCanChangeTemplate
+             * @private
+             * @default {}
+             * @type Object
+            */
+            instance._newModelCanChangeTemplate = {};
 
            /**
             * Internal reference to Y.later timerobject that is used to fire a 'pluggedin'-event once 'itsaeditmodel' is available on the host.
@@ -219,7 +229,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
             currentMode = instance._getMode(model);
             if (currentMode !== 1) {
-                Y.log('setModelToOriginalTemplate', 'info', 'Itsa-ChangeModelTemplate');
+                Y.log('setModelToOriginalTemplate clientId: '+clientId, 'info', 'Itsa-ChangeModelTemplate');
                 instance._prevMode[clientId] = instance._getMode(model);
                 delete instance._secondModels[clientId];
                 delete instance._initialEditAttrs[clientId];
@@ -345,10 +355,15 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         */
         restoreTemplate : function(model) {
             var instance = this,
-                clientId = instance.host.getModelAttr(model, 'clientId'),
+                host = instance.host,
+                clientId = host.getModelAttr(model, 'clientId'),
                 mode = instance._prevMode[clientId] || 1;
 
             Y.log('restoreTemplate restore to mode '+mode, 'info', 'Itsa-ChangeModelTemplate');
+            // In case of new Models, we need to prevent ever falling into the 'newModelMode':
+            if (host.isNewModel(model)) {
+                instance._newModelCanChangeTemplate[clientId] = true;
+            }
             switch (mode) {
                 case 1: instance.setModelToOriginalTemplate(model);
                 break;
@@ -379,6 +394,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             instance._prevMode = {};
             instance._prevComparator = {};
             instance._currentModelHasChanged = {};
+            instance._newModelCanChangeTemplate = {};
         },
 
         //===============================================================================================
@@ -518,7 +534,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             instance._currentModelHasChanged[clientId] = true;
                             modelNode = host.getNodeFromModel(model, 0);
                             modelNode.all('.'+ITSAFORMELEMENT_CHANGED_CLASS).removeClass(ITSAFORMELEMENT_CHANGED_CLASS);
-
                         }
                     }
                 )
@@ -642,6 +657,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
          *
         */
         _getMode : function(model) {
+
             var instance = this,
                 modelsEditable = instance.get('modelsEditable'),
                 secondTemplate = instance.get('secondTemplate'),
@@ -656,11 +672,10 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             else if (modelsEditable && editTemplate && instance._editModels[clientId]) {
                 mode = 3;
             }
-            else if (host.isNewModel(model)) {
+            else if (host.isNewModel(model) && !instance._newModelCanChangeTemplate[clientId]) {
                 newModelMode = instance.get('newModelMode');
                 if ((newModelMode === 2) && secondTemplate) {
                     mode = 2;
-                    clientId = host.getModelAttr(model, 'clientId');
                     instance._secondModels[clientId] = true;
                 }
                 else if ((newModelMode === 3) && modelsEditable && editTemplate) {
@@ -673,7 +688,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                         revivedModel = host.get('modelList').revive(model);
                     }
                     usemodel = revivedModel || model;
-                    instance._initialEditAttrs[usemodel.get('clientId')] = usemodel.getAttrs();
+                    instance._initialEditAttrs[clientId] = usemodel.getAttrs();
                     if (!usemodel.itsaeditmodel) {
                         Y.use('gallery-itsaeditmodel', function(Y) {
                             usemodel.plug(Y.Plugin.ITSAEditModel, instance.get('configForEditModel'));
@@ -683,7 +698,6 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             }
                         });
                     }
-                    clientId = host.getModelAttr(model, 'clientId');
                     instance._editModels[clientId] = true;
                 }
             }
@@ -1030,7 +1044,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
              * @since 0.1
              */
             newModelMode: {
-                value: true,
+                value: 1,
                 validator: function(v){
                     return ((typeof v === 'number') && (v>0) && (v<4));
                 }

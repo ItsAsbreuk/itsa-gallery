@@ -1941,7 +1941,17 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance.after(
                 ['*:remove', '*:add'],
                 function(e) {
-                    if (e.target instanceof Y.ModelList) {
+                    var modellist = e.target;
+                    if (modellist instanceof Y.ModelList) {
+                        //====================================================
+                        //
+                        // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                        // As soon as issue is resolved, remove modellist.free() command
+                        //
+                        if (instance._listLazy) {
+                            modellist.free();
+                        }
+                        //======================================================
                         instance._renderView();
                     }
                 }
@@ -2539,8 +2549,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance._modelInViewAdded = instance.after(
                 '*:add',
                 function(e) {
+                    var itsacmtemplate = instance.itsacmtemplate,
+                        focus = itsacmtemplate && (itsacmtemplate.get('newModelMode')===3);
                     if (e.target instanceof Y.ModelList) {
-                        instance.scrollIntoView(e.index, {noFocus: true, forceTop: (val>2), showHeaders: ((val===2) || (val===4))});
+                        instance.scrollIntoView(e.index,
+                            {noFocus: !focus, forceTop: (val>2), editMode: focus, showHeaders: ((val===2) || (val===4))});
                     }
                 }
             );
@@ -3265,6 +3278,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         var instance = this,
             modelClientId = instance.getModelAttr(model, 'clientId'),
             nodes = [],
+            itsacmtemplate = instance.itsacmtemplate,
             rowtemplate = (instance.get('listType')==='ul') ? VIEW_MODEL_TEMPLATE_UL : VIEW_MODEL_TEMPLATE_TABLE,
             modelNode = YNode.create(rowtemplate),
             header1, header2, header3, headerNode, allTemplateFuncs;
@@ -3327,6 +3341,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         modelNode.addClass(MODEL_CLASS);
         modelNode.addClass(modelClientId);
         modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
+        if (itsacmtemplate && (itsacmtemplate._getMode(model)===3) && !modelNode.itsatabkeymanager) {
+            Y.use('gallery-itsatabkeymanager', function(Y) {
+                modelNode.plug(Y.Plugin.ITSATabKeyManager);
+            });
+        }
         modelNode.setHTML(renderedModel || allTemplateFuncs.template(model));
         nodes.push(modelNode);
         return nodes;

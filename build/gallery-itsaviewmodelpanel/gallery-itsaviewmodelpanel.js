@@ -112,12 +112,9 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
 ], {
 
     initializer : function() {
-        var instance = this,
-            title = instance.get('title');
+        var instance = this;
 
-        if (title) {
-            instance.set('headerContent', title);
-        }
+
         // declare bodyContent: this must be rendered.
         instance.set('bodyContent', '');
     },
@@ -132,8 +129,6 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
 
         if (staticPosition) {
             boundingBox.addClass('itsa-staticposition');
-            // remove style position=relative, which is added by WidgetPosition
-            boundingBox.setStyle('position', '');
         }
         if (instance.get('dragable') && !staticPosition) {
             panelheader = instance.getStdModNode(Y.WidgetStdMod.HEADER);
@@ -147,9 +142,11 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         instance.constructor.superclass._bindViewUI.apply(instance);
         eventhandlers.push(
             view.after(
-                'model:destroy',
-                function() {
-                    instance.hide();
+                '*:destroy',
+                function(e) {
+                    if (e.target instanceof Y.Model) {
+                        instance.hide();
+                    }
                 }
             )
         );
@@ -196,17 +193,14 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     _addModel : function(e) {
         var instance = this,
             model = instance.get('model'),
-            ModelClass, modelAttrs, currentConfig, newModel;
+            ModelClass, currentConfig, newModel;
 
         if (model) {
             e.buttonNode = e.target;
             e.target = model;
             e.type = EVT_ADD_CLICK;
             ModelClass = instance.get('newModelClass');
-            modelAttrs = Y.clone(instance.get('newModelDefinition'));
-            newModel = new ModelClass(modelAttrs);
-            // now reattach the synclayer
-            newModel.sync = model.sync;
+            newModel = new ModelClass();
             if (model.hasPlugin('itsaeditmodel')) {
                 currentConfig = Y.clone(model.itsaeditmodel.getAttrs());
                 Y.use('gallery-itsaeditmodel', function(Y) {
@@ -377,26 +371,34 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         return zIndex;
     },
 
+    _uiSetXY : function(val) {
+        var instance = this;
+        if (!instance.get('staticPosition')) {
+            instance._posNode.setXY(val);
+        }
+    },
+
     // -- Public Properties ----------------------------------------------------
 
     /**
      * Collection of predefined buttons mapped from name => config.
      *
-     * Panel includes a "close" button which can be use by name. When the close
-     * button is in the header (which is the default), it will look like: [x].
+     * ITSAViewModelPanel includes "close", "add", "destroy", "reset", "save" and "submit" buttons which can be use by name.
+     * When the close button is in the header (which is the default), it will look like: [x].
      *
      * See `addButton()` for a list of possible configuration values.
      *
      * @example
-     *     // Panel with close button in header.
-     *     var panel = new Y.Panel({
-     *         buttons: ['close']
+     *     // ITSAViewModelPanel with save-button in footer.
+     *     var viewmodelpanel = new Y.ITSAViewModelPanel({
+     *         buttons: ['save']
      *     });
      *
-     *     // Panel with close button in footer.
-     *     var otherPanel = new Y.Panel({
+     *     // ITSAViewModelPanel with reset- and close-button in footer and 'save-button' in the header.
+     *     var otherITSAViewModelPanel = new Y.ITSAViewModelPanel({
      *         buttons: {
-     *             footer: ['close']
+     *             header: ['save']
+     *             footer: ['reset', close']
      *         }
      *     });
      *
@@ -465,7 +467,29 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     }
 }, {
     ATTRS: {
-        // TODO: API Docs.
+        /**
+         * Defenitions of the buttons that are on the panel. The buttons you want to show should be passed as an [String],
+         * where the names can be looked up into the property BUTTONS. Values to be used are:
+         * "close", "add", "destroy", "reset", "save" and "submit" which can be use by name. You can also specify the section
+         * where the buttons should be rendered, in case you want it different from the default.
+         * @attribute buttons
+         * @type [String]
+         * @default ['close']
+         * @example
+         *     // ITSAViewModelPanel with save-button in footer.
+         *     var viewmodelpanel = new Y.ITSAViewModelPanel({
+         *         buttons: ['save']
+         *     });
+         *
+         *     // ITSAViewModelPanel with reset- and close-button in footer and 'save-button' in the header.
+         *     var otherITSAViewModelPanel = new Y.ITSAViewModelPanel({
+         *         buttons: {
+         *             header: ['save']
+         *             footer: ['reset', close']
+         *         }
+         *     });
+         * @since 0.1
+        */
         buttons: {
             value: ['close']
         },
@@ -495,22 +519,30 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
         */
         title : {
             value: null,
+            lazyAdd: false,
             validator: function(val) {
                 return (typeof val === 'string');
+            },
+            setter: function(val) {
+                this.set('headerContent', val);
             }
         },
 
         /**
-         * Specifies how <b>new models</b> will look like. When creating new Models, they get cloned from this object.
-         * @attribute newModelDefinition
-         * @type Object
-         * @default {}
+         * Title to appear in the footer
+         * @attribute statusText
+         * @type String
+         * @default null
          * @since 0.1
         */
-        newModelDefinition : {
-            value: {},
+        statusText : {
+            value: null,
+            lazyAdd: false,
             validator: function(val) {
-                return (Lang.isObject(val));
+                return (typeof val === 'string');
+            },
+            setter: function(val) {
+                this.set('footerContent', val);
             }
         },
 
@@ -571,12 +603,12 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     }
 });
 
-
 }, '@VERSION@', {
     "requires": [
         "base-build",
         "classnamemanager",
         "pluginhost-base",
+        "model",
         "gallery-itsaviewmodel",
         "widget-autohide",
         "widget-buttons",

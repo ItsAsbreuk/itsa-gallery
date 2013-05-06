@@ -89,6 +89,8 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
          *     @param {Boolean} [options.forceBottom=false] if 'true', the (first) selected item will always be positioned on bottom.
          *     @param {Boolean} [options.noFocus=false] if 'true', then the listitem won't get focussed.
          *     @param {Boolean} [options.showHeaders=false] if 'true', when the model is succeeded by headers, the headers will also get into view.
+         *     @param {Boolean} [options.editMode=false] if 'true', then Y.Plugin.ITSATabKeyManager will be used to ficus the first item.
+                                (only if noFocis=false)
          * @param {Int} [maxExpansions] Only needed when you use the plugin <b>ITSAInifiniteView</b>. Use this value to limit
          * external data-calls. It will prevent you from falling into endless expansion when the list is infinite. If not set this method will expand
          * from external data at the <b>max of 25 times by default</b> (which is quite a lot). If you are responsible for the external data and
@@ -112,7 +114,7 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                 paginatorPlugin = instance.pages,
                 showHeaders = options && Lang.isBoolean(options.showHeaders) && options.showHeaders,
                 modelNodeEdge, currentOffset, newOffset, modelNode, liElements, getNodePosition,
-                onTop, nodePosition, modelNodeSize, corrected, prevNode;
+                onTop, nodePosition, modelNodeSize, corrected, prevNode, focusNode;
 
             getNodePosition = function(node) {
                 // returns -1 if (partial) before viewNode
@@ -182,7 +184,17 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
             }
             if (modelNode) {
                 if (!options || !Lang.isBoolean(options.noFocus) || !options.noFocus) {
-                    instance._focusModelNode(modelNode);
+                    // because modelNode might be going to change (due to headers), we need to backup its reference
+                    focusNode = modelNode;
+                    instance._focusModelNode(focusNode);
+                    if (Lang.isBoolean(options.editMode) && options.editMode) {
+                        Y.use('gallery-itsatabkeymanager', function(Y) {
+                            if (!focusNode.itsatabkeymanager) {
+                                focusNode.plug(Y.Plugin.ITSATabKeyManager);
+                            }
+                            focusNode.itsatabkeymanager.focusInitialItem();
+                        });
+                    }
                 }
                 if ((nodePosition===0) && showHeaders){
                     // might be in view, while the header is not
@@ -298,7 +310,7 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
     }, {
         ATTRS : {
             /**
-             * Can make the last element be fixed to the bottom/right edge, but to the top/left edge.
+             * Can make the last element in the scrollview be fixed to the bottom/right edge, but to the top/left edge.
              * 0 = not active (normal behaviour, bottom/right)
              * 1 = active: on top/left edge
              * 2 = active: on top/left edge <b>but with headerdefinition</b> if the definition was just before the last item
@@ -323,7 +335,7 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
         "node-style",
         "base-base",
         "base-build",
-        "scrollview-base",
+        "scrollview",
         "gallery-itsamodellistviewextention"
     ],
     "skinnable": true

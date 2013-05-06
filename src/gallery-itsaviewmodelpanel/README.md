@@ -35,7 +35,7 @@ These buttons are available by the module and will call Model's corresponding me
 
 All other functionality is inherited from [Y.ITSAViewModel](../gallery-itsaviewmodel).
 
-ItsaViewModelPanel is extremely useful in conjunction with [Y.ITSAEditModel](../gallery-itsaeditmodel).
+ITSAViewModelPanel is extremely useful in conjunction with [Y.ITSAEditModel](../gallery-itsaeditmodel).
 
 
 Examples

@@ -9,11 +9,7 @@
  * These buttons are available by the module and will call Model's corresponding methods:
  *
  * close (visible by default)
- * add
- * destroy
- * reset
- * save
- * submit
+ * add (for adding new Models to the list)
  *
  *
  * @class ITSAViewModellistPanel
@@ -32,7 +28,6 @@
 
 
 var getClassName = Y.ClassNameManager.getClassName,
-    Lang = Y.Lang,
     FORMELEMENT = 'yui3-itsaformelement',
     FOCUSABLE = 'focusable',
     /**
@@ -86,6 +81,12 @@ Y.ITSAViewModellistPanel = Y.Base.create('itsaviewmodellistpanel', Y.ITSAViewMod
         instance._render();
     },
 
+   /**
+     * Overruling _extraBindUI
+     *
+     * @method renderer
+     * @private
+    */
     _extraBindUI : function() {
         var instance = this,
             eventhandlers = instance._handlers,
@@ -148,7 +149,7 @@ Y.ITSAViewModellistPanel = Y.Base.create('itsaviewmodellistpanel', Y.ITSAViewMod
     _addModel : function() {
         var instance = this,
             modellist = instance.get('modelList'),
-            ModelClass, configNewEditModel, newModel, e;
+            ModelClass, newModel, e;
 
         Y.log('_addModel', 'info', 'Itsa-ViewModellistPanel');
         if (modellist) {

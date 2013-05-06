@@ -47,6 +47,7 @@ var body = Y.one('body'),
     RESET_BUTTON_CLASS = FORMELEMENT_CLASS + '-reset',
     SAVE_BUTTON_CLASS = FORMELEMENT_CLASS + '-save',
     DESTROY_BUTTON_CLASS = FORMELEMENT_CLASS + '-destroy',
+    STOPEDIT_BUTTON_CLASS = FORMELEMENT_CLASS + '-stopedit',
     DEFAULTCONFIG = {
         name : 'undefined-name',
         type : '',
@@ -73,8 +74,7 @@ var body = Y.one('body'),
     EVT_SAVE_CLICK = 'saveclick',
     EVT_RESET_CLICK = 'resetclick',
     EVT_DESTROY_CLICK = 'destroyclick',
-
-
+    EVT_STOPEDIT_CLICK = 'stopeditclick',
 
    /**
      * Fired to be caught by ItsaDialog. This event occurs when there is a warning (for example Model changed outside the editview).
@@ -216,8 +216,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             host = instance.host;
             instance._itsaformelement = new Y.ITSAFormElement();
             /**
-              * Event fired when the submitbutton is clicked.
-              * defaultFunction = calling then model's sync method with action=submit
+              * Event fired when the submit-button is clicked.
+              * defaultFunction = _defPluginSubmitFn
               * @event submitclick
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
@@ -231,8 +231,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             );
             /**
-              * Event fired when the addbutton is clicked.
-              * defaultFunction = calling then model's sync method with action=reset
+              * Event fired when the add-button is clicked.
+              * defaultFunction = _defPluginAddFn
               * @event addclick
               * @param e {EventFacade} Event Facade including:
               * @param e.newModel {Y.Model} The new model-instance.
@@ -247,8 +247,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             );
             /**
-              * Event fired when the resetbutton is clicked.
-              * defaultFunction = calling then model's sync method with action=reset
+              * Event fired when the reset-button is clicked.
+              * defaultFunction = _defPluginResetFn
               * @event resetclick
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
@@ -262,8 +262,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             );
             /**
-              * Event fired when the savebutton is clicked.
-              * defaultFunction = calling then model's sync method with action=submit
+              * Event fired when the save-button is clicked.
+              * defaultFunction = _defPluginSaveFn
               * @event saveclick
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
@@ -277,8 +277,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             );
             /**
-              * Event fired when the destroybutton is clicked.
-              * defaultFunction = calling then model's sync method with action=submit
+              * Event fired when the destroy-button is clicked.
+              * defaultFunction = _defPluginDestroyFn
               * @event destroyclick
               * @param e {EventFacade} Event Facade including:
               * @param e.currentTarget {Y.Node} The Button-Node that was clicked
@@ -290,6 +290,23 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     // DO NOT use _defDestroyFn --> this is used by the model itself and would make _defDestroyFn of the model
                     // to be excecuted when the plugin is unplugged (!????)
                     defaultFn: Y.rbind(instance._defPluginDestroyFn, instance),
+                    emitFacade: true
+                }
+            );
+            /**
+              * Event fired when the stopedit-button is clicked.
+              * defaultFunction = _defPluginStopEditFn
+              * @event stopeditclick
+              * @param e {EventFacade} Event Facade including:
+              * @param e.currentTarget {Y.Node} The Button-Node that was clicked
+              * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
+            **/
+            host.publish(
+                EVT_STOPEDIT_CLICK,
+                {
+                    // DO NOT use _defDestroyFn --> this is used by the model itself and would make _defDestroyFn of the model
+                    // to be excecuted when the plugin is unplugged (!????)
+                    defaultFn: Y.rbind(instance._defPluginStopEditFn, instance),
                     emitFacade: true
                 }
             );
@@ -334,7 +351,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 type = useConfig.type,
                 renderedFormElement, nodeId;
 
-            if (name && config && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') || (type==='destroy'))) {
+            if (name && config && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
+                                   (type==='destroy') || (type==='stopedit'))) {
                 instance._configAttrs[name] = useConfig;
                 if (!instance._elementIds[name]) {
                     instance._elementIds[name] = Y.guid();
@@ -513,7 +531,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     mergedConfigAttrs,
                     function(config, key) {
                         var type = config.type;
-                        if ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') || (type==='destroy')) {
+                        if ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
+                            (type==='destroy') || (type==='stopedit')) {
                             useConfig = Y.merge(DEFAULTCONFIG, config, {name: key, value: config.buttonText || UNDEFINED_VALUE});
                             if (!instance._elementIds[key]) {
                                 instance._elementIds[key] = Y.guid();
@@ -542,6 +561,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this;
             if (instance._autoSaveTimer) {
                 instance._autoSaveTimer.cancel();
+            }
+            if (instance._fireEventTimer) {
+                instance._fireEventTimer.cancel();
             }
             instance._clearEventhandlers();
             instance._itsaformelement.destroy();
@@ -630,7 +652,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             eventhandlers.push(
                 Y.on(
                     [EVT_INTERNAL+EVT_RESET_CLICK, EVT_INTERNAL+EVT_SUBMIT_CLICK, EVT_INTERNAL+EVT_SAVE_CLICK, EVT_INTERNAL+EVT_BUTTON_CLICK,
-                                                                              EVT_INTERNAL+EVT_ADD_CLICK, EVT_INTERNAL+EVT_DESTROY_CLICK],
+                                                 EVT_INTERNAL+EVT_ADD_CLICK, EVT_INTERNAL+EVT_DESTROY_CLICK, EVT_INTERNAL+EVT_STOPEDIT_CLICK],
                     function(e) {
                         if ((e.elementId===instance._elementIds[e.property])) {
                             // stop the original event to prevent double events
@@ -679,9 +701,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             // if the model gets changed and it wasn't this module, than fire an event.
             // So the developer can use this to listen for these changes and react on them
             instance.host.on(
-                'model:change',
-                function() {
-                    Y.fire(EVT_DIALOG_WARN, {message: MESSAGE_WARN_MODELCHANGED});
+                '*:change',
+                function(e) {
+                    if (e.target instanceof Y.Model) {
+                        Y.fire(EVT_DIALOG_WARN, {message: MESSAGE_WARN_MODELCHANGED});
+                    }
                 }
             );
             //============================================================================================
@@ -713,8 +737,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         */
         _defPluginDestroyFn : function() {
             var instance = this;
-            //    syncOptions = instance.get('syncOptions'),
-            //    options;
+//                syncOptions = instance.get('syncOptions'),
+//                options;
 
             instance._needAutoSaved = false;
             // I would love to have the next method here: because the could be prevented this way (as part of defaultFunc)
@@ -723,6 +747,18 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
 
             // options = Y.merge({remove: true}, syncOptions.destroy || {}});
             // e.promise = instance.host.destroyPromise(options);
+        },
+
+        /**
+         * The default stopeditFunction of the 'stopeditclick'-event.
+         * @method _defPluginStopEditFn
+         * @protected
+        */
+        _defPluginStopEditFn : function() {
+            var instance = this;
+
+            instance._needAutoSaved = false;
+            instance.host.unplug('itsaeditmodel');
         },
 
         /**
@@ -837,15 +873,12 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _fireModelEvent: function(eventName, eventPayload) {
             var instance = this,
                 host = instance.host,
-                ModelClass, modelAttrs, currentConfig, newModel, syncOptions, options;
+                ModelClass, currentConfig, newModel, syncOptions, options;
 
             eventPayload.target = host;
             if (eventName === EVT_ADD_CLICK) {
                 ModelClass = instance.get('newModelClass');
-                modelAttrs = Y.clone(instance.get('newModelDefinition'));
-                newModel = new ModelClass(modelAttrs);
-                // now reattach the synclayer
-                newModel.sync = host.sync;
+                newModel = new ModelClass();
                 currentConfig = Y.clone(instance.getAttrs());
                 newModel.plug(Y.Plugin.ITSAEditModel, currentConfig);
                 eventPayload.newModel = newModel;
@@ -1061,19 +1094,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             },
             /**
-             * Specifies how <b>new models</b> will look like. When creating new Models, they get cloned from this object.
-             * @attribute newModelDefinition
-             * @type Object
-             * @default {}
-             * @since 0.1
-            */
-            newModelDefinition : {
-                value: {},
-                validator: function(val) {
-                    return (Lang.isObject(val));
-                }
-            },
-            /**
              * Specifies the Class of new created Models (that is, when a model:addclick event occurs).
              * @attribute newModelClass
              * @type Model
@@ -1235,6 +1255,10 @@ Y.augment(Y.Model, Y.Plugin.Host);
               e.type = EVT_DESTROY_CLICK;
               Y.fire(EVT_INTERNAL+EVT_DESTROY_CLICK, e);
           }
+          else if (classNames.indexOf(STOPEDIT_BUTTON_CLASS) !== -1) {
+              e.type = EVT_STOPEDIT_CLICK;
+              Y.fire(EVT_INTERNAL+EVT_STOPEDIT_CLICK, e);
+          }
           else if (classNames.indexOf(ADD_BUTTON_CLASS) !== -1) {
               e.type = EVT_ADD_CLICK;
               Y.fire(EVT_INTERNAL+EVT_ADD_CLICK, e);
@@ -1247,6 +1271,7 @@ Y.augment(Y.Model, Y.Plugin.Host);
       },
       '.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS
   );
+
 
 }, '@VERSION@', {
     "requires": [

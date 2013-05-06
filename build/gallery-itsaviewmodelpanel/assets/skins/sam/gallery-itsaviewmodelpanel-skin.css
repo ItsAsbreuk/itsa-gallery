@@ -46,6 +46,16 @@
 .yui3-skin-sam .yui3-itsaviewmodelpanel .yui3-widget-ft .yui3-button {
     margin-left: 8px;
 }
+.yui3-skin-sam .yui3-itsaviewmodelpanel .yui3-widget-hd .yui3-button {
+    margin-left: 4px;
+    margin-top: -4px;
+    padding: 0.2em 0.27em;
+}
+.yui3-skin-sam .yui3-itsaviewmodelpanel .yui3-widget-hd .yui3-button.yui3-button-close {
+    margin-right: 0px;
+    margin-top: 0px;
+    margin-left: 10px;
+}
 
 /*
 Support for icon-based [x] "close" button in the header.
