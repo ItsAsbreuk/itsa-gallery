@@ -285,7 +285,8 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     */
     _saveModel : function(e) {
         var instance = this,
-            model = instance.get('model');
+            model = instance.get('model'),
+            actionAfterSave = instance.get('actionAfterSave');
 
         if (model) {
             button = e.target,
@@ -298,6 +299,12 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
             options = syncOptions.save || {};
             e.promise = model.savePromise(options);
             model.fire(EVT_SAVE_CLICK, e);
+            if (actionAfterSave===1) {
+                instance.hide();
+            }
+            if (actionAfterSave===2) {
+                model.unplug('itsaeditmodel');
+            }
         }
     },
 
@@ -310,7 +317,8 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     */
     _submitModel : function(e) {
         var instance = this,
-            model = instance.get('model');
+            model = instance.get('model'),
+            actionAfterSubmit = instance.get('actionAfterSubmit');
 
         if (model) {
             button = e.target,
@@ -323,6 +331,12 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
             options = syncOptions.submit || {};
             e.promise = model.submitPromise(options);
             model.fire(EVT_SUBMIT_CLICK, e);
+            if (actionAfterSubmit===1) {
+                instance.hide();
+            }
+            if (actionAfterSubmit===2) {
+                model.unplug('itsaeditmodel');
+            }
         }
     },
 
@@ -467,6 +481,40 @@ Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAViewModel, [
     }
 }, {
     ATTRS: {
+        /**
+         * Change Panel-appearance after save is clicked.<br />
+         * 0 = no action<br />
+         * 1 = close panel<br />
+         * 2 = unplug Y.Plugin.ITSAEditModel, resulting in rendering the original template<br />
+         * @attribute actionAfterSave
+         * @type Int
+         * @default 0
+         * @since 0.1
+        */
+        actionAfterSave : {
+            value: 0,
+            validator: function(val) {
+                return (typeof val === 'number') && (val>=0) && (val<=2);
+            }
+        },
+
+        /**
+         * Change Panel-appearance after submit is clicked.<br />
+         * 0 = no action<br />
+         * 1 = close panel<br />
+         * 2 = unplug Y.Plugin.ITSAEditModel, resulting in rendering the original template<br />
+         * @attribute actionAfterSubmit
+         * @type Int
+         * @default 0
+         * @since 0.1
+        */
+        actionAfterSubmit : {
+            value: 0,
+            validator: function(val) {
+                return (typeof val === 'number') && (val>=0) && (val<=2);
+            }
+        },
+
         /**
          * Defenitions of the buttons that are on the panel. The buttons you want to show should be passed as an [String],
          * where the names can be looked up into the property BUTTONS. Values to be used are:

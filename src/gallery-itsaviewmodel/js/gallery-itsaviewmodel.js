@@ -40,6 +40,7 @@
 var Lang = Y.Lang,
     YArray = Y.Array,
     YTemplateMicro = Y.Template.Micro,
+    ERROR_MESSAGE_NOTEMPLATE = 'Error: template is undefined',
     MODELVIEW_STYLED = 'itsa-modelview-styled',
     MODELVIEW_STYLED_FORM = 'yui3-form',
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
@@ -792,7 +793,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
          * @since 0.1
          */
             template: {
-                value: '{clientId}',
+                value: ERROR_MESSAGE_NOTEMPLATE,
                 validator: function(v){ return Lang.isString(v); },
                 getter: function(v) {
                     // Because _textTemplate might exists in case of clear text instead of a model, we need to return the right template.
