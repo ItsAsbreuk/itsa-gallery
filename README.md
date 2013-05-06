@@ -29,7 +29,7 @@ This repo contains open source YUI components that have been contributed to the
 #### plugins
 [ITSAChangeModelTemplate](src/gallery-itsachangemodeltemplate)
 
-[ITSAEditModel](src/gallery-itsaeditmodel) --under construction--
+[ITSAEditModel](src/gallery-itsaeditmodel) --on cdn--
 
 [ITSAInfiniteView](src/gallery-itsainfiniteview) --under construction--
 
@@ -39,7 +39,7 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
 
-[ITSATabKeyManager](src/gallery-itsatabkeymanager)
+[ITSATabKeyManager](src/gallery-itsatabkeymanager) --on cdn--
 
 [ITSAViewPaginator](src/gallery-itsaviewpaginator) --under construction--
 
