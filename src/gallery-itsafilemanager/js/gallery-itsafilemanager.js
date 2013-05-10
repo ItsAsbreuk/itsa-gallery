@@ -45,23 +45,6 @@ var Lang = Y.Lang,
 
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
-        _resizeEventhandlers : [],
-        _resizeApprovedX : false,
-        _resizeApprovedY : false,
-        _bodyNode : null,
-        _resizeEvent : null,
-        _busyResize : false,
-        _panelHD : null,
-        _panelBD : null,
-        _panelFT : null,
-        _nodeFilemanTree : null,
-        _nodeFilemanFlow : null,
-        _borderTreeArea : 0,
-        _halfBorderTreeArea : 0,
-        _borderFlowArea : 0,
-        _halfBorderFlowArea : 0,
-        _mouseOffset : 0,
-
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
          *
@@ -71,6 +54,23 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         initializer : function() {
             Y.log('initializer', 'info', 'ITSAFileManager');
             var instance = this;
+
+            instance._resizeEventhandlers = [];
+            instance._resizeApprovedX = false;
+            instance._resizeApprovedY = false;
+            instance._bodyNode = null;
+            instance._resizeEvent = null;
+            instance._busyResize = false;
+            instance._panelHD = null;
+            instance._panelBD = null;
+            instance._panelFT = null;
+            instance._nodeFilemanTree = null;
+            instance._nodeFilemanFlow = null;
+            instance._borderTreeArea = 0;
+            instance._halfBorderTreeArea = 0;
+            instance._borderFlowArea = 0;
+            instance._halfBorderFlowArea = 0;
+            instance._mouseOffset = 0;
 
             instance.set('headerContent', FILEMAN_HEADERTEMPLATE);
             instance.set('bodyContent', FILEMAN_TEMPLATE);
