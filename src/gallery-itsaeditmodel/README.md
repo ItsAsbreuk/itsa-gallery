@@ -46,7 +46,7 @@ Usage
 
 <b>Usage in conjunction with ITSAViewModel</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-date-format', function(Y) {
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
 
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
