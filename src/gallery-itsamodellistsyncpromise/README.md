@@ -65,7 +65,7 @@ YUI().use('model', 'gallery-itsamodelsyncpromise', 'base-build', function(Y) {
 });
 ```
 
-<b>Saving ModelList-data with ModelList.loadPromise</b>
+<b>Saving ModelList-data with ModelList.savePromise</b>
 ```js
 YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
