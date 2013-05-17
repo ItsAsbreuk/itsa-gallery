@@ -16,14 +16,6 @@ Model.load and Model.save and Model.destroy, you can use:
 * Model.<b>destroyPromise()</b>
 
 
-#### Extention Y.ITSAModellistSyncPromise
-
-Extends Y.ModelList with Promised sync-methods. The synclayer can be made just as usual. But instead of calling
-ModelList.load you can use:
-
-* ModelList.<b>loadPromise()</b>
-
-
 All methods return Promises.
 
 Examples
@@ -43,7 +35,7 @@ YUI().use('model', 'gallery-itsamodelsyncpromise', 'base-build', function(Y) {
 
     var piemodel;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
-      // ... create Y.PieModel just as the example on http://yuilibrary.com/yui/docs/model/#the-sync-method specifies ...
+        // ... create Y.PieModel just as the example on http://yuilibrary.com/yui/docs/model/#the-sync-method specifies ...
     });
     piemodel = new Y.PieModel({...});
 
