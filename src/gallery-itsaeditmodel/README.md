@@ -33,6 +33,9 @@ the real action may take some time. The action performed are <b>not</b> model.lo
 
 Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
 
+##Styling
+It is recomended to include 'gallerycss-cssform', for this will lead to nice styling of the formelements.
+
 Examples
 --------
 [Online example](http://projects.itsasbreuk.nl/examples/itsaeditmodel/index.html)
@@ -46,7 +49,7 @@ Usage
 
 <b>Usage in conjunction with ITSAViewModel</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-date-format', function(Y) {
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
 
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
@@ -87,7 +90,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-da
 
 <b>Usage in conjunction with ITSAScrollViewModellist</b>
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', function(Y) {
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', 'gallerycss-cssform', function(Y) {
 var myModellist, rendertemplate, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
@@ -153,7 +156,7 @@ myScrollview.render();
 
 <b>Using events</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-date-format', function(Y) {
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
 
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
