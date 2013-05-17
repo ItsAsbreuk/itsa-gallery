@@ -55,6 +55,8 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAModelSyncPromise](src/gallery-itsamodelsyncpromise) --on cdn--
 
+[ITSAModellistSyncPromise](src/gallery-itsamodellistsyncpromise)
+
 [ITSAScrollViewDupModels](src/gallery-itsascrollviewdupmodels)
 
 [ITSAViewDupModels](src/gallery-itsaviewdupmodels)
