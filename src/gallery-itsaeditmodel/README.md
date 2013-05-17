@@ -49,7 +49,11 @@ Usage
 
 <b>Usage in conjunction with ITSAViewModel</b>
 ```js
+<<<<<<< HEAD
 YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
+=======
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
+>>>>>>> 73699521c6cca0dbf0b7857ba206e6f0b9092ec9
 
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
@@ -156,7 +160,11 @@ myScrollview.render();
 
 <b>Using events</b>
 ```js
+<<<<<<< HEAD
 YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
+=======
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
+>>>>>>> 73699521c6cca0dbf0b7857ba206e6f0b9092ec9
 
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
