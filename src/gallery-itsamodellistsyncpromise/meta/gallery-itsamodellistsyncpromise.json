@@ -1,0 +1,7 @@
+{
+    "gallery-itsamodellistsyncpromise": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}
