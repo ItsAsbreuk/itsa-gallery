@@ -18,7 +18,8 @@
             "model-list",
             "lazy-model-list",
             "template-base",
-            "template-micro"
+            "template-micro",
+            "event-tap"
         ],
         "skinnable": true
     }

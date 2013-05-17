@@ -2357,11 +2357,12 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         instance.clearSelectedModels();
         if (val && !instance._selModelEv) {
             instance._selModelEv = contentBox.delegate(
-                'click',
+                'tap',
                 Y.rbind(instance._handleModelSelectionChange, instance),
                 function(node, e) {
                     // Only handle click-event when there was motion less than 'clickSensivity' pixels
-                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
+                    var scrollingInAction = false,
+//                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
                         buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
                                        ',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
                     return (!scrollingInAction && !buttonOrLink && this.hasClass(MODEL_CLASS));
@@ -2390,7 +2391,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setClkEv', 'info', 'Itsa-ModellistViewExtention');
         if (val && !instance._clkModelEv) {
             /**
-             * Is fired when the user positions the mouse over a Model.
+             * Is fired when the user clicks on a Model. <b>You must</b> have set 'clickEvents' true in order to work.
              *
              * @event modelClick
              * @param {Y.Node} node the node that was clicked.
@@ -2398,7 +2399,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
              * @since 0.1
             **/
             instance._clkModelEv = contentBox.delegate(
-                'click',
+                'tap',
                 function(e) {
                     var node = e.currentTarget,
                         model = instance.getModelFromNode(node);
@@ -2406,7 +2407,8 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 },
                 function(node, e) {
                     // Only handle click-event when there was motion less than 'clickSensivity' pixels
-                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
+                    var scrollingInAction = false,
+//                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
                         buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
                                        ',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
                     return (!scrollingInAction && !buttonOrLink && this.hasClass(MODEL_CLASS));
@@ -2435,7 +2437,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         Y.log('_setDblclkEv', 'info', 'Itsa-ModellistViewExtention');
         if (val && !instance._dblclkModelEv) {
             /**
-             * Is fired when the user positions the mouse over a Model.
+             * Is fired when the user doubleclicks on a Model. <b>You must</b> have set 'dblclickEvents' true in order to work.
              *
              * @event modelDblclick
              * @param {Y.Node} node the node that was clicked.
@@ -3568,7 +3570,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          *
          * @event modelSelectionChange
          * @param e {EventFacade} Event Facade including:
-         * @param e.newModelSelection {String} contains [Model|Object] with all modelList's Models (Objects in case of LazyModelList)
+         * @param e.newModelSelection {Array} contains [Model|Object] with all modelList's Models (Objects in case of LazyModelList)
          *  that are selected:<br />
          * -in case of repeated Models (see attribute/property 'modelConfig')- the subModel (dup or splitted) will be returned. This subModel
          * <b>is not part</b> of the original (Lazy)ModelList.
@@ -3628,7 +3630,8 @@ Y.ITSAModellistViewExtention = ITSAModellistViewExtention;
         "model-list",
         "lazy-model-list",
         "template-base",
-        "template-micro"
+        "template-micro",
+        "event-tap"
     ],
     "skinnable": true
 });
