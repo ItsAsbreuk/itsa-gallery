@@ -39,7 +39,7 @@ Usage
 
 <b>Loading ModelList-data with ModelList.loadPromise</b>
 ```js
-YUI().use('model', 'gallery-itsamodelsyncpromise', 'base-build', function(Y) {
+YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
     var pielist;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
