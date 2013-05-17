@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -307,3 +309,17 @@
     Y.ITSAModellistSyncPromise = ITSAModellistSyncPromise;
 
     Y.Base.mix(Y.ModelList, [ITSAModellistSyncPromise]);
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-base",
+        "base-build",
+        "node-base",
+        "json-parse",
+        "promise",
+        "model",
+        "model-list",
+        "gallery-itsamodelsyncpromise"
+    ]
+});

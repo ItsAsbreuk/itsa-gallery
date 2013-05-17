@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -127,7 +129,6 @@
             var instance = this,
                   destroylist = [];
 
-            Y.log('destroyPromise', 'info', 'Itsa-ModellistSyncPromise');
             instance.each(
                 function(model) {
                     destroylist.push(model.destroyPromise(options));
@@ -173,7 +174,6 @@
         loadPromise: function (options) {
             var instance = this;
 
-            Y.log('loadPromise', 'info', 'Itsa-ModellistSyncPromise');
             options = options || {};
             return new Y.Promise(function (resolve, reject) {
                 instance.sync('read', options, function (err, response) {
@@ -229,7 +229,6 @@
             var instance = this,
                   savelist = [];
 
-            Y.log('savePromise', 'info', 'Itsa-ModellistSyncPromise');
             instance.each(
                 function(model) {
                     if (model.isModified()) {
@@ -277,7 +276,6 @@
             var instance = this,
                   submitlist = [];
 
-            Y.log('submitPromise', 'info', 'Itsa-ModellistSyncPromise');
             instance.each(
                 function(model) {
                     submitlist.push(model.submitPromise(options));
@@ -307,3 +305,17 @@
     Y.ITSAModellistSyncPromise = ITSAModellistSyncPromise;
 
     Y.Base.mix(Y.ModelList, [ITSAModellistSyncPromise]);
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-base",
+        "base-build",
+        "node-base",
+        "json-parse",
+        "promise",
+        "model",
+        "model-list",
+        "gallery-itsamodelsyncpromise"
+    ]
+});
