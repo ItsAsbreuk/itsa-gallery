@@ -82,7 +82,7 @@ YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y)
 
     pielist.savePromise().then(
         function(response, options) {
-            // we are sure now that the Model has save all modified PieModels.
+            // we are sure now that the ModelList has saved all modified PieModels.
             // we could read 'response' or 'options', but don't need to
         },
         function(reason) {
