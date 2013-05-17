@@ -135,7 +135,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                     destroylist.push(model.destroyPromise(options));
                 }
             );
-            return Y.batch(destroylist).then(
+            return Y.batch.apply(Y, destroylist).then(
+//            return Y.Promise.every(destroylist).then(
                 function() {
                     var facade = {
                         options : options,
@@ -239,7 +240,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                     }
                 }
             );
-            return Y.batch(savelist).then(
+            return Y.batch.apply(Y, savelist).then(
+//            return Y.Promise.every(savelist).then(
                 function() {
                     var facade = {
                         options : options,
@@ -285,7 +287,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                     submitlist.push(model.submitPromise(options));
                 }
             );
-            return Y.batch(submitlist).then(
+            return Y.batch.apply(Y, submitlist).then(
+//            return Y.Promise.every(submitlist).then(
                 function() {
                     var facade = {
                         options : options,
