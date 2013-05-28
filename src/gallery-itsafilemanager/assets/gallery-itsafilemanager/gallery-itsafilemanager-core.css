@@ -1,4 +1,75 @@
-
-/**
- Your Code Goes Here
-*/
+.yui3-skin-sam .yui3-panel .yui3-itsafilemanager-content .yui3-widget-bd {
+    background-color: #000;
+    padding: 0px;
+}
+.yui3-skin-sam .yui3-panel .yui3-itsafilemanager-content .yui3-widget-ft {
+    text-align: left;
+    background-color: #EEE;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+.yui3-js-enabled .yui3-itsafilemanager-loading {
+    visibility: hidden;
+}
+.yui3-itsafilemanager-hidden {
+    visibility: hidden;
+}
+.yui3-itsafilemanager .yui3-resize-handle-inner-r,
+.yui3-itsafilemanager .yui3-resize-handle-inner-l,
+.yui3-itsafilemanager .yui3-resize-handle-inner-t,
+.yui3-itsafilemanager .yui3-resize-handle-inner-b,
+.yui3-itsafilemanager .yui3-resize-handle-inner-tr,
+.yui3-itsafilemanager .yui3-resize-handle-inner-br,
+.yui3-itsafilemanager .yui3-resize-handle-inner-tl,
+.yui3-itsafilemanager .yui3-resize-handle-inner-bl {
+background: none;
+}
+.yui3-itsafilemanager:focus {
+    outline: none;
+}
+.yui3-itsafilemanager-itsaresehandlerx {
+    cursor:col-resize;
+}
+.yui3-itsafilemanager-itsaresehandlery {
+    cursor:row-resize;
+}
+.yui3-skin-sam .yui3-itsafilemanager-border {
+    border: outset 2px #444;
+}
+.yui3-skin-sam .yui3-itsafilemanager-shadow {
+    -moz-box-shadow:  4px 4px 3px #666;
+    -webkit-box-shadow: 4px 4px 3px #666;
+    box-shadow: 4px 4px 3px #666;
+}
+.yui3-itsafilemanager-tree {
+    border-right: ridge 2px #999;
+    min-height: 80px;
+    height: 100%;
+    background-color: #000;
+    display: inline-block;
+}
+.yui3-itsafilemanager-main {
+    width: 100%;
+    min-height: 80px;
+    height: 100%;
+    display: inline-block;
+}
+.yui3-itsafilemanager-flow {
+    border-bottom: ridge 2px #999;
+    display: block;
+    width: 100%;
+}
+.yui3-itsafilemanager-items {
+    display: block;
+    width: 100%;
+    min-height: 20px;
+}
+.yui3-skin-sam .yui3-panel .yui3-itsafilemanager-content .yui3-widget-hd,
+.yui3-skin-sam .yui3-panel .yui3-itsafilemanager-content .yui3-widget-ft {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
