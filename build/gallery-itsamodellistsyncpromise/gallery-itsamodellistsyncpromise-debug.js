@@ -137,12 +137,13 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
             );
             return Y.batch.apply(Y, destroylist).then(
 //            return Y.Promise.every(destroylist).then(
-                function() {
+                function(data) {
                     var facade = {
                         options : options,
                         src : 'destroy'
                     };
                     instance.fire(EVT_DESTROY, facade);
+                    return data;
                 },
                 function(err) {
                     var facade = {
@@ -151,6 +152,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         error: err
                     };
                     instance.fire(EVT_ERROR, facade);
+                    return err;
                 }
             );
         },
@@ -242,12 +244,13 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
             );
             return Y.batch.apply(Y, savelist).then(
 //            return Y.Promise.every(savelist).then(
-                function() {
+                function(data) {
                     var facade = {
                         options : options,
                         src : 'save'
                     };
                     instance.fire(EVT_SAVE, facade);
+                    return data;
                 },
                 function(err) {
                     var facade = {
@@ -256,6 +259,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         error: err
                     };
                     instance.fire(EVT_ERROR, facade);
+                    return err;
                 }
             );
         },
@@ -289,12 +293,13 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
             );
             return Y.batch.apply(Y, submitlist).then(
 //            return Y.Promise.every(submitlist).then(
-                function() {
+                function(data) {
                     var facade = {
                         options : options,
                         src : 'submit'
                     };
                     instance.fire(EVT_SUBMIT, facade);
+                    return data;
                 },
                 function(err) {
                     var facade = {
@@ -303,6 +308,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         error: err
                     };
                     instance.fire(EVT_ERROR, facade);
+                    return err;
                 }
             );
         }
