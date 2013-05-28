@@ -142,6 +142,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         options : options,
                         src : 'destroy'
                     };
+                    // Lazy publish.
+                    if (!instance._destroyEvent) {
+                        instance._destroyEvent = instance.publish(EVT_DESTROY, {
+                            preventable: false
+                        });
+                    }
                     instance.fire(EVT_DESTROY, facade);
                     return data;
                 },
@@ -249,6 +255,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         options : options,
                         src : 'save'
                     };
+                    // Lazy publish.
+                    if (!instance._saveEvent) {
+                        instance._saveEvent = instance.publish(EVT_SAVE, {
+                            preventable: false
+                        });
+                    }
                     instance.fire(EVT_SAVE, facade);
                     return data;
                 },
@@ -298,6 +310,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         options : options,
                         src : 'submit'
                     };
+                    // Lazy publish.
+                    if (!instance._submitEvent) {
+                        instance._submitEvent = instance.publish(EVT_SUBMIT, {
+                            preventable: false
+                        });
+                    }
                     instance.fire(EVT_SUBMIT, facade);
                     return data;
                 },
