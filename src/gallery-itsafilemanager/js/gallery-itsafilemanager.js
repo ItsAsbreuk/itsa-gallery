@@ -49,7 +49,36 @@ var Lang = Y.Lang,
                                         "<div class='"+FILEMAN_MAIN_CLASS+"'>"+
                                             "<div class='"+FILEMAN_FLOW_CLASS+"'></div>"+
                                             "<div class='"+FILEMAN_ITEMS_CLASS+"'></div>"+
-                                        "</div>";
+                                        "</div>",
+
+   /**
+     * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
+     * the sync layer submit-function returns an error.
+     * @event error
+     * @param e {EventFacade} Event Facade including:
+     * @param e.error {any} Error message.
+     * @param e.src {String} Source of the error. May be one of the following (or any
+     *                     custom error source defined by a Model subclass):
+     *
+     * `submit`: An error submitting the model from within a sync layer.
+     *
+     * `attributevalidation`: An error validating an attribute (or property). The attribute (or objectproperty)
+     *                        that failed validation will be provided as the `attribute` property on the event facade.
+     *
+     * @param e.attribute {String} The attribute/property that failed validation.
+     * @param e.validationerror {String} The errormessage in case of attribute-validation error.
+    **/
+    EVT_ERROR = 'error',
+   /**
+     * Fired after model is submitted from the sync layer.
+     * @event submit
+     * @param e {EventFacade} Event Facade including:
+     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
+     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @since 0.1
+    **/
+    EVT_LOADTREE = 'submit';
 
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
@@ -162,14 +191,47 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Sugarmethod to show the flow. Passes through to the 'flow' attribute.
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
          *
-         * @method showFlow
+         * @method createDir
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
          * @since 0.1
         */
-        showFlow : function() {
-            Y.log('showFlow', 'info', 'Itsa-FileManager');
-            this.set('flow', true);
+        createDir : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
         },
 
         /**
@@ -181,17 +243,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         hideFlow : function() {
             Y.log('hideFlow', 'info', 'Itsa-FileManager');
             this.set('flow', false);
-        },
-
-        /**
-         * Sugarmethod to show the tree. Passes through to the 'tree' attribute.
-         *
-         * @method showFlow
-         * @since 0.1
-        */
-        showTree : function() {
-            Y.log('showTree', 'info', 'Itsa-FileManager');
-            this.set('tree', true);
         },
 
         /**
@@ -214,8 +265,39 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         loadFiles : function(dir) {
-            Y.log('loadFiles', 'info', 'Itsa-FileManager');
-            this.set('tree', false);
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
         },
 
         /**
@@ -226,33 +308,352 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         loadTree : function() {
-            var instance = this;
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
 
             Y.log('loadTree', 'info', 'Itsa-FileManager');
-            options = options || {};
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method moveDir
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+        moveDir : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method moveFiles
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+        moveFiles : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method renameFile
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+        renameFile : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method renameDir
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+        renameDir : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method removeDir
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+        removeDir : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method removeFiles
+         * @param dir {String} Directoy which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+        removeFiles : function(dir) {
+            var instance = this,
+                  syncaction = 'loadtree',
+                  facade, options;
+
+            Y.log('loadTree', 'info', 'Itsa-FileManager');
+            options = {
+                showTreefiles: instance.get('showTreefiles')
+            };
+            facade = {
+                options : options,
+                src: syncaction
+            };
+            return instance.sync(syncaction, options).then(
+                function(response) {
+                    // Lazy publish.
+                    if (!instance._loadtreeEvent) {
+                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                            preventable: false
+                        });
+                    }
+                    // now we need to add the treeresponse into Y.Tree
+                    // ....
+                    //
+                    facade.response = response;
+                    instance.fire(EVT_LOADTREE, facade);
+                    return response;
+                },
+                function(err) {
+                    facade.error = err;
+                    instance.fire(EVT_ERROR, facade);
+                    return err;
+                }
+            );
+        },
+
+        /**
+         * Sugarmethod to show the flow. Passes through to the 'flow' attribute.
+         *
+         * @method showFlow
+         * @since 0.1
+        */
+        showFlow : function() {
+            Y.log('showFlow', 'info', 'Itsa-FileManager');
+            this.set('flow', true);
+        },
+
+        /**
+         * Sugarmethod to show the tree. Passes through to the 'tree' attribute.
+         *
+         * @method showFlow
+         * @since 0.1
+        */
+        showTree : function() {
+            Y.log('showTree', 'info', 'Itsa-FileManager');
+            this.set('tree', true);
+        },
+
+      /**
+         * Override this method to provide a custom persistence implementation for this
+         * FileManager. The default just returns a solved Promise without actually doing anything.
+         *
+         * This method is called internally by `load()`, `save()`, and `destroy()`
+         *
+         * @method sync
+         * @param action {String} The sync-action to perform. May be one of the following:
+         *
+         * `loadTree`: Store a newly-created model for the first time.
+         * `loadFiles`: Delete an existing model.
+         * `renameFile`  : Load an existing model.
+         * `renameDir`: Update an existing model.
+         * `removeFiles`: Update an existing model.
+         * `removeDir`: Update an existing model.
+         * `createDir`: Update an existing model.
+         * `moveDir`: Update an existing model.
+         * `moveFiles`: Update an existing model.
+         *
+         * @param [options] {Object} Sync options. It's up to the custom sync
+         * implementation to determine what options it supports or requires, if any.
+        */
+        sync: function (/* action, options */) {
             return new Y.Promise(function (resolve, reject) {
-                instance.sync('submit', options, function (err, response) {
-                    var facade = {
-                            options : options,
-                            response: response
-                        };
-                    if (err) {
-                        facade.error = err;
-                        facade.src   = 'submit';
-                        instance.fire(EVT_ERROR, facade);
-                        reject(new Error(err));
-                    }
-                    else {
-                        // Lazy publish.
-                        if (!instance._submitEvent) {
-                            instance._submitEvent = instance.publish(EVT_SUBMIT, {
-                                preventable: false
-                            });
-                        }
-                        instance.fire(EVT_SUBMIT, facade);
-                        resolve(response, options);
-                    }
-                });
+                resolve();
             });
         },
 
