@@ -77,6 +77,16 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
     EVT_SUBMIT = 'submit',
 
    /**
+     * Fired after models are appended to the ModelList by the ModelList-sync layer.
+     * @event loadappend
+     * @param e {EventFacade} Event Facade including:
+     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @since 0.1
+    **/
+    EVT_LOADAPPEND = 'loadappend',
+
+   /**
      * Fired after models are read from the ModelList-sync layer.
      * @event load
      * @param e {EventFacade} Event Facade including:
@@ -114,8 +124,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
         * <b>Caution:</b> The current version uses the Model's synclayer, NOT ModelList's synclayer.
         *
         * This method delegates to the Model's`sync()` method to perform the actual destroy
-        * operation, which is an asynchronous action. Within the Y.Model-class, specify a _callback_ function to
-        * be notified of success or failure.
+        * operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
+         * make the promise work.
         *
         * A successful destroy operation will fire a `destroy` event, while an unsuccessful
         * save operation will fire an `error` event with the `src` value "destroy".
@@ -164,11 +174,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
         },
 
         /**
-         * Loads models from the server and adds them into the ModelList
+         * Loads models from the server and adds them into the ModelList.
          *
-         * This method delegates to the `sync()` method to perform the actual load
-         * operation, which is an asynchronous action. Specify a _callback_ function to
-         * be notified of success or failure.
+         * This method delegates to the `sync()` method, by either using the 'read' or 'readappend' action, depending
+         * on the value of parameter options.append.
+         * This is an asynchronous action. You <b>must</b> specify a _callback_ function to
+         * make the promise work.
          *
          * A successful load operation will fire a `load` event, while an unsuccessful
          * load operation will fire an `error` event with the `src` value "load".
@@ -177,17 +188,22 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
          * differ from this model's current attributes, a `change` event will be fired for every Model.
          *
          * @method loadPromise
-         * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
-         *                 implementation to determine what options it supports or requires, if any.
+         * @param {Object} [options] Options to be passed to `sync()`. The custom sync
+         *                 implementation can determine what options it supports or requires, if any.
+         * @param {Boolean} [options.append] Set true if you want to append items.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
         **/
         loadPromise: function (options) {
-            var instance = this;
+            var instance = this,
+                 optionsappend, append, eventname;
 
             Y.log('loadPromise', 'info', 'Itsa-ModellistSyncPromise');
             options = options || {};
+            optionsappend = options.append;
+            append = ((typeof optionsappend === 'boolean') && optionsappend);
+            eventname = append ? EVT_LOADAPPEND : EVT_LOAD;
             return new Y.Promise(function (resolve, reject) {
-                instance.sync('read', options, function (err, response) {
+                instance.sync(append ? 'readappend' : 'read', options, function (err, response) {
                     var parsed,
                         facade = {
                             options : options,
@@ -195,20 +211,25 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         };
                     if (err) {
                         facade.error = err;
-                        facade.src   = 'load';
+                        facade.src   = append ? 'loadappend' : 'load';
                         instance.fire(EVT_ERROR, facade);
                         reject(new Error(err));
                     }
                     else {
                         // Lazy publish.
                         if (!instance._loadEvent) {
-                            instance._loadEvent = instance.publish(EVT_LOAD, {
+                            instance._loadEvent = instance.publish(eventname, {
                                 preventable: false
                             });
                         }
                         parsed = facade.parsed = PARSED(response);
-                        instance.reset(parsed, options);
-                        instance.fire(EVT_LOAD, facade);
+                        if (append) {
+                            instance.add(parsed, options);
+                        }
+                        else {
+                            instance.reset(parsed, options);
+                        }
+                        instance.fire(eventname, facade);
                         resolve(response, options);
                     }
                 });
@@ -221,8 +242,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
         * Therefore, you get multiple requests for all modified Models.
         *
         * This method delegates to the Model's`sync()` method to perform the actual save
-        * operation, which is an asynchronous action. Within the Y.Model-class, specify a _callback_ function to
-        * be notified of success or failure.
+        * operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
+         * make the promise work.
         *
         * A successful save operation will fire a `save` event, while an unsuccessful
         * save operation will fire an `error` event with the `src` value "save".
@@ -282,8 +303,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
         * Therefore, you get multiple requests for all Models.
         *
         * This method delegates to the Model's`sync()` method to perform the actual submit
-        * operation, which is an asynchronous action. Within the Y.Model-class, specify a _callback_ function to
-        * be notified of success or failure.
+        * operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
+         * make the promise work.
         *
         * A successful save operation will fire a `submit` event, while an unsuccessful
         * save operation will fire an `error` event with the `src` value "submit".

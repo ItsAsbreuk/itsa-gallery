@@ -44,11 +44,12 @@ YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y)
     var pielist;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
         // ... you might want to set  up the sync-layer, but ModelList.loadPromise doesn't call the 'read' method of every separate Y.PieModel
-        // instaed, it calls its own ModelList synclayer
+        // instead, it calls its own ModelList synclayer
     });
     Y.PieList = Y.Base.create('pieList', Y.ModelList, [], {
         model: Y.PieModel,
-      // ... create Y.PieList just as the example on http://yuilibrary.com/yui/docs/model-list/#the-sync-method specifies ...
+        // ... create Y.PieList just as the example on http://yuilibrary.com/yui/docs/model-list/#the-sync-method specifies ...
+        // define the right methods for the action 'read'
     });
     pielist = new Y.PieList({...});
 
@@ -65,18 +66,47 @@ YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y)
 });
 ```
 
-<b>Saving ModelList-data with ModelList.savePromise</b>
+<b>Appending ModelList-data with ModelList.loadPromise</b>
 ```js
 YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
     var pielist;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
         // ... you might want to set  up the sync-layer, but ModelList.loadPromise doesn't call the 'read' method of every separate Y.PieModel
-        // instaed, it calls its own ModelList synclayer
+        // instead, it calls its own ModelList synclayer
     });
     Y.PieList = Y.Base.create('pieList', Y.ModelList, [], {
         model: Y.PieModel,
-      // ... create Y.PieList just as the example on http://yuilibrary.com/yui/docs/model-list/#the-sync-method specifies ...
+        // ... create Y.PieList just as the example on http://yuilibrary.com/yui/docs/model-list/#the-sync-method specifies ...
+        // define the right methods for the action 'readappend'.
+    });
+    pielist = new Y.PieList({...});
+
+    pielist.loadPromise({append: true}).then(
+        function(response, options) {
+            // we are sure now pielist is appended with all PieModels.
+            // we could read 'response' or 'options', but don't need to
+        },
+        function(reason) {
+            // 'reason' gives you the reason why appending has failed
+        }
+    );
+
+});
+```
+
+<b>Saving ModelList-data with ModelList.savePromise</b>
+```js
+YUI().use('model', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
+
+    var pielist;
+    Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
+        // ... create Y.PieModel just as the example on http://yuilibrary.com/yui/docs/model/#the-sync-method specifies ...
+        // define the right methods for the action 'create' and 'update'
+    });
+    Y.PieList = Y.Base.create('pieList', Y.ModelList, [], {
+        model: Y.PieModel,
+        // ... you cannot use ModelList's sync-layer for saviing all models at once. Instead setup the Model-synclayer
     });
     pielist = new Y.PieList({...});
 
