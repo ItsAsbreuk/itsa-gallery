@@ -17,7 +17,7 @@ Extends Y.ModelList with Promised sync-methods. The ModelList's synclayer can be
  * 'update'
 
 
-Instead of calling ModelList.load you should use:
+Instead of calling ModelList.load() you should use:
 
 
 <b>ModelList.loadPromise(options)</b> --> to append the read-models --> options = {append: true};
@@ -25,9 +25,9 @@ Instead of calling ModelList.load you should use:
 
 Also, there are 3 extra Promises, which -in this current version- <b>all depends</b> on the Model's synclayer, not ModelLists synclayer:
 
-* <b>ModelList.destroyPromise</b><br />
-* <b>ModelList.savePromise</b><br />
-* <b>ModelList.submitPromise</b>
+* <b>ModelList.destroyPromise()</b><br />
+* <b>ModelList.savePromise()</b><br />
+* <b>ModelList.submitPromise()</b>
 
 
 All methods return Promises.

@@ -15,15 +15,15 @@
  * 'submit'
  * 'update'
  * <br /><br />
- * Instead of calling ModelList.load you should use:
+ * Instead of calling ModelList.load() you should use:
  * <br />
  * <b>ModelList.loadPromise(options)</b> --> to append the read-models --> options = {append: true};
  * <br /><br />
  * Also, there are 3 extra Promises, which -in this current version- <b>all depends</b> on the Model's synclayer, not ModelLists synclayer:
  * <br />
- * <b>ModelList.destroyPromise</b><br />
- * <b>ModelList.savePromise</b><br />
- * <b>ModelList.submitPromise</b>
+ * <b>ModelList.destroyPromise()</b><br />
+ * <b>ModelList.savePromise()</b><br />
+ * <b>ModelList.submitPromise()</b>
  *
  * @module gallery-itsamodelsyncpromise
  * @class ITSAModellistSyncPromise
