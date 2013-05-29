@@ -78,7 +78,9 @@ var Lang = Y.Lang,
      * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
      * @since 0.1
     **/
-    EVT_LOADTREE = 'submit';
+    EVT_LOADFILES
+    EVT_LOADTREE = 'submit'
+    EVT_CREATEDIR
 
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
@@ -110,6 +112,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._halfBorderFlowArea = 0;
             instance._mouseOffset = 0;
             instance._bodyNode = Y.one('body');
+            instance._createMethods();
             instance.after(
                 'render',
                 instance._afterRender,
@@ -191,39 +194,35 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         * Creates a new directory on the server and updates the treepane.
          *
          * @method createDir
-         * @param dir {String} Directoy which files should be loaded
-         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @param dir {String} Directory-name to be created
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
         createDir : function(dir) {
             var instance = this,
-                  syncaction = 'loadtree',
-                  facade, options;
+                  syncaction = 'createdir',
+                  facade;
 
             Y.log('loadTree', 'info', 'Itsa-FileManager');
-            options = {
-                showTreefiles: instance.get('showTreefiles')
-            };
             facade = {
-                options : options,
                 src: syncaction
             };
-            return instance.sync(syncaction, options).then(
+            return instance.sync(syncaction).then(
                 function(response) {
                     // Lazy publish.
-                    if (!instance._loadtreeEvent) {
-                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                    if (!instance._createdirEvent) {
+                        instance._createdirEvent = instance.publish(EVT_CREATEDIR, {
                             preventable: false
                         });
                     }
-                    // now we need to add the treeresponse into Y.Tree
+                    // now we need to update Y.Tree
                     // ....
                     //
                     facade.response = response;
-                    instance.fire(EVT_LOADTREE, facade);
+                    instance.fire(EVT_CREATEDIR, facade);
                     return response;
                 },
                 function(err) {
@@ -260,36 +259,32 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
          *
          * @method loadFiles
-         * @param dir {String} Directoy which files should be loaded
-         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @param dir {String} Directory which files should be loaded
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
         loadFiles : function(dir) {
             var instance = this,
-                  syncaction = 'loadtree',
-                  facade, options;
+                  syncaction = 'loadfiles',
+                  facade;
 
-            Y.log('loadTree', 'info', 'Itsa-FileManager');
-            options = {
-                showTreefiles: instance.get('showTreefiles')
-            };
+            Y.log('loadFiles', 'info', 'Itsa-FileManager');
             facade = {
-                options : options,
                 src: syncaction
             };
-            return instance.sync(syncaction, options).then(
+            return instance.sync(syncaction).then(
                 function(response) {
                     // Lazy publish.
-                    if (!instance._loadtreeEvent) {
-                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                    if (!instance._loadfilesEvent) {
+                        instance._loadfilesEvent = instance.publish(EVT_LOADFILES, {
                             preventable: false
                         });
                     }
-                    // now we need to add the treeresponse into Y.Tree
+                    // now we need to add the fileresponse into Y.LazyModelList (directoryFiles)
                     // ....
                     //
                     facade.response = response;
-                    instance.fire(EVT_LOADTREE, facade);
+                    instance.fire(EVT_LOADFILES, facade);
                     return response;
                 },
                 function(err) {
@@ -344,31 +339,29 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         * Moves the selected directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
          *
          * @method moveDir
-         * @param dir {String} Directoy which files should be loaded
-         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @param dir {String} Directory which files should be loaded
+         * @param newParent {String} New parent-directory where 'dir' will be placed inside.
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
-        moveDir : function(dir) {
+        moveDir : function(dir, newParent) {
             var instance = this,
-                  syncaction = 'loadtree',
-                  facade, options;
+                  syncaction = 'movedir',
+                  facade;
 
-            Y.log('loadTree', 'info', 'Itsa-FileManager');
-            options = {
-                showTreefiles: instance.get('showTreefiles')
-            };
+            Y.log('moveDir', 'info', 'Itsa-FileManager');
             facade = {
-                options : options,
                 src: syncaction
             };
-            return instance.sync(syncaction, options).then(
+            return instance.sync(syncaction).then(
                 function(response) {
                     // Lazy publish.
-                    if (!instance._loadtreeEvent) {
-                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                    if (!instance._movedirEvent) {
+                        instance._movedirEvent = instance.publish(EVT_MOVEDIR, {
                             preventable: false
                         });
                     }
@@ -376,7 +369,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // ....
                     //
                     facade.response = response;
-                    instance.fire(EVT_LOADTREE, facade);
+                    instance.fire(EVT_MOVEDIR, facade);
                     return response;
                 },
                 function(err) {
@@ -388,31 +381,28 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         * Moves the selected files into another directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
          *
          * @method moveFiles
-         * @param dir {String} Directoy which files should be loaded
-         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @param dir {String} New directoy where the files should be placed.
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
         moveFiles : function(dir) {
             var instance = this,
-                  syncaction = 'loadtree',
-                  facade, options;
+                  syncaction = 'movefiles',
+                  facade;
 
-            Y.log('loadTree', 'info', 'Itsa-FileManager');
-            options = {
-                showTreefiles: instance.get('showTreefiles')
-            };
+            Y.log('moveFiles', 'info', 'Itsa-FileManager');
             facade = {
-                options : options,
                 src: syncaction
             };
-            return instance.sync(syncaction, options).then(
+            return instance.sync(syncaction).then(
                 function(response) {
                     // Lazy publish.
                     if (!instance._loadtreeEvent) {
-                        instance._loadtreeEvent = instance.publish(EVT_LOADTREE, {
+                        instance._loadtreeEvent = instance.publish(EVT_MOVEFILES, {
                             preventable: false
                         });
                     }
@@ -420,7 +410,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // ....
                     //
                     facade.response = response;
-                    instance.fire(EVT_LOADTREE, facade);
+                    instance.fire(EVT_MOVEFILES, facade);
                     return response;
                 },
                 function(err) {
@@ -432,7 +422,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         * Moves the selected files into another directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
          *
          * @method renameFile
          * @param dir {String} Directoy which files should be loaded
@@ -441,7 +432,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         renameFile : function(dir) {
             var instance = this,
-                  syncaction = 'loadtree',
+                  syncaction = 'renamefile',
                   facade, options;
 
             Y.log('loadTree', 'info', 'Itsa-FileManager');
@@ -476,7 +467,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         * Moves the selected files into another directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
          *
          * @method renameDir
          * @param dir {String} Directoy which files should be loaded
@@ -520,7 +512,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         * Moves the selected files into another directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
          *
          * @method removeDir
          * @param dir {String} Directoy which files should be loaded
@@ -647,13 +640,16 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * `createDir`: Update an existing model.
          * `moveDir`: Update an existing model.
          * `moveFiles`: Update an existing model.
+         * `copyDir`: Update an existing model.
+         * `copyFiles`: Update an existing model.
          *
-         * @param [options] {Object} Sync options. It's up to the custom sync
-         * implementation to determine what options it supports or requires, if any.
+         * @param [options] {Object} Sync options. At this moment the only sync-command that gets options is 'loadTree'.
+         * options.showTreeFiles is true/false (based on the attribute 'showTreeFiles'). It's up to the custom sync
+         * implementation to determine how to handle 'options'.
         */
         sync: function (/* action, options */) {
             return new Y.Promise(function (resolve, reject) {
-                resolve();
+                reject(new Error('The sync()-method was not overridden'));
             });
         },
 
@@ -817,6 +813,67 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._panelBD.setStyle('height', (parseInt(instance.get('boundingBox').getStyle('height'), 10)-heightPanelHD-heightPanelFT)+'px');
         },
 
+
+`loadTree`: Store a newly-created model for the first time.
+         * `loadFiles`: Delete an existing model.
+         * `renameFile`  : Load an existing model.
+         * `renameDir`: Update an existing model.
+         * `removeFiles`: Update an existing model.
+         * `removeDir`: Update an existing model.
+         * `createDir`: Update an existing model.
+         * `moveDir`: Update an existing model.
+         * `moveFiles`: Update an existing model.
+         * `copyDir`: Update an existing model.
+         * `copyFiles`: Upd
+
+
+        _createMethods : function() {
+            YArray.each(
+                ['loadFiles', 'renameFile', 'renameDir', 'removeFiles', 'removeDir', 'createDir', 'moveDir', 'moveFiles', 'copyDir', 'copyFiles'],
+                function (syncaction) {
+
+
+                instance[syncaction] = function(dir) {
+                    var instance = this,
+                          facade, options;
+
+                    Y.log(syncaction, 'info', 'Itsa-FileManager');
+                    if (syncaction === 'loadTree') {
+                        options = {
+                            showTreefiles: instance.get('showTreefiles')
+                        };
+                    }
+                    facade = {
+                        options: options,
+                        src: syncaction
+                    };
+                    return instance.sync(syncaction, options).then(
+                        function(response) {
+                            // Lazy publish.
+                            if (!instance['_'+syncaction]) {
+                                instance['_'+syncaction] = instance.publish(syncaction, {
+                                    preventable: false
+                                });
+                            }
+                            // now we need to add the treeresponse into Y.Tree
+                            // ....
+                            //
+                            facade.response = response;
+                            instance.fire(syncaction, facade);
+                            return response;
+                        },
+                        function(err) {
+                            facade.error = err;
+                            instance.fire(EVT_ERROR, facade);
+                            return err;
+                        }
+                    );
+                };
+
+
+            });
+        },
+
         /**
          * Will toggle-off the cursor col-resize
          *
@@ -917,11 +974,24 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
+         * Setter for attribute showTreeFiles.
+         *
+         * @method _setShowTreefiles
+         * @param val {Boolean} new value
+         * @private
+         * @protected
+         * @since 0.1
+        */
+        _setShowTreefiles : function(val) {
+
+        },
+
+        /**
          * Setter for attribute sizeFlowArea.
          *
          * @method _startResize
          * @param val {Int} new value
-         * @param forceZero {Boolean} set to true to force setting a zero value, instead of restricting to 'minSizeFlowArea'
+         * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'minSizeFlowArea'
          * @private
          * @protected
          * @since 0.1
@@ -1110,6 +1180,21 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 getter: function() {
                     return this._nodeFilemanFlow.getStyle('display')!=='none';
                 }
+            },
+
+            /**
+             * Defines whether the tree-pane shows files as well. Only visible when 'tree' is set to true.
+             * @attribute showTreefiles
+             * @default false
+             * @type Boolean
+             * @since 0.1
+            */
+            showTreefiles: {
+                value: false,
+                validator: function(val) {
+                    return (typeof val === 'boolean');
+                }
+                setter: '_setShowTreefiles'
             },
 
             /**
