@@ -43,7 +43,7 @@ Documentation
 Usage
 -----
 
-<b>Loading Models with ModelList.loadPromise</b>
+<b>Loading Models with ModelList.loadPromise()</b>
 ```js
 YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
@@ -72,7 +72,7 @@ YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build
 });
 ```
 
-<b>Appending Models with ModelList.loadPromise</b>
+<b>Appending Models with ModelList.loadPromise()</b>
 ```js
 YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
@@ -101,7 +101,7 @@ YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build
 });
 ```
 
-<b>Saving Models with ModelList.savePromise</b>
+<b>Saving Models with ModelList.savePromise()</b>
 ```js
 YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
