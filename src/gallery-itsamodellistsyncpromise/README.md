@@ -5,23 +5,29 @@ gallery-itsamodellistsyncpromise
 This module comes with the extention Y.ITSAModellistSyncPromise
 
 
-Extends Y.ModelList with Promised sync-methods. The synclayer can be made just as usual. But instead of calling
-ModelList.load you can use:
-
-* ModelList.<b>loadPromise()</b>
+Extends Y.ModelList with Promised sync-methods. The ModelList's synclayer can be made just as usual, defining these actions:
 
 
-<b>ModelList's sync-layer MUST call the callback-function of its 'read' promise-method, otherwise loadPromise is not resolved.</b>
+ * 'create'
+ * 'destroy'
+ * 'read'
+ * 'readappend'
+ * 'save'
+ * 'submit'
+ * 'update'
+
+
+Instead of calling ModelList.load you should use:
+
+
+<b>ModelList.loadPromise(options)</b> --> to append the read-models --> options = {append: true};
 
 
 Also, there are 3 extra Promises, which -in this current version- <b>all depends</b> on the Model's synclayer, not ModelLists synclayer:
 
-
-* ModelList.<b>destroyPromise()</b>
-* ModelList.<b>savePromise()</b>
-* ModelList.<b>submitPromise()</b>
-
-<b>Model's sync-layer MUST call the callback-function of its related promises-method, otherwise destroyPromise, savePromise and submitPromise are not resolved.</b>
+* <b>ModelList.destroyPromise</b><br />
+* <b>ModelList.savePromise</b><br />
+* <b>ModelList.submitPromise</b>
 
 
 All methods return Promises.

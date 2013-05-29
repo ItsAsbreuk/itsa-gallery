@@ -16,7 +16,6 @@
  * <b>The sync-layer MUST call the callback-function of its related promise-method, otherwise the promises are not resolved.</b>
  *
  * @module gallery-itsamodelsyncpromise
- * @extends Model
  * @class ITSAModelSyncPromise
  * @constructor
  * @since 0.1
