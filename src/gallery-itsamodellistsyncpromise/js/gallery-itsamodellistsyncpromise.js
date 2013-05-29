@@ -217,8 +217,8 @@
                     }
                     else {
                         // Lazy publish.
-                        if (!instance._loadEvent) {
-                            instance._loadEvent = instance.publish(eventname, {
+                        if (!instance['_'+eventname]) {
+                            instance['_'+eventname] = instance.publish(eventname, {
                                 preventable: false
                             });
                         }

@@ -7,25 +7,27 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * Extention ITSAModellistSyncPromise
  *
  *
- * Extends Y.ModelList with Promised sync-methods. The ModelList's synclayer can be made just as usual, defining the 'read' method.
- * But instead of calling ModelList.load you can use:
- *
- * <b>ModelList.loadPromise</b>
- *
- * <b>ModelList's sync-layer MUST call the callback-function of its 'read' promise-method, otherwise loadPromise is not resolved.</b>
- *
- *
+ * Extends Y.ModelList with Promised sync-methods. The ModelList's synclayer can be made just as usual, defining these actions:
+ * <br /><br />
+ * 'create'
+ * 'destroy'
+ * 'read'
+ * 'readappend'
+ * 'save'
+ * 'submit'
+ * 'update'
+ * <br /><br />
+ * Instead of calling ModelList.load() you should use:
+ * <br />
+ * <b>ModelList.loadPromise(options)</b> --> to append the read-models --> options = {append: true};
+ * <br /><br />
  * Also, there are 3 extra Promises, which -in this current version- <b>all depends</b> on the Model's synclayer, not ModelLists synclayer:
-
- * <b>ModelList.destroyPromise</b>
- * <b>ModelList.savePromise</b>
- * <b>ModelList.submitPromise</b>
- *
- * <b>Model's sync-layer MUST call the callback-function of its related promises-method,
- * otherwise destroyPromise, savePromise and submitPromise are not resolved.</b>
+ * <br />
+ * <b>ModelList.destroyPromise()</b><br />
+ * <b>ModelList.savePromise()</b><br />
+ * <b>ModelList.submitPromise()</b>
  *
  * @module gallery-itsamodelsyncpromise
- * @extends ModelList
  * @class ITSAModellistSyncPromise
  * @constructor
  * @since 0.1
@@ -56,7 +58,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
 
     /**
      * Fired after all changed models of the modellist is saved through the Model-sync layer.
-     * @event submit
+     * @event save
      * @param e {EventFacade} Event Facade including:
      * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
      * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
@@ -217,8 +219,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                     }
                     else {
                         // Lazy publish.
-                        if (!instance._loadEvent) {
-                            instance._loadEvent = instance.publish(eventname, {
+                        if (!instance['_'+eventname]) {
+                            instance['_'+eventname] = instance.publish(eventname, {
                                 preventable: false
                             });
                         }
