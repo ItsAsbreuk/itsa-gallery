@@ -174,7 +174,8 @@
         },
 
         /**
-         * Loads models from the server and adds them into the ModelList.
+         * Loads models from the server and adds them into the ModelList. <br />
+         * Without options, previous items will be replaced. Use loadPromise({append: true}) to append the items.<br /><br />
          *
          * This method delegates to the `sync()` method, by either using the 'read' or 'readappend' action, depending
          * on the value of parameter options.append.

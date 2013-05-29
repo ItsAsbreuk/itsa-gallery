@@ -241,9 +241,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * Copies the selected directory on the server and updates the treepane.
          * Is using the internal 'sync'-method to realize the update on the server. See 'sync' how to set up the synclayer.
          *
-         * @method copyDir
+         * @method cloneDir
          * @param cloneDirname {String} Directory-name of the new to be created clone-directory
-         * @param parentDir {String} New parent-directory where 'dir' will be placed inside.
          * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
@@ -270,10 +269,27 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
 
         /**
+         * Erases the selected directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method deleteDir
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Erases the selected files. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method deleteFiles
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
          * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
          *
          * @method loadFiles
-         * @param dirName {String} Directory which files should be loaded
          * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
@@ -327,46 +343,32 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
 
-        /**
-         * Removes the selected directory. Is using the internal 'sync'-method to realize the update on the server.
-         * See 'sync' how to set up the synclayer.
-         *
-         * @method removeDir
-         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
-         * @since 0.1
-        */
-
-        /**
-         * Removes the selected files. Is using the internal 'sync'-method to realize the update on the server.
-         * See 'sync' how to set up the synclayer.
-         *
-         * @method removeFiles
-         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
-         * @since 0.1
-        */
-
-options.selectedfiles holds the selected files?
-options.currentdir holds the current dir?
-
-
       /**
          * Override this method to provide a custom persistence implementation for this
          * FileManager. The default just returns a solved Promise without actually doing anything.
          * <br /><br />
          * The next  actions should be declared:<br />
          *
-         * `copyDir`: Clones a directory.  'options.cloneDirname'  holds the new directory name. 'options.parentDir' holds the name of the parent-directory.
-         * `copyFiles`: Copies selected files.  'options.destinationDir'  holds the directory name where the files should be copied to.
-         * `createDir`: Creates a directory.  'options.dirName'  holds the new directory name.
-         * `loadFiles`: Loads the files in the filepane --> must be in a form that can pass throught to Y.LazyModelList (items-attribute)
-                                 'options.dirName'  holds the new directory name .
-         * `loadTree`: Loads the tree-structure --> must be in a form that can pass through to Y.Tree (nodes-attribute).
-         * `moveDir`: Moves a directory.  'options.newParentDir'  holds the name of the new parent-directory.
-         * `moveFiles`: Moves the selected files.  'options.dirName'  holds the name of the directory where the files should be placed.
-         * `renameDir`: Renames a directory.  'options.newDirname'  holds the new directory-name.
-         * `renameFile` : Renames the selected file.  'options.newFilename'  holds the new file-name.
-         * `removeDir`: Erases a directory.
-         * `removeFiles`: Erases the selected files.
+         * `cloneDir`: Clones a directory.  'options.currentDir' --> selected directory to be cloned.
+                                                              'options.cloneDirname'  --> new directory name.
+         * `copyFiles`: Copies selected files.  'options.selectedFiles' --> the selected files that needs to be copied
+                                                                    'options.destinationDir'  --> directory name where the files should be copied to.
+         * `createDir`: Creates a directory.  'options.currentDir' --> current directory wherein the new directory will be created
+                                                                'options.dirName'  --> the new directory name.
+         * `deleteDir`: Erases a directory.   'options.currentDir' --> current directory which will be erased
+         * `deleteFiles`: Erases the selected files.  'options.selectedFiles' --> the selected files that will be erased
+         * `loadFiles`: Loads the files in the filepane: response must be in a form that can pass throught to Y.LazyModelList (items-attribute)
+                               'options.currentDir'  --> current directory which files should be loaded
+         * `loadTree`: Loads the tree-structure: must be in a form that can pass through to Y.Tree (nodes-attribute).
+                               'options.showTreefiles' --> whether files should be loaded into the treestructure (passed through from the attribute 'showTreefiles')
+         * `moveDir`: Moves a directory.  'options.currentDir' --> selected directory to be moved.
+                                                             'options.newParentDir'  --> the name of the new parent-directory.
+         * `moveFiles`: Moves the selected files.  'options.selectedFiles' --> the selected files that needs to be moved
+                                                                          'options.dirName'  holds the name of the directory where the files should be placed.
+         * `renameDir`: Renames a directory.  'options.currentDir' --> current directory which will be renamed
+                                                                     'options.newDirname'  holds the new directory-name.
+         * `renameFile` : Renames the selected file.  'options.selectedFiles' --> the selected files that needs to be renamed
+                                                                               'options.newFilename'  holds the new file-name.
          *
          * @method sync
          * @param action {String} The sync-action to perform. May be one of the following:
@@ -542,20 +544,55 @@ options.currentdir holds the current dir?
         },
 
         _createMethods : function() {
+            Y.log('_createMethods', 'info', 'Itsa-FileManager');
             YArray.each(
-                ['loadFiles', 'renameFile', 'renameDir', 'removeFiles', 'removeDir', 'createDir', 'moveDir', 'moveFiles', 'copyDir', 'copyFiles'],
+                ['loadFiles', 'loadTree', 'renameFile', 'renameDir', 'deleteFiles', 'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
-                    instance[syncaction] = function() {
+                    instance[syncaction] = function(param1) {
                         var instance = this,
                               options = {},
                               facade;
-
                         Y.log(syncaction, 'info', 'Itsa-FileManager');
-
-                        options.args1 = arguments[0];
-
-                        if (syncaction === 'loadTree') {
-                            options.showTreefiles + instance.get('showTreefiles')
+                        // now we must extend options for each action
+                        if (syncaction === 'loadFiles') {
+                            options.currentDir = instance.getCurrentDir();
+                        }
+                        else if (syncaction === 'loadTree') {
+                            options.showTreefiles = instance.get('showTreefiles');
+                        }
+                        else if (syncaction === 'renameFile') {
+                            options.selectedFiles = instance.getSelectedFiles();
+                            options.newFilename = param1;
+                        }
+                        else if (syncaction === 'renameDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.newDirname = param1;
+                        }
+                        else if (syncaction === 'deleteFiles') {
+                            options.selectedFiles =  instance.getSelectedFiles();
+                        }
+                        else if (syncaction === 'deleteDir') {
+                            options.currentDir = instance.getCurrentDir();
+                        }
+                        else if (syncaction === 'createDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.dirName = param1;
+                        }
+                        else if (syncaction === 'moveDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.newParentDir = param1;
+                        }
+                        else if (syncaction === 'moveFiles') {
+                            options.selectedFiles = instance.getSelectedFiles();
+                            options.dirName = param1;
+                        }
+                        else if (syncaction === 'cloneDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.cloneDirname = param1;
+                        }
+                        else if (syncaction === 'copyFiles') {
+                            options.selectedFiles = instance.getSelectedFiles();
+                            options.destinationDir = param1;
                         }
                         facade = {
                             options: options,
@@ -573,16 +610,19 @@ options.currentdir holds the current dir?
                                 if (syncaction === 'loadFiles') {
                                     // ....
                                 }
+                                else if (syncaction === 'loadTree') {
+                                    // ....
+                                }
                                 else if (syncaction === 'renameFile') {
                                     // ....
                                 }
                                 else if (syncaction === 'renameDir') {
                                     // ....
                                 }
-                                else if (syncaction === 'removeFiles') {
+                                else if (syncaction === 'deleteFiles') {
                                     // ....
                                 }
-                                else if (syncaction === 'removeDir') {
+                                else if (syncaction === 'deleteDir') {
                                     // ....
                                 }
                                 else if (syncaction === 'createDir') {
@@ -594,7 +634,7 @@ options.currentdir holds the current dir?
                                 else if (syncaction === 'moveFiles') {
                                     // ....
                                 }
-                                else if (syncaction === 'copyDir') {
+                                else if (syncaction === 'cloneDir') {
                                     // ....
                                 }
                                 else if (syncaction === 'copyFiles') {
