@@ -49,12 +49,7 @@ Usage
 
 <b>Usage in conjunction with ITSAViewModel</b>
 ```js
-<<<<<<< HEAD
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
-=======
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
->>>>>>> 73699521c6cca0dbf0b7857ba206e6f0b9092ec9
-
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
     var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
         artist: 'Madonna',
@@ -94,7 +89,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-d
 
 <b>Usage in conjunction with ITSAScrollViewModellist</b>
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', 'gallerycss-cssform', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', 'gallerycss-cssform', function(Y) {
 var myModellist, rendertemplate, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
@@ -161,7 +156,7 @@ myScrollview.render();
 <b>Using events</b>
 ```js
 <<<<<<< HEAD
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
 =======
 YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
 >>>>>>> 73699521c6cca0dbf0b7857ba206e6f0b9092ec9
