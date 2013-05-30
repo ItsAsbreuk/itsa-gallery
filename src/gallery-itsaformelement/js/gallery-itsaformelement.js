@@ -47,9 +47,9 @@ var Lang  = Y.Lang,
     ITSAFORMELEMENT_DATETIME_CLASS = 'itsa-datetimepicker-icondatetime',
 
     ELEMENT_UNDEFINED = '<span id="{id}">UNDEFINED ELEMENTTYPE</span>',
-    ELEMENT_INPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
+    ELEMENT_INPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname}{placeholder} />',
+    ELEMENT_PASSWORD = '<input id="{id}" type="password" name="{name}" value="{value}"{classname}{placeholder} />',
     ELEMENT_TEXTAREA = '<textarea id="{id}" name="{name}"{classname} />{value}</textarea>',
-    ELEMENT_PASSWORD = '<input id="{id}" type="password" name="{name}" value="{value}"{classname} />',
     ELEMENT_HIDDEN = '<input id="{id}" type="hidden" name="{name}" value="{value}"{classname} />',
 
     ELEMENT_BUTTON = '<button id="{id}" type="{type}" name="{name}"{classname}>{value}</button>',
@@ -99,7 +99,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
         render : function(config, nodeId) {
             var instance = this,
                 element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,
-                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField;
+                focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField, placeholder, placeholdervalue;
 
             Y.log('renderElement', 'cmas', 'ITSAFORMELEMENT');
             if (typeof config === 'object') {
@@ -143,15 +143,19 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                 if (validation) {
                     element += ELEMENT_VALIDATION;
                 }
-            }
-            else if (type==='textarea') {
-                element = ELEMENT_TEXTAREA;
-                if (validation) {
-                    element += ELEMENT_VALIDATION;
-                }
+                placeholdervalue = instance.get('placeholder');
+                placeholder = placeholdervalue ? ' placeholder="'+  placeholdervalue+'"' : '';
             }
             else if (type==='password') {
                 element = ELEMENT_PASSWORD;
+                if (validation) {
+                    element += ELEMENT_VALIDATION;
+                }
+                placeholdervalue = instance.get('placeholder');
+                placeholder = placeholdervalue ? ' placeholder="'+  placeholdervalue+'"' : '';
+            }
+            else if (type==='textarea') {
+                element = ELEMENT_TEXTAREA;
                 if (validation) {
                     element += ELEMENT_VALIDATION;
                 }
@@ -210,6 +214,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                                 id: nodeId,
                                 name: name,
                                 value: value,
+                                placeholder: placeholder,
                                 classname: classname,
                                 classlevel2: classlevel2,
                                 type: type,

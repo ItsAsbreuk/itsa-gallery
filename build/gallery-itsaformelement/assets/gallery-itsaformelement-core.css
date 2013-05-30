@@ -43,7 +43,7 @@
 }
 
 .yui3-form .yui3-button.itsa-button-datetime.yui3-itsaformelement-inlinebutton {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .itsa-modellistview-styled.yui3-form .itsa-model-selected button:focus,
