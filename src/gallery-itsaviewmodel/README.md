@@ -47,7 +47,7 @@ Usage
 
 <b>ITSAViewModel with Y.Lang.sub as template:</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', function(Y) {
 
     var viewmodel, model, modeltemplate;
     model = new Y.Model({
@@ -70,7 +70,7 @@ YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
 
 <b>ITSAViewModel with Y.Template.Micro as template:</b>
 ```js
-YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', function(Y) {
 
     var viewmodel, model, modeltemplate;
     model = new Y.Model({
@@ -115,7 +115,7 @@ YUI().use('model', 'gallery-itsaviewmodel', function(Y) {
 
 <b>Using ITSAViewModel to render text instead of Models:</b>
 ```js
-YUI().use('gallery-itsaviewmodel', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('gallery-itsaviewmodel', function(Y) {
 
     var viewmodel, message;
     message = 'Hello world';
