@@ -45,7 +45,7 @@ Usage
 
 <b>Loading Models with ModelList.loadPromise()</b>
 ```js
-YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
     var pielist;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
@@ -74,7 +74,7 @@ YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build
 
 <b>Appending Models with ModelList.loadPromise()</b>
 ```js
-YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
     var pielist;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
@@ -103,7 +103,7 @@ YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build
 
 <b>Saving Models with ModelList.savePromise()</b>
 ```js
-YUI().use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'model-list', 'gallery-itsamodellistsyncpromise', 'base-build', function(Y) {
 
     var pielist;
     Y.PieModel = Y.Base.create('pieModel', Y.Model, [], {
