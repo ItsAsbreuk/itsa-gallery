@@ -52,35 +52,113 @@ var Lang = Y.Lang,
                                         "</div>",
 
    /**
-     * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
-     * the sync layer submit-function returns an error.
+     * Fired when an error occurs, such as when the sync layer returns an error.
      * @event error
      * @param e {EventFacade} Event Facade including:
      * @param e.error {any} Error message.
-     * @param e.src {String} Source of the error. May be one of the following (or any
-     *                     custom error source defined by a Model subclass):
-     *
-     * `submit`: An error submitting the model from within a sync layer.
-     *
-     * `attributevalidation`: An error validating an attribute (or property). The attribute (or objectproperty)
-     *                        that failed validation will be provided as the `attribute` property on the event facade.
-     *
-     * @param e.attribute {String} The attribute/property that failed validation.
-     * @param e.validationerror {String} The errormessage in case of attribute-validation error.
-    **/
-    EVT_ERROR = 'error',
-   /**
-     * Fired after model is submitted from the sync layer.
-     * @event submit
-     * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param e.src {String} Source of the error. This is in fact the sync-action that caused the error.
      * @since 0.1
     **/
-    EVT_LOADFILES
-    EVT_LOADTREE = 'submit'
-    EVT_CREATEDIR
+    EVT_ERROR = 'error';
+
+   /**
+     * Fired when the synclayer finishes the action 'loadFiles' succesfully.
+     * @event loadFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'loadTree' succesfully.
+     * @event loadTree
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'renameFile' succesfully.
+     * @event renameFile
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'renameDir' succesfully.
+     * @event renameDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'deleteFiles' succesfully.
+     * @event deleteFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'deleteDir' succesfully.
+     * @event deleteDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'createDir' succesfully.
+     * @event createDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'moveDir' succesfully.
+     * @event moveDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'moveFiles' succesfully.
+     * @event moveFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'cloneDir' succesfully.
+     * @event cloneDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'copyFiles' succesfully.
+     * @event copyFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
 
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
@@ -345,7 +423,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
       /**
          * Override this method to provide a custom persistence implementation for this
-         * FileManager. The default just returns a solved Promise without actually doing anything.
+         * FileManager. The default just returns a solved Promise without actually doing anything.<br />
+         * <b>Best practice:</b> always end the method with a 'reject()'-command which handles all undeclared sync-actions.
          * <br /><br />
          * The next  actions should be declared:<br />
          *
@@ -360,11 +439,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * `loadFiles`: Loads the files in the filepane: response must be in a form that can pass throught to Y.LazyModelList (items-attribute)
                                'options.currentDir'  --> current directory which files should be loaded
          * `loadTree`: Loads the tree-structure: must be in a form that can pass through to Y.Tree (nodes-attribute).
-                               'options.showTreefiles' --> whether files should be loaded into the treestructure (passed through from the attribute 'showTreefiles')
+                               'options.showTreefiles' --> whether files should be loaded into the treestructure
+                                                                            (passed through from the attribute 'showTreefiles')
          * `moveDir`: Moves a directory.  'options.currentDir' --> selected directory to be moved.
                                                              'options.newParentDir'  --> the name of the new parent-directory.
          * `moveFiles`: Moves the selected files.  'options.selectedFiles' --> the selected files that needs to be moved
-                                                                          'options.dirName'  holds the name of the directory where the files should be placed.
+                                                                'options.dirName'  holds the name of the directory where the files should be placed.
          * `renameDir`: Renames a directory.  'options.currentDir' --> current directory which will be renamed
                                                                      'options.newDirname'  holds the new directory-name.
          * `renameFile` : Renames the selected file.  'options.selectedFiles' --> the selected files that needs to be renamed
@@ -545,12 +625,14 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
         _createMethods : function() {
             Y.log('_createMethods', 'info', 'Itsa-FileManager');
+
+            var instance = this;
             YArray.each(
-                ['loadFiles', 'loadTree', 'renameFile', 'renameDir', 'deleteFiles', 'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
+                ['loadFiles', 'loadTree', 'renameFile', 'renameDir', 'deleteFiles', 'deleteDir', 'createDir',
+                 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
                     instance[syncaction] = function(param1) {
-                        var instance = this,
-                              options = {},
+                        var options = {},
                               facade;
                         Y.log(syncaction, 'info', 'Itsa-FileManager');
                         // now we must extend options for each action
@@ -595,8 +677,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.destinationDir = param1;
                         }
                         facade = {
-                            options: options,
-                            src: syncaction
+                            options: options
                         };
                         return instance.sync(syncaction, options).then(
                             function(response) {
@@ -647,6 +728,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             },
                             function(err) {
                                 facade.error = err;
+                                facade.src = syncaction;
                                 instance.fire(EVT_ERROR, facade);
                                 return err;
                             }
@@ -773,12 +855,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          *
          * @method _startResize
          * @param val {Int} new value
+         * @param [attribute] {String} name of the attribute
          * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'minSizeFlowArea'
          * @private
          * @protected
          * @since 0.1
         */
-        _setSizeFlowArea : function(val, forceZero) {
+        _setSizeFlowArea : function(val, attribute, forceZero) {
             var instance = this,
                 borderFlowArea = instance._borderFlowArea,
                 minHeight = (forceZero ? 0 : Math.max(instance.get('minSizeFlowArea')-borderFlowArea, 0)),
@@ -797,12 +880,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          *
          * @method _startResize
          * @param val {Int} new value
-         * @param forceZero {Boolean} set to true to force setting a zero value, instead of restricting to 'sizeTreeArea'
+         * @param [attribute] {String} name of the attribute
+         * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'sizeTreeArea'
          * @private
          * @protected
          * @since 0.1
         */
-        _setSizeTreeArea : function(val, forceZero) {
+        _setSizeTreeArea : function(val, attribute, forceZero) {
             var instance = this,
                 nodeFilemanTree = instance._nodeFilemanTree,
                 borderTreeArea = instance._borderTreeArea,
@@ -932,7 +1016,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     if (instance.resize && instance.resize.hasPlugin('con')) {
                         instance._setConstraints();
                     }
-                    instance._setSizeTreeArea((val ? instance.get('sizeTreeArea') : 0), true);
+                    instance._setSizeTreeArea((val ? instance.get('sizeTreeArea') : 0), null, true);
                 },
                 getter: function() {
                     return this._nodeFilemanTree.getStyle('display')!=='none';
@@ -957,7 +1041,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     if (instance.resize && instance.resize.hasPlugin('con')) {
                         instance._setConstraints();
                     }
-                    instance._setSizeFlowArea((val ? instance.get('sizeFlowArea') : 0), true);
+                    instance._setSizeFlowArea((val ? instance.get('sizeFlowArea') : 0), null, true);
                 },
                 getter: function() {
                     return this._nodeFilemanFlow.getStyle('display')!=='none';
@@ -975,7 +1059,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 value: false,
                 validator: function(val) {
                     return (typeof val === 'boolean');
-                }
+                },
                 setter: '_setShowTreefiles'
             },
 

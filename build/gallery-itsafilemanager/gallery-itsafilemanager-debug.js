@@ -51,7 +51,116 @@ var Lang = Y.Lang,
                                         "<div class='"+FILEMAN_MAIN_CLASS+"'>"+
                                             "<div class='"+FILEMAN_FLOW_CLASS+"'></div>"+
                                             "<div class='"+FILEMAN_ITEMS_CLASS+"'></div>"+
-                                        "</div>";
+                                        "</div>",
+
+   /**
+     * Fired when an error occurs, such as when the sync layer returns an error.
+     * @event error
+     * @param e {EventFacade} Event Facade including:
+     * @param e.error {any} Error message.
+     * @param e.src {String} Source of the error. This is in fact the sync-action that caused the error.
+     * @since 0.1
+    **/
+    EVT_ERROR = 'error';
+
+   /**
+     * Fired when the synclayer finishes the action 'loadFiles' succesfully.
+     * @event loadFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'loadTree' succesfully.
+     * @event loadTree
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'renameFile' succesfully.
+     * @event renameFile
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'renameDir' succesfully.
+     * @event renameDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'deleteFiles' succesfully.
+     * @event deleteFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'deleteDir' succesfully.
+     * @event deleteDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'createDir' succesfully.
+     * @event createDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'moveDir' succesfully.
+     * @event moveDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'moveFiles' succesfully.
+     * @event moveFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'cloneDir' succesfully.
+     * @event cloneDir
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
+
+   /**
+     * Fired when the synclayer finishes the action 'copyFiles' succesfully.
+     * @event copyFiles
+     * @param e {EventFacade} Event Facade including:
+     * @param e.response {Any} response from the server.
+     * @param e.options {Object} Options that were passed when the action was called.
+     * @since 0.1
+    **/
 
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
@@ -63,7 +172,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         initializer : function() {
-            Y.log('initializer', 'info', 'ITSAFileManager');
+            Y.log('initializer', 'info', 'Itsa-FileManager');
             var instance = this;
 
             instance._resizeEventhandlers = [];
@@ -83,6 +192,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._halfBorderFlowArea = 0;
             instance._mouseOffset = 0;
             instance._bodyNode = Y.one('body');
+            instance._createMethods();
             instance.after(
                 'render',
                 instance._afterRender,
@@ -97,7 +207,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         bindUI : function() {
-            Y.log('bindUI', 'info', 'ITSAFileManager');
+            Y.log('bindUI', 'info', 'Itsa-FileManager');
             var instance = this,
                 resizeEventhandlers = instance._resizeEventhandlers,
                 contentBox = instance.get('contentBox'),
@@ -164,33 +274,14 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Sugarmethod to show the flow. Passes through to the 'flow' attribute.
-         *
-         * @method showFlow
-         * @since 0.1
-        */
-        showFlow : function() {
-            this.set('flow', true);
-        },
-
-        /**
          * Sugarmethod to hide the flow. Passes through to the 'flow' attribute.
          *
          * @method showFlow
          * @since 0.1
         */
         hideFlow : function() {
+            Y.log('hideFlow', 'info', 'Itsa-FileManager');
             this.set('flow', false);
-        },
-
-        /**
-         * Sugarmethod to show the tree. Passes through to the 'tree' attribute.
-         *
-         * @method showFlow
-         * @since 0.1
-        */
-        showTree : function() {
-            this.set('tree', true);
         },
 
         /**
@@ -200,7 +291,178 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         hideTree : function() {
+            Y.log('hideTree', 'info', 'Itsa-FileManager');
             this.set('tree', false);
+        },
+
+        /**
+         * Sugarmethod to show the flow. Passes through to the 'flow' attribute.
+         *
+         * @method showFlow
+         * @since 0.1
+        */
+        showFlow : function() {
+            Y.log('showFlow', 'info', 'Itsa-FileManager');
+            this.set('flow', true);
+        },
+
+        /**
+         * Sugarmethod to show the tree. Passes through to the 'tree' attribute.
+         *
+         * @method showFlow
+         * @since 0.1
+        */
+        showTree : function() {
+            Y.log('showTree', 'info', 'Itsa-FileManager');
+            this.set('tree', true);
+        },
+
+        /**
+         * Copies the selected directory on the server and updates the treepane.
+         * Is using the internal 'sync'-method to realize the update on the server. See 'sync' how to set up the synclayer.
+         *
+         * @method cloneDir
+         * @param cloneDirname {String} Directory-name of the new to be created clone-directory
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Copies the selected files and places them in the optional directory.  Updates the  panes if appropriate.
+         * Is using the internal 'sync'-method to realize the update on the server. See 'sync' how to set up the synclayer.
+         *
+         * @method copyFiles
+         * @param [destinationDir] {String} Directory where the copied files are to be placed. If not specified,
+         *               then the current directory will be used.
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Creates a new directory inside the selcted directory. Updates the treepane.
+         * Is using the internal 'sync'-method to realize the update on the server. See 'sync' how to set up the synclayer.
+         *
+         * @method createDir
+         * @param dirName {String} Directory-name to be created
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Erases the selected directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method deleteDir
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Erases the selected files. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method deleteFiles
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Loads the files of the selected directory, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method loadFiles
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Loads the tree-structure, using the internal 'sync'-method. See 'sync' how to set up the synclayer.
+         *
+         * @method loadTree
+         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Moves the selected directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method moveDir
+         * @param newParentDir {String} New parent-directory where 'dir' will be placed inside.
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Moves the selected files into another directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method moveFiles
+         * @param dirName {String} New directory where the files should be placed.
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * Renames the selected directory. Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method renameDir
+         * @param newDirname {String} New directoy-name.
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+        /**
+         * renames the selected file. When multiple files are selected, they will all get the smae name, followed by '_index'.
+         * Is using the internal 'sync'-method to realize the update on the server.
+         * See 'sync' how to set up the synclayer.
+         *
+         * @method renameFile
+         * @param newFilename {String} new filename for the selected file
+         * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
+         * @since 0.1
+        */
+
+      /**
+         * Override this method to provide a custom persistence implementation for this
+         * FileManager. The default just returns a solved Promise without actually doing anything.<br />
+         * <b>Best practice:</b> always end the method with a 'reject()'-command which handles all undeclared sync-actions.
+         * <br /><br />
+         * The next  actions should be declared:<br />
+         *
+         * `cloneDir`: Clones a directory.  'options.currentDir' --> selected directory to be cloned.
+                                                              'options.cloneDirname'  --> new directory name.
+         * `copyFiles`: Copies selected files.  'options.selectedFiles' --> the selected files that needs to be copied
+                                                                    'options.destinationDir'  --> directory name where the files should be copied to.
+         * `createDir`: Creates a directory.  'options.currentDir' --> current directory wherein the new directory will be created
+                                                                'options.dirName'  --> the new directory name.
+         * `deleteDir`: Erases a directory.   'options.currentDir' --> current directory which will be erased
+         * `deleteFiles`: Erases the selected files.  'options.selectedFiles' --> the selected files that will be erased
+         * `loadFiles`: Loads the files in the filepane: response must be in a form that can pass throught to Y.LazyModelList (items-attribute)
+                               'options.currentDir'  --> current directory which files should be loaded
+         * `loadTree`: Loads the tree-structure: must be in a form that can pass through to Y.Tree (nodes-attribute).
+                               'options.showTreefiles' --> whether files should be loaded into the treestructure
+                                                                            (passed through from the attribute 'showTreefiles')
+         * `moveDir`: Moves a directory.  'options.currentDir' --> selected directory to be moved.
+                                                             'options.newParentDir'  --> the name of the new parent-directory.
+         * `moveFiles`: Moves the selected files.  'options.selectedFiles' --> the selected files that needs to be moved
+                                                                'options.dirName'  holds the name of the directory where the files should be placed.
+         * `renameDir`: Renames a directory.  'options.currentDir' --> current directory which will be renamed
+                                                                     'options.newDirname'  holds the new directory-name.
+         * `renameFile` : Renames the selected file.  'options.selectedFiles' --> the selected files that needs to be renamed
+                                                                               'options.newFilename'  holds the new file-name.
+         *
+         * @method sync
+         * @param action {String} The sync-action to perform. May be one of the following:
+         *         *
+         * @param [options] {Object} Sync options. At this moment the only sync-command that gets options is 'loadTree'.
+         * options.showTreeFiles is true/false (based on the attribute 'showTreeFiles'). It's up to the custom sync
+         * implementation to determine how to handle 'options'.
+        */
+        sync: function (/* action, options */) {
+            return new Y.Promise(function (resolve, reject) {
+                reject(new Error('The sync()-method was not overridden'));
+            });
         },
 
         /**
@@ -211,7 +473,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         destructor : function() {
-            Y.log('destructor', 'info', 'ITSAFileManager');
+            Y.log('destructor', 'info', 'Itsa-FileManager');
             var instance = this;
 
             if (instance._resizeEvent) {
@@ -233,7 +495,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _afterRender : function() {
-            Y.log('_afterRender', 'info', 'ITSAFileManager');
+            Y.log('_afterRender', 'info', 'Itsa-FileManager');
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
                 nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
@@ -283,7 +545,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _checkEndResizeApprovement : function() {
-            Y.log('_checkEndResizeApprovement', 'info', 'ITSAFileManager');
+            Y.log('_checkEndResizeApprovement', 'info', 'Itsa-FileManager');
             var instance = this;
 
             if ((instance._resizeApprovedX || instance._resizeApprovedY) && !instance._busyResize) {
@@ -302,7 +564,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         _checkResizeAprovement : function(e) {
             if (!this._busyResize) {
-                Y.log('_checkResizeAprovement', 'info', 'ITSAFileManager');
+                Y.log('_checkResizeAprovement', 'info', 'Itsa-FileManager');
                 var instance = this,
                     panelBD = instance._panelBD,
                     nodeFilemanFlow = instance._nodeFilemanFlow,
@@ -336,7 +598,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          *
         */
         _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'ITSAFileManager');
+            Y.log('_clearEventhandlers', 'info', 'Itsa-FileManager');
 
             YArray.each(
                 this._eventhandlers,
@@ -354,13 +616,128 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _correctHeightAfterResize : function() {
-            Y.log('_correctHeightAfterResize', 'info', 'ITSAFileManager');
+            Y.log('_correctHeightAfterResize', 'info', 'Itsa-FileManager');
             var instance = this,
                 panelHD = instance._panelHD,
                 panelFT = instance._panelFT,
                 heightPanelHD = panelHD ? panelHD.get('offsetHeight') : 0,
                 heightPanelFT = panelFT ? panelFT.get('offsetHeight') : 0;
             instance._panelBD.setStyle('height', (parseInt(instance.get('boundingBox').getStyle('height'), 10)-heightPanelHD-heightPanelFT)+'px');
+        },
+
+        _createMethods : function() {
+            Y.log('_createMethods', 'info', 'Itsa-FileManager');
+
+            var instance = this;
+            YArray.each(
+                ['loadFiles', 'loadTree', 'renameFile', 'renameDir', 'deleteFiles', 'deleteDir', 'createDir',
+                 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
+                function (syncaction) {
+                    instance[syncaction] = function(param1) {
+                        var options = {},
+                              facade;
+                        Y.log(syncaction, 'info', 'Itsa-FileManager');
+                        // now we must extend options for each action
+                        if (syncaction === 'loadFiles') {
+                            options.currentDir = instance.getCurrentDir();
+                        }
+                        else if (syncaction === 'loadTree') {
+                            options.showTreefiles = instance.get('showTreefiles');
+                        }
+                        else if (syncaction === 'renameFile') {
+                            options.selectedFiles = instance.getSelectedFiles();
+                            options.newFilename = param1;
+                        }
+                        else if (syncaction === 'renameDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.newDirname = param1;
+                        }
+                        else if (syncaction === 'deleteFiles') {
+                            options.selectedFiles =  instance.getSelectedFiles();
+                        }
+                        else if (syncaction === 'deleteDir') {
+                            options.currentDir = instance.getCurrentDir();
+                        }
+                        else if (syncaction === 'createDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.dirName = param1;
+                        }
+                        else if (syncaction === 'moveDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.newParentDir = param1;
+                        }
+                        else if (syncaction === 'moveFiles') {
+                            options.selectedFiles = instance.getSelectedFiles();
+                            options.dirName = param1;
+                        }
+                        else if (syncaction === 'cloneDir') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.cloneDirname = param1;
+                        }
+                        else if (syncaction === 'copyFiles') {
+                            options.selectedFiles = instance.getSelectedFiles();
+                            options.destinationDir = param1;
+                        }
+                        facade = {
+                            options: options
+                        };
+                        return instance.sync(syncaction, options).then(
+                            function(response) {
+                                // Lazy publish.
+                                if (!instance['_'+syncaction]) {
+                                    instance['_'+syncaction] = instance.publish(syncaction, {
+                                        preventable: false
+                                    });
+                                }
+                                // now we need process the response
+                                if (syncaction === 'loadFiles') {
+                                    // ....
+                                }
+                                else if (syncaction === 'loadTree') {
+                                    // ....
+                                }
+                                else if (syncaction === 'renameFile') {
+                                    // ....
+                                }
+                                else if (syncaction === 'renameDir') {
+                                    // ....
+                                }
+                                else if (syncaction === 'deleteFiles') {
+                                    // ....
+                                }
+                                else if (syncaction === 'deleteDir') {
+                                    // ....
+                                }
+                                else if (syncaction === 'createDir') {
+                                    // ....
+                                }
+                                else if (syncaction === 'moveDir') {
+                                    // ....
+                                }
+                                else if (syncaction === 'moveFiles') {
+                                    // ....
+                                }
+                                else if (syncaction === 'cloneDir') {
+                                    // ....
+                                }
+                                else if (syncaction === 'copyFiles') {
+                                    // ....
+                                }
+                                // end of processing, now fire event
+                                facade.response = response;
+                                instance.fire(syncaction, facade);
+                                return response;
+                            },
+                            function(err) {
+                                facade.error = err;
+                                facade.src = syncaction;
+                                instance.fire(EVT_ERROR, facade);
+                                return err;
+                            }
+                        );
+                    };
+                }
+            );
         },
 
         /**
@@ -372,7 +749,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _endResizeApprovement: function() {
-            Y.log('_endResizeApprovement', 'info', 'ITSAFileManager');
+            Y.log('_endResizeApprovement', 'info', 'Itsa-FileManager');
             var instance = this,
                 contentBox = instance.get('contentBox');
 
@@ -393,7 +770,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         _resizeTree : function(e) {
             if (this._busyResize) {
-                Y.log('_resizeTree', 'info', 'ITSAFileManager');
+                Y.log('_resizeTree', 'info', 'Itsa-FileManager');
                 var instance = this,
                     nodeFilemanTree = instance._nodeFilemanTree,
                     nodeX = nodeFilemanTree.getX(),
@@ -414,7 +791,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         _resizeFlow : function(e) {
             if (this._busyResize) {
-                Y.log('_resizeFlow', 'info', 'ITSAFileManager');
+                Y.log('_resizeFlow', 'info', 'Itsa-FileManager');
                 var instance = this,
                     nodeFilemanFlow = instance._nodeFilemanFlow,
                     nodeY = nodeFilemanFlow.getY(),
@@ -433,7 +810,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _setConstraints : function() {
-            Y.log('_setConstraints', 'info', 'ITSAFileManager');
+            Y.log('_setConstraints', 'info', 'Itsa-FileManager');
             var instance = this,
                 pluginConstraints = instance.resize && instance.resize.con,
                 panelHD = instance._panelHD,
@@ -463,16 +840,30 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         },
 
         /**
-         * Setter for attribute sizeFlowArea.
+         * Setter for attribute showTreeFiles.
          *
-         * @method _startResize
-         * @param val {Int} new value
-         * @param forceZero {Boolean} set to true to force setting a zero value, instead of restricting to 'minSizeFlowArea'
+         * @method _setShowTreefiles
+         * @param val {Boolean} new value
          * @private
          * @protected
          * @since 0.1
         */
-        _setSizeFlowArea : function(val, forceZero) {
+        _setShowTreefiles : function(val) {
+
+        },
+
+        /**
+         * Setter for attribute sizeFlowArea.
+         *
+         * @method _startResize
+         * @param val {Int} new value
+         * @param [attribute] {String} name of the attribute
+         * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'minSizeFlowArea'
+         * @private
+         * @protected
+         * @since 0.1
+        */
+        _setSizeFlowArea : function(val, attribute, forceZero) {
             var instance = this,
                 borderFlowArea = instance._borderFlowArea,
                 minHeight = (forceZero ? 0 : Math.max(instance.get('minSizeFlowArea')-borderFlowArea, 0)),
@@ -491,12 +882,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          *
          * @method _startResize
          * @param val {Int} new value
-         * @param forceZero {Boolean} set to true to force setting a zero value, instead of restricting to 'sizeTreeArea'
+         * @param [attribute] {String} name of the attribute
+         * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'sizeTreeArea'
          * @private
          * @protected
          * @since 0.1
         */
-        _setSizeTreeArea : function(val, forceZero) {
+        _setSizeTreeArea : function(val, attribute, forceZero) {
             var instance = this,
                 nodeFilemanTree = instance._nodeFilemanTree,
                 borderTreeArea = instance._borderTreeArea,
@@ -531,7 +923,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 nodeX, nodeY, nodeWidth, nodeHeight;
 
             if (instance._resizeApprovedX) {
-                Y.log('_startResize split-resize-x will be started', 'info', 'ITSAFileManager');
+                Y.log('_startResize split-resize-x will be started', 'info', 'Itsa-FileManager');
                 instance._busyResize = true;
                 nodeX = nodeFilemanTree.getX(),
                 nodeWidth = nodeFilemanTree.get('offsetWidth');
@@ -548,7 +940,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 );
             }
             else if (instance._resizeApprovedY) {
-                Y.log('_startResize split-resize-y will be started', 'info', 'ITSAFileManager');
+                Y.log('_startResize split-resize-y will be started', 'info', 'Itsa-FileManager');
                 instance._busyResize = true;
                 nodeY = nodeFilemanFlow.getY(),
                 nodeHeight = nodeFilemanFlow.get('offsetHeight');
@@ -575,11 +967,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _stopResize : function() {
-            Y.log('_stopResize', 'info', 'ITSAFileManager');
+            Y.log('_stopResize', 'info', 'Itsa-FileManager');
             var instance = this;
 
             if (instance._busyResize) {
-                Y.log('_stopResize split-resize is ended', 'info', 'ITSAFileManager');
+                Y.log('_stopResize split-resize is ended', 'info', 'Itsa-FileManager');
                 instance._busyResize = false;
                 if (instance._resizeEvent) {
                     instance._resizeEvent.detach();
@@ -626,7 +1018,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     if (instance.resize && instance.resize.hasPlugin('con')) {
                         instance._setConstraints();
                     }
-                    instance._setSizeTreeArea((val ? instance.get('sizeTreeArea') : 0), true);
+                    instance._setSizeTreeArea((val ? instance.get('sizeTreeArea') : 0), null, true);
                 },
                 getter: function() {
                     return this._nodeFilemanTree.getStyle('display')!=='none';
@@ -651,11 +1043,26 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     if (instance.resize && instance.resize.hasPlugin('con')) {
                         instance._setConstraints();
                     }
-                    instance._setSizeFlowArea((val ? instance.get('sizeFlowArea') : 0), true);
+                    instance._setSizeFlowArea((val ? instance.get('sizeFlowArea') : 0), null, true);
                 },
                 getter: function() {
                     return this._nodeFilemanFlow.getStyle('display')!=='none';
                 }
+            },
+
+            /**
+             * Defines whether the tree-pane shows files as well. Only visible when 'tree' is set to true.
+             * @attribute showTreefiles
+             * @default false
+             * @type Boolean
+             * @since 0.1
+            */
+            showTreefiles: {
+                value: false,
+                validator: function(val) {
+                    return (typeof val === 'boolean');
+                },
+                setter: '_setShowTreefiles'
             },
 
             /**
