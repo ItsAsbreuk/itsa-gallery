@@ -9,7 +9,12 @@
             "event-mouseenter",
             "event-custom",
             "event-touch",
-            "pluginhost-base"
+            "pluginhost-base",
+            "lazy-model-list",
+            "gallery-sm-treeview",
+            "promise",
+            "json-parse",
+            "tree-sortable"
         ],
         "skinnable": false
     }

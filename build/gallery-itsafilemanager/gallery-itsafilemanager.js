@@ -3,32 +3,19 @@ YUI.add('gallery-itsafilemanager', function (Y, NAME) {
 'use strict';
 
 /**
- * DataTable ColumnResize Plugin
+ * ITSAFileManager
  *
  *
- * If you want to make the columns resizable, than you just define the datatable-attribute 'colsresizable' like:
- *
- * myDatatable.set('colsresizable', true);
- *
- * This can be done at initialisation of the datatable, before Y.Plugin.ITSADTColumnResize is plugged in, or later on.
- * The attribute 'colsresizable' can have three states:
- *
- * <ul>
- * <li>true --> all columns are resizable</li>
- * <li>false --> colresizing is disabled</li>
- * <li>null/undefined --> colresizing is active where only columns(objects) that have the property 'resizable' will be resizable</li>
- * </ul>
- *
- * If myDatatable.get('colsresizable') is undefined or null, then only columns with colConfig.resizable=true are resizable.
+ * Panel-widget for uolaoding and controlling files and folders
  *
  *
- * @module gallery-itsadtcolumnresize
- * @class Plugin.ITSADTColumnResize
- * @extends Plugin.Base
+ * @module gallery-itsfilemanager
+ * @class ITSAFileManager
+ * @extends Panel
  * @constructor
  * @since 0.1
  *
- * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
+ * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
@@ -36,6 +23,7 @@ YUI.add('gallery-itsafilemanager', function (Y, NAME) {
 // -- Public Static Properties -------------------------------------------------
 var Lang = Y.Lang,
     YArray = Y.Array,
+    CHARZERO = '\u0000',
     FILEMAN_HEADERTEMPLATE = "filemanager",
     FILEMAN_FOOTERTEMPLATE = "ready",
     FILEMANCLASSNAME = 'yui3-itsafilemanager',
@@ -44,14 +32,24 @@ var Lang = Y.Lang,
     FILEMAN_RESIZINGX_CLASS = FILEMANCLASSNAME + '-itsaresehandlerx',
     FILEMAN_RESIZINGY_CLASS = FILEMANCLASSNAME + '-itsaresehandlery',
     FILEMAN_TREE_CLASS = FILEMANCLASSNAME + '-tree',
+    FILEMAN_TREEVIEW_CLASS = FILEMANCLASSNAME + '-treeview',
     FILEMAN_MAIN_CLASS = FILEMANCLASSNAME + '-main',
     FILEMAN_FLOW_CLASS = FILEMANCLASSNAME + '-flow',
     FILEMAN_ITEMS_CLASS = FILEMANCLASSNAME + '-items',
-    FILEMAN_TEMPLATE = "<div class='"+FILEMAN_TREE_CLASS+"'></div>"+
+    FILEMAN_TEMPLATE = "<div class='"+FILEMAN_TREE_CLASS+"'>"+
+                                            "<div class='"+FILEMAN_TREEVIEW_CLASS+"'></div>"+
+                                        "</div>"+
                                         "<div class='"+FILEMAN_MAIN_CLASS+"'>"+
                                             "<div class='"+FILEMAN_FLOW_CLASS+"'></div>"+
                                             "<div class='"+FILEMAN_ITEMS_CLASS+"'></div>"+
                                         "</div>",
+
+   /**
+     * Fired after the filemanager is completely rendered and ready to be used.
+     * @event ready
+     * @since 0.1
+    **/
+    EVT_READY = 'ready',
 
    /**
      * Fired when an error occurs, such as when the sync layer returns an error.
@@ -61,7 +59,23 @@ var Lang = Y.Lang,
      * @param e.src {String} Source of the error. This is in fact the sync-action that caused the error.
      * @since 0.1
     **/
-    EVT_ERROR = 'error';
+    EVT_ERROR = 'error',
+
+    PARSE = function (response) {
+        if (typeof response === 'string') {
+            try {
+                return Y.JSON.parse(response);
+            } catch (ex) {
+                this.fire(EVT_ERROR, {
+                    error   : ex,
+                    response: response,
+                    src     : 'parse'
+                });
+                return null;
+            }
+        }
+        return response;
+    };
 
    /**
      * Fired when the synclayer finishes the action 'loadFiles' succesfully.
@@ -162,6 +176,8 @@ var Lang = Y.Lang,
      * @since 0.1
     **/
 
+Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sortable]);
+
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
         /**
@@ -173,7 +189,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         initializer : function() {
             var instance = this;
-
+            instance._filemanagerReady = new Y.Promise(function (resolve) {
+                instance.once(
+                    EVT_READY,
+                    resolve
+                );
+            });
             instance._resizeEventhandlers = [];
             instance._resizeApprovedX = false;
             instance._resizeApprovedY = false;
@@ -184,6 +205,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._panelBD = null;
             instance._panelFT = null;
             instance._nodeFilemanTree = null;
+            instance._nodeFilemanTreeView = null;
             instance._nodeFilemanFlow = null;
             instance._borderTreeArea = 0;
             instance._halfBorderTreeArea = 0;
@@ -269,6 +291,22 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 );
             }
 
+        },
+
+        /**
+         * Promise that will be resolved as soon as the fileManager is completely ready to use.
+         * Most internal methods rely on the state of this Promise.
+         *
+         * @method filemanagerReady
+         * @return {Y.Promise} Promised value, which never gets rejected, but will be resolved as soon as the 'ready'-event gets fired.
+         * @since 0.1
+        */
+        filemanagerReady : function() {
+            return this._filemanagerReady;
+        },
+
+        getCurrentDir : function() {
+            return '';
         },
 
         /**
@@ -423,28 +461,57 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * <b>Best practice:</b> always end the method with a 'reject()'-command which handles all undeclared sync-actions.
          * <br /><br />
          * The next  actions should be declared:<br />
-         *
-         * `cloneDir`: Clones a directory.  'options.currentDir' --> selected directory to be cloned.
-                                                              'options.cloneDirname'  --> new directory name.
-         * `copyFiles`: Copies selected files.  'options.selectedFiles' --> the selected files that needs to be copied
-                                                                    'options.destinationDir'  --> directory name where the files should be copied to.
-         * `createDir`: Creates a directory.  'options.currentDir' --> current directory wherein the new directory will be created
-                                                                'options.dirName'  --> the new directory name.
-         * `deleteDir`: Erases a directory.   'options.currentDir' --> current directory which will be erased
-         * `deleteFiles`: Erases the selected files.  'options.selectedFiles' --> the selected files that will be erased
-         * `loadFiles`: Loads the files in the filepane: response must be in a form that can pass throught to Y.LazyModelList (items-attribute)
-                               'options.currentDir'  --> current directory which files should be loaded
-         * `loadTree`: Loads the tree-structure: must be in a form that can pass through to Y.Tree (nodes-attribute).
-                               'options.showTreefiles' --> whether files should be loaded into the treestructure
-                                                                            (passed through from the attribute 'showTreefiles')
-         * `moveDir`: Moves a directory.  'options.currentDir' --> selected directory to be moved.
-                                                             'options.newParentDir'  --> the name of the new parent-directory.
-         * `moveFiles`: Moves the selected files.  'options.selectedFiles' --> the selected files that needs to be moved
-                                                                'options.dirName'  holds the name of the directory where the files should be placed.
-         * `renameDir`: Renames a directory.  'options.currentDir' --> current directory which will be renamed
-                                                                     'options.newDirname'  holds the new directory-name.
-         * `renameFile` : Renames the selected file.  'options.selectedFiles' --> the selected files that needs to be renamed
-                                                                               'options.newFilename'  holds the new file-name.
+         * <br />
+         * `cloneDir`: Clones a directory.
+         * <br />'options.currentDir' --> selected directory to be cloned.<br />
+         *                                                    'options.cloneDirname'  --> new directory name.<br />
+         * <br />
+         * `copyFiles`: Copies selected files.
+         * <br />'options.selectedFiles' --> the selected files that needs to be copied<br />
+         *            'options.destinationDir'  --> directory name where the files should be copied to.<br />
+         * <br />
+         * `createDir`: Creates a directory.
+         * <br />'options.currentDir' --> current directory wherein the new directory will be created<br />
+         *                                                      'options.dirName'  --> the new directory name.<br />
+         * <br />
+         * `deleteDir`: Erases a directory.
+         * <br />'options.currentDir' --> current directory which will be erased<br />
+         * <br />
+         * `deleteFiles`: Erases the selected files.
+         * <br />'options.selectedFiles' --> the selected files that will be erased<br />
+         * <br />
+         * `loadFiles`: Loads all the files of the current directory in the filepane: response must be in a form that can pass
+         *                     throught to Y.LazyModelList (items-attribute)<br />
+         *                     'options.currentDir'  --> current directory which files should be loaded<br />
+         * <br />
+         * `loadAppendFiles`: Loads a limited amount of files (of the current directory) in the filepane: response must be in a form
+         *                                 that can pass throught to Y.LazyModelList (items-attribute)<br />
+         *                                 <b>caution</b>The sync-action must use options.batchSize --> the number of responsed files is compared
+         *                                 with this value in order to know when no more requests are needed.<br />
+         *                     'options.currentDir'  --> current directory which files should be loaded<br />
+         *                     'options.batchSize'  --> number of files to be downloaded from the server<br />
+         *                     'options.size'  --> current number of files to be downloaded from the server<br />
+         *                     'options.lastFileId'  --> Model-id of the last file that is already available in the filepane<br />
+         * <br />
+         * `loadTree`: Loads the tree-structure: must be in a form that can pass through to Y.TreeView (nodes-attribute).<br />
+         *                     'options.showTreefiles' --> whether files should be loaded into the treestructure
+         *                                                                  (passed through from the attribute 'showTreefiles')<br />
+         * <br />
+         * `moveDir`: Moves a directory.
+         * <br />'options.currentDir' --> selected directory to be moved.<br />
+         *                                                   'options.newParentDir'  --> the name of the new parent-directory.<br />
+         * <br />
+         * `moveFiles`: Moves the selected files.
+         * <br />'options.selectedFiles' --> the selected files that needs to be moved<br />
+         *            'options.dirName'  holds the name of the directory where the files should be placed.<br />
+         * <br />
+         * `renameDir`: Renames a directory.
+         * <br />'options.currentDir' --> current directory which will be renamed<br />
+         *                                                           'options.newDirname'  holds the new directory-name.<br />
+         * <br />
+         * `renameFile` : Renames the selected file.
+         * <br />'options.selectedFiles' --> the selected files that needs to be renamed<br />
+         *                                                                     'options.newFilename'  holds the new file-name.
          *
          * @method sync
          * @param action {String} The sync-action to perform. May be one of the following:
@@ -473,6 +540,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 instance._resizeEvent.detach();
             }
             instance._clearEventhandlers();
+            instance.files.destroy();
         },
 
         //=====================================================================
@@ -490,11 +558,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         _afterRender : function() {
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
-                nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
+                nodeFilemanTree, nodeFilemanTreeView, nodeFilemanFlow, borderTreeArea, borderFlowArea, tree, lazyRender;
 
             // extend the time that the widget is invisible
             boundingBox.toggleClass('yui3-itsafilemanager-loading', true);
             instance._nodeFilemanTree = nodeFilemanTree = boundingBox.one('.'+FILEMAN_TREE_CLASS);
+            instance._nodeFilemanTreeView = nodeFilemanTreeView = boundingBox.one('.'+FILEMAN_TREEVIEW_CLASS);
             instance._nodeFilemanFlow = nodeFilemanFlow = boundingBox.one('.'+FILEMAN_FLOW_CLASS);
             instance._borderTreeArea = borderTreeArea = parseInt(nodeFilemanTree.getStyle('borderRightWidth'), 10);
             instance._borderFlowArea = borderFlowArea = parseInt(nodeFilemanFlow.getStyle('borderBottomWidth'), 10);
@@ -525,6 +594,49 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 instance._setConstraints();
                 boundingBox.toggleClass('yui3-itsafilemanager-loading', false);
             }
+            lazyRender = instance.get('lazyRender');
+            instance.tree = tree = new Y.SortableTreeView({
+  //          instance.tree = tree = new Y.TreeView({
+                container: nodeFilemanTreeView,
+                lazyRender: lazyRender,
+                sortComparator: function (node) {
+                    // directories are appended by char(0) --> this will make them appear on top
+                    return (node.canHaveChildren ? CHARZERO : '') + node.label;
+                }
+            });
+            instance.files = new Y.LazyModelList();
+            // Laze render the tree:
+            instance.onceAfter(
+                'visibleChange',
+                function() {
+                    if (!tree.rendered) {
+                        instance.loadTree(); // --> will also render the tree
+                    }
+                }
+            );
+            // If lazyRender the setup its callbackfunc:
+            if (lazyRender) {
+                Y.use('tree-lazy', function() {
+                    tree.plug(Y.Plugin.Tree.Lazy, {
+                        // Custom function that Plugin.Tree.Lazy will call when it needs to
+                        // load the children for a node.
+                        load: function (node, callback) {
+                            instance.loadTreeLazy(node).then(
+                                function() {
+                                    // Call the callback function to tell Plugin.Tree.Lazy that
+                                    // we're done loading data.
+                                    callback();
+                                },
+                                function(err) {
+                                    callback(new Error(err));
+                                }
+                            );
+                        }
+                    });
+                });
+            }
+            // fire 'ready'-event:
+            instance.fire(EVT_READY);
         },
 
         /**
@@ -615,10 +727,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
         _createMethods : function() {
 
-            var instance = this;
+            var instance = this,
+                  tree;
             YArray.each(
-                ['loadFiles', 'loadTree', 'renameFile', 'renameDir', 'deleteFiles', 'deleteDir', 'createDir',
-                 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
+                ['loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFile', 'renameDir', 'deleteFiles',
+                 'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
                     instance[syncaction] = function(param1) {
                         var options = {},
@@ -627,8 +740,18 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         if (syncaction === 'loadFiles') {
                             options.currentDir = instance.getCurrentDir();
                         }
+                        else if (syncaction === 'loadAppendFiles') {
+                            options.currentDir = instance.getCurrentDir();
+                            options.batchSize = instance.get('batchSize');
+                            options.size = instance.files.size();
+                            options.lastFileId = instance._lastFileId;
+                        }
                         else if (syncaction === 'loadTree') {
                             options.showTreefiles = instance.get('showTreefiles');
+                        }
+                        else if (syncaction === 'loadTreeLazy') {
+                            options.showTreefiles = instance.get('showTreefiles');
+                            options.currentDir = instance.getCurrentDir();
                         }
                         else if (syncaction === 'renameFile') {
                             options.selectedFiles = instance.getSelectedFiles();
@@ -667,7 +790,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         facade = {
                             options: options
                         };
-                        return instance.sync(syncaction, options).then(
+                        return instance.filemanagerReady()
+                        .then(
+                            Y.bind(instance.sync, instance, syncaction, options)
+                        )
+                        .then(
                             function(response) {
                                 // Lazy publish.
                                 if (!instance['_'+syncaction]) {
@@ -677,10 +804,27 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                 }
                                 // now we need process the response
                                 if (syncaction === 'loadFiles') {
+                                    alert('you can create the filepane now');
+                                }
+                                else if (syncaction === 'loadAppendFiles') {
                                     // ....
                                 }
-                                else if (syncaction === 'loadTree') {
-                                    // ....
+                                else if ((syncaction === 'loadTree') && !instance.get('lazyRender')) {
+                                    tree = instance.tree;
+                                    if (!tree.rendered) {
+                                        tree.render();
+                                    }
+                                    tree.insertNode(tree.rootNode, PARSE(response));
+                                }
+                                else if (syncaction === 'loadTreeLazy') {
+                                    tree = instance.tree;
+                                    if (!tree.rendered) {
+                                        tree.render();
+                                        tree.insertNode(tree.rootNode, PARSE(response));
+                                    }
+                                    else {
+                                        tree.insertNode(param1, PARSE(response));
+                                    }
                                 }
                                 else if (syncaction === 'renameFile') {
                                     // ....
@@ -961,6 +1105,20 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         ATTRS : {
 
             /**
+             * Defines how may file should be requested when the sync-action: 'loadAppendFiles' is used.
+             * @attribute batchSize
+             * @type Int
+             * @default 500
+             * @since 0.1
+            */
+            batchSize: {
+                value: 500,
+                validator: function(val) {
+                    return (typeof val === 'number') && (val>0);
+                }
+            },
+
+            /**
              * Defines whether the panel has a border
              * @attribute border
              * @type Boolean
@@ -1025,6 +1183,28 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 },
                 getter: function() {
                     return this._nodeFilemanFlow.getStyle('display')!=='none';
+                }
+            },
+
+            /**
+             * Defines whether the tree is lazy: every subdirectory will be loaded by itself, not deep.<br />
+             * Can only be set during initialization.<br /><br />
+             * <b>Caution:</b><br />
+             * When true, you need to setup the sync-action 'loadTreeLazy'.<br />
+             * When false, you need to setup the sync-action 'loadTree'.<br /><br />
+             * lazyRender can significantly speed up the time it takes to render a large
+             * tree, but might not make sense if you're using CSS that doesn't hide the
+             * contents of closed nodes, or when your directory-structure has no children.
+             * @attribute lazyRender
+             * @default false
+             * @type Boolean
+             * @since 0.1
+            */
+            lazyRender: {
+                value: false,
+                writeOnce: 'initOnly',
+                validator: function(val) {
+                    return (typeof val === 'boolean');
                 }
             },
 
@@ -1260,7 +1440,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "event-mouseenter",
         "event-custom",
         "event-touch",
-        "pluginhost-base"
+        "pluginhost-base",
+        "lazy-model-list",
+        "gallery-sm-treeview",
+        "promise",
+        "json-parse",
+        "tree-sortable"
     ],
     "skinnable": false
 });
