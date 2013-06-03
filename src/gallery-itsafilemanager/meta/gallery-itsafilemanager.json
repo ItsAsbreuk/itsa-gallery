@@ -12,6 +12,7 @@
             "pluginhost-base",
             "lazy-model-list",
             "gallery-sm-treeview",
+            "gallery-itsascrollviewmodellist",
             "promise",
             "json-parse",
             "tree-sortable"

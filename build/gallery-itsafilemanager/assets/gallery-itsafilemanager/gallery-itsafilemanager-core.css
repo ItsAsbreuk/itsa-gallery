@@ -11,7 +11,8 @@
 .yui3-js-enabled .yui3-itsafilemanager-loading {
     visibility: hidden;
 }
-.yui3-itsafilemanager-hidden {
+.yui3-itsafilemanager-hidden,
+.yui3-itsafilemanager-hidden .yui3-treeview-can-have-children > .yui3-treeview-row > .yui3-treeview-indicator {
     visibility: hidden;
 }
 .yui3-itsafilemanager .yui3-resize-handle-inner-r,
@@ -61,6 +62,9 @@ background: none;
     display: block;
     width: 100%;
     background-color: #000;
+}
+.yui3-itsafilemanager-treeview {
+    margin-top: 10px;
 }
 .yui3-itsafilemanager-items {
     display: block;
