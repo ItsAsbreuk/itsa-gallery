@@ -6,6 +6,7 @@
     border-radius: 4px 4px 4px 4px;
     box-shadow: 0 1px 3px #DDDDDD inset;
     display: inline-block;
+    *display: inline;
     font-size: 0.8em;
     padding: 0.27em 0.31em;
     transition: border 0.3s linear 0s;
