@@ -1,3 +1,7 @@
 .yui3-js-enabled .yui3-itsascrollviewmodellist-loading {
     visibility: hidden;
 }
+
+.yui3-itsascrollviewmodellist ul {
+    padding: 0px;
+}
