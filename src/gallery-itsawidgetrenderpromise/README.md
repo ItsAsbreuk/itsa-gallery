@@ -2,7 +2,7 @@ gallery-itsawidgetrenderpromise
 =====================
 
 
-<b>Widget Y.ITSAWidgetRenderPromise</b>
+<b>Widget.renderPromose()</b>
 
 
 This module adds <b>Widget.renderPromise()</b> to the Y.Widget class.
