@@ -24,7 +24,7 @@ Usage
 
 <b>Using renderPromise() for one widget</b>
 ```js
-YUI({gallery: 'gallery-2013.05.29-23-38'}).use('dial', 'gallery-itsawidgetrenderpromise', function(Y) {
+YUI({gallery: 'gallery-next'}).use('dial', 'gallery-itsawidgetrenderpromise', function(Y) {
 
     var mydial = new Y.Dial().render();
     mydial.renderPromise().then(
@@ -38,21 +38,21 @@ YUI({gallery: 'gallery-2013.05.29-23-38'}).use('dial', 'gallery-itsawidgetrender
 
 <b>Using renderPromise() to display a div with for multiple widgets</b>
 ```css
-    .yui3-js-enabled .notrendered {
-        visibility: hidden;
-    }
+.yui3-js-enabled .notrendered {
+    visibility: hidden;
+}
 ```
 
 ```html
-    <div id='toolbar' class='notrendered'>
-        <div id='dial1'></div>
-        <div id='dial2'></div>
-        <div id='dial3'></div>
-    </div>
+<div id='toolbar' class='notrendered'>
+    <div id='dial1'></div>
+    <div id='dial2'></div>
+    <div id='dial3'></div>
+</div>
 ```
 
 ```js
-YUI({gallery: 'gallery-2013.05.29-23-38'}).use('node-base', 'dial', 'gallery-itsawidgetrenderpromise', 'promise', function(Y) {
+YUI({gallery: 'gallery-next'}).use('node-base', 'dial', 'gallery-itsawidgetrenderpromise', 'promise', function(Y) {
 
     var dial1, dial2, dial3;
 
@@ -77,6 +77,7 @@ License
 -------
 
 Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
+
 Special thanks to Jeff Pinach - http://http://fromanegg.com :)
 
 [YUI BSD License](http://developer.yahoo.com/yui/license.html)
