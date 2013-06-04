@@ -13,6 +13,7 @@
             "lazy-model-list",
             "gallery-sm-treeview",
             "gallery-itsascrollviewmodellist",
+            "gallery-itsawidgetrenderpromise",
             "promise",
             "json-parse",
             "tree-sortable"
