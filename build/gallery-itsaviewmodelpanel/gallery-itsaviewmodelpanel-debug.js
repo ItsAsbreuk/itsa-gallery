@@ -1,5 +1,7 @@
 YUI.add('gallery-itsaviewmodelpanel', function (Y, NAME) {
 
+'use strict';
+
 /**
  *
  * Widget ITSAViewModelPanel
