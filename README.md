@@ -11,7 +11,7 @@ This repo contains open source YUI components that have been contributed to the
 ## Core
 [ITSADialogBox](src/gallery-itsadialogbox) --under redesign--
 
-[Widget.renderPromise](src/gallery-itsawidgetrenderpromise) --on cdn--
+[Widget.renderPromise()](src/gallery-itsawidgetrenderpromise) --on cdn--
 
 
 
