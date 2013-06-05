@@ -201,19 +201,17 @@ Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sorta
         renderPromise : function() {
             Y.log('renderPromise', 'info', 'treeview');
             var instance = this;
-            return new Y.Promise(function (resolve) {
-                instance.after(
-                    'render',
-                    function() {
-                        Y.log('renderPromise is resolved by the after-ready event', 'info', 'treeview');
+            if (!instance._renderPromise) {
+                instance._renderPromise = new Y.Promise(function (resolve) {
+                    // first create a private property to the resolver, so we can resolve it manually from outside the promise
+                    instance._renderResolver = resolve;
+                    if (instance.get('rendered')) {
+                        Y.log('renderPromise is resolved by the rendered-attribute', 'info', 'treeview');
                         resolve();
                     }
-                );
-                if (instance.get('rendered')) {
-                    Y.log('renderPromise is resolved by the rendered-attribute', 'info', 'treeview');
-                    resolve();
-                }
-            });
+                });
+            }
+            return instance._renderPromise;
         }
     }
 );
@@ -656,7 +654,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             Y.log('_afterRender', 'info', 'Itsa-FileManager');
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
-                nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
+                nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea, afterreadyPromise;
 
             // extend the time that the widget is invisible
             boundingBox.toggleClass('yui3-itsafilemanager-loading', true);
@@ -699,28 +697,33 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._renderTree();
             // now we create the files tree:
             instance._renderFiles();
+            afterreadyPromise = instance._afterRenderReady();
+            Y.Promise.Resolver(afterreadyPromise).fulfill();
             // fire 'ready'-event:
-            instance.fire(EVT_AFTERRENDER_READY);
-            instance._afterrenderready = true;
+//            instance.fire(EVT_AFTERRENDER_READY);
+ //           instance._afterrenderready = true;
         },
 
         _afterRenderReady : function() {
             var instance = this;
-            return new Y.Promise(
-                function (resolve) {
-                    instance.on(
-                        EVT_AFTERRENDER_READY,
-                        function() {
-                            alert('after render is ready by event');
+            if (!instance._renderReadyPromise) {
+                instance._renderReadyPromise = new Y.Promise(
+                    function (resolve) {
+                        instance.on(
+                            EVT_AFTERRENDER_READY,
+                            function() {
+                                alert('after render is ready by event');
+                                resolve();
+                            }
+                        );
+                        if (instance._afterrenderready) {
+                            alert('after render is ready by property');
                             resolve();
                         }
-                    );
-                    if (instance._afterrenderready) {
-                        alert('after render is ready by property');
-                        resolve();
                     }
-                }
-            );
+                );
+            }
+            return instance._renderReadyPromise;
         },
 
         /**
@@ -796,6 +799,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     });
                 });
             }
+            // now resolve the tree-promise from outside the promise:
+            tree._renderResolver();
+            // now load the tree-items
             if (lazyRender) {
                 instance.loadTreeLazy();
             }
