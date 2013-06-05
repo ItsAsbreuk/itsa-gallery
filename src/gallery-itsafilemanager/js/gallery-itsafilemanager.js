@@ -51,11 +51,11 @@ var Lang = Y.Lang,
                                         "</div>",
 
    /**
-     * Fired after the filemanager is completely rendered and ready to be used.
-     * @event ready
+     * Fired when the method _afterRender is completed.
+     * @event afterrenderready
      * @since 0.1
     **/
-    EVT_READY = 'ready',
+    EVT_AFTERRENDER_READY = 'afterrenderready',
 
    /**
      * Fired when an error occurs, such as when the sync layer returns an error.
@@ -193,7 +193,30 @@ Y.Tree.Node.prototype.getTreeInfo = function(field) {
     return treeField;
 };
 
-Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sortable]);
+Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sortable], {
+        sortComparator: function (node) {
+            // directories are appended by char(0) --> this will make them appear on top
+            return (node.canHaveChildren ? CHARZERO : '') + node.label;
+        },
+        renderPromise : function() {
+            Y.log('renderPromise', 'info', 'treeview');
+            var instance = this;
+            return new Y.Promise(function (resolve) {
+                instance.after(
+                    'render',
+                    function() {
+                        Y.log('renderPromise is resolved by the after-ready event', 'info', 'treeview');
+                        resolve();
+                    }
+                );
+                if (instance.get('rendered')) {
+                    Y.log('renderPromise is resolved by the rendered-attribute', 'info', 'treeview');
+                    resolve();
+                }
+            });
+        }
+    }
+);
 
 Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
@@ -207,12 +230,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         initializer : function() {
             Y.log('initializer', 'info', 'Itsa-FileManager');
             var instance = this;
-            instance._promiseReadyEvent = new Y.Promise(function (resolve) {
-                instance.once(
-                    EVT_READY,
-                    resolve
-                );
-            });
             instance._inlineblock = 'inline' + (((IE>0) && (IE<8)) ? '' : '-block');
             instance._eventhandlers = [];
             instance._resizeApprovedX = false;
@@ -347,7 +364,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         filemanagerReady : function() {
-            return this._promiseReadyEvent;
+            return this._afterRenderReady();
         },
 
         getCurrentDir : function() {
@@ -683,7 +700,27 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             // now we create the files tree:
             instance._renderFiles();
             // fire 'ready'-event:
-            instance.fire(EVT_READY);
+            instance.fire(EVT_AFTERRENDER_READY);
+            instance._afterrenderready = true;
+        },
+
+        _afterRenderReady : function() {
+            var instance = this;
+            return new Y.Promise(
+                function (resolve) {
+                    instance.on(
+                        EVT_AFTERRENDER_READY,
+                        function() {
+                            alert('after render is ready by event');
+                            resolve();
+                        }
+                    );
+                    if (instance._afterrenderready) {
+                        alert('after render is ready by property');
+                        resolve();
+                    }
+                }
+            );
         },
 
         /**
@@ -734,20 +771,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance.tree = tree = new Y.SortableTreeView({
                 container: instance._nodeFilemanTreeView,
                 lazyRender: lazyRender,
-                multiSelect: false, // leave false, because multiselect a dir makes inconsistancy about which dirfiles should be shown
-                sortComparator: function (node) {
-                    // directories are appended by char(0) --> this will make them appear on top
-                    return (node.canHaveChildren ? CHARZERO : '') + node.label;
-                }
+                multiSelect: false // leave false, because multiselect a dir makes inconsistancy about which dirfiles should be shown
             });
             tree.addTarget(instance);
             tree.render();
-            if (lazyRender) {
-                instance.loadTreeLazy();
-            }
-            else {
-                instance.loadTree();
-            }
             // If lazyRender the setup its callbackfunc:
             if (lazyRender) {
                 Y.use('tree-lazy', function() {
@@ -768,6 +795,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         }
                     });
                 });
+            }
+            if (lazyRender) {
+                instance.loadTreeLazy();
+            }
+            else {
+                instance.loadTree();
             }
         },
 
