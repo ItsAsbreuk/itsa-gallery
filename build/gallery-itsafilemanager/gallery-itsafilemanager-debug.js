@@ -53,13 +53,6 @@ var Lang = Y.Lang,
                                         "</div>",
 
    /**
-     * Fired when the method _afterRender is completed.
-     * @event afterrenderready
-     * @since 0.1
-    **/
-    EVT_AFTERRENDER_READY = 'afterrenderready',
-
-   /**
      * Fired when an error occurs, such as when the sync layer returns an error.
      * @event error
      * @param e {EventFacade} Event Facade including:
@@ -205,13 +198,8 @@ Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sorta
             var instance = this;
             if (!instance._renderPromise) {
                 instance._renderPromise = new Y.Promise(function (resolve) {
-                    instance.after(
-                        'render',
-                        function() {
-                            Y.log('renderPromise is resolved by the after-ready event', 'info', 'treeview');
-                            resolve();
-                        }
-                    );
+                    // first create a private property to the resolver, so we can resolve it manually from outside the promise
+                    instance._renderResolver = resolve;
                     if (instance.get('rendered')) {
                         Y.log('renderPromise is resolved by the rendered-attribute', 'info', 'treeview');
                         resolve();
@@ -255,12 +243,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._halfBorderFlowArea = 0;
             instance._mouseOffset = 0;
             instance._bodyNode = Y.one('body');
-            instance._createMethods();
-            instance.after(
-                'render',
-                instance._afterRender,
-                instance
-            );
+            instance._createPromises();
         },
 
         /**
@@ -358,18 +341,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 );
             }
 
-        },
-
-        /**
-         * Promise that will be resolved as soon as the fileManager is completely ready to use.
-         * Most internal methods rely on the state of this Promise.
-         *
-         * @method filemanagerReady
-         * @return {Y.Promise} Promised value, which never gets rejected, but will be resolved as soon as the 'ready'-event gets fired.
-         * @since 0.1
-        */
-        filemanagerReady : function() {
-            return this._afterRenderReady();
         },
 
         getCurrentDir : function() {
@@ -649,6 +620,43 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         // private functions
         //=====================================================================
 
+        _createPromises : function() {
+            var instance = this;
+            instance.readyPromise = new Y.Promise(
+                function(resolve) {
+                    instance.renderPromise().then(
+                        Y.rbind(instance._afterRender, instance)
+                    ).then(
+                        Y.rbind(instance._allWidgetsRenderedPromise, instance)
+                    ).then(
+                        resolve
+                    );
+                }
+            );
+            instance.dataPromise = new Y.Promise(
+                function(resolve) {
+                    // only now we can call _createMethods --> because instance.readyPromise and instance.dataPromise are defined
+                    instance._createMethods();
+                    instance.readyPromise.then(
+                        Y.batch(
+                            instance.loadFiles(),
+                            (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
+                        )
+                    ).then(
+                        resolve
+                    );
+                }
+            );
+        },
+
+        _allWidgetsRenderedPromise : function() {
+            var instance = this;
+            return Y.batch(
+                 instance.tree.renderPromise(),
+                 instance.filescrollview.renderPromise()
+            );
+        },
+
         /**
          * Method that starts after the Panel has rendered. Inside this method the bodysection is devided into multiple area's
          * and the dd- and resize-pluging are activated (if appropriate)
@@ -661,7 +669,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             Y.log('_afterRender', 'info', 'Itsa-FileManager');
             var instance = this,
                 boundingBox = instance.get('boundingBox'),
-                nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea, afterreadyPromise;
+                nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
 
             // extend the time that the widget is invisible
             boundingBox.toggleClass('yui3-itsafilemanager-loading', true);
@@ -704,33 +712,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._renderTree();
             // now we create the files tree:
             instance._renderFiles();
-            afterreadyPromise = instance._afterRenderReady();
-            Y.Promise.Resolver(afterreadyPromise).fulfill();
-            // fire 'ready'-event:
-//            instance.fire(EVT_AFTERRENDER_READY);
- //           instance._afterrenderready = true;
-        },
-
-        _afterRenderReady : function() {
-            var instance = this;
-            if (!instance._renderReadyPromise) {
-                instance._renderReadyPromise = new Y.Promise(
-                    function (resolve) {
-                        instance.on(
-                            EVT_AFTERRENDER_READY,
-                            function() {
-                                alert('after render is ready by event');
-                                resolve();
-                            }
-                        );
-                        if (instance._afterrenderready) {
-                            alert('after render is ready by property');
-                            resolve();
-                        }
-                    }
-                );
-            }
-            return instance._renderReadyPromise;
         },
 
         /**
@@ -762,7 +743,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             });
             filescrollview.addTarget(instance);
             filescrollview.render();
-            instance.loadFiles();
         },
 
         /**
@@ -806,12 +786,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     });
                 });
             }
-            if (lazyRender) {
-                instance.loadTreeLazy();
-            }
-            else {
-                instance.loadTree();
-            }
+            // now resolve the tree-promise from outside the promise:
+            tree._renderResolver();
         },
 
         /**
@@ -978,11 +954,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         facade = {
                             options: options
                         };
-                        return instance.filemanagerReady()
-                        .then(
+                        return instance.readyPromise.then(
                             Y.bind(instance.sync, instance, syncaction, options)
-                        )
-                        .then(
+                        ).then(
                             function(response) {
                                 // Lazy publish.
                                 if (!instance['_'+syncaction]) {
