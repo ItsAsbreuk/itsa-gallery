@@ -75,8 +75,13 @@ myView.render();
 ```
 
 <b>Centered Panel with add-button</b>
+```css
+.itsa-modellistview-noinitialitems {
+    visibility: hidden;
+}
+```
 ```html
-<div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
+<div id='myscrollview'></div>
 ```
 ```js
 YUI({gallery: 'gallery-2013.04.10-22-48'}).use('node', 'base-build', 'gallerycss-cssform', 'lazy-model-list', 'gallery-itsascrollviewmodellistpanel', 'gallery-itsachangemodeltemplate', 'gallery-itsaeditmodel', function(Y) {
