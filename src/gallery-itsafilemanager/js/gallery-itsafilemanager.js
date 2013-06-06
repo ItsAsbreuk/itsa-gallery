@@ -186,25 +186,11 @@ Y.Tree.Node.prototype.getTreeInfo = function(field) {
     return treeField;
 };
 
+// Y.TreeView has no renderpromise, but doesn't need one: it renders synchronious
 Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sortable], {
         sortComparator: function (node) {
             // directories are appended by char(0) --> this will make them appear on top
             return (node.canHaveChildren ? CHARZERO : '') + node.label;
-        },
-        renderPromise : function() {
-            Y.log('renderPromise', 'info', 'treeview');
-            var instance = this;
-            if (!instance._renderPromise) {
-                instance._renderPromise = new Y.Promise(function (resolve) {
-                    // first create a private property to the resolver, so we can resolve it manually from outside the promise
-                    instance._renderResolver = resolve;
-                    if (instance.get('rendered')) {
-                        Y.log('renderPromise is resolved by the rendered-attribute', 'info', 'treeview');
-                        resolve();
-                    }
-                });
-            }
-            return instance._renderPromise;
         }
     }
 );
@@ -623,11 +609,16 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance.readyPromise = new Y.Promise(
                 function(resolve) {
                     instance.renderPromise().then(
-                        Y.rbind(instance._afterRender, instance)
+                        function() {
+//                            Y.rbind(instance._afterRender, instance)
+                            Y.rbind(instance._afterRender, instance)();
+                        }
                     ).then(
                         Y.rbind(instance._allWidgetsRenderedPromise, instance)
                     ).then(
-                        resolve
+                        function() {
+                            resolve();
+                        }
                     );
                 }
             );
@@ -636,21 +627,26 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // only now we can call _createMethods --> because instance.readyPromise and instance.dataPromise are defined
                     instance._createMethods();
                     instance.readyPromise.then(
-                        Y.batch(
-                            instance.loadFiles(),
-                            (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
-                        )
+                        function() {
+                            return Y.batch(
+                                instance.loadFiles(),
+                                (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
+                            );
+                        }
                     ).then(
-                        resolve
+                        function() {
+                            resolve();
+                        }
                     );
                 }
             );
         },
 
         _allWidgetsRenderedPromise : function() {
+            alert('start check All widgets are rendered');
             var instance = this;
             return Y.batch(
-                 instance.tree.renderPromise(),
+//                 instance.tree.renderPromise(), // Y.TreeView doesn't have/need a renderpromise --> ir renders synchronious
                  instance.filescrollview.renderPromise()
             );
         },
@@ -784,8 +780,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     });
                 });
             }
-            // now resolve the tree-promise from outside the promise:
-            tree._renderResolver();
         },
 
         /**
