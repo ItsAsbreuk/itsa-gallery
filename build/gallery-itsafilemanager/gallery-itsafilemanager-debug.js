@@ -25,26 +25,33 @@ var Lang = Y.Lang,
     YArray = Y.Array,
     IE = Y.UA.ie,
     CHARZERO = '\u0000',
+    FILTERITEMS = ['all files','images', 'non-images', 'word', 'excel', 'pdf'],
+    VIEWITEMS = ['list', 'thumbnails', 'tree', 'coverflow'],
+    EDITITEMS = ['copy file', 'rename file', 'delete file', 'copy dir', 'rename dir', 'delete dir'],
     THUMBNAIL_TEMPLATE = '<img src="{thumbnail}" />',
-
+    HIDDEN_CLASS = 'yui3-itsafilemanager-hidden',
+    TREEVIEW_NOTOUCH_CLASS = 'yui3-treeview-notouch',
+    EMPTY_DIVNODE = '<div></div>',
+    EMPTY_BUTTONNODE = '<button class="pure-button pure-button-toolbar">{text}</button>',
     FILEMAN_TITLE = 'Filemanager',
-
     FILEMAN_FOOTERTEMPLATE = "ready",
     FILEMANCLASSNAME = 'yui3-itsafilemanager',
     FILEMAN_TITLE_CLASS = FILEMANCLASSNAME + '-title',
-    FILEMAN_BUTTONS_CLASS = FILEMANCLASSNAME + '-buttons',
+    FILEMAN_TOOLBAR_CLASS = FILEMANCLASSNAME + '-toolbar',
     FILEMAN_HIDDEN = FILEMANCLASSNAME + '-hidden',
     FILEMAN_BORDER = FILEMANCLASSNAME + '-border',
     FILEMAN_SHADOW = FILEMANCLASSNAME + '-shadow',
     FILEMAN_RESIZINGX_CLASS = FILEMANCLASSNAME + '-itsaresehandlerx',
     FILEMAN_RESIZINGY_CLASS = FILEMANCLASSNAME + '-itsaresehandlery',
     FILEMAN_TREE_CLASS = FILEMANCLASSNAME + '-tree',
+    FILEMAN_ROOTTREEVIEW_CLASS = FILEMANCLASSNAME + '-roottreeview yui3-treeview-row',
     FILEMAN_TREEVIEW_CLASS = FILEMANCLASSNAME + '-treeview',
     FILEMAN_MAIN_CLASS = FILEMANCLASSNAME + '-main',
     FILEMAN_FLOW_CLASS = FILEMANCLASSNAME + '-flow',
     FILEMAN_ITEMS_CLASS = FILEMANCLASSNAME + '-items',
-    FILEMAN_HEADERTEMPLATE = '<div class="'+FILEMAN_TITLE_CLASS+'">{title}</div><div class="'+FILEMAN_BUTTONS_CLASS+'">edit</div>',
+    FILEMAN_HEADERTEMPLATE = '<div class="'+FILEMAN_TITLE_CLASS+'">{title}</div><div class="'+FILEMAN_TOOLBAR_CLASS+'"></div>',
     FILEMAN_TEMPLATE = "<div class='"+FILEMAN_TREE_CLASS+"'>"+
+                                            "<div class='"+FILEMAN_ROOTTREEVIEW_CLASS+"'>{root}</div>"+
                                             "<div class='"+FILEMAN_TREEVIEW_CLASS+"'></div>"+
                                         "</div>"+
                                         "<div class='"+FILEMAN_MAIN_CLASS+"'>"+
@@ -177,6 +184,26 @@ var Lang = Y.Lang,
      * @since 0.1
     **/
 
+    /**
+     * Holds a promise when the filemanager and all its widgets are rendered.<br />
+     * Is solved <i>before</> any initial tree- and file-data is loaded.
+     * @property readyPromise
+     * @type Y.Promise
+     */
+
+    /**
+     * Holds a promise when the filemanager is ready (readyPromise) <i>and</i> initial tree- and file-data are loaded as well.
+     * @property dataPromise
+     * @type Y.Promise
+     */
+
+    /**
+     * Holds a promise when the constrain plugin is ready.
+     * @property _resizeConstrainPromise
+     * @type Y.Promise
+     * @private
+     */
+
 Y.Tree.Node.prototype.getTreeInfo = function(field) {
     var instance = this,
           treeField = instance.isRoot() ? '/' : '/' + instance[field],
@@ -208,7 +235,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         initializer : function() {
             Y.log('initializer', 'info', 'Itsa-FileManager');
-            var instance = this;
+            var instance = this,
+                  boundingBox = instance.get('boundingBox');
             instance._inlineblock = 'inline' + (((IE>0) && (IE<8)) ? '' : '-block');
             instance._eventhandlers = [];
             instance._resizeApprovedX = false;
@@ -230,6 +258,14 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._mouseOffset = 0;
             instance._bodyNode = Y.one('body');
             instance._createPromises();
+            // extend the time that the widget is invisible
+            boundingBox.addClass(HIDDEN_CLASS);
+            (instance.get('delayView') ? instance.dataPromise : instance.readyPromise).then(
+                function() {
+                    instance._setConstraints(true);
+                    boundingBox.removeClass(HIDDEN_CLASS);
+                }
+            );
         },
 
         /**
@@ -248,7 +284,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             // bindUI comes before _afterRender, therefore we initialize the next properties here.
             instance.set('headerContent', Lang.sub(FILEMAN_HEADERTEMPLATE, {title: instance.get('title')}));
-            instance.set('bodyContent', FILEMAN_TEMPLATE);
+            instance.set('bodyContent', Lang.sub(FILEMAN_TEMPLATE, {root: 'root'}));
             instance.set('footerContent', FILEMAN_FOOTERTEMPLATE);
             instance._panelHD = contentBox.one('.yui3-widget-hd');
             panelBD = instance._panelBD = contentBox.one('.yui3-widget-bd');
@@ -608,19 +644,37 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
         _createPromises : function() {
             var instance = this;
-            instance.readyPromise = new Y.Promise(
+            instance._resizeConstrainPromise = new Y.Promise(
                 function(resolve) {
                     instance.renderPromise().then(
                         function() {
-//                            Y.rbind(instance._afterRender, instance)
-                            Y.rbind(instance._afterRender, instance)();
+                            if (instance.hasPlugin('resize')) {
+                                if (!instance.resize.hasPlugin('con')) {
+                                    Y.use('resize-constrain', function() {
+                                        instance.resize.plug(Y.Plugin.ResizeConstrained, {preserveRatio: false});
+                                        resolve();
+                                    });
+                                }
+                                else {
+                                    instance.resize.con.set('preserveRatio', false);
+                                    resolve();
+                                }
+                            }
+                            else {
+                                resolve();
+                            }
                         }
+                    );
+                }
+            );
+            instance.readyPromise = new Y.Promise(
+                function(resolve) {
+                    instance.renderPromise().then(
+                        Y.rbind(instance._afterRender, instance)
                     ).then(
                         Y.rbind(instance._allWidgetsRenderedPromise, instance)
                     ).then(
-                        function() {
-                            resolve();
-                        }
+                        resolve
                     );
                 }
             );
@@ -629,26 +683,25 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // only now we can call _createMethods --> because instance.readyPromise and instance.dataPromise are defined
                     instance._createMethods();
                     instance.readyPromise.then(
-                        function() {
-                            return Y.batch(
-                                instance.loadFiles(),
-                                (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
-                            );
-                        }
+                        Y.batch(
+                            instance.loadFiles(),
+                            (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
+                        )
                     ).then(
-                        function() {
-                            resolve();
-                        }
+                        resolve
                     );
                 }
             );
         },
 
         _allWidgetsRenderedPromise : function() {
-            alert('start check All widgets are rendered');
             var instance = this;
             return Y.batch(
-//                 instance.tree.renderPromise(), // Y.TreeView doesn't have/need a renderpromise --> ir renders synchronious
+//                 instance.tree.renderPromise(), // Y.TreeView doesn't have/need a renderpromise --> it renders synchronious
+                 instance._resizeConstrainPromise,
+                 instance.filterSelect.renderPromise(),
+                 instance.viewSelect.renderPromise(),
+                 instance.editSelect.renderPromise(),
                  instance.filescrollview.renderPromise()
             );
         },
@@ -667,8 +720,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 boundingBox = instance.get('boundingBox'),
                 nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
 
-            // extend the time that the widget is invisible
-            boundingBox.toggleClass('yui3-itsafilemanager-loading', true);
+            instance._nodeFilemanToolbar = boundingBox.one('.'+FILEMAN_TOOLBAR_CLASS);
             instance._nodeFilemanTree = nodeFilemanTree = boundingBox.one('.'+FILEMAN_TREE_CLASS);
             instance._nodeFilemanTreeView = boundingBox.one('.'+FILEMAN_TREEVIEW_CLASS);
             instance._nodeFilemanFlow = nodeFilemanFlow = boundingBox.one('.'+FILEMAN_FLOW_CLASS);
@@ -683,27 +735,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             if (instance.hasPlugin('dd')) {
                 instance.dd.addHandle('.'+FILEMAN_TITLE_CLASS);
             }
-            if (instance.hasPlugin('resize')) {
-                if (!instance.resize.hasPlugin('con')) {
-                    Y.use('resize-constrain', function() {
-                        instance.resize.plug(Y.Plugin.ResizeConstrained, {preserveRatio: false});
-                        instance._setConstraints();
-                        boundingBox.toggleClass('yui3-itsafilemanager-loading', false);
-                    });
-                }
-                else {
-                    instance.resize.con.set('preserveRatio', false);
-                    instance._setConstraints();
-                    boundingBox.toggleClass('yui3-itsafilemanager-loading', false);
-                }
-            }
-            else {
-                // set to minimal sizes, even when no resizeplugin is set
-                instance._setConstraints();
-                boundingBox.toggleClass('yui3-itsafilemanager-loading', false);
-            }
             // init the value of the current selected tree
             instance._currentDir  = '/';
+            // now we create the toolbar
+            instance._renderToolbar();
             // now we create the directory tree
             instance._renderTree();
             // now we create the files tree:
@@ -735,10 +770,100 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 modelTemplate: rendermodel,
                 axis: 'y',
                 modelListStyled: false,
+                showLoadMessage: false,
                 modelList: files
             });
             filescrollview.addTarget(instance);
             filescrollview.render();
+        },
+
+        /**
+         * Renders the widgets and buttons in the toolbar
+         *
+         * @method _renderToolbar
+         * @private
+         * @since 0.1
+        */
+        _renderToolbar : function() {
+            var instance = this,
+                  filterSelect, viewSelect, editSelect, filterSelectNode, viewSelectNode, editSelectNode, createDirNode, createUploadNode;
+
+            Y.log('_renderFiles', 'info', 'Itsa-FileManager');
+            //=====================
+            // render the filter-select:
+            //=====================
+            filterSelect = instance.filterSelect = new Y.ITSASelectList({
+                items: FILTERITEMS,
+                selectionOnButton: false,
+                defaultButtonText: 'filter',
+                btnSize: 1,
+                buttonWidth: 60
+            });
+            filterSelect.after(
+                'selectChange',
+                function(e) {
+                    var selecteditem = e.value;
+                    instance.filescrollview.set(
+                        'viewFilter',
+                        (selecteditem==='all files') ? null : function(fileitem) {
+                            // isFileType is a prototype-method that is added to the String-class
+//                            return (fileitem.filename && fileitem.filename.isFileType(selecteditem));
+                            return true;
+                        }
+                    );
+                }
+            );
+            filterSelectNode = Y.Node.create(EMPTY_DIVNODE);
+            instance._nodeFilemanToolbar.append(filterSelectNode);
+            filterSelect.render(filterSelectNode);
+            //=====================
+            // render the view-select:
+            //=====================
+            viewSelect = instance.viewSelect = new Y.ITSASelectList({
+                items: VIEWITEMS,
+                selectionOnButton: false,
+                defaultButtonText: 'view',
+                btnSize: 1,
+                buttonWidth: 60
+            });
+            viewSelect.after(
+                'selectChange',
+                function(e) {
+                    var selecteditem = e.value;
+                }
+            );
+            viewSelectNode = Y.Node.create(EMPTY_DIVNODE);
+            instance._nodeFilemanToolbar.append(viewSelectNode);
+            viewSelect.render(viewSelectNode);
+            //=====================
+            // render the edit-select:
+            //=====================
+            editSelect = instance.editSelect = new Y.ITSASelectList({
+                items: EDITITEMS,
+                selectionOnButton: false,
+                defaultButtonText: 'edit',
+                btnSize: 1,
+                buttonWidth: 60
+            });
+            editSelect.after(
+                'selectChange',
+                function(e) {
+                    var selecteditem = e.value;
+                }
+            );
+            editSelectNode = Y.Node.create(EMPTY_DIVNODE);
+            instance._nodeFilemanToolbar.append(editSelectNode);
+            editSelect.render(editSelectNode);
+            //=====================
+            // render the create dir button:
+            //=====================
+            createDirNode = Y.Node.create(Lang.sub(EMPTY_BUTTONNODE, {text: 'create dir'}));
+            instance._nodeFilemanToolbar.append(createDirNode);
+            //=====================
+            // render the create dir button:
+            //=====================
+            createUploadNode = Y.Node.create(Lang.sub(EMPTY_BUTTONNODE, {text: 'upload files'}));
+            instance._nodeFilemanToolbar.append(createUploadNode);
         },
 
         /**
@@ -761,6 +886,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             });
             tree.addTarget(instance);
             tree.render();
+            if (instance._nodeFilemanTreeView.hasClass(TREEVIEW_NOTOUCH_CLASS)) {
+                // this makes the root-node behave the same as the tree-nodes
+                instance._nodeFilemanTree.addClass(TREEVIEW_NOTOUCH_CLASS);
+            }
             // If lazyRender the setup its callbackfunc:
             if (lazyRender) {
                 Y.use('tree-lazy', function() {
@@ -1105,33 +1234,38 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @private
          * @since 0.1
         */
-        _setConstraints : function() {
+        _setConstraints : function(activate) {
             Y.log('_setConstraints', 'info', 'Itsa-FileManager');
-            var instance = this,
-                pluginConstraints = instance.resize && instance.resize.con,
-                panelHD = instance._panelHD,
-                panelFT = instance._panelFT,
-                heightPanelHD = panelHD ? panelHD.get('offsetHeight') : 0,
-                heightPanelFT = panelFT ? panelFT.get('offsetHeight') : 0,
-                minWidth = (instance.get('tree') ? Math.max(instance.get('sizeTreeArea'), instance._borderTreeArea) : 0) +
-                                    instance.get('minWidthFileArea'),
-                minHeight = (instance.get('flow') ? Math.max(instance.get('sizeFlowArea'), instance._borderFlowArea) : 0) +
-                                      instance.get('minHeightFileArea') + heightPanelHD + heightPanelFT,
-                boundingBox = instance.get('boundingBox');
-            if (pluginConstraints) {
-                pluginConstraints.set('minWidth', minWidth);
-                pluginConstraints.set('minHeight', minHeight);
+            if (activate) {
+                this._constraintsSetable = true;
             }
-            if (parseInt(boundingBox.getStyle('width'), 10)<minWidth) {
-                boundingBox.setStyle('width', minWidth+'px');
-                // initiate areawidths
-                instance.set('sizeTreeArea', instance.get('sizeTreeArea'));
-            }
-            if (parseInt(boundingBox.getStyle('height'), 10)<minHeight) {
-                boundingBox.setStyle('height', minHeight+'px');
-                instance._panelBD.setStyle('height', (minHeight - heightPanelHD - heightPanelFT)+'px');
-                // initiate areawidths
-                instance.set('sizeFlowArea', instance.get('sizeFlowArea'));
+            if (this._constraintsSetable) {
+                var instance = this,
+                    pluginConstraints = instance.resize && instance.resize.con,
+                    panelHD = instance._panelHD,
+                    panelFT = instance._panelFT,
+                    heightPanelHD = panelHD ? panelHD.get('offsetHeight') : 0,
+                    heightPanelFT = panelFT ? panelFT.get('offsetHeight') : 0,
+                    minWidth = (instance.get('tree') ? Math.max(instance.get('sizeTreeArea'), instance._borderTreeArea) : 0) +
+                                        instance.get('minWidthFileArea'),
+                    minHeight = (instance.get('flow') ? Math.max(instance.get('sizeFlowArea'), instance._borderFlowArea) : 0) +
+                                          instance.get('minHeightFileArea') + heightPanelHD + heightPanelFT,
+                    boundingBox = instance.get('boundingBox');
+                if (pluginConstraints) {
+                    pluginConstraints.set('minWidth', minWidth);
+                    pluginConstraints.set('minHeight', minHeight);
+                }
+                if (parseInt(boundingBox.getStyle('width'), 10)<minWidth) {
+                    boundingBox.setStyle('width', minWidth+'px');
+                    // initiate areawidths
+                    instance.set('sizeTreeArea', instance.get('sizeTreeArea'));
+                }
+                if (parseInt(boundingBox.getStyle('height'), 10)<minHeight) {
+                    boundingBox.setStyle('height', minHeight+'px');
+                    instance._panelBD.setStyle('height', (minHeight - heightPanelHD - heightPanelFT)+'px');
+                    // initiate areawidths
+                    instance.set('sizeFlowArea', instance.get('sizeFlowArea'));
+                }
             }
         },
 
@@ -1307,6 +1441,22 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 },
                 setter: function(val) {
                     this.get('boundingBox').toggleClass(FILEMAN_BORDER, val);
+                }
+            },
+
+            /**
+             * When set to false, the filemanager can show up even if it has no initial tree and filecontent.<br />
+             * Set to true if you want the filemanager delay its appearance until the initial tree and files are loaded.
+             *
+             * @attribute delayView
+             * @type Boolean
+             * @default false
+             * @since 0.1
+            */
+            delayView: {
+                value: false,
+                validator: function(val) {
+                    return (typeof val === 'boolean');
                 }
             },
 
@@ -1616,12 +1766,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "event-touch",
         "pluginhost-base",
         "lazy-model-list",
+        "promise",
+        "json-parse",
+        "tree-sortable",
         "gallery-sm-treeview",
         "gallery-itsascrollviewmodellist",
         "gallery-itsawidgetrenderpromise",
-        "promise",
-        "json-parse",
-        "tree-sortable"
+        "gallery-itsaselectlist"
     ],
     "skinnable": false
 });

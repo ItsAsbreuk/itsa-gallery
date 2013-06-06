@@ -11,12 +11,13 @@
             "event-touch",
             "pluginhost-base",
             "lazy-model-list",
+            "promise",
+            "json-parse",
+            "tree-sortable",
             "gallery-sm-treeview",
             "gallery-itsascrollviewmodellist",
             "gallery-itsawidgetrenderpromise",
-            "promise",
-            "json-parse",
-            "tree-sortable"
+            "gallery-itsaselectlist"
         ],
         "skinnable": false
     }
