@@ -28,6 +28,7 @@
     background-color: #EEE;
     padding-top: 4px;
     padding-bottom: 4px;
+    border-top: solid 1px #999;
 }
 .yui3-js-enabled .yui3-itsafilemanager-loading {
     visibility: hidden;

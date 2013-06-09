@@ -29,6 +29,7 @@ var Lang = Y.Lang,
     THUMBNAIL_TEMPLATE = '<img src="{thumbnail}" />',
     HIDDEN_CLASS = 'yui3-itsafilemanager-hidden',
     TREEVIEW_NOTOUCH_CLASS = 'yui3-treeview-notouch',
+    TREEVIEW_SELECTED_CLASS = 'yui3-treeview-selected',
     EMPTY_DIVNODE = '<div></div>',
     EMPTY_BUTTONNODE = '<button class="pure-button pure-button-toolbar">{text}</button>',
     FILEMAN_TITLE = 'Filemanager',
@@ -42,14 +43,18 @@ var Lang = Y.Lang,
     FILEMAN_RESIZINGX_CLASS = FILEMANCLASSNAME + '-itsaresehandlerx',
     FILEMAN_RESIZINGY_CLASS = FILEMANCLASSNAME + '-itsaresehandlery',
     FILEMAN_TREE_CLASS = FILEMANCLASSNAME + '-tree',
-    FILEMAN_ROOTTREEVIEW_CLASS = FILEMANCLASSNAME + '-roottreeview yui3-treeview-row',
+    FILEMAN_ROOTTREEVIEW_CLASS = FILEMANCLASSNAME + '-roottreeview',
+    TREEVIEW_NODE_CLASS = 'yui3-treeview-node',
+    TREEVIEW_ROW_CLASS = 'yui3-treeview-row',
     FILEMAN_TREEVIEW_CLASS = FILEMANCLASSNAME + '-treeview',
     FILEMAN_MAIN_CLASS = FILEMANCLASSNAME + '-main',
     FILEMAN_FLOW_CLASS = FILEMANCLASSNAME + '-flow',
     FILEMAN_ITEMS_CLASS = FILEMANCLASSNAME + '-items',
     FILEMAN_HEADERTEMPLATE = '<div class="'+FILEMAN_TITLE_CLASS+'">{title}</div><div class="'+FILEMAN_TOOLBAR_CLASS+'"></div>',
     FILEMAN_TEMPLATE = "<div class='"+FILEMAN_TREE_CLASS+"'>"+
-                                            "<div class='"+FILEMAN_ROOTTREEVIEW_CLASS+"'>{root}</div>"+
+                                            "<div class='"+FILEMAN_ROOTTREEVIEW_CLASS+" "+TREEVIEW_NODE_CLASS+ " "+ HIDDEN_CLASS+"'>"+
+                                                "<div class='"+TREEVIEW_ROW_CLASS+"'>{root}</div>"+
+                                            "</div>"+
                                             "<div class='"+FILEMAN_TREEVIEW_CLASS+"'></div>"+
                                         "</div>"+
                                         "<div class='"+FILEMAN_MAIN_CLASS+"'>"+
@@ -66,6 +71,10 @@ var Lang = Y.Lang,
      * @since 0.1
     **/
     EVT_ERROR = 'error',
+
+    PARSTEINT = function(value) {
+        return parseInt(value, 10);
+    },
 
     PARSE = function (response) {
         if (typeof response === 'string') {
@@ -261,6 +270,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             (instance.get('delayView') ? instance.dataPromise : instance.readyPromise).then(
                 function() {
                     instance._setConstraints(true);
+                    instance._correctHeightAfterResize();
                     boundingBox.removeClass(HIDDEN_CLASS);
                 }
             );
@@ -350,17 +360,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     }
                 )
             );
-
-            if (instance.hasPlugin('resize')) {
-                eventhandlers.push(
-                    instance.resize.on(
-                        'resize:end',
-                        instance._correctHeightAfterResize,
-                        instance
-                    )
-                );
-            }
-
         },
 
         getCurrentDir : function() {
@@ -548,32 +547,34 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * The next  actions should be declared:<br />
          * <br />
          * `cloneDir`: Clones a directory.
-         * <br />'options.currentDir' --> selected directory to be cloned.<br />
-         *                                                    'options.cloneDirname'  --> new directory name.<br />
+         * <br />'options.currentDir' --> selected directory to be cloned (full dir-tree form root).
+         * <br />'options.clonedDirName'  --> new directory name (no dir-tree: without slashes).<br />
          * <br />
          * `copyFiles`: Copies selected files.
          * <br />'options.selectedFiles' --> the selected files that needs to be copied<br />
-         *            'options.destinationDir'  --> directory name where the files should be copied to.<br />
+         *            'options.currentDir'  --> current directory of the selected files (full dir-tree form root).<br />
+         *            'options.destinationDir'  --> directory name where the files should be copied to (full dir-tree form root).<br />
          * <br />
-         * `createDir`: Creates a directory.
-         * <br />'options.currentDir' --> current directory wherein the new directory will be created<br />
-         *                                                      'options.dirName'  --> the new directory name.<br />
+         * `createDir`: Creates a subdirectory.
+         * <br />'options.currentDir' --> current directory wherein the new subdirectory will be created (full dir-tree form root).
+         * <br />'options.dirName'  --> the new sub-directory name (no dir-tree: without slashes).<br />
          * <br />
          * `deleteDir`: Erases a directory.
-         * <br />'options.currentDir' --> current directory which will be erased<br />
+         * <br />'options.currentDir' --> current directory which will be erased (full dir-tree form root).<br />
          * <br />
          * `deleteFiles`: Erases the selected files.
+         * <br />'options.currentDir' --> current directory which will be erased (full dir-tree form root).
          * <br />'options.selectedFiles' --> the selected files that will be erased<br />
          * <br />
          * `loadFiles`: Loads all the files of the current directory in the filepane: response must be in a form that can pass
          *                     throught to Y.LazyModelList (items-attribute)<br />
-         *                     'options.currentDir'  --> current directory which files should be loaded<br />
+         *                     'options.currentDir'  --> current directory which files should be loaded (full dir-tree form root).<br />
          * <br />
          * `loadAppendFiles`: Loads a limited amount of files (of the current directory) in the filepane: response must be in a form
          *                                 that can pass throught to Y.LazyModelList (items-attribute)<br />
          *                                 <b>caution</b>The sync-action must use options.batchSize --> the number of responsed files is compared
          *                                 with this value in order to know when no more requests are needed.<br />
-         *                     'options.currentDir'  --> current directory which files should be loaded<br />
+         *                     'options.currentDir'  --> current directory which files should be loaded (full dir-tree form root).<br />
          *                     'options.batchSize'  --> number of files to be downloaded from the server<br />
          *                     'options.size'  --> current number of files to be downloaded from the server<br />
          *                     'options.lastFileId'  --> Model-id of the last file that is already available in the filepane<br />
@@ -583,25 +584,27 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          *                                                                  (passed through from the attribute 'showTreefiles')<br />
          * <br />
          * `loadTreeLazy`: Loads the tree-structure of one treenode: must be in a form that can pass through to Y.TreeView (nodes-attribute).<br />
-         *                           'options.directory' --> the directory which content should be loaded.<br />
+         *                           'options.directory' --> the directory which content should be loaded (full dir-tree form root).<br />
          *                           'options.showTreefiles' --> whether files should be loaded into the treestructure
          *                                                                  (passed through from the attribute 'showTreefiles')<br />
          * <br />
          * `moveDir`: Moves a directory.
-         * <br />'options.currentDir' --> selected directory to be moved.<br />
-         *                                                   'options.newParentDir'  --> the name of the new parent-directory.<br />
+         * <br />'options.currentDir' --> selected directory to be moved (full dir-tree form root).
+         * <br />'options.newParentDir'  --> the name of the new parent-directory (full dir-tree form root).<br />
          * <br />
          * `moveFiles`: Moves the selected files.
-         * <br />'options.selectedFiles' --> the selected files that needs to be moved<br />
-         *            'options.dirName'  holds the name of the directory where the files should be placed.<br />
+         * <br />'options.currentDir' --> selected directory to be moved (full dir-tree form root).
+         * <br />'options.selectedFiles' --> the selected files that needs to be moved.
+         * <br />'options.destinationDir'  holds the name of the directory where the files should be placed (full dir-tree form root).<br />
          * <br />
          * `renameDir`: Renames a directory.
-         * <br />'options.currentDir' --> current directory which will be renamed<br />
-         *                                                           'options.newDirname'  holds the new directory-name.<br />
+         * <br />'options.currentDir' --> current directory which will be renamed (full dir-tree form root).
+         * <br />'options.newDirName'  holds the new directory-name.<br />
          * <br />
-         * `renameFile` : Renames the selected file.
-         * <br />'options.selectedFiles' --> the selected files that needs to be renamed<br />
-         *                                                                     'options.newFilename'  holds the new file-name.
+         * `renameFiles` : Renames the selected file.
+         * <br />'options.currentDir' --> Current directory where the files reside (full dir-tree form root).
+         * <br />'options.selectedFiles' --> the selected files that needs to be renamed.
+         * <br />'options.newFilename'  holds the new file-name.
          *
          * @method sync
          * @param action {String} The sync-action to perform. May be one of the following:
@@ -715,16 +718,18 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         _afterRender : function() {
             Y.log('_afterRender', 'info', 'Itsa-FileManager');
             var instance = this,
-                boundingBox = instance.get('boundingBox'),
-                nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
+                  eventhandlers = instance._eventhandlers,
+                  boundingBox = instance.get('boundingBox'),
+                  nodeFilemanTree, nodeFilemanFlow, borderTreeArea, borderFlowArea;
 
             instance._nodeFilemanToolbar = boundingBox.one('.'+FILEMAN_TOOLBAR_CLASS);
             instance._nodeFilemanTree = nodeFilemanTree = boundingBox.one('.'+FILEMAN_TREE_CLASS);
-            instance._nodeFilemanTreeView = boundingBox.one('.'+FILEMAN_TREEVIEW_CLASS);
+            instance._nodeFilemanTreeRoot = nodeFilemanTree.one('.'+FILEMAN_ROOTTREEVIEW_CLASS);
+            instance._nodeFilemanTreeView = nodeFilemanTree.one('.'+FILEMAN_TREEVIEW_CLASS);
             instance._nodeFilemanFlow = nodeFilemanFlow = boundingBox.one('.'+FILEMAN_FLOW_CLASS);
             instance._nodeFilemanItems = boundingBox.one('.'+FILEMAN_ITEMS_CLASS);
-            instance._borderTreeArea = borderTreeArea = parseInt(nodeFilemanTree.getStyle('borderRightWidth'), 10);
-            instance._borderFlowArea = borderFlowArea = parseInt(nodeFilemanFlow.getStyle('borderBottomWidth'), 10);
+            instance._borderTreeArea = borderTreeArea = PARSTEINT(nodeFilemanTree.getStyle('borderRightWidth'));
+            instance._borderFlowArea = borderFlowArea = PARSTEINT(nodeFilemanFlow.getStyle('borderBottomWidth'));
             instance._halfBorderTreeArea = Math.round(borderTreeArea/2);
             instance._halfBorderFlowArea = Math.round(borderFlowArea/2);
             // initiate areawidths
@@ -732,6 +737,24 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance.set('sizeFlowArea', instance.get('sizeFlowArea'));
             if (instance.hasPlugin('dd')) {
                 instance.dd.addHandle('.'+FILEMAN_TITLE_CLASS);
+            }
+            if (instance.hasPlugin('resize')) {
+                eventhandlers.push(
+                    instance.resize.on(
+                        'resize:resize',
+                        instance._correctHeightAfterResize,
+                        instance
+                    )
+                );
+                eventhandlers.push(
+                    instance.resize.on(
+                        'resize:end',
+                        function() {
+                            instance._correctHeightAfterResize();
+                            instance.filescrollview.syncUI();
+                        }
+                    )
+                );
             }
             // init the value of the current selected tree
             instance._currentDir  = '/';
@@ -763,7 +786,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             instance.filescrollview = filescrollview = new Y.ITSAScrollViewModellist({
                 boundingBox: instance._nodeFilemanItems,
-                height:'394px',
+//                height:'394px',
  //               width:'240px',
                 modelTemplate: rendermodel,
                 axis: 'y',
@@ -874,8 +897,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         _renderTree : function() {
             Y.log('_renderTree', 'info', 'Itsa-FileManager');
             var instance = this,
+                  rootnode = instance._nodeFilemanTreeRoot,
+                  eventhandlers = instance._eventhandlers,
                   tree, lazyRender;
 
+            //=====================
+            // render Y.SortableTreeView
+            //=====================
             lazyRender = instance.get('lazyRender');
             instance.tree = tree = new Y.SortableTreeView({
                 container: instance._nodeFilemanTreeView,
@@ -886,7 +914,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             tree.render();
             if (instance._nodeFilemanTreeView.hasClass(TREEVIEW_NOTOUCH_CLASS)) {
                 // this makes the root-node behave the same as the tree-nodes
-                instance._nodeFilemanTree.addClass(TREEVIEW_NOTOUCH_CLASS);
+                instance._nodeFilemanTreeRoot.addClass(TREEVIEW_NOTOUCH_CLASS);
             }
             // If lazyRender the setup its callbackfunc:
             if (lazyRender) {
@@ -909,6 +937,39 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     });
                 });
             }
+            //============================
+            // attach events to treenodes
+            //============================
+            tree.after(
+                'sortableTreeView:select',
+                function() {
+                    rootnode.removeAttribute('tabIndex');
+                    rootnode.removeClass(TREEVIEW_SELECTED_CLASS);
+                }
+            );
+            //============================
+            // attach events to the rootnode the root node
+            //============================
+            rootnode = instance._nodeFilemanTreeRoot;
+            // When clicked, set the right tab-index and load the rootfiles
+            eventhandlers.push(
+                rootnode.on(
+                    'click',
+                    function() {
+                        rootnode.set('tabIndex', 0);
+                        rootnode.addClass(TREEVIEW_SELECTED_CLASS);
+                        rootnode.focus();
+                        instance._currentDir = '/';
+                        instance.loadFiles();
+                        YArray.each(
+                            tree.getSelectedNodes(),
+                            function(treenode) {
+                                treenode.unselect();
+                            }
+                        );
+                    }
+                )
+            );
         },
 
         /**
@@ -995,11 +1056,17 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         _correctHeightAfterResize : function() {
             Y.log('_correctHeightAfterResize', 'info', 'Itsa-FileManager');
             var instance = this,
-                panelHD = instance._panelHD,
-                panelFT = instance._panelFT,
-                heightPanelHD = panelHD ? panelHD.get('offsetHeight') : 0,
-                heightPanelFT = panelFT ? panelFT.get('offsetHeight') : 0;
-            instance._panelBD.setStyle('height', (parseInt(instance.get('boundingBox').getStyle('height'), 10)-heightPanelHD-heightPanelFT)+'px');
+                  panelHD = instance._panelHD,
+                  panelFT = instance._panelFT,
+                  nodeFilemanItems = instance._nodeFilemanItems,
+                  heightPanelHD = panelHD ? panelHD.get('offsetHeight') : 0,
+                  heightPanelFT = panelFT ? panelFT.get('offsetHeight') : 0,
+                  newHeightBD = PARSTEINT(instance.get('boundingBox').getStyle('height'))-heightPanelHD-heightPanelFT,
+                  newHeightFiles = newHeightBD - instance.get('sizeFlowArea');
+            instance._panelBD.setStyle('height', newHeightBD+'px');
+            if (nodeFilemanItems) {
+                nodeFilemanItems.setStyle('height', newHeightFiles+'px');
+            }
         },
 
         _createMethods : function() {
@@ -1008,7 +1075,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   tree;
             YArray.each(
-                ['loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFile', 'renameDir', 'deleteFiles',
+                ['loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
                  'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
                     instance[syncaction] = function(param1) {
@@ -1038,16 +1105,17 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.showTreefiles = instance.get('showTreefiles');
                             options.directory = (param1 ? (param1.getTreeInfo('label') + '/') : '/');
                         }
-                        else if (syncaction === 'renameFile') {
+                        else if (syncaction === 'renameFiles') {
                             options.selectedFiles = instance.getSelectedFiles();
                             options.newFilename = param1;
                         }
                         else if (syncaction === 'renameDir') {
                             options.currentDir = instance.getCurrentDir();
-                            options.newDirname = param1;
+                            options.newDirName = param1;
                         }
                         else if (syncaction === 'deleteFiles') {
                             options.selectedFiles =  instance.getSelectedFiles();
+                            options.currentDir = instance.getCurrentDir();
                         }
                         else if (syncaction === 'deleteDir') {
                             options.currentDir = instance.getCurrentDir();
@@ -1061,15 +1129,17 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.newParentDir = param1;
                         }
                         else if (syncaction === 'moveFiles') {
+                            options.currentDir = instance.getCurrentDir();
                             options.selectedFiles = instance.getSelectedFiles();
-                            options.dirName = param1;
+                            options.destinationDir = param1;
                         }
                         else if (syncaction === 'cloneDir') {
                             options.currentDir = instance.getCurrentDir();
-                            options.cloneDirname = param1;
+                            options.clonedDirName = param1;
                         }
                         else if (syncaction === 'copyFiles') {
                             options.selectedFiles = instance.getSelectedFiles();
+                            options.currentDir = instance.getCurrentDir();
                             options.destinationDir = param1;
                         }
                         facade = {
@@ -1093,9 +1163,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                     // ....
                                 }
                                 else if ((syncaction === 'loadTreeLazy') && instance.get('lazyRender')) {
+                                    if (!instance._rootVisible) {
+                                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
+                                    }
                                     instance.tree.insertNode(param1, PARSE(response));
                                 }
-                                else if (syncaction === 'renameFile') {
+                                else if (syncaction === 'renameFiles') {
                                     // ....
                                 }
                                 else if (syncaction === 'renameDir') {
@@ -1124,6 +1197,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                 }
                                 else if ((syncaction === 'loadTree') && !instance.get('lazyRender')) {
                                     tree = instance.tree;
+                                    if (!instance._rootVisible) {
+                                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
+                                    }
                                     tree.insertNode(tree.rootNode, PARSE(response));
                                 }
                                 // end of processing, now fire event
@@ -1253,12 +1329,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     pluginConstraints.set('minWidth', minWidth);
                     pluginConstraints.set('minHeight', minHeight);
                 }
-                if (parseInt(boundingBox.getStyle('width'), 10)<minWidth) {
+                if (PARSTEINT(boundingBox.getStyle('width'))<minWidth) {
                     boundingBox.setStyle('width', minWidth+'px');
                     // initiate areawidths
                     instance.set('sizeTreeArea', instance.get('sizeTreeArea'));
                 }
-                if (parseInt(boundingBox.getStyle('height'), 10)<minHeight) {
+                if (PARSTEINT(boundingBox.getStyle('height'))<minHeight) {
                     boundingBox.setStyle('height', minHeight+'px');
                     instance._panelBD.setStyle('height', (minHeight - heightPanelHD - heightPanelFT)+'px');
                     // initiate areawidths
@@ -1283,7 +1359,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         /**
          * Setter for attribute sizeFlowArea.
          *
-         * @method _startResize
+         * @method _setSizeFlowArea
          * @param val {Int} new value
          * @param [attribute] {String} name of the attribute
          * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'minSizeFlowArea'
@@ -1293,14 +1369,18 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         _setSizeFlowArea : function(val, attribute, forceZero) {
             var instance = this,
-                borderFlowArea = instance._borderFlowArea,
-                minHeight = (forceZero ? 0 : Math.max(instance.get('minSizeFlowArea')-borderFlowArea, 0)),
-                maxHeight = instance._panelBD.get('offsetHeight')-instance.get('minHeightFileArea')-borderFlowArea,
-                newHeight = Math.max(val-borderFlowArea, minHeight);
+                  borderFlowArea = instance._borderFlowArea,
+                  nodeFilemanFlow = instance._nodeFilemanFlow,
+                  minHeight = (forceZero ? 0 : Math.max(instance.get('minSizeFlowArea')-borderFlowArea, 0)),
+                  maxHeight = instance._panelBD.get('offsetHeight')-instance.get('minHeightFileArea')-borderFlowArea,
+                  newHeight = Math.max(val-borderFlowArea, minHeight);
             newHeight = Math.min(newHeight, maxHeight);
-            instance._nodeFilemanFlow.setStyle('height', newHeight+'px');
-            if (instance.resize && instance.resize.hasPlugin('con')) {
-                instance._setConstraints();
+            // we need to check whether nodeFilemanFlow already exists
+            if (nodeFilemanFlow) {
+                nodeFilemanFlow.setStyle('height', newHeight+'px');
+                if (instance.resize && instance.resize.hasPlugin('con')) {
+                    instance._setConstraints();
+                }
             }
             return newHeight;
         },
@@ -1308,7 +1388,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         /**
          * Setter for attribute sizeTreeArea.
          *
-         * @method _startResize
+         * @method _setSizeTreeArea
          * @param val {Int} new value
          * @param [attribute] {String} name of the attribute
          * @param [forceZero] {Boolean} set to true to force setting a zero value, instead of restricting to 'sizeTreeArea'
