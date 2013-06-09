@@ -1,0 +1,9 @@
+{
+    "gallery-itsadialog": {
+        "requires": [
+            "yui-base",
+            "promise",
+            "gallery-itsadialogbox"
+        ]
+    }
+}
