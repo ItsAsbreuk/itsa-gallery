@@ -18,7 +18,8 @@
  *
 */
 
-var TIMEOUT = 20000; // 20 seconds before loading modules is timed out.
+var TIMEOUT = 20000, // 20 seconds before loading modules is timed out.
+      REJECTMESSAGE = 'Timeout: requested modules not loaded within 20 seconds';
 
 /**
  * Loads modules through Y.use(). Instead of using callbacks, a Promise is returned.<br />
@@ -26,6 +27,7 @@ var TIMEOUT = 20000; // 20 seconds before loading modules is timed out.
  *
  * @method Y.usePromise
  * @param {String|Array} modules* One or more module names to attach.
+ * @return {Y.Promise}
  * @since 0.1
 */
 Y.usePromise = function() {
@@ -44,7 +46,8 @@ Y.usePromise = function() {
         Y.later(
             TIMEOUT,
             null,
-            reject
+            reject,
+            REJECTMESSAGE
         );
     });
 };
