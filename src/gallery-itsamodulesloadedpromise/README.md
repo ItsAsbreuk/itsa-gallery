@@ -12,6 +12,7 @@ Equivalent of Y.use(), except that no callback is used, but a Promise
 
 
 <b>Caution</b>: this is not a replacement of YUI.use(), which creates a new YUI-sandbox.
+
  It is meant as an replacement of Y.use() which is sometimes called within a YUI-instance.
 
 
@@ -38,12 +39,9 @@ YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', f
         mydial.render();
     };
 
-    button.on(
-        'click',
-        function() {
-            Y.usePromise('dial').then(renderDial);
-        }
-    );
+    button.on('click',function() {
+        Y.usePromise('dial').then(renderDial);
+    });
 
 });
 ```
