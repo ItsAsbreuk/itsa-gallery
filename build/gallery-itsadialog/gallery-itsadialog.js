@@ -58,7 +58,6 @@ if (!Y.Global.ITSADialog) {
         },
         prompt : function(title, message, defaultmessage) {
             var instance = this;
-            return 10;
             return instance.itsadialogboxLoaded().then(
                 function() {
                     return new Y.Promise(function (resolve, reject) {
