@@ -20,14 +20,13 @@ YUI.add('gallery-itsadialog', function (Y, NAME) {
  *
 */
 
-var LOADDELAY = 5000; // lazy load 'gallery-itsadialogbox' after 5 seconds
+var LOADDELAY = 5000, // lazy load 'gallery-itsadialogbox' after 5 seconds
+      ITSADialogInstance;
 
 function ITSADialog() {}
 
 if (!Y.Global.ITSADialog) {
-alert('init');
     Y.mix(ITSADialog.prototype, {
-        check: 10,
         itsadialogboxLoaded : function() {
             var instance = this;
             if (!instance.moduleLoaded) {
@@ -64,7 +63,7 @@ alert('init');
                     return new Y.Promise(function (resolve, reject) {
                         // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
                         // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
-                        Y.Global.ITSADialog.getInput(
+                        Y.Global.ItsaDialog.getInput(
                             title,
                             message,
                             defaultmessage,
@@ -91,7 +90,7 @@ alert('init');
                     return new Y.Promise(function (resolve, reject) {
                         // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
                         // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
-                        Y.Global.ITSADialog.getConfirmation(
+                        Y.Global.ItsaDialog.getConfirmation(
                             title,
                             question,
                             function(e) {
@@ -111,25 +110,25 @@ alert('init');
         }
     });
 
-    Y.Global.ITSADialog = ITSADialog;
+    ITSADialogInstance = Y.Global.ITSADialog = new ITSADialog();
     // now lazyload 'gallery-itsadialogbox'
     Y.later(
         LOADDELAY,
-        null,
-        Y.Global.ITSADialog.itsadialogboxLoaded
+        ITSADialogInstance,
+        ITSADialogInstance.itsadialogboxLoaded
     );
 }
 
 if (!Y.alert) {
-    Y.alert = Y.Global.ITSADialog.alert;
+    Y.alert = Y.bind(ITSADialogInstance.alert, ITSADialogInstance);
 }
 
 if (!Y.prompt) {
-    Y.prompt = Y.Global.ITSADialog.prompt;
+    Y.prompt = Y.bind(ITSADialogInstance.prompt, ITSADialogInstance);
 }
 
 if (!Y.confirm) {
-    Y.confirm = Y.Global.ITSADialog.confirm;
+    Y.confirm = Y.bind(ITSADialogInstance.confirm, ITSADialogInstance);
 }
 
 
