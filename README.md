@@ -9,10 +9,11 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Core
-[ITSADialogBox](src/gallery-itsadialogbox) --under redesign--
+[ITSADialog](src/gallery-itsadialog) --on cdn--
 
 [Widget.renderPromise()](src/gallery-itsawidgetrenderpromise) --on cdn--
 
+[Y.usePromise()](src/gallery-itsamodulesloadedpromise) --on cdn--
 
 
 ## Infrastructure
