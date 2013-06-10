@@ -1,0 +1,1 @@
+YUI.add("gallery-itsamodulesloadedpromise",function(e,t){"use strict";var n=2e4;e.usePromise=function(){var t=arguments;return new e.Promise(function(r,i){[].push.apply(t,[function(){r()}]),e.use.apply(e,t),e.later(n,null,i)})}},"@VERSION@",{requires:["yui-base","promise","yui-later"]});
