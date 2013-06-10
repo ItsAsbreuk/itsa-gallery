@@ -221,7 +221,7 @@ if (!Y.Global.ITSADialog) {
 
         /**
          * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
-         * <b>yes no</b> and <b>abort ignore retry</b> --> this can be set with 'options.type'.
+         * <b>yes-no</b> and <b>abort-ignore-retry</b> --> this can be set with 'options.type'.
          *
          * @method _confirm
          * @param [title] {String} Title on the dialogbox (header).
@@ -346,7 +346,7 @@ Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
 
 /**
  * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
- * <b>yes no</b> and <b>abort ignore retry</b> --> this can be set with 'options.type'.
+ * <b>yes-no</b> and <b>abort-ignore-retry</b> --> this can be set with 'options.type'.
  *
  * @method Y.confirm
  * @param [title] {String} Title on the dialogbox (header).
