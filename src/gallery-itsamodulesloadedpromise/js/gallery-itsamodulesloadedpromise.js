@@ -27,7 +27,7 @@ var TIMEOUT = 20000, // 20 seconds before loading modules is timed out.
  *
  * @method Y.usePromise
  * @param {String|Array} modules* One or more module names to attach.
- * @return {Y.Promise}
+ * @return {Y.Promise} --> resolve() - function gets no parameters; reject(reason)
  * @since 0.1
 */
 Y.usePromise = function() {
