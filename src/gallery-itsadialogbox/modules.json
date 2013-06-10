@@ -1,6 +1,0 @@
-
-    "js/gallery-itsadialogbox.js": {
-        "classes": "Lang, Base, Panel, Plugin.Drag, Array, YUI",
-        "requires": ["yui-base", "base-base", "panel", "dd-plugin", "yui-log", "oop", "event-custom-base", "node-core"]
-    }{
-}

@@ -1196,25 +1196,6 @@ if (!Y.Global.ItsaDialog) {
 
 Y.ItsaDialogBox = Y.Global.ItsaDialog;
 
-if (!Y.alert) {
-    Y.alert = function(title, message, callback, context, args, customButtons, customIconclass) {
-        Y.Global.ItsaDialog.showMessage(title, message, callback, context, args, customButtons, customIconclass);
-    };
-}
-
-if (!Y.prompt) {
-    Y.prompt = function(title, message, defaultmessage, callback, context, args, customButtons, customIconclass) {
-        Y.Global.ItsaDialog.getInput(title, message, defaultmessage, callback, context, args, customButtons, customIconclass);
-    };
-}
-
-if (!Y.confirm) {
-    Y.confirm = function(title, question, callback, context, args, customButtons, customIconclass) {
-        Y.Global.ItsaDialog.getConfirmation(title, question, callback, context, args, customButtons, customIconclass);
-    };
-}
-
-
 //=================================================================================
 
 // Y.ITSAFORMELEMENT should get an own module. For the short time being, we will keep it inside itsa-dialog

@@ -3,6 +3,9 @@
         "requires": [
             "yui-base",
             "promise",
+            "event-custom-base",
+            "yui-later",
+            "oop",
             "gallery-itsadialogbox"
         ]
     }
