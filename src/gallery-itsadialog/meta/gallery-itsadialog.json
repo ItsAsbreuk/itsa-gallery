@@ -6,7 +6,7 @@
             "event-custom-base",
             "yui-later",
             "oop",
-            "gallery-itsadialogbox"
+            "gallery-itsamodulesloadedpromise"
         ]
     }
 }

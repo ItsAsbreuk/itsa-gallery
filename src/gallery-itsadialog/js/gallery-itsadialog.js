@@ -19,6 +19,7 @@
 */
 
 var LOADDELAY = 5000, // lazy load 'gallery-itsadialogbox' after 5 seconds
+      GALLERY_ITSADIALOGBOX = 'gallery-itsadialogbox',
       ACTION_HIDE = '_actionHide',
       ABORT = 'abort',
       IGNORE = 'ignore',
@@ -52,17 +53,6 @@ function ITSADialog() {}
 
 if (!Y.Global.ITSADialog) {
     Y.mix(ITSADialog.prototype, {
-        itsadialogboxLoaded : function() {
-            var instance = this;
-            if (!instance.moduleLoaded) {
-                instance.moduleLoaded = new Y.Promise(function (resolve) {
-                    Y.use('gallery-itsadialogbox', function() {
-                        resolve();
-                    });
-                });
-            }
-            return instance.moduleLoaded;
-        },
         _getFunction : function(options) {
             // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
             // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
@@ -106,7 +96,7 @@ if (!Y.Global.ITSADialog) {
                 title = '';
             }
             options = options || {};
-            return instance.itsadialogboxLoaded().then(
+            return Y.usePromise(GALLERY_ITSADIALOGBOX).then(
                 function() {
                     return new Y.Promise(function (resolve) {
                         // We cannot use Y.Global.ItsaDialog here, because at render-time, it does not exist
@@ -145,7 +135,7 @@ if (!Y.Global.ITSADialog) {
             }
             options = options || {};
             options.type = options.type || INPUT;
-            return instance.itsadialogboxLoaded().then(
+            return Y.usePromise(GALLERY_ITSADIALOGBOX).then(
                 function() {
                     return new Y.Promise(function (resolve, reject) {
                         // We cannot use Y.Global.ItsaDialog here, because at render-time, it does not exist
@@ -227,7 +217,7 @@ if (!Y.Global.ITSADialog) {
                     buttons.footer[1].isDefault = true;
                 }
             }
-            return instance.itsadialogboxLoaded().then(
+            return Y.usePromise(GALLERY_ITSADIALOGBOX).then(
                 function() {
                     return new Y.Promise(function (resolve, reject) {
                         // We cannot use Y.Global.ItsaDialog here, because at render-time, it does not exist
@@ -260,8 +250,9 @@ if (!Y.Global.ITSADialog) {
     // now lazyload 'gallery-itsadialogbox'
     Y.later(
         LOADDELAY,
-        ITSADialogInstance,
-        ITSADialogInstance.itsadialogboxLoaded
+        Y,
+        Y.use,
+        GALLERY_ITSADIALOGBOX
     );
 }
 
