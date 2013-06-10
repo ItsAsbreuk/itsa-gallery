@@ -3,19 +3,18 @@ YUI.add('gallery-itsadialog', function (Y, NAME) {
 'use strict';
 
 /**
- * The Itsa Selectlist module.
+ * This module adds three dialog-promises to YUI:
  *
- * @module gallery-itsaselectlist
- */
-
-
-/**
+ * Y.alert()
+ * Y.prompt()
+ * Y.confirm()
  *
- * @class ITSASelectlist
- * @extends Widget
- * @constructor
  *
- * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
+ * @module gallery-itsadialog
+ * @class Y
+ * @since 0.1
+ *
+ * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
@@ -55,12 +54,23 @@ function ITSADialog() {}
 
 if (!Y.Global.ITSADialog) {
     Y.mix(ITSADialog.prototype, {
+        /**
+         * Returns the proper function of ItsaDialog (gallery-itsadialogbox) to be used.
+         *
+         * @method _getFunction
+         * @param [options] {object}
+         * @param [options.type] {String}  Passed by to determine which method of ItsaDialog to be called. Default === 'showMessage'
+         * @private
+         * @since 0.1
+        */
         _getFunction : function(options) {
             // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
             // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
             var useFunction,
                   type = options && options.type,
                   ItsaDialog = Y.Global.ItsaDialog;
+
+            Y.log('_getFunction', 'info', 'Itsa-Dialog');
             if (type===WARNING) {
                 useFunction = Y.bind(ItsaDialog.showWarning, ItsaDialog);
             }
@@ -88,9 +98,23 @@ if (!Y.Global.ITSADialog) {
             }
             return useFunction;
         },
-        // options.type: {String} null|'message'|'warning'|'error' (default='message')
-        alert : function(title, message, options) {
+
+        /**
+         * Pops-up an alert-dialog --> dialog with no input-field and only an 'OK'-button.
+         *
+         * @method _alert
+         * @param [title] {String} Title on the dialogbox (header).
+         * @param message {String} Message to display. (may be the first argument)
+         * @param [options] {object}
+         * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+         * @private
+         * @return {Y.Promise} --> resolve() --> without parameters, no reject.
+         * @since 0.1
+        */
+        _alert : function(title, message, options) {
             var instance = this;
+
+            Y.log('alert', 'info', 'Itsa-Dialog');
             // make it possible to pass 'options' as second argument:
             if (typeof message === OBJECT) {
                 options = message;
@@ -114,21 +138,32 @@ if (!Y.Global.ITSADialog) {
                 }
             );
         },
-        // options.type: {String} 'input'|'number'|'login' (default==='input')
-        // options.value: {String|number} (in case of options.type==='number' or 'input')
 
-        // options.min: {String|Number} (in case of options.type==='number')
-        // options.max: {Number} (in case of options.type==='number')
-
-        // options.labelUsername: {String} (in case of options.type==='login')
-        // options.labelPassword: {String} (in case of options.type==='login')
-        // options.defaultUsername: {String} (in case of options.type==='login')
-        // options.defaultPassword: {String} (in case of options.type==='login')
-
-
-        // resolve(response) --> response.value || response.username+response.password
-        prompt : function(title, message, options) {
+        /**
+         * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons.<br />
+         * In case of 'login', only the 'OK'
+         *
+         * @method _prompt
+         * @param [title] {String} Title on the dialogbox (header).
+         * @param message {String} Message to display. (may be the first argument)
+         * @param [options] {object}
+         * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'input'|'number'|'login' (null == 'input')
+         * @param [options.value] {String|number} --> only in case of options.type==='number' or 'input'
+         * @param [options.min] {Number} --> only in case of options.type==='number'
+         * @param [options.max] {Number} --> only in case of options.type==='number'
+         * @param [options.labelUsername] {String} --> only in case of options.type==='login'
+         * @param [options.labelPassword] {String} --> only in case of options.type==='login'
+         * @param [options.defaultUsername] {String} --> only in case of options.type==='login'
+         * @param [options.defaultPassword] {String} --> only in case of options.type==='login'
+         * @private
+         * @return {Y.Promise} --> resolve(response) --> response.value || response.username+response.password;
+         * reject(reason) --> reason which is always the button 'cancel' being pressed.
+         * @since 0.1
+        */
+        _prompt : function(title, message, options) {
             var instance = this;
+
+            Y.log('prompt', 'info', 'Itsa-Dialog');
             // make it possible to pass 'options' as second argument:
             if (typeof message === OBJECT) {
                 options = message;
@@ -184,12 +219,27 @@ if (!Y.Global.ITSADialog) {
                 }
             );
         },
-        // options.type: {String} null|'yesno'|'retry'  (default='yesno')
-        // options.defaultBtn: {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (default='no'|'retry')
-        // resolve(button) --> button === 'buttonname'
-        confirm : function(title, question, options) {
+
+        /**
+         * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
+         * <b>yes no</b> and <b>abort ignore retry</b> --> this can be set with 'options.type'.
+         *
+         * @method _confirm
+         * @param [title] {String} Title on the dialogbox (header).
+         * @param message {String} Message to display. (may be the first argument)
+         * @param [options] {object}
+         * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'yesno'|'retry' (null == 'yesno')
+         * @param [options.defaultBtn] {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (null == 'no'|'retry')
+         * @private
+         * @return {Y.Promise} --> resolve(button) --> button === 'buttonname';
+         * reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons)
+         * @since 0.1
+        */
+        _confirm : function(title, question, options) {
             var instance = this,
                   buttons, rejectmessage;
+
+            Y.log('confirm', 'info', 'Itsa-Dialog');
             // make it possible to pass 'options' as second argument:
             if (typeof message === OBJECT) {
                 options = question;
@@ -258,9 +308,57 @@ if (!Y.Global.ITSADialog) {
     );
 }
 
-Y.alert = Y.rbind(ITSADialogInstance.alert, ITSADialogInstance);
-Y.prompt = Y.rbind(ITSADialogInstance.prompt, ITSADialogInstance);
-Y.confirm = Y.rbind(ITSADialogInstance.confirm, ITSADialogInstance);
+/**
+ * Pops-up an alert-dialog --> dialog with no input-field and only an 'OK'-button.
+ *
+ * @method Y.alert
+ * @param [title] {String} Title on the dialogbox (header).
+ * @param message {String} Message to display. (may be the first argument)
+ * @param [options] {object}
+ * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+ * @return {Y.Promise} --> resolve() --> without parameters, no reject.
+ * @since 0.1
+*/
+Y.alert = Y.rbind(ITSADialogInstance._alert, ITSADialogInstance);
+
+/**
+ * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons.<br />
+ * In case of 'login', only the 'OK'
+ *
+ * @method Y.prompt
+ * @param [title] {String} Title on the dialogbox (header).
+ * @param message {String} Message to display. (may be the first argument)
+ * @param [options] {object}
+ * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'input'|'number'|'login' (null == 'input')
+ * @param [options.value] {String|number} --> only in case of options.type==='number' or 'input'
+ * @param [options.min] {Number} --> only in case of options.type==='number'
+ * @param [options.max] {Number} --> only in case of options.type==='number'
+ * @param [options.labelUsername] {String} --> only in case of options.type==='login'
+ * @param [options.labelPassword] {String} --> only in case of options.type==='login'
+ * @param [options.defaultUsername] {String} --> only in case of options.type==='login'
+ * @param [options.defaultPassword] {String} --> only in case of options.type==='login'
+ * @return {Y.Promise} --> resolve(response) --> response.value || response.username+response.password;
+ * reject(reason) --> reason which is always the button 'cancel' being pressed.
+ * @since 0.1
+*/
+Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
+
+/**
+ * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
+ * <b>yes no</b> and <b>abort ignore retry</b> --> this can be set with 'options.type'.
+ *
+ * @method _confirm
+ * @param [title] {String} Title on the dialogbox (header).
+ * @param message {String} Message to display. (may be the first argument)
+ * @param [options] {object}
+ * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'yesno'|'retry' (null == 'yesno')
+ * @param [options.defaultBtn] {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (null == 'no'|'retry')
+ * @private
+ * @return {Y.Promise} --> resolve(button) --> button === 'buttonname';
+ * reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons)
+ * @since 0.1
+*/
+Y.confirm = Y.rbind(ITSADialogInstance._confirm, ITSADialogInstance);
 
 }, '@VERSION@', {
     "requires": [
