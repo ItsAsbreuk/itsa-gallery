@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsapluginpromise",
+    "displayName": "Gallery: gallery-itsapluginpromise",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsapluginpromise" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}
