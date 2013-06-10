@@ -35,6 +35,7 @@ var TIMEOUT = 20000, // 20 seconds before loading modules is timed out.
 Y.usePromise = function() {
     // store 'arguments' inside 'args' --> because new Promise() has other arguments
     var args = arguments;
+
     return new Y.Promise(function (resolve, reject) {
         [].push.apply(
             args,
