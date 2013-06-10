@@ -1108,7 +1108,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 ],
                 buttons: {
                     footer: [
-                        {name:'ok', label:'Ok', action:instance.ACTION_HIDE, isDefault: true}
+                        {name:'login', label:'Login', action:instance.ACTION_HIDE, isDefault: true}
                     ]
                 }
             });

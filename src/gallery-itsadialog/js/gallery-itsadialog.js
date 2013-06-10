@@ -1,19 +1,18 @@
 'use strict';
 
 /**
- * The Itsa Selectlist module.
+ * This module adds three dialog-promises to YUI:
  *
- * @module gallery-itsaselectlist
- */
-
-
-/**
+ * Y.alert()
+ * Y.prompt()
+ * Y.confirm()
  *
- * @class ITSASelectlist
- * @extends Widget
- * @constructor
  *
- * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
+ * @module gallery-itsadialog
+ * @class Y
+ * @since 0.1
+ *
+ * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
@@ -53,6 +52,15 @@ function ITSADialog() {}
 
 if (!Y.Global.ITSADialog) {
     Y.mix(ITSADialog.prototype, {
+        /**
+         * Returns the proper function of ItsaDialog (gallery-itsadialogbox) to be used.
+         *
+         * @method _getFunction
+         * @param [options] {object}
+         * @param [options.type] {String}  Passed by to determine which method of ItsaDialog to be called. Default === 'showMessage'
+         * @private
+         * @since 0.1
+        */
         _getFunction : function(options) {
             // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
             // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
@@ -86,8 +94,18 @@ if (!Y.Global.ITSADialog) {
             }
             return useFunction;
         },
-        // options.type: {String} null|'message'|'warning'|'error' (default='message')
-        alert : function(title, message, options) {
+        /**
+         * Pops-up an alert-dialog --> dialog with no input-field and only an 'OK'-button.
+         *
+         * @method _alert
+         * @param [title] {String} Title on the dialogbox (header).
+         * @param message {String} Message to display. (may be the first argument)
+         * @param [options] {object}
+         * @param [options.type] {String} Determinse which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+         * @private
+         * @since 0.1
+        */
+        _alert : function(title, message, options) {
             var instance = this;
             // make it possible to pass 'options' as second argument:
             if (typeof message === OBJECT) {
@@ -125,7 +143,19 @@ if (!Y.Global.ITSADialog) {
 
 
         // resolve(response) --> response.value || response.username+response.password
-        prompt : function(title, message, options) {
+        /**
+         * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons.<br />
+         * In case of 'login', only the 'OK'
+         *
+         * @method _prompt
+         * @param [title] {String} Title on the dialogbox (header).
+         * @param message {String} Message to display. (may be the first argument)
+         * @param [options] {object}
+         * @param [options.type] {String} Determinse which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+         * @private
+         * @since 0.1
+        */
+        _prompt : function(title, message, options) {
             var instance = this;
             // make it possible to pass 'options' as second argument:
             if (typeof message === OBJECT) {
@@ -185,7 +215,7 @@ if (!Y.Global.ITSADialog) {
         // options.type: {String} null|'yesno'|'retry'  (default='yesno')
         // options.defaultBtn: {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (default='no'|'retry')
         // resolve(button) --> button === 'buttonname'
-        confirm : function(title, question, options) {
+        _confirm : function(title, question, options) {
             var instance = this,
                   buttons, rejectmessage;
             // make it possible to pass 'options' as second argument:
@@ -256,6 +286,17 @@ if (!Y.Global.ITSADialog) {
     );
 }
 
-Y.alert = Y.rbind(ITSADialogInstance.alert, ITSADialogInstance);
-Y.prompt = Y.rbind(ITSADialogInstance.prompt, ITSADialogInstance);
-Y.confirm = Y.rbind(ITSADialogInstance.confirm, ITSADialogInstance);
+/**
+ * Pops-up an alert-dialog --> dialog with no input-field and only an 'OK'-button.
+ *
+ * @method Y.alert
+ * @param [title] {String} Title on the dialogbox (header).
+ * @param message {String} Message to display. (may be the first argument)
+ * @param [options] {object}
+ * @param [options.type] {String} Determinse which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+ * @since 0.1
+*/
+
+Y.alert = Y.rbind(ITSADialogInstance._alert, ITSADialogInstance);
+Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
+Y.confirm = Y.rbind(ITSADialogInstance._confirm, ITSADialogInstance);
