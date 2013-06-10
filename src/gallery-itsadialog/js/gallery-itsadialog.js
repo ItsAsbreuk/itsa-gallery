@@ -54,7 +54,7 @@ if (!Y.Global.ITSADialog) {
                 }
             );
         },
-        prompt : function(title, message, defaultmessage) {
+        xprompt : function(title, message, defaultmessage) {
             var instance = this;
             return instance.itsadialogboxLoaded().then(
                 function() {
@@ -121,8 +121,8 @@ if (!Y.alert) {
     Y.alert = Y.bind(ITSADialogInstance.alert, ITSADialogInstance);
 }
 
-if (!Y.prompt) {
-    Y.prompt = Y.bind(ITSADialogInstance.prompt, ITSADialogInstance);
+if (!Y.xprompt) {
+    Y.xprompt = Y.bind(ITSADialogInstance.xprompt, ITSADialogInstance);
 }
 
 if (!Y.confirm) {

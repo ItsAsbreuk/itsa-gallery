@@ -26,10 +26,10 @@ _yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"] = {
     path: "build/gallery-itsadialog/gallery-itsadialog.js",
     code: []
 };
-_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].code=["YUI.add('gallery-itsadialog', function (Y, NAME) {","","'use strict';","","/**"," * The Itsa Selectlist module."," *"," * @module gallery-itsaselectlist"," */","","","/**"," *"," * @class ITSASelectlist"," * @extends Widget"," * @constructor"," *"," * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>"," * YUI BSD License - http://developer.yahoo.com/yui/license.html"," *","*/","","var LOADDELAY = 5000, // lazy load 'gallery-itsadialogbox' after 5 seconds","      ITSADialogInstance;","","function ITSADialog() {}","","if (!Y.Global.ITSADialog) {","    Y.mix(ITSADialog.prototype, {","        itsadialogboxLoaded : function() {","            var instance = this;","            if (!instance.moduleLoaded) {","                instance.moduleLoaded = new Y.Promise(function (resolve) {","                    Y.use('gallery-itsadialogbox', function() {","                        resolve();","                    });","                });","            }","            return instance.moduleLoaded;","        },","        alert : function(title, message) {","            var instance = this;","            return instance.itsadialogboxLoaded().then(","                function() {","                    return new Y.Promise(function (resolve) {","                        // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:","                        // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.","                        Y.Global.ItsaDialog.showMessage(","                            title,","                            message,","                            function() {","                                resolve();","                            }","                        );","                    });","                }","            );","        },","        prompt : function(title, message, defaultmessage) {","            var instance = this;","            return instance.itsadialogboxLoaded().then(","                function() {","                    return new Y.Promise(function (resolve, reject) {","                        // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:","                        // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.","                        Y.Global.ItsaDialog.getInput(","                            title,","                            message,","                            defaultmessage,","                            function(e) {","                                // callback function","                                var value = e.value,","                                      promiseReject = (e.buttonName === 'cancel');","                                if (promiseReject) {","                                    reject(new Error('input cancelled'));","                                }","                                else {","                                    resolve(value);","                                }","                            }","                        );","                    });","                }","            );","        },","        confirm : function(title, question) {","            var instance = this;","            return instance.itsadialogboxLoaded().then(","                function() {","                    return new Y.Promise(function (resolve, reject) {","                        // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:","                        // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.","                        Y.Global.ItsaDialog.getConfirmation(","                            title,","                            question,","                            function(e) {","                                // callback function","                                var promiseReject = (e.buttonName === 'no');","                                if (promiseReject) {","                                    reject(new Error('not confirmed'));","                                }","                                else {","                                    resolve();","                                }","                            }","                        );","                    });","                }","            );","        }","    });","","    ITSADialogInstance = Y.Global.ITSADialog = new ITSADialog();","    // now lazyload 'gallery-itsadialogbox'","    Y.later(","        LOADDELAY,","        ITSADialogInstance,","        ITSADialogInstance.itsadialogboxLoaded","    );","}","","if (!Y.alert) {","    Y.alert = Y.bind(ITSADialogInstance.alert, ITSADialogInstance);","}","","if (!Y.prompt) {","    Y.prompt = Y.bind(ITSADialogInstance.prompt, ITSADialogInstance);","}","","if (!Y.confirm) {","    Y.confirm = Y.bind(ITSADialogInstance.confirm, ITSADialogInstance);","}","","","","}, '@VERSION@', {\"requires\": [\"yui-base\", \"promise\", \"gallery-itsadialogbox\"]});"];
-_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].lines = {"1":0,"3":0,"23":0,"26":0,"28":0,"29":0,"31":0,"32":0,"33":0,"34":0,"35":0,"39":0,"42":0,"43":0,"45":0,"48":0,"52":0,"60":0,"61":0,"63":0,"66":0,"72":0,"74":0,"75":0,"78":0,"87":0,"88":0,"90":0,"93":0,"98":0,"99":0,"100":0,"103":0,"113":0,"115":0,"122":0,"123":0,"126":0,"127":0,"130":0,"131":0};
-_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].functions = {"ITSADialog:26":0,"(anonymous 3):34":0,"(anonymous 2):33":0,"itsadialogboxLoaded:30":0,"(anonymous 6):51":0,"(anonymous 5):45":0,"(anonymous 4):44":0,"alert:41":0,"(anonymous 9):70":0,"(anonymous 8):63":0,"(anonymous 7):62":0,"prompt:59":0,"(anonymous 12):96":0,"(anonymous 11):90":0,"(anonymous 10):89":0,"confirm:86":0,"(anonymous 1):1":0};
-_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].coveredLines = 41;
+_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].code=["YUI.add('gallery-itsadialog', function (Y, NAME) {","","'use strict';","","/**"," * The Itsa Selectlist module."," *"," * @module gallery-itsaselectlist"," */","","","/**"," *"," * @class ITSASelectlist"," * @extends Widget"," * @constructor"," *"," * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>"," * YUI BSD License - http://developer.yahoo.com/yui/license.html"," *","*/","","var LOADDELAY = 5000, // lazy load 'gallery-itsadialogbox' after 5 seconds","      ITSADialogInstance;","","function ITSADialog() {}","","if (!Y.Global.ITSADialog) {","    Y.mix(ITSADialog.prototype, {","        itsadialogboxLoaded : function() {","            var instance = this;","            if (!instance.moduleLoaded) {","                instance.moduleLoaded = new Y.Promise(function (resolve) {","                    Y.use('gallery-itsadialogbox', function() {","                        resolve();","                    });","                });","            }","            return instance.moduleLoaded;","        },","        alert : function(title, message) {","            var instance = this;","            return instance.itsadialogboxLoaded().then(","                function() {","                    return new Y.Promise(function (resolve) {","                        // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:","                        // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.","                        Y.Global.ItsaDialog.showMessage(","                            title,","                            message,","                            function() {","                                resolve();","                            }","                        );","                    });","                }","            );","        },","        prompt : function(title, message, defaultmessage) {","            var instance = this;","            return 10;","            return instance.itsadialogboxLoaded().then(","                function() {","                    return new Y.Promise(function (resolve, reject) {","                        // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:","                        // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.","                        Y.Global.ItsaDialog.getInput(","                            title,","                            message,","                            defaultmessage,","                            function(e) {","                                // callback function","                                var value = e.value,","                                      promiseReject = (e.buttonName === 'cancel');","                                if (promiseReject) {","                                    reject(new Error('input cancelled'));","                                }","                                else {","                                    resolve(value);","                                }","                            }","                        );","                    });","                }","            );","        },","        confirm : function(title, question) {","            var instance = this;","            return instance.itsadialogboxLoaded().then(","                function() {","                    return new Y.Promise(function (resolve, reject) {","                        // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:","                        // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.","                        Y.Global.ItsaDialog.getConfirmation(","                            title,","                            question,","                            function(e) {","                                // callback function","                                var promiseReject = (e.buttonName === 'no');","                                if (promiseReject) {","                                    reject(new Error('not confirmed'));","                                }","                                else {","                                    resolve();","                                }","                            }","                        );","                    });","                }","            );","        }","    });","","    ITSADialogInstance = Y.Global.ITSADialog = new ITSADialog();","    // now lazyload 'gallery-itsadialogbox'","    Y.later(","        LOADDELAY,","        ITSADialogInstance,","        ITSADialogInstance.itsadialogboxLoaded","    );","}","","if (!Y.alert) {","    Y.alert = Y.bind(ITSADialogInstance.alert, ITSADialogInstance);","}","","if (!Y.prompt) {","    Y.prompt = Y.bind(ITSADialogInstance.prompt, ITSADialogInstance);","}","","if (!Y.confirm) {","    Y.confirm = Y.bind(ITSADialogInstance.confirm, ITSADialogInstance);","}","","","","}, '@VERSION@', {\"requires\": [\"yui-base\", \"promise\", \"event-custom-base\", \"yui-later\", \"oop\", \"gallery-itsadialogbox\"]});"];
+_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].lines = {"1":0,"3":0,"23":0,"26":0,"28":0,"29":0,"31":0,"32":0,"33":0,"34":0,"35":0,"39":0,"42":0,"43":0,"45":0,"48":0,"52":0,"60":0,"61":0,"62":0,"64":0,"67":0,"73":0,"75":0,"76":0,"79":0,"88":0,"89":0,"91":0,"94":0,"99":0,"100":0,"101":0,"104":0,"114":0,"116":0,"123":0,"124":0,"127":0,"128":0,"131":0,"132":0};
+_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].functions = {"ITSADialog:26":0,"(anonymous 3):34":0,"(anonymous 2):33":0,"itsadialogboxLoaded:30":0,"(anonymous 6):51":0,"(anonymous 5):45":0,"(anonymous 4):44":0,"alert:41":0,"(anonymous 9):71":0,"(anonymous 8):64":0,"(anonymous 7):63":0,"prompt:59":0,"(anonymous 12):97":0,"(anonymous 11):91":0,"(anonymous 10):90":0,"confirm:87":0,"(anonymous 1):1":0};
+_yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].coveredLines = 42;
 _yuitest_coverage["build/gallery-itsadialog/gallery-itsadialog.js"].coveredFunctions = 17;
 _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 1);
 YUI.add('gallery-itsadialog', function (Y, NAME) {
@@ -119,32 +119,34 @@ resolve();
 _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 60);
 var instance = this;
             _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 61);
+return 10;
+            _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 62);
 return instance.itsadialogboxLoaded().then(
                 function() {
-                    _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 7)", 62);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 63);
+                    _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 7)", 63);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 64);
 return new Y.Promise(function (resolve, reject) {
                         // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
                         // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
-                        _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 8)", 63);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 66);
+                        _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 8)", 64);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 67);
 Y.Global.ItsaDialog.getInput(
                             title,
                             message,
                             defaultmessage,
                             function(e) {
                                 // callback function
-                                _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 9)", 70);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 72);
+                                _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 9)", 71);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 73);
 var value = e.value,
                                       promiseReject = (e.buttonName === 'cancel');
-                                _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 74);
+                                _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 75);
 if (promiseReject) {
-                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 75);
+                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 76);
 reject(new Error('input cancelled'));
                                 }
                                 else {
-                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 78);
+                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 79);
 resolve(value);
                                 }
                             }
@@ -154,34 +156,34 @@ resolve(value);
             );
         },
         confirm : function(title, question) {
-            _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "confirm", 86);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 87);
+            _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "confirm", 87);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 88);
 var instance = this;
-            _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 88);
+            _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 89);
 return instance.itsadialogboxLoaded().then(
                 function() {
-                    _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 10)", 89);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 90);
+                    _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 10)", 90);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 91);
 return new Y.Promise(function (resolve, reject) {
                         // Caution: Y.Global.ItsaDialog is NOT the same as Y.Global.ITSADialog:
                         // Y.Global.ItsaDialog is the dialog-widget that comes from gallery-itsadialogbox and uses callback-funcs.
-                        _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 11)", 90);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 93);
+                        _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 11)", 91);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 94);
 Y.Global.ItsaDialog.getConfirmation(
                             title,
                             question,
                             function(e) {
                                 // callback function
-                                _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 12)", 96);
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 98);
+                                _yuitest_coverfunc("build/gallery-itsadialog/gallery-itsadialog.js", "(anonymous 12)", 97);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 99);
 var promiseReject = (e.buttonName === 'no');
-                                _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 99);
+                                _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 100);
 if (promiseReject) {
-                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 100);
+                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 101);
 reject(new Error('not confirmed'));
                                 }
                                 else {
-                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 103);
+                                    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 104);
 resolve();
                                 }
                             }
@@ -192,10 +194,10 @@ resolve();
         }
     });
 
-    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 113);
+    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 114);
 ITSADialogInstance = Y.Global.ITSADialog = new ITSADialog();
     // now lazyload 'gallery-itsadialogbox'
-    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 115);
+    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 116);
 Y.later(
         LOADDELAY,
         ITSADialogInstance,
@@ -203,24 +205,24 @@ Y.later(
     );
 }
 
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 122);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 123);
 if (!Y.alert) {
-    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 123);
+    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 124);
 Y.alert = Y.bind(ITSADialogInstance.alert, ITSADialogInstance);
 }
 
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 126);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 127);
 if (!Y.prompt) {
-    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 127);
+    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 128);
 Y.prompt = Y.bind(ITSADialogInstance.prompt, ITSADialogInstance);
 }
 
-_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 130);
+_yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 131);
 if (!Y.confirm) {
-    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 131);
+    _yuitest_coverline("build/gallery-itsadialog/gallery-itsadialog.js", 132);
 Y.confirm = Y.bind(ITSADialogInstance.confirm, ITSADialogInstance);
 }
 
 
 
-}, '@VERSION@', {"requires": ["yui-base", "promise", "gallery-itsadialogbox"]});
+}, '@VERSION@', {"requires": ["yui-base", "promise", "event-custom-base", "yui-later", "oop", "gallery-itsadialogbox"]});

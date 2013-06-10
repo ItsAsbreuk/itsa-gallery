@@ -58,6 +58,7 @@ if (!Y.Global.ITSADialog) {
         },
         prompt : function(title, message, defaultmessage) {
             var instance = this;
+            return 10;
             return instance.itsadialogboxLoaded().then(
                 function() {
                     return new Y.Promise(function (resolve, reject) {
@@ -133,4 +134,4 @@ if (!Y.confirm) {
 
 
 
-}, '@VERSION@', {"requires": ["yui-base", "promise", "gallery-itsadialogbox"]});
+}, '@VERSION@', {"requires": ["yui-base", "promise", "event-custom-base", "yui-later", "oop", "gallery-itsadialogbox"]});
