@@ -343,13 +343,12 @@ Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
  * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
  * <b>yes no</b> and <b>abort ignore retry</b> --> this can be set with 'options.type'.
  *
- * @method _confirm
+ * @method Y.confirm
  * @param [title] {String} Title on the dialogbox (header).
  * @param message {String} Message to display. (may be the first argument)
  * @param [options] {object}
  * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'yesno'|'retry' (null == 'yesno')
  * @param [options.defaultBtn] {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (null == 'no'|'retry')
- * @private
  * @return {Y.Promise} --> resolve(button) --> button === 'buttonname';
  * reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons)
  * @since 0.1
