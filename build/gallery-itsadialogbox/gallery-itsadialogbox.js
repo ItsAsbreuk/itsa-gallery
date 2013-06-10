@@ -323,27 +323,29 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
         */
         getLogin: function(title, message, logindata, callback, context, args, customButtons, customIconclass) {
             var instance = this,
-                logintable;
-            logindata = {
-                usernameLabel: 'username',
-                passwordLabel: 'password',
-                defaultUsername: 'enter username'
+                  logintable, defaultlogindata;
+            defaultlogindata = {
+                labelUsername: 'username',
+                labelPassword: 'password',
+                defaultUsername: '',
+                defaultPassword: ''
             };
+            logindata = logindata || defaultlogindata;
             instance.inputElementUsername = new Y.ITSAFORMELEMENT({
-                label: logindata.usernameLabel,
+                label: logindata.labelUsername || defaultlogindata.labelUsername,
                 name: 'username',
                 type: 'input',
-                value: logindata.defaultUsername,
+                value: logindata.defaultUsername || '',
                 classNameValue: 'yui3-itsadialogbox-stringinput itsa-formelement-firstelement',
                 marginTop: 24,
                 initialFocus: true,
                 selectOnFocus: true
             });
             instance.inputElementPassword = new Y.ITSAFORMELEMENT({
-                label: logindata.passwordLabel,
+                label: logindata.labelPassword || defaultlogindata.labelPassword,
                 name: 'password',
                 type: 'password',
-                value: '',
+                value: logindata.defaultPassword || '',
                 classNameValue: 'yui3-itsadialogbox-stringinput itsa-formelement-lastelement',
                 marginTop: 7,
                 initialFocus: false,
@@ -1478,6 +1480,7 @@ Y.ITSAFORMELEMENT = Y.Base.create('itsaformelement', Y.Base, [], {
         "event-valuechange",
         "event-custom-base",
         "node-core",
-        "oop"
+        "oop",
+        "gallery-itsaformelement"
     ]
 });
