@@ -106,7 +106,8 @@ if (!Y.Global.ITSADialog) {
          * @param [options] {object}
          * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
          * @private
-         * @return {Y.Promise} --> resolve() --> without parameters, no reject.
+         * @return {Y.Promise}
+         * <br />resolve() --> without parameters, no reject.
          * @since 0.1
         */
         _alert : function(title, message, options) {
@@ -154,8 +155,9 @@ if (!Y.Global.ITSADialog) {
          * @param [options.defaultUsername] {String} --> only in case of options.type==='login'
          * @param [options.defaultPassword] {String} --> only in case of options.type==='login'
          * @private
-         * @return {Y.Promise} --> resolve(response) --> response.value || response.username+response.password;
-         * reject(reason) --> reason which is always the button 'cancel' being pressed.
+         * @return {Y.Promise}
+         * <br />resolve(response) --> response.value || response.username+response.password.
+         * <br />reject(reason) --> reason which is always the button 'cancel' being pressed.
          * @since 0.1
         */
         _prompt : function(title, message, options) {
@@ -229,8 +231,9 @@ if (!Y.Global.ITSADialog) {
          * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'yesno'|'retry' (null == 'yesno')
          * @param [options.defaultBtn] {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (null == 'no'|'retry')
          * @private
-         * @return {Y.Promise} --> resolve(button) --> button === 'buttonname';
-         * reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons)
+         * @return {Y.Promise}
+         * <br />resolve(button) --> button === 'buttonname'.
+         * <br />reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons).
          * @since 0.1
         */
         _confirm : function(title, question, options) {
@@ -314,7 +317,8 @@ if (!Y.Global.ITSADialog) {
  * @param message {String} Message to display. (may be the first argument)
  * @param [options] {object}
  * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
- * @return {Y.Promise} --> resolve() --> without parameters, no reject.
+ * @return {Y.Promise}
+ * <br />resolve() --> without parameters, no reject.
  * @since 0.1
 */
 Y.alert = Y.rbind(ITSADialogInstance._alert, ITSADialogInstance);
@@ -335,8 +339,9 @@ Y.alert = Y.rbind(ITSADialogInstance._alert, ITSADialogInstance);
  * @param [options.labelPassword] {String} --> only in case of options.type==='login'
  * @param [options.defaultUsername] {String} --> only in case of options.type==='login'
  * @param [options.defaultPassword] {String} --> only in case of options.type==='login'
- * @return {Y.Promise} --> resolve(response) --> response.value || response.username+response.password;
- * reject(reason) --> reason which is always the button 'cancel' being pressed.
+ * @return {Y.Promise}
+ * <br />resolve(response) --> response.value || response.username+response.password.
+ * <br />reject(reason) --> reason which is always the button 'cancel' being pressed.
  * @since 0.1
 */
 Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
@@ -351,8 +356,9 @@ Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
  * @param [options] {object}
  * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'yesno'|'retry' (null == 'yesno')
  * @param [options.defaultBtn] {String} 'yes'|'no'|'abort'|'ignore'|'retry'  (null == 'no'|'retry')
- * @return {Y.Promise} --> resolve(button) --> button === 'buttonname';
- * reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons)
+ * @return {Y.Promise}
+ * <br />resolve(button) --> button === 'buttonname'.
+ * <br />reject(reason) --> which is 'not confirmed' (when 'no' pressed using yesno-buttons) OR 'aborted'  (with abort|ignore|retry-buttons).
  * @since 0.1
 */
 Y.confirm = Y.rbind(ITSADialogInstance._confirm, ITSADialogInstance);
