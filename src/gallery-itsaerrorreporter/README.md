@@ -39,7 +39,7 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 ```js
 YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
-    Y.log('logging an error', error', 'webapp');
+    Y.log('logging an error', 'error', 'webapp');
     // the logging is caught and leads to an error-pop-up
 
 });
@@ -50,7 +50,7 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
     Y.ITSAErrorReporter.reportErrorLogs(false);
-    Y.log('logging an error', error', 'webapp');
+    Y.log('logging an error', 'error', 'webapp');
     // no error-pop-up
 
 });
