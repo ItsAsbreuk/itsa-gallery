@@ -24,7 +24,7 @@ Documentation
 Usage
 -----
 
-<b>example ErrorReport when fireing an 'error'-event</b>
+<b>ErrorReport when fireing an 'error'-event</b>
 ```js
 YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
@@ -35,7 +35,7 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 });
 ```
 
-<b>example ErrorReport when logging an 'error'</b>
+<b>ErrorReport when logging an 'error'</b>
 ```js
 YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
@@ -45,7 +45,7 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 });
 ```
 
-<b>example disabling error-messages when logging an 'error'</b>
+<b>Disabling error-messages when logging an 'error'</b>
 ```js
 YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
