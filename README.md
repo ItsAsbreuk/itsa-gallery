@@ -15,6 +15,8 @@ This repo contains open source YUI components that have been contributed to the
 
 [Y.usePromise()](src/gallery-itsamodulesloadedpromise) --on cdn--
 
+[ITSAErrorReporter](src/gallery-itsaerrorreporter) --on cdn--
+
 
 ## Infrastructure
 [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
