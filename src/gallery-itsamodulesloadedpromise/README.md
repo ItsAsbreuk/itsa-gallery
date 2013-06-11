@@ -24,7 +24,7 @@ Documentation
 Usage
 -----
 
-<b>Lazy-loading a dial-instance</b>
+<b>Example 1: Lazy-loading a dial-instance</b>
 ```html
 <button id='mybutton'>Click to render Dial</button>
 ```
@@ -41,6 +41,30 @@ YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', f
 
     button.on('click', function() {
         Y.usePromise('dial').then(renderDial);
+    });
+
+});
+```
+
+<b>Example 2: Lazy-loading multiple widgets</b>
+```html
+<button id='mybutton'>Click to render Dial</button>
+```
+```js
+YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', function(Y) {
+
+    var button, renderWidgets, mydial, myslider;
+
+    button = Y.one('#mybutton');
+    renderWidgets = function() {
+        mydial = new Y.Dial();
+        myslider = new Y.Slider();
+        mydial.render();
+        myslider.render();
+    };
+
+    button.on('click', function() {
+        Y.usePromise('dial', 'slider').then(renderWidgets);
     });
 
 });
