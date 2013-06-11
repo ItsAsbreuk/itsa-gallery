@@ -1,3 +1,5 @@
+YUI.add('gallery-itsapluginpromise', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -41,7 +43,6 @@ Y.mix(ITSAPluginPromise.prototype, {
     hasPluginPromise : function(ns) {
         var host = this;
 
-        Y.log('Y.Plugin.Host.hasPluginPromise', 'info', 'gallery-itsapluginpromise');
         return host.hostReadyPromise().then(
             function() {
                 return new Y.Promise(function (resolve, reject) {
@@ -66,7 +67,6 @@ Y.mix(ITSAPluginPromise.prototype, {
     hostReadyPromise : function() {
         var host = this;
 
-        Y.log('Y.Plugin.Host.hostReadyPromise', 'info', 'gallery-itsapluginpromise');
         if (!host._hostreadypromise) {
             if (host instanceof Y.Base) {
                 host._hostreadypromise = host.renderPromise();
@@ -103,7 +103,6 @@ Y.mix(ITSAPluginPromise.prototype, {
         var host = this,
               args = arguments;
 
-        Y.log('Y.Plugin.Host.plugPromise', 'info', 'gallery-itsapluginpromise');
         return host.hostReadyPromise().then(
             function() {
                 host.plug.apply(host, args);
@@ -117,3 +116,15 @@ Y.mix(ITSAPluginPromise.prototype, {
 Y.Plugin.Host.ITSAPluginPromise = ITSAPluginPromise;
 
 Y.Base.mix(Y.Plugin.Host, [ITSAPluginPromise]);
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-base",
+        "base-build",
+        "pluginhost-base",
+        "event-delegate",
+        "promise",
+        "gallery-itsawidgetrenderpromise"
+    ]
+});

@@ -1,3 +1,5 @@
+YUI.add('gallery-itsapluginpromise', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -117,3 +119,15 @@ Y.mix(ITSAPluginPromise.prototype, {
 Y.Plugin.Host.ITSAPluginPromise = ITSAPluginPromise;
 
 Y.Base.mix(Y.Plugin.Host, [ITSAPluginPromise]);
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-base",
+        "base-build",
+        "pluginhost-base",
+        "event-delegate",
+        "promise",
+        "gallery-itsawidgetrenderpromise"
+    ]
+});

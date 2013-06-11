@@ -1,7 +1,13 @@
 {
     "gallery-itsapluginpromise": {
         "requires": [
-            "yui-base"
+            "yui-base",
+            "base-base",
+            "base-build",
+            "pluginhost-base",
+            "event-delegate",
+            "promise",
+            "gallery-itsawidgetrenderpromise"
         ]
     }
 }
