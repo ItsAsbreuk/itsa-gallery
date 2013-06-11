@@ -26,7 +26,7 @@
  * <b>ModelList.submitPromise()</b>
  *
  * @module gallery-itsamodelsyncpromise
- * @class ITSAModellistSyncPromise
+ * @class Y.ModelList
  * @constructor
  * @since 0.1
  *
