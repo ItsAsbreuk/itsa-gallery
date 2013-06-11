@@ -19,7 +19,7 @@ Examples
 
 Documentation
 --------------
-[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/Y.ErrorReporter.html)
+[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/Y.ITSAErrorReporter.html)
 
 Usage
 -----
