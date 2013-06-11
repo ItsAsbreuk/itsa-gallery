@@ -788,8 +788,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             instance.filescrollview = filescrollview = new Y.ITSAScrollViewModellist({
                 boundingBox: instance._nodeFilemanItems,
-//                height:'394px',
- //               width:'240px',
                 modelTemplate: rendermodel,
                 axis: 'y',
                 modelListStyled: false,
@@ -826,6 +824,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 'selectChange',
                 function(e) {
                     var selecteditem = e.value;
+                    Y.alert(selecteditem);
                     instance.filescrollview.set(
                         'viewFilter',
                         (selecteditem==='all files') ? null : function(fileitem) {
@@ -853,6 +852,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 'selectChange',
                 function(e) {
                     var selecteditem = e.value;
+                    Y.alert(selecteditem);
                 }
             );
             viewSelectNode = Y.Node.create(EMPTY_DIVNODE);
@@ -871,7 +871,34 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             editSelect.after(
                 'selectChange',
                 function(e) {
-                    var selecteditem = e.value;
+                    var selecteditem = e.index;
+                    Y.alert(selecteditem);
+                    switch (selecteditem) {
+                        case 0:
+                            // copy file
+                        break;
+                        case 1:
+                            // rename file
+                        break;
+                        case 2:
+                            // delete file
+                        break;
+                        case 3:
+                            // clone dir
+                        break;
+                        case 4:
+                            // rename dir
+                            Y.prompt('Rename directory', 'Enter new directory-name:')
+                            .then(
+                                function(response) {
+                                    instance.renameDir(response.value);
+                                }
+                            );
+                        break;
+                        case 5:
+                            // delete dir
+                        break;
+                    }
                 }
             );
             editSelectNode = Y.Node.create(EMPTY_DIVNODE);
@@ -1210,6 +1237,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                 return response;
                             },
                             function(err) {
+alert(err);
                                 facade.error = err;
                                 facade.src = syncaction;
                                 instance.fire(EVT_ERROR, facade);
@@ -1850,6 +1878,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "json-parse",
         "tree-sortable",
         "gallery-sm-treeview",
+        "gallery-itsadialog",
         "gallery-itsascrollviewmodellist",
         "gallery-itsawidgetrenderpromise",
         "gallery-itsaselectlist"
