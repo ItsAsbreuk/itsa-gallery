@@ -43,6 +43,16 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
 });```
 
+<b>example disabling error-messages when logging an 'error'</b>
+```js
+YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
+
+    Y.ITSAErrorReporter.reportErrorLogs(false);
+    Y.log('logging an error', error', 'webapp');
+    // no error-pop-up
+
+});```
+
 License
 -------
 

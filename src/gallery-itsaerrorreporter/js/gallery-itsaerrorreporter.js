@@ -7,7 +7,7 @@
  *
  *
  * @module gallery-itsaerrorreporter
- * @class Y.ErrorReporter
+ * @class Y.ITSAErrorReporter
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -91,4 +91,4 @@ if (!Y.Global.ITSAErrorReporter) {
 
 }
 
-Y.ErrorReporter = Y.Global.ITSAErrorReporter;
+Y.ITSAErrorReporter = Y.Global.ITSAErrorReporter;
