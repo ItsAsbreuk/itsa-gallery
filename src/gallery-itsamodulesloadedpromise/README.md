@@ -39,7 +39,7 @@ YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', f
         mydial.render();
     };
 
-    button.on('click',function() {
+    button.on('click', function() {
         Y.usePromise('dial').then(renderDial);
     });
 

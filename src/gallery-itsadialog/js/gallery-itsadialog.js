@@ -139,8 +139,12 @@ if (!Y.Global.ITSADialog) {
         },
 
         /**
-         * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons.<br />
-         * In case of 'login', only the 'OK'
+         * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons, or In case of 'login', only an 'OK'-button.
+         * <br />There are three possible dialog-types:
+         * <br /><b>'input'</b> --> one string-field
+         * <br /><b>'number'</b> --> one integer-field
+         * <br /><b>'login'</b> --> two string-fields - used for username and password (the second field is marked)
+         * <br /> which dialogtype to use can be set with 'options.type'.
          *
          * @method _prompt
          * @param [title] {String} Title on the dialogbox (header).
@@ -221,8 +225,11 @@ if (!Y.Global.ITSADialog) {
         },
 
         /**
-         * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
-         * <b>yes-no</b> and <b>abort-ignore-retry</b> --> this can be set with 'options.type'.
+         * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons.
+         * <br />There are two possible dialog-types:
+         * <br /><b>'yesno'</b> --> comes with yes-no buttons
+         * <br /><b>'retry'</b> --> comes with abort-ignore-retry buttons
+         * <br /> which dialogtype to use can be set with 'options.type'.
          *
          * @method _confirm
          * @param [title] {String} Title on the dialogbox (header).
@@ -324,8 +331,12 @@ if (!Y.Global.ITSADialog) {
 Y.alert = Y.rbind(ITSADialogInstance._alert, ITSADialogInstance);
 
 /**
- * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons.<br />
- * In case of 'login', only the 'OK'
+ * Pops-up an prompt-dialog --> dialog with input-fields and an 'CANCEL' + 'OK' buttons, or In case of 'login', only an 'OK'-button.
+ * <br />There are three possible dialog-types:
+ * <br /><b>'input'</b> --> one string-field
+ * <br /><b>'number'</b> --> one integer-field
+ * <br /><b>'login'</b> --> two string-fields - used for username and password (the second field is marked)
+ * <br /> which dialogtype to use can be set with 'options.type'.
  *
  * @method Y.prompt
  * @param [title] {String} Title on the dialogbox (header).
@@ -347,8 +358,11 @@ Y.alert = Y.rbind(ITSADialogInstance._alert, ITSADialogInstance);
 Y.prompt = Y.rbind(ITSADialogInstance._prompt, ITSADialogInstance);
 
 /**
- * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons. There are two possible buttonsconfigurations:<br />
- * <b>yes-no</b> and <b>abort-ignore-retry</b> --> this can be set with 'options.type'.
+ * Pops-up a confirm-dialog --> dialog with no input-field confirm-buttons.
+ * <br />There are two possible dialog-types:
+ * <br /><b>'yesno'</b> --> comes with yes-no buttons
+ * <br /><b>'retry'</b> --> comes with abort-ignore-retry buttons
+ * <br /> which dialogtype to use can be set with 'options.type'.
  *
  * @method Y.confirm
  * @param [title] {String} Title on the dialogbox (header).
