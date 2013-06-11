@@ -2,7 +2,7 @@ gallery-itsadialog
 ===========
 
 
-This module adds three sugar dialogs to the Y-class:
+This module adds three sugar Promise-dialogs to the Y-class:
 
 
 <b>Y.alert()</b> --> dialog with no input-field and only an 'OK'-button.
