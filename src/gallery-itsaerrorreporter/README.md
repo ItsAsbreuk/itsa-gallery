@@ -2,7 +2,11 @@ gallery-itsaerrorreporter
 ===============
 
 
-This module full automaticly reports error-events by poping up an error-dialog.
+This module full automaticly reports error-events by pop-up an error-dialog.
+
+Catching errors during development (logging) are prominent available now.
+
+Also error-events during production will be shown to the users.
 
 
 By default it listens to both error-events and error-loggings. Both can be (un)set.
