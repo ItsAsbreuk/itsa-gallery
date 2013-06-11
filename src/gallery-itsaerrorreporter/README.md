@@ -32,7 +32,8 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
     Y.fire('error', facade);
     // the event is caught and leads to an error-pop-up
 
-});```
+});
+```
 
 <b>example ErrorReport when logging an 'error'</b>
 ```js
@@ -41,7 +42,8 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
     Y.log('logging an error', error', 'webapp');
     // the logging is caught and leads to an error-pop-up
 
-});```
+});
+```
 
 <b>example disabling error-messages when logging an 'error'</b>
 ```js
@@ -51,7 +53,8 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
     Y.log('logging an error', error', 'webapp');
     // no error-pop-up
 
-});```
+});
+```
 
 License
 -------
