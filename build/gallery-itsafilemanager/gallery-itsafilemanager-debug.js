@@ -73,7 +73,7 @@ var Lang = Y.Lang,
      * @param e.src {String} Source of the error. This is in fact the sync-action that caused the error.
      * @since 0.1
     **/
-    EVT_ERROR = 'error',
+    EVT_ERROR = 'xerror',
 
     PARSTEINT = function(value) {
         return parseInt(value, 10);
@@ -277,20 +277,56 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     boundingBox.removeClass(HIDDEN_CLASS);
                 }
             );
+
+var TESTEVENT = 'testevent';
+
+            Y.on(
+                TESTEVENT,
+                function(e) {
+                    Y.alert(TESTEVENT+' fired by '+e.extra);
+                }
+            );
+
             Y.later(
                 10000,
                 null,
                 function() {
-            Y.log('firing event #'+EVT_ERROR+'#', 'info', 'Itsa-FileManager');
-            Y.use('event-custom', function() {
-                Y.fire('dummy');
-                instance.fire('dummy');
-            })
-            Y.fire(EVT_ERROR);
-            instance.fire(EVT_ERROR);
-
+                    Y.fire(TESTEVENT, {extra: 'Y'});
                 }
             );
+
+var TESTEVENT2 = 'error';
+            Y.on(
+                TESTEVENT2,
+                function(e) {
+                    Y.alert(TESTEVENT2+' fired by '+e.extra);
+                }
+            );
+
+            Y.later(
+                20000,
+                null,
+                function() {
+                    Y.fire(TESTEVENT2, {extra: 'Y'});
+                }
+            );
+
+var TESTEVENT3 = 'testevent3';
+            Y.on(
+                TESTEVENT3,
+                function(e) {
+                    Y.alert(TESTEVENT3+' fired by '+e.extra);
+                }
+            );
+
+            Y.later(
+                20000,
+                null,
+                function() {
+                    Y.fire(TESTEVENT3, {extra: 'Y'});
+                }
+            );
+
         },
 
         /**
@@ -317,10 +353,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             if (!instance.get('statusBar')) {
                 instance._panelFT.setStyle('display', 'none');
             }
-
+/*
             instance.publish(EVT_ERROR, {
                 preventable: false
             });
+*/
             // when the mouse moves, while not resizing, you might be entering the area where resizing may start
             eventhandlers.push(
                 panelBD.on(
@@ -1973,7 +2010,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "json-parse",
         "tree-sortable",
         "gallery-sm-treeview",
-        "gallery-itsaerrorreporter",
         "gallery-itsadialog",
         "gallery-itsascrollviewmodellist",
         "gallery-itsawidgetrenderpromise",
