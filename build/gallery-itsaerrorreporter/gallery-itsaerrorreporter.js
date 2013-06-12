@@ -39,7 +39,7 @@ if (!Y.Global.ITSAErrorReporter) {
             var instance = this,
                   active = (typeof activate===BOOLEAN) ? activate : true;
             if (active && !instance._reportErrorEvents) {
-                instance._reportErrorEvents = Y.after(
+                instance._reportErrorEvents = Y.on(
                     [ERROR, '*:'+ERROR],
                     function(e) {
                         var err = e.err || e.error || e.msg || e.message || UNDEFINED_ERROR,
