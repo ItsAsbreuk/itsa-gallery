@@ -23,6 +23,7 @@ var Lang = Y.Lang,
     YArray = Y.Array,
     IE = Y.UA.ie,
     CHARZERO = '\u0000',
+    PROCESS_ERROR = 'An error occured during processing',
     FILTERITEMS = ['all files','images', 'non-images', 'word', 'excel', 'pdf'],
     VIEWITEMS = ['list', 'thumbnails', 'tree', 'coverflow'],
     EDITITEMS = ['copy file', 'rename file', 'delete file', 'copy dir', 'rename dir', 'delete dir'],
@@ -274,6 +275,19 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     boundingBox.removeClass(HIDDEN_CLASS);
                 }
             );
+            Y.later(
+                10000,
+                null,
+                function() {
+                    Y.log('firing event #'+EVT_ERROR+'#', 'info', 'Itsa-FileManager');
+                    Y.use('event-custom', function() {
+                        Y.fire('dummy');
+                        instance.fire('dummy');
+                    })
+                    Y.fire(EVT_ERROR);
+                    instance.fire(EVT_ERROR);
+                }
+            );
         },
 
         /**
@@ -301,6 +315,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 instance._panelFT.setStyle('display', 'none');
             }
 
+            instance.publish(EVT_ERROR, {
+                preventable: false
+            });
             // when the mouse moves, while not resizing, you might be entering the area where resizing may start
             eventhandlers.push(
                 panelBD.on(
@@ -643,6 +660,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         // private functions
         //=====================================================================
 
+        /**
+         * Creates the internalPromises: this._resizeConstrainPromise, this.readyPromise and this.dataPromise
+         *
+         * @method _createPromises
+         * @private
+         * @since 0.1
+        */
         _createPromises : function() {
             var instance = this;
             instance._resizeConstrainPromise = new Y.Promise(
@@ -695,10 +719,18 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             );
         },
 
+        /**
+         * Promise that resolves when all widgets are finished rendering
+         *
+         * @method _allWidgetsRenderedPromise
+         * @private
+         * @return {Y.Promise}
+         * @since 0.1
+        */
         _allWidgetsRenderedPromise : function() {
             var instance = this;
             return Y.batch(
-//                 instance.tree.renderPromise(), // Y.TreeView doesn't have/need a renderpromise --> it renders synchronious
+                 // NO instance.tree.renderPromise() --> Y.TreeView doesn't have/need a renderpromise, it renders synchronious.
                  instance._resizeConstrainPromise,
                  instance.filterSelect.renderPromise(),
                  instance.viewSelect.renderPromise(),
@@ -1096,18 +1128,26 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             }
         },
 
+        /**
+         * Dynamically creates the next Class-methods:<br />
+         * 'loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
+         * 'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'
+         *
+         * @method _createMethods
+         * @private
+         * @protected
+         * @since 0.1
+        */
         _createMethods : function() {
             Y.log('_createMethods', 'info', 'Itsa-FileManager');
 
-            var instance = this,
-                  tree;
+            var instance = this;
             YArray.each(
                 ['loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
                  'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
                     instance[syncaction] = function(param1) {
-                        var options = {},
-                              facade;
+                        var options = {};
                         Y.log(syncaction, 'info', 'Itsa-FileManager');
                         // in order to handle the syncaction well, the filemanager-instance must have been rendered.
                         // If not, then we render it now. At the very end or renderer(), there will be an 'instance.ready'-event
@@ -1169,83 +1209,137 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.currentDir = instance.getCurrentDir();
                             options.destinationDir = param1;
                         }
-                        facade = {
-                            options: options
-                        };
-                        return instance.readyPromise.then(
-                            Y.bind(instance.sync, instance, syncaction, options)
-                        ).then(
-                            function(response) {
-                                // Lazy publish.
-                                if (!instance['_'+syncaction]) {
-                                    instance['_'+syncaction] = instance.publish(syncaction, {
-                                        preventable: false
-                                    });
-                                }
-                                // now we need process the response
-                                if (syncaction === 'loadFiles') {
-                                    instance.files.reset(PARSE(response));
-                                }
-                                else if (syncaction === 'loadAppendFiles') {
-                                    // ....
-                                }
-                                else if ((syncaction === 'loadTreeLazy') && instance.get('lazyRender')) {
-                                    if (!instance._rootVisible) {
-                                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
-                                    }
-                                    instance.tree.insertNode(param1, PARSE(response));
-                                }
-                                else if (syncaction === 'renameFiles') {
-                                    // ....
-                                }
-                                else if (syncaction === 'renameDir') {
-                                    // ....
-                                }
-                                else if (syncaction === 'deleteFiles') {
-                                    // ....
-                                }
-                                else if (syncaction === 'deleteDir') {
-                                    // ....
-                                }
-                                else if (syncaction === 'createDir') {
-                                    // ....
-                                }
-                                else if (syncaction === 'moveDir') {
-                                    // ....
-                                }
-                                else if (syncaction === 'moveFiles') {
-                                    // ....
-                                }
-                                else if (syncaction === 'cloneDir') {
-                                    // ....
-                                }
-                                else if (syncaction === 'copyFiles') {
-                                    // ....
-                                }
-                                else if ((syncaction === 'loadTree') && !instance.get('lazyRender')) {
-                                    tree = instance.tree;
-                                    if (!instance._rootVisible) {
-                                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
-                                    }
-                                    tree.insertNode(tree.rootNode, PARSE(response));
-                                }
-                                // end of processing, now fire event
-                                facade.response = response;
-                                instance.fire(syncaction, facade);
-                                return response;
-                            },
-                            function(err) {
-alert(err);
-                                facade.error = err;
-                                facade.src = syncaction;
-                                instance.fire(EVT_ERROR, facade);
-                                return err;
-                            }
-                        );
+                        return instance.readyPromise
+                                    .then(
+                                        Y.bind(instance.sync, instance, syncaction, options)
+                                    )
+                                    .then(
+                                        Y.rbind(instance._handleSync, instance, syncaction, options, param1),
+                                        Y.rbind(instance._handleSyncError, instance, syncaction, options)
+                                    );
                     };
                 }
             );
         },
+
+        /**
+         * Method that handles any sync-error or error-data returned from the server (defined by 'error'-property in the response).
+         *
+         * @method _handleSyncError
+         * @param reason {Object} The rejected value by the syncpromise
+         * @param syncaction {Object} The original syncaction
+         * @param options {Object} The options that were passed with the syncaction
+         * @private
+         * @return {Object} reason --> returns the promised reason for failure, so it can be chained.
+         * @since 0.1
+        */
+       _handleSyncError : function(reason, syncaction, options) {
+            var instance = this,
+                  facade;
+
+            instance.fire(EVT_ERROR);
+            Y.fire(EVT_ERROR);
+
+            Y.log('_handleSyncError error processing '+syncaction+' --> '+reason, 'error', 'Itsa-FileManager');
+
+            Y.log('_handleSyncError error processing '+syncaction+' --> '+reason, 'warn', 'Itsa-FileManager');
+            facade = {
+                options: options,
+                error: reason,
+                src: syncaction
+            };
+            instance.fire(EVT_ERROR, facade);
+            Y.fire(EVT_ERROR, facade);
+            return reason;
+       },
+
+        /**
+         * Method that handles the sync-response returned from the server.
+         *
+         * @method _handleSync
+         * @param reason {Object} The rejected value by the syncpromise
+         * @param syncaction {Object} The original syncaction
+         * @param options {Object} The options that were passed with the syncaction
+         * @param param1 {Any} The first parameter that was passed into the sync-action
+         * @private
+         * @return {Object} reason --> returns the promised reason for failure, so it can be chained.
+         * @since 0.1
+        */
+       _handleSync : function(response, syncaction, options, param1) {
+            var instance = this,
+                  parsedResponse = PARSE(response),
+                  err = parsedResponse.error,
+                  tree, facade;
+
+            Y.log('_handleSync '+syncaction + ' --> ' + response, 'info', 'Itsa-FileManager');
+            if (err) {
+                return instance._handleSyncError(err.description || PROCESS_ERROR, syncaction, options);
+            }
+            else {
+                facade = {
+                    response: response,
+                    options: options
+                };
+                // Lazy publish.
+                if (!instance['_'+syncaction]) {
+                    instance['_'+syncaction] = instance.publish(syncaction, {
+                        preventable: false
+                    });
+                }
+                // now we need process the response
+                if (syncaction === 'loadFiles') {
+                    instance.files.reset(parsedResponse);
+                }
+                else if (syncaction === 'loadAppendFiles') {
+                    // ....
+                }
+                else if ((syncaction === 'loadTreeLazy') && instance.get('lazyRender')) {
+                    if (!instance._rootVisible) {
+                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
+                    }
+                    instance.tree.insertNode(param1, parsedResponse);
+                }
+                else if (syncaction === 'renameFiles') {
+                    // ....
+                }
+                else if (syncaction === 'renameDir') {
+                    // ....
+                }
+                else if (syncaction === 'deleteFiles') {
+                    // ....
+                }
+                else if (syncaction === 'deleteDir') {
+                    // ....
+                }
+                else if (syncaction === 'createDir') {
+                    // ....
+                }
+                else if (syncaction === 'moveDir') {
+                    // ....
+                }
+                else if (syncaction === 'moveFiles') {
+                    // ....
+                }
+                else if (syncaction === 'cloneDir') {
+                    // ....
+                }
+                else if (syncaction === 'copyFiles') {
+                    // ....
+                }
+                else if ((syncaction === 'loadTree') && !instance.get('lazyRender')) {
+                    tree = instance.tree;
+                    if (!instance._rootVisible) {
+                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
+                    }
+                    tree.insertNode(tree.rootNode, parsedResponse);
+                }
+                // end of processing, now fire event
+                instance.fire(syncaction, facade);
+                return response;
+            }
+        },
+
+
 
         /**
          * Will toggle-off the cursor col-resize
