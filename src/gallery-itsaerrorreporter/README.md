@@ -10,6 +10,11 @@ Also error-events during production will be shown to the users.
 
 
 By default it listens to both error-events and error-loggings. Both can be (un)set.
+The 'error'-events MUST confirm the following rules:
+
+* Do <b>not fire</b> Y.fire('error') --> because 'error' is a dom-event, the subscriber could fail to catch the event under some circumstances.
+* Always fire through the instance (sub-class of EventTarget) --> for instance: yourModel.fire('error');
+* Always make sure your instance targets Y. Either by <b>yourModel.addTarget(Y);</b>, or by <b>yourModel.publish('error', {broadcast: 1});</b> which also could be done inside the class-definition.
 
 
 
@@ -26,10 +31,15 @@ Usage
 
 <b>ErrorReport when fireing an 'error'-event</b>
 ```js
-YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
+YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
 
-    var facade = {src: 'webapplication', msg: 'Simulating an error'};
-    Y.fire('error', facade);
+    var mymodel, facade;
+
+    mymodel = new Y.Model();
+    facade = {src: 'webapplication', msg: 'Simulating an error'};
+
+    mymodel.addTarget(Y);
+    mymodel.fire('error', facade);
     // the event is caught and leads to an error-pop-up
 
 });
@@ -47,6 +57,19 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
 <b>Disabling error-messages when logging an 'error'</b>
 ```js
+YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
+
+    var mymodel, facade;
+
+    Y.ITSAErrorReporter.reportErrorLogs(false);
+    mymodel = new Y.Model();
+    facade = {src: 'webapplication', msg: 'Simulating an error'};
+
+    mymodel.addTarget(Y);
+    mymodel.fire('error', facade);
+    // the event is caught and leads to an error-pop-up
+
+});
 YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
     Y.ITSAErrorReporter.reportErrorLogs(false);
