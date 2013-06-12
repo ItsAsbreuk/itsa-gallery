@@ -71,7 +71,7 @@ var Lang = Y.Lang,
      * @param e.src {String} Source of the error. This is in fact the sync-action that caused the error.
      * @since 0.1
     **/
-    EVT_ERROR = 'xerror',
+    EVT_ERROR = 'error',
 
     PARSTEINT = function(value) {
         return parseInt(value, 10);
@@ -265,6 +265,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._halfBorderFlowArea = 0;
             instance._mouseOffset = 0;
             instance._bodyNode = Y.one('body');
+            instance.publish(EVT_ERROR, {
+                preventable: false,
+                broadcast: 1  // --> to make it catchable by itsaerrorreporter
+            });
             instance._createPromises();
             // extend the time that the widget is invisible
             boundingBox.addClass(HIDDEN_CLASS);
@@ -275,56 +279,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     boundingBox.removeClass(HIDDEN_CLASS);
                 }
             );
-
-var TESTEVENT = 'testevent';
-
-            Y.on(
-                TESTEVENT,
-                function(e) {
-                    Y.alert(TESTEVENT+' fired by '+e.extra);
-                }
-            );
-
-            Y.later(
-                10000,
-                null,
-                function() {
-                    Y.fire(TESTEVENT, {extra: 'Y'});
-                }
-            );
-
-var TESTEVENT2 = 'error';
-            Y.on(
-                TESTEVENT2,
-                function(e) {
-                    Y.alert(TESTEVENT2+' fired by '+e.extra);
-                }
-            );
-
-            Y.later(
-                20000,
-                null,
-                function() {
-                    Y.fire(TESTEVENT2, {extra: 'Y'});
-                }
-            );
-
-var TESTEVENT3 = 'testevent3';
-            Y.on(
-                TESTEVENT3,
-                function(e) {
-                    Y.alert(TESTEVENT3+' fired by '+e.extra);
-                }
-            );
-
-            Y.later(
-                20000,
-                null,
-                function() {
-                    Y.fire(TESTEVENT3, {extra: 'Y'});
-                }
-            );
-
         },
 
         /**
