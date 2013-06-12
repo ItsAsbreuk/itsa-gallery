@@ -281,13 +281,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     boundingBox.removeClass(HIDDEN_CLASS);
                 }
             );
-            Y.later(
-                10000,
-                null,
-                function() {
-                    Y.log('initializer', 'error', 'Itsa-FileManager');
-                }
-            );
         },
 
         /**
