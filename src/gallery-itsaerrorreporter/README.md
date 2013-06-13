@@ -31,7 +31,7 @@ Usage
 
 <b>ErrorReport when fireing an 'error'-event</b>
 ```js
-YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
 
     var mymodel, facade;
 
@@ -47,7 +47,7 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
 
 <b>ErrorReport when logging an 'error'</b>
 ```js
-YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', function(Y) {
 
     Y.log('logging an error', 'error', 'webapp');
     // the logging is caught and leads to an error-pop-up
@@ -57,7 +57,7 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
 
 <b>Disabling error-messages when logging an 'error'</b>
 ```js
-YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
 
     var mymodel, facade;
 
@@ -68,13 +68,6 @@ YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
     mymodel.addTarget(Y);
     mymodel.fire('error', facade);
     // the event is caught and leads to an error-pop-up
-
-});
-YUI({gallery: 'next'}).use('gallery-itsaerrorreporter', function(Y) {
-
-    Y.ITSAErrorReporter.reportErrorLogs(false);
-    Y.log('logging an error', 'error', 'webapp');
-    // no error-pop-up
 
 });
 ```
