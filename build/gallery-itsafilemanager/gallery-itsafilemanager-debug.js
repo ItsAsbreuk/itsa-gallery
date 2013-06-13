@@ -377,6 +377,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             return this._currentDir;
         },
 
+        getCurrentDirTreeNode : function() {
+            return this._currentDirTreeNode;
+        },
+
         /**
          * Sugarmethod to hide the flow. Passes through to the 'flow' attribute.
          *
@@ -788,6 +792,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._renderToolbar();
             // now we create the directory tree
             instance._renderTree();
+            instance._currentDirTreeNode = instance.tree.rootNode;
             // now we create the files tree:
             instance._renderFiles();
         },
@@ -831,6 +836,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
         _renderToolbar : function() {
             var instance = this,
+                  eventhandlers = instance._eventhandlers,
                   filterSelect, viewSelect, editSelect, filterSelectNode, viewSelectNode, editSelectNode, createDirNode, createUploadNode;
 
             Y.log('_renderFiles', 'info', 'Itsa-FileManager');
@@ -895,7 +901,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             editSelect.after(
                 'selectChange',
                 function(e) {
-                    var selecteditem = e.index;
+                    var selecteditem = e.index,
+                          currentName;
                     Y.alert(selecteditem);
                     switch (selecteditem) {
                         case 0:
@@ -909,18 +916,33 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         break;
                         case 3:
                             // clone dir
+                            currentName = instance.getCurrentDirTreeNode.label;
+                            Y.prompt('Duplicate directory '+currentName, 'Enter the directory-name of the duplicated directory:',currentName+'-copy')
+                            .then(
+                                function(response) {
+                                    instance.cloneDir(Y.Escape.html(response.value));
+                                }
+                            );
                         break;
                         case 4:
                             // rename dir
-                            Y.prompt('Rename directory', 'Enter new directory-name:')
+                            currentName = instance.getCurrentDirTreeNode.label;
+                            Y.prompt('Rename directory '+currentName, 'Enter new directory-name:', currentName)
                             .then(
                                 function(response) {
-                                    instance.renameDir(response.value);
+                                    instance.renameDir(Y.Escape.html(response.value));
                                 }
                             );
                         break;
                         case 5:
                             // delete dir
+                            currentName = instance.getCurrentDirTreeNode.label;
+                            Y.alert('Delete directory', 'Are you sure you want to delete '+currentName+' and all of its content?', {type: 'warn'})
+                            .then(
+                                function() {
+                                    instance.deleteDir();
+                                }
+                            );
                         break;
                     }
                 }
@@ -932,6 +954,17 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             // render the create dir button:
             //=====================
             createDirNode = Y.Node.create(Lang.sub(EMPTY_BUTTONNODE, {text: 'create dir'}));
+            eventhandlers.push(
+                createDirNode.on('click', function() {
+                    var currentName = instance.getCurrentDirTreeNode.label;
+                    Y.prompt('Create sub-directory of '+currentName, 'Enter new directory-name:', 'New Directory')
+                    .then(
+                        function(response) {
+                            instance.createDir(Y.Escape.html(response.value));
+                        }
+                    );
+                })
+            );
             instance._nodeFilemanToolbar.append(createDirNode);
             //=====================
             // render the create dir button:
@@ -1013,6 +1046,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         rootnode.addClass(TREEVIEW_SELECTED_CLASS);
                         rootnode.focus();
                         instance._currentDir = '/';
+                        instance._currentDirTreeNode = tree.rootNode;
                         instance.loadFiles();
                         YArray.each(
                             tree.getSelectedNodes(),
@@ -1297,7 +1331,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // ....
                 }
                 else if (syncaction === 'renameDir') {
-                    // ....
+                    instance.getCurrentDirTreeNode.label = options.newDirName;
+                    instance.sort();
+                    instance.tree.render();
                 }
                 else if (syncaction === 'deleteFiles') {
                     // ....
@@ -1370,6 +1406,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             if (treenode.canHaveChildren) {
                 instance._currentDir = treenode.getTreeInfo('label') + '/';
+                instance._currentDirTreeNode = treenode;
                 instance.loadFiles();
             }
         },
