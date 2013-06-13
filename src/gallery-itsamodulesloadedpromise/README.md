@@ -29,7 +29,7 @@ Usage
 <button id='mybutton'>Click to render Dial</button>
 ```
 ```js
-YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('node', 'gallery-itsamodulesloadedpromise', function(Y) {
 
     var button, renderdial, mydial;
 
@@ -51,7 +51,7 @@ YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', f
 <button id='mybutton'>Click to render Dial</button>
 ```
 ```js
-YUI({gallery: 'gallery-next'}).use('node', 'gallery-itsamodulesloadedpromise', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('node', 'gallery-itsamodulesloadedpromise', function(Y) {
 
     var button, renderWidgets, mydial, myslider;
 
