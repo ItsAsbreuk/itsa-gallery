@@ -34,7 +34,7 @@ Usage
 
 <b>example Y.alert()</b>
 ```js
-YUI({gallery: 'gallery-next'}).use('gallery-itsadialog', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsadialog', function(Y) {
 
     Y.alert('Wow, this is very nice!');
 
@@ -43,7 +43,7 @@ YUI({gallery: 'gallery-next'}).use('gallery-itsadialog', function(Y) {
 
 <b>example Y.confirm() with 'abort-ignore-retry'-buttons</b>
 ```js
-YUI({gallery: 'gallery-next'}).use('gallery-itsadialog', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsadialog', function(Y) {
 
     Y.confirm('IO-error', 'Read-write failure', {type: 'retry', defaultBtn: 'abort'}).then(
         function(response) {
@@ -60,7 +60,7 @@ YUI({gallery: 'gallery-next'}).use('gallery-itsadialog', function(Y) {
 
 <b>example Y.prompt() to retrieve username+password</b>
 ```js
-YUI({gallery: 'gallery-next'}).use('gallery-itsadialog', function(Y) {
+YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsadialog', function(Y) {
 
     Y.prompt('Login', 'Enter login', {type: 'login'}).then(
         function(response) {
