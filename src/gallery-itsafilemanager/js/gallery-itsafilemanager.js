@@ -224,7 +224,7 @@ Y.Tree.Node.prototype.getTreeInfo = function(field) {
 };
 
 // Y.TreeView has no renderpromise, but doesn't need one: it renders synchronious
-Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sortable], {
+Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.TreeView.Sortable], {
         sortComparator: function (node) {
             // directories are appended by char(0) --> this will make them appear on top
             return (node.canHaveChildren ? CHARZERO : '') + node.label;
@@ -1295,7 +1295,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   parsedResponse = PARSE(response),
                   err = parsedResponse.error,
-                  tree, facade;
+                  tree, facade, changedTreeNode;
 
             Y.log('_handleSync '+syncaction + ' --> ' + response, 'info', 'Itsa-FileManager');
             if (err) {
@@ -1329,9 +1329,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // ....
                 }
                 else if (syncaction === 'renameDir') {
-                    instance.getCurrentDirTreeNode.label = options.newDirName;
-                    instance.sort();
-                    instance.tree.render();
+                    changedTreeNode = instance.getCurrentDirTreeNode;
+                    changedTreeNode.label = options.newDirName;
+//           treeview.renderNode(changedNode);
+                    changedTreeNode.parent.sort(); // will rerender the children-nodes, making the new dirname visible as well.
+
+
                 }
                 else if (syncaction === 'deleteFiles') {
                     // ....

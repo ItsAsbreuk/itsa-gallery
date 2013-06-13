@@ -226,7 +226,7 @@ Y.Tree.Node.prototype.getTreeInfo = function(field) {
 };
 
 // Y.TreeView has no renderpromise, but doesn't need one: it renders synchronious
-Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.Tree.Sortable], {
+Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.TreeView.Sortable], {
         sortComparator: function (node) {
             // directories are appended by char(0) --> this will make them appear on top
             return (node.canHaveChildren ? CHARZERO : '') + node.label;
@@ -1278,7 +1278,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   parsedResponse = PARSE(response),
                   err = parsedResponse.error,
-                  tree, facade;
+                  tree, facade, changedTreeNode;
 
             if (err) {
                 return instance._handleSyncError(err.description || PROCESS_ERROR, syncaction, options);
@@ -1311,9 +1311,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // ....
                 }
                 else if (syncaction === 'renameDir') {
-                    instance.getCurrentDirTreeNode.label = options.newDirName;
-                    instance.sort();
-                    instance.tree.render();
+                    changedTreeNode = instance.getCurrentDirTreeNode;
+                    changedTreeNode.label = options.newDirName;
+//           treeview.renderNode(changedNode);
+                    changedTreeNode.parent.sort(); // will rerender the children-nodes, making the new dirname visible as well.
+
+
                 }
                 else if (syncaction === 'deleteFiles') {
                     // ....
@@ -1970,8 +1973,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "lazy-model-list",
         "promise",
         "json-parse",
-        "tree-sortable",
         "gallery-sm-treeview",
+        "gallery-sm-treeview-sortable",
         "gallery-itsaerrorreporter",
         "gallery-itsadialog",
         "gallery-itsascrollviewmodellist",
