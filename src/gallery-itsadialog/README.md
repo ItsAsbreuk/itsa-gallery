@@ -2,6 +2,13 @@ gallery-itsadialog
 ===========
 
 
+Notion: due to an error, the widget is not made skinable
+--------------------------------------------
+
+This will be fixed in the next cdn push
+
+
+
 This module adds three sugar Promise-dialogs to the Y-class:
 
 
