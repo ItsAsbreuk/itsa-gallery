@@ -31,7 +31,7 @@ var LOADDELAY = 5000, // lazy load 'gallery-itsadialogbox' after 5 seconds
       INPUT = 'input',
       NUMBER = 'number',
       LOGIN = 'login',
-      WARNING = 'warning',
+      WARN = 'warn',
       OBJECT = 'object',
       CONFIRMATION_BUTTONS = {
           footer: [
@@ -69,8 +69,8 @@ if (!Y.Global.ITSADialog) {
                   ItsaDialog = Y.Global.ItsaDialog;
 
             Y.log('_getFunction', 'info', 'Itsa-Dialog');
-            if (type===WARNING) {
-                useFunction = Y.bind(ItsaDialog.showWarning, ItsaDialog);
+            if (type===WARN) {
+                useFunction = Y.bind(ItsaDialog.showWARN, ItsaDialog);
             }
             else if (type===ERROR) {
                 useFunction = Y.bind(ItsaDialog.showErrorMessage, ItsaDialog);
@@ -104,7 +104,7 @@ if (!Y.Global.ITSADialog) {
          * @param [title] {String} Title on the dialogbox (header).
          * @param message {String} Message to display. (may be the first argument)
          * @param [options] {object}
-         * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+         * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warn'|'error' (null == 'message')
          * @private
          * @return {Y.Promise}
          * <br />resolve() --> without parameters, no reject.
@@ -323,7 +323,7 @@ if (!Y.Global.ITSADialog) {
  * @param [title] {String} Title on the dialogbox (header).
  * @param message {String} Message to display. (may be the first argument)
  * @param [options] {object}
- * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warning'|'error' (null == 'message')
+ * @param [options.type] {String} Determines which dialogbox to pop-up --> null|'message'|'warn'|'error' (null == 'message')
  * @return {Y.Promise}
  * <br />resolve() --> without parameters, no reject.
  * @since 0.1

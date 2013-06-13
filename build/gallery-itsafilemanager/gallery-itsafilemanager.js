@@ -778,13 +778,12 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     )
                 );
             }
-            // init the value of the current selected tree
-            instance._currentDir  = '/';
             // now we create the toolbar
             instance._renderToolbar();
             // now we create the directory tree
             instance._renderTree();
-            instance._currentDirTreeNode = instance.tree.rootNode;
+            // init the value of the current selected tree, but do not load the files
+            instance._selectRootNode(true);
             // now we create the files tree:
             instance._renderFiles();
         },
@@ -893,7 +892,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 function(e) {
                     var selecteditem = e.index,
                           currentName;
-                    Y.alert(selecteditem);
                     switch (selecteditem) {
                         case 0:
                             // copy file
@@ -906,8 +904,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         break;
                         case 3:
                             // clone dir
-                            currentName = instance.getCurrentDirTreeNode.label;
-                            Y.prompt('Duplicate directory '+currentName, 'Enter the directory-name of the duplicated directory:',currentName+'-copy')
+                            currentName = instance._currentDirTreeNode.label;
+                            Y.prompt('Duplicate directory '+currentName, 'Enter the directory-name of the duplicated directory:',
+                                            {value: currentName+'-copy'})
                             .then(
                                 function(response) {
                                     instance.cloneDir(Y.Escape.html(response.value));
@@ -916,8 +915,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         break;
                         case 4:
                             // rename dir
-                            currentName = instance.getCurrentDirTreeNode.label;
-                            Y.prompt('Rename directory '+currentName, 'Enter new directory-name:', currentName)
+                            currentName = instance._currentDirTreeNode.label;
+                            Y.prompt('Rename directory '+currentName, 'Enter new directory-name:', {value: currentName})
                             .then(
                                 function(response) {
                                     instance.renameDir(Y.Escape.html(response.value));
@@ -926,8 +925,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         break;
                         case 5:
                             // delete dir
-                            currentName = instance.getCurrentDirTreeNode.label;
-                            Y.alert('Delete directory', 'Are you sure you want to delete '+currentName+' and all of its content?', {type: 'warn'})
+                            currentName = instance._currentDirTreeNode.label;
+                            Y.confirm('Delete directory', 'Are you sure you want to delete \''+currentName+'\'<br />and all of its content?')
                             .then(
                                 function() {
                                     instance.deleteDir();
@@ -946,8 +945,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             createDirNode = Y.Node.create(Lang.sub(EMPTY_BUTTONNODE, {text: 'create dir'}));
             eventhandlers.push(
                 createDirNode.on('click', function() {
-                    var currentName = instance.getCurrentDirTreeNode.label;
-                    Y.prompt('Create sub-directory of '+currentName, 'Enter new directory-name:', 'New Directory')
+                    var currentName = instance._currentDirTreeNode.label;
+                    Y.prompt('Create sub-directory of '+currentName, 'Enter new directory-name:', {value: 'New Directory'})
                     .then(
                         function(response) {
                             instance.createDir(Y.Escape.html(response.value));
@@ -1025,26 +1024,33 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             //============================
             // attach events to the rootnode the root node
             //============================
-            rootnode = instance._nodeFilemanTreeRoot;
             // When clicked, set the right tab-index and load the rootfiles
             eventhandlers.push(
                 rootnode.on(
                     'click',
-                    function() {
-                        rootnode.set('tabIndex', 0);
-                        rootnode.addClass(TREEVIEW_SELECTED_CLASS);
-                        rootnode.focus();
-                        instance._currentDir = '/';
-                        instance._currentDirTreeNode = tree.rootNode;
-                        instance.loadFiles();
-                        YArray.each(
-                            tree.getSelectedNodes(),
-                            function(treenode) {
-                                treenode.unselect();
-                            }
-                        );
-                    }
+                    instance._selectRootNode,
+                    instance
                 )
+            );
+        },
+
+        _selectRootNode : function(withoutFileLoad) {
+            var instance = this,
+                  tree = instance.tree,
+                  rootnode = instance._nodeFilemanTreeRoot;
+            rootnode.set('tabIndex', 0);
+            rootnode.addClass(TREEVIEW_SELECTED_CLASS);
+            rootnode.focus();
+            instance._currentDir = '/';
+            instance._currentDirTreeNode = tree.rootNode;
+            if (!withoutFileLoad) {
+                instance.loadFiles();
+            }
+            YArray.each(
+                tree.getSelectedNodes(),
+                function(treenode) {
+                    treenode.unselect();
+                }
             );
         },
 
@@ -1278,7 +1284,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   parsedResponse = PARSE(response),
                   err = parsedResponse.error,
-                  tree, facade, changedTreeNode;
+                  tree = instance.tree,
+                  lazyRender = instance.get('lazyRender'),
+                  facade, changedTreeNode, dirName, parentnode;
 
             if (err) {
                 return instance._handleSyncError(err.description || PROCESS_ERROR, syncaction, options);
@@ -1301,31 +1309,47 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 else if (syncaction === 'loadAppendFiles') {
                     // ....
                 }
-                else if ((syncaction === 'loadTreeLazy') && instance.get('lazyRender')) {
+                else if ((syncaction === 'loadTreeLazy') && lazyRender) {
                     if (!instance._rootVisible) {
                         instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
                     }
-                    instance.tree.insertNode(param1, parsedResponse);
+                    tree.insertNode(param1, parsedResponse);
                 }
                 else if (syncaction === 'renameFiles') {
                     // ....
                 }
                 else if (syncaction === 'renameDir') {
-                    changedTreeNode = instance.getCurrentDirTreeNode;
+                    changedTreeNode = instance._currentDirTreeNode;
                     changedTreeNode.label = options.newDirName;
-//           treeview.renderNode(changedNode);
                     changedTreeNode.parent.sort(); // will rerender the children-nodes, making the new dirname visible as well.
-
-
+                    instance._currentDir = changedTreeNode.getTreeInfo('label') + '/';
                 }
                 else if (syncaction === 'deleteFiles') {
                     // ....
                 }
                 else if (syncaction === 'deleteDir') {
-                    // ....
+                    changedTreeNode = instance._currentDirTreeNode;
+                    parentnode = changedTreeNode.parent;
+                    tree.removeNode(changedTreeNode, {destroy: true});
+                    // now select its parentnode
+                    if (parentnode === tree.rootNode) {
+                        instance._selectRootNode();
+                    }
+                    else {
+                        tree.selectNode(parentnode);
+                    }
                 }
                 else if (syncaction === 'createDir') {
-                    // ....
+                    // Be careful: when LazyRender and the node has no content yet, the new directory  must not be inserted
+                    // Opening the treenode would load all subdirs and leads to double reference
+                    changedTreeNode = instance._currentDirTreeNode;
+                    if (!lazyRender || changedTreeNode.state.loaded || (changedTreeNode === tree.rootNode)) {
+                        dirName = parsedResponse.result; // the directoryname that was created on the server .
+                                                                               // this can be different from the requested dirname.
+                        tree.insertNode(changedTreeNode, {label: dirName, canHaveChildren: true});
+                        // always open the node to let the new directory be shown
+                    }
+                    tree.openNode(changedTreeNode);
                 }
                 else if (syncaction === 'moveDir') {
                     // ....
@@ -1339,8 +1363,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 else if (syncaction === 'copyFiles') {
                     // ....
                 }
-                else if ((syncaction === 'loadTree') && !instance.get('lazyRender')) {
-                    tree = instance.tree;
+                else if ((syncaction === 'loadTree') && !lazyRender) {
                     if (!instance._rootVisible) {
                         instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
                     }
