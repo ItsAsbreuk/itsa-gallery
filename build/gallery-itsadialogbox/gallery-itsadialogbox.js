@@ -1482,5 +1482,6 @@ Y.ITSAFORMELEMENT = Y.Base.create('itsaformelement', Y.Base, [], {
         "node-core",
         "oop",
         "gallery-itsaformelement"
-    ]
+    ],
+    "skinnable": true
 });
