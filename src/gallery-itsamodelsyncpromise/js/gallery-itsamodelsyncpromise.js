@@ -115,8 +115,8 @@
                         };
                     if (err) {
                         facade.error = err;
-                        facade.src   = 'submit';
-                        instance.fire(EVT_ERROR, facade);
+                        facade.src   = 'Model.submitPromise()';
+                        instance._lazyFireErrorEvent(facade);
                         reject(new Error(err));
                     }
                     else {
@@ -165,8 +165,8 @@
                         };
                     if (err) {
                         facade.error = err;
-                        facade.src   = 'load';
-                        instance.fire(EVT_ERROR, facade);
+                        facade.src   = 'Model.loadPromise()';
+                        instance._lazyFireErrorEvent(facade);
                         reject(new Error(err));
                     }
                     else {
@@ -218,7 +218,8 @@
                 instance._validate(instance.toJSON(), function (validateErr) {
                     if (validateErr) {
                         facade.error = validateErr;
-                        instance.fire(EVT_ERROR, facade);
+                        facade.scr = 'Model.savePromise() - validate';
+                        instance._lazyFireErrorEvent(facade);
                         reject(new Error(validateErr));
                     }
                     else {
@@ -227,8 +228,8 @@
                             facade.response = response;
                             if (err) {
                                 facade.error = err;
-                                facade.src   = 'save';
-                                instance.fire(EVT_ERROR, facade);
+                                facade.src   = 'Model.savePromise()';
+                                instance._lazyFireErrorEvent(facade);
                                 reject(new Error(err));
                             }
                             else {
@@ -284,10 +285,10 @@
                             if (err) {
                                 var facade = {
                                     error   : err,
-                                    src     : 'destroy',
+                                    src     : 'Model.destroyPromise()',
                                     options : options
                                 };
-                                instance.fire(EVT_ERROR, facade);
+                                instance._lazyFireErrorEvent(facade);
                                 reject(new Error(err));
                             }
                             else {
@@ -306,6 +307,27 @@
                     Y.Model.superclass.destroy.call(instance);
                 }
             );
+        },
+
+       /**
+        * Fires the 'error'-event and -if not published yet- publish it broadcasted to Y.
+        * Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
+        *
+        * @method _lazyFireErrorEvent
+         * @param {Object} [facade] eventfacade.
+         * @private
+        **/
+        _lazyFireErrorEvent : function(facade) {
+            var instance = this;
+
+            Y.log('_lazyFireErrorEvent', 'info', 'Itsa-ModellistSyncPromise');
+            // lazy publish
+            if (!instance._errorEvent) {
+                instance._errorEvent = instance.publish(EVT_ERROR, {
+                    broadcast: 1
+                });
+            }
+            instance.fire(EVT_ERROR, facade);
         }
 
     }, true);
