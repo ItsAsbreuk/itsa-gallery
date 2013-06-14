@@ -12,7 +12,7 @@
             "pluginhost-base",
             "lazy-model-list",
             "promise",
-            "json-parse",
+            "json",
             "gallery-sm-treeview",
             "gallery-sm-treeview-sortable",
             "gallery-itsaerrorreporter",

@@ -1,5 +1,6 @@
 .yui3-skin-sam .yui3-panel.yui3-itsafilemanager .yui3-widget-hd {
     padding: 0;
+    background-color: #3961c5;
     background: -moz-linear-gradient(
         0% 50% 90deg,
         #2647a0 7%,
@@ -100,6 +101,11 @@ background: none;
     max-width: 100%;
 }
 
+.yui3-itsafilemanager-items li.itsa-model-selected img {
+    border: solid 1px #3961c5;
+    opacity: 0.5;
+    filter:alpha(opacity=50); /* For IE8 and earlier */
+}
 
 .yui3-itsafilemanager-itsaresehandlerx {
     cursor:col-resize;
