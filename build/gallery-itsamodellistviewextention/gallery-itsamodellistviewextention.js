@@ -2316,12 +2316,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 'tap',
                 Y.rbind(instance._handleModelSelectionChange, instance),
                 function(node, e) {
-                    // Only handle click-event when there was motion less than 'clickSensivity' pixels
-                    var scrollingInAction = false,
+                    // The 'tap'-event will make no firing on mousemovements, so we don't need to check lastScrolledAmt
 //                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
-                        buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
+                    var buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
                                        ',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
-                    return (!scrollingInAction && !buttonOrLink && this.hasClass(MODEL_CLASS));
+                    return (!buttonOrLink && this.hasClass(MODEL_CLASS));
                 }
             );
         }
@@ -2361,12 +2360,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     instance.fire('modelClick', {node: node, model: model});
                 },
                 function(node, e) {
-                    // Only handle click-event when there was motion less than 'clickSensivity' pixels
-                    var scrollingInAction = false,
+                    // The 'tap'-event will make no firing on mousemovements, so we don't need to check lastScrolledAmt
 //                    var scrollingInAction = (Math.abs(instance.lastScrolledAmt) > instance.get('clickSensivity')),
-                        buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
+                    var buttonOrLink = e.target.test('input[type=button],button,a,.focusable,.'+ITSABUTTON_DATETIME_CLASS+
                                        ',.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS);
-                    return (!scrollingInAction && !buttonOrLink && this.hasClass(MODEL_CLASS));
+                    return (!buttonOrLink && this.hasClass(MODEL_CLASS));
                 }
             );
         }
