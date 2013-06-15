@@ -229,6 +229,37 @@ Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.TreeView.S
         sortComparator: function (node) {
             // directories are appended by char(0) --> this will make them appear on top
             return (node.canHaveChildren ? CHARZERO : '') + node.label;
+        },
+        getByFileName: function(directoryTreeNode, filename) {
+            var instance = this,
+                  foundNode;
+            YArray.some(
+                directoryTreeNode.children,
+                function(node) {
+                    if (!node.canHaveChildren && (node.label === filename)) {
+                        foundNode = node;
+                    }
+                    return foundNode;
+                }
+            );
+            return foundNode;
+        }
+    }
+);
+
+Y.LazyFileModelList = Y.Base.create('lazyfile-model-list', Y.LazyModelList, [], {
+        getByFileName: function (filename) {
+            var instance = this,
+                  foundModel;
+            instance.some(
+                function(model) {
+                    if (model.filename === filename) {
+                        foundModel = model;
+                    }
+                    return foundModel;
+                }
+            );
+            return foundModel;
         }
     }
 );
@@ -555,13 +586,14 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
 
         /**
-         * renames the selected file. When multiple files are selected, they will all get the smae name, followed by '_index'.
+         * renames the selected file(s). When multiple files are selected, the server needs to hanlde the right naming.
+         * For example by giving the files the same name, followed by '_index'.
          * Is using the internal 'sync'-method to realize the update on the server.
          * See 'sync' how to set up the synclayer.
          * <br /><b>Remark</b>: with normal usage, you don't need to call this method: Y.Tree is using it through the UI.
          *
-         * @method renameFile
-         * @param newFilename {String} new filename for the selected file
+         * @method renameFiles
+         * @param newFilename {String} new filename for the selected file(s)
          * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
          * @since 0.1
         */
@@ -631,7 +663,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * `renameFiles` : Renames the selected file.
          * <br />'options.currentDir' --> Current directory where the files reside (full dir-tree form root).
          * <br />'options.selectedFiles' --> the selected files that needs to be renamed.
-         * <br />'options.newFilename'  holds the new file-name.
+         * <br />'options.newFileName'  holds the new file-name.
          *
          * @method sync
          * @param action {String} The sync-action to perform. May be one of the following:
@@ -820,7 +852,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   files, rendermodel, filescrollview;
 
-            instance.files = files = new Y.LazyModelList();
+            // LazyFileModelList extends Y.LazyModelList and is declared at the top of this module
+            instance.files = files = new Y.LazyFileModelList();
             files.comparator = function (model) {
                 return model.filename || '';
             };
@@ -934,28 +967,37 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         break;
                         case 1:
                             // rename file(s)
-                            currentName = instance._currentDirTreeNode.label;
-                            Y.prompt('Rename directory '+currentName, 'Enter new directory-name:', {value: currentName})
+                            selectedModels = filescrollview.getSelectedModels();
+                            multipleFiles = selectedModels && (selectedModels.length>1);
+                            originalFilename = selectedModels && selectedModels[0].filename;
+                            Y.prompt(
+                                'Rename file'+(multipleFiles ? 's' : (' '+ originalFilename)),
+                                'Enter new filename:',
+                                {value: originalFilename})
                             .then(
                                 function(response) {
-                                    instance.renameDir(Y.Escape.html(response.value));
+                                    instance.renameFiles(Y.Escape.html(response.value));
                                 }
                             );
                         break;
                         case 2:
                             // delete file(s)
-                            currentName = instance._currentDirTreeNode.label;
-                            Y.confirm('Delete directory', 'Are you sure you want to delete \''+currentName+'\'<br />and all of its content?')
+                            selectedModels = filescrollview.getSelectedModels();
+                            multipleFiles = selectedModels && (selectedModels.length>1);
+                            originalFilename = selectedModels && selectedModels[0].filename;
+                            Y.confirm(
+                                'Delete file'+(multipleFiles ? 's' : (' '+ originalFilename)),
+                                'Are you sure you want to delete ' + (multipleFiles ? 'the selected files' : originalFilename) + '?')
                             .then(
                                 function() {
-                                    instance.deleteDir();
+                                    instance.deleteFiles();
                                 }
                             );
                         break;
                         case 3:
                             // clone dir
                             currentName = instance._currentDirTreeNode.label;
-                            Y.prompt('Duplicate directory '+currentName, 'Enter the directory-name of the duplicated directory:',
+                            Y.prompt('Duplicate directory '+currentName, 'Enter the directoryname of the duplicated directory:',
                                             {value: currentName+'-copy'})
                             .then(
                                 function(response) {
@@ -966,7 +1008,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         case 4:
                             // rename dir
                             currentName = instance._currentDirTreeNode.label;
-                            Y.prompt('Rename directory '+currentName, 'Enter new directory-name:', {value: currentName})
+                            Y.prompt('Rename directory '+currentName, 'Enter new directoryname:', {value: currentName})
                             .then(
                                 function(response) {
                                     instance.renameDir(Y.Escape.html(response.value));
@@ -1222,7 +1264,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                  'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
                     instance[syncaction] = function(param1) {
-                        var options = {};
+                        var options = {},
+                              filescrollview = instance.filescrollview;
                         Y.log(syncaction, 'info', 'Itsa-FileManager');
                         // in order to handle the syncaction well, the filemanager-instance must have been rendered.
                         // If not, then we render it now. At the very end or renderer(), there will be an 'instance.ready'-event
@@ -1232,10 +1275,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         }
                         // now we must extend options for each action
                         if (syncaction === 'loadFiles') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                         }
                         else if (syncaction === 'loadAppendFiles') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                             options.batchSize = instance.get('batchSize');
                             options.size = instance.files.size();
                             options.lastFileId = instance._lastFileId;
@@ -1248,43 +1291,51 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.directory = (param1 ? (param1.getTreeInfo('label') + '/') : '/');
                         }
                         else if (syncaction === 'renameFiles') {
-                            options.selectedFiles = instance.getSelectedFiles();
-                            options.newFilename = param1;
+                            options.currentDir = instance._currentDir;
+                            options._currentDirTreeNode = instance._currentDirTreeNode;
+                            options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
+                            options.newFileName = param1;
+                            // now unselect the selected files, for convenience experience
+                            filescrollview.clearSelectedModels(null, true);
                         }
                         else if (syncaction === 'renameDir') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                             options.newDirName = param1;
                         }
                         else if (syncaction === 'deleteFiles') {
-                            options.selectedFiles =  instance.getSelectedFiles();
-                            options.currentDir = instance.getCurrentDir();
+                            options._currentDirTreeNode = instance._currentDirTreeNode;
+                            options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
+                            options.currentDir = instance._currentDir;
+                            // now unselect the selected files, for convenience experience
+                            filescrollview.clearSelectedModels(null, true);
                         }
                         else if (syncaction === 'deleteDir') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                         }
                         else if (syncaction === 'createDir') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                             options.dirName = param1;
                         }
                         else if (syncaction === 'moveDir') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                             options.newParentDir = param1;
                         }
                         else if (syncaction === 'moveFiles') {
-                            options.currentDir = instance.getCurrentDir();
-                            options.selectedFiles = instance.getSelectedFiles();
+                            options.currentDir = instance._currentDir;
+                            options._currentDirTreeNode = instance._currentDirTreeNode;
+                            options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
                             options.destinationDir = param1;
                         }
                         else if (syncaction === 'cloneDir') {
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                             options.clonedDirName = param1;
                         }
                         else if (syncaction === 'copyFiles') {
                             options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
-                            options.currentDir = instance.getCurrentDir();
+                            options.currentDir = instance._currentDir;
                             options.destinationDir = param1;
                             // now unselect the selected files, for convenience experience
-                            instance.filescrollview.clearSelectedModels(null, true);
+                            filescrollview.clearSelectedModels(null, true);
                         }
                         return instance.readyPromise
                                     .then(
@@ -1349,7 +1400,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                   tree = instance.tree,
                   lazyRender = instance.get('lazyRender'),
                   showTreefiles = instance.get('showTreefiles'),
-                  facade, changedTreeNode, dirName, parentnode, createdFiles;
+                  files = instance.files,
+                  facade, changedTreeNode, dirName, parentnode, createdFiles, fileobject, filemodel, deletedFiles, fileDirectoryNode;
 
             Y.log('_handleSync '+syncaction + ' --> ' + response, 'info', 'Itsa-FileManager');
             if (err) {
@@ -1380,7 +1432,48 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     tree.insertNode(param1, parsedResponse);
                 }
                 else if (syncaction === 'renameFiles') {
-                    // ....
+                    // should return an array with objects with the fields:
+                    // {
+                    //     filename: 'prev_filename.ext',
+                    //     newfilename: 'new_filename.ext',
+                    //     modified: 'modified datetimestring'
+                    // }
+                    createdFiles = parsedResponse.result;
+                    if (createdFiles && createdFiles.length>0) {
+                        fileDirectoryNode = options._currentDirTreeNode;
+                        YArray.each(
+                            createdFiles,
+                            function(changedFileObject) {
+                                var previousFilename = changedFileObject.prevfilename,
+                                      newFilename = changedFileObject.filename,
+                                      modified = changedFileObject.modified,
+                                      thumbnail = changedFileObject.thumbnail,
+                                      preview = changedFileObject.preview;
+                                if (showTreefiles && fileDirectoryNode) {
+                                    changedTreeNode = tree.getByFileName(fileDirectoryNode, previousFilename);
+                                    changedTreeNode.label = newFilename;
+                                }
+                                // find the right fileobject and update the corresponding fileobject inside instance.files
+                                fileobject = files.getByFileName(previousFilename);
+                                if (modified) {
+                                    // silent: do not force any refresh stuff --> that will be done after changing the filename
+                                    files.setModelAttr(fileobject, 'modified', modified, {silent: true});
+                                }
+                                if (thumbnail) {
+                                    // silent: do not force any refresh stuff --> that will be done after changing the filename
+                                    files.setModelAttr(fileobject, 'thumbnail', thumbnail, {silent: true});
+                                }
+                                if (preview) {
+                                    // silent: do not force any refresh stuff --> that will be done after changing the filename
+                                    files.setModelAttr(fileobject, 'preview', preview, {silent: true});
+                                }
+                                files.setModelAttr(fileobject, 'filename', newFilename);
+                            }
+                        );
+                        if (showTreefiles && fileDirectoryNode) {
+                            fileDirectoryNode.sort(); // will rerender the children-nodes, making the new dirname visible as well.
+                        }
+                    }
                 }
                 else if (syncaction === 'renameDir') {
                     changedTreeNode = instance._currentDirTreeNode;
@@ -1389,7 +1482,28 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     instance._currentDir = changedTreeNode.getTreeInfo('label') + '/';
                 }
                 else if (syncaction === 'deleteFiles') {
-                    // ....
+                    // should return an array with filenames that are deleted
+                    deletedFiles = parsedResponse.result;
+                    if (deletedFiles && deletedFiles.length>0) {
+                        fileDirectoryNode = options._currentDirTreeNode;
+                        YArray.each(
+                            deletedFiles,
+                            function(deletedFilename) {
+                                if (showTreefiles && fileDirectoryNode) {
+                                    changedTreeNode = tree.getByFileName(fileDirectoryNode, deletedFilename);
+                                    tree.removeNode(changedTreeNode, {remove: true, silent: false});
+                                }
+                                // find the right fileobject and update the corresponding fileobject inside instance.files
+                                fileobject = files.getByFileName(deletedFilename);
+                                filemodel = files.revive(fileobject);
+                                // no need to cal the synclayer --> the file is already removed from the server
+                                filemodel.destroy({remove: false});
+                            }
+                        );
+                        if (showTreefiles && fileDirectoryNode) {
+                            fileDirectoryNode.sort(); // will rerender the children-nodes, making the new dirname visible as well.
+                        }
+                    }
                 }
                 else if (syncaction === 'deleteDir') {
                     changedTreeNode = instance._currentDirTreeNode;
@@ -1428,14 +1542,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     createdFiles = parsedResponse.result; // array with fileobjects
                     instance.files.add(createdFiles);
                     changedTreeNode = instance._currentDirTreeNode;
-alert('showTreefiles: '+showTreefiles);
-alert('changedTreeNode: '+changedTreeNode);
                     if (showTreefiles) {
                         // now add the files to the tree
                         YArray.each(
                             createdFiles,
                             function(fileobject) {
-alert('fileobject.filename: '+fileobject.filename);
                                 tree.insertNode(changedTreeNode, {label: fileobject.filename});
                             }
                         );
