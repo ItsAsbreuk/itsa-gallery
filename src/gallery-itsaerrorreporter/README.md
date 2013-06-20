@@ -32,7 +32,7 @@ Usage
 
 <b>ErrorReport when fireing an 'error'-event</b>
 ```js
-YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
+YUI({gallery: 'gallery-2013.06.20-02-07'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
 
     var mymodel, facade;
 
@@ -48,7 +48,7 @@ YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', 'mod
 
 <b>ErrorReport when logging an 'error'</b>
 ```js
-YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', function(Y) {
+YUI({gallery: 'gallery-2013.06.20-02-07'}).use('gallery-itsaerrorreporter', function(Y) {
 
     Y.log('logging an error', 'error', 'webapp');
     // the logging is caught and leads to an error-pop-up
@@ -58,7 +58,7 @@ YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', func
 
 <b>Disabling error-messages when logging an 'error'</b>
 ```js
-YUI({gallery: 'gallery-2013.06.13-01-19'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
+YUI({gallery: 'gallery-2013.06.20-02-07'}).use('gallery-itsaerrorreporter', 'model', function(Y) {
 
     var mymodel, facade;
 
