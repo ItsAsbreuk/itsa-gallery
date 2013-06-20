@@ -2,12 +2,6 @@ gallery-itsaerrorreporter
 ===============
 
 
-Notion: due to an error, the widget is not made skinable
---------------------------------------------
-
-This will be fixed in the next cdn push
-
-
 
 This module full automaticly reports error-events by pop-up an error-dialog.
 
