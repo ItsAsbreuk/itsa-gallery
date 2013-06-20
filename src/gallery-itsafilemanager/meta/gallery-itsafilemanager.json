@@ -13,6 +13,7 @@
             "lazy-model-list",
             "promise",
             "json",
+            "uploader",
             "gallery-sm-treeview",
             "gallery-sm-treeview-sortable",
             "gallery-itsaerrorreporter",

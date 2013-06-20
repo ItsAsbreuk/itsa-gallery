@@ -6,7 +6,7 @@ YUI.add('gallery-itsafilemanager', function (Y, NAME) {
  * ITSAFileManager
  *
  *
- * Panel-widget for uolaoding and controlling files and folders
+ * Panel-widget for uplaoding and controlling files and folders
  *
  *
  * @module gallery-itsafilemanager
@@ -26,19 +26,45 @@ var Lang = Y.Lang,
     YJSON = Y.JSON,
     IE = Y.UA.ie,
     CHARZERO = '\u0000',
+    LABEL_UPLOAD_FILES = 'upload files',
     PROCESS_ERROR = 'An error occured during processing',
-    FILTERITEMS = ['all files','images', 'non-images', 'word', 'excel', 'pdf'],
+    FILTERITEMS = [
+        {text: 'all files', returnValue: '*'},
+        {text: 'images', returnValue: 'jpg,jpeg,gif,bmp,tif,tiff,png'},
+        {text: 'non-images', returnValue: '!,jpg,jpeg,gif,bmp,tif,tiff,png'},
+        {text: 'txt', returnValue: 'txt'},
+        {text: 'word', returnValue: 'doc,docx'},
+        {text: 'excel', returnValue: 'xls,xlsx'},
+        {text: 'powerpoint', returnValue: 'ppt,pptx'},
+        {text: 'pdf', returnValue: 'pdf'}
+    ],
     VIEWITEMS = ['list', 'thumbnails', 'tree', 'coverflow'],
     EDITITEMS = ['duplicate file', 'rename file', 'delete file', 'clone dir', 'rename dir', 'delete dir'],
-    THUMBNAIL_TEMPLATE = '<img src="{thumbnail}" />',
-    HIDDEN_CLASS = 'yui3-itsafilemanager-hidden',
+    THUMBNAIL_TEMPLATE = '<% if (data.filename.isFileType(["jpg","jpeg","gif","bmp","tif","tiff","png"])) { %><img src="<%= data.thumbnail %>" />' +
+                                             '<% } else { %>' +
+                                                 '<div class="itsa-thumbnail">' +
+                                                     '<div class="itsa-fileicon <%= data.filename.extractFileExtension() %>"></div>' +
+                                                     '<span class="file-label"><%= data.filename %></span>' +
+                                                 '</div>' +
+                                             '<% } %>',
+    LIST_TEMPLATE = '<td><%= data.filename %></td>' +
+                                 '<td><%= data.size %></td>' +
+                                 '<% if (data.width && data.height && (data.width>0) && (data.height>0)) { %>' +
+                                     '<td><%= data.modified %></td>' +
+                                     '<td><%= data.width %>x<%= data.height %></td>' +
+                                 '<% } else { %>' +
+                                     '<td colspan=2><%= data.modified %></td>' +
+                                 '<% } %>',
     TREEVIEW_NOTOUCH_CLASS = 'yui3-treeview-notouch',
     TREEVIEW_SELECTED_CLASS = 'yui3-treeview-selected',
     EMPTY_DIVNODE = '<div></div>',
     EMPTY_BUTTONNODE = '<button class="pure-button pure-button-toolbar">{text}</button>',
+    EMPTY_FILEUPLOADNODE = '<div class="pure-button pure-uploadbutton"></div>',
     FILEMAN_TITLE = 'Filemanager',
     FILEMAN_FOOTERTEMPLATE = "ready",
     FILEMANCLASSNAME = 'yui3-itsafilemanager',
+    HIDDEN_CLASS = FILEMANCLASSNAME + '-hidden',
+    FILEMAN_LIST_TEMPLATE_CLASS = FILEMANCLASSNAME + '-list-files',
     FILEMAN_TITLE_CLASS = FILEMANCLASSNAME + '-title',
     FILEMAN_TOOLBAR_CLASS = FILEMANCLASSNAME + '-toolbar',
     FILEMAN_HIDDEN = FILEMANCLASSNAME + '-hidden',
@@ -215,6 +241,14 @@ var Lang = Y.Lang,
      * @private
      */
 
+String.prototype.extractFileExtension = function() {
+    return this.match(/.+\.(\w+)$/)[1];
+};
+
+String.prototype.isFileType = function(extentions) {
+    return (YArray.indexOf(extentions, this.extractFileExtension()) !== -1);
+};
+
 Y.Tree.Node.prototype.getTreeInfo = function(field) {
     var instance = this,
           treeField = instance.isRoot() ? '/' : '/' + instance[field],
@@ -233,8 +267,7 @@ Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.TreeView.S
             return (node.canHaveChildren ? CHARZERO : '') + node.label;
         },
         getByFileName: function(directoryTreeNode, filename) {
-            var instance = this,
-                  foundNode;
+            var foundNode;
             YArray.some(
                 directoryTreeNode.children,
                 function(node) {
@@ -777,8 +810,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                  // NO instance.tree.renderPromise() --> Y.TreeView doesn't have/need a renderpromise, it renders synchronious.
                  instance._resizeConstrainPromise,
                  instance.filterSelect.renderPromise(),
-                 instance.viewSelect.renderPromise(),
+//                 instance.viewSelect.renderPromise(),
                  instance.editSelect.renderPromise(),
+                 instance.uploader.renderPromise(),
                  instance.filescrollview.renderPromise()
             );
         },
@@ -832,14 +866,26 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     )
                 );
             }
-            // now we create the toolbar
-            instance._renderToolbar();
             // now we create the directory tree
             instance._renderTree();
             // init the value of the current selected tree, but do not load the files
             instance._selectRootNode(true);
             // now we create the files tree:
             instance._renderFiles();
+            // now we create dd methods for moving the files:
+            instance._createDDFiles();
+            // now we create the toolbar
+            instance._renderToolbar();
+        },
+
+        /**
+         * Creates drag-drop functionalities to the files, so that they can be dropped into a directory.
+         *
+         * @method _createDDFiles
+         * @private
+         * @since 0.1
+        */
+        _createDDFiles : function() {
         },
 
         /**
@@ -874,51 +920,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             filescrollview.render();
         },
 
-        /**
-         * Renders the widgets and buttons in the toolbar
-         *
-         * @method _renderToolbar
-         * @private
-         * @since 0.1
-        */
-        _renderToolbar : function() {
+        _renderViewSelect : function() {
             var instance = this,
-                  eventhandlers = instance._eventhandlers,
-                  filterSelect, viewSelect, editSelect, filterSelectNode, viewSelectNode, editSelectNode,
-                  createDirNode, createUploadNode, selectedModels, multipleFiles, originalFilename;
+                  boundingBox = instance.get('boundingBox'),
+                  filescrollview = instance.filescrollview,
+                  viewSelectNode, viewSelect;
 
-            Y.log('_renderFiles', 'info', 'Itsa-FileManager');
-            //=====================
-            // render the filter-select:
-            //=====================
-            filterSelect = instance.filterSelect = new Y.ITSASelectList({
-                items: FILTERITEMS,
-                selectionOnButton: false,
-                defaultButtonText: 'filter',
-                btnSize: 1,
-                buttonWidth: 60
-            });
-            filterSelect.after(
-                'selectChange',
-                function(e) {
-                    var selecteditem = e.value;
-                    Y.alert(selecteditem);
-                    instance.filescrollview.set(
-                        'viewFilter',
-                        (selecteditem==='all files') ? null : function(fileitem) {
-                            // isFileType is a prototype-method that is added to the String-class
-//                            return (fileitem.filename && fileitem.filename.isFileType(selecteditem));
-                            return true;
-                        }
-                    );
-                }
-            );
-            filterSelectNode = Y.Node.create(EMPTY_DIVNODE);
-            instance._nodeFilemanToolbar.append(filterSelectNode);
-            filterSelect.render(filterSelectNode);
-            //=====================
-            // render the view-select:
-            //=====================
+            Y.log('_renderViewSelect', 'info', 'Itsa-FileManager');
             viewSelect = instance.viewSelect = new Y.ITSASelectList({
                 items: VIEWITEMS,
                 selectionOnButton: false,
@@ -929,13 +937,84 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             viewSelect.after(
                 'selectChange',
                 function(e) {
-                    var selecteditem = e.value;
-                    Y.alert(selecteditem);
+                    var selecteditem = e.index;
+                    switch (selecteditem) {
+                        case 0:
+                            filescrollview.setWithoutRerender('listType', 'table');
+                            filescrollview.set('modelTemplate', LIST_TEMPLATE);
+                            boundingBox.addClass(FILEMAN_LIST_TEMPLATE_CLASS);
+                            filescrollview.syncUI();
+                        break;
+                        case 1:
+                            filescrollview.setWithoutRerender('listType', 'ul');
+                            filescrollview.set('modelTemplate', THUMBNAIL_TEMPLATE);
+                            boundingBox.removeClass(FILEMAN_LIST_TEMPLATE_CLASS);
+                            filescrollview.syncUI();
+                        break;
+                    }
                 }
             );
             viewSelectNode = Y.Node.create(EMPTY_DIVNODE);
             instance._nodeFilemanToolbar.append(viewSelectNode);
             viewSelect.render(viewSelectNode);
+        },
+
+        /**
+         * Renders the widgets and buttons in the toolbar
+         *
+         * @method _renderToolbar
+         * @private
+         * @since 0.1
+        */
+        _renderToolbar : function() {
+            var instance = this,
+                  eventhandlers = instance._eventhandlers,
+                  uploadURL = instance.get('uploadURL'),
+                  filescrollview = instance.filescrollview,
+                  filterSelect, editSelect, filterSelectNode, editSelectNode, shadowNode,
+                  createDirNode, createUploadNode, selectedModels, multipleFiles, originalFilename, uploaderType, uploader;
+
+            Y.log('_renderFiles', 'info', 'Itsa-FileManager');
+            //=====================
+            // render the filter-select:
+            //=====================
+            filterSelect = instance.filterSelect = new Y.ITSASelectList({
+                items: FILTERITEMS,
+//                selectionOnButton: false,
+                defaultItem: FILTERITEMS[0].text,
+                btnSize: 1,
+                buttonWidth: 60
+            });
+            filterSelect.after(
+                'selectChange',
+                function(e) {
+                    var posibleExtentions = e.value.split(','),
+                          contra = (posibleExtentions[0]==='!');
+                    if (contra) {
+                        posibleExtentions.splice(0, 1);
+                    }
+                    instance.filescrollview.set(
+                        'viewFilter',
+                        function(fileitem) {
+                            // isFileType is a prototype-method that is added to the String-class
+                            var filematch;
+                            if (posibleExtentions[0]==='*') {
+                                return true;
+                            }
+                            filematch = (fileitem.filename && fileitem.filename.isFileType(posibleExtentions));
+                            return contra ? !filematch : filematch;
+                        }
+                    );
+                    filescrollview.syncUI();
+                }
+            );
+            filterSelectNode = Y.Node.create(EMPTY_DIVNODE);
+            instance._nodeFilemanToolbar.append(filterSelectNode);
+            filterSelect.render(filterSelectNode);
+
+            // the viewselect will be used later on --> also make sure to update _allWidgetsRenderedPromise() !!!
+            // instance._renderViewSelect();
+
             //=====================
             // render the edit-select:
             //=====================
@@ -1050,10 +1129,93 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             );
             instance._nodeFilemanToolbar.append(createDirNode);
             //=====================
-            // render the create dir button:
+            // render the upload files button:
             //=====================
-            createUploadNode = Y.Node.create(Lang.sub(EMPTY_BUTTONNODE, {text: 'upload files'}));
-            instance._nodeFilemanToolbar.append(createUploadNode);
+            if (uploadURL) {
+                uploaderType = Y.Uploader.TYPE;
+                if (uploaderType === 'flash') {
+                    // because the flashbutton seems not to be disabled (when told to),
+                    // we overlay an extra div to prevent clicking on the flash-uploader.
+                    // As soon as we upgrade uploader-queue to work with mutiple simultanious fileuploads,
+                    // this feature can be removed (as well as the disabling of the upload-button during upload)
+                    shadowNode = Y.Node.create("<div class='block-button'></div>");
+                    instance._nodeFilemanToolbar.append(shadowNode);
+                }
+                createUploadNode = Y.Node.create(EMPTY_FILEUPLOADNODE);
+                instance._nodeFilemanToolbar.append(createUploadNode);
+                if (Y.Uploader.TYPE !== 'none') {
+                    uploader = instance.uploader = new Y.Uploader({
+ //                   uploader = instance.uploader = new Y.UploaderFlash({
+//                    uploader = instance.uploader = new Y.UploaderHTML5({
+                        enabled: instance.get('uploaderEnabled'),
+                        errorAction: instance.get('uploaderErrorAction'),
+                        fileFieldName: instance.get('uploaderFileFieldName'),
+                        uploadHeaders: instance.get('uploadHeaders'),
+                        uploadURL: uploadURL,
+                        withCredentials: instance.get('withHTML5Credentials'),
+                        swfURL: instance.get('swfURL') + '?t=' + Math.random(),
+                        tabElements: {
+                            from: createDirNode,
+                            to: filterSelect
+                        },
+                        width: "80px",
+                        height: "25px",
+                        appendNewFiles: false,
+                        multipleFiles: true,
+                        buttonClassNames: {
+                            hover: 'pure-button-hover',
+                            active: 'pure-button',
+                            disabled: 'pure-button-disabled',
+                            focus: 'pure-button'
+                        },
+                        selectButtonLabel: LABEL_UPLOAD_FILES
+                    });
+//                    if (uploaderType==='html5') {
+        //                uploader.set("dragAndDropArea", instance._nodeFilemanItems);
+ //                   }
+                    uploader.after('fileselect', function (e) {
+                        var fileList = e.fileList,
+                              params = {};
+                        if (fileList.length > 0) {
+                           if (shadowNode) {
+                               shadowNode.addClass('blocked');
+                               createUploadNode.addClass('pure-button-disabled');
+                           }
+                           uploader.set('enabled', false);
+                           YArray.each(fileList, function (fileInstance) {
+                                params[fileInstance.get('id')] = Y.merge(
+                                    instance.get('uploaderPostVars'),
+                                    {
+                                        currentDir: instance._currentDir,
+                                        filename: fileInstance.get("name")
+                                    }
+                                );
+                            });
+                            uploader.set('postVarsPerFile', params);
+                            uploader.uploadAll();
+                        }
+                    });
+                    uploader.on('uploadcomplete', function (e) {
+                        var response = PARSE(e.data),
+                              error = response.error,
+                              newfileobject = response.results;
+                        if (error) {
+                            instance._handleSyncError(error && error.description, 'Upload '+ e.file.get('name'));
+                        }
+                        else {
+                            instance.files.add(newfileobject);
+                        }
+                    });
+                    uploader.on('alluploadscomplete', function () {
+                        if (shadowNode) {
+                            shadowNode.removeClass('blocked');
+                            createUploadNode.removeClass('pure-button-disabled');
+                        }
+                        uploader.set('enabled', true);
+                    });
+                    uploader.render(createUploadNode);
+                }
+            }
         },
 
         /**
@@ -1367,11 +1529,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   facade;
 
-            instance.fire(EVT_ERROR);
-            Y.fire(EVT_ERROR);
-
-            Y.log('_handleSyncError error processing '+syncaction+' --> '+reason, 'error', 'Itsa-FileManager');
-
             Y.log('_handleSyncError error processing '+syncaction+' --> '+reason, 'warn', 'Itsa-FileManager');
             facade = {
                 options: options,
@@ -1379,7 +1536,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 src: syncaction
             };
             instance.fire(EVT_ERROR, facade);
-            Y.fire(EVT_ERROR, facade);
             return reason;
        },
 
@@ -1424,9 +1580,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 if (syncaction === 'loadFiles') {
                     instance.files.reset(parsedResponse);
                 }
-                else if (syncaction === 'loadAppendFiles') {
+//                else if (syncaction === 'loadAppendFiles') {
                     // ....
-                }
+//                }
                 else if ((syncaction === 'loadTreeLazy') && lazyRender) {
                     if (!instance._rootVisible) {
                         instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
@@ -1440,7 +1596,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     //     newfilename: 'new_filename.ext',
                     //     modified: 'modified datetimestring'
                     // }
-                    createdFiles = parsedResponse.result;
+                    createdFiles = parsedResponse.results;
                     if (createdFiles && createdFiles.length>0) {
                         fileDirectoryNode = options._currentDirTreeNode;
                         YArray.each(
@@ -1485,20 +1641,20 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 }
                 else if (syncaction === 'deleteFiles') {
                     // should return an array with filenames that are deleted
-                    deletedFiles = parsedResponse.result;
+                    deletedFiles = parsedResponse.results;
                     if (deletedFiles && deletedFiles.length>0) {
                         fileDirectoryNode = options._currentDirTreeNode;
                         YArray.each(
                             deletedFiles,
                             function(deletedFilename) {
-                                if (showTreefiles && fileDirectoryNode) {
+                                if (showTreefiles && fileDirectoryNode && fileDirectoryNode.state.loaded) {
                                     changedTreeNode = tree.getByFileName(fileDirectoryNode, deletedFilename);
                                     tree.removeNode(changedTreeNode, {remove: true, silent: false});
                                 }
                                 // find the right fileobject and update the corresponding fileobject inside instance.files
                                 fileobject = files.getByFileName(deletedFilename);
                                 filemodel = files.revive(fileobject);
-                                // no need to cal the synclayer --> the file is already removed from the server
+                                // no need to call the synclayer --> the file is already removed from the server
                                 filemodel.destroy({remove: false});
                             }
                         );
@@ -1524,24 +1680,24 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // Opening the treenode would load all subdirs and leads to double reference
                     changedTreeNode = instance._currentDirTreeNode;
                     if (!lazyRender || changedTreeNode.state.loaded || (changedTreeNode === tree.rootNode)) {
-                        dirName = parsedResponse.result; // the directoryname that was created on the server .
-                                                                               // this can be different from the requested dirname.
+                        dirName = parsedResponse.results; // the directoryname that was created on the server .
+                                                                                 // this can be different from the requested dirname.
                         tree.insertNode(changedTreeNode, {label: dirName, canHaveChildren: true});
                     }
                     // always open the node to let the new directory be shown
                     tree.openNode(changedTreeNode);
                 }
-                else if (syncaction === 'moveDir') {
+//                else if (syncaction === 'moveDir') {
                     // ....
-                }
-                else if (syncaction === 'moveFiles') {
+//                }
+//                else if (syncaction === 'moveFiles') {
                     // ....
-                }
-                else if (syncaction === 'cloneDir') {
+//                }
+//                else if (syncaction === 'cloneDir') {
                     // ....
-                }
+//                }
                 else if (syncaction === 'copyFiles') {
-                    createdFiles = parsedResponse.result; // array with fileobjects
+                    createdFiles = parsedResponse.results; // array with fileobjects
                     instance.files.add(createdFiles);
                     changedTreeNode = instance._currentDirTreeNode;
                     if (showTreefiles) {
@@ -1902,14 +2058,16 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 },
                 setter: function(val) {
                     var instance = this;
-                    instance._nodeFilemanTree.setStyle('display', (val ? instance._inlineblock : 'none'));
-                    if (instance.resize && instance.resize.hasPlugin('con')) {
-                        instance._setConstraints();
+                    if (instance._nodeFilemanTree) {
+                        instance._nodeFilemanTree.setStyle('display', (val ? instance._inlineblock : 'none'));
+                        if (instance.resize && instance.resize.hasPlugin('con')) {
+                            instance._setConstraints();
+                        }
+                        instance._setSizeTreeArea((val ? instance.get('sizeTreeArea') : 0), null, true);
                     }
-                    instance._setSizeTreeArea((val ? instance.get('sizeTreeArea') : 0), null, true);
                 },
                 getter: function() {
-                    return this._nodeFilemanTree.getStyle('display')!=='none';
+                    return this._nodeFilemanTree && (this._nodeFilemanTree.getStyle('display')!=='none');
                 }
             },
 
@@ -1927,14 +2085,16 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 },
                 setter: function(val) {
                     var instance = this;
-                    instance._nodeFilemanFlow.setStyle('display', (val ? 'block' : 'none'));
-                    if (instance.resize && instance.resize.hasPlugin('con')) {
-                        instance._setConstraints();
+                    if (instance._nodeFilemanFlow) {
+                        instance._nodeFilemanFlow.setStyle('display', (val ? 'block' : 'none'));
+                        if (instance.resize && instance.resize.hasPlugin('con')) {
+                            instance._setConstraints();
+                        }
+                        instance._setSizeFlowArea((val ? instance.get('sizeFlowArea') : 0), null, true);
                     }
-                    instance._setSizeFlowArea((val ? instance.get('sizeFlowArea') : 0), null, true);
                 },
                 getter: function() {
-                    return this._nodeFilemanFlow.getStyle('display')!=='none';
+                    return this._nodeFilemanFlow && (this._nodeFilemanFlow.getStyle('display')!=='none');
                 }
             },
 
@@ -2154,8 +2314,10 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 },
                 setter: function(val) {
                     var instance = this;
-                    instance._panelFT.setStyle('display', (val ? '' : 'none'));
-                    instance._correctHeightAfterResize();
+                    if (instance._panelFT) {
+                        instance._panelFT.setStyle('display', (val ? '' : 'none'));
+                        instance._correctHeightAfterResize();
+                    }
                 }
             },
 
@@ -2175,6 +2337,39 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 setter: function(val) {
                     this.get('boundingBox').toggleClass(FILEMAN_SHADOW, val);
                 }
+            },
+
+            uploaderEnabled: {
+                value: true
+            },
+
+            uploaderErrorAction: {
+                value: Y.Uploader.Queue.CONTINUE
+            },
+
+            uploaderFileFieldName: {
+                value: 'filedata'
+            },
+
+            uploaderPostVars: {
+                value: {}
+            },
+
+            uploadHeaders: {
+                value: {}
+            },
+
+            uploadURL: {
+                value: null
+            },
+
+            // the absolute url to the swf-file, without a timestamp (this Module always adds a timestamp internally)
+            swfURL: {
+                value: 'http://yui.yahooapis.com/3.10.3/build/uploader/assets/flashuploader.swf'
+            },
+
+            withHTML5Credentials: {
+                value: false
             }
 
         }
@@ -2196,6 +2391,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "lazy-model-list",
         "promise",
         "json",
+        "uploader",
         "gallery-sm-treeview",
         "gallery-sm-treeview-sortable",
         "gallery-itsaerrorreporter",
