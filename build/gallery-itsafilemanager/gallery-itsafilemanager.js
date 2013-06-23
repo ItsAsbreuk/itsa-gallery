@@ -2540,5 +2540,5 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "gallery-itsawidgetrenderpromise",
         "gallery-itsaselectlist"
     ],
-    "skinnable": false
+    "skinnable": true
 });

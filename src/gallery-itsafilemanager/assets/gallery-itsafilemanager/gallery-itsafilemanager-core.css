@@ -181,7 +181,6 @@ background: none;
     top: 8px;
     left: 5px;
 }
-
 .yui3-itsafilemanager .pure-button.pure-button-toolbar {
     border-radius: 4px;
     border: solid 1px #AAA;
@@ -331,9 +330,6 @@ background: none;
 }
 .dwg {
     background-position: 0 -200px;
-}
-.7z {
-    background-position: 0 -300px;
 }
 .fon {
     background-position: 0 -400px;
