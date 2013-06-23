@@ -741,4 +741,13 @@ Y.Calendar.ITSACalendarMarkedDates = ITSACalendarMarkedDates;
 
 Y.Base.mix(Y.Calendar, [ITSACalendarMarkedDates]);
 
-}, '@VERSION@', {"requires": ["base-build", "calendar-base", "datatype-date", "datatype-date-math"], "skinnable": true});
+}, '@VERSION@', {
+    "requires": [
+        "base-build",
+        "node-base",
+        "calendar-base",
+        "datatype-date",
+        "datatype-date-math"
+    ],
+    "skinnable": true
+});
