@@ -161,7 +161,7 @@ ITSACalendarModelList.ATTRS = {
     modelList : {
         value: null,
         lazyAdd: false,
-        validator: function(v){ return (v instanceof Y.ModelList) || (v instanceof Y.LazyModelList) || v === null; },
+        validator: function(v){ return (v.getByClientId) || v === null; },
         setter: '_setModelList'
     },
 
