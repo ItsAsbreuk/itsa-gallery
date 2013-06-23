@@ -10,8 +10,16 @@ Catching errors during development (logging) are prominent available now.
 Also error-events during production will be shown to the users.
 
 
-By default it listens to both error-events and error-loggings. Both can be (un)set.
-The 'error'-events MUST confirm the following rules:
+By default it listens to:
+
+* window.onerror
+* broadcasted 'error'-events
+* error-loggings
+
+All listeners can be (un)set.
+
+
+The broadcasted 'error'-events <b>must</b> confirm the following rules:
 
 * Do <b>not fire</b> Y.fire('error') --> because 'error' is a dom-event, the subscriber could fail to catch the event under some circumstances.
 * Always fire through the instance (sub-class of EventTarget) --> for instance: yourModel.fire('error');
