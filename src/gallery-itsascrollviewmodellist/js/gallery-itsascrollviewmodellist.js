@@ -111,6 +111,8 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                 infiniteView = instance.itsainfiniteview,
                 paginatorPlugin = instance.pages,
                 showHeaders = options && Lang.isBoolean(options.showHeaders) && options.showHeaders,
+                noFocus = options && Lang.isBoolean(options.noFocus) && options.noFocus,
+                editMode = options && Lang.isBoolean(options.editMode) && options.editMode,
                 modelNodeEdge, currentOffset, newOffset, modelNode, liElements, getNodePosition,
                 onTop, nodePosition, modelNodeSize, corrected, prevNode, focusNode;
 
@@ -181,11 +183,11 @@ Y.ITSAScrollViewModellist = Y.Base.create('itsascrollviewmodellist', Y.ScrollVie
                 }
             }
             if (modelNode) {
-                if (!options || !Lang.isBoolean(options.noFocus) || !options.noFocus) {
+                if (!noFocus) {
                     // because modelNode might be going to change (due to headers), we need to backup its reference
                     focusNode = modelNode;
                     instance._focusModelNode(focusNode);
-                    if (Lang.isBoolean(options.editMode) && options.editMode) {
+                    if (editMode) {
                         Y.use('gallery-itsatabkeymanager', function(Y) {
                             if (!focusNode.itsatabkeymanager) {
                                 focusNode.plug(Y.Plugin.ITSATabKeyManager);
