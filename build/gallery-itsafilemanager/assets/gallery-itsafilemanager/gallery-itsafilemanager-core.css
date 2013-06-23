@@ -33,19 +33,17 @@
     padding-bottom: 4px;
     border-top: solid 1px #999;
 }
-.yui3-js-enabled .yui3-itsafilemanager-loading {
+
+.yui3-js-enabled .yui3-itsafilemanager-extendloading,
+.yui3-js-enabled .yui3-itsafilemanager-loading,
+.yui3-itsafilemanager-hidden,
+.yui3-itsafilemanager .itsa-modellistview-noitems,
+.yui3-itsafilemanager .itsa-modellistview-noinitialitems,
+.yui3-itsafilemanager-hidden .yui3-treeview-can-have-children > .yui3-treeview-row > .yui3-treeview-indicator,
+.yui3-itsafilemanager-extendloading .yui3-treeview-can-have-children > .yui3-treeview-row > .yui3-treeview-indicator {
     visibility: hidden;
 }
-.yui3-itsafilemanager-hidden,
-.yui3-itsafilemanager-hidden .yui3-treeview-can-have-children > .yui3-treeview-row > .yui3-treeview-indicator {
-    position: absolute;
-    left: -9999px;
-    top: -9999px;}
-.yui3-itsafilemanager .itsa-modellistview-noinitialitems {
-    position: absolute;
-    left: -9999px;
-    top: -9999px;
-}
+
 .yui3-itsafilemanager .yui3-resize-handle-inner-r,
 .yui3-itsafilemanager .yui3-resize-handle-inner-l,
 .yui3-itsafilemanager .yui3-resize-handle-inner-t,
@@ -208,8 +206,8 @@ background: none;
     display: inline-block;
     *display: inline;
     z-index: 100;
-    width: 80px;
-    height: 25px;
+    width: 82px;
+    height: 27px;
 }
 
 .yui3-itsafilemanager .block-button.blocked {

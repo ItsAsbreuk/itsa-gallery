@@ -56,12 +56,14 @@ var Lang = Y.Lang,
     TREEVIEW_NOTOUCH_CLASS = 'yui3-treeview-notouch',
     TREEVIEW_SELECTED_CLASS = 'yui3-treeview-selected',
     EMPTY_DIVNODE = '<div></div>',
-    EMPTY_BUTTONNODE = '<button class="pure-button pure-button-toolbar">{text}</button>',
+    EMPTY_BUTTONNODE = '<button class="pure-button pure-button-toolbar" type="button">{text}</button>',
+    INSTALL_FLASH_NODE = '<button class="pure-button pure-button-toolbar" type="button">{text}</button>',
     EMPTY_FILEUPLOADNODE = '<div class="pure-button pure-uploadbutton"></div>',
     FILEMAN_TITLE = 'Filemanager',
     FILEMAN_FOOTERTEMPLATE = "ready",
     FILEMANCLASSNAME = 'yui3-itsafilemanager',
     HIDDEN_CLASS = FILEMANCLASSNAME + '-hidden',
+    EXTEND_LOADING_CLASS = FILEMANCLASSNAME + '-extendloading',
     FILEMAN_LIST_TEMPLATE_CLASS = FILEMANCLASSNAME + '-list-files',
     FILEMAN_TITLE_CLASS = FILEMANCLASSNAME + '-title',
     FILEMAN_TOOLBAR_CLASS = FILEMANCLASSNAME + '-toolbar',
@@ -310,25 +312,23 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             Y.log('initializer', 'info', 'Itsa-FileManager');
             var instance = this,
                   boundingBox = instance.get('boundingBox');
+
+            // because IE<9 throws an focus-error combined with ITSADialog (only inside this module, don't know why),
+            // we suppress error-reporting. This appears only in the debugmode
+            if ((IE>0) && (IE<9)) {
+                Y.ITSAErrorReporter.reportErrorLogs(false);
+            }
             instance._inlineblock = 'inline' + (((IE>0) && (IE<8)) ? '' : '-block');
             instance._eventhandlers = [];
             instance._resizeApprovedX = false;
             instance._resizeApprovedY = false;
-            instance._bodyNode = null;
-            instance._resizeEvent = null;
             instance._busyResize = false;
-            instance._panelHD = null;
-            instance._panelBD = null;
-            instance._panelFT = null;
-            instance._nodeFilemanTree = null;
-            instance._nodeFilemanTreeView = null;
-            instance._nodeFilemanFlow = null;
-            instance._nodeFilemanItems = null;
             instance._borderTreeArea = 0;
             instance._halfBorderTreeArea = 0;
             instance._borderFlowArea = 0;
             instance._halfBorderFlowArea = 0;
             instance._mouseOffset = 0;
+            instance._currentDir = '/';
             instance._bodyNode = Y.one('body');
             instance.publish(EVT_ERROR, {
                 preventable: false,
@@ -336,14 +336,24 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             });
             instance._createPromises();
             // extend the time that the widget is invisible
-            boundingBox.addClass(HIDDEN_CLASS);
-            (instance.get('delayView') ? instance.dataPromise : instance.readyPromise).then(
-                function() {
-                    instance._setConstraints(true);
-                    instance._correctHeightAfterResize();
-                    boundingBox.removeClass(HIDDEN_CLASS);
-                }
-            );
+            boundingBox.addClass(EXTEND_LOADING_CLASS);
+            // now call the promise, even if it is not used --> this will do the final settings in the right order.
+            instance.initialized();
+        },
+
+        initialized : function() {
+            var instance = this,
+                  boundingBox = instance.get('boundingBox');
+            if (!instance._isInitialized) {
+                instance._isInitialized =  (instance.get('delayView') ? instance.dataPromise : instance.readyPromise).then(
+                    function() {
+                        instance._setConstraints(true);
+                        instance._correctHeightAfterResize();
+                        boundingBox.removeClass(EXTEND_LOADING_CLASS);
+                    }
+                );
+            }
+            return instance._isInitialized;
         },
 
         /**
@@ -783,10 +793,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // only now we can call _createMethods --> because instance.readyPromise and instance.dataPromise are defined
                     instance._createMethods();
                     instance.readyPromise.then(
-                        Y.batch(
-                            instance.loadFiles(),
-                            (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
-                        )
+                        // do not use Y.batch directly, for the context would be undefined
+                        function() {
+                            return Y.batch(
+                                instance.loadFiles(),
+                                (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
+                            );
+                       }
                     ).then(
                         resolve
                     );
@@ -803,16 +816,20 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @since 0.1
         */
         _allWidgetsRenderedPromise : function() {
-            var instance = this;
-            return Y.batch(
-                 // NO instance.tree.renderPromise() --> Y.TreeView doesn't have/need a renderpromise, it renders synchronious.
-                 instance._resizeConstrainPromise,
-                 instance.filterSelect.renderPromise(),
-//                 instance.viewSelect.renderPromise(),
-                 instance.editSelect.renderPromise(),
-                 instance.uploader.renderPromise(),
-                 instance.filescrollview.renderPromise()
-            );
+            var instance = this,
+                  promiseslist = [];
+
+             // NO instance.tree.renderPromise() --> Y.TreeView doesn't have/need a renderpromise, it renders synchronious.
+            promiseslist.push(instance._resizeConstrainPromise);
+            promiseslist.push(instance.filterSelect.renderPromise());
+//            promiseslist.push(instance.viewSelect.renderPromise());
+            promiseslist.push(instance.editSelect.renderPromise());
+            if (instance.get('uploadURL') && (Y.Uploader.TYPE !== 'none')) {
+                promiseslist.push(instance.uploader.renderPromise());
+            }
+            promiseslist.push(instance.filescrollview.renderPromise());
+            return Y.batch.apply(Y, promiseslist);
+
         },
 
         /**
@@ -967,10 +984,9 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         _renderToolbar : function() {
             var instance = this,
                   eventhandlers = instance._eventhandlers,
-                  uploadURL = instance.get('uploadURL'),
                   filescrollview = instance.filescrollview,
-                  filterSelect, editSelect, filterSelectNode, editSelectNode, shadowNode,
-                  createDirNode, createUploadNode, selectedModels, multipleFiles, originalFilename, uploaderType, uploader;
+                  createDirNode, filterSelect, editSelect, filterSelectNode, editSelectNode,
+                  selectedModels, multipleFiles, originalFilename;
 
             Y.log('_renderFiles', 'info', 'Itsa-FileManager');
             //=====================
@@ -1039,7 +1055,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                 'Duplicate file'+(multipleFiles ? 's' : (' '+ originalFilename)),
                                 'Are you sure you want to duplicate the selected file'+(multipleFiles ? 's' : '')+'?')
                             .then(
-                                function(response) {
+                                function() {
                                     instance.copyFiles(instance._currentDir);
                                 }
                             );
@@ -1129,6 +1145,23 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             //=====================
             // render the upload files button:
             //=====================
+            instance._createUploader();
+        },
+
+        /**
+         * Creates the upload-button, either as a Flash, or as HTML5 uploader. If no html5-support and flash is not installed,
+         * then the button will ask for Flash to be installed.
+         *
+         * @method _createUploader
+         * @private
+         * @since 0.1
+        */
+        _createUploader : function() {
+            var instance = this,
+                  uploadURL = instance.get('uploadURL'),
+                  eventhandlers = instance._eventhandlers,
+                  createUploadNode, uploaderType, uploader, shadowNode, createInstallFlashNode;
+
             if (uploadURL) {
                 uploaderType = Y.Uploader.TYPE;
                 if (uploaderType === 'flash') {
@@ -1139,11 +1172,15 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     shadowNode = Y.Node.create("<div class='block-button'></div>");
                     instance._nodeFilemanToolbar.append(shadowNode);
                 }
-                createUploadNode = Y.Node.create(EMPTY_FILEUPLOADNODE);
-                instance._nodeFilemanToolbar.append(createUploadNode);
                 if (Y.Uploader.TYPE !== 'none') {
+                    if (instance._installFlashNode) {
+                        // remove previous rendered install-flash buttonnode
+                        instance._installFlashNode.remove(true);
+                    }
+                    createUploadNode = Y.Node.create(EMPTY_FILEUPLOADNODE);
+                    instance._nodeFilemanToolbar.append(createUploadNode);
                     uploader = instance.uploader = new Y.Uploader({
- //                   uploader = instance.uploader = new Y.UploaderFlash({
+//                    uploader = instance.uploader = new Y.UploaderFlash({
 //                    uploader = instance.uploader = new Y.UploaderHTML5({
                         enabled: instance.get('uploaderEnabled'),
                         errorAction: instance.get('uploaderErrorAction'),
@@ -1152,10 +1189,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         uploadURL: uploadURL,
                         withCredentials: instance.get('withHTML5Credentials'),
                         swfURL: instance.get('swfURL') + '?t=' + Math.random(),
-                        tabElements: {
-                            from: createDirNode,
-                            to: filterSelect
-                        },
                         width: "80px",
                         height: "25px",
                         appendNewFiles: false,
@@ -1212,6 +1245,81 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         uploader.set('enabled', true);
                     });
                     uploader.render(createUploadNode);
+                }
+                else {
+                    // create the button that will prompt to install flash
+                    createInstallFlashNode = instance._installFlashNode = Y.Node.create(Lang.sub(INSTALL_FLASH_NODE, {text: 'x'+LABEL_UPLOAD_FILES}));
+                    instance._nodeFilemanToolbar.append(createInstallFlashNode);
+                    eventhandlers.push(
+                        createInstallFlashNode.on('click', function() {
+                            Y.alert('Flash player',
+                                        'The most recent version of Adobe Flash player should be installed if you want to upload files.'+
+                                        '<br /><br /><a href="http://get.adobe.com/flashplayer" target="_blank">install flashplayer now</a>')
+                            .then(
+                                function() {
+                                    // check if the flashplayer is indeed installed. If so, then uploader-button can be installed
+                                    instance._redetectFlash();
+                                    if (Y.SWFDetect.isFlashVersionAtLeast(10,0,45)) {
+                                        Y.Uploader = Y.UploaderFlash;
+                                        Y.Uploader.TYPE = "flash";
+                                        instance._createUploader();
+                                    }
+                                }
+                            );
+                        })
+                    );
+                }
+            }
+        },
+
+        _redetectFlash : function() {
+            var version = 0,
+                uA = Y.UA,
+                sF = "ShockwaveFlash",
+                mF, eP, vS, ax6, ax;
+
+            function parseFlashVersion (flashVer) {
+                if (Lang.isNumber(PARSTEINT(flashVer[0]))) {
+                    uA.flashMajor = flashVer[0];
+                }
+
+                if (Lang.isNumber(PARSTEINT(flashVer[1]))) {
+                    uA.flashMinor = flashVer[1];
+                }
+
+                if (Lang.isNumber(PARSTEINT(flashVer[2]))) {
+                    uA.flashRev = flashVer[2];
+                }
+            }
+            if (uA.gecko || uA.webkit || uA.opera) {
+               if ((mF = navigator.mimeTypes['application/x-shockwave-flash'])) {
+                  if ((eP = mF.enabledPlugin)) {
+                     vS = eP.description.replace(/\s[rd]/g, '.').replace(/[A-Za-z\s]+/g, '').split('.');
+                     Y.log(vS[0]);
+                     parseFlashVersion(vS);
+                  }
+               }
+            }
+            else if(uA.ie) {
+                try
+                {
+                    ax6 = new ActiveXObject(sF + "." + sF + ".6");
+                    ax6.AllowScriptAccess = "always";
+                }
+                catch (e)
+                {
+                    if(ax6 !== null)
+                    {
+                        version = 6.0;
+                    }
+                }
+                if (version === 0) {
+                try
+                {
+                    ax = new ActiveXObject(sF + "." + sF);
+                    vS = ax.GetVariable("$version").replace(/[A-Za-z\s]+/g, '').split(',');
+                    parseFlashVersion(vS);
+                } catch (e2) {}
                 }
             }
         },
@@ -1271,10 +1379,17 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             //============================
             tree.after(
                 'sortableTreeView:select',
-                function() {
+                function(e) {
+                    var treenode = e.node,
+                          selectedfile;
                     rootnode.removeAttribute('tabIndex');
                     rootnode.removeClass(TREEVIEW_SELECTED_CLASS);
                     instance.filescrollview.clearSelectedModels(null, true);
+                    if (!treenode.canHaveChildren) {
+                        // file selected
+                        selectedfile = instance.files.getByFileName(treenode.label);
+                        instance.filescrollview.selectModels(selectedfile, true);
+                    }
                 }
             );
             //============================
@@ -1284,28 +1399,31 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             eventhandlers.push(
                 rootnode.on(
                     'click',
-                    instance._selectRootNode,
-                    instance
+                    Y.bind(instance._selectRootNode, instance, false)
                 )
             );
         },
 
         _selectRootNode : function(withoutFileLoad) {
-            var instance = this,
-                  tree = instance.tree,
-                  rootnode = instance._nodeFilemanTreeRoot;
-            rootnode.set('tabIndex', 0);
-            rootnode.addClass(TREEVIEW_SELECTED_CLASS);
-            rootnode.focus();
-            instance._currentDir = '/';
-            instance._currentDirTreeNode = tree.rootNode;
-            if (!withoutFileLoad) {
-                instance.loadFiles();
-            }
-            YArray.each(
-                tree.getSelectedNodes(),
-                function(treenode) {
-                    treenode.unselect();
+            var instance = this;
+            instance.initialized().then(
+                function() {
+                    var tree = instance.tree,
+                          rootnode = instance._nodeFilemanTreeRoot;
+                    rootnode.set('tabIndex', 0);
+                    rootnode.addClass(TREEVIEW_SELECTED_CLASS);
+                    rootnode.focus();
+                    instance._currentDir = '/';
+                    instance._currentDirTreeNode = tree.rootNode;
+                    if (!withoutFileLoad) {
+                        instance.loadFiles();
+                    }
+                    YArray.each(
+                        tree.getSelectedNodes(),
+                        function(treenode) {
+                            treenode.unselect();
+                        }
+                    );
                 }
             );
         },
@@ -1377,7 +1495,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             var instance = this;
             YArray.each(
-                this._eventhandlers,
+                instance._eventhandlers,
                 function(item){
                     item.detach();
                 }
@@ -1437,7 +1555,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         }
                         // now we must extend options for each action
                         if (syncaction === 'loadFiles') {
-                            options.currentDir = instance._currentDir;
+                            options.currentDir = instance._currentDir || '/';
                         }
                         else if (syncaction === 'loadAppendFiles') {
                             options.currentDir = instance._currentDir;
@@ -1856,7 +1974,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @protected
          * @since 0.1
         */
-        _setShowTreefiles : function(val) {
+        _setShowTreefiles : function() {
 
         },
 
