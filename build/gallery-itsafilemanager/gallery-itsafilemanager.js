@@ -75,6 +75,7 @@ var Lang = Y.Lang,
     FILEMAN_RESIZINGX_CLASS = FILEMANCLASSNAME + '-itsaresehandlerx',
     FILEMAN_RESIZINGY_CLASS = FILEMANCLASSNAME + '-itsaresehandlery',
     FILEMAN_TREE_CLASS = FILEMANCLASSNAME + '-tree',
+    FILEMAN_DISK_CLASS = FILEMANCLASSNAME + '-disk',
     FILEMAN_ROOTTREEVIEW_CLASS = FILEMANCLASSNAME + '-roottreeview',
     TREEVIEW_NODE_CLASS = 'yui3-treeview-node',
     TREEVIEW_ROW_CLASS = 'yui3-treeview-row',
@@ -85,7 +86,7 @@ var Lang = Y.Lang,
     FILEMAN_HEADERTEMPLATE = '<div class="'+FILEMAN_TITLE_CLASS+'">{title}</div><div class="'+FILEMAN_TOOLBAR_CLASS+'"></div>',
     FILEMAN_TEMPLATE = "<div class='"+FILEMAN_TREE_CLASS+"'>"+
                                             "<div class='"+FILEMAN_ROOTTREEVIEW_CLASS+" "+TREEVIEW_NODE_CLASS+ " "+ HIDDEN_CLASS+"'>"+
-                                                "<div class='"+TREEVIEW_ROW_CLASS+"'>{root}</div>"+
+                                                "<div class='"+TREEVIEW_ROW_CLASS+"'><div class='"+FILEMAN_DISK_CLASS+"'></div>{root}</div>"+
                                             "</div>"+
                                             "<div class='"+FILEMAN_TREEVIEW_CLASS+"'></div>"+
                                         "</div>"+
@@ -280,6 +281,10 @@ Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.TreeView.S
                 }
             );
             return foundNode;
+        },
+        directoryIsLoaded : function(treenode) {
+            var instance = this;
+            return (!instance.hasPlugin('lazy') || treenode.state.loaded || (treenode === instance.rootNode));
         }
     }
 );
@@ -444,6 +449,31 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     }
                 )
             );
+
+// when files are selected, the must be selected in the tree as well.
+// suppres for the time being, because we need to find a way to prevent 'looping'
+// that is: when the tree-files are selected, they will select the files again (by their own event)
+/*
+            eventhandlers.push(
+                instance.after(
+                    'itsascrollviewmodellist:modelSelectionChange',
+                    function(e) {
+                        var selectedfiles = e.originalModelSelection,
+                              tree = instance.tree;
+                        tree.unselect();
+                        YArray.each(
+                            selectedfiles,
+                            function(fileobject) {
+                                var treenode = tree.getByFileName(instance._currentDirTreeNode, fileobject.filename);
+                                if (treenode) {
+                                    tree.selectNode(treenode, {silent: true});
+                                }
+                            }
+                        );
+                    }
+                )
+            );
+*/
         },
 
         getCurrentDir : function() {
@@ -1205,6 +1235,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                            }
                            uploader.set('enabled', false);
                            YArray.each(fileList, function (fileInstance) {
+                                // store currentDirTreeNode insode the fileinstance, so we know later win what directory to put the file
+                                fileInstance.currentDirTreeNode = instance._currentDirTreeNode;
                                 params[fileInstance.get('id')] = Y.merge(
                                     instance.get('uploaderPostVars'),
                                     {
@@ -1220,12 +1252,18 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     uploader.on('uploadcomplete', function (e) {
                         var response = PARSE(e.data),
                               error = response.error,
-                              newfileobject = response.results;
+                              newfileobject = response.results,
+                              tree = instance.tree,
+                              showTreefiles = instance.get('showTreefiles'),
+                              fileDirectoryNode = e.file.currentDirTreeNode;
                         if (error) {
                             instance._handleSyncError(error && error.description, 'Upload '+ e.file.get('name'));
                         }
                         else {
                             instance.files.add(newfileobject);
+                            if (showTreefiles && fileDirectoryNode && tree.directoryIsLoaded(fileDirectoryNode)) {
+                                tree.insertNode(fileDirectoryNode, {label: newfileobject.filename});
+                            }
                         }
                     });
                     uploader.on('alluploadscomplete', function () {
@@ -1368,17 +1406,21 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             //============================
             tree.after(
                 'sortableTreeView:select',
-                function(e) {
-                    var treenode = e.node,
-                          selectedfile;
+                function() {
+//                    var treenode = e.node,
+//                          selectedfile;
                     rootnode.removeAttribute('tabIndex');
                     rootnode.removeClass(TREEVIEW_SELECTED_CLASS);
                     instance.filescrollview.clearSelectedModels(null, true);
+/*
                     if (!treenode.canHaveChildren) {
                         // file selected
+                        // suppressed for the time being --> we can only use the next methods
+                        // when the files are present, which may be 'loading' when directory is just showed up. --> Promises!
                         selectedfile = instance.files.getByFileName(treenode.label);
                         instance.filescrollview.selectModels(selectedfile, true);
                     }
+*/
                 }
             );
             //============================
@@ -1558,6 +1600,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options._currentDirTreeNode = instance._currentDirTreeNode;
                             options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
                             options.newFileName = param1;
+                            // change param1 to _currentDirTreeNode, so we have reference to it after the sync:
+                            param1 = instance._currentDirTreeNode;
                             // now unselect the selected files, for convenience experience
                             filescrollview.clearSelectedModels(null, true);
                         }
@@ -1566,18 +1610,23 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.newDirName = param1;
                         }
                         else if (syncaction === 'deleteFiles') {
-                            options._currentDirTreeNode = instance._currentDirTreeNode;
                             options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
                             options.currentDir = instance._currentDir;
+                            // change param1 to _currentDirTreeNode, so we have reference to it after the sync:
+                            param1 = instance._currentDirTreeNode;
                             // now unselect the selected files, for convenience experience
                             filescrollview.clearSelectedModels(null, true);
                         }
                         else if (syncaction === 'deleteDir') {
                             options.currentDir = instance._currentDir;
+                            // change param1 to _currentDirTreeNode, so we have reference to it after the sync:
+                            param1 = instance._currentDirTreeNode;
                         }
                         else if (syncaction === 'createDir') {
                             options.currentDir = instance._currentDir;
                             options.dirName = param1;
+                            // change param1 to _currentDirTreeNode, so we have reference to it after the sync:
+                            param1 = instance._currentDirTreeNode;
                         }
                         else if (syncaction === 'moveDir') {
                             options.currentDir = instance._currentDir;
@@ -1597,6 +1646,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.selectedFiles = YJSON.stringify(instance.getSelectedFiles());
                             options.currentDir = instance._currentDir;
                             options.destinationDir = param1;
+                            // change param1 to _currentDirTreeNode, so we have reference to it after the sync:
+                            param1 = instance._currentDirTreeNode;
                             // now unselect the selected files, for convenience experience
                             filescrollview.clearSelectedModels(null, true);
                         }
@@ -1695,7 +1746,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // }
                     createdFiles = parsedResponse.results;
                     if (createdFiles && createdFiles.length>0) {
-                        fileDirectoryNode = options._currentDirTreeNode;
+                        fileDirectoryNode = param1;
                         YArray.each(
                             createdFiles,
                             function(changedFileObject) {
@@ -1740,11 +1791,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     // should return an array with filenames that are deleted
                     deletedFiles = parsedResponse.results;
                     if (deletedFiles && deletedFiles.length>0) {
-                        fileDirectoryNode = options._currentDirTreeNode;
+                        fileDirectoryNode = param1;
                         YArray.each(
                             deletedFiles,
                             function(deletedFilename) {
-                                if (showTreefiles && fileDirectoryNode && fileDirectoryNode.state.loaded) {
+                                if (showTreefiles && fileDirectoryNode && tree.directoryIsLoaded(fileDirectoryNode)) {
                                     changedTreeNode = tree.getByFileName(fileDirectoryNode, deletedFilename);
                                     tree.removeNode(changedTreeNode, {remove: true, silent: false});
                                 }
@@ -1761,7 +1812,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     }
                 }
                 else if (syncaction === 'deleteDir') {
-                    changedTreeNode = instance._currentDirTreeNode;
+                    changedTreeNode = param1;
                     parentnode = changedTreeNode.parent;
                     tree.removeNode(changedTreeNode, {destroy: true});
                     // now select its parentnode
@@ -1775,8 +1826,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 else if (syncaction === 'createDir') {
                     // Be careful: when LazyRender and the node has no content yet, the new directory  must not be inserted
                     // Opening the treenode would load all subdirs and leads to double reference
-                    changedTreeNode = instance._currentDirTreeNode;
-                    if (!lazyRender || changedTreeNode.state.loaded || (changedTreeNode === tree.rootNode)) {
+                    changedTreeNode = param1;
+                    if (tree.directoryIsLoaded(changedTreeNode)) {
                         dirName = parsedResponse.results; // the directoryname that was created on the server .
                                                                                  // this can be different from the requested dirname.
                         tree.insertNode(changedTreeNode, {label: dirName, canHaveChildren: true});
@@ -1796,7 +1847,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 else if (syncaction === 'copyFiles') {
                     createdFiles = parsedResponse.results; // array with fileobjects
                     instance.files.add(createdFiles);
-                    changedTreeNode = instance._currentDirTreeNode;
+//                    changedTreeNode = instance._currentDirTreeNode;
+                    changedTreeNode = param1;
                     if (showTreefiles) {
                         // now add the files to the tree
                         YArray.each(

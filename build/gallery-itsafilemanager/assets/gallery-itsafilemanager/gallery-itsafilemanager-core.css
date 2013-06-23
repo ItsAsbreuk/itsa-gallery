@@ -158,6 +158,27 @@ background: none;
     margin-top: 10px;
     display: block;
 }
+.yui3-itsafilemanager-disk {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAACtElEQVR4nO2Vz2sTQRTHvzPZJrvJm5luhaSV2mpprVh68iCIQkXwoCBoL4XeBBFv3rwUwZtFsBD8Y/oXeOqxeEohYiGXFGl+bDbZ3RkPJnF3sw296cEHAzNvmO9n3nuzb4H/9reNpR2Hh4c3l5eX39m2DaM1tDEwWsMYA601tNYJv47ttVotU6vVPrx6/frHSM9KA5RSb5aWll5aljUhEB8mvTYGSik0m80agI8jPR4XPzg4YFLKx1Yul4CajNCzfJZlQQjxLO5LABYWFq5IIVYZ58mTJktu0jjnEESbn/b3KRPguu7dElE+67AxZjrIGDDGQEKQ67qbmQAi2i4UCuMDmXIxSHx/NHdsO5GmMaBarXIp5UPLmqj7pOCUaGZmZiCInrzf22MJQLlcviqlvMbT+b8IMgSlMZxzCCHWlVJuAqCkfEBEqedzQZqmGWMQQhSklHcSABJi27btS2mko0jPbcdBqVR6DgA5AKhWq9at9fXP5XJZMMb+3NwYmPR8OCbWsYgZY2i327Nrq6tfOABUKpXrUqlK7qL8ZxR02sc3rMMNpVSFAwARPSIiDjbRmpKQS35wDIAgsojoHgcAKeWLQqGQCDk99Gg+7Dsmnr6MKB3HARFts93dXdHtdOrHx8dzGOYfAMqVCnZ2dhCGIQaDAXzfh+d56Ha76Ha78DwPnueh1+uh3+9jMBggDALoWD1ub2ycWo7jFI+OjpzayQlYLEWzrotGo4EgCNDv9+H7/li80+mMIb1eD77vIwgChGEIrTUYY2ClNdjfm0WrXq/78/Pz7XarVSiWSlBKAQAWFxdRr9ehtUYURYiiCGEYIgxDcM5RdBzk83kIIaCj6HfbHt4+CCIU77/F7Nm3cwYAW1tbcysrK+MOmO43Wc9y9I9I7MVqcNp4yn6efT2/1Kv4p+0XJ8SeALKvDHoAAAAASUVORK5CYII=');
+    *background-image: 'disk.png';
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    left: 2px;
+    top: 0;
+}
+.yui3-itsafilemanager-roottreeview .yui3-treeview-row {
+    padding: 0 4px 0 28px;
+}
+.yui3-itsafilemanager .yui3-treeview-indicator s {
+    top: 8px;
+    left: 8px;
+}
+.yui3-itsafilemanager .yui3-treeview-open > .yui3-treeview-row > .yui3-treeview-indicator s {
+    top: 8px;
+    left: 5px;
+}
 .yui3-itsafilemanager .pure-button.pure-button-toolbar {
     border-radius: 4px;
     border: solid 1px #AAA;
