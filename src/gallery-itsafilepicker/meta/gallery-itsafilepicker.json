@@ -1,0 +1,9 @@
+{
+    "gallery-itsafilepicker": {
+        "requires": [
+            "yui-base",
+            "promise",
+            "gallery-itsafilemanager"
+        ]
+    }
+}

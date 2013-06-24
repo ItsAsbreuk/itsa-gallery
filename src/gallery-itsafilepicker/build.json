@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsafilepicker",
+    "builds": {
+        "gallery-itsafilepicker": {
+            "jsfiles": [
+                "js/gallery-itsafilepicker.js"
+            ]
+        }
+    }
+}

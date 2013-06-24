@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsafilepicker",
+    "displayName": "Gallery: gallery-itsafilepicker",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsafilepicker" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}
