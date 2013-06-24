@@ -135,8 +135,8 @@ var Lang = Y.Lang,
     **/
 
    /**
-     * Fired when the synclayer finishes the action 'loadTree' succesfully.
-     * @event loadTree
+     * Fired when the synclayer finishes the action 'loadTreeLazy' succesfully.
+     * @event loadTreeLazy
      * @param e {EventFacade} Event Facade including:
      * @param e.response {Any} response from the server.
      * @param e.options {Object} Options that were passed when the action was called.
@@ -284,7 +284,7 @@ Y.SortableTreeView = Y.Base.create('sortableTreeView', Y.TreeView, [Y.TreeView.S
         },
         directoryIsLoaded : function(treenode) {
             var instance = this;
-            return (!instance.hasPlugin('lazy') || treenode.state.loaded || (treenode === instance.rootNode));
+            return (treenode.state.loaded || (treenode === instance.rootNode));
         }
     }
 );
@@ -607,19 +607,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         */
 
         /**
-         * Loads the tree-structure, using the internal 'sync'-method. See 'sync' how to set up the synclayer.<br />
-         * <b>Remark 1</b>: you can only use this method when the attribute 'lazyRender' is set to false.
-         * <b>Remark 2</b>: with normal usage, you don't need to call this method: It is used automaticly at rendering.
-         *
-         * @method loadTree
-         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
-         * @since 0.1
-        */
-
-        /**
          * Loads the tree-structure of a treenode, using the internal 'sync'-method. See 'sync' how to set up the synclayer.<br />
-         * <b>Remark 1</b>: you can only use this method when the attribute 'lazyRender' is set to true.<br />
-         * <b>Remark 2</b>: with normal usage, you don't need to call this method: Y.Tree is using it automaticly.
+         * <b>Remark</b>: with normal usage, you don't need to call this method: Y.Tree is using it automaticly.
          *
          * @method loadTreeLazy
          * @param node {Y.Tree.Node} the treenode which should be loaded.
@@ -713,10 +702,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          *                     'options.size'  --> current number of files to be downloaded from the server<br />
          *                     'options.lastFileId'  --> Model-id of the last file that is already available in the filepane<br />
          * <br />
-         * `loadTree`: Loads the tree-structure: must be in a form that can pass through to Y.TreeView (nodes-attribute).<br />
-         *                     'options.showTreefiles' --> whether files should be loaded into the treestructure
-         *                                                                  (passed through from the attribute 'showTreefiles')<br />
-         * <br />
          * `loadTreeLazy`: Loads the tree-structure of one treenode: must be in a form that can pass through to Y.TreeView (nodes-attribute).<br />
          *                           'options.directory' --> the directory which content should be loaded (full dir-tree form root).<br />
          *                           'options.showTreefiles' --> whether files should be loaded into the treestructure
@@ -741,11 +726,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * <br />'options.newFileName'  holds the new file-name.
          *
          * @method sync
-         * @param action {String} The sync-action to perform. May be one of the following:
-         *         *
-         * @param [options] {Object} Sync options. At this moment the only sync-command that gets options is 'loadTree'.
-         * options.showTreeFiles is true/false (based on the attribute 'showTreeFiles'). It's up to the custom sync
-         * implementation to determine how to handle 'options'.
+         * @param action {String} The sync-action to perform.
+         * @param [options] {Object} Sync options. The custom synclayer should pass through all options-properties to the server.
         */
         sync: function (/* action, options */) {
             return new Y.Promise(function (resolve, reject) {
@@ -829,7 +811,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                         function() {
                             return Y.batch(
                                 instance.loadFiles(),
-                                (instance.get('lazyRender') ? instance.loadTreeLazy() : instance.loadTree())
+                                instance.loadTreeLazy()
                             );
                        }
                     ).then(
@@ -1376,15 +1358,14 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             var instance = this,
                   rootnode = instance._nodeFilemanTreeRoot,
                   eventhandlers = instance._eventhandlers,
-                  tree, lazyRender;
+                  tree;
 
             //=====================
             // render Y.SortableTreeView
             //=====================
-            lazyRender = instance.get('lazyRender');
             instance.tree = tree = new Y.SortableTreeView({
                 container: instance._nodeFilemanTreeView,
-                lazyRender: lazyRender,
+                lazyRender: true,
                 multiSelect: false // leave false, because multiselect a dir makes inconsistancy about which dirfiles should be shown
             });
             tree.addTarget(instance);
@@ -1393,27 +1374,23 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 // this makes the root-node behave the same as the tree-nodes
                 instance._nodeFilemanTreeRoot.addClass(TREEVIEW_NOTOUCH_CLASS);
             }
-            // If lazyRender the setup its callbackfunc:
-            if (lazyRender) {
-                Y.use('tree-lazy', function() {
-                    tree.plug(Y.Plugin.Tree.Lazy, {
-                        // Custom function that Plugin.Tree.Lazy will call when it needs to
-                        // load the children for a node.
-                        load: function (node, callback) {
-                            instance.loadTreeLazy(node).then(
-                                function() {
-                                    // Call the callback function to tell Plugin.Tree.Lazy that
-                                    // we're done loading data.
-                                    callback();
-                                },
-                                function(err) {
-                                    callback(new Error(err));
-                                }
-                            );
+            // Setup lazyRender's callbackfunc:
+            tree.plug(Y.Plugin.Tree.Lazy, {
+                // Custom function that Plugin.Tree.Lazy will call when it needs to
+                // load the children for a node.
+                load: function (node, callback) {
+                    instance.loadTreeLazy(node).then(
+                        function() {
+                            // Call the callback function to tell Plugin.Tree.Lazy that
+                            // we're done loading data.
+                            callback();
+                        },
+                        function(err) {
+                            callback(new Error(err));
                         }
-                    });
-                });
-            }
+                    );
+                }
+            });
             //============================
             // attach events to treenodes
             //============================
@@ -1571,7 +1548,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
         /**
          * Dynamically creates the next Class-methods:<br />
-         * 'loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
+         * 'loadFiles', 'loadMoreFiles', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
          * 'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'
          *
          * @method _createMethods
@@ -1584,7 +1561,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             var instance = this;
             YArray.each(
-                ['loadFiles', 'loadMoreFiles', 'loadTree', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
+                ['loadFiles', 'loadMoreFiles', 'loadTreeLazy', 'renameFiles', 'renameDir', 'deleteFiles',
                  'deleteDir', 'createDir', 'moveDir', 'moveFiles', 'cloneDir', 'copyFiles'],
                 function (syncaction) {
                     instance[syncaction] = function(param1) {
@@ -1606,9 +1583,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             options.batchSize = instance.get('batchSize');
                             options.size = instance.files.size();
                             options.lastFileId = instance._lastFileId;
-                        }
-                        else if (syncaction === 'loadTree') {
-                            options.showTreefiles = instance.get('showTreefiles');
                         }
                         else if (syncaction === 'loadTreeLazy') {
                             options.showTreefiles = instance.get('showTreefiles');
@@ -1725,7 +1699,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                   parsedResponse = PARSE(response),
                   err = parsedResponse.error,
                   tree = instance.tree,
-                  lazyRender = instance.get('lazyRender'),
                   showTreefiles = instance.get('showTreefiles'),
                   files = instance.files,
                   facade, changedTreeNode, dirName, parentnode, createdFiles, fileobject, filemodel, deletedFiles, fileDirectoryNode;
@@ -1752,7 +1725,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 //                else if (syncaction === 'loadAppendFiles') {
                     // ....
 //                }
-                else if ((syncaction === 'loadTreeLazy') && lazyRender) {
+                else if (syncaction === 'loadTreeLazy') {
                     if (!instance._rootVisible) {
                         instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
                     }
@@ -1879,12 +1852,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             }
                         );
                     }
-                }
-                else if ((syncaction === 'loadTree') && !lazyRender) {
-                    if (!instance._rootVisible) {
-                        instance._rootVisible = instance._nodeFilemanTreeRoot.removeClass(HIDDEN_CLASS);
-                    }
-                    tree.insertNode(tree.rootNode, parsedResponse);
                 }
                 // end of processing, now fire event
                 instance.fire(syncaction, facade);
@@ -2269,28 +2236,6 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             },
 
             /**
-             * Defines whether the tree is lazy: every subdirectory will be loaded by itself, not deep.<br />
-             * Can only be set during initialization.<br /><br />
-             * <b>Caution:</b><br />
-             * When true, you need to setup the sync-action 'loadTreeLazy'.<br />
-             * When false, you need to setup the sync-action 'loadTree'.<br /><br />
-             * lazyRender can significantly speed up the time it takes to render a large
-             * tree, but might not make sense if you're using CSS that doesn't hide the
-             * contents of closed nodes, or when your directory-structure has no children.
-             * @attribute lazyRender
-             * @default false
-             * @type Boolean
-             * @since 0.1
-            */
-            lazyRender: {
-                value: false,
-                writeOnce: 'initOnly',
-                validator: function(val) {
-                    return (typeof val === 'boolean');
-                }
-            },
-
-            /**
              * Defines whether the tree-pane shows files as well. Only visible when 'tree' is set to true.
              * @attribute showTreefiles
              * @default false
@@ -2562,6 +2507,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
         "promise",
         "json",
         "uploader",
+        "tree-lazy",
         "gallery-sm-treeview",
         "gallery-sm-treeview-sortable",
         "gallery-itsaerrorreporter",

@@ -14,6 +14,7 @@
             "promise",
             "json",
             "uploader",
+            "tree-lazy",
             "gallery-sm-treeview",
             "gallery-sm-treeview-sortable",
             "gallery-itsaerrorreporter",

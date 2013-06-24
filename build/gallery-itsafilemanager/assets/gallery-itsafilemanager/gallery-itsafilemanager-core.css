@@ -171,6 +171,8 @@ background: none;
 .yui3-itsafilemanager-roottreeview .yui3-treeview-row {
     padding: 0 4px 0 28px;
 }
+
+.yui3-treeview-can-have-children > .yui3-treeview-row > .yui3-treeview-indicator
 .yui3-itsafilemanager .yui3-treeview-indicator s {
     top: 8px;
     left: 8px;
@@ -328,9 +330,6 @@ background: none;
 }
 .dwg {
     background-position: 0 -200px;
-}
-.7z {
-    background-position: 0 -300px;
 }
 .fon {
     background-position: 0 -400px;
