@@ -1,3 +1,5 @@
+YUI.add('gallery-itsafilepicker', function (Y, NAME) {
+
 'use strict';
 
 /**
@@ -31,7 +33,6 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
     initializer : function() {
         var instance = this;
 
-        Y.log('initializer', 'info', 'Itsa-FilePicker');
         // instance.readyPromise does not exists at this time, but it does when the widget is rendered:
         instance.renderPromise()
         .then(
@@ -50,9 +51,9 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
      * @method getFile
      * @param multiple {Boolean} whether to select a single or multiple files
      * @return {Y.Promise} the promised selected file-object.
-     * The Fulfilled-function has 1 parameter <b>response</b> which is an object with three properties:<br />
-     * response.directory {String}, response.file {Object} and response.files {Array} which only exists when 'multiple' is true.
-     * response.file is always the file that has been double clicked, while response.files is an array that contains all files
+     * The Fulfilled-function has 1 parameter <b>result</b> which is an object with three properties:<br />
+     * result.directory {String}, result.file {Object} and result.files {Array} which only exists when 'multiple' is true.
+     * result.file is always the file that has been double clicked, while result.files is an array that contains all files
      * (including the double clicked file)<br />
      * The file-object has a property-structure as specified in ITSAFileManager's 'filestructure'.
      * @since 0.1
@@ -60,7 +61,6 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
     getFile : function(multiple) {
         var instance = this;
 
-        Y.log('getFile', 'info', 'Itsa-FilePicker');
         return instance.dataPromise.then(
             function() {
                 var filescrollview = instance.filescrollview,
@@ -128,3 +128,14 @@ if (!Y.Global.ItsaFilePicker) {
 }
 
 Y.ItsaFilePicker = Y.Global.ItsaFilePicker;
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "promise",
+        "dd-plugin",
+        "resize-plugin",
+        "gallery-itsawidgetrenderpromise",
+        "gallery-itsafilemanager"
+    ]
+});

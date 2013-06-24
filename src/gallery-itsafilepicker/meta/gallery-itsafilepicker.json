@@ -3,6 +3,9 @@
         "requires": [
             "yui-base",
             "promise",
+            "dd-plugin",
+            "resize-plugin",
+            "gallery-itsawidgetrenderpromise",
             "gallery-itsafilemanager"
         ]
     }
