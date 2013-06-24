@@ -1650,11 +1650,10 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     instance.ICON_FILE,
                     {   customFunc: Y.bind(
                             function(e) {
-                                Y.config.cmas2plus.uploader.show(
-                                    null,
-                                    Y.bind(function(e) {
-                                        this.execCommand('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + e.n);
-                                    }, this)
+                                Y.ItsaFilePicker.getFile().then(
+                                    function(response) {
+                                        instance.execCommand('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + response.file.filename);
+                                    }
                                 );
                             },
                             instance
