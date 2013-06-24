@@ -834,7 +834,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._selModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'clickEvents' is used.
@@ -843,7 +842,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._clkModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'dblclickEvents' is used.
@@ -852,7 +850,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._dblclkModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'hoverEvents' is used.
@@ -861,7 +858,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._mouseentModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'mouseDownUpEvents' is used.
@@ -870,7 +866,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._mouseUpModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'mouseDownUpEvents' is used.
@@ -879,7 +874,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._mouseDnModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'hoverEvents' is used.
@@ -888,7 +882,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._mouseleaveModelEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'highlightAfterModelChange' is used.
@@ -897,7 +890,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._markModelChangeEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'highlightAfterModelChange' is used.
@@ -906,7 +898,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._markModelAddEv = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'modelsIntoViewAfterChange' is used.
@@ -915,7 +906,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._modelInViewChanged = null;
 
         /**
          * Internal eventhandle, defined when the attribute 'modelsIntoViewAfterAdd' is used.
@@ -924,7 +914,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.EventHandle
         */
-        instance._modelInViewAdded = null;
 
         /**
          * Internal object with references to all selected Models.
@@ -942,7 +931,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.Node
         */
-        instance._viewNode = null;
 
         /**
          * The id of _viewNode
@@ -969,7 +957,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Object
         */
-        instance._templFns = null;
 
         /**
          * Internal reference to the last Model that was clicked.
@@ -978,7 +965,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.Model
         */
-        instance._lastClkModel = null;
 
         /**
          * An abbarant (copy) (Lazy)ModelList that will be used (filled) with Models that can be duplicated in case of DupModelExtention.
@@ -987,7 +973,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Y.ModelList | Y.LazyModelList
         */
-        instance._abModelList = null;
 
         /**
          * Internal flag to tell whether the attribute 'viewFilter' is initiated.
@@ -1140,7 +1125,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type String|null
         */
-        instance._prevH1 = null;
 
         /**
          * The content of the last rendered Header2
@@ -1149,7 +1133,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type String|null
         */
-        instance._prevH2 = null,
 
         /**
          * The content of the last rendered Header3
@@ -1158,7 +1141,6 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type String|null
         */
-        instance._prevH3 = null;
 
         /**
          * Whether the last rendered item was even or odd. Needed to draw the right class in the next item.
@@ -1176,7 +1158,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * @default null
          * @type Boolean
         */
-        instance._microTemplateUsed = null;
+
     },
 
    /**
