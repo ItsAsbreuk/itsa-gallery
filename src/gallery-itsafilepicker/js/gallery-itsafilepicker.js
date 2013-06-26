@@ -68,7 +68,7 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
                 filescrollview.set('modelsSelectable', (multiple ? 'multi' : 'single'));
                 filepromise = new Y.Promise(function (resolve, reject) {
                     var resolvehandler, rejecthandler;
-                    resolvehandler = instance.on(
+                    resolvehandler = instance.once(
                         'itsascrollviewmodellist:modelDblclick',
                         function(e) {
                             var file = e.model,
@@ -89,7 +89,7 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
                             instance.hide();
                         }
                     );
-                    rejecthandler = instance.on(
+                    rejecthandler = instance.once(
                         '*:visibleChange',
                         function(e) {
                             var target = e.target,

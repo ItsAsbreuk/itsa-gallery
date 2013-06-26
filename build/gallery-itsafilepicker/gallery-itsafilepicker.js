@@ -51,9 +51,9 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
      * @method getFile
      * @param multiple {Boolean} whether to select a single or multiple files
      * @return {Y.Promise} the promised selected file-object.
-     * The Fulfilled-function has 1 parameter <b>result</b> which is an object with three properties:<br />
-     * result.directory {String}, result.file {Object} and result.files {Array} which only exists when 'multiple' is true.
-     * result.file is always the file that has been double clicked, while result.files is an array that contains all files
+     * The Fulfilled-function has 1 parameter <b>response</b> which is an object with three properties:<br />
+     * response.directory {String}, response.file {Object} and response.files {Array} which only exists when 'multiple' is true.
+     * response.file is always the file that has been double clicked, while response.files is an array that contains all files
      * (including the double clicked file)<br />
      * The file-object has a property-structure as specified in ITSAFileManager's 'filestructure'.
      * @since 0.1
@@ -68,7 +68,7 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
                 filescrollview.set('modelsSelectable', (multiple ? 'multi' : 'single'));
                 filepromise = new Y.Promise(function (resolve, reject) {
                     var resolvehandler, rejecthandler;
-                    resolvehandler = instance.on(
+                    resolvehandler = instance.once(
                         'itsascrollviewmodellist:modelDblclick',
                         function(e) {
                             var file = e.model,
@@ -89,7 +89,7 @@ Y.ITSAFilePicker = Y.Base.create('itsafilepicker', Y.ITSAFileManager, [], {
                             instance.hide();
                         }
                     );
-                    rejecthandler = instance.on(
+                    rejecthandler = instance.once(
                         '*:visibleChange',
                         function(e) {
                             var target = e.target,
