@@ -151,6 +151,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                             preventable: false
                         });
                     }
+                    facade.response = response;
                     instance.fire(EVT_SUBMIT, facade);
                     resolve(response);
                 };
@@ -217,6 +218,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                             preventable: false
                         });
                     }
+                    facade.response = response;
                     parsed = facade.parsed = PARSED(response);
                     instance.setAttrs(parsed, options);
                     instance.changed = {};
@@ -294,6 +296,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                                     preventable: false
                                 });
                             }
+                            facade.response = response;
                             parsed = facade.parsed = PARSED(response);
                             instance.setAttrs(parsed, options);
                             instance.changed = {};
