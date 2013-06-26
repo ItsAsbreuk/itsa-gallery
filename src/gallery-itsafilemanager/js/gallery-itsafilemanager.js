@@ -726,6 +726,8 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @method sync
          * @param action {String} The sync-action to perform.
          * @param [options] {Object} Sync options. The custom synclayer should pass through all options-properties to the server.
+         * @return {Y.Promise} returned response for each 'action' --> response --> resolve(dataobject) OR reject(reason).
+         * The returned 'dataobject' might be an object or a string that can be turned into a json-object
         */
         sync: function (/* action, options */) {
             return new Y.Promise(function (resolve, reject) {
@@ -1008,6 +1010,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 items: FILTERITEMS,
 //                selectionOnButton: false,
                 defaultItem: FILTERITEMS[0].text,
+                visible: instance.get('filterGroup'),
                 btnSize: 1,
                 buttonWidth: 60
             });
@@ -1049,6 +1052,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 selectionOnButton: false,
                 defaultButtonText: 'edit',
                 btnSize: 1,
+                visible: instance.get('editGroup'),
                 buttonWidth: 60
             });
             editSelect.after(
@@ -2176,6 +2180,52 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                 value: false,
                 validator: function(val) {
                     return (typeof val === 'boolean');
+                }
+            },
+
+            /**
+             * Whether the editGroup (with the buttons to edit files and directories) is visible.
+             *
+             * @attribute editGroup
+             * @type Boolean
+             * @default true
+             * @since 0.1
+            */
+            editGroup: {
+                value: true,
+                validator: function(val) {
+                    return (typeof val === 'boolean');
+                },
+                setter: function(val) {
+                    var instance = this;
+                    instance.readyPromise.then(
+                        function() {
+                            instance.editSelect.set('visible', val);
+                        }
+                    );
+                }
+            },
+
+            /**
+             * Whether the filterGroup (with the buttons to view specific type of files) is visible.
+             *
+             * @attribute filterGroup
+             * @type Boolean
+             * @default true
+             * @since 0.1
+            */
+            filterGroup: {
+                value: true,
+                validator: function(val) {
+                    return (typeof val === 'boolean');
+                },
+                setter: function(val) {
+                    var instance = this;
+                    instance.readyPromise.then(
+                        function() {
+                            instance.filterSelect.set('visible', val);
+                        }
+                    );
                 }
             },
 
