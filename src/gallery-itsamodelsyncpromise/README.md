@@ -72,6 +72,7 @@ YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsamodelsyncpr
             return new Y.Promise(function (resolve, reject) {
                 reject(new Error('The syncPromise()-method was is called with undefined action: '+action));
             });
+        }
     });
     piemodel = new Y.PieModel({...});
 
