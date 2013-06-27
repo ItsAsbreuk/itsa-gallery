@@ -306,7 +306,7 @@ if (!Y.Global.ITSADialog) {
         }
     });
 
-    ITSADialogInstance = Y.Global.ITSADialog = new ITSADialog();
+    Y.Global.ITSADialog = new ITSADialog();
     // now lazyload 'gallery-itsadialogbox'
     Y.later(
         LOADDELAY,
@@ -315,6 +315,8 @@ if (!Y.Global.ITSADialog) {
         GALLERY_ITSADIALOGBOX
     );
 }
+
+ITSADialogInstance = Y.Global.ITSADialog;
 
 /**
  * Pops-up an alert-dialog --> dialog with no input-field and only an 'OK'-button.
