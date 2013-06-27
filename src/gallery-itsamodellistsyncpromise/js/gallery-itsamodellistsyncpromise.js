@@ -106,12 +106,20 @@
     **/
     EVT_DESTROY = 'destroy',
 
-    PARSED = function(value) {
-        var parsed;
-        try {
-            parsed = Y.JSON.parse(value);
-        } catch (ex) {}
-        return parsed;
+    PARSED = function (response) {
+        if (typeof response === 'string') {
+            try {
+                return Y.JSON.parse(response);
+            } catch (ex) {
+                this.fire(EVT_ERROR, {
+                    error   : ex,
+                    response: response,
+                    src     : 'parse'
+                });
+                return null;
+            }
+        }
+        return response;
     };
 
 // -- Mixing extra Methods to Y.ModelList -----------------------------------
@@ -232,7 +240,7 @@
                         instance.reset(parsed, options);
                     }
                     instance.fire(eventname, facade);
-                    resolve(response, options);
+                    resolve(response);
                 };
                 if (instance.syncPromise) {
                     // use the syncPromise-layer
