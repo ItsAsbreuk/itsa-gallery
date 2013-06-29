@@ -60,7 +60,7 @@ var Lang = Y.Lang,
     INSTALL_FLASH_NODE = '<button class="pure-button pure-button-toolbar" type="button">{text}</button>',
     EMPTY_FILEUPLOADNODE = '<div class="pure-button pure-uploadbutton"></div>',
     FILEMAN_TITLE = 'Filemanager',
-    FILEMAN_FOOTERTEMPLATE = "ready",
+    FILEMAN_FOOTERTEMPLATE = 'ready - no appropriate uploader found',
     FILEMANCLASSNAME = 'yui3-itsafilemanager',
     HIDDEN_CLASS = FILEMANCLASSNAME + '-hidden',
     EXTEND_LOADING_CLASS = FILEMANCLASSNAME + '-extendloading',
@@ -1189,6 +1189,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     instance._nodeFilemanToolbar.append(shadowNode);
                 }
                 if (Y.Uploader.TYPE !== 'none') {
+                    instance.renderPromise().then(
+                        function() {
+                            instance.set('footerContent', 'ready - using uploader ' + uploaderType);
+                        }
+                    );
                     if (instance._installFlashNode) {
                         // remove previous rendered install-flash buttonnode
                         instance._installFlashNode.remove(true);

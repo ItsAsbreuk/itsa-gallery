@@ -34,6 +34,10 @@
     border-top: solid 1px #999;
 }
 
+.yui3-itsafilemanager .yui3-itsaselectlist-hidden {
+    display: none;
+}
+
 .yui3-js-enabled .yui3-itsafilemanager-extendloading,
 .yui3-js-enabled .yui3-itsafilemanager-loading,
 .yui3-itsafilemanager-hidden,
