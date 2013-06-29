@@ -28,6 +28,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
 */
 
    var YArray = Y.Array,
+
    /**
      * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
      * the sync layer submit-function returns an error.
@@ -100,10 +101,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
        /**
          * This method can be defined in descendend classes.<br />
          * If syncPromise is defined, then the syncPromise() definition will be used instead of sync() definition.<br />
-         * Always reject the promise in case an invalid 'action' is defined: end the method with this code:
-         *   return new Y.Promise(function (resolve, reject) {<br />
-         *       reject(new Error('The syncPromise()-method was is called with undefined action: '+action));
-         *   });<br />
+         * In case an invalid 'action' is defined, the promise will be rejected.
          *
          * @method syncPromise
          * @param action {String} The sync-action to perform.
@@ -111,6 +109,32 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
          * @return {Y.Promise} returned response for each 'action' --> response --> resolve(dataobject) OR reject(reason).
          * The returned 'dataobject' might be an object or a string that can be turned into a json-object
         */
+
+        /**
+         * This method is used internally and returns syncPromise() that is called with 'action'.
+         * If 'action' is not handled as a Promise -inside syncPromise- then this method will reject the promisi.
+         *
+         * @method _syncTimeoutPromise
+         * @param action {String} The sync-action to perform.
+         * @param [options] {Object} Sync options. The custom synclayer should pass through all options-properties to the server.
+         * @return {Y.Promise} returned response for each 'action' --> response --> resolve(dataobject) OR reject(reason).
+         * The returned 'dataobject' might be an object or a string that can be turned into a json-object
+         * @private
+         * @since 0.2
+        */
+        _syncTimeoutPromise : function(action, options) {
+            var instance = this,
+                  syncpromise;
+
+            syncpromise = instance.syncPromise(action, options);
+            if (!(syncpromise instanceof Y.Promise)) {
+                syncpromise = new Y.Promise(function (resolve, reject) {
+                    var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
+                    reject(new Error(errormessage));
+                });
+            }
+            return syncpromise;
+        },
 
        /**
          * Submits this model to the server.
@@ -156,7 +180,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                 };
                 if (instance.syncPromise) {
                     // use the syncPromise-layer
-                    instance.syncPromise('submit', options).then(
+                    instance._syncTimeoutPromise('submit', options).then(
                         successFunc,
                         errFunc
                     );
@@ -225,7 +249,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                 };
                 if (instance.syncPromise) {
                     // use the syncPromise-layer
-                    instance.syncPromise('read', options).then(
+                    instance._syncTimeoutPromise('read', options).then(
                         successFunc,
                         errFunc
                     );
@@ -303,7 +327,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                         usedmethod = instance.isNew() ? 'create' : 'update';
                         if (instance.syncPromise) {
                             // use the syncPromise-layer
-                            instance.syncPromise(usedmethod, options).then(
+                            instance._syncTimeoutPromise(usedmethod, options).then(
                                 successFunc,
                                 errFunc
                             );
@@ -368,7 +392,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                         };
                         if (instance.syncPromise) {
                             // use the syncPromise-layer
-                            instance.syncPromise('delete', options).then(
+                            instance._syncTimeoutPromise('delete', options).then(
                                 successFunc,
                                 errFunc
                             );
