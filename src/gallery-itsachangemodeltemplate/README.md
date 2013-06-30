@@ -61,7 +61,7 @@ Usage
 <div id='myscrollview' class='itsa-modellistview-noinitialitems'></div>
 ```
 ```js
-YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', lazy-model-list', function(Y) {
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', function(Y) {
 var myModellist, rendertemplate, secondrendertemplate, myScrollview, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
