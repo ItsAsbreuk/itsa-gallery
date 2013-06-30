@@ -25,14 +25,22 @@ If you need the buttons with the same style on the original template as how are 
 
 If you use buttons within the 'originalTemplate', you can make advantage of some techniques that make buttons 'know' in which model they are active:
 
-* <button type="button" class="yui3-button originaltemplate">press me</button>
-  will render the original template by calling host.setModelToOriginalTemplate() on the model
-* <button type="button" class="yui3-button secondtemplate">press me</button>
-  will render the second-template by calling host.setModelToSecondTemplate() on the model
-* <button type="button" class="yui3-button edittemplate">press me</button>
-  will render the edit-template by calling host.setModelToEditTemplate() on the model
-* <button type="button" class="yui3-button">press me</button> with the use plugin [Y.Plugin.ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
-  for all other actions that need to be done. This plugin will make the buttons fire a model:buttonclick
+```html
+<button type="button" class="yui3-button originaltemplate">press me</button>
+```
+will render the original template by calling host.setModelToOriginalTemplate() on the model
+```html
+<button type="button" class="yui3-button secondtemplate">press me</button>
+```
+will render the second-template by calling host.setModelToSecondTemplate() on the model
+```html
+<button type="button" class="yui3-button edittemplate">press me</button>
+```
+will render the edit-template by calling host.setModelToEditTemplate() on the model
+```html
+<button type="button" class="yui3-button">press me</button> with the use plugin [Y.Plugin.ITSASubscribeModelButtons](src/gallery-itsasubscribemodelbuttons)
+```
+for all other actions that need to be done. This plugin will make the buttons fire a model:buttonclick
 
 
 <i>To make the models editable, this plugin uses gallery-itsaeditmodel under the hood. The attribute 'configForEditModel' is passed
