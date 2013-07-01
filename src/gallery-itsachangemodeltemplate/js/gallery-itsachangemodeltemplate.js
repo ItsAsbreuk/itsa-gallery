@@ -270,7 +270,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 clientId = host.getModelAttr(model, 'clientId'),
                 modellist = host.get('modelList'),
-                comparator = modellist && Y.bind(modellist.comparator, modellist),
+                comparator = modellist && modellist.comparator && Y.bind(modellist.comparator, modellist),
                 currentMode;
 
             currentMode = instance._getMode(model);
@@ -315,7 +315,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             var instance = this,
                 host = instance.host,
                 modellist = host.get('modelList'),
-                comparator = modellist && Y.bind(modellist.comparator, modellist),
+                comparator = modellist && modellist.comparator && Y.bind(modellist.comparator, modellist),
                 clientId = host.getModelAttr(model, 'clientId'),
                 currentMode;
             if (instance.get('modelsEditable')) {
