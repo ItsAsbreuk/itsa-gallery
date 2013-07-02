@@ -1272,7 +1272,6 @@ Y.augment(Y.Model, Y.Plugin.Host);
       '.'+ITSAFORMELEMENT_BUTTONTYPE_CLASS
   );
 
-
 }, '@VERSION@', {
     "requires": [
         "yui-base",
