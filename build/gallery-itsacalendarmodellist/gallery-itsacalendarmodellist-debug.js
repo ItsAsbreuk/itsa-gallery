@@ -198,7 +198,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _fireModelsEvent : null,
 
     /**
      * Internal subscriber to Calendar.after(['dateChange', 'markChange']) events
@@ -208,7 +207,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _afterRenderEvent : null,
 
     /**
      * Internal subscriber to Calendar.after('render') events
@@ -218,7 +216,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _syncModelListEvent : null,
 
     /**
      * Internal subscriber to modelList.after('*:change') events
@@ -228,7 +225,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _syncModelListCheckEvent : null,
 
     /**
      * Internal flag that tells whether the attribute modelConfig is initiated.
@@ -238,7 +234,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _modelConfigInitiated : false,
 
     /**
      * Internal flag that tells whether the attribute modelList is initiated.
@@ -248,7 +243,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _modelListInitiated : false,
 
     /**
      * Internal flag that is used to check whether modelConfig is updated by an internal set('modelList').
@@ -258,8 +252,6 @@ Y.mix(ITSACalendarModelList.prototype, {
      * @private
      * @since 0.3
      */
-    _internalUpdate : false,
-
 
     /**
      * Designated initializer
@@ -273,6 +265,10 @@ Y.mix(ITSACalendarModelList.prototype, {
         var instance = this;
 
         Y.log('initializer', 'info', 'Itsa-CalendarModelList');
+        instance._modelConfigInitiated = false;
+        instance._modelListInitiated = false;
+        instance._internalUpdate = false;
+        instance._storedModelDates = {};
         instance._fireModelsEvent = instance.after('selectionChange', instance._fireSelectedModels);
     },
 
