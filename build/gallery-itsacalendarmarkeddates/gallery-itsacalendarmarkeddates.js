@@ -62,7 +62,6 @@ Y.mix(ITSACalendarMarkedDates.prototype, {
      * @private
      * @since 3.8.1
      */
-    _markedDates : {},
 
     /**
      * Internal subscriber to Calendar.after(['dateChange', 'markChange']) events
@@ -72,7 +71,6 @@ Y.mix(ITSACalendarMarkedDates.prototype, {
      * @private
      * @since 3.8.1
      */
-    _fireMarkEvent : null,
 
     /**
      * Designated initializer
