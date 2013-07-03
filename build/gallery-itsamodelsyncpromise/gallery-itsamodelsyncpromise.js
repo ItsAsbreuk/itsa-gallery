@@ -241,7 +241,12 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                         });
                     }
                     facade.response = response;
-                    parsed = facade.parsed = PARSED(response);
+                    parsed = PARSED(response);
+                    if (parsed.responseText) {
+                        // XMLHttpRequest
+                        parsed = parsed.responseText;
+                    }
+                    facade.parsed = parsed;
                     instance.setAttrs(parsed, options);
                     instance.changed = {};
                     instance.fire(EVT_LOAD, facade);
@@ -318,7 +323,12 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                                 });
                             }
                             facade.response = response;
-                            parsed = facade.parsed = PARSED(response);
+                            parsed = PARSED(response);
+                            if (parsed.responseText) {
+                                // XMLHttpRequest
+                                parsed = parsed.responseText;
+                            }
+                            facade.parsed = parsed;
                             instance.setAttrs(parsed, options);
                             instance.changed = {};
                             instance.fire(EVT_SAVE, facade);
