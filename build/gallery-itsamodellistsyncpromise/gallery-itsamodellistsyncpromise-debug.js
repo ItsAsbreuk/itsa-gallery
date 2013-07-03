@@ -274,7 +274,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                         });
                     }
                     facade.response = response;
-                    parsed = facade.parsed = PARSED(response);
+                    parsed = PARSED(response);
+                    if (parsed.responseText) {
+                        // XMLHttpRequest
+                        parsed = parsed.responseText;
+                    }
+                    facade.parsed = parsed;
                     if (append) {
                         instance.add(parsed, options);
                     }
