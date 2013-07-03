@@ -385,49 +385,47 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
             Y.log('destroyPromise', 'info', 'Itsa-ModelSyncPromise');
             options = options || {};
             return new Y.Promise(function (resolve, reject) {
-                instance.onceAfter('destroy', function () {
-                    var errFunc, successFunc, finish;
-                    finish = function() {
-                        YArray.each(instance.lists.concat(), function (list) {
-                            list.remove(instance, options);
-                        });
+                var errFunc, successFunc, finish;
+                finish = function() {
+                    YArray.each(instance.lists.concat(), function (list) {
+                        list.remove(instance, options);
+                    });
+                };
+                if (options.remove || options['delete']) {
+                    errFunc = function(err) {
+                        var facade = {
+                            error   : err,
+                            src     : 'Model.destroyPromise()',
+                            options : options
+                        };
+                        instance._lazyFireErrorEvent(facade);
+                        reject(new Error(err));
                     };
-                    if (options.remove || options['delete']) {
-                        errFunc = function(err) {
-                            var facade = {
-                                error   : err,
-                                src     : 'Model.destroyPromise()',
-                                options : options
-                            };
-                            instance._lazyFireErrorEvent(facade);
-                            reject(new Error(err));
-                        };
-                        successFunc = function(response) {
-                            finish();
-                            resolve(response);
-                        };
-                        if (instance.syncPromise) {
-                            // use the syncPromise-layer
-                            instance._syncTimeoutPromise('delete', options).then(
-                                successFunc,
-                                errFunc
-                            );
-                        }
-                        else {
-                            instance.sync('delete', options, function (err, response) {
-                                if (err) {
-                                    errFunc(err);
-                                }
-                                else {
-                                    successFunc(response);
-                                }
-                            });
-                        }
-                    } else {
+                    successFunc = function(response) {
                         finish();
-                        resolve();
+                        resolve(response);
+                    };
+                    if (instance.syncPromise) {
+                        // use the syncPromise-layer
+                        instance._syncTimeoutPromise('delete', options).then(
+                            successFunc,
+                            errFunc
+                        );
                     }
-                });
+                    else {
+                        instance.sync('delete', options, function (err, response) {
+                            if (err) {
+                                errFunc(err);
+                            }
+                            else {
+                                successFunc(response);
+                            }
+                        });
+                    }
+                } else {
+                    finish();
+                    resolve();
+                }
             }).then(
                 function() {
                     // if succeeded, destroy the Model's instance
