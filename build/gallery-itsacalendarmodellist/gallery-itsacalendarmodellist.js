@@ -158,7 +158,7 @@ ITSACalendarModelList.ATTRS = {
     modelList : {
         value: null,
         lazyAdd: false,
-        validator: function(v){ return (v.getByClientId) || v === null; },
+        validator: function(v){ return (v === null) || (v.getByClientId); },
         setter: '_setModelList'
     },
 
@@ -179,7 +179,7 @@ ITSACalendarModelList.ATTRS = {
      */
     modelConfig: {
         value:      null,
-        validator:  function(v){ return Lang.isObject(v) || v === null; },
+        validator:  function(v){ return (v === null) || Lang.isObject(v); },
         setter: '_setModelConfig'
     }
 
