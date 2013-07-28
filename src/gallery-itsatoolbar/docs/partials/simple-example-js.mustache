@@ -19,9 +19,10 @@ alert('test');
 
 
 
-var itsagalleryversion = 'development',
+var itsagalleryversion = null,  // use null for development, '0.0.1' for any other version
+    galleryversion = 'gallery-2013.07.03-22-52',
     loaderdomain = 'http://yogiloader.itsasbreuk.nl',
-    combine = false,
+    combine = true,
     filter = 'debug',
     yuiconfig = {
         combine  : combine,
@@ -29,9 +30,9 @@ var itsagalleryversion = 'development',
         groups   : {
           itsagallery : {
              combine  : combine,
-             base     : loaderdomain+'/itsa-gallery/' + itsagalleryversion + '/build/',
+             base     : loaderdomain+'/combo?itsa-gallery/' + (itsagalleryversion ? itsagalleryversion+'/' : '') + 'build/',
              comboBase: loaderdomain+'/combo?',
-             root     : 'itsa-gallery/0.0.1/build/',
+             root     : 'itsa-gallery/' + (itsagalleryversion ? itsagalleryversion+'/' : '') + 'build/',
              patterns:
              {
                 'gallery-itsa':      { },
@@ -42,7 +43,7 @@ var itsagalleryversion = 'development',
           },
           gallery : {
              combine  : combine,
-             base     : loaderdomain+'/yui3-gallery/gallery-2013.07.03-22-52/build/',
+             base     : loaderdomain+'/combo?yui3-gallery/gallery-2013.07.03-22-52/build/',
              comboBase: loaderdomain+'/combo?',
              root     : 'yui3-gallery/gallery-2013.07.03-22-52/build/',
              patterns:
@@ -80,6 +81,6 @@ YUI(yuiconfig).use('gallery-sm-treeview','gallery-sm-tree-lazy','editor', 'panel
         });
 
         // Render the treeview inside the #treeview element.
-        treeview.render();  
+        treeview.render();
     });
 </script>

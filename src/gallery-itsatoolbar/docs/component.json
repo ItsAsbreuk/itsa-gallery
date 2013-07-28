@@ -1,8 +1,8 @@
 {
-    "name"       : "itsatoolbat",
+    "name"       : "itsatoolbar",
     "displayName": "ITSAToolbar",
-    "description": "ITSAToolbar is a GUI for the Rich Text Editor.", 
-    "author"     : "itsasbreuk",
+    "description": "ITSAToolbar is a GUI for the Rich Text Editor.",
+    "author"     : "Marco Asbreuk",
 
     "tags": ["editor", "itsatoolbar"],
     "use" : ["tabview"],

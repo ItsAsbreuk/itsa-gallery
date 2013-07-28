@@ -4,6 +4,8 @@
             "yui-base",
             "yui-later",
             "node-base",
+            "base-build",
+            "panel",
             "promise"
         ]
     }

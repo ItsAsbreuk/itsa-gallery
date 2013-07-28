@@ -19,7 +19,6 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
  *
 */
 
-
 /**
  * Promise that will be resolved once a node is available in the DOM.
  * Exactly the same as when listened to Y.on('available'), except you get a Promise in return.
@@ -32,13 +31,14 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
  * @since 0.1
 */
 Y.Node.prototype.availablePromise = function(nodeid, timeout) {
-    Y.log('xxavailablePromise', 'info', 'node');
+    Y.log('availablePromise', 'info', 'node');
     return new Y.Promise(function (resolve, reject) {
         Y.on(
             'available',
             function() {
                 resolve(Y.one('nodeid'));
-            }
+            },
+            nodeid
         );
         if (timeout) {
             Y.later(
@@ -71,7 +71,8 @@ Y.Node.prototype.contentreadyPromise = function(nodeid, timeout) {
             'contentready',
             function() {
                 resolve(Y.one('nodeid'));
-            }
+            },
+            nodeid
         );
         if (timeout) {
             Y.later(
@@ -86,4 +87,4 @@ Y.Node.prototype.contentreadyPromise = function(nodeid, timeout) {
     });
 };
 
-}, '@VERSION@', {"requires": ["yui-base", "yui-later", "node-base", "promise"]});
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "node-base", "base-build", "panel", "promise"]});
