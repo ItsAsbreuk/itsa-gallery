@@ -1,11 +1,21 @@
 {
-    "name"       : "gallery-itsatoolbar",
-    "displayName": "Gallery: gallery-itsatoolbar",
-    "description": "*Summary Goes Here*",
-    "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallery-itsatoolbar" ],
+    "name"       : "itsatoolbat",
+    "displayName": "ITSAToolbar",
+    "description": "ITSAToolbar is a GUI for the Rich Text Editor.", 
+    "author"     : "itsasbreuk",
 
-    "tags": [ "gallery" ],
+    "tags": ["editor", "itsatoolbar"],
+    "use" : ["tabview"],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "simple-example",
+            "displayName": "Creating standard GUI",
+            "description": "This example shows how to quickly create a GUI Toolbar for an editor.",
+            "modules"    : ["editor-base", "gallery-itsatoolbar"],
+            "tags"       : ["editor-base", "gallery-itsatoolbar"],
+
+            "hideTableOfContents": true
+        }
+    ]
 }

@@ -3,7 +3,7 @@ YUI.add('gallery-itsacalendarmodellist', function (Y, NAME) {
 'use strict';
 
 /**
- * @module gallery-itsacalendarmarkeddates
+ * @module gallery-itsacalendarmodellist
  * @class ITSACalendarModelList
  * @since 0.3
  *

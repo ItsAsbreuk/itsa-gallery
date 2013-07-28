@@ -20,6 +20,59 @@ YUI.add('gallery-itsawidgetrenderpromise', function (Y, NAME) {
 */
 
 var DEFAULTTIMEOUT = 20000;
+/**
+ * Promise which will render the widget only when the sourceNode (or boundingBox) gets available in the DOM.
+ * This way you can execute the render-statement even if the sourceNode has yet to be declared.
+ * The returned Promise will be resolved once the sourceNode is available in the DOM, but this can be changed by the 'promisetype' argument.
+ *
+ * @method renderOnAvailablePromise
+ * @param srcNodeId {String} Node-selector by id. You must include the #
+ * <p>
+ * NOTE: This argument is in fact the boundingBox, but will also be passed into the 'srcNode' attribute for progressive enhancement.
+ * </p>
+ * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.<br />
+ *                                      If omitted, <b>no timeout</b> will be used.<br />
+ * @param [promisetype] {String} To make the promise fulfilled at another stage. Possible values are: 'afterrender' and 'afterready'.
+ * @return {Y.Promise} Promise that is resolved once srcNode is available in the DOM.
+ * If both srcNode and timeout are set, the Promise can be rejected in case of a timeout. Promised response --> resolve() OR reject(reason).
+ * @since 0.1
+*/
+Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, timeout, promisetype) {
+    var instance = this,
+        nodeAvailablePromise = new Y.Promise(function (resolve, reject) {
+            if (!srcNodeId) {
+                // widget can be rendered immediately because it renderes with inside a new boundingBox
+                instance.render();
+                resolve();
+            }
+        });
+    if (srcNodeId) {
+        Y.use('gallery-itsanodepromise', function() {
+            nodeAvailablePromise = Y.Node.availablePromise(srcNodeId, timeout);
+            nodeAvailablePromise
+            .then(
+                Y.bind(instance.render, instance, srcNodeId)
+            )
+            .then(
+                function() {
+                    // return a promise or just true, to chain the result
+                    // Because renderPromise and readyPromise use DEFAULTTIMEOUT when timeout is undefined, we might need to set timeout to zero.
+                    timeout = timeout || 0;
+                    if (promisetype==='afterrender') {
+                        return instance.renderPromise(timeout);
+                    }
+                    else if ((promisetype==='afterready') {
+                        return instance.readyPromise(timeout);
+                    }
+                    else {
+                        return true;
+                    }
+                }
+            );
+        });
+    }
+    return nodeAvailablePromise;
+}
 
 /**
  * Promise that will be resolved once the widget is rendered.
@@ -27,7 +80,7 @@ var DEFAULTTIMEOUT = 20000;
  *
  * @method renderPromise
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
- *                                      If omitted, a timeout of 20 seconds (20000ms) wil be used.<br />
+ *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
  *                                      The timeout-value can only be set at the first time the Promise is called.
  * @return {Y.Promise} promised response --> resolve(e) OR reject(reason).
  * @since 0.1
@@ -69,7 +122,7 @@ Y.Widget.prototype.renderPromise = function(timeout) {
  *
  * @method promiseBeforeReady
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
- *                                      If omitted, a timeout of 20 seconds (20000ms) wil be used.<br />
+ *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
  *                                      The timeout-value can only be set at the first time the Promise is called.
  * @return {Y.Promise} promised response --> resolve(e) OR reject(reason).
  * @since 0.2
@@ -88,7 +141,7 @@ Y.Widget.prototype.promiseBeforeReady = function() {
  *
  * @method readyPromise
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
- *                                      If omitted, a timeout of 20 seconds (20000ms) wil be used.<br />
+ *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
  *                                      The timeout-value can only be set at the first time the Promise is called.
  * @return {Y.Promise} promised response --> resolve(e) OR reject(reason).
  * @since 0.2
@@ -106,4 +159,4 @@ Y.Widget.prototype.readyPromise = function(timeout) {
     return instance._readyPromise;
 };
 
-}, '@VERSION@', {"requires": ["yui-base", "widget", "promise"]});
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "widget", "promise"]});

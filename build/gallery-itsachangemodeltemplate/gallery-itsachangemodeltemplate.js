@@ -9,7 +9,7 @@ YUI.add('gallery-itsachangemodeltemplate', function (Y, NAME) {
  * This might be useful if your (scroll)viewModellist has many rendered models, where you need to toggle
  * some of them. There are three different states:
  *
- * 1) Original Template (standard defined by the host)
+ * 1) 'originalTemplate' (standard defined by the host)
  * 2) 'secondTemplate' (can be set up within this plugin: for example to define an 'extended' view for the Models)
  * 3) 'editTemplate' (can be set up within this plugin: to edit the Models)
  *
@@ -31,6 +31,7 @@ YUI.add('gallery-itsachangemodeltemplate', function (Y, NAME) {
 
 var Lang = Y.Lang,
     YArray = Y.Array,
+    YTemplateMicro = Y.Template.Micro,
     FORMELEMENT_CLASS = 'yui3-itsaformelement',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
     FORMELEMENT_BUTTON_ORIGINALTEMPLATE = 'originaltemplate',
@@ -49,7 +50,20 @@ var Lang = Y.Lang,
      * @event pluggedin
      * @since 0.1
     **/
-    EVT_PLUGGEDIN = 'pluggedin';
+    EVT_PLUGGEDIN = 'pluggedin',
+   /**
+     * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
+     * because the latter will be fired before the namespace Model.itsaeditmodel exists.
+     * @event templateChange
+     * @param e {EventFacade} Event Facade including:
+     * @param e.prevVal {String} the name of the previous template: 'originalTemplate' or 'secondTemplate' or 'editTemplate'
+     * @param e.newVal {String} the name of the new template: 'originalTemplate' or 'secondTemplate' or 'editTemplate'
+     * @since 0.1
+    **/
+    EVT_TEMPLATECHANGE = 'templateChange',
+    NAME_ORIGINAL_TEMPLATE = 'originalTemplate',
+    NAME_SECOND_TEMPLATE = 'secondTemplate',
+    NAME_EDIT_TEMPLATE = 'editTemplate';
 
 Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodeltemplate', Y.Plugin.Base, [], {
 
@@ -226,10 +240,11 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 clientId = host.getModelAttr(model, 'clientId'),
                 modellist = host.get('modelList'),
                 comparator = modellist && modellist.comparator,
-                currentMode;
+                currentMode, prevTemplateName;
 
             currentMode = instance._getMode(model);
             if (currentMode !== 1) {
+                prevTemplateName = (currentMode === 2) ? NAME_SECOND_TEMPLATE : NAME_EDIT_TEMPLATE;
                 instance._prevMode[clientId] = instance._getMode(model);
                 delete instance._secondModels[clientId];
                 delete instance._initialEditAttrs[clientId];
@@ -253,6 +268,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 }
                 delete instance._prevComparator[clientId];
                 delete instance._currentModelHasChanged[clientId];
+                host.fire(EVT_TEMPLATECHANGE, {prevVal: prevTemplateName, newVal: NAME_ORIGINAL_TEMPLATE});
             }
             else {
             }
@@ -269,11 +285,12 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 host = instance.host,
                 clientId = host.getModelAttr(model, 'clientId'),
                 modellist = host.get('modelList'),
-                comparator = modellist && Y.bind(modellist.comparator, modellist),
-                currentMode;
+                comparator = modellist && modellist.comparator && Y.bind(modellist.comparator, modellist),
+                currentMode, prevTemplateName;
 
             currentMode = instance._getMode(model);
             if (currentMode !== 2) {
+                prevTemplateName = (currentMode === 1) ? NAME_ORIGINAL_TEMPLATE : NAME_EDIT_TEMPLATE;
                 delete instance._initialEditAttrs[clientId];
                 instance._prevMode[clientId] = instance._getMode(model);
                 instance._secondModels[clientId] = true;
@@ -297,6 +314,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                 }
                 delete instance._prevComparator[clientId];
                 delete instance._currentModelHasChanged[clientId];
+                host.fire(EVT_TEMPLATECHANGE, {prevVal: prevTemplateName, newVal: NAME_SECOND_TEMPLATE});
             }
             else {
             }
@@ -312,12 +330,13 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             var instance = this,
                 host = instance.host,
                 modellist = host.get('modelList'),
-                comparator = modellist && Y.bind(modellist.comparator, modellist),
+                comparator = modellist && modellist.comparator && Y.bind(modellist.comparator, modellist),
                 clientId = host.getModelAttr(model, 'clientId'),
-                currentMode;
+                currentMode, prevTemplateName;
             if (instance.get('modelsEditable')) {
                 currentMode = instance._getMode(model);
                 if (currentMode !== 3) {
+                    prevTemplateName = (currentMode === 1) ? NAME_ORIGINAL_TEMPLATE : NAME_SECOND_TEMPLATE;
                     delete instance._currentModelHasChanged[clientId];
                     instance._prevComparator[clientId] = comparator && instance._getComparator(modellist, comparator, model);
                     instance._prevMode[clientId] = currentMode;
@@ -332,6 +351,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             }
                         }
                     );
+                    host.fire(EVT_TEMPLATECHANGE, {prevVal: prevTemplateName, newVal: NAME_EDIT_TEMPLATE});
                 }
                 else {
                 }
@@ -558,11 +578,13 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             isSecondTemplate = button.hasClass(FORMELEMENT_BUTTON_SECONDTEMPLATE),
                             isEditTemplate = button.hasClass(FORMELEMENT_BUTTON_EDITTEMPLATE),
                             node, model;
-
                         if (isOriginalTemplate || isSecondTemplate || isEditTemplate) {
+                            if (button.get('tagName')==='A') {
+                                e.preventDefault();
+                            }
                             node = button.get('parentNode');
                             while (node && !node.hasClass(MODEL_CLASS)) {
-                                node = button.get('parentNode');
+                                node = node.get('parentNode');
                             }
                             if (node) {
                                 // modelnode found
@@ -579,7 +601,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             }
                         }
                     },
-                    'button'
+                    'button, a'
                 )
             );
         },
@@ -714,7 +736,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                     engine = compiledModelEngine ? compiledModelEngine(modelJSON) : Lang.sub(modelTemplate, modelJSON);
                 break;
                 case 2: // secondTemplate
-                    engine = instance._altTempl(model);
+                    engine = instance._secondTempl(model);
                 break;
                 case 3: // editTemplate
                     engine = instance._editTempl(model);
@@ -857,7 +879,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             else {
                 editTemplateIsMicro = instance._editTemplIsMicro = ISMICROTEMPLATE(template);
                 if (editTemplateIsMicro) {
-                    compiledModelEngine = Y.TemplateMicro.compile(template);
+                    compiledModelEngine = YTemplateMicro.compile(template);
                     instance._editTempl = function(model) {
                         var modelInstance, usemodel, revivedModel;
                         modelInstance = model.get && (typeof model.get === 'function');
@@ -918,7 +940,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             else {
                 alternateTemplateIsMicro = instance._secondTemplIsMicro = ISMICROTEMPLATE(val);
                 if (alternateTemplateIsMicro) {
-                    compiledModelEngine = Y.TemplateMicro.compile(val);
+                    compiledModelEngine = YTemplateMicro.compile(val);
                     instance._secondTempl = function(model) {
                         return compiledModelEngine(host.getModelToJSON(model));
                     };

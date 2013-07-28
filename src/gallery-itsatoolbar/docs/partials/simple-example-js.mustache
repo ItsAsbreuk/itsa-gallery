@@ -1,0 +1,85 @@
+<div id='editor'></div>
+
+<script type="text/javascript">
+
+
+YUI.add('gallery-testmodule', function (Y, NAME) {
+alert('insert');
+Y.TESTMODULE = Y.Base.create('testmodule', Y.Widget, [], {
+    }, {
+
+        initializer : function() {
+alert('test');
+        }
+
+    }
+);
+
+}, '0.1', {"requires": ["base-build", "widget"]});
+
+
+
+var itsagalleryversion = 'development',
+    loaderdomain = 'http://yogiloader.itsasbreuk.nl',
+    combine = false,
+    filter = 'debug',
+    yuiconfig = {
+        combine  : combine,
+        filter   : filter,
+        groups   : {
+          itsagallery : {
+             combine  : combine,
+             base     : loaderdomain+'/itsa-gallery/' + itsagalleryversion + '/build/',
+             comboBase: loaderdomain+'/combo?',
+             root     : 'itsa-gallery/0.0.1/build/',
+             patterns:
+             {
+                'gallery-itsa':      { },
+                'lang/gallery-itsa': { },
+                'gallerycss-itsa':   { type: 'css' }
+             },
+             update: function() { }
+          },
+          gallery : {
+             combine  : combine,
+             base     : loaderdomain+'/yui3-gallery/gallery-2013.07.03-22-52/build/',
+             comboBase: loaderdomain+'/combo?',
+             root     : 'yui3-gallery/gallery-2013.07.03-22-52/build/',
+             patterns:
+             {
+                'gallery-':      { },
+                'lang/gallery-': { },
+                'gallerycss-':   { type: 'css' }
+             },
+             update: function() { }
+          }
+       }
+    };
+
+//YUI(yuiconfig).use('gallery-sm-treeview','gallery-sm-tree-lazy','editor','gallery-itsaselectlist', function(Y) {
+YUI(yuiconfig).use('gallery-sm-treeview','gallery-sm-tree-lazy','editor', 'panel', function(Y) {
+
+//var u = new Y.TESTMODULE();
+
+        // create a Treeview instance, code from github example:
+        // https://github.com/smugmug/yui-gallery/tree/master/src/sm-treeview
+        var treeview = new Y.TreeView({
+            // Tell the TreeView where to render itself.
+            container: '#editor',
+
+            // Populate the treeview with some tree nodes. You can add or remove
+            // nodes later too, so this is optional.
+            nodes: [
+                {label: 'Node 1'},
+                {label: 'Node 2', children: [
+                    {label: 'Child 1'},
+                    {label: 'Child 2'}
+                ]},
+                {label: 'Node 3'}
+            ]
+        });
+
+        // Render the treeview inside the #treeview element.
+        treeview.render();  
+    });
+</script>

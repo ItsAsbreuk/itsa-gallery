@@ -1,0 +1,23 @@
+.yui3-skin-sam .yui3-form button {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px 3px #DDDDDD inset;
+    display: inline-block;
+    font-size: 0.8em;
+    padding: 0.27em 0.31em;
+    transition: border 0.3s linear 0s;
+}
+
+.yui3-skin-sam .yui3-form button::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+.yui3-skin-sam .yui3-form button:focus {
+  outline: 0;
+  outline: thin dotted \9; /* IE6-9 */
+  border-color: #129FEA;
+}
