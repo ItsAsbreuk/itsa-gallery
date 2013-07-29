@@ -11,12 +11,14 @@ This module adds static methods Y.Node.availablePromise() and Y.Node.contentread
 By using these Promises, you don't need to listen for the Y.on('available') and Y.on('contentready') events, but can use Promises.
 
 
-
-Read more on the [Landing Page](http://projects.itsasbreuk.nl/examples/itsawidgetrenderpromise/index.html)
-
 Documentation
 --------------
-[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/Y.Widget.html)
+[http://gallerydocs.itsasbreuk.nl/gallery-itsanodepromise](http://gallerydocs.itsasbreuk.nl/gallery-itsanodepromise)
+
+
+API
+--------------
+[http://galleryapi.itsasbreuk.nl/classes/Y.Node.html](http://galleryapi.itsasbreuk.nl/classes/Y.Node.html)
 
 
 License
