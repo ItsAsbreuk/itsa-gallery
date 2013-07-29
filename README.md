@@ -17,6 +17,8 @@ This repo contains open source YUI components that have been contributed to the
 
 [ITSAErrorReporter](src/gallery-itsaerrorreporter) --on cdn--
 
+[Y.Node.availablePromise()](src/gallery-itsanodepromise) --on cdn--
+
 
 ## Infrastructure
 [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
