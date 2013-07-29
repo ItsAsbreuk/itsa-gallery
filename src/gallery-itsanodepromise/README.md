@@ -26,6 +26,4 @@ License
 
 Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
 
-Special thanks to Jeff Pinach - http://http://fromanegg.com :)
-
 [YUI BSD License](http://developer.yahoo.com/yui/license.html)
