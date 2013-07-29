@@ -7,5 +7,24 @@
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "using-renderpromise",
+            "displayName": "Using Widget.renderPromise()",
+            "description": "This example shows how to use renderPromise() in order to take action once a widget is rendered.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsawidgetrenderpromise", "node"],
+            "tags"    : ["gallery-itsarenderpromise", "renderpromise"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "using-readypromise",
+            "displayName": "Using Widget.readyPromise()",
+            "description": "This example shows how to use readyPromise() in order to take action once a widget is rendered.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsawidgetrenderpromise", "node"],
+            "tags"    : ["gallery-itsanodepromise", "readypromise"],
+            "hideTableOfContents": true
+        }
+    ]
 }

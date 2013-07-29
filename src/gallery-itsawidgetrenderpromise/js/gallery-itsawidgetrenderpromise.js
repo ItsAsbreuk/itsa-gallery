@@ -1,43 +1,57 @@
 'use strict';
 /**
- * ITSAWidgetRenderPromise
- *
- *
- * This module adds Widget.renderPromise() to the Y.Widget class.
+ * This module adds some renderPromises to the Y.Widget class.
  * By using this Promise, you don't need to listen for the 'render'-event, neither look for the value of the attribute 'rendered'.
- *
+ * It also adds the Promise renderOnAvailablePromise() by which the render-code can be run even if the Node has yet to be inserted in the DOM.
  *
  * @module gallery-itsawidgetrenderpromise
  * @class Y.Widget
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
- * Special thanks to Jeff Pinach - http://http://fromanegg.com :)
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
 
-var DEFAULTTIMEOUT = 20000;
+var DEFAULTTIMEOUT = 20000, // default timeout for renderPromise and readyPromise
+    DEFAULT_STAYALIVE_TIMER = 1000; // default repeat-timer for renderOnAvailablePromise when stayalive=true
 /**
  * Promise which will render the widget only when the sourceNode (or boundingBox) gets available in the DOM.
  * This way you can execute the render-statement even if the sourceNode has yet to be declared.
  * The returned Promise will be resolved once the sourceNode is available in the DOM, but this can be changed by the 'promisetype' argument.
  *
- * @method renderOnAvailablePromise
- * @param srcNodeId {String} Node-selector by id. You must include the #
+ * @method renderOnAvailablePromises
+ * @param [srcNodeId] {String} Node-selector by id. You must include the '#'. If not defined, then the widget will be rendered at once
+ * with its own generated node-id.
  * <p>
  * NOTE: This argument is in fact the boundingBox, but will also be passed into the 'srcNode' attribute for progressive enhancement.
  * </p>
- * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.<br />
+ * @param [options] {Object}
+ * @param [options.timeout] {int} Timeout in ms, after which the promise will be rejected.<br />
  *                                      If omitted, <b>no timeout</b> will be used.<br />
- * @param [promisetype] {String} To make the promise fulfilled at another stage. Possible values are: 'afterrender' and 'afterready'.
+ * @param [options.promisetype] {String} To make the promise fulfilled at another stage. Possible values are:
+ *  null (==onAvailable), 'afterrender' and 'afterready'.
+ * @param [options.stayalive=false] {Boolean} when set true, everytime the node is removed from the DOM, the Promise will be resetted.<br />
+ * this is handy for pages that gets loaded and unloaded. However, it has a performancehit, so don't use it when not needed.<br />
+ * in fact a new promise is created and bound to the returnfunction
+ * (because Promises can't be transitioned to another state once they arefulfilled or rejected).<br />
+ * only applyable if 'srcNodeId' is defined.
+ * --> timerbased a dom-search takes place to see if the node is still there.
+ * @param [options.stayalivetimer=1000] {Int} periodic-time in ms to check if the node has disapear and thus reset the Promise.<br />
+ * only applyable if options.stayalive=true. Set to higher value leads improved performance, but could lead to renderdelay when
+ * the node disappears and appears soon again (within this timespan).
  * @return {Y.Promise} Promise that is resolved once srcNode is available in the DOM.
  * If both srcNode and timeout are set, the Promise can be rejected in case of a timeout. Promised response --> resolve() OR reject(reason).
- * @since 0.1
+ * @since 0.2
 */
-Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, timeout, promisetype) {
+Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
     var instance = this,
-        nodeAvailablePromise = new Y.Promise(function (resolve, reject) {
+        checktimer,
+        timeout = options && options.timeout,
+        promisetype = options && options.promisetype,
+        stayalive = options && options.stayalive && (typeof options.stayalive==='boolean') && options.stayalive,
+        stayalivetimer = (options && options.stayalivetimer) || DEFAULT_STAYALIVE_TIMER,
+        nodeAvailablePromise = new Y.Promise(function (resolve) {
             if (!srcNodeId) {
                 // widget can be rendered immediately because it renderes with inside a new boundingBox
                 instance.render();
@@ -59,7 +73,7 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, timeout, promi
                     if (promisetype==='afterrender') {
                         return instance.renderPromise(timeout);
                     }
-                    else if ((promisetype==='afterready') {
+                    else if (promisetype==='afterready') {
                         return instance.readyPromise(timeout);
                     }
                     else {
@@ -68,9 +82,26 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, timeout, promi
                 }
             );
         });
+        if (stayalive) {
+            checktimer = Y.later(
+                stayalivetimer,
+                null,
+                function() {
+                    if ((nodeAvailablePromise.getStatus()!=='pending') && !Y.one(srcNodeId)) {
+                        // Promise was ready, but the node isn't there anymore - or never was
+                        // first stop this timer, because we don't want multiple timers running
+                        checktimer.clear();
+                        // now create a new Promise
+                        nodeAvailablePromise = instance.renderOnAvailablePromise(srcNodeId, options);
+                    }
+                },
+                null,
+                true
+            );
+        }
     }
     return nodeAvailablePromise;
-}
+};
 
 /**
  * Promise that will be resolved once the widget is rendered.
