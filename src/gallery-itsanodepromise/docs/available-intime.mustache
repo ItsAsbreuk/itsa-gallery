@@ -1,0 +1,23 @@
+<style type="text/css">
+{{>node-css}}
+</style>
+
+<div class="intro">
+    {{description}}
+</div>
+
+<p>The node that is inserted after a delay of 3 seconds looks like:
+```
+<div id='examplenode'></div>
+```
+</p>
+
+<h2>Complete Example Source</h2>
+```
+{{>available-intime-js}}
+```
+<script>
+{{>init-loaderconfig-js}}
+{{>loaderconfig-js}}
+{{>available-intime-js}}
+</script>

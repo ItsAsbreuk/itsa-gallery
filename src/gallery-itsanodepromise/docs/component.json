@@ -5,7 +5,26 @@
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsanodepromise" ],
 
-    "tags": [ "gallery" ],
+    "tags": [ "promise", "nodepromise", "available", "nodeavailable", "contentready", "node", "nodecontentready" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "available-intime",
+            "displayName": "Styling a future Node",
+            "description": "This example shows how to style a node that will be present in the future, by coloring it red.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsanodepromise", "node"],
+            "tags"    : ["gallery-itsanodepromise"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "available-timedout",
+            "displayName": "Node-available timeout",
+            "description": "This example waits for a Node to be present within 5 seconds and will throw a timeout-error instead of coloring it red.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsanodepromise", "gallery-itsadialog", "node"],
+            "tags"    : ["gallery-itsanodepromise"],
+            "hideTableOfContents": true
+        }
+    ]
 }

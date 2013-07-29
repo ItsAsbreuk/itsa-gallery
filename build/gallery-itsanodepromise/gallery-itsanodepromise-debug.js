@@ -2,13 +2,9 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
 
 'use strict';
 /**
- * ITSANodePromise
- *
- *
- * This module adds Y.Node.availablePromise() and Y.Node.contentreadyPromise() to the Y.Node class.
+ * This module adds static methods Y.Node.availablePromise() and Y.Node.contentreadyPromise() to the Y.Node class.<br />
  * By using these Promises, you don't need to listen for the Y.on('available') and Y.on('contentready') events,
  * but can use Promises.
- *
  *
  * @module gallery-itsanodepromise
  * @class Y.Node
@@ -19,24 +15,30 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
  *
 */
 
+var YNode = Y.Node;
+
+// To make these 2 methods static, we must declare their functions first and then add them to the prototype.
+// We cannot declare the prototypefunctions directly, for it would become instance-methods instead of static.
+
 /**
  * Promise that will be resolved once a node is available in the DOM.
  * Exactly the same as when listened to Y.on('available'), except you get a Promise in return.
  *
  * @method availablePromise
+ * @static
  * @param nodeid {String} Node-selector by id. You must include the #
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.
  *         If omitted, the Promise will never be rejected and can only be fulfilled once the node is available.
  * @return {Y.Promise} promised response --> resolve(Y.Node) OR reject(reason).
  * @since 0.1
 */
-Y.Node.prototype.availablePromise = function(nodeid, timeout) {
+YNode.availablePromise = function(nodeid, timeout) {
     Y.log('availablePromise', 'info', 'node');
     return new Y.Promise(function (resolve, reject) {
         Y.on(
             'available',
             function() {
-                resolve(Y.one('nodeid'));
+                resolve(Y.one(nodeid));
             },
             nodeid
         );
@@ -58,19 +60,20 @@ Y.Node.prototype.availablePromise = function(nodeid, timeout) {
  * Exactly the same as when listened to Y.on('contentready'), except you get a Promise in return.
  *
  * @method contentreadyPromise
+ * @static
  * @param nodeid {String} Node-selector by id. You must include the #
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.
  *         If omitted, the Promise will never be rejected and can only be fulfilled once the node's content is ready.
  * @return {Y.Promise} promised response --> resolve(Y.Node) OR reject(reason).
  * @since 0.1
 */
-Y.Node.prototype.contentreadyPromise = function(nodeid, timeout) {
+YNode.contentreadyPromise = function(nodeid, timeout) {
     Y.log('contentreadyPromise', 'info', 'node');
     return new Y.Promise(function (resolve, reject) {
         Y.on(
             'contentready',
             function() {
-                resolve(Y.one('nodeid'));
+                resolve(Y.one(nodeid));
             },
             nodeid
         );
@@ -87,4 +90,7 @@ Y.Node.prototype.contentreadyPromise = function(nodeid, timeout) {
     });
 };
 
-}, '@VERSION@', {"requires": ["yui-base", "yui-later", "node-base", "base-build", "panel", "promise"]});
+Y.Node.prototype.availablePromise = YNode.availablePromise;
+Y.Node.prototype.contentreadyPromise = YNode.contentreadyPromise;
+
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "node-base", "promise"]});
