@@ -11,9 +11,9 @@ This module adds static methods Y.Node.availablePromise() and Y.Node.contentread
 By using these Promises, you don't need to listen for the Y.on('available') and Y.on('contentready') events, but can use Promises.
 
 
-Documentation
+Landing Page
 --------------
-[http://gallerydocs.itsasbreuk.nl/gallery-itsanodepromise](http://gallerydocs.itsasbreuk.nl/gallery-itsanodepromise)
+[http://gallerydocs.itsasbreuk.nl/gallery-itsanodepromise](http://gallerydocs.itsasbreuk.nl/gallery-itsanodepromise/)
 
 
 API
