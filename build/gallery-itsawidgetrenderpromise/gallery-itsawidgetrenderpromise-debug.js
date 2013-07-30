@@ -52,18 +52,17 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
         timeout = options && options.timeout,
         promisetype = options && options.promisetype,
         stayalive = options && options.stayalive && (typeof options.stayalive==='boolean') && options.stayalive,
-        stayalivetimer = (options && options.stayalivetimer) || DEFAULT_STAYALIVE_TIMER,
-        nodeAvailablePromise = new Y.Promise(function (resolve) {
-            if (!srcNodeId) {
-                // widget can be rendered immediately because it renderes with inside a new boundingBox
-                instance.render();
-                resolve();
-            }
-        });
+        stayalivetimer = (options && options.stayalivetimer) || DEFAULT_STAYALIVE_TIMER;
+    instance.nodeAvailablePromise = new Y.Promise(function (resolve) {
+        if (!srcNodeId) {
+            // widget can be rendered immediately because it renderes with inside a new boundingBox
+            instance.render();
+            resolve();
+        }
+    });
     if (srcNodeId) {
         Y.use('gallery-itsanodepromise', function() {
-            nodeAvailablePromise = Y.Node.availablePromise(srcNodeId, timeout);
-            nodeAvailablePromise
+            instance.nodeAvailablePromise = Y.Node.availablePromise(srcNodeId, timeout)
             .then(
                 Y.bind(instance.render, instance, srcNodeId)
             )
@@ -89,12 +88,12 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
                 stayalivetimer,
                 null,
                 function() {
-                    if ((nodeAvailablePromise.getStatus()!=='pending') && !Y.one(srcNodeId)) {
+                    if ((instance.nodeAvailablePromise.getStatus()!=='pending') && !Y.one(srcNodeId)) {
                         // Promise was ready, but the node isn't there anymore - or never was
                         // first stop this timer, because we don't want multiple timers running
-                        checktimer.clear();
+                        checktimer.cancel();
                         // now create a new Promise
-                        nodeAvailablePromise = instance.renderOnAvailablePromise(srcNodeId, options);
+                        instance.nodeAvailablePromise = instance.renderOnAvailablePromise(srcNodeId, options);
                     }
                 },
                 null,
@@ -102,7 +101,7 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
             );
         }
     }
-    return nodeAvailablePromise;
+    return instance.nodeAvailablePromise;
 };
 
 /**
@@ -113,7 +112,7 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
  *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
  *                                      The timeout-value can only be set at the first time the Promise is called.
- * @return {Y.Promise} promised response --> resolve(e) OR reject(reason).
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
  * @since 0.1
 */
 Y.Widget.prototype.renderPromise = function(timeout) {
@@ -123,8 +122,8 @@ Y.Widget.prototype.renderPromise = function(timeout) {
         instance._renderPromise = new Y.Promise(function (resolve, reject) {
             instance.after(
                 'render',
-                function(e) {
-                    resolve(e);
+                function() {
+                    resolve();
                 }
             );
             if (instance.get('rendered')) {
@@ -155,7 +154,7 @@ Y.Widget.prototype.renderPromise = function(timeout) {
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
  *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
  *                                      The timeout-value can only be set at the first time the Promise is called.
- * @return {Y.Promise} promised response --> resolve(e) OR reject(reason).
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
  * @since 0.2
 */
 Y.Widget.prototype.promiseBeforeReady = function() {

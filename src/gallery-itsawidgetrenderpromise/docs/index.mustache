@@ -12,21 +12,21 @@
 <h2>Description</h2>
 
 <p>
- <code>renderPromise()</code> is a Promise that is fulfilled once the widget is rendered: you don't need to listen for the 'render'-event,
- neither look for the value of the attribute 'rendered'.
- This is handy because without this method you might find yourself inspecting those two situations.<br /><br />
+   <code>renderPromise()</code> is a Promise that is fulfilled once the widget is rendered: you don't need to listen for the 'render'-event,
+   neither look for the value of the attribute 'rendered'.
+   This is handy because without this method you might find yourself inspecting those two situations.<br /><br />
 
- <code>readyPromise()</code> is a Promise that waits even longer. You can create a widget-extention that does some things after it is rendered,
- for example load serverdata and process it. readyPromise will be resolved once all that has finished. To make that happen, it makes use of
- <code>promiseBeforeReady</code>.<br /><br />
+   <code>readyPromise()</code> is a Promise that waits even longer. You can create a widget-extention that does some things after it is rendered,
+   for example load serverdata and process it. readyPromise will be resolved once all that has finished. To make that happen, it makes use of
+   <code>promiseBeforeReady</code>.<br /><br />
 
- <code>promiseBeforeReady()</code> is a Promise which will run directly after the widget is rendered. It is up to the developer of the
- widget-extention how to define <code>promiseBeforeReady</code>, which is a fulfilled promise by default. Once <code>promiseBeforeReady()</code>
- is fulfilled, <code>readyPromise()</code> is fulfilled as well.<br /><br />
+   <code>promiseBeforeReady()</code> is a Promise which will run directly after the widget is rendered. It is up to the developer of the
+   widget-extention how to define <code>promiseBeforeReady</code>, which is a fulfilled promise by default. Once <code>promiseBeforeReady()</code>
+   is fulfilled, <code>readyPromise()</code> is fulfilled as well.<br /><br />
 
- <code>renderOnAvailablePromise()</code> is very handy if you need to setup the rendercode while not knowing when the sourceNode will be in the DOM.
- You can even make it re-render everytime the sourcenode is redefined in the dom with the attribute <coe>options.stayalive</code>. Situations to make
- use of this are when pages are dynamicly reloaded.
+    <code>renderOnAvailablePromise()</code> is very handy if you need to setup the rendercode while not knowing when the sourceNode will be in the DOM.
+   You can even make it re-render everytime the sourcenode is redefined in the dom with the attribute <coe>options.stayalive</code>. Situations to make
+   use of this are when pages are dynamicly reloaded.
 </p>
 
 <h3 id="nodeavailablepromise-example">Example renderPromise</h3>
