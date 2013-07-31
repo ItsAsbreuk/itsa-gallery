@@ -24,12 +24,16 @@
    widget-extention how to define <code>promiseBeforeReady</code>, which is a fulfilled promise by default. Once <code>promiseBeforeReady()</code>
    is fulfilled, <code>readyPromise()</code> is fulfilled as well.<br /><br />
 
-    <code>renderOnAvailablePromise()</code> is very handy if you need to setup the rendercode while not knowing when the sourceNode will be in the DOM.
+   <code>renderOnAvailablePromise()</code> is very handy if you need to setup the rendercode while not knowing when the sourceNode will be in the DOM.
    You can even make it re-render everytime the sourcenode is redefined in the dom with the attribute <coe>options.stayalive</code>. Situations to make
-   use of this are when pages are dynamicly reloaded.
+   use of this are when pages are dynamicly reloaded.<br /><br />
+
+    <code>renderOnAvailable()</code> Does the same as <code>renderOnAvailablePromise()</code>, but doesn't return a Promise; it returns the instance.
+    Therefore it can be used just like <code>render()</code>.
+
 </p>
 
-<h3 id="nodeavailablepromise-example">Example renderPromise</h3>
+<h3 id="renderpromise-example">Usage renderPromise()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsawidgetrenderpromise', 'calendar', function(Y) {
 
@@ -45,18 +49,16 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsawidgetrenderpromise'
 });
 ```
 
-<h3 id="nodeavailablepromise-example">Example readyPromise</h3>
+<h3 id="renderOnAvailable-example">Usage renderOnAvailable()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsawidgetrenderpromise', 'calendar', function(Y) {
 
-    var cal = new Y.Calendar().render();
+    new Y.Calendar().renderOnAvailable('#calnode');
 
-    // as soon calendar is rendered, we want to be alerted
-    cal.renderPromise().then(
-        function() {
-            Y.alert('calendar is rendered');
-        }
-    );
+    // #calnode will be inserted later on
+    Y.later(3000, null, function() {
+        Y.one('body').append('<div id="calnode"></div>');
+    });
 
 });
 ```
