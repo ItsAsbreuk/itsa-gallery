@@ -29,7 +29,7 @@
         {
             "name"       : "using-renderonavailablepromise",
             "displayName": "Render a widget before scrNode is in the DOM",
-            "description": "This example shows how to use renderOnAvailablePromise() to render an Y.Calendar-instance before the scrNode is in the DOM.",
+            "description": "This example shows how to use renderOnAvailable() to render an Y.Calendar-instance before the scrNode is in the DOM.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsawidgetrenderpromise", "node", "calendar"],
             "tags"    : ["gallery-itsawidgetrenderpromise", "renderonavailablepromise"],
