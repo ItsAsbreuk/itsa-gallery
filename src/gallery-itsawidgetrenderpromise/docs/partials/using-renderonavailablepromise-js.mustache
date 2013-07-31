@@ -1,31 +1,10 @@
-YUI(yuiconfig).use('node', 'gallery-itsawidgetrenderpromise', 'calendar', 'gallery-itsadialog', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsawidgetrenderpromise', 'calendar', function(Y) {
 
-    var cal = new Y.Calendar();
-var calpromise = cal.renderOnAvailablePromise('#calnode', {promisetype: 'afterrender'});
-
-
-    calpromise.then(
-        function() {
-            alert('check');
-        },
-        function(reason) {
-            alert(reason);
-        }
-    );
+    new Y.Calendar().renderOnAvailable('#calnode');
 
     // now insert #calnode after delay of 3 seconds
     Y.later(3000, null, function() {
         Y.one('.sidebar').append('<div id="calnode" class="yui3-skin-sam"></div>');
     });
-
-Y.later(
-    1000,
-    null,
-    function() {
-        Y.alert('promisestatus: '+cal.nodeAvailablePromise.getStatus());
-    },
-    null,
-    true
-);
 
 });

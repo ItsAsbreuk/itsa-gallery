@@ -113,56 +113,6 @@ YUI.add('module-tests', function(Y) {
         }
     }));
 
-
-    suite.add(new Y.Test.Case({
-        name: 'test 5',
-        'check renderOnAvailablePromise (with stayalive=true) if widget is rendered multiple times':  function() {
-            var cal = new Y.Calendar(),
-                success = 0;
-            cal.renderOnAvailablePromise('#testnode5', {stayalive: true, stayalivetimer: 200, timeout: 1000}).then(
-                function() {
-                    if (Y.one('#testnode5')) {
-                        success++;
-                    }
-                },
-                function(reason) {
-                    Y.Assert.fail(reason);
-                }
-            );
-            // insert #testnode5 after delay
-            Y.later(500, null, function() {
-                Y.one('body').append('<div id="testnode5"></div>');
-            });
-            // remove #testnode5 after delay
-            Y.later(1000, null, function() {
-                cal.destroy();
-                Y.one('#testnode5').remove(true);
-            });
-            // insert #testnode5 after delay
-            Y.later(1500, null, function() {
-                Y.one('body').append('<div id="testnode5"></div>');
-            });
-            // remove #testnode5 after delay
-            Y.later(2000, null, function() {
-                cal.destroy();
-                Y.one('#testnode5').remove(true);
-            });
-            // insert #testnode5 after delay
-            Y.later(2500, null, function() {
-                Y.one('body').append('<div id="testnode5"></div>');
-            });
-            // remove #testnode5 after delay
-            Y.later(3000, null, function() {
-                cal.destroy();
-                Y.one('#testnode5').remove(true);
-            });
-            // assert after 5 seconds
-            Y.later(5000, null, function() {
-                Y.Assert.isTrue((success===3),'renderOnAvailablePromise is not fulfilled for the 3 times srcNode is created');
-            });
-        }
-    }));
-
     suite.add(new Y.Test.Case({
         name: 'test 6',
         'check renderOnAvailablePromise if Promise get fulfilled after render':  function() {

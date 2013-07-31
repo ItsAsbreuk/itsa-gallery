@@ -34,15 +34,6 @@
             "modules"    : ["gallery-itsawidgetrenderpromise", "node", "calendar"],
             "tags"    : ["gallery-itsawidgetrenderpromise", "renderonavailablepromise"],
             "hideTableOfContents": true
-        },
-        {
-            "name"       : "using-renderonavailablepromise-repeat",
-            "displayName": "Automatic re-render a widget every time scrNode is re-inserted into the DOM",
-            "description": "This example shows how to use renderOnAvailablePromise(scrNode, {stayalive: true}) to re-render a scrNode multiple times it gets inserted into the DOM.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsawidgetrenderpromise", "node", "gallery-itsadialog"],
-            "tags"    : ["gallery-itsawidgetrenderpromise", "renderonavailablepromise"],
-            "hideTableOfContents": true
         }
     ]
 }

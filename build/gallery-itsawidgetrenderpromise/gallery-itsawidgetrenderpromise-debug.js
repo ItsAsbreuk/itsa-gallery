@@ -15,8 +15,32 @@ YUI.add('gallery-itsawidgetrenderpromise', function (Y, NAME) {
  *
 */
 
-var DEFAULTTIMEOUT = 20000, // default timeout for renderPromise and readyPromise
-    DEFAULT_STAYALIVE_TIMER = 1000; // default repeat-timer for renderOnAvailablePromise when stayalive=true
+var DEFAULTTIMEOUT = 20000; // default timeout for renderPromise and readyPromise
+
+/**
+ * Render the widget only when the sourceNode (or boundingBox) gets available in the DOM.
+ * This way you can execute the render-statement even if the sourceNode has yet to be declared.
+ * Is chainable, but keep in mind that the Widget is not rendered, so you can't refer to any of the widgets nodes.
+ * If you want to be sure the widget is really rendered, you should use renderOnAvailablePromise instead.
+ *
+ * @method renderOnAvailablePromises
+ * @param [srcNodeId] {String} Node-selector by id. You must include the '#'. If not defined, then the widget will be rendered at once
+ * with its own generated node-id.
+ * <p>
+ * NOTE: This argument is in fact the boundingBox, but will also be passed into the 'srcNode' attribute for progressive enhancement.
+ * </p>
+ * @param timeout {int} Timeout in ms, after which the promise will be rejected.<br />
+ *                                      If omitted, <b>no timeout</b> will be used.<br />
+ * @chainable
+ * @since 0.2
+*/
+Y.Widget.prototype.renderOnAvailable = function(srcNodeId, timeout) {
+    Y.log('renderOnAvailable', 'info', 'widget');
+    var instance = this;
+    instance.renderOnAvailablePromise(srcNodeId, {timeout: timeout});
+    return instance;
+};
+
 /**
  * Promise which will render the widget only when the sourceNode (or boundingBox) gets available in the DOM.
  * This way you can execute the render-statement even if the sourceNode has yet to be declared.
@@ -33,75 +57,50 @@ var DEFAULTTIMEOUT = 20000, // default timeout for renderPromise and readyPromis
  *                                      If omitted, <b>no timeout</b> will be used.<br />
  * @param [options.promisetype] {String} To make the promise fulfilled at another stage. Possible values are:
  *  null (==onAvailable), 'afterrender' and 'afterready'.
- * @param [options.stayalive=false] {Boolean} when set true, everytime the node is removed from the DOM, the Promise will be resetted.<br />
- * this is handy for pages that gets loaded and unloaded. However, it has a performancehit, so don't use it when not needed.<br />
- * in fact a new promise is created and bound to the returnfunction
- * (because Promises can't be transitioned to another state once they arefulfilled or rejected).<br />
- * only applyable if 'srcNodeId' is defined.
- * --> timerbased a dom-search takes place to see if the node is still there.
- * @param [options.stayalivetimer=1000] {Int} periodic-time in ms to check if the node has disapear and thus reset the Promise.<br />
- * only applyable if options.stayalive=true. Set to higher value leads improved performance, but could lead to renderdelay when
- * the node disappears and appears soon again (within this timespan).
  * @return {Y.Promise} Promise that is resolved once srcNode is available in the DOM.
  * If both srcNode and timeout are set, the Promise can be rejected in case of a timeout. Promised response --> resolve() OR reject(reason).
  * @since 0.2
 */
 Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
+    Y.log('renderOnAvailablePromise', 'info', 'widget');
     var instance = this,
-        checktimer,
         timeout = options && options.timeout,
-        promisetype = options && options.promisetype,
-        stayalive = options && options.stayalive && (typeof options.stayalive==='boolean') && options.stayalive,
-        stayalivetimer = (options && options.stayalivetimer) || DEFAULT_STAYALIVE_TIMER;
-    instance.nodeAvailablePromise = new Y.Promise(function (resolve) {
+        promisetype = options && options.promisetype;
+    return new Y.Promise(function (resolve, reject) {
         if (!srcNodeId) {
             // widget can be rendered immediately because it renderes with inside a new boundingBox
             instance.render();
             resolve();
         }
-    });
-    if (srcNodeId) {
-        Y.use('gallery-itsanodepromise', function() {
-            instance.nodeAvailablePromise = Y.Node.availablePromise(srcNodeId, timeout)
-            .then(
-                Y.bind(instance.render, instance, srcNodeId)
-            )
-            .then(
-                function() {
-                    // return a promise or just true, to chain the result
-                    // Because renderPromise and readyPromise use DEFAULTTIMEOUT when timeout is undefined, we might need to set timeout to zero.
-                    timeout = timeout || 0;
-                    if (promisetype==='afterrender') {
-                        return instance.renderPromise(timeout);
+        else {
+            Y.use('gallery-itsanodepromise', function() {
+                instance.nodeAvailablePromise = Y.Node.availablePromise(srcNodeId, timeout)
+                .then(
+                    Y.bind(instance.render, instance, srcNodeId)
+                )
+                .then(
+                    function() {
+                        // return a promise or just true, to chain the result
+                        // Because renderPromise and readyPromise use DEFAULTTIMEOUT when timeout is undefined,
+                        // we might need to set timeout to zero.
+                        timeout = timeout || 0;
+                        if (promisetype==='afterrender') {
+                            return instance.renderPromise(timeout);
+                        }
+                        else if (promisetype==='afterready') {
+                            return instance.readyPromise(timeout);
+                        }
+                        else {
+                            return true;
+                        }
                     }
-                    else if (promisetype==='afterready') {
-                        return instance.readyPromise(timeout);
-                    }
-                    else {
-                        return true;
-                    }
-                }
-            );
-        });
-        if (stayalive) {
-            checktimer = Y.later(
-                stayalivetimer,
-                null,
-                function() {
-                    if ((instance.nodeAvailablePromise.getStatus()!=='pending') && !Y.one(srcNodeId)) {
-                        // Promise was ready, but the node isn't there anymore - or never was
-                        // first stop this timer, because we don't want multiple timers running
-                        checktimer.cancel();
-                        // now create a new Promise
-                        instance.nodeAvailablePromise = instance.renderOnAvailablePromise(srcNodeId, options);
-                    }
-                },
-                null,
-                true
-            );
+                ).then(
+                    resolve,
+                    reject
+                );
+            });
         }
-    }
-    return instance.nodeAvailablePromise;
+    });
 };
 
 /**
@@ -118,30 +117,27 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
 Y.Widget.prototype.renderPromise = function(timeout) {
     Y.log('renderPromise', 'info', 'widget');
     var instance = this;
-    if (!instance._renderPromise) {
-        instance._renderPromise = new Y.Promise(function (resolve, reject) {
-            instance.after(
-                'render',
-                function() {
-                    resolve();
-                }
-            );
-            if (instance.get('rendered')) {
+    return new Y.Promise(function (resolve, reject) {
+        instance.after(
+            'render',
+            function() {
                 resolve();
             }
-            if (timeout !== 0) {
-                Y.later(
-                    timeout || DEFAULTTIMEOUT,
-                    null,
-                    function() {
-                        var errormessage = 'renderPromise is rejected by timeout of '+(timeout || DEFAULTTIMEOUT)+ ' ms';
-                        reject(new Error(errormessage));
-                    }
-                );
-            }
-        });
-    }
-    return instance._renderPromise;
+        );
+        if (instance.get('rendered')) {
+            resolve();
+        }
+        if (timeout !== 0) {
+            Y.later(
+                timeout || DEFAULTTIMEOUT,
+                null,
+                function() {
+                    var errormessage = 'renderPromise is rejected by timeout of '+(timeout || DEFAULTTIMEOUT)+ ' ms';
+                    reject(new Error(errormessage));
+                }
+            );
+        }
+    });
 };
 
 /**
@@ -180,13 +176,10 @@ Y.Widget.prototype.readyPromise = function(timeout) {
     Y.log('readyPromise', 'info', 'widget');
     var instance = this,
           promiseslist;
-    if (!instance._readyPromise) {
-        promiseslist = [];
-        promiseslist.push(instance.renderPromise(timeout));
-        promiseslist.push(instance.promiseBeforeReady(timeout));
-        instance._readyPromise = Y.batch.apply(Y, promiseslist);
-    }
-    return instance._readyPromise;
+    promiseslist = [];
+    promiseslist.push(instance.renderPromise(timeout));
+    promiseslist.push(instance.promiseBeforeReady(timeout));
+    return Y.batch.apply(Y, promiseslist);
 };
 
 }, '@VERSION@', {"requires": ["yui-base", "yui-later", "widget", "promise"]});
