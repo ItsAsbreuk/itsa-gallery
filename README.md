@@ -11,13 +11,13 @@ This repo contains open source YUI components that have been contributed to the
 ## Core
 [ITSADialog](src/gallery-itsadialog) --on cdn--
 
-[Widget.renderPromise()](src/gallery-itsawidgetrenderpromise) --on cdn--
+[Y.Widget extensions](src/gallery-itsawidgetrenderpromise) --on cdn--
 
 [Y.usePromise()](src/gallery-itsamodulesloadedpromise) --on cdn--
 
 [ITSAErrorReporter](src/gallery-itsaerrorreporter) --on cdn--
 
-[Y.Node.availablePromise()](src/gallery-itsanodepromise) --on cdn--
+[Y.Node extensions](src/gallery-itsanodepromise) --on cdn--
 
 
 ## Infrastructure
