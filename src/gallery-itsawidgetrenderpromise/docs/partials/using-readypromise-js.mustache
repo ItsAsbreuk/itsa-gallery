@@ -17,8 +17,9 @@ YUI(yuiconfig).use('node', 'panel', 'gallery-itsawidgetrenderpromise', 'promise'
 
             initializer : function() {
                 var instance = this;
-                // add the className 'extendloading' to extend invisibility even after the widget is rendered
-                // and remove this class once the instance is 'ready'.
+                // add the className 'extendloading' to extend invisibility even after
+                // the widget is rendered.
+                // And remove this class once the instance is 'ready'.
                 instance.get('boundingBox').addClass('extendloading');
                 instance.readyPromise(5000).then(
                     function() {
@@ -34,20 +35,24 @@ YUI(yuiconfig).use('node', 'panel', 'gallery-itsawidgetrenderpromise', 'promise'
                 var instance = this;
                 return new Y.Promise(function (resolve, reject) {
                     Y.use('yql', function() {
-                        Y.YQL('select * from weather.forecast where location='+instance.get('location'), function(r) {
-                            //r now contains the result of the YQL Query
-                            var forecast = r.query.results.channel.item.forecast,
-                                newcontent = '';
-                            Y.Array.each(
-                                forecast,
-                                function(dayweather) {
-                                    newcontent += Y.Lang.sub(instance.weatherTemplate, dayweather);
-                                }
-                            );
-                            instance.set('headerContent', 'Wheatherforecast '+ r.query.results.channel.location.city);
-                            instance.set('bodyContent', newcontent);
-                            resolve();
-                        });
+                        Y.YQL(
+                            'select * from weather.forecast where location='+instance.get('location'),
+                            function(r) {
+                                //r now contains the result of the YQL Query
+                                var forecast = r.query.results.channel.item.forecast,
+                                    newcontent = '';
+                                Y.Array.each(
+                                    forecast,
+                                    function(dayweather) {
+                                        newcontent += Y.Lang.sub(instance.weatherTemplate, dayweather);
+                                    }
+                                );
+                                instance.set('headerContent',
+                                             'Wheatherforecast '+ r.query.results.channel.location.city);
+                                instance.set('bodyContent', newcontent);
+                                resolve();
+                            }
+                        );
                     });
                 });
             }
