@@ -8,6 +8,7 @@ YUI.add('module-tests', function(Y) {
         NODE_SHOULD_NOT_BE_AVAILABLE = 'Node is found, but should not be available yet',
         NODE_SHOULD_NOT_BE_CONTENTREADY = 'Node is found, but should not be contentready yet',
         NODE_NOT_CONTENTREADY = 'Node not contentready',
+        NODE_NOT_REMOVED_INTIME = 'Node not removed within timeout settings',
         bodynode = Y.one('body'),
         YNode = Y.Node;
 
@@ -189,6 +190,60 @@ YUI.add('module-tests', function(Y) {
                     Y.Assert.fail(NODE_NOT_CONTENTREADY);
                 }
             );
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'test 11',
+        'check if removing a node fulfills the promise':  function() {
+            var follownr = 11,
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, 2000);
+            nodeUnavailablePromise.then(
+                function() {
+                    Y.Assert.pass();
+                },
+                function(reason) {
+                    Y.Assert.fail(NODE_NOT_REMOVED_INTIME);
+                }
+            );
+            Y.later(1000, null, function() {
+                Y.one(nodeId+follownr).remove(true);
+            });
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'test 12',
+        'check if removedPromise fulfills when node is not in the DOM':  function() {
+            var follownr = 12;
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, 2000);
+            nodeUnavailablePromise.then(
+                function() {
+                    Y.Assert.pass();
+                },
+                function(reason) {
+                    Y.Assert.fail(NODE_NOT_REMOVED_INTIME);
+                }
+            );
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'test 13',
+        'check if removing a node rejects the promise if it is removed after timeout':  function() {
+            var follownr = 13;
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, 2000);
+            nodeUnavailablePromise.then(
+                function() {
+                    Y.Assert.fail(NODE_NOT_REMOVED_INTIME);
+                },
+                function(reason) {
+                    Y.Assert.pass();
+                }
+            );
+            Y.later(3000, null, function() {
+                Y.one(nodeId+follownr).remove(true);
+            });
         }
     }));
 
