@@ -5,7 +5,26 @@
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsapluginpromise" ],
 
-    "tags": [ "gallery" ],
+    "tags": [ "gallery", "plugin", "promise" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "plugin-after-render",
+            "displayName": "Plugin after widget is rendered",
+            "description": "This example shows how to use plugAfterReady() to plugin while the widget has still to be rendered.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsapluginpromise", "dd-plugin", "gallery-itsanodepromise", "node"],
+            "tags"    : ["gallery-itsapluginpromise", "renderPromise", "availablePromise"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "notify-ready",
+            "displayName": "Get notified when plugin is ready",
+            "description": "This example plugs in a custom Plugin and notifies when the plugin is ready.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsapluginpromise", "gallery-itsadialog", "node"],
+            "tags"    : ["gallery-itsapluginpromise", "plugPromise"],
+            "hideTableOfContents": true
+        }
+    ]
 }

@@ -17,14 +17,13 @@
 
 <h3 id="readypromise-example">Example using readyPromise()</h3>
 ```
-YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gallery-itsadialog', 'your-custom-plugin', function(Y) {
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gallery-itsadialog', 'calendar', 'your-custom-plugin', function(Y) {
 
-    // your-custom-plugin defines Y.Plugin.CustomPlugin (with NS='customplugin') that extends Y.Plugin.Base
+    // your-custom-plugin defines Y.Plugin.CustomPlugin that extends Y.Plugin.Base
     // see the examples on the right for the full code.
 
-    var cal = new Y.Calendar().plug(Y.Plugin.CustomPlugin);
-    // as soon customplugin is ready, we want to be alerted
-    cal.customplugin.readyPromise().then(
+    var cal = new Y.Calendar();
+    cal.plugPromise(Y.Plugin.CustomPlugin).then( // as soon customplugin is ready, we want to be alerted
         function() {
             Y.alert('the plugin is ready');
         }
@@ -37,6 +36,9 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gal
 <h2>Extentions to Y.Plugin.Host</h2>
 
 <p>
+   <b>plugPromise()</b> plugs-in a Plugin directly. You can use it the same as plug().
+   The returned Proimse gets fukfilled as soon as the plugin is ready, defined by <code>Y.Plugin.Base.promiseBeforeReady()</code>.<br /><br />
+
    <b>plugAfterReadyPromise()</b> plugs-in a Plugin after its host is ready. You can use it the same as plug(),
    only you are sure that the host is ready before plug it in.<br /><br />
 
@@ -48,10 +50,11 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gal
 
 <h3 id="plugAfterRenderPromise-example">Example plugAfterRenderPromise()</h3>
 ```
-YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'dd-plugin', function(Y) {
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'dd-plugin', function(Y) {
 
-    var cal = new Y.Calendar().plugAfterRender(Y.Plugin.Drag, {handles: ['.yui3-calendar-header']});
-    // plugAfterReady() could have been used as well
+    var cal = new Y.Calendar();
+    cal.plugAfterRenderPromise(Y.Plugin.Drag, {handles: ['.yui3-calendar-header']});
+    // plugAfterReadyPromise() could have been used as well
     cal.render();
 
 });

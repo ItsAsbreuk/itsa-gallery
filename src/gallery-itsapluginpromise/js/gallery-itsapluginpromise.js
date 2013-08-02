@@ -96,7 +96,7 @@ Y.mix(ITSAPluginPromise.prototype, {
             args = arguments,
             plugin = args[0];
 
-        Y.log('Y.Plugin.Host.plugPromise', 'info', 'plugin.host');
+        Y.log('Y.Plugin.Host.plugAfterReadyPromise', 'info', 'plugin.host');
         return host._hostReadyPromise(args[2])
                 .then(
                     function() {
@@ -143,7 +143,7 @@ Y.mix(ITSAPluginPromise.prototype, {
             args = arguments,
             plugin = args[0];
 
-        Y.log('Y.Plugin.Host.plugPromise', 'info', 'plugin.host');
+        Y.log('Y.Plugin.Host.plugAfterRenderPromise', 'info', 'plugin.host');
         return host._hostRenderPromise(args[2])
                 .then(
                     function() {
@@ -160,6 +160,50 @@ Y.mix(ITSAPluginPromise.prototype, {
                         return plugin && host[plugin.ns];
                     }
                 );
+    },
+
+    /**
+      * Adds a plugin to the host object, just as 'plug()' would do --> the plugin happens directly.
+      * The returned promise fulfills when the plugin is 'ready' (using Y.Plugin.Base.readyPromise).
+      *
+      * @method plugPromise
+      * @param plugin {Function | Object |Array} Accepts the plugin class, or an
+      * object with a "fn" property specifying the plugin class and
+      * a "cfg" property specifying the configuration for the Plugin.
+      * <p>
+      * Additionally an Array can also be passed in, with the above function or
+      * object values, allowing the user to add multiple plugins in a single call.
+      * </p>
+      * @param [config] {object} If the first argument is the plugin class, the second argument
+      * can be the configuration for the plugin.
+      * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
+      *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
+      *                                      The timeout-value can only be set at the first time the Promise is called.
+      * @since 0.1
+      * @return {Promise} --> resolve(plugin-instance) or reject(reason) can only be rejected when a widget didn't render within ready-timeout.
+    */
+    plugPromise : function() {
+        // store 'arguments' inside 'args' --> because new Promise() has other arguments
+        var host = this,
+            args = arguments,
+            plugin = args[0],
+            readypromise = plugin && plugin.readyPromise;
+
+        Y.log('Y.Plugin.Host.plugPromise', 'info', 'plugin.host');
+        return new Y.Promise(function (resolve, reject) {
+            host.plug.apply(host, args);
+            if (readypromise) {
+                readypromise(args[2]).then(
+                    function() {
+                        resolve(plugin && host[plugin.ns]);
+                    },
+                    reject
+                );
+            }
+            else {
+               resolve(plugin && host[plugin.ns]);
+            }
+        });
     },
 
     //--- private declarations

@@ -1,0 +1,14 @@
+YUI(yuiconfig).use('gallery-itsapluginpromise', 'gallery-itsadialog', 'ca;endar', 'your-custom-plugin', function(Y) {
+
+    // your-custom-plugin defines Y.Plugin.CustomPlugin that extends Y.Plugin.Base
+    // see the examples on the right for the full code.
+
+    var cal = new Y.Calendar();
+    cal.plugPromise(Y.Plugin.CustomPlugin).then( // as soon customplugin is ready, we want to be alerted
+        function() {
+            Y.alert('the plugin is ready');
+        }
+    );
+    cal.render();
+
+});

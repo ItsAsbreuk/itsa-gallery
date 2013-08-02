@@ -1,0 +1,16 @@
+YUI(yuiconfig).use('gallery-itsapluginpromise', 'dd-plugin', 'calendar', 'node', function(Y) {
+
+    // #calnode as part of the sidebar
+    Y.one('.sidebar').append('<div id="calnode" class="yui3-skin-sam"></div>');
+
+    var cal = new Y.Calendar();
+//    cal.plugAfterRenderPromise(Y.Plugin.Drag, {handles: ['.yui3-calendar-header']});
+    cal.plug(Y.Plugin.Drag, {handles: ['.yui3-calendar-header']});
+    // plugAfterReadyPromise() could have been used as well
+
+    // To show that the plugin doesn't fail, we render after 3 seconds
+    Y.later(3000, null, function() {
+        cal.render('#calnode');
+    });
+
+});

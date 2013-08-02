@@ -53,7 +53,7 @@ Y.mix(ITSAPluginPromise.prototype, {
     */
     hasPluginPromise : function(ns, options) {
         var host = this,
-            var promise = Y.bind(((options && options.checkafterrender) ? host._hostRenderPromise : host._hostReadyPromise), host);
+            promise = Y.bind(((options && options.checkafterrender) ? host._hostRenderPromise : host._hostReadyPromise), host);
 
         return promise(options && options.timeout).then(
             function() {
@@ -73,7 +73,7 @@ Y.mix(ITSAPluginPromise.prototype, {
       * Adds a plugin to the host object, just as 'plug()' would do.  The difference is that plugAfterReadyPromise will wait until the host is ready.
       * <br />In case the host is a Widget, you can be sure the widget is ready (see gallery-itsawidgetrenderpromise for widget.readyPromise()).
       * <br />In case the host is not a widget, then the plugin
-      * will happen instantly. You get a 'promise' that the plugin will be possible.
+      * will happen instantly. The promise fulfills when both the host and the plugin are ready.
       *
       * @method plugAfterReadyPromise
       * @param plugin {Function | Object |Array} Accepts the plugin class, or an
@@ -89,24 +89,37 @@ Y.mix(ITSAPluginPromise.prototype, {
       *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
       *                                      The timeout-value can only be set at the first time the Promise is called.
       * @since 0.1
-      * @return {Promise} --> resolve(plugin) or reject(reason) can only be rejected when a widget didn't render within ready-timeout.
+      * @return {Promise} --> resolve(plugin-instance) or reject(reason) can only be rejected when a widget didn't render within ready-timeout.
     */
     plugAfterReadyPromise : function() {
         // store 'arguments' inside 'args' --> because new Promise() has other arguments
         var host = this,
-              args = arguments;
+            args = arguments,
+            plugin = args[0];
 
-        return host.hostReadyPromise(args[2]).then(
-            function() {
-                host.plug.apply(host, args);
-                return args[0];
-            }
-        );
+        return host._hostReadyPromise(args[2])
+                .then(
+                    function() {
+                        host.plug.apply(host, args);
+                    }
+                )
+                .then(
+                   function() {
+                       return (plugin && plugin.readyPromise && plugin.readyPromise(args[2])) || true;
+                   }
+                )
+                .then (
+                    function() {
+                        return plugin && host[plugin.ns];
+                    }
+                );
     },
 
     /**
-      * Adds a plugin to the host object, just as 'plug()' would do.  The difference is that plugAfterRenderPromise will wait until the host is rendered.
-      * <br />Only aplyable in case the host is a Widget (see gallery-itsawidgetrenderpromise for widget.renderPromise()).
+      * Adds a plugin to the host object, just as 'plug()' would do.  The difference is that plugAfterRenderPromise
+      * will wait until the host is rendered.<br />
+      * Only applyable in case the host is a Widget (see gallery-itsawidgetrenderpromise for widget.renderPromise()).
+      * The promise fulfills when both the host is rendered and the plugin is ready.
       *
       * @method plugAfterRenderPromise
       * @param plugin {Function | Object |Array} Accepts the plugin class, or an
@@ -122,19 +135,73 @@ Y.mix(ITSAPluginPromise.prototype, {
       *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
       *                                      The timeout-value can only be set at the first time the Promise is called.
       * @since 0.1
-      * @return {Promise} --> resolve(plugin) or reject(reason) can only be rejected when a widget didn't render within ready-timeout.
+      * @return {Promise} --> resolve(plugin-instance) or reject(reason) can only be rejected when a widget didn't render within ready-timeout.
     */
     plugAfterRenderPromise : function() {
         // store 'arguments' inside 'args' --> because new Promise() has other arguments
         var host = this,
-              args = arguments;
+            args = arguments,
+            plugin = args[0];
 
-        return host._hostRenderPromise(args[2]).then(
-            function() {
-                host.plug.apply(host, args);
-                return args[0];
+        return host._hostRenderPromise(args[2])
+                .then(
+                    function() {
+                        host.plug.apply(host, args);
+                    }
+                )
+                .then(
+                   function() {
+                       return (plugin && plugin.readyPromise && plugin.readyPromise(args[2])) || true;
+                   }
+                )
+                .then (
+                    function() {
+                        return plugin && host[plugin.ns];
+                    }
+                );
+    },
+
+    /**
+      * Adds a plugin to the host object, just as 'plug()' would do --> the plugin happens directly.
+      * The returned promise fulfills when the plugin is 'ready' (using Y.Plugin.Base.readyPromise).
+      *
+      * @method plugPromise
+      * @param plugin {Function | Object |Array} Accepts the plugin class, or an
+      * object with a "fn" property specifying the plugin class and
+      * a "cfg" property specifying the configuration for the Plugin.
+      * <p>
+      * Additionally an Array can also be passed in, with the above function or
+      * object values, allowing the user to add multiple plugins in a single call.
+      * </p>
+      * @param [config] {object} If the first argument is the plugin class, the second argument
+      * can be the configuration for the plugin.
+      * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
+      *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
+      *                                      The timeout-value can only be set at the first time the Promise is called.
+      * @since 0.1
+      * @return {Promise} --> resolve(plugin-instance) or reject(reason) can only be rejected when a widget didn't render within ready-timeout.
+    */
+    plugPromise : function() {
+        // store 'arguments' inside 'args' --> because new Promise() has other arguments
+        var host = this,
+            args = arguments,
+            plugin = args[0],
+            readypromise = plugin && plugin.readyPromise;
+
+        return new Y.Promise(function (resolve, reject) {
+            host.plug.apply(host, args);
+            if (readypromise) {
+                readypromise(args[2]).then(
+                    function() {
+                        resolve(plugin && host[plugin.ns]);
+                    },
+                    reject
+                );
             }
-        );
+            else {
+               resolve(plugin && host[plugin.ns]);
+            }
+        });
     },
 
     //--- private declarations
@@ -168,7 +235,7 @@ Y.mix(ITSAPluginPromise.prototype, {
               }
             });
         }
-        return _host._hostreadypromise;
+        return host._hostreadypromise;
     },
 
     /**
@@ -200,7 +267,7 @@ Y.mix(ITSAPluginPromise.prototype, {
               }
             });
         }
-        return _host._hostrenderpromise;
+        return host._hostrenderpromise;
     }
 
 });
@@ -227,7 +294,25 @@ Y.Base.mix(Y.Plugin.Host, [ITSAPluginPromise]);
  *
 */
 
-// next, add readyPromise() to Y.Plugin.Base
+/**
+ * Promise that holds any stuff that should be done before the plugin is defined as 'ready'.
+ * By default this promise is resolved right away. The intention is that it can be overridden in Plugin.Base extentions.<br /><br />
+ * <b>Notion</b>It is not the intention to make a dircet call an promiseBeforeReady --> use readyPromise () instead,
+ * because that promise if more efficient.
+ *
+ * @method promiseBeforeReady
+ * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
+ *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
+ *                                      The timeout-value can only be set at the first time the Promise is called.
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
+ * @since 0.2
+*/
+Y.Plugin.Base.prototype.promiseBeforeReady = function() {
+    return new Y.Promise(function (resolve) {
+        resolve();
+    });
+};
+
 /**
  * Promise that will be resolved once the plugin is defined as 'ready'.
  * It depends on the developer of the plugin to notify the 'readystate' by firing the readyevent by this.fire('ready').
@@ -243,9 +328,9 @@ Y.Plugin.Base.prototype.readyPromise = function(timeout) {
     var instance = this;
     if (!instance._readypromise) {
         instance._readypromise = new Y.Promise(function (resolve, reject) {
-            instance.after(
-                'ready',
-                resolve
+            instance.promiseBeforeReady().then(
+                resolve,
+                reject
             );
             if (timeout !== 0) {
                 Y.later(
