@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsawidgetrenderpromise",
     "displayName": "Gallery: gallery-itsawidgetrenderpromise",
-    "description": "*Summary Goes Here*",
+    "description": "This module adds some renderPromises to the Y.Widget class.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsawidgetrenderpromise" ],
 

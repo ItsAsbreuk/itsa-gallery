@@ -7,6 +7,7 @@ YUI.add('gallery-itsawidgetrenderpromise', function (Y, NAME) {
  * It also adds the Promise renderOnAvailablePromise() by which the render-code can be run even if the Node has yet to be inserted in the DOM.
  *
  * @module gallery-itsawidgetrenderpromise
+ * @extends Widget
  * @class Y.Widget
  * @since 0.1
  *
@@ -23,7 +24,7 @@ var DEFAULTTIMEOUT = 20000; // default timeout for renderPromise and readyPromis
  * Is chainable, but keep in mind that the Widget is not rendered, so you can't refer to any of the widgets nodes.
  * If you want to be sure the widget is really rendered, you should use renderOnAvailablePromise instead.
  *
- * @method renderOnAvailablePromises
+ * @method renderOnAvailable
  * @param [srcNodeId] {String} Node-selector by id. You must include the '#'. If not defined, then the widget will be rendered at once
  * with its own generated node-id.
  * <p>
@@ -46,7 +47,7 @@ Y.Widget.prototype.renderOnAvailable = function(srcNodeId, timeout) {
  * This way you can execute the render-statement even if the sourceNode has yet to be declared.
  * The returned Promise will be resolved once the sourceNode is available in the DOM, but this can be changed by the 'promisetype' argument.
  *
- * @method renderOnAvailablePromises
+ * @method renderOnAvailablePromise
  * @param [srcNodeId] {String} Node-selector by id. You must include the '#'. If not defined, then the widget will be rendered at once
  * with its own generated node-id.
  * <p>
@@ -120,9 +121,7 @@ Y.Widget.prototype.renderPromise = function(timeout) {
     return new Y.Promise(function (resolve, reject) {
         instance.after(
             'render',
-            function() {
-                resolve();
-            }
+            resolve
         );
         if (instance.get('rendered')) {
             resolve();
@@ -169,7 +168,7 @@ Y.Widget.prototype.promiseBeforeReady = function() {
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
  *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
  *                                      The timeout-value can only be set at the first time the Promise is called.
- * @return {Y.Promise} promised response --> resolve(e) OR reject(reason).
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
  * @since 0.2
 */
 Y.Widget.prototype.readyPromise = function(timeout) {
