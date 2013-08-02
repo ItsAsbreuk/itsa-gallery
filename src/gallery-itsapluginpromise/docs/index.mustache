@@ -1,14 +1,58 @@
 <div class="intro">
-    <p>
-    *Summary Goes Here*
-    </p>
+  <p>
+      {{description}}
+  </p>
+  <p>This can be usefull, for instance, when you have a situation where a plugin can only be plugged in once a widget is rendered.
+  </p>
 </div>
 
-<h2>Description</h2>
+{{>getting-started}}
 
-<p>*Module Description Goes Here*</p>
+<h2>Extentions to Y.Plugin.Base</h2>
 
+<p>
+   <b>readyPromise()</b> is a Promise that is fulfilled once the Plugin is ready. To make that happen, it makes use of
+   <code>promiseBeforeReady</code>: a promise that is fulfilled by default, but can be re-defined in custom Plugins.
+</p>
+
+<h3 id="readypromise-example">Example using readyPromise()</h3>
 ```
-//Module example code
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gallery-itsadialog', 'your-custom-plugin', function(Y) {
+
+    // your-custom-plugin defines Y.Plugin.CustomPlugin (with NS='customplugin') that extends Y.Plugin.Base
+    // see the examples on the right for the full code.
+
+    var cal = new Y.Calendar().plug(Y.Plugin.CustomPlugin);
+    // as soon customplugin is ready, we want to be alerted
+    cal.customplugin.readyPromise().then(
+        function() {
+            Y.alert('the plugin is ready');
+        }
+    );
+    cal.render();
+
+});
 ```
 
+<h2>Extentions to Y.Plugin.Host</h2>
+
+<p>
+   <b>plugAfterReadyPromise()</b> plugs-in a Plugin after its host is ready. You can use it the same as plug(),
+   only you are sure that the host is ready before plug it in.<br /><br />
+
+   <b>plugAfterRenderPromise()</b> (applyable for widgets only). Plugs-in a Plugin after the host-widget is rendered.<br />
+   Note: you could use <code>plugAfterReadyPromise()</code> as well, but that promise will be fulfilled later.<br /><br />
+
+   <b>hasPluginPromise()</b> is the same as hasPlugin(), except that it will check after its host is ready (or rendered).
+</p>
+
+<h3 id="plugAfterRenderPromise-example">Example plugAfterRenderPromise()</h3>
+```
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'dd-plugin', function(Y) {
+
+    var cal = new Y.Calendar().plugAfterRender(Y.Plugin.Drag, {handles: ['.yui3-calendar-header']});
+    // plugAfterReady() could have been used as well
+    cal.render();
+
+});
+```

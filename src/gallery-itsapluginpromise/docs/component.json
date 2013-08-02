@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsapluginpromise",
     "displayName": "Gallery: gallery-itsapluginpromise",
-    "description": "*Summary Goes Here*",
+    "description": "This module adds some Promises to the Y.Plugin.Base and Y.Plugin.Host that will help check and execute code at the right time.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsapluginpromise" ],
 

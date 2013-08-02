@@ -5,9 +5,9 @@
             "base-base",
             "base-build",
             "pluginhost-base",
+            "plugin",
             "event-delegate",
-            "promise",
-            "gallery-itsawidgetrenderpromise"
+            "promise"
         ]
     }
 }
