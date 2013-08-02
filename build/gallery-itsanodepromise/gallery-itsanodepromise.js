@@ -7,6 +7,7 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
  * but can use Promises.
  *
  * @module gallery-itsanodepromise
+ * @extends Node
  * @class Y.Node
  * @since 0.1
  *
