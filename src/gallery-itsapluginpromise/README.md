@@ -11,11 +11,6 @@ Landing Page
 [http://gallerydocs.itsasbreuk.nl/gallery-itsapluginpromise](http://gallerydocs.itsasbreuk.nl/gallery-itsapluginpromise/)
 
 
-API
---------------
-[http://galleryapi.itsasbreuk.nl/classes/Y.Plugin-Host.html](http://galleryapi.itsasbreuk.nl/classes/Y.Plugin-Host.html)
-[http://galleryapi.itsasbreuk.nl/classes/Y.Plugin-Base.html](http://galleryapi.itsasbreuk.nl/classes/Y.Plugin-Base.html)
-
 
 License
 -------

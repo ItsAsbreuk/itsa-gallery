@@ -8,11 +8,20 @@
    </p>
 </div>
 
-<p>The node that is inserted after a delay of 3 seconds looks like:
-```
-<div id='examplenode'></div>
-```
+<p>
+    Wait for 3 seconds: then the Calendar-instance will be rendered. However, the plugin is plugged in directly using plugAfterRenderPromise().
 </p>
+
+<h2>Explanation</h2>
+    <p>
+        This example uses a plugin that is made especially for Calendar-instances and modifies the background-color of one of the Calendar's nodes.
+        If the plugin were to be plugged in at once, using:
+        ```
+        new Y.Calendar().plug(Y.Plugin.OwnPlugin);
+        ```
+        then an error would rise, because the variable <code>headerlabel</code> would be null. We have to wait until the Calendar is rendered.
+i>
+    </p>
 
 <h2>Complete Example Source</h2>
 ```
