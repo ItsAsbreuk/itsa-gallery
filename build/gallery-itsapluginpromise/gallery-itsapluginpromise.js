@@ -31,42 +31,21 @@ var DEFAULTTIMEOUT = 20000; // default timeout for Y.Plugin.Base.readyPromise
 function ITSAPluginPromise() {}
 
 Y.mix(ITSAPluginPromise.prototype, {
-    /**
-      * Determines if a plugin has plugged into this host, but checks <b>after the host is ready</b>.
-      * This means you are sure any plugins at declaration (declared by Base config.plugins) are really there.
-      * <br /><br />The promise will be resolved if the plugin is plugged in, otherwise rejected.
-      *
-      * @method hasPluginPromise
-      * @param ns {String} The plugin's namespace
-      * @param [options] {object}
-      * @param [options.timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
-      *                                If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
-      *                                The timeout-value can only be set at the first time the Promise is called.
-      * @param [options.checkafterrender=false] {boolean} In case of a widget, you can set this 'true' to check plugin's availability
-      *                                                   After render, instead of ready. (see gallery-itsawidgetrenderpromise for
-      *                                                   widget.readyPromise() and widget.readyPromise()).
-      *                                                   NOTE: only applyable in case og widgets.
-      * @return {Y.Promise} --> resolve(status) - status=Host-object;
-      * reject(reason) --> reject will only happen if a host-widget is not rendered before timeout of 20 seconds.
-      * @since 0.1
-      * @return {Promise} --> resolve(host) or reject(reason) where 'reason' is that ns is not plugged in.
-    */
-    hasPluginPromise : function(ns, options) {
-        var host = this,
-            promise = Y.bind(((options && options.checkafterrender) ? host._hostRenderPromise : host._hostReadyPromise), host);
 
-        return promise(options && options.timeout).then(
-            function() {
-                return new Y.Promise(function (resolve, reject) {
-                    if (host.hasPlugin(ns)) {
-                        resolve(host);
-                    }
-                    else {
-                        reject(new Error(ns + ' not plugged in'));
-                    }
-                });
-            }
-        );
+    /**
+     * Determines if a plugin has plugged into this host.
+     * Is redefined in a way that plugins that are plugged-in using plugAfterReadyPromise or plugAfterRenderPromise
+     * also result 'true', even if the promise isn't ready yet.
+     *
+     * @method hasPlugin
+     * @param {String} ns The plugin's namespace
+     * @return {Plugin} Returns a truthy value (the plugin instance) if present, or undefined if not.
+     */
+    hasPlugin : function(ns) {
+        var host = this,
+            originalHasPlugin = (host._plugins[ns] && host[ns]),
+            promisedHasPlugin = host._promisedplugins && host._promisedplugins[ns];
+        return originalHasPlugin || promisedHasPlugin;
     },
 
     /**
@@ -95,12 +74,15 @@ Y.mix(ITSAPluginPromise.prototype, {
         // store 'arguments' inside 'args' --> because new Promise() has other arguments
         var host = this,
             args = arguments,
-            plugin = args[0];
+            plugin = args[0],
+            ns = plugin && plugin.NS;
 
+        host._definePromiseNS(plugin);
         return host._hostReadyPromise(args[2])
                 .then(
                     function() {
                         host.plug.apply(host, args);
+                        host._undefinePromiseNS(plugin);
                     }
                 )
                 .then(
@@ -110,7 +92,7 @@ Y.mix(ITSAPluginPromise.prototype, {
                 )
                 .then (
                     function() {
-                        return plugin && host[plugin.ns];
+                        return host[ns];
                     }
                 );
     },
@@ -141,12 +123,15 @@ Y.mix(ITSAPluginPromise.prototype, {
         // store 'arguments' inside 'args' --> because new Promise() has other arguments
         var host = this,
             args = arguments,
-            plugin = args[0];
+            plugin = args[0],
+            ns = plugin && plugin.NS;
 
+        host._definePromiseNS(plugin);
         return host._hostRenderPromise(args[2])
                 .then(
                     function() {
                         host.plug.apply(host, args);
+                        host._undefinePromiseNS(plugin);
                     }
                 )
                 .then(
@@ -156,7 +141,7 @@ Y.mix(ITSAPluginPromise.prototype, {
                 )
                 .then (
                     function() {
-                        return plugin && host[plugin.ns];
+                        return host[ns];
                     }
                 );
     },
@@ -199,12 +184,45 @@ Y.mix(ITSAPluginPromise.prototype, {
                 );
             }
             else {
-               resolve(plugin && host[plugin.ns]);
+               resolve(plugin && host[plugin.NS]);
             }
         });
     },
 
     //--- private declarations
+
+    /**
+      * Stores the NS of the plugin which will be plugged in later on.
+      *
+      * @method _definePromiseNS
+      * @param ns {String} the plugin's namespace'
+      * @private
+      * @since 0.1
+    */
+    _definePromiseNS : function(ns) {
+        var host = this;
+        if (ns) {
+            if (!host._promisedplugins) {
+                host._promisedplugins = {};
+            }
+            host._promisedplugins[ns] = true;
+        }
+    },
+
+    /**
+      * Removes the storage the NS of the plugin --> the ns is available now using the original 'hasPlugin'-method.
+      *
+      * @method _undefinePromiseNS
+      * @param ns {String} the plugin's namespace'
+      * @private
+      * @since 0.1
+    */
+    _undefinePromiseNS : function(ns) {
+        var host = this;
+        if (ns) {
+            delete host._promisedplugins[ns];
+        }
+    },
 
     /**
       * Resolves when the host is ready. In case of a widget, this will be after rendered: widget.renderPromise(), otherwise immediatly.

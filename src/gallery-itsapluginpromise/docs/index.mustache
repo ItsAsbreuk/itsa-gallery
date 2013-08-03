@@ -4,7 +4,12 @@
   <p>
       {{description}}
   </p>
-  <p>This can be usefull, for instance, when you have a situation where a plugin can only be plugged in once a widget is rendered.
+  <p>
+    This can be usefull, for instance, when you have a situation where a plugin can only be plugged in once a widget is rendered.
+  </p>
+  <p>
+    <b>NOTE:</b> Because this module modifies Y.Plugin.Base and Y.Plugin.Host, you <u>must</u> place this module inside Y.use()
+    <u>before</u> you reference other plugins or widgets. Best practice is to make <code>gallery-itsapluginpromise</code> to be the first refered module.
   </p>
 </div>
 
@@ -58,6 +63,119 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'cal
     cal.plugAfterRenderPromise(Y.Plugin.Drag, {handles: ['.yui3-calendar-header']});
     // plugAfterReadyPromise() could have been used as well
     cal.render();
+
+});
+```
+
+<h2>Using plugins that initialize asynchroniously</h2>
+
+<p>
+   When defining <code>promiseBeforeReady</code>, you define a plugin that initializes asynchroniously. This also means
+   that special care must be taken when calling its methods. There are 3 ways to do this:
+   <br /><br />
+   * using host.plugPromise(), host.plugAfterRenderPromise() or host.plugAfterReadyPromise()<br />
+   * using host.NS.readyPromise()<br />
+   * using host.NS.someFunction(), which executes internally once host.NS.readyPromise() is fulfilled.
+   <br /><br />
+   To make sure endusers don't run into timing-issues, the last option is the prefered one.
+</p>
+
+<h3 id="using-pluginpromise-example">Example using host.plugPromise()</h3>
+```
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'base-build', 'plugin', function(Y) {
+
+    Y.namespace('Plugin').CustomPlugin = Y.Base.create('customplugin', Y.Plugin.Base, [], {
+        promiseBeforeReady : function() {
+            var instance = this;
+            return new Y.Promise(function (resolve) {
+                // we simulate delay of the readypromise using Y.later
+                Y.later(3000, null, function() {
+                    resolve();
+                });
+            });
+        },
+        doSomething: function() {
+            ...
+        }
+    }, {
+        NS : 'custplugin'
+    });
+
+    var cal = new Y.Calendar().render();
+    cal.plugPromise(Y.Plugin.CustomPlugin).then(
+        function() {
+            // now you can use cal.custplugin.doSomething();
+            ...
+        }
+    );
+
+});
+```
+
+<h3 id="using-readypromise-example">Example using host.NS.readyPromise()</h3>
+```
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'base-build', 'plugin', function(Y) {
+
+    Y.namespace('Plugin').CustomPlugin = Y.Base.create('customplugin', Y.Plugin.Base, [], {
+        promiseBeforeReady : function() {
+            var instance = this;
+            return new Y.Promise(function (resolve) {
+                // we simulate delay of the readypromise using Y.later
+                Y.later(3000, null, function() {
+                    resolve();
+                });
+            });
+        },
+        doSomething: function() {
+            ...
+        }
+    }, {
+        NS : 'custplugin'
+    });
+
+    var cal = new Y.Calendar().render();
+    cal.plugPromise(Y.Plugin.CustomPlugin);
+
+    cal.custplugin.readyPromise().then(
+        function() {
+            // now you can use cal.custplugin.doSomething();
+            ...
+        }
+    );
+
+});
+```
+
+<h3 id="using-promises-example">Example using host.NS.promises</h3>
+```
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'base-build', 'plugin', function(Y) {
+
+    Y.namespace('Plugin').CustomPlugin = Y.Base.create('customplugin', Y.Plugin.Base, [], {
+        promiseBeforeReady : function() {
+            var instance = this;
+            return new Y.Promise(function (resolve) {
+                // we simulate delay of the readypromise using Y.later
+                Y.later(3000, null, function() {
+                    resolve();
+                });
+            });
+        },
+        doSomething: function() {
+            var instance = this;
+            instance.readyPromise().then(
+                function() {
+                    // do something here
+                    ...
+                }
+            );
+        }
+    }, {
+        NS : 'custplugin'
+    });
+
+    var cal = new Y.Calendar().render();
+    cal.plugPromise(Y.Plugin.CustomPlugin);
+    cal.custplugin.doSomething();
 
 });
 ```
