@@ -20,14 +20,37 @@
 <p>
    <b>readyPromise()</b> is a Promise that is fulfilled once the Plugin is ready. To make that happen, it makes use of
    <code>promiseBeforeReady</code>: a promise that is fulfilled by default, but can be re-defined in custom Plugins.
+   <br />
+   <br />
+   To make use of this promise, you can look at plugin.readyPromise(), or you can plug in with widget.plugPromise(). Both
+   methods return a promise that is fulfilled once plugin.readyPromise() is fulfilled.
 </p>
 
-<h3 id="readypromise-example">Example using readyPromise()</h3>
+<h3 id="readypromise-example">Using plugin.readyPromise()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gallery-itsadialog', 'calendar', 'your-custom-plugin', function(Y) {
 
     // your-custom-plugin defines Y.Plugin.CustomPlugin that extends Y.Plugin.Base
-    // see the examples on the right for the full code.
+    // see the examples on the right.
+
+    var cal = new Y.Calendar();
+    cal.plug(Y.Plugin.CustomPlugin); // NS = 'custplugin'
+    cal.custplugin.readyPromise().then( // as soon customplugin is ready, we want to be alerted
+        function() {
+            Y.alert('the plugin is ready');
+        }
+    );
+    cal.render();
+
+});
+```
+
+<h3 id="readypromise-example">Using widget.plugPromise()</h3>
+```
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gallery-itsadialog', 'calendar', 'your-custom-plugin', function(Y) {
+
+    // your-custom-plugin defines Y.Plugin.CustomPlugin that extends Y.Plugin.Base
+    // see the examples on the right.
 
     var cal = new Y.Calendar();
     cal.plugPromise(Y.Plugin.CustomPlugin).then( // as soon customplugin is ready, we want to be alerted
@@ -55,7 +78,7 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'gal
    <b>hasPluginPromise()</b> is the same as hasPlugin(), except that it will check after its host is ready (or rendered).
 </p>
 
-<h3 id="plugAfterRenderPromise-example">Example plugAfterRenderPromise()</h3>
+<h3 id="plugAfterRenderPromise-example">Using plugAfterRenderPromise()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'dd-plugin', function(Y) {
 
@@ -80,7 +103,7 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'cal
    To make sure endusers don't run into timing-issues, the last option is the prefered one.
 </p>
 
-<h3 id="using-pluginpromise-example">Example using host.plugPromise()</h3>
+<h3 id="using-pluginpromise-example">Using widget.plugPromise()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'base-build', 'plugin', function(Y) {
 
@@ -112,7 +135,7 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'cal
 });
 ```
 
-<h3 id="using-readypromise-example">Example using host.NS.readyPromise()</h3>
+<h3 id="using-readypromise-example">Using widget.NS.readyPromise()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'base-build', 'plugin', function(Y) {
 
@@ -146,7 +169,7 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'cal
 });
 ```
 
-<h3 id="using-promises-example">Example using host.NS.promises</h3>
+<h3 id="using-promises-example">Using widget.NS.customPromise()</h3>
 ```
 YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'calendar', 'base-build', 'plugin', function(Y) {
 
@@ -160,9 +183,9 @@ YUI({gallery: 'gallery-2013.07.03-22-52'}).use('gallery-itsapluginpromise', 'cal
                 });
             });
         },
-        doSomething: function() {
+        doSomething: function() { // take action once readyPromise() is fulfilled and return a promise.
             var instance = this;
-            instance.readyPromise().then(
+            return instance.readyPromise().then(
                 function() {
                     // do something here
                     ...
