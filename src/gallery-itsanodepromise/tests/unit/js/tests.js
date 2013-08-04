@@ -197,7 +197,7 @@ YUI.add('module-tests', function(Y) {
         name: 'test 11',
         'check if removing a node fulfills the promise':  function() {
             var follownr = 11,
-                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, 2000);
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, {timeout: 2000});
             nodeUnavailablePromise.then(
                 function() {
                     Y.Assert.pass();
@@ -216,7 +216,7 @@ YUI.add('module-tests', function(Y) {
         name: 'test 12',
         'check if removedPromise fulfills when node is not in the DOM':  function() {
             var follownr = 12;
-                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, 2000);
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, {timeout: 2000});
             nodeUnavailablePromise.then(
                 function() {
                     Y.Assert.pass();
@@ -232,7 +232,7 @@ YUI.add('module-tests', function(Y) {
         name: 'test 13',
         'check if removing a node rejects the promise if it is removed after timeout':  function() {
             var follownr = 13;
-                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, 2000);
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, {timeout: 2000});
             nodeUnavailablePromise.then(
                 function() {
                     Y.Assert.fail(NODE_NOT_REMOVED_INTIME);

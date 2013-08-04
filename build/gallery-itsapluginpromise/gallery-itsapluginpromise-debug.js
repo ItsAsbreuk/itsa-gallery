@@ -39,13 +39,28 @@ Y.mix(ITSAPluginPromise.prototype, {
      *
      * @method hasPlugin
      * @param {String} ns The plugin's namespace
-     * @return {Plugin} Returns a truthy value (the plugin instance) if present, or undefined if not.
+     * @return {Plugin} Returns a truthy value (the plugin instance) if present, 'true' if it is about to be plugged in, or undefined if not.
      */
     hasPlugin : function(ns) {
         var host = this,
             originalHasPlugin = (host._plugins[ns] && host[ns]),
             promisedHasPlugin = host._promisedplugins && host._promisedplugins[ns];
         return originalHasPlugin || promisedHasPlugin;
+    },
+
+    /**
+     * Determines if a plugin has plugged into this host and its state is 'ready'.
+     * (Plugins that don't have 'promiseBeforeReady()' rewritten, will be ready all the time).
+     * You cannot use this function to take action --> to do this, use youPlugin.readyPromise().then()
+     *
+     * @method hasPluginReady
+     * @param {String} ns The plugin's namespace
+     * @return {Boolean} Returns true if present.
+     */
+    hasPluginReady : function(ns) {
+        var host = this,
+            originalHasPlugin = (host._plugins[ns] && host[ns]);
+        return originalHasPlugin ? (host[ns].readyPromise().getStatus()==='fulfilled') : false;
     },
 
     /**
