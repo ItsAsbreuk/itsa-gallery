@@ -1,0 +1,7 @@
+{
+    "gallery-itsagarbagecollector-widget": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}

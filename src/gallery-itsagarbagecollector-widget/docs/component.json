@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsagarbagecollector-widget",
+    "displayName": "Gallery: gallery-itsagarbagecollector-widget",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsagarbagecollector-widget" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}
