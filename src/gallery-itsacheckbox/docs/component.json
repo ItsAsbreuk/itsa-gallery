@@ -1,0 +1,40 @@
+{
+    "name"       : "gallery-itsacheckbox",
+    "displayName": "Gallery: gallery-itsacheckbox",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsacheckbox" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "rendering-using-html",
+            "displayName": "Rendering using html",
+            "description": "This example shows how to render ITSACheckBox using progressive enchancement",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsacheckbox", "node"],
+            "tags"    : ["gallery-itsacheckbox"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "rendering-from-script",
+            "displayName": "Rendering from script",
+            "description": "This example shows how to render ITSACheckBox from script",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsacheckbox", "node"],
+            "tags"    : ["gallery-itsacheckbox"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "using-different-labels",
+            "displayName": "Using different labels",
+            "description": "This example shows how to setup different option-labels",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsacheckbox", "node"],
+            "tags"    : ["gallery-itsacheckbox"],
+            "hideTableOfContents": true
+        }
+    ]
+
+}

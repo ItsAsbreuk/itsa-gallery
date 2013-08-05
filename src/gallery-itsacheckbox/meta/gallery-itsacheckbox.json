@@ -1,0 +1,9 @@
+{
+    "gallery-itsacheckbox": {
+        "requires": [
+            "widget",
+            "base-build"
+        ],
+        "skinnable": true
+    }
+}

@@ -1,0 +1,14 @@
+.yui3-itsacheckbox .sliderbox:before {
+    content: attr(data-optionon);
+}
+.yui3-itsacheckbox .sliderbox:after {
+    content: attr(data-optionoff);
+}
+.yui3-itsacheckbox .sliderbox {
+    width: attr(data-size);
+    height: attr(data-size);
+    border-radius: attr(data-radius);
+    position: relative;
+    cursor: pointer;
+    border: solid 1px #999;
+}
