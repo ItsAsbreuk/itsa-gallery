@@ -1,0 +1,11 @@
+{
+    "gallery-itsabrowserfeatures": {
+        "requires": [
+            "yui-base",
+            "features",
+            "node-base",
+            "node-screen"
+        ],
+        "skinnable": true
+    }
+}

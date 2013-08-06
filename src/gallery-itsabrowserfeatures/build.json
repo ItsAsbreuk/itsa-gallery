@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsabrowserfeatures",
+    "builds": {
+        "gallery-itsabrowserfeatures": {
+            "jsfiles": [
+                "js/gallery-itsabrowserfeatures.js"
+            ]
+        }
+    }
+}

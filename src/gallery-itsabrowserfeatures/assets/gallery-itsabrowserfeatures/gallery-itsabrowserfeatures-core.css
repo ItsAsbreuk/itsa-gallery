@@ -1,0 +1,7 @@
+.itsa-pseudofeature-cont {
+    position:absolute;
+    visibility:hidden;
+}
+.itsa-pseudofeature:before {
+    content: 'A';
+}

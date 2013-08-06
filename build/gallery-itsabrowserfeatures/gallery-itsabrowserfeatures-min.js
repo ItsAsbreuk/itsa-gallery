@@ -1,0 +1,1 @@
+YUI.add("gallery-itsabrowserfeatures",function(e,t){e.Features.add("css","pseudo",{test:function(){var t=e.one("body"),n,r;return t&&(n=e.Node.create('<div class="itsa-pseudofeature-cont"><div class="itsa-pseudofeature"></div></div>'),t.prepend(n),r=n.get("offsetWidth")>0),r}})},"@VERSION@",{requires:["yui-base","features","node-base","node-screen"],skinnable:!0});
