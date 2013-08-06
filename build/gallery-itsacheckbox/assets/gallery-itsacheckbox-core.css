@@ -1,14 +1,41 @@
-.yui3-itsacheckbox .sliderbox:before {
-    content: attr(data-optionon);
+.yui3-itsacheckbox {
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    font-size: 35px;
 }
-.yui3-itsacheckbox .sliderbox:after {
-    content: attr(data-optionoff);
+.yui3-itsacheckbox-content {
+    overflow: hidden;
+    border: solid 10px #999;
 }
-.yui3-itsacheckbox .sliderbox {
-    width: attr(data-size);
-    height: attr(data-size);
-    border-radius: attr(data-radius);
+.yui3-itsacheckbox .optionon,
+.yui3-itsacheckbox .optionoff {
+    background-color: #0f0;
+}
+.yui3-itsacheckbox .optioncontainer {
+    background-color: #f00;
     position: relative;
     cursor: pointer;
-    border: solid 1px #999;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.yui3-itsacheckbox .optionon,
+.yui3-itsacheckbox .optionbtn,
+.yui3-itsacheckbox .optionoff {
+    vertical-align: middle;
+    display: inline-block;
+    *display: inline;
+}
+.yui3-itsacheckbox .optionon,
+.yui3-itsacheckbox .optionoff {
+    padding: 2px 8px 0;
+}
+.yui3-itsacheckbox .optionbtn {
+    border: solid 4px #999;
+    position: relative;
+    z-index: 1;
 }

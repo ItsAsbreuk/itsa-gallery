@@ -1,8 +1,20 @@
 var LANG = Y.Lang,
-    CLASS_SLIDERBOX = 'sliderbox',
-    TEMPLATE = '<div class="'+CLASS_SLIDERBOX+'"></div>',
-    TEMPLATE_IE7 = '<div class="optionon">{optionon}</div><div class="'+CLASS_SLIDERBOX+'"></div><div class="optionoff">{optionoff}</div>',
-    IE_VERSION = Y.UA.ie;
+    OPTION = 'option',
+    OPTION_CONTAINER = OPTION + 'container',
+    OPTION_ON = OPTION + 'on',
+    OPTION_BTN = OPTION + 'btn',
+    OPTION_OFF = OPTION + 'off',
+    ISIE = (Y.UA.ie>0),
+    BOUNDINGBOX_BORDERWIDTH = 10,
+    BTN_BORDERWIDTH = 4,
+    TEMPLATE = '<div class="'+OPTION_CONTAINER+'"{unselectable}>'+
+                   '<div class="'+OPTION_ON+'">{'+OPTION_ON+'}</div>'+
+                   '<div class="'+OPTION_BTN+'"></div>'+
+                   '<div class="'+OPTION_OFF+'">{'+OPTION_OFF+'}</div>'+
+               '</div>',
+    PARSEINT = function(value) {
+        return parseInt(value, 10);
+    };
 
 
 
@@ -36,19 +48,23 @@ Y.ITSACheckBox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 contentBox = instance.get('contentBox'),
                 optionon = instance.get('optionon'),
                 optionoff = instance.get('optionoff'),
-                size = instance.get('size'),
-                radius = Math.round(size/2),
-                supportPseudo = ((IE_VERSION>7) || (IE_VERSION===0)),
-                sliderbox;
-alert(IE_VERSION);
-            contentBox.append(supportPseudo ? TEMPLATE : LANG.sub(TEMPLATE_IE7, {optionon: optionon, optionoff: optionoff}));
-            sliderbox = contentBox.one('.'+CLASS_SLIDERBOX);
-            if (supportPseudo) {
-                sliderbox.setAttribute('data-optionoff', optionoff);
-                sliderbox.setAttribute('data-optionon', optionon);
-            }
-            sliderbox.setAttribute('data-size', size+'px');
-            sliderbox.setAttribute('data-radius', radius+'px');
+                optionBtnNode, optionOffNode, radius, height, btnNodeSize, correctedPadding;
+            contentBox.append(LANG.sub(TEMPLATE, {optionon: optionon, optionoff: optionoff, unselectable: (ISIE ? ' unselectable=on' : '')}));
+            optionBtnNode = instance.optionBtnNode = contentBox.one('.'+OPTION_BTN);
+            optionOffNode = optionBtnNode.next();
+            // check height optionOnNode instead of optionBtnNode --> because that has a paddingtop
+            height = optionOffNode.get('offsetHeight');
+            instance.widthBtnNode = height;
+            btnNodeSize = height-(2*BTN_BORDERWIDTH)+'px';
+            optionBtnNode.setStyle('width', btnNodeSize);
+            optionBtnNode.setStyle('height', btnNodeSize);
+            radius = Math.round(height/2),
+            optionBtnNode.setStyle('borderRadius', radius+'px');
+            optionBtnNode.setStyle('marginLeft', -radius+'px');
+            optionOffNode.setStyle('marginLeft', -radius+'px');
+            correctedPadding = PARSEINT(optionOffNode.getStyle('paddingLeft'))+radius;
+            optionOffNode.setStyle('paddingLeft', correctedPadding+'px');
+            contentBox.setStyle('borderRadius', radius+(2*BTN_BORDERWIDTH)+'px');
         },
 
         /**
@@ -68,13 +84,42 @@ alert(IE_VERSION);
         },
 
         /**
-         *  Widget's syncUI-method. Renders the selectlist items
+         * Widget's syncUI-method. Syncs the right widths for the widget
          *
          * @method syncUI
         */
         syncUI : function() {
             Y.log('syncUI ', 'cmas', 'ITSASelectList');
-            var instance = this;
+            var instance = this,
+                optionBtnNode = instance.optionBtnNode,
+                optionOnNode = optionBtnNode.previous(),
+                optionOffNode = optionBtnNode.next(),
+                boundingBox = instance.get('boundingBox'),
+                containerNode = boundingBox.one('.'+OPTION_CONTAINER),
+                paddingLeftOption = PARSEINT(optionOnNode.getStyle('paddingLeft')),
+                paddingRightOption = PARSEINT(optionOnNode.getStyle('paddingRight')),
+                widthBtnNode = instance.widthBtnNode,
+                widthOnNode, widthOffNode, optionWidth;
+            // reset customized width
+            containerNode.setStyle('width', '');
+            optionOnNode.setStyle('width', '');
+            optionOffNode.setStyle('width', '');
+            widthOnNode = optionOnNode.get('offsetWidth');
+            widthOffNode = optionOffNode.get('offsetWidth');
+            if (widthOnNode>widthOffNode) {
+                optionOffNode.setStyle('width', (widthOnNode - paddingLeftOption - paddingRightOption)+'px');
+                optionWidth = widthOnNode;
+            }
+            else {
+                optionOnNode.setStyle('width', (widthOffNode - paddingLeftOption - paddingRightOption)+'px');
+                optionWidth = widthOffNode;
+            }
+            total = optionWidth + widthBtnNode + (2*BOUNDINGBOX_BORDERWIDTH);
+            boundingBox.setStyle('width', total+'px');
+            total += optionWidth;
+            containerNode.setStyle('width', total+'px');
+            containerNode.setStyle('left', -optionWidth+BOUNDINGBOX_BORDERWIDTH+'px');
+
         },
 
         /**
@@ -114,18 +159,6 @@ alert(IE_VERSION);
                 value: 'OFF',
                 validator: function(val) {
                     return typeof val === 'string';
-                }
-            },
-
-            /**
-             * @description Size of the checkboxbutton in pixels
-             * @attribute size
-             * @type int
-            */
-            size : {
-                value: 32,
-                validator: function(val) {
-                    return typeof val === 'number';
                 }
             }
 

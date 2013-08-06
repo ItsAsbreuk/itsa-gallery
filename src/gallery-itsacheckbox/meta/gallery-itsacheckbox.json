@@ -2,7 +2,8 @@
     "gallery-itsacheckbox": {
         "requires": [
             "widget",
-            "base-build"
+            "base-build",
+            "gallery-itsabrowserfeatures"
         ],
         "skinnable": true
     }
