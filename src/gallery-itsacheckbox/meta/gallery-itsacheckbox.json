@@ -1,9 +1,15 @@
 {
     "gallery-itsacheckbox": {
         "requires": [
+            "yui-base",
+            "node-base",
+            "dom-screen",
             "widget",
             "base-build",
-            "gallery-itsabrowserfeatures"
+            "dd-drag",
+            "dd-constrain",
+            "event-tap",
+            "transition"
         ],
         "skinnable": true
     }

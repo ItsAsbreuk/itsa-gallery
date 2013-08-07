@@ -1,7 +1,33 @@
+<link rel="stylesheet" href="http://yogiloader.itsasbreuk.nl/combo?pure/0.2.1/pure-min.css">
 <div class="intro">
     <p>
        {{description}}
    </p>
+</div>
+
+<div class='pure-form'>
+    <fieldset>
+        <legend>A Stacked Form</legend>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="Email">
+
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Password">
+
+        <label for="state">State</label>
+        <select id="state">
+            <option>AL</option>
+            <option>CA</option>
+            <option>IL</option>
+        </select>
+
+        <label for="mycheckbox">
+            <input id='mycheckbox' type='checkbox' checked='checked' class='yui3-itsacheckbox-loading'> Vliegtuig modus
+        </label>
+
+        <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+    </fieldset>
 </div>
 
 <h2>Complete Example Source</h2>
