@@ -1,4 +1,6 @@
-.yui3-js-enabled .yui3-itsacheckbox-loading {
+.yui3-itsacheckbox-loading,
+.yui3-itsacheckbox-created-checkbox,
+.yui3-itsacheckbox-rerender {
     position: absolute;
     left: -9999px;
     top: -9999px;
@@ -6,20 +8,30 @@
 .yui3-itsacheckbox-hidden {
     display: none;
 }
+.yui3-itsacheckbox-parent {
+    display: inline-block;
+    *display: inline;
+    padding: 0;
+}
 .yui3-itsacheckbox .optionwrapper {
     height: 0;
+    padding: 0;
+    margin: 0;
     position: relative;
 }
 .yui3-itsacheckbox .optionon {
-    background-color: #38a;
+    background-color: #6AA7F6;
     color: #FFF;
 }
 .yui3-itsacheckbox .optionoff {
     background-color: #FFF;
+    color: #000;
 }
 .yui3-itsacheckbox .optioncontainer {
     position: relative;
     cursor: pointer;
+    padding: 0;
+    margin: 0;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -34,36 +46,48 @@
 }
 .yui3-itsacheckbox .optionon,
 .yui3-itsacheckbox .optionoff {
+    position: static;
     text-align: center;
     white-space: nowrap;
     box-shadow: inset 0 0.7em 0.2em rgba(0, 0, 0, 0.18);
+    -webkit-box-shadow: inset 0 0.7em 0.2em rgba(0, 0, 0, 0.18);
+    -moz-box-shadow: inset 0 0.7em 0.2em rgba(0, 0, 0, 0.18);
 }
 .yui3-itsacheckbox .optionon {
-    padding: 2px 12px 0 6px;
+    padding: 0.3em 0.7em 0 1.1em;
 }
 .yui3-itsacheckbox .optionoff {
-    padding: 2px 6px 0 12px;
+    padding: 0.3em 1.1em 0 0.7em;
+}
+.yui3-itsacheckbox.yui3-itsacheckbox-lowercased .optionon {
+    padding: 0.2em 0.7em 0.1em 1.1em;
+}
+.yui3-itsacheckbox.yui3-itsacheckbox-lowercased .optionoff {
+    padding: 0.2em 1.1em 0.1em 0.7em;
 }
 .yui3-itsacheckbox .optionbtn {
     box-shadow: inset 0 0.17em 0.5em rgba(0, 0, 0, 0.18);
+    -webkit-box-shadow: inset 0 0.17em 0.5em rgba(0, 0, 0, 0.18);
+    -moz-box-shadow: inset 0 0.17em 0.5em rgba(0, 0, 0, 0.18);
     background-color: #fff;
     border: solid 1px #999;
-    position: relative;
-    z-index: 1;
 }
 
-
-
-
-
+.pure-form-stacked .yui3-itsacheckbox,
+.pure-form-aligned .yui3-itsacheckbox,
+.pure-form .yui3-itsacheckbox,
+.yui3-itsacheckbox {
+    padding: 0;
+}
 
 .yui3-itsacheckbox {
+    padding: 0;
     overflow: hidden;
     margin: 0.5em 0;
     display: inline-block;
     *display: inline;
     vertical-align: middle;
-    border: 1px solid #ccc;
+    border: 1px solid #888;
     font-size: 0.8em;
     -webkit-transition: 0.3s linear border;
     -moz-transition: 0.3s linear border;
@@ -86,24 +110,36 @@
 
 .yui3-itsacheckbox.yui3-itsacheckbox-focused {
     outline: 0;
-    outline: thin dotted \9; /* IE6-9 */
     border-color: #129FEA;
+    box-shadow: 0 0 0.1em 0.1em #129FEA;
+    -webkit-box-shadow: 0 0 0.1em 0.1em #129FEA;
+    -moz-box-shadow: 0 0 0.1em 0.1em #129FEA;
 }
 
-.yui3-itsacheckbox.yui3-itsacheckbox-focused {
-    outline: thin dotted #333;
-    outline: 1px auto #129FEA;
+
+
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled .optionon,
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled .optionoff,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled .optionon,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled .optionoff {
+    background-color: #EAEDED;
+    color: #909596;
 }
 
-.yui3-itsacheckbox.yui3-itsacheckbox-disabled {
-    background-color: #eaeded;
-    color: #cad2d3;
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled {
+    border-color: #CCC;
+    box-shadow: none;
 }
 
-.yui3-itsacheckbox.yui3-itsacheckbox-readonly {
-    background: #eee; /* menu hover bg color */
-    color: #777; /* menu text color */
-    border-color: #ccc;
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled .optionbtn,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled .optionbtn {
+    border-color: #CCC;
+}
+
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-readonly {
+    border-color: #888;
+    box-shadow: none;
 }
 
 .yui3-itsacheckbox.yui3-itsacheckbox-disabled .optioncontainer,

@@ -1,12 +1,34 @@
 YUI.add('gallery-itsacheckbox', function (Y, NAME) {
 
+/**
+ *
+ * Class ITSACheckBox
+ *
+ *
+ * Widget that replaces the standard form-checkbox.
+ *
+ * @module gallery-itsacheckbox
+ * @extends Widget
+ * @class ITSACheckbox
+ * @constructor
+ * @since 0.1
+ *
+ * <i>Copyright (c) 2013 Marco Asbreuk - http://itsasbreuk.nl</i>
+ * YUI BSD License - http://developer.yahoo.com/yui/license.html
+ *
+*/
+
 var LANG = Y.Lang,
     YARRAY = Y.Array,
     WIDGET_CLASS = 'yui3-itsacheckbox',
     READONLY = 'readonly',
     READONLY_CLASS = WIDGET_CLASS + '-' + READONLY,
+    PARENT_CLASS = WIDGET_CLASS + '-parent',
     LOADING_CLASS = WIDGET_CLASS + '-loading',
+    RERENDER_CLASS = WIDGET_CLASS + '-rerender',
     HIDDEN_CLASS = WIDGET_CLASS + '-hidden',
+    CREATED_CHECKBOX = WIDGET_CLASS + '-created-checkbox',
+    LOWERCASED_OPTIONS_CLASS = WIDGET_CLASS + '-lowercased',
     OPTION = 'option',
     OPTION_WRAPPER = OPTION + 'wrapper',
     OPTION_CONTAINER = OPTION + 'container',
@@ -15,26 +37,31 @@ var LANG = Y.Lang,
     OPTION_OFF = OPTION + 'off',
     ISIE = (Y.UA.ie>0),
     BOUNDINGBOX = 'boundingBox',
-    PADDINGLEFT = 'paddingLeft',
-    PADDINGRIGHT = 'paddingRight',
     WIDTH = 'width',
     HEIGHT = 'height',
     OFFSETWIDTH = 'offsetWidth',
     OFFSETHEIGHT = 'offsetHeight',
     BORDERRADIUS = 'borderRadius',
+    PADDINGTOP = 'paddingTop',
+    PADDINGBOTTOM = 'paddingBottom',
+    PADDINGLEFT = 'paddingLeft',
+    PADDINGRIGHT = 'paddingRight',
     MARGINLEFT = 'marginLeft',
     PX = 'px',
     LEFT = 'left',
     DISABLED = 'disabled',
     CHECKED = 'checked',
-    BTN_BORDERWIDTH = 1,
+    CHANGE = 'Change',
+    UNSELECTABLE = 'unselectable',
     DIVCLASS = '<div class="',
     ENDDIV = '</div>',
-    TEMPLATE = DIVCLASS+OPTION_WRAPPER+'">'+
-                   DIVCLASS+OPTION_CONTAINER+'"{unselectable}>'+
+    HTML_CHECKBOX_TEMPLATE = '<input id="{id}" type="checkbox" class="'+CREATED_CHECKBOX+'"{'+READONLY+'}{'+CHECKED+'}{'+DISABLED+'}>',
+    TEMPLATE = '{htmlcheckbox}'+
+               DIVCLASS+OPTION_WRAPPER+'">'+
+                   DIVCLASS+OPTION_CONTAINER+'"{'+UNSELECTABLE+'}>'+
                        DIVCLASS+OPTION_ON+'">{'+OPTION_ON+'}'+ENDDIV+
-                       DIVCLASS+OPTION_BTN+'">'+ENDDIV+
                        DIVCLASS+OPTION_OFF+'">{'+OPTION_OFF+'}'+ENDDIV+
+                       DIVCLASS+OPTION_BTN+'">'+ENDDIV+
                    ENDDIV+
                ENDDIV,
     PARSEINT = function(value) {
@@ -44,7 +71,7 @@ var LANG = Y.Lang,
 
 
 
-Y.ITSACheckBox = Y.Base.create('itsacheckbox', Y.Widget, [], {
+Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
 
         /**
          * @property {String} CONTENT_TEMPLATE
@@ -52,12 +79,78 @@ Y.ITSACheckBox = Y.Base.create('itsacheckbox', Y.Widget, [], {
          */
         CONTENT_TEMPLATE : null, // set contentBox===boundingBox will also make srcNode not to render inside boundingBox
 
+
+        /**
+         * The original srcNode when progresive enhancement is being used
+         * @property _src
+         * @type Node
+         * @private
+         */
+
+        /**
+         * Created hidden html-checkbox when no progresive enhancement is being used.
+         * This way, its value can be used to send with a form using serialization.
+         * @property _createdSrc
+         * @type Node
+         * @private
+         */
+
+        /**
+         * Reference to the wrapperNode
+         * @property _wrapperNode
+         * @type Node
+         * @private
+         */
+
+        /**
+         * Reference to the containerNode
+         * @property _containerNode
+         * @type Node
+         * @private
+         */
+
+        /**
+         * Reference to the optionOnNode
+         * @property _optionOnNode
+         * @type Node
+         * @private
+         */
+
+        /**
+         * Reference to the optionOffNode
+         * @property _optionOffNode
+         * @type Node
+         * @private
+         */
+
+        /**
+         * Reference to the optionBtnNode
+         * @property _optionBtnNode
+         * @type Node
+         * @private
+         */
+
+        /**
+         * containerNode's x-position of the 'checked'-state
+         * @property _onPosition
+         * @type Int
+         * @private
+         */
+
+        /**
+         * x-position where the slider changes from 'unchecked' into 'checked'
+         * @property _changePosition
+         * @type Int
+         * @private
+         */
+
         /**
          * @method initializer
          * @protected
+         * @since 0.1
         */
         initializer : function() {
-            Y.log('initializer', 'info', 'ITSADIALOGBOX');
+            Y.log('initializer', 'info', 'ITSACheckBox');
             var instance = this,
                 boundingBox = instance.get(BOUNDINGBOX);
             // in case loadingclass is not added to the boundingBox, provide it here
@@ -69,117 +162,123 @@ Y.ITSACheckBox = Y.Base.create('itsacheckbox', Y.Widget, [], {
         },
 
         /**
-         * Widget's renderUI-method. Creates the Selectlist in the DOM.
+         * Renders the checkbox-widget in the dom.
          *
          * @method renderUI
+         * @since 0.1
         */
         renderUI : function() {
-            Y.log('renderUI ', 'cmas', 'ITSASelectList');
+            Y.log('renderUI ', 'cmas', 'ITSACheckBox');
             var instance = this,
+                boundingBox = instance.get(BOUNDINGBOX),
                 src;
             src = instance.get('srcNode');
             if (src && (src.get('tagName')==='INPUT') && (src.getAttribute('type')==='checkbox')) {
-                instance.src = Y.one(src);
+                instance._src = Y.one(src);
                 src.addClass(HIDDEN_CLASS);
-                src.removeClass(LOADING_CLASS); // if provided to hide, we don't need it anymore
-                instance.get(BOUNDINGBOX).insert(src, 'before');
+                boundingBox.insert(src, 'before');
             }
-            instance._setOptionLabels();
+            if (instance._parentNode) {
+                instance._parentNode.addClass(PARENT_CLASS);
+            }
+            instance._setTemplate();
+            if (instance.get('lowercased')) {
+                boundingBox.addClass(LOWERCASED_OPTIONS_CLASS);
+            }
         },
 
         /**
-         * Widget's bindUI-method. Binds onclick and clickoutside-events
+         * Widget's bindUI-method. Binds events
          *
          * @method bindUI
+         * @since 0.1
         */
         bindUI : function() {
-            Y.log('bindUI ', 'cmas', 'ITSASelectList');
+            Y.log('bindUI ', 'cmas', 'ITSACheckBox');
             var instance = this,
                 boundingBox = instance.get(BOUNDINGBOX),
                 dd;
 
             instance.dd = dd = new Y.DD.Drag({
-                node: instance.containerNode,
+                node: instance._containerNode,
                 lock: instance.get(DISABLED) || instance.get(READONLY)
             }).plug(Y.Plugin.DDConstrained, {
-                constrain: instance.wrapperNode
+                constrain: instance._wrapperNode
             });
 
             dd.on('drag:end', function(e){
-                if (!instance._xpos) {
-                    // didn't define it during rendering, while the class LOADING_CLASS made the x-pos negative
-                    instance._xpos = instance.get(BOUNDINGBOX).getX();
-                }
-                var offset = (e.pageX-instance._xpos);
+                var offset = (e.pageX-instance.get(BOUNDINGBOX).getX());
                 // when at most right, the offset will be zero, otherwise it is negative
-                instance.set(CHECKED, (offset>=-instance._changePosition));
+                instance.set(CHECKED, (offset>-instance._changePosition));
             });
 
             instance._eventhandlers.push(
                 instance.on('checkedChange', function(e) {
                     var checked = e.newVal;
                     instance._goFinal(checked);
-                    if (instance.src) {
+                    if (instance._src) {
                         if (checked) {
-                            instance.src.setAttribute(CHECKED, CHECKED);
+                            instance._src.setAttribute(CHECKED, CHECKED);
                         }
                         else {
-                            instance.src.removeAttribute(CHECKED);
+                            instance._src.removeAttribute(CHECKED);
                         }
                     }
                 })
             );
 
             instance._eventhandlers.push(
-                instance.on(
-                    [OPTION_ON+'Change', OPTION_OFF+'Change'],
-                    Y.bind(instance._setOptionDimensions, instance)
+                instance.after(
+                    [OPTION_ON+CHANGE, OPTION_OFF+CHANGE],
+                    Y.bind(instance._setDimensions, instance)
                 )
             );
 
             instance._eventhandlers.push(
-                instance.on(DISABLED+'Change', function(e) {
+                instance.on(DISABLED+CHANGE, function(e) {
                     var disabled = e.newVal;
                     dd.set('lock', disabled || instance.get(READONLY));
                     instance._goFinal(instance.get(CHECKED, true), true);
-                    if (instance.src) {
+                    if (instance._src) {
                         if (disabled) {
-                            instance.src.setAttribute(DISABLED, DISABLED);
+                            instance._src.setAttribute(DISABLED, DISABLED);
                         }
                         else {
-                            instance.src.removeAttribute(DISABLED);
+                            instance._src.removeAttribute(DISABLED);
                         }
                     }
                 })
             );
 
             instance._eventhandlers.push(
-                instance.on(READONLY+'Change', function(e) {
+                instance.on(READONLY+CHANGE, function(e) {
                     var readonly = e.newVal;
                     boundingBox.toggleClass(READONLY_CLASS, readonly);
                     dd.set('lock', readonly|| instance.get(DISABLED));
                     instance._goFinal(instance.get(CHECKED, true), true);
-                    if (instance.src) {
+                    if (instance._src) {
                         if (readonly) {
-                            instance.src.setAttribute(READONLY, READONLY);
+                            instance._src.setAttribute(READONLY, READONLY);
                         }
                         else {
-                            instance.src.removeAttribute(READONLY);
+                            instance._src.removeAttribute(READONLY);
                         }
                     }
                 })
             );
 
             instance._eventhandlers.push(
-                instance.containerNode.on('tap', function() {
+                instance._containerNode.on('tap', function() {
                     instance.set(CHECKED, !instance.get(CHECKED));
                 })
             );
 
+            // DO NOT use 'keypress' for Safari doesn't pass through the arrowkeys!
             instance._eventhandlers.push(
-                Y.on('keypress', function(e) {
+                Y.on('keydown', function(e) {
                     if (instance.get('focused')) {
                         var keyCode = e.keyCode;
+                        e.preventDefault(); // prevent scrolling
                         if ((keyCode === 37) || (keyCode === 40)) {
                             instance.set(CHECKED, false);
                         }
@@ -194,7 +293,91 @@ Y.ITSACheckBox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             );
         },
 
+        /**
+         * Convenience-method for getting the value of the checkbox.
+         * You can also ask for widget.get('checked')
+         *
+         * @method getValue
+         * @return {Boolean | null} current value, or null when disabled
+         * @since 0.1
+        */
+        getValue : function() {
+            Y.log('getValue ', 'cmas', 'ITSACheckBox');
+            return this.get(CHECKED);
+        },
+
+        /**
+         * Widget's syncUI-method. Builds up the UI using the values of the current attributes.
+         *
+         * @method syncUI
+         * @since 0.1
+        */
+        syncUI : function() {
+            Y.log('syncUI ', 'cmas', 'ITSACheckBox');
+            var instance = this;
+            instance._setDimensions();
+        },
+
+        /**
+         * Cleans up bindings
+         * @method destructor
+         * @protected
+         * @since 0.1
+        */
+        destructor : function() {
+            Y.log('destructor', 'info', 'ITSACheckBox');
+            var instance = this,
+                dd = instance.dd,
+                createdSrc = instance._createdSrc,
+                src = instance._src;
+            if (dd) {
+                dd.destroy();
+            }
+            instance._clearEventhandlers();
+            if (createdSrc) {
+                createdSrc.destroy();
+            }
+            else {
+                src.removeClass(HIDDEN_CLASS);
+            }
+            instance._wrapperNode.remove(true);
+            if (instance._parentNode) {
+                instance._parentNode.removeClass(PARENT_CLASS);
+            }
+        },
+
+        //------------------------------------------------------------------------------
+        // --- private Methods ---------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        /**
+         * Cleaning up all eventlisteners
+         *
+         * @method _clearEventhandlers
+         * @private
+         * @since 0.1
+        */
+        _clearEventhandlers : function() {
+            Y.log('_clearEventhandlers', 'info', 'ITSACheckBox');
+            YARRAY.each(
+                this._eventhandlers,
+                function(item){
+                    item.detach();
+                }
+            );
+        },
+
+        /**
+         * Moves the slider to its checked/unchecked place, using animation.
+         *
+         * @method _goFinal
+         * @param checked {Boolean} checked/unchecked state which will slide to right/left
+         * @param [force] {Boolean} whether to force movement, even if the state is disabled or readonly
+         * @private
+         * @since 0.1
+        */
         _goFinal : function(checked, force) {
+            Y.log('_goFinal ', 'cmas', 'ITSACheckBox');
             var instance = this;
             if (checked) {
                 instance._goRight(true, force);
@@ -204,10 +387,19 @@ Y.ITSACheckBox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             }
         },
 
+        /**
+         * Moves the slider to the left (unchecked value).
+         *
+         * @method _goLeft
+         * @param [animated] {Boolean} whether to animate movement (using transition)
+         * @param [force] {Boolean} whether to force movement, even if the state is disabled or readonly
+         * @private
+         * @since 0.1
+        */
         _goLeft : function(animated, force) {
-console.log('goleft');
+            Y.log('_goLeft ', 'cmas', 'ITSACheckBox');
             var instance = this,
-                containerNode = instance.containerNode;
+                containerNode = instance._containerNode;
             if ((!instance.get(DISABLED) && !instance.get(READONLY)) || force) {
                 if (animated) {
                     instance._moveAnimated(0);
@@ -218,10 +410,19 @@ console.log('goleft');
             }
         },
 
+        /**
+         * Moves the slider to the right (checked value).
+         *
+         * @method _goRight
+         * @param [animated] {Boolean} whether to animate movement (using transition)
+         * @param [force] {Boolean} whether to force movement, even if the state is disabled or readonly
+         * @private
+         * @since 0.1
+        */
         _goRight : function(animated, force) {
-console.log('goright');
+            Y.log('getValue ', 'cmas', 'ITSACheckBox');
             var instance = this,
-                containerNode = instance.containerNode;
+                containerNode = instance._containerNode;
             if ((!instance.get(DISABLED) && !instance.get(READONLY)) || force) {
                 if (animated) {
                     instance._moveAnimated(instance._onPosition);
@@ -232,188 +433,222 @@ console.log('goright');
             }
         },
 
+        /**
+         * Moves the slider to the final location using transition.
+         *
+         * @method _moveAnimated
+         * @param xpos {Int} final location (0 = most left = unchecked state)
+         * @private
+         * @since 0.1
+        */
         _moveAnimated : function(xpos) {
+            Y.log('_moveAnimated ', 'cmas', 'ITSACheckBox');
             var instance = this;
-            instance.containerNode.transition({
+            instance._containerNode.transition({
                 easing: 'ease-in',
                 duration: instance.get('duration'), // 0.75  seconds
                 left: xpos+PX
             });
         },
 
-        getValue : function() {
-            return this.get(CHECKED);
-        },
-
         /**
-         * Widget's syncUI-method. Syncs the right widths for the widget
+         * Builds the dimensions (and option-values) of the widget.
+         * is runned during syncUI() and when 'optionon' or 'optionoff' changes.
          *
-         * @method syncUI
-        */
-        syncUI : function() {
-            Y.log('syncUI ', 'cmas', 'ITSASelectList');
-            var instance = this;
-            instance._setContainerDimensions();
-            instance._setOptionDimensions();
-        },
-
-        /**
-         * Cleans up bindings
-         * @method destructor
-         * @protected
-        */
-        destructor : function() {
-            Y.log('destructor', 'info', 'ITSAFORM');
-            var instance = this,
-                dd = instance.dd,
-                src = instance.src;
-            if (dd) {
-                dd.destroy();
-            }
-            instance._clearEventhandlers();
-            if (src) {
-                src.removeClass(HIDDEN_CLASS);
-            }
-        },
-
-        /**
-         * Cleaning up all eventlisteners
-         *
-         * @method _clearEventhandlers
+         * @method _setDimensions
          * @private
          * @since 0.1
-         *
         */
-        _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'DTColumnResize');
-            YARRAY.each(
-                this._eventhandlers,
-                function(item){
-                    item.detach();
-                }
-            );
-        },
-
-        _setContainerDimensions : function() {
-            Y.log('renderUI ', 'cmas', 'ITSASelectList');
+        _setDimensions : function() {
+            Y.log('_setDimensions ', 'cmas', 'ITSACheckBox');
             var instance = this,
                 boundingBox = instance.get(BOUNDINGBOX),
-                optionBtnNode, optionOnNode, optionOffNode, radius, height, btnNodeSize, correctedPadding;
-            optionBtnNode = instance.optionBtnNode;
-            optionOnNode = optionBtnNode.previous();
-            optionOffNode = optionBtnNode.next();
-            // check height optionOnNode instead of optionBtnNode --> because that has a paddingtop
-            height = optionOffNode.get(OFFSETHEIGHT);
-            instance.widthBtnNode = height;
-            btnNodeSize = height-(2*BTN_BORDERWIDTH)+PX;
-            optionBtnNode.setStyle(WIDTH, btnNodeSize);
-            optionBtnNode.setStyle(HEIGHT, btnNodeSize);
+                optionBtnNode, optionOnNode, optionOffNode, radiusleft, radiusright, height, btnNodeWidthHeight, leftIndentBtn, containerNode,
+                heightOnNode, heightOffNode, previous, widthOnNode, widthOffNode, optionWidth, wrapperNode, heightBoundingBox, widthBoundingBox,
+                btnBtnNodeBorderTop, btnBtnNodeBorderBottom, fireUpdateEvent, newBorderRadius;
 
-            instance.radius = radius = Math.round(height/2),
-            optionBtnNode.setStyle(BORDERRADIUS, radius+PX);
-            optionBtnNode.setStyle(MARGINLEFT, -radius+PX);
-            optionOffNode.setStyle(MARGINLEFT, -radius+PX);
-            optionOnNode.setStyle(BORDERRADIUS, radius+PX+ ' 0 0 0');
-            optionOffNode.setStyle(BORDERRADIUS, '0 '+radius+PX + ' 0 0');
-            // reset padding to have only stylesheet
-            optionOnNode.setStyle(PADDINGRIGHT, '');
-            optionOnNode.setStyle(PADDINGLEFT, '');
-            optionOffNode.setStyle(PADDINGRIGHT, '');
-            optionOffNode.setStyle(PADDINGLEFT, '');
-            // apply new padding
-            correctedPadding = PARSEINT(optionOnNode.getStyle(PADDINGLEFT))+radius;
-            optionOnNode.setStyle(PADDINGLEFT, correctedPadding+PX);
-            correctedPadding = PARSEINT(optionOnNode.getStyle(PADDINGRIGHT))+radius;
-            optionOnNode.setStyle(PADDINGRIGHT, correctedPadding+PX);
-            correctedPadding = PARSEINT(optionOffNode.getStyle(PADDINGLEFT))+radius;
-            optionOffNode.setStyle(PADDINGLEFT, correctedPadding+PX);
-            correctedPadding = PARSEINT(optionOffNode.getStyle(PADDINGRIGHT))+radius;
-            optionOffNode.setStyle(PADDINGRIGHT, correctedPadding+PX);
-            // set radius boundingBox
-            boundingBox.setStyle(BORDERRADIUS, radius+(2*BTN_BORDERWIDTH)+PX);
-        },
-
-                /**
-         * Widget's syncUI-method. Syncs the right widths for the widget
-         *
-         * @method _setContainerDimensions
-        */
-        _setOptionDimensions : function() {
-            Y.log('_setOptionDimensions ', 'cmas', 'ITSASelectList');
-            var instance = this,
-                optionBtnNode = instance.optionBtnNode,
-                optionOnNode = optionBtnNode.previous(),
-                optionOffNode = optionBtnNode.next(),
-                boundingBox = instance.get(BOUNDINGBOX),
-                containerNode = boundingBox.one('.'+OPTION_CONTAINER),
-                paddingLeftOptionOn = PARSEINT(optionOnNode.getStyle(PADDINGLEFT)),
-                paddingRightOptionOn = PARSEINT(optionOnNode.getStyle(PADDINGRIGHT)),
-                paddingLeftOptionOff = PARSEINT(optionOffNode.getStyle(PADDINGLEFT)),
-                paddingRightOptionOff = PARSEINT(optionOffNode.getStyle(PADDINGRIGHT)),
-                radius = instance.radius,
-                widthOnNode, widthOffNode, optionWidth, onPosition;
+            optionBtnNode = instance._optionBtnNode;
+            optionOnNode = instance._optionOnNode;
+            optionOffNode = instance._optionOffNode;
+            wrapperNode = instance._wrapperNode;
+            containerNode = instance._containerNode;
+            //-------------------------------------------------------------
+            boundingBox.addClass(RERENDER_CLASS);
+            //-------------------------------------------------------------
+            if (instance.get('rendered')) {
+                fireUpdateEvent = true;
+                optionOnNode.set('text', instance.get(OPTION_ON));
+                optionOffNode.set('text', instance.get(OPTION_OFF));
+            }
+            //-------------------------------------------------------------
             // reset customized width
             containerNode.setStyle(WIDTH, '');
             optionOnNode.setStyle(WIDTH, '');
             optionOffNode.setStyle(WIDTH, '');
+            optionBtnNode.setStyle(WIDTH, '');
+            containerNode.setStyle(HEIGHT, '');
+            optionOnNode.setStyle(HEIGHT, '');
+            optionOffNode.setStyle(HEIGHT, '');
+            optionBtnNode.setStyle(HEIGHT, '');
+            optionOnNode.setStyle(PADDINGLEFT, '');
+            optionOnNode.setStyle(PADDINGRIGHT, '');
+            optionOnNode.setStyle(PADDINGTOP, '');
+            optionOnNode.setStyle(PADDINGBOTTOM, '');
+            optionOffNode.setStyle(PADDINGLEFT, '');
+            optionOffNode.setStyle(PADDINGRIGHT, '');
+            optionOffNode.setStyle(PADDINGTOP, '');
+            optionOffNode.setStyle(PADDINGBOTTOM, '');
+            //-------------------------------------------------------------
+            // set all heights
+            heightOnNode = optionOnNode.get(OFFSETHEIGHT);
+            heightOffNode = optionOffNode.get(OFFSETHEIGHT);
+            height = Math.max(heightOnNode, heightOffNode);
+            radiusleft = Math.floor(height/2);
+            radiusright = height - radiusleft; // when height is odd, then radiusright===radiusleft+1
+            btnBtnNodeBorderTop = PARSEINT(optionBtnNode.getStyle('borderTopWidth'));
+            btnBtnNodeBorderBottom = PARSEINT(optionBtnNode.getStyle('borderBottomWidth'));
+            btnNodeWidthHeight = height-btnBtnNodeBorderTop-btnBtnNodeBorderBottom+PX;
+            optionBtnNode.setStyle(HEIGHT, btnNodeWidthHeight);
+            // also: redefine other paddings, so they are in pixels --> em would create digits
+            optionOnNode.setStyle(PADDINGTOP, PARSEINT(optionOnNode.getStyle(PADDINGTOP))+PX);
+            optionOnNode.setStyle(PADDINGBOTTOM, PARSEINT(optionOnNode.getStyle(PADDINGBOTTOM))+PX);
+            optionOffNode.setStyle(PADDINGTOP, PARSEINT(optionOffNode.getStyle(PADDINGTOP))+PX);
+            optionOffNode.setStyle(PADDINGBOTTOM, PARSEINT(optionOffNode.getStyle(PADDINGBOTTOM))+PX);
+            optionOnNode.setStyle(HEIGHT, height-PARSEINT(optionOnNode.getStyle(PADDINGTOP))-PARSEINT(optionOnNode.getStyle(PADDINGBOTTOM))+PX);
+            optionOffNode.setStyle(HEIGHT, height-PARSEINT(optionOffNode.getStyle(PADDINGTOP))-PARSEINT(optionOffNode.getStyle(PADDINGBOTTOM))+PX);
+            // we must specify all height to prevent whitelines that are not colored
+            //-------------------------------------------------------------
+            // set all widths
+            // first: add extra padding to on- and off-node to adjust for overlayed btnNode
+            optionOnNode.setStyle(PADDINGRIGHT, PARSEINT(optionOnNode.getStyle(PADDINGRIGHT))+radiusleft+PX);
+            optionOffNode.setStyle(PADDINGLEFT, PARSEINT(optionOffNode.getStyle(PADDINGLEFT))+radiusright+PX);
+            // also: redefine other paddings, so they are in pixels --> em would create digits
+            optionOnNode.setStyle(PADDINGLEFT, PARSEINT(optionOnNode.getStyle(PADDINGLEFT))+PX);
+            optionOffNode.setStyle(PADDINGRIGHT, PARSEINT(optionOffNode.getStyle(PADDINGRIGHT))+PX);
+
             widthOnNode = optionOnNode.get(OFFSETWIDTH);
             widthOffNode = optionOffNode.get(OFFSETWIDTH);
-            if (widthOnNode>widthOffNode) {
-                optionOffNode.setStyle(WIDTH, (widthOnNode - paddingLeftOptionOff - paddingRightOptionOff)+PX);
-                optionWidth = widthOnNode;
-            }
-            else {
-                optionOnNode.setStyle(WIDTH, (widthOffNode - paddingLeftOptionOn - paddingRightOptionOn)+PX);
-                optionWidth = widthOffNode;
-            }
-            onPosition = instance._onPosition = optionWidth-radius;
+            optionWidth = Math.max(widthOnNode, widthOffNode);
 
-            total = optionWidth + radius - 1; // always 1 less, to correct rounderror of radius
-            boundingBox.setStyle(WIDTH, total+PX);
-            total += optionWidth;
-            containerNode.setStyle(WIDTH, total+PX);
+            // exactly define the widths to prevent rounderrors
+            previous = widthOnNode - PARSEINT(optionOnNode.getStyle(PADDINGLEFT)) - PARSEINT(optionOnNode.getStyle(PADDINGRIGHT));
+            optionOnNode.setStyle(WIDTH, previous+(optionWidth-widthOnNode)+PX);
+            previous = widthOffNode - PARSEINT(optionOffNode.getStyle(PADDINGLEFT)) - PARSEINT(optionOffNode.getStyle(PADDINGRIGHT));
+            optionOffNode.setStyle(WIDTH, previous+(optionWidth-widthOffNode)+PX);
+            optionBtnNode.setStyle(WIDTH, btnNodeWidthHeight);
 
-
-            total += optionWidth - radius;
-            instance.wrapperNode.setStyle(WIDTH, total+PX);
-            instance.wrapperNode.setStyle(LEFT, -onPosition +PX);
-            // instance._changePosition is 1.5 time, because the wrapper li
-            instance._changePosition = Math.round(onPosition/2);
+            leftIndentBtn = optionWidth-radiusleft;
+            wrapperNode.setStyle(WIDTH, (3*optionWidth)-radiusleft+PX);
+            containerNode.setStyle(WIDTH, (2*optionWidth)+PX);
+            widthBoundingBox = optionWidth+radiusright+1;
+            boundingBox.setStyle(WIDTH, widthBoundingBox+PX);
+            //-------------------------------------------------------------
+            // set all positions
+            optionBtnNode.setStyle(MARGINLEFT, -radiusleft-optionWidth+PX);
+            wrapperLeftPos = radiusleft-optionWidth;
+            wrapperNode.setStyle(LEFT, wrapperLeftPos+PX);
+            instance._onPosition = optionWidth-radiusleft;
+            instance._changePosition = Math.round(-wrapperLeftPos/2);
+            //-------------------------------------------------------------
+            // set all radius --> those of the on-off node get 1 less, to prevent white pixels on the borderside
+            optionBtnNode.setStyle(BORDERRADIUS, radiusleft+PX);
+            newBorderRadius = radiusleft-1;
+            optionOnNode.setStyle(BORDERRADIUS, newBorderRadius+PX+ ' 0 0 0');
+            optionOffNode.setStyle(BORDERRADIUS, '0 ' + newBorderRadius+PX+ ' 0 0');
+            heightBoundingBox = boundingBox.get(OFFSETHEIGHT);
+            boundingBox.setStyle(BORDERRADIUS, Math.round(heightBoundingBox/2)+PX);
+            //-------------------------------------------------------------
             if (instance.get(CHECKED)) {
                 instance._goRight(false, true);
             }
             else {
                 instance._goLeft(false, true);
             }
+            boundingBox.removeClass(RERENDER_CLASS);
+            if (fireUpdateEvent) {
+                instance.fire('contentUpdate');
+            }
         },
 
-        _setOptionLabels : function() {
-            Y.log('_setOptionLabels', 'cmas', 'ITSASelectList');
+        /**
+         * Renders the dom-structure of the widget (contentBox's innerHTML)
+         *
+         * @method _setTemplate
+         * @private
+         * @since 0.1
+        */
+        _setTemplate : function() {
+            Y.log('_setTemplate', 'cmas', 'ITSACheckBox');
             var instance = this,
                 boundingBox = instance.get(BOUNDINGBOX),
                 optionon = instance.get(OPTION_ON),
-                optionoff = instance.get(OPTION_OFF);
-            boundingBox.setHTML(LANG.sub(TEMPLATE, {optionon: optionon, optionoff: optionoff, unselectable: (ISIE ? ' unselectable=on' : '')}));
-            instance.wrapperNode = boundingBox.one('.'+OPTION_WRAPPER);
-            instance.containerNode = boundingBox.one('.'+OPTION_CONTAINER);
-            instance.optionBtnNode = boundingBox.one('.'+OPTION_BTN);
+                optionoff = instance.get(OPTION_OFF),
+                newCreatedSrcId, copyNode, optionOnNode, optionOffNode;
+            if (!instance._src) {
+                copyNode = instance._parentNode || boundingBox;
+                newCreatedSrcId = 'checkbox_'+copyNode.get('id');
+            }
+            boundingBox.setHTML(
+                LANG.sub(
+                    TEMPLATE,
+                    {
+                        htmlcheckbox: newCreatedSrcId ? LANG.sub(
+                                                            HTML_CHECKBOX_TEMPLATE,
+                                                                {
+                                                                    id: newCreatedSrcId,
+                                                                    readonly: (instance.get(READONLY) ? ' '+READONLY+'="'+READONLY+'"' : ''),
+                                                                    checked: (instance.get(CHECKED) ? ' '+CHECKED+'="'+CHECKED+'"' : ''),
+                                                                    disabled: (instance.get(DISABLED) ? ' '+DISABLED+'="'+DISABLED+'"' : '')
+                                                                }
+                                                            )
+                                                       : '',
+                        optionon: optionon,
+                        optionoff: optionoff,
+                        unselectable: (ISIE ? ' '+UNSELECTABLE+'=on' : '')
+                    }
+                )
+            );
+            if (newCreatedSrcId) {
+                instance._createdSrc = instance._src = boundingBox.one('#'+newCreatedSrcId);
+            }
+            instance._wrapperNode = boundingBox.one('.'+OPTION_WRAPPER);
+            instance._containerNode = boundingBox.one('.'+OPTION_CONTAINER);
+            instance._optionOnNode = optionOnNode = boundingBox.one('.'+OPTION_ON);
+            instance._optionOffNode = optionOffNode = optionOnNode.next();
+            instance._optionBtnNode = optionOffNode.next();
         },
 
+        /**
+         * Checkes whether the srcNode is a valid checkbox-node.
+         *
+         * @method _srcNodeValidCheckbox
+         * @param srcNode {Node} the srcNode which is passed through using progresive enhancement
+         * @private
+         * @return {Boolean} whether the nde is a valid node or not
+         * @since 0.1
+        */
         _srcNodeValidCheckbox : function(srcNode) {
+            Y.log('_srcNodeValidCheckbox ', 'cmas', 'ITSACheckBox');
             return ((srcNode.get('tagName')==='INPUT') && (srcNode.getAttribute('type')==='checkbox'));
         }
 
     }, {
         ATTRS : {
             /**
-             * @description Label of the 'ON'-state
+             * @description widget's value, can also be read by method getValue(). Returns 'null' when disabled.
              * @attribute checked
-             * @type Boolean
+             * @default false
+             * @type Boolean | null
             */
             checked : {
                 value: false,
                 validator: function(val) {
-                    return (typeof val === 'boolean') && !this.get(DISABLED) && !this.get(READONLY);
+                    var instance = this,
+                        blocked;
+                    if (instance.get('rendered')) {
+                        blocked = instance.get(DISABLED) || instance.get(READONLY);
+                    }
+                    return (typeof val === 'boolean') && !blocked;
                 },
                 getter: function(val, force) {
                     return (((!this.get(DISABLED) && !this.get(READONLY)) || force) ? val : null);
@@ -421,8 +656,9 @@ console.log('goright');
             },
 
             /**
-             * @description Label of the 'ON'-state
+             * @description Transitiontime when the slider turns into its endposition
              * @attribute duration
+             * @default 0.15
              * @type Int
             */
             duration : {
@@ -433,7 +669,22 @@ console.log('goright');
             },
 
             /**
+             * @description when 'optionon' or 'optionoff' uses lowercased-text, you might want to set this attribute to true.
+             * This will make the text shift a bit up, so it appears in the centre.
+             * @attribute readonly
+             * @default false
+             * @type Boolean
+            */
+            lowercased : {
+                value: false,
+                validator: function(val) {
+                    return typeof val === 'boolean';
+                }
+            },
+
+            /**
              * @description Label of the 'ON'-state
+             * @default 'I'
              * @attribute optionon
              * @type String
             */
@@ -447,6 +698,7 @@ console.log('goright');
             /**
              * @description Label of the 'OFF'-state
              * @attribute optionoff
+             * @default 'O'
              * @type String
             */
             optionoff : {
@@ -457,8 +709,9 @@ console.log('goright');
             },
 
             /**
-             * @description Label of the 'OFF'-state
-             * @attribute optionoff
+             * @description when readonly, the widget has a valid value, but cannot be altered
+             * @attribute readonly
+             * @default false
              * @type Boolean
             */
             readonly : {

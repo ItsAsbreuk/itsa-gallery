@@ -2,11 +2,31 @@
     <p>
        {{description}}
    </p>
+   <p>
+      To show the widget is 'purecss-compatible', the forms from the purecss-website are used. There are several checkboxes
+      with their own configuration, which all are rendered through their div-element. All checkbox-instances will create
+      invisible html-checkboxes, so they can be send by the form using serialization.
+   </p>
+   <p>
+      Also, there is one checkbox that has the focus. This checkbox responses to the keyboard.
+   </p>
 </div>
+
+{{>using-different-labels-css}}
+
+{{>using-different-labels-html}}
 
 <h2>Complete Example Source</h2>
 ```
+{{>using-different-labels-css}}
+
+<body>
+{{>using-different-labels-html}}
+</body>
+
+<script>
 {{>using-different-labels-js}}
+</script>
 ```
 <script>
 {{>init-loaderconfig-js}}

@@ -2,11 +2,31 @@
     <p>
        {{description}}
    </p>
+   <p>
+      To show the widget is 'purecss-compatible', the forms from the purecss-website are used. There are several checkboxes
+      with their own configuration. Notice that the checkboxes have a custom class 'js-nodisplay' applied to prevent showing the
+      html-checkbox.
+   </p>
+   <p>
+      Also, there is one checkbox that has the focus. This checkbox responses to the keyboard.
+   </p>
 </div>
+
+{{>rendering-using-html-css}}
+
+{{>rendering-using-html-html}}
 
 <h2>Complete Example Source</h2>
 ```
+{{>rendering-using-html-css}}
+
+<body>
+{{>rendering-using-html-html}}
+</body>
+
+<script>
 {{>rendering-using-html-js}}
+</script>
 ```
 <script>
 {{>init-loaderconfig-js}}

@@ -11,7 +11,7 @@
         {
             "name"       : "rendering-using-html",
             "displayName": "Rendering using html",
-            "description": "This example shows how to render ITSACheckBox using progressive enchancement",
+            "description": "This example shows how to render ITSACheckBox using progressive enhancement",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsacheckbox", "node"],
             "tags"    : ["gallery-itsacheckbox"],

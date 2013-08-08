@@ -1,5 +1,30 @@
-YUI(yuiconfig).use('node', 'gallery-itsacheckbox', function(Y) {
+YUI(yuiconfig).use('gallery-itsacheckbox', 'gallery-itsawidgetrenderpromise', function(Y) {
+    var checkboxColored, checkboxChanged;
 
-    var mycheckbox = new Y.ITSACheckBox({readonly: true, checked: false}).render();
+    checkboxColored = new Y.ITSACheckbox({
+        checked: true
+    }).render('#checkboxColored');
 
+    checkboxChanged = new Y.ITSACheckbox({
+        optionon: 'ON',
+        optionoff: 'OFF',
+        checked: true
+    }).render('#checkboxChanged');
+
+    checkboxOtherOptions = new Y.ITSACheckbox({
+        optionon: 'system running',
+        optionoff: 'system down',
+        lowercased: true,
+        checked: true
+    }).render('#checkboxOtherOptions');
+
+    Y.batch(
+        checkboxColored.renderPromise(),
+        checkboxOtherOptions.renderPromise(),
+        checkboxChanged.renderPromise()
+    ).then(
+        function() {
+            Y.one('#container').removeClass('hide');
+        }
+    );
 });
