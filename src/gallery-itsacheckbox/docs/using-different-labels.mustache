@@ -3,12 +3,8 @@
        {{description}}
    </p>
    <p>
-      To show the widget is 'purecss-compatible', the forms from the purecss-website are used. There are several checkboxes
-      with their own configuration, which all are rendered through their div-element. All checkbox-instances will create
-      invisible html-checkboxes, so they can be send by the form using serialization.
-   </p>
-   <p>
-      Also, there is one checkbox that has the focus. This checkbox responses to the keyboard.
+      When changing styles -that impact the the size- <u>after</u> the checkboxes are rendered, you need to execute yourcheckbox.syncUI().
+      <br />Also notice, we take advantage of gallery-itsawidgetrenderpromise, to show all checkboxes at once.
    </p>
 </div>
 

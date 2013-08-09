@@ -25,7 +25,7 @@
 }
 .yui3-itsacheckbox .optionoff {
     background-color: #FFF;
-    color: #000;
+    color: #444;
 }
 .yui3-itsacheckbox .optioncontainer {
     position: relative;
@@ -59,10 +59,10 @@
 .yui3-itsacheckbox .optionoff {
     padding: 0.3em 1.1em 0 0.7em;
 }
-.yui3-itsacheckbox.yui3-itsacheckbox-lowercased .optionon {
+.yui3-itsacheckbox.yui3-itsacheckbox-lowercase .optionon {
     padding: 0.2em 0.7em 0.1em 1.1em;
 }
-.yui3-itsacheckbox.yui3-itsacheckbox-lowercased .optionoff {
+.yui3-itsacheckbox.yui3-itsacheckbox-lowercase .optionoff {
     padding: 0.2em 1.1em 0.1em 0.7em;
 }
 .yui3-itsacheckbox .optionbtn {
@@ -111,9 +111,6 @@
 .yui3-itsacheckbox.yui3-itsacheckbox-focused {
     outline: 0;
     border-color: #129FEA;
-    box-shadow: 0 0 0.1em 0.1em #129FEA;
-    -webkit-box-shadow: 0 0 0.1em 0.1em #129FEA;
-    -moz-box-shadow: 0 0 0.1em 0.1em #129FEA;
 }
 
 

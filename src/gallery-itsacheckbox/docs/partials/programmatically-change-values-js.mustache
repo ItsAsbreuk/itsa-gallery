@@ -1,0 +1,18 @@
+YUI(yuiconfig).use('node-base', 'gallery-itsacheckbox', function(Y) {
+    var checkbox;
+
+    checkbox = new Y.ITSACheckbox({
+        optionon: 'system running',
+        optionoff: 'system down',
+        lowercase: true,
+        checked: true
+    }).render('#checkbox');
+
+    Y.one('#btnValue').on('click', function() {
+        checkbox.set('checked', !checkbox.get('checked'));
+    });
+
+    Y.one('#btnDisable').on('click', function() {
+        checkbox.set('disabled', !checkbox.get('disabled'));
+    });
+});

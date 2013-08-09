@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('gallery-itsacheckbox', 'gallery-itsawidgetrenderpromise', function(Y) {
+YUI(yuiconfig).use('node-base', 'gallery-itsacheckbox', 'gallery-itsawidgetrenderpromise', function(Y) {
     var checkboxColored, checkboxChanged;
 
     checkboxColored = new Y.ITSACheckbox({
@@ -14,10 +14,17 @@ YUI(yuiconfig).use('gallery-itsacheckbox', 'gallery-itsawidgetrenderpromise', fu
     checkboxOtherOptions = new Y.ITSACheckbox({
         optionon: 'system running',
         optionoff: 'system down',
-        lowercased: true,
+        lowercase: true,
         checked: true
     }).render('#checkboxOtherOptions');
 
+    Y.one('#btnLarge').on('click', function() {
+        Y.one('#container').addClass('pure-checkbox-big');
+        checkboxColored.syncUI();
+        checkboxOtherOptions.syncUI();
+    });
+
+    // make use of 'renderPromise()', which is supplied by 'gallery-itsawidgetrenderpromise'
     Y.batch(
         checkboxColored.renderPromise(),
         checkboxOtherOptions.renderPromise(),

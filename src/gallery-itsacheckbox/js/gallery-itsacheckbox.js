@@ -26,7 +26,8 @@ var LANG = Y.Lang,
     RERENDER_CLASS = WIDGET_CLASS + '-rerender',
     HIDDEN_CLASS = WIDGET_CLASS + '-hidden',
     CREATED_CHECKBOX = WIDGET_CLASS + '-created-checkbox',
-    LOWERCASED_OPTIONS_CLASS = WIDGET_CLASS + '-lowercased',
+    LOWERCASE = 'lowercase',
+    LOWERCASE_OPTIONS_CLASS = WIDGET_CLASS + '-' + LOWERCASE,
     OPTION = 'option',
     OPTION_WRAPPER = OPTION + 'wrapper',
     OPTION_CONTAINER = OPTION + 'container',
@@ -180,8 +181,8 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 instance._parentNode.addClass(PARENT_CLASS);
             }
             instance._setTemplate();
-            if (instance.get('lowercased')) {
-                boundingBox.addClass(LOWERCASED_OPTIONS_CLASS);
+            if (instance.get(LOWERCASE)) {
+                boundingBox.addClass(LOWERCASE_OPTIONS_CLASS);
             }
         },
 
@@ -262,6 +263,12 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                             instance._src.removeAttribute(READONLY);
                         }
                     }
+                })
+            );
+
+            instance._eventhandlers.push(
+                instance.on(LOWERCASE+CHANGE, function(e) {
+                    boundingBox.toggleClass(LOWERCASE_OPTIONS_CLASS, e.newVal);
                 })
             );
 
@@ -667,13 +674,13 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             },
 
             /**
-             * @description when 'optionon' or 'optionoff' uses lowercased-text, you might want to set this attribute to true.
+             * @description when 'optionon' or 'optionoff' uses lowercase-text, you might want to set this attribute to true.
              * This will make the text shift a bit up, so it appears in the centre.
              * @attribute readonly
              * @default false
              * @type Boolean
             */
-            lowercased : {
+            lowercase : {
                 value: false,
                 validator: function(val) {
                     return typeof val === 'boolean';
