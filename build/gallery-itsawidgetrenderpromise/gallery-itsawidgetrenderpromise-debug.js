@@ -77,7 +77,14 @@ Y.Widget.prototype.renderOnAvailablePromise = function(srcNodeId, options) {
             Y.use('gallery-itsanodepromise', function() {
                 instance.nodeAvailablePromise = Y.Node.availablePromise(srcNodeId, timeout)
                 .then(
-                    Y.bind(instance.render, instance, srcNodeId)
+                    function() {
+                        if (!instance.get('destroyed')) {
+                            instance.render(srcNodeId);
+                        }
+                        else {
+                            throw new Error('Widget cannot render because it is already destroyed');
+                        }
+                    }
                 )
                 .then(
                     function() {
