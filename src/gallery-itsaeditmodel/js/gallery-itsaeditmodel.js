@@ -39,6 +39,7 @@ var body = Y.one('body'),
     ITSAFORMELEMENT_LIFECHANGE_CLASS = FORMELEMENT_CLASS + '-lifechange',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
     ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = FORMELEMENT_CLASS + '-enternextfield',
+    ITSAFORMELEMENT_CHECKBOX_CLASS = FORMELEMENT_CLASS + '-checkbox',
     BUTTON_BUTTON_CLASS = FORMELEMENT_CLASS + '-button',
     ADD_BUTTON_CLASS = FORMELEMENT_CLASS + '-add',
     SUBMIT_BUTTON_CLASS = FORMELEMENT_CLASS + '-submit',
@@ -1233,6 +1234,19 @@ Y.augment(Y.Model, Y.Plugin.Host);
           Y.fire(EVT_INPUT_CHANGE, e);
       },
       '.'+ITSAFORMELEMENT_LIFECHANGE_CLASS
+  );
+  Y.delegate(
+      'valuechange',
+      function(e) {
+          var inputnode = e.currentTarget;
+          // seems that e.halt() cannot be called here ???
+          e.elementId = inputnode.get('id');
+          e.inputNode = inputnode;
+          e.property = GET_PROPERTY_FROM_CLASS(inputnode.getAttribute('class'));
+          e.type = EVT_INPUT_CHANGE;
+          Y.fire(EVT_INPUT_CHANGE, e);
+      },
+      '.'+ITSAFORMELEMENT_CHECKBOX_CLASS
   );
   body.delegate(
       'keypress',
