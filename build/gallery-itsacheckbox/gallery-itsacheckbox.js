@@ -652,7 +652,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 newCreatedSrcId, copyNode, optionOnNode, optionOffNode;
             if (!instance._src) {
                 copyNode = instance._parentNode || boundingBox;
-                newCreatedSrcId = 'checkbox_'+copyNode.get('id');
+                newCreatedSrcId = copyNode.get('id')+'_checkbox';
             }
             boundingBox.setHTML(
                 LANG.sub(

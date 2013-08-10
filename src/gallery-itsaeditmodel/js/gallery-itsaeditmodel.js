@@ -361,9 +361,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 nodeId = instance._elementIds[name];
                 renderedFormElement = instance._itsaformelement.render(useConfig, nodeId);
                 // after rendering we are sure definitely sure what type we have (even if not specified)
-                if (instance._isDateTimeType(useConfig.type)) {
-                    Y.use('gallery-itsadatetimepicker');
-                }
+//                if (instance._isDateTimeType(useConfig.type)) {
+//                    Y.use('gallery-itsadatetimepicker');
+//                }
             }
             else {
                 renderedFormElement = '';
