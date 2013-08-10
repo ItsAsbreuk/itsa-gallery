@@ -168,12 +168,10 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             }
             else if (type==='checkbox') {
                 element = ELEMENT_CHECKBOX;
-                if (widget) {
-                    widget.destroy();
-                }
                 widget = instance._widget = new Y.ITSACheckbox(config);
                 // when it is inserted in the dom: render it
                 widget.renderOnAvailable('#'+nodeId);
+                widget.addTarget(Y);
             }
             else if (type==='radiogroup') {
                 element = ELEMENT_RADIOGROUP;
