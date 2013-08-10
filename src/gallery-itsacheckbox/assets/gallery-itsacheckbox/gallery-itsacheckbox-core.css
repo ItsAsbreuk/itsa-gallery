@@ -54,16 +54,10 @@
     -moz-box-shadow: inset 0 0.7em 0.2em rgba(0, 0, 0, 0.18);
 }
 .yui3-itsacheckbox .optionon {
-    padding: 0.3em 0.7em 0 1.1em;
+    padding: 2px 0.7em 0em 1.1em;
 }
 .yui3-itsacheckbox .optionoff {
-    padding: 0.3em 1.1em 0 0.7em;
-}
-.yui3-itsacheckbox.yui3-itsacheckbox-lowercase .optionon {
-    padding: 0.2em 0.7em 0.1em 1.1em;
-}
-.yui3-itsacheckbox.yui3-itsacheckbox-lowercase .optionoff {
-    padding: 0.2em 1.1em 0.1em 0.7em;
+    padding: 2px 1.1em 0em 0.7em;
 }
 .yui3-itsacheckbox .optionbtn {
     box-shadow: inset 0 0.17em 0.5em rgba(0, 0, 0, 0.18);

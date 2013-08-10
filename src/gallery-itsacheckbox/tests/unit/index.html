@@ -9,12 +9,22 @@
 <body class="yui3-skin-sam">
 <div id="logger"></div>
 
+<input id="checkboxtest2" type="checkbox" checked="checked">
+<input id="checkboxtest3" type="checkbox" disabled="disabled">
+<input id="checkboxtest4" type="checkbox" readonly="readonly">
+
+<!-- ******************************** -->
+<!--  START DEFINING THE COMBOLOADER  -->
+<!-- ******************************** -->
+<script src="js/init-loaderconfig.js"></script>
+<script src="js/loaderconfig.js"></script>
+<!-- ******************************** -->
+<!--  END DEFINING THE COMBOLOADER  -->
+<!-- ******************************** -->
+
 <script>
-YUI({
-    coverage: ['gallery-itsacheckbox'],
-    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'raw'
-}).use('test-console', 'test', 'module-tests', function(Y) {
-    
+YUI(yuiconfig).use('test-console', 'test', 'module-tests', function(Y) {
+
     (new Y.Test.Console()).render('#logger');
 
     Y.Test.Runner.setName('gallery-itsacheckbox');

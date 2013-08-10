@@ -3,7 +3,7 @@
  * Class ITSACheckBox
  *
  *
- * Widget that replaces the standard form-checkbox.
+ * Widget that replaces the standard html-checkbox.
  *
  * @module gallery-itsacheckbox
  * @extends Widget
@@ -26,8 +26,6 @@ var LANG = Y.Lang,
     RERENDER_CLASS = WIDGET_CLASS + '-rerender',
     HIDDEN_CLASS = WIDGET_CLASS + '-hidden',
     CREATED_CHECKBOX = WIDGET_CLASS + '-created-checkbox',
-    LOWERCASE = 'lowercase',
-    LOWERCASE_OPTIONS_CLASS = WIDGET_CLASS + '-' + LOWERCASE,
     OPTION = 'option',
     OPTION_WRAPPER = OPTION + 'wrapper',
     OPTION_CONTAINER = OPTION + 'container',
@@ -36,6 +34,7 @@ var LANG = Y.Lang,
     OPTION_OFF = OPTION + 'off',
     ISIE = (Y.UA.ie>0),
     BOUNDINGBOX = 'boundingBox',
+    STRING = 'string',
     WIDTH = 'width',
     HEIGHT = 'height',
     OFFSETWIDTH = 'offsetWidth',
@@ -181,9 +180,6 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 instance._parentNode.addClass(PARENT_CLASS);
             }
             instance._setTemplate();
-            if (instance.get(LOWERCASE)) {
-                boundingBox.addClass(LOWERCASE_OPTIONS_CLASS);
-            }
         },
 
         /**
@@ -212,9 +208,22 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             });
 
             instance._eventhandlers.push(
-                instance.on('checkedChange', function(e) {
+                instance.after(CHECKED+CHANGE, function(e) {
                     var checked = e.newVal;
                     instance._goFinal(checked);
+                    /**
+                    * Fired when the checkbox changes its value<br />
+                    * Listen for this event instead of 'checkedChange',
+                    * because this event is also fired when the checkbox changes its 'disabled'-state
+                    * (switching value null/boolean)
+                    *
+                    * @event valueChange
+                    * @param e {EventFacade} Event Facade including:
+                    * @param e.newVal {Boolean|null} New value of the checkbox; will be 'null' when is disabled.
+                    * @param e.prevVal {Boolean|null} Previous value of the checkbox; will be 'null' when was disabled.
+                    * @since 0.1
+                    */
+                    instance.fire('value'+CHANGE, e);
                     if (instance._src) {
                         if (checked) {
                             instance._src.setAttribute(CHECKED, CHECKED);
@@ -234,10 +243,26 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             );
 
             instance._eventhandlers.push(
-                instance.on(DISABLED+CHANGE, function(e) {
-                    var disabled = e.newVal;
+                instance.after(DISABLED+CHANGE, function(e) {
+                    var disabled = e.newVal,
+                        payload = Y.merge(e),
+                        checked;
+                    instance._forceCheckedVal = true;
+                    checked = instance.get(CHECKED);
+                    instance._forceCheckedVal = false;
                     dd.set('lock', disabled || instance.get(READONLY));
-                    instance._goFinal(instance.get(CHECKED, true), true);
+                    instance._goFinal(checked, true);
+                    // now set up the right payload for the valueChange-event
+                    if (disabled) {
+                        payload.newVal = null;
+                        payload.prevVal = checked;
+                    }
+                    else {
+                        payload.newVal = checked;
+                        payload.prevVal = null;
+                    }
+                    // no api-declaration of the event here --> this already is done with the checkedChange-event
+                    instance.fire('value'+CHANGE, payload);
                     if (instance._src) {
                         if (disabled) {
                             instance._src.setAttribute(DISABLED, DISABLED);
@@ -250,11 +275,15 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             );
 
             instance._eventhandlers.push(
-                instance.on(READONLY+CHANGE, function(e) {
-                    var readonly = e.newVal;
+                instance.after(READONLY+CHANGE, function(e) {
+                    var readonly = e.newVal,
+                        checked;
+                    instance._forceCheckedVal = true;
+                    checked = instance.get(CHECKED);
+                    instance._forceCheckedVal = false;
                     boundingBox.toggleClass(READONLY_CLASS, readonly);
                     dd.set('lock', readonly|| instance.get(DISABLED));
-                    instance._goFinal(instance.get(CHECKED, true), true);
+                    instance._goFinal(checked, true);
                     if (instance._src) {
                         if (readonly) {
                             instance._src.setAttribute(READONLY, READONLY);
@@ -267,14 +296,8 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             );
 
             instance._eventhandlers.push(
-                instance.on(LOWERCASE+CHANGE, function(e) {
-                    boundingBox.toggleClass(LOWERCASE_OPTIONS_CLASS, e.newVal);
-                })
-            );
-
-            instance._eventhandlers.push(
                 instance._containerNode.on('tap', function() {
-                    instance.set(CHECKED, !instance.get(CHECKED));
+                    instance.toggle();
                 })
             );
 
@@ -291,11 +314,26 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                             instance.set(CHECKED, true);
                         }
                         else if (keyCode === 32) {
-                            instance.set(CHECKED, !instance.get(CHECKED));
+                            instance.toggle();
                         }
                     }
                 })
             );
+        },
+
+        /**
+         * Convenience-method for setting the value of the checkbox to true.
+         * You can look at the returnvalue to see if it succeeded.
+         *
+         * @method check
+         * @return {Boolean | null} the value after trying to set it checked
+         * @since 0.1
+        */
+        check : function() {
+            Y.log('check ', 'cmas', 'ITSACheckBox');
+            var instance = this;
+            instance.set(CHECKED, true);
+            return instance.getValue();
         },
 
         /**
@@ -321,6 +359,40 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             Y.log('syncUI ', 'cmas', 'ITSACheckBox');
             var instance = this;
             instance._setDimensions();
+        },
+
+        /**
+         * Convenience-method for toggling the value of the checkbox.
+         * You can look at the returnvalue to see if it succeeded.
+         *
+         * @method toggle
+         * @return {Boolean} true when toggled succesfully, otherwise false.
+         * @since 0.1
+        */
+        toggle : function() {
+            Y.log('check ', 'cmas', 'ITSACheckBox');
+            var instance = this,
+                prevVal = instance.get(CHECKED),
+                newVal;
+            if (prevVal!==null) {
+                instance.set(CHECKED, !prevVal);
+                newVal = instance.get(CHECKED);
+            }
+            return (newVal!==prevVal);
+        },
+
+        /**
+         * Convenience-method for setting the value of the checkbox to false.
+         * You can look at the returnvalue to see if it succeeded.
+         *
+         * @method uncheck
+         * @since 0.1
+        */
+        uncheck : function() {
+            Y.log('check ', 'cmas', 'ITSACheckBox');
+            var instance = this;
+            instance.set(CHECKED, false);
+            return instance.getValue();
         },
 
         /**
@@ -466,6 +538,9 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
         */
         _setDimensions : function() {
             Y.log('_setDimensions ', 'cmas', 'ITSACheckBox');
+            // We choosed to re-render the widget based on size-calculation.
+            // This does lead to a small performancedecrease, but does make the widget's size fit at all circumstances
+            // that is with different css, or different optionlabels.
             var instance = this,
                 boundingBox = instance.get(BOUNDINGBOX),
                 optionBtnNode, optionOnNode, optionOffNode, radiusleft, radiusright, height, btnNodeWidthHeight, leftIndentBtn, containerNode,
@@ -655,13 +730,14 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                     }
                     return (typeof val === 'boolean') && !blocked;
                 },
-                getter: function(val, force) {
-                    return (((!this.get(DISABLED) && !this.get(READONLY)) || force) ? val : null);
+                getter: function(val) {
+                    var instance = this;
+                    return ((!instance.get(DISABLED) || instance._forceCheckedVal) ? val : null);
                 }
             },
 
             /**
-             * @description Transitiontime when the slider turns into its endposition
+             * @description Transitiontime when the slider turns into its endposition.
              * @attribute duration
              * @default 0.15
              * @type Int
@@ -674,21 +750,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             },
 
             /**
-             * @description when 'optionon' or 'optionoff' uses lowercase-text, you might want to set this attribute to true.
-             * This will make the text shift a bit up, so it appears in the centre.
-             * @attribute readonly
-             * @default false
-             * @type Boolean
-            */
-            lowercase : {
-                value: false,
-                validator: function(val) {
-                    return typeof val === 'boolean';
-                }
-            },
-
-            /**
-             * @description Label of the 'ON'-state
+             * @description Label of the 'ON'-state.
              * @default 'I'
              * @attribute optionon
              * @type String
@@ -696,12 +758,12 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             optionon : {
                 value: 'I',
                 validator: function(val) {
-                    return typeof val === 'string';
+                    return typeof val === STRING;
                 }
             },
 
             /**
-             * @description Label of the 'OFF'-state
+             * @description Label of the 'OFF'-state.
              * @attribute optionoff
              * @default 'O'
              * @type String
@@ -709,12 +771,12 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             optionoff : {
                 value: 'O',
                 validator: function(val) {
-                    return typeof val === 'string';
+                    return typeof val === STRING;
                 }
             },
 
             /**
-             * @description when readonly, the widget has a valid value, but cannot be altered
+             * @description When readonly, the widget has a valid value, but cannot be altered.
              * @attribute readonly
              * @default false
              * @type Boolean

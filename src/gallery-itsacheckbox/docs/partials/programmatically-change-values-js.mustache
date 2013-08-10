@@ -9,10 +9,11 @@ YUI(yuiconfig).use('node-base', 'gallery-itsacheckbox', function(Y) {
     }).render('#checkbox');
 
     Y.one('#btnValue').on('click', function() {
-        checkbox.set('checked', !checkbox.get('checked'));
+        checkbox.toggle();
     });
 
     Y.one('#btnDisable').on('click', function() {
         checkbox.set('disabled', !checkbox.get('disabled'));
     });
+
 });
