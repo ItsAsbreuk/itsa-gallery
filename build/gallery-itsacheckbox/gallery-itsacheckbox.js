@@ -47,6 +47,7 @@ var LANG = Y.Lang,
     PADDINGLEFT = 'paddingLeft',
     PADDINGRIGHT = 'paddingRight',
     MARGINLEFT = 'marginLeft',
+    VALUECHANGE_EVT = 'valuechange',
     PX = 'px',
     LEFT = 'left',
     DISABLED = 'disabled',
@@ -216,13 +217,13 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                     * because this event is also fired when the checkbox changes its 'disabled'-state
                     * (switching value null/boolean)
                     *
-                    * @event valueChange
+                    * @event valuechange
                     * @param e {EventFacade} Event Facade including:
                     * @param e.newVal {Boolean|null} New value of the checkbox; will be 'null' when is disabled.
                     * @param e.prevVal {Boolean|null} Previous value of the checkbox; will be 'null' when was disabled.
                     * @since 0.1
                     */
-                    instance.fire('value'+CHANGE, e);
+                    instance.fire(VALUECHANGE_EVT, e);
                     if (instance._src) {
                         if (checked) {
                             instance._src.setAttribute(CHECKED, CHECKED);
@@ -261,7 +262,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                         payload.prevVal = null;
                     }
                     // no api-declaration of the event here --> this already is done with the checkedChange-event
-                    instance.fire('value'+CHANGE, payload);
+                    instance.fire(VALUECHANGE_EVT, payload);
                     if (instance._src) {
                         if (disabled) {
                             instance._src.setAttribute(DISABLED, DISABLED);

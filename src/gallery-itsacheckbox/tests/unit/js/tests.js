@@ -85,33 +85,33 @@ YUI.add('module-tests', function(Y) {
 
     suite.add(new Y.Test.Case({
         name: 'test 9',
-        'checking valueChange-events on checked-Change': function() {
+        'checking valuechange-events on checked-Change': function() {
             var checkbox = new Y.ITSACheckbox({checked: false}).render(),
                 timer;
             timer = Y.later(2000, null, function(){
-                Y.Assert.fail('valueChange is not fired within 2 seconds');
+                Y.Assert.fail('valuechange is not fired within 2 seconds');
             });
-            checkbox.on('valueChange', function(e){
+            checkbox.on('valuechange', function(e){
                 timer.cancel();
-                Y.Assert.isTrue(e.newVal, 'valueChange-event is fired, but with the wrong value for e.newVal');
+                Y.Assert.isTrue(e.newVal, 'valuechange-event is fired, but with the wrong value for e.newVal');
             });
-            checkbox.check(); // this should fire the 'valueChange-event'
+            checkbox.check(); // this should fire the 'valuechange-event'
         }
     }));
 
     suite.add(new Y.Test.Case({
         name: 'test 10',
-        'checking valueChange-events on disable': function() {
+        'checking valuechange-events on disable': function() {
             var checkbox = new Y.ITSACheckbox({checked: false}).render(),
                 timer;
             timer = Y.later(2000, null, function(){
-                Y.Assert.fail('valueChange is not fired within 2 seconds');
+                Y.Assert.fail('valuechange is not fired within 2 seconds');
             });
-            checkbox.on('valueChange', function(e){
+            checkbox.on('valuechange', function(e){
                 timer.cancel();
-                Y.Assert.isNull(e.newVal, 'valueChange-event is fired, but with the wrong value for e.newVal');
+                Y.Assert.isNull(e.newVal, 'valuechange-event is fired, but with the wrong value for e.newVal');
             });
-            checkbox.disable(); // this should fire the 'valueChange-event'
+            checkbox.disable(); // this should fire the 'valuechange-event'
         }
     }));
 
