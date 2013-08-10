@@ -41,6 +41,7 @@ var body = Y.one('body'),
     ITSAFORMELEMENT_LIFECHANGE_CLASS = FORMELEMENT_CLASS + '-lifechange',
     ITSAFORMELEMENT_CHANGED_CLASS = FORMELEMENT_CLASS + '-changed',
     ITSAFORMELEMENT_ENTERNEXTFIELD_CLASS = FORMELEMENT_CLASS + '-enternextfield',
+    ITSAFORMELEMENT_CHECKBOX_CLASS = FORMELEMENT_CLASS + '-checkbox',
     BUTTON_BUTTON_CLASS = FORMELEMENT_CLASS + '-button',
     ADD_BUTTON_CLASS = FORMELEMENT_CLASS + '-add',
     SUBMIT_BUTTON_CLASS = FORMELEMENT_CLASS + '-submit',
@@ -85,6 +86,7 @@ var body = Y.one('body'),
      * @since 0.1
     **/
     EVT_FOCUS_NEXT = 'focusnext',
+
    /**
      * Fired to be caught by ItsaDialog. This event occurs when there is a warning (for example Model changed outside the editview).
      * @event dialog:warn
@@ -93,15 +95,17 @@ var body = Y.one('body'),
      * @since 0.1
     **/
     EVT_DIALOG_WARN = 'dialog:warn',
+
     /**
       * Event fired after an input-elements value is changed.
       * @event inputchange
       * @param e {EventFacade} Event Facade including:
       * @param e.inputNode {Y.Node} The Input-Node that was clicked
-      * @param e.elementId {String} Id of the Node that chancged value.
+      * @param e.elementId {String} Id of the Node that changed value.
       * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
     **/
     EVT_INPUT_CHANGE = 'inputchange',
+
     /**
       * Event fired when an input-elements value is changed (life, without blurring): valuechange.
       * @event inputvaluechange
@@ -111,6 +115,7 @@ var body = Y.one('body'),
       * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
     **/
     EVT_VALUE_CHANGE = 'inputvaluechange',
+
     /**
       * Event fired when a normal button (elementtype) is clicked.
       * @event buttonclick
@@ -120,6 +125,7 @@ var body = Y.one('body'),
       * @param [e.model] {Y.Model} This modelinstance.
     **/
     EVT_BUTTON_CLICK = 'buttonclick',
+
    /**
      * Fired after the plugin is pluggedin and ready to be referenced by the host. This is LATER than after the 'init'-event,
      * because the latter will be fired before the namespace Model.itsaeditmodel exists.
@@ -363,9 +369,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 nodeId = instance._elementIds[name];
                 renderedFormElement = instance._itsaformelement.render(useConfig, nodeId);
                 // after rendering we are sure definitely sure what type we have (even if not specified)
-                if (instance._isDateTimeType(useConfig.type)) {
-                    Y.use('gallery-itsadatetimepicker');
-                }
+//                if (instance._isDateTimeType(useConfig.type)) {
+//                    Y.use('gallery-itsadatetimepicker');
+//                }
             }
             else {
                 renderedFormElement = '';
@@ -639,7 +645,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             promise(value, widgetconfig).then(
                                 function(newdate) {
                                     var newRenderedElement;
-                                    instance._storeProperty(valuespan, propertyName, newdate, true);
+                                    instance._storeProperty(valuespan, picker, propertyName, newdate, true);
                                     // because _setProperty setts the attribute with {fromEditModel: true},
                                     // the view does not re-render. We change the fieldvalue ourselves
                                     // first ask for ITSAFormElement how the render will look like
@@ -692,7 +698,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     EVT_VALUE_CHANGE,
                     function(e) {
                         if (e.elementId===instance._elementIds[e.property]) {
-                            instance._storeProperty(e.inputNode, e.property, e.inputNode.get('value'));
+                            instance._storeProperty(e.inputNode, e.widget, e.property, e.inputNode.get('value'));
                         }
                     }
                 )
@@ -702,7 +708,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     EVT_INPUT_CHANGE,
                     function(e) {
                         if (e.elementId===instance._elementIds[e.property]) {
-                            instance._storeProperty(e.inputNode, e.property, e.inputNode.get('value'), true);
+                            instance._storeProperty(e.inputNode, null, e.property, e.inputNode.get('value'), true);
                         }
                     }
                 )
@@ -994,6 +1000,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          *
          * @method _storeProperty
          * @param node {Y.Node} node that holds the formelement that was changed.
+         * @param widget {Y.Widget} widget that was changed.
          * @param propertyName {String} Propertyname or -in case or Model- attribute-name.
          * @param value {Any} The new value to be set.
          * @param finished {Boolean} Whether the final value is reached. Some types (like text) can store before they reach
@@ -1002,12 +1009,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @since 0.1
          *
         */
-        _storeProperty: function(node, propertyName, value, finished) {
+        _storeProperty: function(node, widget, propertyName, value, finished) {
             var instance = this,
                 updateMode = instance.get('updateMode'),
                 isObject = Lang.isObject(value),
                 payload = {
                     node: node,
+                    widget: widget,
                     property: propertyName,
                     newVal: (isObject ? Y.merge(value) : value),
                     finished: finished
@@ -1041,6 +1049,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
               * @event propertynameChange
               * @param e {EventFacade} Event Facade including:
               * @param e.node {Y.Node} The Node that was changed
+              * @param e.widget {Y.Widget} The Widget that caused the change
               * @param e.property {String} The Model's attribute-name that was changed.
               * @param e.newVal {Any} The new value
               * @param e.newVal {Any} The previous value
@@ -1235,6 +1244,19 @@ Y.augment(Y.Model, Y.Plugin.Host);
           Y.fire(EVT_INPUT_CHANGE, e);
       },
       '.'+ITSAFORMELEMENT_LIFECHANGE_CLASS
+  );
+  Y.delegate(
+      'valuechange',
+      function(e) {
+          var widget = e.currentTarget,
+              boundingBox = widget.get('boundingBox');
+          e.elementId = boundingBox.get('id');
+          e.widget = widget;
+          e.property = GET_PROPERTY_FROM_CLASS(boundingBox.getAttribute('class'));
+          e.type = EVT_VALUE_CHANGE;
+          Y.fire(EVT_VALUE_CHANGE, e);
+      },
+      '.'+ITSAFORMELEMENT_CHECKBOX_CLASS
   );
   body.delegate(
       'keypress',
