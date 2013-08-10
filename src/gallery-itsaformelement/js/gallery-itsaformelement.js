@@ -56,8 +56,7 @@ var Lang  = Y.Lang,
 
     ELEMENT_VALIDATION = '<div class="'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS+' '+ITSAFORMELEMENT_HIDDEN_CLASS+'">{validation}</div>',
 
-    ELEMENT_CHECKBOX = '<div id="{id}"{classname} /><input id="{id}_checkbox" type="checkbox" name="{name}" {checked}class="'+
-                       ITSAFORMELEMENT_ELEMENT_CLASS + ' ' + ITSAFORMELEMENT_HIDDEN_CLASS+'" /></div>',
+    ELEMENT_CHECKBOX = '<div id="{id}"{classname}></div>',
     ELEMENT_SELECTLIST = '<div id="{id}"{classname} /><select id="{id}_selectlist" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+
                          ' ' + ITSAFORMELEMENT_ELEMENT_CLASS + '" /><option value="" selected="selected"></option></select></div>',
     ELEMENT_COMBO = '<div id="{id}"{classname} /><select id="{id}_combo" name="{name}" class="'+ITSAFORMELEMENT_HIDDEN_CLASS+
@@ -93,11 +92,12 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * To be used in an external Form
          * @method render
          * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
-         * @param nodeId {String} The unique id of the node
+         * @param nodeId {String} The unique id of the node (without the '#').
          * @return {String} rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAFORM
         */
         render : function(config, nodeId) {
             var instance = this,
+                widget = instance._widget,
                 element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,
                 focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField, placeholder, placeholdervalue;
 
@@ -166,6 +166,10 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             }
             else if (type==='checkbox') {
                 element = ELEMENT_CHECKBOX;
+                widget = instance._widget = new Y.ITSACheckbox(config);
+                // when it is inserted in the dom: render it
+                widget.renderOnAvailable('#'+nodeId);
+                widget.addTarget(Y);
             }
             else if (type==='radiogroup') {
                 element = ELEMENT_RADIOGROUP;
@@ -221,6 +225,15 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                                 validation: instance.get('validationMessage')
                             }
             );
+        },
+
+        /**
+         * Returns the underlying widget - if applyable
+         * @method getWidget
+         * @return {Widget|null}
+        */
+        getWidget : function() {
+            return this._widget;
         },
 
         /**
@@ -305,7 +318,7 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
                             ((val==='input') ||
                              (val==='password') ||
                              (val==='textarea') ||
-//                             (val==='checkbox') ||  // not ready yet
+                             (val==='checkbox') ||
 //                             (val==='radiogroup') ||  // not ready yet
 //                             (val==='selectlist') ||  // not ready yet
 //                             (val==='combo') ||  // not ready yet
