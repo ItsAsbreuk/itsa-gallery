@@ -11,7 +11,9 @@ This repo contains open source YUI components that have been contributed to the
 ## Core
 [ITSADialog](src/gallery-itsadialog) --on cdn--
 
-[Y.Widget extensions](src/gallery-itsawidgetrenderpromise) --on cdn--
+[Widget extensions](src/gallery-itsawidgetrenderpromise) --on cdn--
+
+[Plugin extensions](src/gallery-itsapluginpromise) --on cdn--
 
 [Y.usePromise()](src/gallery-itsamodulesloadedpromise) --on cdn--
 
@@ -78,6 +80,8 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Widgets
+[ITSACheckbox](src/gallery-itsacheckbox) --on cdn--
+
 [ITSAFileManager](src/gallery-itsafilemanager) --under construction--
 
 [ITSAForm](src/gallery-itsaform) --under construction--
