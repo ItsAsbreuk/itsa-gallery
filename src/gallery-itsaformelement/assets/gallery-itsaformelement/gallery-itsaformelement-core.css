@@ -1,3 +1,7 @@
+.yui3-itsaformelement-hidden {
+    display: none;
+}
+
 .yui3-itsaformelement-changed,
 .yui3-form .yui3-itsaformelement-date.yui3-itsaformelement-changed,
 .yui3-form .yui3-itsaformelement-time.yui3-itsaformelement-changed,
