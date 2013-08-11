@@ -4,7 +4,7 @@ var itsagallerydir = (itsagalleryversion ? itsagalleryversion+'/' : ''),
         base     : loaderdomain+'/combo?yui3/'+yui3version+'/build/',
         comboBase: loaderdomain+'/combo?',
         root     : 'yui3/'+yui3version+'/build/',
-        combine  : combine || true,
+        combine  : combine,
         filter   : filter,
         coverage : coverage,
         groups   : {

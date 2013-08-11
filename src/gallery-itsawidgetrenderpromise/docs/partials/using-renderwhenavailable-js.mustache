@@ -1,0 +1,15 @@
+YUI(yuiconfig).use('node', 'gallery-itsawidgetrenderpromise', 'calendar', function(Y) {
+    var sidebarNode = Y.one('.sidebar');
+    new Y.Calendar().renderWhenAvailable('#calnode');
+
+    Y.one('#insertnode').on('click', function(){
+        sidebarNode.append('<div id="calnode" class="yui3-skin-sam"></div>');
+    });
+
+    Y.one('#removenode').on('click', function(){
+        var calnode = Y.one("#calnode");
+        if (calnode) {
+            calnode.remove(true);
+        }
+    });
+});
