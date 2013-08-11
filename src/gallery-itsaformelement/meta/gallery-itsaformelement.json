@@ -7,7 +7,9 @@
             "node-base",
             "datatype-date-format",
             "classnamemanager",
-            "cssbutton"
+            "cssbutton",
+            "promise",
+            "gallery-itsanodepromise"
         ],
         "skinnable": true
     }

@@ -1,14 +1,41 @@
+{{>api-button}}
+
 <div class="intro">
-    <p>
-    *Summary Goes Here*
-    </p>
+  <p>{{description}}</p>
+  <p>
+      This module is used for creating stringified form-elements using Y.Lang.sub() and templates for all form-elements.
+      The rendered strings are used by <code>gallery-itsaeditmodel</code>. It is preferable that you use that module
+      to create editable html-elements, because that way thay are related to a Modelinstance.
+  </p>
+  <p><b>Note:</b> This module is Beta. Needs performanceoptimization and not all elements can be used yet.
 </div>
+
+{{>getting-started}}
 
 <h2>Description</h2>
 
-<p>*Module Description Goes Here*</p>
+<p>
+    The class is used to render the stringified form-elements, based on the attributes that are added. Because the node
+    isn't in the dom yet, the idea is to add the <code>nodeId</code> to the rendermethod, along with the config.
+</p>
+<p>
+    Some elements render the original form-elements, while other are just empty <code>div's</code> that should be used
+    to render a widget upon.
+</p>
 
+<h2>Usage</h2>
 ```
-//Module example code
-```
+YUI({gallery: 'gallery-2013.07.03-22-52'}).use('node-base', 'gallery-itsaformelement', function(Y) {
+    var nodeId, itsaformelement, formElement;
 
+    nodeId = Y.guid();
+    itsaformelement = new Y.ITSAFormElement();
+    formElement = itsaformelement.getElementPromise({type: 'checkbox', checked: true}, nodeId);
+
+    formElement.then(
+        function(element) {
+            Y.one('#myform').append(element.html);
+        }
+    );
+});
+```

@@ -1,11 +1,30 @@
 {
     "name"       : "gallery-itsaformelement",
     "displayName": "Gallery: gallery-itsaformelement",
-    "description": "*Summary Goes Here*",
+    "description": "This module defines the class Y.ITSAFormElement",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaformelement" ],
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "regular-html-element",
+            "displayName": "Creating a regular form-element",
+            "description": "This example shows how use Y.ITSAFormElement to render a form-element.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformelement"],
+            "tags"       : ["gallery-itsaformelement", "form-element"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "widget-html-element",
+            "displayName": "Creating a widget form-element",
+            "description": "This example shows how use Y.ITSAFormElement to render a widget form-element.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformelement"],
+            "tags"       : ["gallery-itsaformelement", "form-element", "widget"],
+            "hideTableOfContents": true
+        }
+    ]
 }

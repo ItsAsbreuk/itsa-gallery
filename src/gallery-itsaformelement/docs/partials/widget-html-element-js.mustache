@@ -1,0 +1,13 @@
+YUI(yuiconfig).use('node-base', 'gallery-itsaformelement', function(Y) {
+    var nodeId, itsaformelement, formElement;
+
+    nodeId = Y.guid();
+    itsaformelement = new Y.ITSAFormElement();
+    formElement = itsaformelement.getElementPromise({type: 'checkbox', checked: true}, nodeId);
+
+    formElement.then(
+        function(element) {
+            Y.one('#myform').append(element.html);
+        }
+    );
+});

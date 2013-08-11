@@ -75,6 +75,7 @@ var Lang  = Y.Lang,
     ELEMENT_TOKENINPUT = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />',
     ELEMENT_TOKENAUTOCOMPLETE = '<input id="{id}" type="text" name="{name}" value="{value}"{classname} />';
 
+
 Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
 
         /**
@@ -93,11 +94,43 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
          * @method render
          * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
          * @param nodeId {String} The unique id of the node (without the '#').
+         * @return {Y.Promise} 1st element --> rendered Node which is NOT part of the DOM yet!
+         *                 Must be inserted into the DOM manually, or through Y.ITSAFORM<br />
+         *                 2nd element --> null|widget = handle to the widget, which automaticly will be rendered once the element is in the dom.
+        */
+        getElementPromise : function(config, nodeId) {
+            var instance = this;
+            return new Y.Promise(function (resolve) {
+                var widget,
+                    element = {
+                        html: instance._renderedElement(config, nodeId)
+                    },
+                    type = instance.get('type'); // <-- is defined AFTER calling _renderedElement
+                if (type==='checkbox') {
+                    Y.use('gallery-itsacheckbox', 'gallery-itsawidgetrenderpromise', function() {
+                        widget = element.widget = new Y.ITSACheckbox(config);
+                        // when it is inserted in the dom: render it
+                        widget.renderWhenAvailable('#'+nodeId);
+                        resolve(element);
+                    });
+                }
+                else {
+                    resolve(element);
+                }
+            });
+        },
+
+        /**
+         * Renderes a String that contains the completeFormElement definition.<br>
+         * To be used in an external Form
+         * @method _renderedElement
+         * @private
+         * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
+         * @param nodeId {String} The unique id of the node (without the '#').
          * @return {String} rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAFORM
         */
-        render : function(config, nodeId) {
+        _renderedElement : function(config, nodeId) {
             var instance = this,
-                widget = instance._widget,
                 element, name, type, value, dateFormat, autoCorrection, validation, classnameAttr, classname, isDateOrTime,
                 focusable, isButton, withLifeChange, classlevel2, focusinfoOnClass, focusinfo, enterNextField, placeholder, placeholdervalue;
 
@@ -166,10 +199,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             }
             else if (type==='checkbox') {
                 element = ELEMENT_CHECKBOX;
-                widget = instance._widget = new Y.ITSACheckbox(config);
-                // when it is inserted in the dom: render it
-                widget.renderOnAvailable('#'+nodeId);
-                widget.addTarget(Y);
             }
             else if (type==='radiogroup') {
                 element = ELEMENT_RADIOGROUP;
@@ -228,15 +257,6 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
         },
 
         /**
-         * Returns the underlying widget - if applyable
-         * @method getWidget
-         * @return {Widget|null}
-        */
-        getWidget : function() {
-            return this._widget;
-        },
-
-        /**
          * Hides the validationmessage
          * @method hideValidation
          * @param nodeId {String} Node's id
@@ -247,6 +267,19 @@ Y.ITSAFormElement = Y.Base.create('itsaformelement', Y.Base, [], {
             if (elementNode) {
                 elementNode.get('parentNode').one('.'+ITSAFORMELEMENT_VALIDATION_MESSAGE_CLASS).toggleClass(ITSAFORMELEMENT_HIDDEN_CLASS, true);
             }
+        },
+
+        /**
+         * @deprecated use 'getElementPromise' because that returns an array with a handle to posible widgets
+         * Renderes a String that contains the completeFormElement definition.<br>
+         * To be used in an external Form
+         * @method render
+         * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
+         * @param nodeId {String} The unique id of the node (without the '#').
+         * @return {String} rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAFORM
+        */
+        render : function(config, nodeId) {
+            return this._renderedElement(config, nodeId);
         },
 
         /**
