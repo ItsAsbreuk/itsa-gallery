@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsacheckbox",
     "displayName": "Gallery: gallery-itsacheckbox",
-    "description": "*Summary Goes Here*",
+    "description": "This module supplies the widget Y.ITSACheckbox: a Widget that replaces the standard html-checkbox by a iOS-stylisch checkbox-slider.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsacheckbox" ],
 
