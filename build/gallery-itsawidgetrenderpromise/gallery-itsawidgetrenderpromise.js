@@ -264,4 +264,4 @@ Y.Widget.prototype.readyPromise = function(timeout) {
     return Y.batch.apply(Y, promiseslist);
 };
 
-}, '@VERSION@', {"requires": ["yui-base", "yui-later", "widget", "promise"]});
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "widget-base", "promise"]});

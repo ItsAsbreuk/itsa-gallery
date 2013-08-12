@@ -27,7 +27,7 @@
    This is handy because without this method you might find yourself inspecting those two situations.<br /><br />
 
    <code>readyPromise()</code> is a Promise that waits even longer. You can create a widget-extention that does some things after it is rendered,
-   for example load serverdata and process it. readyPromise will be resolved once all that has finished. To make that happen, it makes use of <code>promiseBeforeReady</code>.<br /><br />
+   for example load serverdata and process it. readyPromise will be resolved once all that has finished. To make that happen, it makes use of <code>promiseBeforeReady</code>. Typical usages are be when you create a widget where syncUI is asynchronious. Or, a composite widget that rendenderes multiple widgets with asynchronious syncUI().<br /><br />
 
    <code>promiseBeforeReady()</code> is a Promise which will run directly after the widget is rendered. It is up to the developer of the
    widget-extention how to define <code>promiseBeforeReady</code>, which is a fulfilled promise by default. Once <code>promiseBeforeReady()</code> is fulfilled, <code>readyPromise()</code> is fulfilled as well.
