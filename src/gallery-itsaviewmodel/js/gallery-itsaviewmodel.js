@@ -405,7 +405,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             );
             eventhandlers.push(
                 instance.after(
-                    'itsaeditmodel:editmodelConfigAttrsChange',
+                    'itsaeditmodel:configChange',
                     function() {
                         if (model.itsaeditmodel && instance.get('modelEditable')) {
                             view.render();
@@ -564,14 +564,14 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
             if (ismicrotemplate) {
                 compiledModelEngine = YTemplateMicro.compile(template);
                 instance._modelRenderer = function(model) {
-                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(model.itsaeditmodel.get('editmodelConfigAttrs'))
+                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(model.itsaeditmodel.get('config'))
                                    : instance.getModelToJSON(model);
                     return compiledModelEngine(jsondata);
                 };
             }
             else {
                 instance._modelRenderer = function(model) {
-                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(model.itsaeditmodel.get('editmodelConfigAttrs'))
+                    var jsondata = editTemplate ? model.itsaeditmodel.toJSON(model.itsaeditmodel.get('config'))
                                    : instance.getModelToJSON(model);
                     return Lang.sub(template, jsondata);
                 };
