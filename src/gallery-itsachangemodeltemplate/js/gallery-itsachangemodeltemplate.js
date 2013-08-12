@@ -494,7 +494,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             );
             eventhandlers.push(
                 host.after(
-                    ['itsaeditmodel:editmodelConfigAttrsChange', 'itsaeditmodel:templateChange'],
+                    ['itsaeditmodel:configChange', 'itsaeditmodel:templateChange'],
                     function() {
                         if (instance.get('modelsEditable')) {
                             host._renderView(null, null);
@@ -536,7 +536,7 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
             );
             eventhandlers.push(
                 instance.after(
-                    'editmodelConfigAttrsChange',
+                    'configChange',
                     function() {
                         // force recompiling of the editrenderer on next rendercall:
                         instance._editTempl = null;
@@ -916,8 +916,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             });
                         }
                         return usemodel.itsaeditmodel ?
-                               compiledModelEngine(usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs') ||
-                               usemodel.itsaeditmodel.get('editmodelConfigAttrs'))) :
+                               compiledModelEngine(usemodel.itsaeditmodel.toJSON(instance.get('config') ||
+                               usemodel.itsaeditmodel.get('config'))) :
                                ERROR_MESSAGE_LOAD_ITSA_EDITMODEL_MODULE;
                     };
                 }
@@ -935,8 +935,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
                             });
                         }
                         return usemodel.itsaeditmodel ?
-                               Lang.sub(template, usemodel.itsaeditmodel.toJSON(instance.get('editmodelConfigAttrs') ||
-                               usemodel.itsaeditmodel.get('editmodelConfigAttrs'))) :
+                               Lang.sub(template, usemodel.itsaeditmodel.toJSON(instance.get('config') ||
+                               usemodel.itsaeditmodel.get('config'))) :
                                ERROR_MESSAGE_LOAD_ITSA_EDITMODEL_MODULE;
                     };
                 }
@@ -982,18 +982,18 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
         ATTRS : {
 
             /**
-             * The editmodelConfigAttrs to be used in the editable mode. See Y.Plugin.ITSAEditModel (gallery-itsaeditmodel)
-             * for further specifications. If this attribute is empty, the plugin will search for 'configForEditModel.editmodelConfigAttrs',
-             * which might as well define the config. However, it is preferable to define the configAttrs directly within 'editmodelConfigAttrs',
-             * because through this attribute are able to change the configAttrs later on. (The one within 'configForEditModel.editmodelConfigAttrs'
+             * The config to be used in the editable mode. See Y.Plugin.ITSAEditModel (gallery-itsaeditmodel)
+             * for further specifications. If this attribute is empty, the plugin will search for 'configForEditModel.config',
+             * which might as well define the config. However, it is preferable to define the configAttrs directly within 'config',
+             * because through this attribute are able to change the configAttrs later on. (The one within 'configForEditModel.config'
              * is only read during initialisation).
              *
-             * @attribute editmodelConfigAttrs
+             * @attribute config
              * @type {Object}
              * @default false
              * @since 0.1
              */
-            editmodelConfigAttrs: {
+            config: {
                 value: {},
                 validator: function(v){
                     return Lang.isObject(v);
@@ -1002,8 +1002,8 @@ Y.namespace('Plugin').ITSAChangeModelTemplate = Y.Base.create('itsachangemodelte
 
             /**
              * The <b>config</b> that is passed through directly into Y.Plugin.ITSAEditModel. Event though you can define
-             * 'configForEditModel.template' and 'configForEditModel.editmodelConfigAttrs', the referred way for those to properties
-             * is to set them directly within this wplugin-level (see 'editTemplate' and 'editmodelConfigAttrs' for the why).
+             * 'configForEditModel.template' and 'configForEditModel.config', the referred way for those to properties
+             * is to set them directly within this wplugin-level (see 'editTemplate' and 'config' for the why).
              *
              * @attribute configForEditModel
              * @type {Boolean}

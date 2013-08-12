@@ -132,7 +132,7 @@ myScrollview.render();
 ```
 ```js
 YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', function(Y) {
-var myModellist, rendertemplate, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
+var myModellist, rendertemplate, myScrollview, editmodeltemplate, config, configForEditModel, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
 
@@ -166,7 +166,7 @@ editmodeltemplate = 'continental: {Continental}<br />'+
                         'country: {Country}<br />'+
                         '{Reset} {Close} {Save}';
 
-editmodelConfigAttrs = {
+config = {
     Continental: {type: 'input', selectOnFocus: true},
     Country: {type: 'textarea', initialFocus: true},
     Reset: {type: 'reset', buttonText: 'reset'},
@@ -180,7 +180,7 @@ configForEditModel = {
 
 changeModelTemplateConfig = {
     editTemplate: editmodeltemplate,
-    editmodelConfigAttrs: editmodelConfigAttrs,
+    config: config,
     configForEditModel: configForEditModel
 };
 
