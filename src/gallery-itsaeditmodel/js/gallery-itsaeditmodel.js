@@ -26,7 +26,7 @@ var body = Y.one('body'),
     Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
-    UNDEFINED_VALUE = 'undefined value',
+    ITSAFormElement = Y.ITSAFormElement,
     MESSAGE_WARN_MODELCHANGED = 'The data you are editing has been changed from outside the form. '+
                                 'If you save your data, then these former changed will be overridden.',
     EVT_DATETIMEPICKER_CLICK = 'datetimepickerclick',
@@ -47,20 +47,6 @@ var body = Y.one('body'),
     SAVE_BUTTON_CLASS = FORMELEMENT_CLASS + '-save',
     DESTROY_BUTTON_CLASS = FORMELEMENT_CLASS + '-destroy',
     STOPEDIT_BUTTON_CLASS = FORMELEMENT_CLASS + '-stopedit',
-    DEFAULTCONFIG = {
-        name : 'undefined-name',
-        type : '',
-        value : '',
-        keyValidation : null,
-        validation : null,
-        validationMessage : '',
-        autoCorrection : null,
-        className : null,
-        dateFormat : null,
-        initialFocus : false,
-        selectOnFocus : false,
-        widgetConfig : {}
-    },
     GET_PROPERTY_FROM_CLASS = function(className) {
         var regexp = /yui3-itsaformelement-property-(\w+)/;
 
@@ -166,31 +152,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             instance._eventhandlers = [];
 
            /**
-            * An instance of Y.ITSAFormElement that is used to generate the form-html of the elements.
-            * @property _itsaformelement
-            * @default null
-            * @private
-            * @type Y.ITSAFormElement-instance
-            */
-            instance._itsaformelement = null;
-
-           /**
             * internal backup of all property-configs
-            * @property _configAttrs
+            * @property _UIelements
             * @default {}
             * @private
             * @type Object
             */
-            instance._configAttrs = {};
-
-           /**
-            * internal backup of all rendered node-id's
-            * @property _elementIds
-            * @default {}
-            * @private
-            * @type Object
-            */
-            instance._elementIds = {};
+            instance._UIelements = {};
 
            /**
             * internal flag that tells whether automaicly saving needs to happen in case properties have changed
@@ -220,7 +188,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             instance._fireEventTimer = null;
 
             host = instance.host;
-            instance._itsaformelement = new Y.ITSAFormElement();
             /**
               * Event fired when the submit-button is clicked.
               * defaultFunction = _defPluginSubmitFn
@@ -342,37 +309,41 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method getButton
          * @param buttonText {String} Text on the button.
          * @param config {String} config that is passed through to ItsaFormElement
-         * @param config.type {String} Property-type --> see ItsaFormElement for the attribute 'type' for further information.
+         * @param config.type {String} which sort of button: 'button', 'reset', 'submit', 'save', 'destroy', 'stopedit'.
          * @param [config.className] {String} Additional className that is passed on the value, during rendering.
          * @param [config.initialFocus] {Boolean} Whether this element should have the initial focus.
          * @param [config.selectOnFocus] {Boolean} Whether this element should completely be selected when it gets focus.
          * @return {String} property (or attributes), rendered as a form-element. The rendered String should be added to the DOM yourself.
-         * @since 0.1
+         * @since 0.2
          */
         getButton : function(buttonText, config) {
             var instance = this,
                 value = buttonText,
+                type = config && config.type,
                 name = buttonText.replace(/ /g,'_'),
-                useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: name, value: value}),
-                type = useConfig.type,
-                renderedFormElement, nodeId;
+                renderedFormElement, uiElement, cfg;
 
             Y.log('getButton', 'info', 'Itsa-EditModel');
-            if (name && config && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
-                                   (type==='destroy') || (type==='stopedit'))) {
-                instance._configAttrs[name] = useConfig;
-                if (!instance._elementIds[name]) {
-                    instance._elementIds[name] = Y.guid();
+            if (name && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
+                        (type==='destroy') || (type==='stopedit'))) {
+                if (!instance._UIelements[name]) {
+                    instance._UIelements[name] = {
+                        nodeid: Y.guid()
+                    };
                 }
-                nodeId = instance._elementIds[name];
-                renderedFormElement = instance._itsaformelement.render(useConfig, nodeId);
+                uiElement = instance._UIelements[name];
+                cfg = uiElement.config = Y.merge(config);
+                uiElement.type = uiElement.config.type;
+                cfg.name = name;
+                cfg.value = value;
+                renderedFormElement = ITSAFormElement.getElement(uiElement.type, uiElement.config, uiElement.nodeid);
                 // after rendering we are sure definitely sure what type we have (even if not specified)
-//                if (instance._isDateTimeType(useConfig.type)) {
-//                    Y.use('gallery-itsadatetimepicker');
-//                }
+                if (instance._isDateTimeType(type)) {
+                    Y.use('gallery-itsadatetimepicker');
+                }
             }
             else {
-                renderedFormElement = '';
+                renderedFormElement = {html: ''};
             }
             return renderedFormElement;
         },
@@ -384,7 +355,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @method getElement
          * @param propertyName {String} the property (or attribute in case of Model) which should be rendered to a formelement
          * @param config {String} config that is passed through to ItsaFormElement
-         * @param config.type {String} Property-type --> see ItsaFormElement for the attribute 'type' for further information.
+         * @param config.type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
+         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
          * @param [config.keyValidation] {Function} Validation during every keypress.
          * @param [config.validation] {Function} Validation after changing the value (onblur). The function should return true or false.
          * @param [config.validationMessage] {String} The message that will be returned on a validationerror.
@@ -394,33 +366,51 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @param [config.initialFocus] {Boolean} Whether this element should have the initial focus.
          * @param [config.selectOnFocus] {Boolean} Whether this element should completely be selected when it gets focus.
          * @param [config.widgetConfig] {Object} Config that will be added to the underlying widget (in case of Date/Time values).
-         * @param [predefValue] {Any} In case you don't want the current value, but need a rendered String based on a different predefined value.
+         * @param [config.widgetValueAttr='value'] {String} In case of a widget, you need tp specify which attibute holds the actual value.
+         * @param [config.differentValue] {Any} In case you want the UI-element to have a different value than the propperty-value.
          * @return {String} property (or attributes), rendered as a form-element. The rendered String should be added to the DOM yourself.
-         * @since 0.1
+         * @since 0.2
          */
-        getElement : function(propertyName, config, predefValue) {
+        getElement : function(propertyName, config) {
             var instance = this,
-                value = predefValue || instance.host.get(propertyName),
-                useConfig = Y.merge(DEFAULTCONFIG, config || {}, {name: propertyName, value: value}),
-                renderedFormElement, nodeId;
+                renderedFormElement, uiElement, valuefield, cfg;
 
             Y.log('getElement', 'info', 'Itsa-EditModel');
             if (propertyName && config) {
-                instance._configAttrs[propertyName] = useConfig;
-                if (!instance._elementIds[propertyName]) {
-                    instance._elementIds[propertyName] = Y.guid();
+                if (!instance._UIelements[propertyName]) {
+                    instance._UIelements[propertyName] = {
+                        nodeid: Y.guid()
+                    };
                 }
-                nodeId = instance._elementIds[propertyName];
-                renderedFormElement = instance._itsaformelement.render(useConfig, nodeId);
+                uiElement = instance._UIelements[propertyName];
+                cfg = uiElement.config = Y.merge(config);
+                uiElement.type = cfg.type;
+                valuefield = instance._getWidgetValueAttr(uiElement.type);
+                uiElement.value = cfg[valuefield] = cfg.differentValue || instance.host.get(propertyName);
+                renderedFormElement = ITSAFormElement.getElement(uiElement.type, cfg, uiElement.nodeid);
+                uiElement.widget = renderedFormElement.widget;
                 // after rendering we are sure definitely sure what type we have (even if not specified)
-                if (instance._isDateTimeType(useConfig.type)) {
+                if (instance._isDateTimeType(uiElement.type)) {
+                    // pre-loading the global datetimepicker so a buttonclick is more responseive
                     Y.use('gallery-itsadatetimepicker');
                 }
             }
             else {
-                renderedFormElement = '';
+                renderedFormElement = {html: ''};
             }
             return renderedFormElement;
+        },
+
+        _getWidgetValueAttr : function(type) {
+            var classname = type.NAME,
+                value;
+            if (classname==='itsacheckbox') {
+                value = 'checked'
+            }
+            else {
+                value = 'value';
+            }
+            return value;
         },
 
        /**
@@ -495,42 +485,49 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
 
         /**
          * Renderes a copy of all Model's attributes.
-         * Should you omit 'configAttrs' then the renderer will try to find out the types automaticly.
+         * Should you omit 'config' then the renderer will try to find out the types automaticly.
          *
          * @method toJSON
-         * @param configAttrs {Object} Every property of the host object/model can be defined as a property of configAttrs as well.
+         * @param config {Object} Every property of the host object/model can be defined as a property of config as well.
          * The value should also be an object: the config of the property that is passed to the ITSAFormElement.
-         * @param configAttrs.hostProperty1 {Object} config of hostProperty1 (as example, you should use a real property here)
-         * @param [configAttrs.hostProperty2] {Object} config of hostProperty2 (as example, you should use a real property here)
-         * @param [configAttrs.hostProperty3] {Object} config of hostProperty3 (as example, you should use a real property here)
+         * @param config.hostProperty1 {Object} config of hostProperty1 (as example, you should use a real property here)
+         * @param [config.hostProperty2] {Object} config of hostProperty2 (as example, you should use a real property here)
+         * @param [config.hostProperty3] {Object} config of hostProperty3 (as example, you should use a real property here)
          * @return {Object} Copy of the host's objects or model's attributes, rendered as form-elements.
          * The rendered String should be added to the DOM yourself.
          * @since 0.1
          */
-        toJSON : function(configAttrs) {
+        toJSON : function(config) {
             var instance = this,
                 host = instance.host,
-                allproperties, useConfig, nodeId, mergedConfigAttrs;
+                allproperties, configAllElements, uiElement, valuefield;
 
             Y.log('toJSON', 'info', 'Itsa-EditModel');
-            if (configAttrs) {
+            if (config) {
                 // we NEED to use clone() and NOT merge()
                 // In case of more simultanious instances, they must not have the same source or they would interfere
-                mergedConfigAttrs = Y.clone(configAttrs);
+                configAllElements = Y.clone(config);
                 allproperties = Y.merge(host.getAttrs());
                 // now modify all the property-values into formelements
                 YObject.each(
                     allproperties,
                     function(value, key, object) {
-                        useConfig = Y.merge(DEFAULTCONFIG, (mergedConfigAttrs && mergedConfigAttrs[key]) || {}, {name: key, value: value});
-                        if (mergedConfigAttrs[key]) {
-                            mergedConfigAttrs[key].name = key;
-                            mergedConfigAttrs[key].value = value;
-                            if (!instance._elementIds[key]) {
-                                instance._elementIds[key] = Y.guid();
+                        var elementConfig = configAllElements[key],
+                            renderedFormElement;
+                        if (elementConfig) {
+                            if (!instance._UIelements[key]) {
+                                instance._UIelements[key] = {
+                                    nodeid: Y.guid()
+                                };
                             }
-                            nodeId = instance._elementIds[key];
-                            object[key] = instance._itsaformelement.render(useConfig, nodeId);
+                            uiElement = instance._UIelements[key];
+                            uiElement.config = elementConfig;
+                            uiElement.type = elementConfig.type;
+                            valuefield = instance._getWidgetValueAttr(uiElement.type);
+                            uiElement.value = elementConfig[valuefield] = elementConfig.differentValue || value;
+                            renderedFormElement = ITSAFormElement.getElement(uiElement.type, elementConfig, uiElement.nodeid);
+                            uiElement.widget = renderedFormElement.widget;
+                            object[key] = renderedFormElement.html;
                         }
                         else {
                             delete object[key];
@@ -539,25 +536,30 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 );
                 // Next, we need to look for buttons tht are not part of the attributes
                 YObject.each(
-                    mergedConfigAttrs,
-                    function(config, key) {
-                        var type = config.type;
+                    configAllElements,
+                    function(elementConfig, key) {
+                        var type = elementConfig.type,
+                            renderedFormElement;
                         if ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
                             (type==='destroy') || (type==='stopedit')) {
-                            useConfig = Y.merge(DEFAULTCONFIG, config, {name: key, value: config.buttonText || UNDEFINED_VALUE});
-                            if (!instance._elementIds[key]) {
-                                instance._elementIds[key] = Y.guid();
+                            if (!instance._UIelements[name]) {
+                                instance._UIelements[name] = {
+                                    nodeid: Y.guid()
+                                };
                             }
-                            nodeId = instance._elementIds[key];
-                            allproperties[key] = instance._itsaformelement.render(useConfig, nodeId);
+                            uiElement = instance._UIelements[name];
+                            uiElement.type = elementConfig.type;
+                            uiElement.config = elementConfig;
+                            uiElement.type = elementConfig.type;
+                            renderedFormElement = ITSAFormElement.getElement(uiElement.type, uiElement.config, uiElement.nodeid);
+                            uiElement.widget = renderedFormElement.widget;
+                            allproperties[key] = renderedFormElement.html;
                         }
                     }
                 );
-                instance._configAttrs = mergedConfigAttrs;
             }
             else {
                 allproperties = '';
-                instance._configAttrs = {};
             }
             return allproperties;
         },
@@ -579,8 +581,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             }
             instance._clearEventhandlers();
             instance._itsaformelement.destroy();
-            instance._configAttrs = {};
-            instance._elementIds = {};
+            instance._UIelements = {};
             instance.removeTarget(instance.host);
         },
 
@@ -625,11 +626,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             valuespan = button.previous('span'),
                             picker = Y.ItsaDateTimePicker,
                             propertyName = e.property,
-                            propertyconfig = instance._configAttrs[propertyName],
+                            uiElement = instance._UIelements[propertyName],
                             value = instance.host.get(propertyName),
-                            widgetconfig = (propertyconfig && propertyconfig.widgetConfig) || {},
+                            widgetconfig = (uiElement && uiElement.widgetConfig) || {},
                             promise;
-                        if (e.elementId===instance._elementIds[propertyName]) {
+                        if (uiElement && (e.elementId===uiElement.nodeid)) {
                             if (span.hasClass(ITSAFORMELEMENT_DATE_CLASS)) {
                                 promise = Y.rbind(picker.getDate, picker);
                             }
@@ -648,7 +649,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                                     // the view does not re-render. We change the fieldvalue ourselves
                                     // first ask for ITSAFormElement how the render will look like
                                     // then axtract the value from within
-                                    newRenderedElement = instance.getElement(propertyName, propertyconfig, propertyconfig.value);
+                                    newRenderedElement = instance.getElement(propertyName, uiElement, uiElement.value);
                                     valuespan.setHTML(instance._getDateTimeValueFromRender(newRenderedElement));
                                     button.focus();
                                 },
@@ -668,11 +669,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     [EVT_INTERNAL+EVT_RESET_CLICK, EVT_INTERNAL+EVT_SUBMIT_CLICK, EVT_INTERNAL+EVT_SAVE_CLICK, EVT_INTERNAL+EVT_BUTTON_CLICK,
                                                  EVT_INTERNAL+EVT_ADD_CLICK, EVT_INTERNAL+EVT_DESTROY_CLICK, EVT_INTERNAL+EVT_STOPEDIT_CLICK],
                     function(e) {
-                        if ((e.elementId===instance._elementIds[e.property])) {
+                        var uiElement = instance._UIelements[e.property],
+                            payload;
+                        if (uiElement && (e.elementId===uiElement.nodeid)) {
                             // stop the original event to prevent double events
                             e.halt();
                             // make the host fire the event
-                            var payload = {type: e.type};
+                            payload = {type: e.type};
                             Y.rbind(instance._fireModelEvent, instance, e.type, payload)();
                         }
                     }
@@ -682,7 +685,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 Y.on(
                     EVT_FOCUS_NEXT,
                     function(e) {
-                        if (e.elementId===instance._elementIds[e.property]) {
+                        var uiElement = instance._UIelements[e.property];
+                        if (uiElement && (e.elementId===uiElement.nodeid)) {
                             // stop the original event to prevent double events
                             e.halt();
                             // make the host fire the event
@@ -695,7 +699,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 Y.on(
                     EVT_VALUE_CHANGE,
                     function(e) {
-                        if (e.elementId===instance._elementIds[e.property]) {
+                        var uiElement = instance._UIelements[e.property];
+                        if (uiElement && (e.elementId===uiElement.nodeid)) {
                             instance._storeProperty(e.inputNode, e.widget, e.property, e.inputNode.get('value'));
                         }
                     }
@@ -705,7 +710,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 Y.on(
                     EVT_INPUT_CHANGE,
                     function(e) {
-                        if (e.elementId===instance._elementIds[e.property]) {
+                        var uiElement = instance._UIelements[e.property];
+                        if (uiElement && (e.elementId===uiElement.nodeid)) {
                             instance._storeProperty(e.inputNode, null, e.property, e.inputNode.get('value'), true);
                         }
                     }
@@ -870,12 +876,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         */
         _editFieldsToModel: function() {
             var instance = this,
-                configAttrs = instance._configAttrs,
                 newModelAttrs = {};
 
             Y.log('_editFieldsToModel', 'info', 'Itsa-EditModel');
             YObject.each(
-                configAttrs,
+                instance._UIelements,
                 function(propertyvalue, property) {
                     newModelAttrs[property] = propertyvalue.value;
                 }
@@ -976,12 +981,12 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 host = instance.host,
                 options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}' --> now the view knows it must not re-render.
-                propertyconfig;
+                uiElement;
 
             Y.log('_setProperty', 'info', 'Itsa-EditModel');
-            propertyconfig = instance._configAttrs[propertyName];
-            if (propertyconfig) {
-                propertyconfig.value = value;
+            uiElement = instance._UIelements[propertyName];
+            if (uiElement) {
+                uiElement.value = value;
             }
             if (propertyName) {
                 host.set(propertyName, value, options);
@@ -1018,13 +1023,13 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     newVal: (isObject ? Y.merge(value) : value),
                     finished: finished
                 },
-                propertyconfig, setProperty, attributevalue;
+                uiElement, setProperty, attributevalue;
 
             Y.log('_storeProperty', 'info', 'Itsa-EditModel');
-            propertyconfig = instance._configAttrs[propertyName];
-            if (propertyconfig) {
-                payload.prevValue = isObject ? Y.merge(propertyconfig.value) : propertyconfig.value;
-                propertyconfig.value = value;
+            uiElement = instance._UIelements[propertyName];
+            if (uiElement) {
+                payload.prevValue = isObject ? Y.merge(uiElement.value) : uiElement.value;
+                uiElement.value = value;
             }
             else {
                 attributevalue = instance.host.get(propertyName);
@@ -1092,19 +1097,19 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             },
             /**
-             * Every property of the object/model you want to edit, should be defined as a property of configAttrs.
+             * Every property of the object/model you want to edit, should be defined as a property of 'config'.
              * Every property-definition is an object: the config of the property that is passed to the ITSAFormElement.<br />
              * Example: <br />
-             * editmodelConfigAttrs.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
-             * editmodelConfigAttrs.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
-             * editmodelConfigAttrs.property3 = {Object} config of property3 (as example, you should use a real property here)<br />
+             * config.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
+             * config.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
+             * config.property3 = {Object} config of property3 (as example, you should use a real property here)<br />
              *
-             * @attribute editmodelConfigAttrs
+             * @attribute config
              * @type {Object}
              * @default {}
              * @since 0.1
              */
-            editmodelConfigAttrs: {
+            config: {
                 value: {},
                 validator: function(v){
                     return Lang.isObject(v);
