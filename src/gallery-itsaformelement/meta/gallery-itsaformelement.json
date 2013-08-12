@@ -9,7 +9,8 @@
             "classnamemanager",
             "cssbutton",
             "promise",
-            "gallery-itsanodepromise"
+            "widget-base",
+            "gallery-itsawidgetrenderpromise"
         ],
         "skinnable": true
     }

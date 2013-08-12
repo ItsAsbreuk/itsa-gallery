@@ -16,26 +16,64 @@
 
 <p>
     The class is used to render the stringified form-elements, based on the attributes that are added. Because the node
-    isn't in the dom yet, the idea is to add the <code>nodeId</code> to the rendermethod, along with the config.
+    isn't in the dom yet, the idea is to add the <code>nodeid</code> to the rendermethod, along with the config. If you don't pass
+    nodeid, then Y.guid() will create a random one.
 </p>
 <p>
-    Some elements render the original form-elements, while other are just empty <code>div's</code> that should be used
-    to render a widget upon.
+    Y.ITSAFormElement.getElement() returns the element. This is an object that has 3 properties:<br />
+    <ul>
+      <li>object.html: the stringified element that can be inserted in the dom.</li>
+      <li>object.nodeid: the node-id (passed through or generated)</li>
+      <li>object.widget: in case of widgets, this is the reference to the widget-instance.</li>
+    </ul>
 </p>
 
+<h2>Using widgets</h2>
+    <p>
+        Some elements render the simple form-elements, while other are just empty <code>div's</code> that is used
+        to render a widget upon. The rendering is done <u>automaticly</u> every time the node gets in the dom.
+    </p>
+
+<h3>How to define a widget</h2>
+    <p>
+        Instead of passing a string to 'type'-argument, you can pass the Class (not an instance!). The instance will be created and rendered
+        full automaticly, passing through 'config'. Just be sure the module that serves the widget is loaded.
+    </p>
+
+<h2>Summary of available types</h2>
+<h3>Types that return simple elements</h2>
+    <ul>
+      <li>input</li>
+      <li>password</li>
+      <li>textarea</li>
+      <li>date</li>
+      <li>time</li>
+      <li>datetime</li>
+      <li>reset</li>
+      <li>submit</li>
+      <li>save</li>
+      <li>add</li>
+      <li>destroy</li>
+      <li>stopedit</li>
+      <li>button</li>
+      <li>email (not ready yet)</li>
+      <li>url (not ready yet)</li>
+    </ul>
+
 <h2>Usage</h2>
+<h3>Simple form-elements</h2>
 ```
-YUI({gallery: 'gallery-2013.07.03-22-52'}).use('node-base', 'gallery-itsaformelement', function(Y) {
-    var nodeId, itsaformelement, formElement;
+YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', function(Y) {
+    var formElement = Y.ITSAFormElement.getElement('input', {value: 'default value'});
+    Y.one('#myform').append(formElement.html);
+});
+```
 
-    nodeId = Y.guid();
-    itsaformelement = new Y.ITSAFormElement();
-    formElement = itsaformelement.getElementPromise({type: 'checkbox', checked: true}, nodeId);
-
-    formElement.then(
-        function(element) {
-            Y.one('#myform').append(element.html);
-        }
-    );
+<h3>Widget-elements</h2>
+```
+YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox', function(Y) {
+    var formElement = Y.ITSAFormElement.getElement(Y.ITSACheckbox, {checked: true});
+    Y.one('#myform').append(formElement.html);
+    // formElement.widget holds the handle to the widgetinstance
 });
 ```

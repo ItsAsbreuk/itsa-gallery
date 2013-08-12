@@ -1,13 +1,4 @@
 YUI(yuiconfig).use('node-base', 'gallery-itsaformelement', function(Y) {
-    var nodeId, itsaformelement, formElement;
-
-    nodeId = Y.guid();
-    itsaformelement = new Y.ITSAFormElement();
-    formElement = itsaformelement.getElementPromise({type: 'input', value: 'default name'}, nodeId);
-
-    formElement.then(
-        function(element) {
-            Y.one('#myform').append(element.html);
-        }
-    );
+    var formElement = Y.ITSAFormElement.getElement('input', {value: 'default name'});
+    Y.one('#myform').append(formElement.html);
 });
