@@ -99,7 +99,6 @@ Y.Widget.prototype.renderOnAvailablePromise = function(containerNodeid, options)
             Y.use(GALLERY_ITSANODEPROMISE, function() {
                 Y.Node.unavailablePromise(containerNodeid).then(
                     function() {
-console.log('unavailable');
                         var yuievt = instance._yuievt,
                             eventrender = yuievt.events[instance.constructor.NAME+':render'];
                         // resetting eventoptions to make it posible to fire 'render' once again
