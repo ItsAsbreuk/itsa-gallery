@@ -42,7 +42,8 @@
 
    <code>renderWhenAvailablePromise()</code> works the same as <code>renderOnAvailablePromise()</code>, but will re-render <u>everytime the containerNode</u> is redefined in the dom. Situations to make use of this might be when pages are dynamicly reloaded.<br /><br />
 
-   <code>renderWhenAvailable()</code> Does the same as <code>renderWhenAvailablePromise()</code>, but doesn't return a Promise; it returns the instance. Therefore it can be called in the same way as <code>render()</code>.
+   <code>renderWhenAvailable()</code> Does the same as <code>renderWhenAvailablePromise()</code>, but doesn't return a Promise; it returns the instance. Therefore it can be called in the same way as <code>render()</code>.<br />
+   <b>Note:</b> The widget might not work as espected when it is re-rendered. It only does work right if the widget is designed well, in a way that all nodes and events are declared inside renderUI() and syncUI(): The way widgets were ment to work.
 
 </p>
 
