@@ -40,6 +40,7 @@ YNode.availablePromise = function(nodeid, timeout) {
         Y.once(
             'available',
             function() {
+console.log('availablepromise');
                 resolve(Y.one(nodeid));
             },
             nodeid
@@ -112,9 +113,10 @@ YNode.unavailablePromise = function(nodeid, options) {
             if (supportsMutationEvents) {
                 unavailableListener = Y.on(
                     'DOMNodeRemoved',
-                    function(e) {
-                        if (e.target.get('id')===nodeid) {
-                            continousNodeCheck.cancel();
+                    function() {
+                        // Even if supportsMutationEvents exists, a parentnode could be removed by which the
+                        // eventlistener doesn't catch the removal of nodeid. Therefore we always need to check with Y.one
+                        if (!Y.one('#'+nodeid)) {
                             unavailableListener.detach();
                             resolve(nodeid);
                         }
@@ -122,14 +124,14 @@ YNode.unavailablePromise = function(nodeid, options) {
                 );
             }
             // now support for MutationEvents (IE<9) --> we need to check by timer continiously
-            // but also: even if supportsMutationEvents exists, a parentnode could be removed by which the
-            // eventlistener doesn';'t catch it. Therefore we always need to check periodly
-            continousNodeCheck = Y.later(intervalNonNative || NODECHECK_TIMER, null, function() {
-                if (!Y.one(nodeid)) {
-                    continousNodeCheck.cancel();
-                    resolve(nodeid);
-                }
-            }, null, true);
+            else {
+                continousNodeCheck = Y.later(intervalNonNative || NODECHECK_TIMER, null, function() {
+                    if (!Y.one(nodeid)) {
+                        continousNodeCheck.cancel();
+                        resolve(nodeid);
+                    }
+                }, null, true);
+            }
             if (timeout) {
                 Y.later(timeout, null, function() {
                     var errormessage = 'node ' + nodeid + ' was not removed within ' + timeout + ' ms';
