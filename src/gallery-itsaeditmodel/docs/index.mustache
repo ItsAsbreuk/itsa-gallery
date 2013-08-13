@@ -49,37 +49,88 @@ After pluged-in, each property can be rendered into a form-element. Beside that,
     </p>
 
 <h3>Creating form-element into a property</h3>
-Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom
+    <p>
+        Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
+        var model, formElArtist, formElCountry, formElFirstRelease;
 
-```js
-YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
-    var viewmodel, model, modeltemplate, edittemplate, config;
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1)
+        });
+        model.plug(Y.Plugin.ITSAEditModel);
+        formElArtist = model.itsaeditmodel.getElement('artist', {type: 'input'});
+        formElCountry = model.itsaeditmodel.getElement('artist', {type: 'input'});
+        formElFirstRelease = model.itsaeditmodel.getElement('artist', {type: 'date', dateFormat: '%d-%m-%Y'});
 
-    model = new Y.Model({
-        artist: 'Madonna',
-        country: 'USA',
-        firstRelease: new Date(1983, 1, 1)
+        Y.one('body').append(
+            'Artist : '+formElArtist+'<br />'+
+            'Country : '+formElArtist+'<br />'+
+            'First release : '+formElFirstRelease
+        );
     });
-    model.plug(Y.Plugin.ITSAEditModel, {config : config});
-    config = {
-        artist: {type: 'input'},
-        country: {type: 'input'},
-        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'}
-    };
+    ```
+<h3>Creating form-buttons</h3>
+    </p>
+        ITSAEditModel does more than just creatin the buttons. Once pressed on a button, the corresponding event (f.i. model:save-event) is fired. Thus, if you want buttons that correlate to the modelinstance, you should use the buttons this plugin provides.
+        Use <code>yourModel.itsaeditmodel.getButton()</code> to generate the stringified form-element and insert it in the dom
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
+        var viewmodel, model, formElSave;
 
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1)
+        });
+        model.plug(Y.Plugin.ITSAEditModel);
+        formElSave = model.itsaeditmodel.getButton('save model', {type: 'save'});
+        Y.one('body').append(formElSave);
 
-    viewmodel = new Y.ITSAViewModel({
-        boundingBox: "#myview",
-        width:'280px',
-        height:'284px',
-        template: modeltemplate,  // <-- is NOT the active template, because edittemplate is used. But you can turn back to this one.
-        modelEditable: true,
-        model: model
     });
-    viewmodel.render();
+    ```
+<h3>Creating form-buttons</h3>
+    </p>
+        ITSAEditModel does more than just creatin the buttons. Once pressed on a button, the corresponding event (f.i. model:save-event) is fired. Thus, if you want buttons that correlate to the modelinstance, you should use the buttons this plugin provides.
+        Use <code>yourModel.itsaeditmodel.getButton()</code> to generate the stringified form-element and insert it in the dom
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
+        var viewmodel, model, modeltemplate, edittemplate, config;
 
-});
-```
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1)
+        });
+        model.plug(Y.Plugin.ITSAEditModel);
+        formElSave = model.itsaeditmodel.getButton('save model', {type: 'save'});
+        formelCountry = model.itsaeditmodel.getElement('artist', {type: 'input'});
+        formelFirstRelease = model.itsaeditmodel.getElement('artist', {type: 'date', dateFormat: '%d-%m-%Y'});
+
+        config = {
+            artist: {type: 'input'},
+            country: {type: 'input'},
+            firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'}
+        };
+
+
+        viewmodel = new Y.ITSAViewModel({
+            boundingBox: "#myview",
+            width:'280px',
+            height:'284px',
+            template: modeltemplate,  // <-- is NOT the active template, because edittemplate is used. But you can turn back to this one.
+            modelEditable: true,
+            model: model
+        });
+        viewmodel.render();
+
+    });
+    ```
 
 <h2>Widgets which make use of ITSAEditModel</h2>
 
