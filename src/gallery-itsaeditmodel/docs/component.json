@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsaeditmodel",
     "displayName": "Gallery: gallery-itsaeditmodel",
-    "description": "*Summary Goes Here*",
+    "description": "Plugin for Y.Model that makes Y.Model-instances able to change their properties through UI-form-elements.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaeditmodel" ],
 

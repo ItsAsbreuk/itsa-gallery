@@ -1,14 +1,314 @@
 <div class="intro">
     <p>
-    *Summary Goes Here*
+        {{description}} The plugin offers the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI.
     </p>
 </div>
 
 <h2>Description</h2>
+After pluged-in, each property can be rendered into a form-element. Beside that, there is a method that can render buttons as well, which can be used to controll the UI. These major methods are supplied:<br />
 
-<p>*Module Description Goes Here*</p>
+<ul>
+    <li>
+        <code>yourModel.itsaeditmodel.getElement()</code> --> renderes a model's property into a formelement.
+    </li>
+    <li>
+        <code>yourModel.itsaeditmodel.getButton()</code> --> renderes a button that can be used for UI-controll.
+    </li>
+    <li>
+        <code>yourModel.itsaeditmodel.toJSON()</code> --> renderes a complete set of formelements (both properties and buttons).
+    </li>
+</ul>
 
+<h2>Usage</h2>
+
+    <p>
+        ITSAEditModel is used to generate stringified form-elements that can be used for further usage, preferable by other widgets. The methods mentioned above all return a String that can be used to insert into the dom, or an object (toJSON) which can be processed using Y.Lang.sub(). It is up to the developer to use it in other widgets or programcode that does the final injection of the formelements in the dom.
+    </p>
+    <p>
+        After processing, there is more propertyinfo available, like the generated nodeid, or a handle to the widget (if applyable). This info can be retreived by calling <b>yourModel.itsaeditmodel.getGeneratedUIelement(propertyName)</b>. This returns an object with the following properties:
+        <ul>
+            <li>
+                <code>nodeid</code> {String} --> the nodeid of the generated form-element. In cas of a widget, it would be its generated containerNode (parentNode).
+            </li>
+            <li>
+                <code>type</code> {String|WidgetClass} --> the original type that is created.
+            </li>
+            <li>
+                <code>value</code> {any} --> the current value of the UI, which may differ from the model's value when not saved yet.
+            </li>
+            <li>
+                <code>config</code> {object} --> the original config passed through when creating the UI.
+            </li>
+            <li>
+                <code>html</code> {String} --> html that was originally created by getElement(), getButton() or toJSON().
+            </li>
+            <li>
+                <code>widget</code> {Widget} --> handle to the UI-widget - if applyable.
+            </li>
+        </ul>
+    </p>
+
+<h3>Creating form-element into a property</h3>
+Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom
+
+```js
+YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
+    var viewmodel, model, modeltemplate, edittemplate, config;
+
+    model = new Y.Model({
+        artist: 'Madonna',
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1)
+    });
+    model.plug(Y.Plugin.ITSAEditModel, {config : config});
+    config = {
+        artist: {type: 'input'},
+        country: {type: 'input'},
+        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'}
+    };
+
+
+    viewmodel = new Y.ITSAViewModel({
+        boundingBox: "#myview",
+        width:'280px',
+        height:'284px',
+        template: modeltemplate,  // <-- is NOT the active template, because edittemplate is used. But you can turn back to this one.
+        modelEditable: true,
+        model: model
+    });
+    viewmodel.render();
+
+});
 ```
-//Module example code
+
+<h2>Widgets which make use of ITSAEditModel</h2>
+
+    <p>
+        You may not need to call the plugin's methods yourself, but want to use one of the next modules which do this automaticly:
+        <ul>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodel/">gallery-itsaviewmodel</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodellist/">gallery-itsaviewmodellist</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsascrollviewmodellist/">gallery-itsascrollviewmodellist</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodellistpanel/">gallery-itsaviewmodellistpanel</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsascrollviewmodellistpanel/">gallery-itsascrollviewmodellistpanel</a>
+            </li>
+        </ul>
+    </p>
+
+##Custom buttons
+The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, add, submit, save, destroy, stopedit</i>. In order to do so, you must declare 2 attributes:
+
+* <b>'template'</b> where the Model's-attributes can be between brackets (it uses Y.Lang.sub() for this), or conform the Y.Template.Micro-format. Also the UI-buttons -which are not part of the model- can be declared between brackets: just make sure you use a unique name: '{firstname} {lastname} {send}'.
+* <b>'config'</b> this is the configuration by which the plugin determines what type must be used for all specified properties within 'template'
+
+
+##Events
+The custom buttons have their defaultFunction which correspons with their names. When listening to these events, you catch a buttonclick immediately, but
+the real action may take some time. The action performed are <b>not</b> model.load etc, but model.loadPromise, which is supplied by [ITSAModelSyncPromise](../gallery-itsamodelsyncpromise). Some defaultfunctions will add e.promise to the eventTarget:
+
+* button   --> event 'model:buttonclick'
+* add      --> event 'model:addclick'
+* stopedit --> event 'model:stopeditclick'
+* submit   --> event 'model:submitclick'  --> e.promise
+* save     --> event 'model:saveclick'    --> e.promise
+* destroy  --> event 'model:destroyclick' --> e.promise
+
+Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
+
+##Styling
+It is recomended to include 'gallerycss-cssform', for this will lead to nice styling of the formelements.
+
+Examples
+--------
+[Online example](http://projects.itsasbreuk.nl/examples/itsaeditmodel/index.html)
+
+Documentation
+--------------
+[API Docs](http://projects.itsasbreuk.nl/apidocs/classes/ITSAEditModel.html)
+
+Usage
+-----
+
+<b>Usage in conjunction with ITSAViewModel</b>
+```js
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
+    var viewmodel, model, modeltemplate, edittemplate, config;
+    model = new Y.Model({
+        artist: 'Madonna',
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1)
+    });
+    modeltemplate = '<%= data.artist %><br />'+
+                    '<%= country %><br />'+
+                    'First album released: <%= Y.Date.format(data.firstRelease, {format:"%d-%m-%Y"}) %>';
+    edittemplate = 'Artist: {artist}<br />'+
+                   'Country: {country}<br />'+
+                   'First album released: {firstRelease}<br />'+
+                   '{cancelButton} {saveButton}';
+
+    config = {
+        artist: {type: 'input'},
+        country: {type: 'input'},
+        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
+        cancelButton: {type: 'stopedit', buttonText: 'cancel'},
+        saveButton: {type: 'save', buttonText: 'save'}
+    };
+
+    model.plug(Y.Plugin.ITSAEditModel, {template: edittemplate, config : config});
+
+    viewmodel = new Y.ITSAViewModel({
+        boundingBox: "#myview",
+        width:'280px',
+        height:'284px',
+        template: modeltemplate,  // <-- is NOT the active template, because edittemplate is used. But you can turn back to this one.
+        modelEditable: true,
+        model: model
+    });
+    viewmodel.render();
+
+});
 ```
 
+<b>Usage in conjunction with ITSAScrollViewModellist</b>
+```js
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', 'gallerycss-cssform', function(Y) {
+var myModellist, rendertemplate, myScrollview, editmodeltemplate, config, configForEditModel, changeModelTemplateConfig;
+
+//----- defining the LazyModelList -----------------------------------------------------
+
+myModellist = new Y.LazyModelList();
+myModellist.comparator = function (model) {
+    return model.Country.toUpperCase();
+};
+myModellist.add([
+    {Country: 'The Netherlands'},
+    {Country: 'USA'},
+    {},
+    ....
+]);
+
+//--------------------------------------------------------------------------------------
+
+rendertemplate = '{Country} <button type="button" class="yui3-button edittemplate">edit</button>';
+
+myScrollview = new Y.ITSAScrollViewModellist({
+    boundingBox: "#myscrollview",
+    height:'600px',
+    width:'240px',
+    modelTemplate: rendertemplate,
+    axis: 'y',
+    modelList: myModellist
+});
+
+//----- defining everything we need to know about Y.Plugin.ITSAChangeModelTemplate -----
+
+editmodeltemplate = 'continental: {Continental}<br />'+
+                        'country: {Country}<br />'+
+                        '{Reset} {Close} {Save}';
+
+config = {
+    Continental: {type: 'input', selectOnFocus: true},
+    Country: {type: 'textarea', initialFocus: true},
+    Reset: {type: 'reset', buttonText: 'reset'},
+    Close: {type: 'stopedit', buttonText: 'close'},
+    Save: {type: 'save', buttonText: 'save'}
+};
+
+configForEditModel = {
+    updateMode: 1
+};
+
+changeModelTemplateConfig = {
+    editTemplate: editmodeltemplate,
+    config: config,
+    configForEditModel: configForEditModel
+};
+
+//--------------------------------------------------------------------------------------
+
+scrollview.plug(Y.Plugin.ITSAChangeModelTemplate, changeModelTemplateConfig);
+
+myScrollview.render();
+
+//--------------------------------------------------------------------------------------
+
+});
+```
+
+<b>Using events</b>
+```js
+<<<<<<< HEAD
+YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
+=======
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
+>>>>>>> 73699521c6cca0dbf0b7857ba206e6f0b9092ec9
+
+    var viewmodel, model, modeltemplate, edittemplate, config;
+    model = new Y.Model({
+        artist: 'Madonna',
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1)
+    });
+    modeltemplate = '<%= data.artist %><br />'+
+                    '<%= country %><br />'+
+                    'First album released: <%= Y.Date.format(data.firstRelease, {format:"%d-%m-%Y"}) %>';
+    edittemplate = 'Artist: {artist}<br />'+
+                   'Country: {country}<br />'+
+                   'First album released: {firstRelease}<br />'+
+                   '{cancelButton} {saveButton}';
+
+    config = {
+        artist: {type: 'input'},
+        country: {type: 'input'},
+        firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
+        cancelButton: {type: 'stopedit', buttonText: 'cancel'},
+        saveButton: {type: 'save', buttonText: 'save'}
+    };
+
+    model.plug(Y.Plugin.ITSAEditModel, {template: edittemplate, config : config});
+
+    viewmodel = new Y.ITSAViewModel({
+        boundingBox: "#myview",
+        width:'280px',
+        height:'284px',
+        template: modeltemplate,  // <-- is NOT the active template, because edittemplate is used. But you can turn back to this one.
+        modelEditable: true,
+        model: model
+    });
+    viewmodel.render();
+
+    viewmodel.after(
+        'model:saveclick',
+        function(e) {
+            var savePromise = e.promise;
+            savePromise.then(
+                // resolved:
+                function(response, options) {
+                    ...
+                },
+                // rejected:
+                function(err) {
+                   ...
+                }
+            );
+        }
+    );
+
+});
+```
+
+License
+-------
+
+Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
+
+[YUI BSD License](http://developer.yahoo.com/yui/license.html)

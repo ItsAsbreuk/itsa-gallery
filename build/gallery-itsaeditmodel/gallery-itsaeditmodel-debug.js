@@ -375,7 +375,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          */
         getElement : function(propertyName, config) {
             var instance = this,
-                renderedFormElement, uiElement, valuefield;
+                renderedFormElement, uiElement, valuefield, cfg;
 
             Y.log('getElement', 'info', 'Itsa-EditModel');
             if (propertyName && config) {
@@ -385,11 +385,12 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     };
                 }
                 uiElement = instance._UIelements[propertyName];
-                valuefield = config.widgetValueAttr || 'value';
-                uiElement.value = uiElement.config[valuefield] = config.differentValue || instance.host.get(propertyName);
-                uiElement.config = Y.merge(config);
-                uiElement.type = uiElement.config.type;
-                renderedFormElement = ITSAFormElement.getElement(uiElement.type, uiElement.config, uiElement.nodeid);
+                cfg = uiElement.config = Y.merge(config);
+                uiElement.type = cfg.type;
+                // retreive the 'valuefield': which element-property holds the value
+                valuefield = instance._getWidgetValueField(uiElement.type);
+                uiElement.value = cfg[valuefield] = cfg.differentValue || instance.host.get(propertyName);
+                renderedFormElement = ITSAFormElement.getElement(uiElement.type, cfg, uiElement.nodeid);
                 uiElement.widget = renderedFormElement.widget;
                 // after rendering we are sure definitely sure what type we have (even if not specified)
                 if (instance._isDateTimeType(uiElement.type)) {
@@ -401,6 +402,29 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 renderedFormElement = {html: ''};
             }
             return renderedFormElement;
+        },
+
+        /**
+         * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
+         * but widgets might have a value-property with another name.
+         *
+         * @method _getWidgetValueField
+         * @param config.type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
+         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
+         * @return {String} the valuefield (attribute-name in case of widget).
+         * @private
+         * @since 0.2
+         */
+        _getWidgetValueField : function(type) {
+            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
+                classname, value;
+            if (iswidget) {
+                classname = type.prototype.NAME;
+                if (classname==='itsacheckbox') {
+                    value = 'checked';
+                }
+            }
+            return value || 'value';
         },
 
        /**
@@ -512,9 +536,10 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             }
                             uiElement = instance._UIelements[key];
                             uiElement.config = elementConfig;
-                            valuefield = elementConfig.widgetValueAttr || 'value';
-                            uiElement.value = elementConfig[valuefield] = elementConfig.differentValue || value;
                             uiElement.type = elementConfig.type;
+                            // retreive the 'valuefield': which element-property holds the value
+                            valuefield = instance._getWidgetValueField(uiElement.type);
+                            uiElement.value = elementConfig[valuefield] = elementConfig.differentValue || value;
                             renderedFormElement = ITSAFormElement.getElement(uiElement.type, elementConfig, uiElement.nodeid);
                             uiElement.widget = renderedFormElement.widget;
                             object[key] = renderedFormElement.html;
