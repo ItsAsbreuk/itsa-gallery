@@ -93,11 +93,13 @@ Y.Widget.prototype.renderOnAvailablePromise = function(containerNodeid, options)
         stayalive = options && options.stayalive;
     if (stayalive && !instance._autorender) {
         instance._autorender = function() {
-            var contentBox = instance.get('contentBox');
+            var boundingBox = instance.get('boundingBox'),
+                contentBox = instance.get('contentBox');
             instance._noGarbageDestroy = true; // make gallery-itsagarbagecollector-widget not to destroy the instance
             Y.use(GALLERY_ITSANODEPROMISE, function() {
                 Y.Node.unavailablePromise(containerNodeid).then(
                     function() {
+console.log('unavailable');
                         var yuievt = instance._yuievt,
                             eventrender = yuievt.events[instance.constructor.NAME+':render'];
                         // resetting eventoptions to make it posible to fire 'render' once again
@@ -105,7 +107,16 @@ Y.Widget.prototype.renderOnAvailablePromise = function(containerNodeid, options)
                         instance._set('rendered', false);
                         if (contentBox) {
                             contentBox.empty();
+                            contentBox.detachAll();
                         }
+                        // now remove any all other nodes that lie next to contentBox - like resizehandlers, borders etc
+                        boundingBox.get('children').each(
+                            function(node) {
+                                if (node!==contentBox) {
+                                    node.remove(true);
+                                }
+                            }
+                        );
                         // looping renderonavailable
                         instance.renderOnAvailablePromise(containerNodeid, options);
                     }
