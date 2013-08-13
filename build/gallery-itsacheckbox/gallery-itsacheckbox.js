@@ -202,9 +202,18 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             });
 
             dd.on('drag:end', function(e){
-                var offset = (e.pageX-instance.get(BOUNDINGBOX).getX());
-                // when at most right, the offset will be zero, otherwise it is negative
-                instance.set(CHECKED, (offset>-instance._changePosition));
+                var offset = (e.pageX-instance.get(BOUNDINGBOX).getX()),
+                    // when at most right, the offset will be zero, otherwise it is negative
+                    newChecked = (offset>-instance._changePosition),
+                    currentChecked = instance.get(CHECKED);
+                if (newChecked!==currentChecked) {
+                    instance.set(CHECKED, newChecked);
+                    // will also slide to the edge
+                }
+                else {
+                    // return to the edgeposition
+                    instance._goFinal(currentChecked);
+                }
             });
 
             instance._eventhandlers.push(
