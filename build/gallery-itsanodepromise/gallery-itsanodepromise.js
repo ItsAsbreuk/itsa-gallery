@@ -91,36 +91,44 @@ YNode.contentreadyPromise = function(nodeid, timeout) {
  * @method unavailablePromise
  * @static
  * @param nodeid {String} Node-selector by id. You must include the #
- * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.
- *         If omitted, the Promise will never be rejected and can only be fulfilled once the node is removed.
+ * @param [options] {object}
+ * @param [options.timeout] {int} Timeout in ms, after which the promise will be rejected.
+ *                          If omitted, the Promise will never be rejected and can only be fulfilled once the node is removed.
+ * @param [options.intervalNonNative] {int} Interval in ms, for checking the node's removal in browsers that don't support supportsMutationEvents.
+ *                          If omitted, the Interval is set to 250ms.
  * @return {Y.Promise} promised response --> resolve(nodeid {String}) OR reject(reason)
  * @since 0.1
 */
-YNode.unavailablePromise = function(nodeid, timeout) {
+YNode.unavailablePromise = function(nodeid, options) {
     return new Y.Promise(function (resolve, reject) {
-        var continousNodeCheck;
+        var continousNodeCheck, unavailableListener,
+            timeout = options && options.timeout,
+            intervalNonNative = options && options.intervalNonNative;
         if (!Y.one(nodeid)) {
             resolve(nodeid);
         }
         else {
             if (supportsMutationEvents) {
-                Y.once(
+                unavailableListener = Y.on(
                     'DOMNodeRemoved',
-                    function() {
-                        resolve(nodeid);
-                    },
-                    nodeid
+                    function(e) {
+                        if (e.target.get('id')===nodeid) {
+                            continousNodeCheck.cancel();
+                            unavailableListener.detach();
+                            resolve(nodeid);
+                        }
+                    }
                 );
             }
-            else {
-                // nu support for MutationEvents (IE<9) --> we need to check by timer continiously
-                continousNodeCheck = Y.later(NODECHECK_TIMER, null, function() {
-                    if (!Y.one(nodeid)) {
-                        continousNodeCheck.cancel();
-                        resolve(nodeid);
-                    }
-                }, null, true);
-            }
+            // now support for MutationEvents (IE<9) --> we need to check by timer continiously
+            // but also: even if supportsMutationEvents exists, a parentnode could be removed by which the
+            // eventlistener doesn';'t catch it. Therefore we always need to check periodly
+            continousNodeCheck = Y.later(intervalNonNative || NODECHECK_TIMER, null, function() {
+                if (!Y.one(nodeid)) {
+                    continousNodeCheck.cancel();
+                    resolve(nodeid);
+                }
+            }, null, true);
             if (timeout) {
                 Y.later(timeout, null, function() {
                     var errormessage = 'node ' + nodeid + ' was not removed within ' + timeout + ' ms';
