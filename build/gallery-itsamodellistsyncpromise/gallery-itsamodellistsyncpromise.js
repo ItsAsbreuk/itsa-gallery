@@ -118,7 +118,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                     response: response,
                     src     : 'parse'
                 });
-                return null;
+                return {};
             }
         }
         return response;

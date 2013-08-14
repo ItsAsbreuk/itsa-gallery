@@ -116,7 +116,7 @@
                     response: response,
                     src     : 'parse'
                 });
-                return null;
+                return {};
             }
         }
         return response;
