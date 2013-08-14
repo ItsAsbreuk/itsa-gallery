@@ -1,0 +1,25 @@
+YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', function(Y) {
+    var model, formElSave, container;
+
+    model = new Y.Model({
+        artist: 'Madonna',
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1),
+        soldOut: true
+    });
+    model.plug(Y.Plugin.ITSAEditModel);
+    formElSave = model.itsaeditmodel.getButton('save model', {type: 'save'});
+
+    container = Y.one('#examplecontainer');
+    container.append(formElSave);
+    container.append('<span class="comment">'+Y.Escape.html(formElSave)+'</span>');
+/*
+    model.on('save', function() {
+        container.append('<span class="comment">model is saved</edit>');
+    });
+
+    model.on('saveclick', function() {
+        container.append('<span class="comment">model:saveclick event occured</edit>');
+    });
+*/
+});

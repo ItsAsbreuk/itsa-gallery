@@ -314,14 +314,14 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @param [config.initialFocus] {Boolean} Whether this element should have the initial focus.
          * @param [config.selectOnFocus] {Boolean} Whether this element should completely be selected when it gets focus.
          * @return {String} property (or attributes), rendered as a form-element. The rendered String should be added to the DOM yourself.
-         * @since 0.2
+         * @since 0.1
          */
         getButton : function(buttonText, config) {
             var instance = this,
                 value = buttonText,
                 type = config && config.type,
                 name = buttonText.replace(/ /g,'_'),
-                renderedFormElement, uiElement, cfg;
+                itsaformelement, uiElement, cfg;
 
             if (name && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
                         (type==='destroy') || (type==='stopedit'))) {
@@ -335,16 +335,16 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 uiElement.type = uiElement.config.type;
                 cfg.name = name;
                 cfg.value = value;
-                renderedFormElement = ITSAFormElement.getElement(uiElement.type, uiElement.config, uiElement.nodeid);
+                itsaformelement = uiElement.html = ITSAFormElement.getElement(uiElement.type, uiElement.config, uiElement.nodeid).html;
                 // after rendering we are sure definitely sure what type we have (even if not specified)
                 if (instance._isDateTimeType(type)) {
                     Y.use('gallery-itsadatetimepicker');
                 }
             }
             else {
-                renderedFormElement = {html: ''};
+                itsaformelement = '';
             }
-            return renderedFormElement;
+            return itsaformelement;
         },
 
         /**
@@ -368,11 +368,11 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @param [config.widgetValueAttr='value'] {String} In case of a widget, you need tp specify which attibute holds the actual value.
          * @param [config.differentValue] {Any} In case you want the UI-element to have a different value than the propperty-value.
          * @return {String} property (or attributes), rendered as a form-element. The rendered String should be added to the DOM yourself.
-         * @since 0.2
+         * @since 0.1
          */
         getElement : function(propertyName, config) {
             var instance = this,
-                renderedFormElement, uiElement, valuefield, cfg;
+                itsaformelement, renderedFormElement, uiElement, valuefield, cfg;
 
             if (propertyName && config) {
                 if (!instance._UIelements[propertyName]) {
@@ -386,8 +386,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 // retreive the 'valuefield': which element-property holds the value
                 valuefield = instance._getWidgetValueField(uiElement.type);
                 uiElement.value = cfg[valuefield] = cfg.differentValue || instance.host.get(propertyName);
-                renderedFormElement = ITSAFormElement.getElement(uiElement.type, cfg, uiElement.nodeid);
-                uiElement.widget = renderedFormElement.widget;
+                itsaformelement = ITSAFormElement.getElement(uiElement.type, cfg, uiElement.nodeid);
+                renderedFormElement = uiElement.html = itsaformelement.html;
+                uiElement.widget = itsaformelement.widget;
                 // after rendering we are sure definitely sure what type we have (even if not specified)
                 if (instance._isDateTimeType(uiElement.type)) {
                     // pre-loading the global datetimepicker so a buttonclick is more responseive
@@ -395,32 +396,22 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             }
             else {
-                renderedFormElement = {html: ''};
+                renderedFormElement = '';
             }
             return renderedFormElement;
         },
 
         /**
-         * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
-         * but widgets might have a value-property with another name.
+         * Returns the generated object that has all the data. You need to call 'getElement', 'getButton' or 'toJSON' before,
+         * to make sure the propertydata is available.
          *
-         * @method _getWidgetValueField
-         * @param config.type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
-         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
-         * @return {String} the valuefield (attribute-name in case of widget).
-         * @private
+         * @method getUIelement
+         * @param propertyName {String} the property (or attribute in case of Model) which should be rendered to a formelement
+         * @return {Object} with properties: <b>nodeid</b>, <b>type</b>, <b>value</b>, <b>config</b>, <b>html</b>, <b>widget</b>.
          * @since 0.2
          */
-        _getWidgetValueField : function(type) {
-            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
-                classname, value;
-            if (iswidget) {
-                classname = type.prototype.NAME;
-                if (classname==='itsacheckbox') {
-                    value = 'checked';
-                }
-            }
-            return value || 'value';
+        getGeneratedUIelement : function(propertyName) {
+            return this._UIelements[propertyName];
         },
 
        /**
@@ -451,6 +442,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         *     be passed to the `parse()` method, which is expected to parse it and
         *     return an attribute hash.
         * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+        * @since 0.2
+        *
         **/
         savePromise : function(options) {
             var instance = this,
@@ -479,6 +472,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
          * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
          *                 implementation to determine what options it supports or requires, if any.
          * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+         * @since 0.2
+         *
         **/
         submitPromise: function(options) {
             var instance = this,
@@ -535,7 +530,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             uiElement.value = elementConfig[valuefield] = elementConfig.differentValue || value;
                             renderedFormElement = ITSAFormElement.getElement(uiElement.type, elementConfig, uiElement.nodeid);
                             uiElement.widget = renderedFormElement.widget;
-                            object[key] = renderedFormElement.html;
+                            object[key] = uiElement.html = renderedFormElement.html;
                         }
                         else {
                             delete object[key];
@@ -547,7 +542,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                     configAllElements,
                     function(elementConfig, key) {
                         var type = elementConfig.type,
-                            renderedFormElement;
+                            renderedFormElement, value, name;
                         if ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
                             (type==='destroy') || (type==='stopedit')) {
                             if (!instance._UIelements[name]) {
@@ -556,18 +551,22 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                                 };
                             }
                             uiElement = instance._UIelements[name];
+                            value = elementConfig.buttonText,
+                            name = value.replace(/ /g,'_'),
+                            elementConfig.name = name;
+                            elementConfig.value = value;
                             uiElement.type = elementConfig.type;
                             uiElement.config = elementConfig;
                             uiElement.type = elementConfig.type;
                             renderedFormElement = ITSAFormElement.getElement(uiElement.type, uiElement.config, uiElement.nodeid);
                             uiElement.widget = renderedFormElement.widget;
-                            allproperties[key] = renderedFormElement.html;
+                            allproperties[key] = uiElement.html = renderedFormElement.html;
                         }
                     }
                 );
             }
             else {
-                allproperties = '';
+                allproperties = {};
             }
             return allproperties;
         },
@@ -885,6 +884,29 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         },
 
         /**
+         * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
+         * but widgets might have a value-property with another name.
+         *
+         * @method _getWidgetValueField
+         * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
+         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
+         * @return {String} the valuefield (attribute-name in case of widget).
+         * @private
+         * @since 0.2
+         */
+        _getWidgetValueField : function(type) {
+            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
+                classname, value;
+            if (iswidget) {
+                classname = type.prototype.NAME;
+                if (classname==='itsacheckbox') {
+                    value = 'checked';
+                }
+            }
+            return value || 'value';
+        },
+
+        /**
          * Lets the host-model fire an model:eventName event
          *
          * @method _fireModelEvent
@@ -1087,25 +1109,6 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                 }
             },
             /**
-             * Every property of the object/model you want to edit, should be defined as a property of 'config'.
-             * Every property-definition is an object: the config of the property that is passed to the ITSAFormElement.<br />
-             * Example: <br />
-             * config.property1 = {Object} config of property1 (as example, you should use a real property here)<br />
-             * config.property2 = {Object} config of property2 (as example, you should use a real property here)<br />
-             * config.property3 = {Object} config of property3 (as example, you should use a real property here)<br />
-             *
-             * @attribute config
-             * @type {Object}
-             * @default {}
-             * @since 0.1
-             */
-            config: {
-                value: {},
-                validator: function(v){
-                    return Lang.isObject(v);
-                }
-            },
-            /**
              * Object with the properties: <b>destroy</b>, <b>save</b> and <b>submit</b>. For every property you might want to
              * specify the options-object that will be passed through to the sync- or destroy-method. The destroymethod will
              * <i>always</i> be called with 'remove=true', in order to call the sync-method.
@@ -1139,7 +1142,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
              * @default null
              * @since 0.1
             */
-            template : {
+            xtemplate : {
                 value: null,
                 validator: function(val) {
                     return (typeof val==='string');
