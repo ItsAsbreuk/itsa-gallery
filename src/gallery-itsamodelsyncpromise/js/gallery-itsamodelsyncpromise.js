@@ -88,7 +88,7 @@
                 return {};
             }
         }
-        return response;
+        return response || {};
     };
 
     // -- Mixing extra Methods to Y.Model -----------------------------------

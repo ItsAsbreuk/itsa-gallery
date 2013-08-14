@@ -90,7 +90,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                 return {};
             }
         }
-        return response;
+        return response || {};
     };
 
     // -- Mixing extra Methods to Y.Model -----------------------------------
