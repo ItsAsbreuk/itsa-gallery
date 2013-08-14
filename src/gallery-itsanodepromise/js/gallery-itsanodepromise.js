@@ -111,15 +111,20 @@ YNode.unavailablePromise = function(nodeid, options) {
         }
         else {
             if (supportsMutationEvents) {
-                unavailableListener = Y.on(
+                unavailableListener = Y.after(
                     'DOMNodeRemoved',
                     function() {
                         // Even if supportsMutationEvents exists, a parentnode could be removed by which the
                         // eventlistener doesn't catch the removal of nodeid. Therefore we always need to check with Y.one
-                        if (!Y.one('#'+nodeid)) {
-                            unavailableListener.detach();
-                            resolve(nodeid);
-                        }
+                        // We need to check asynchroniously for node's existance --> otherwise Y.one() reutrns true even is node is removed!
+                        Y.soon(
+                            function() {
+                                if (!Y.one(nodeid)) {
+                                    unavailableListener.detach();
+                                    resolve(nodeid);
+                                }
+                            }
+                        );
                     }
                 );
             }
