@@ -1,0 +1,22 @@
+YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', function(Y) {
+    var model, formElArtist, formElFirstRelease, container;
+
+    model = new Y.Model({
+        artist: 'Madonna',
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1),
+        soldOut: true
+    });
+    model.plug(Y.Plugin.ITSAEditModel);
+    formElArtist = model.itsaeditmodel.getElement('artist', {type: 'input'});
+    formElFirstRelease = model.itsaeditmodel.getElement('firstRelease', {type: 'date', dateFormat: '%d-%m-%Y'});
+
+    container = Y.one('#examplecontainer');
+    container.append(
+        'Artist : '+formElArtist+'<br />'+
+        'First release : '+formElFirstRelease
+    );
+
+    container.append('<span class="comment">'+Y.Escape.html(formElArtist)+'</span>');
+    container.append('<span class="comment">'+Y.Escape.html(formElFirstRelease)+'</span>');
+});

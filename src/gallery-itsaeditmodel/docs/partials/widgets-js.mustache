@@ -1,0 +1,16 @@
+YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
+    var model, formElSoldOut, container;
+
+    model = new Y.Model({
+        artist: 'Madonna',
+        country: 'USA',
+        firstRelease: new Date(1983, 1, 1),
+        soldOut: true
+    });
+    model.plug(Y.Plugin.ITSAEditModel);
+
+    formElSoldOut = model.itsaeditmodel.getElement('soldOut', {type: Y.ITSACheckbox});
+    container = Y.one('#examplecontainer');
+    container.append('Sold out : '+formElSoldOut);
+    container.append('<span class="comment">'+Y.Escape.html(formElSoldOut)+'</span>');
+});

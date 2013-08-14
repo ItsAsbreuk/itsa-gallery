@@ -320,12 +320,12 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 value = buttonText,
                 type = config && config.type,
-                name = buttonText.replace(/ /g,'_'),
-                itsaformelement, uiElement, cfg;
+                itsaformelement, uiElement, cfg, name;
 
             Y.log('getButton', 'info', 'Itsa-EditModel');
-            if (name && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
+            if (buttonText && ((type==='button') || (type==='reset') || (type==='submit') || (type==='save') ||
                         (type==='destroy') || (type==='stopedit'))) {
+                name = buttonText.replace(/ /g,'_');
                 if (!instance._UIelements[name]) {
                     instance._UIelements[name] = {
                         nodeid: Y.guid()
@@ -543,7 +543,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                         }
                     }
                 );
-                // Next, we need to look for buttons tht are not part of the attributes
+                // Next, we need to look for buttons which are not part of the attributes
                 YObject.each(
                     configAllElements,
                     function(elementConfig, key) {
@@ -557,8 +557,8 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                                 };
                             }
                             uiElement = instance._UIelements[name];
-                            value = elementConfig.buttonText,
-                            name = value.replace(/ /g,'_'),
+                            value = elementConfig.buttonText || type;
+                            name = value.replace(/ /g,'_');
                             elementConfig.name = name;
                             elementConfig.value = value;
                             uiElement.type = elementConfig.type;
@@ -643,7 +643,9 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
                             value = instance.host.get(propertyName),
                             widgetconfig = (uiElement && uiElement.widgetConfig) || {},
                             promise;
+console.log('clicked datetime fase 1 property '+propertyName+'| '+e.elementId+' | '+uiElement.nodeid);
                         if (uiElement && (e.elementId===uiElement.nodeid)) {
+console.log('clicked datetime fase 2');
                             if (span.hasClass(ITSAFORMELEMENT_DATE_CLASS)) {
                                 promise = Y.rbind(picker.getDate, picker);
                             }
@@ -917,7 +919,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
                 classname, value;
             if (iswidget) {
-                classname = type.prototype.NAME;
+                classname = type.NAME;
                 if (classname==='itsacheckbox') {
                     value = 'checked';
                 }

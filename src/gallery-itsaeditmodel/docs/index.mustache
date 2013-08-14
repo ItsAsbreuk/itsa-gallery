@@ -91,7 +91,7 @@ After pluged-in, each property can be rendered into a form-element. Beside that,
         });
         model.plug(Y.Plugin.ITSAEditModel);
         formElArtist = model.itsaeditmodel.getElement('artist', {type: 'input'});
-        formElFirstRelease = model.itsaeditmodel.getElement('artist', {type: 'date', dateFormat: '%d-%m-%Y'});
+        formElFirstRelease = model.itsaeditmodel.getElement('firstRelease', {type: 'date', dateFormat: '%d-%m-%Y'});
 
         Y.one('body').append(
             'Artist : '+formElArtist+'<br />'+
@@ -115,7 +115,7 @@ After pluged-in, each property can be rendered into a form-element. Beside that,
         });
         model.plug(Y.Plugin.ITSAEditModel);
 
-        formElSoldOut = model.itsaeditmodel.getElement('soldOut', {type: Y.ITSACheockbox});
+        formElSoldOut = model.itsaeditmodel.getElement('soldOut', {type: Y.ITSACheckbox});
         Y.one('body').append('Sold out : '+formElSoldOut); // <-- the widget will render automaticly once inserted
 
         widgetReference = model.itsaeditmodel.getGeneratedUIelement('soldOut').widget;
