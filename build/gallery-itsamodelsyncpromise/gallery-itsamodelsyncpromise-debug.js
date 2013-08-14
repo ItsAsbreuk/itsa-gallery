@@ -87,7 +87,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
                     response: response,
                     src     : 'parse'
                 });
-                return null;
+                return {};
             }
         }
         return response;
