@@ -121,7 +121,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
                 return {};
             }
         }
-        return response;
+        return response || {};
     };
 
 // -- Mixing extra Methods to Y.ModelList -----------------------------------
