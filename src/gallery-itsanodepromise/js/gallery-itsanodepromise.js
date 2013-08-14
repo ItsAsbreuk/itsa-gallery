@@ -40,7 +40,6 @@ YNode.availablePromise = function(nodeid, timeout) {
         Y.once(
             'available',
             function() {
-console.log('availablepromise');
                 resolve(Y.one(nodeid));
             },
             nodeid
