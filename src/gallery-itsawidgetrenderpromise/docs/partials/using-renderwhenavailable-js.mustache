@@ -1,6 +1,6 @@
-YUI(yuiconfig).use('node', 'gallery-itsawidgetrenderpromise', 'gallery-itsacheckbox', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsawidgetrenderpromise', 'gallery-itsacheckbox', 'calendar', function(Y) {
     var sidebarNode = Y.one('.sidebar');
-    new Y.ITSACheckbox().renderWhenAvailable('#checkboxnode');
+    new Y.Calendar().renderWhenAvailable('#checkboxnode');
 
     Y.one('#insertnode').on('click', function(){
         var checkboxnode = Y.one("#checkboxnode");

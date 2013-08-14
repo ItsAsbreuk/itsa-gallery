@@ -40,8 +40,8 @@
             "displayName": "Making a widget re-render multiple times",
             "description": "This example shows how to re-render a widget by the appearance and removal of the containerNode.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsawidgetrenderpromise", "node", "calendar", "re-render"],
-            "tags"    : ["gallery-itsawidgetrenderpromise", "renderwhenavailable", "renderwhenavailablepromise"],
+            "modules"    : ["gallery-itsawidgetrenderpromise", "node", "calendar"],
+            "tags"    : ["gallery-itsawidgetrenderpromise", "renderwhenavailable", "renderwhenavailablepromise", "re-render"],
             "hideTableOfContents": true
         }
     ]
