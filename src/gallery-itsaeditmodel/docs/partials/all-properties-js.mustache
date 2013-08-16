@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', 'json', function(Y) {
+YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', 'json', function(Y) {
  var model, template, config, alleditproperties;
 
     model = new Y.Model({
@@ -8,8 +8,8 @@ YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', 'js
         soldOut: true
     });
     config = {
-        artist: {type: 'input'},
-        country: {type: 'input'},
+        artist: {type: 'text'},
+        country: {type: 'text'},
         firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
         soldOut: {type: Y.ITSACheckbox},
         saveButton: {type: 'save'}

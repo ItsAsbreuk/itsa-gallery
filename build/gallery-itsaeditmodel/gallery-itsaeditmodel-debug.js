@@ -28,9 +28,10 @@ var body = Y.one('body'),
     Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
-    YNode = Y.Node,
     DATETIMEPICKER_CLICK = 'datetimepickerclick',
-
+    DATE = 'date',
+    TIME = 'time',
+    DATETIME = DATE+TIME,
 
 
     ITSAFormElement = Y.ITSAFormElement,
@@ -624,6 +625,19 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             }
         },
 
+        _retreiveProp : function(node) {
+            Y.log('_retreiveProp', 'info', 'Itsa-EditModel');
+            var instance = this,
+                propertyName = node && node.getData('property'),
+                uiElement = propertyName && instance._UIelements[propertyName];
+            return (uiElement && (uiElement.nodeid===node.get('id'))) ? propertyName : null;
+        },
+
+        _retreiveType : function(node) {
+            Y.log('_retreiveType', 'info', 'Itsa-EditModel');
+            return node && node.getData('type');
+        },
+
         /**
          * Setting up eventlisteners
          *
@@ -635,13 +649,55 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         _bindUI : function() {
             var instance = this,
                 eventhandlers = instance._eventhandlers,
-                 host = instance.host;
+                host = instance.host;
 
             Y.log('_bindUI', 'info', 'Itsa-EditModel');
             // binding Y.Node-event to the host (Model), so we can listen for node-events on the host-instance
 
-            Y.one('body').on(DATETIMEPICKER_CLICK, function() {
-              alert('yes');
+            Y.one('body').on(DATETIMEPICKER_CLICK, function(e) {
+                var node = e.target,
+                    propertyName = instance._retreiveProp(node),
+                    picker = Y.ItsaDateTimePicker,
+                    value, uiElement, widgetconfig, type, promise, span, valuespan;
+                if (propertyName) {
+                    value = instance.host.get(propertyName),
+                    uiElement = instance._UIelements[propertyName],
+                    widgetconfig = (uiElement && uiElement.widgetConfig) || {},
+                    type = instance._retreiveType(node);
+                    if (type===DATE) {
+                        promise = Y.bind(picker.getDate, picker);
+                    }
+                    else if (type===TIME) {
+                        promise = Y.bind(picker.getTime, picker);
+                    }
+                    else if (type===DATETIME) {
+                        promise = Y.bind(picker.getDateTime, picker);
+                    }
+                    span = node.one('span');
+                    valuespan = node.previous('span');
+                    promise(value, widgetconfig).then(
+                        function(newdate) {
+                            var newRenderedElement;
+                            instance._storeProperty(valuespan, picker, propertyName, newdate, true);
+                            // because _setProperty setts the attribute with {fromEditModel: true},
+                            // the view does not re-render. We change the fieldvalue ourselves
+                            // first ask for ITSAFormElement how the render will look like
+                            // then axtract the value from within
+                            newRenderedElement = instance.getElement(propertyName, uiElement, uiElement.value);
+                            valuespan.setHTML(instance._getDateTimeValueFromRender(newRenderedElement));
+                            // be carefull: button might not exist anymore, when the view is rerendered
+                            if (node) {
+                                node.focus();
+                            }
+                        },
+                        function() {
+                            // be carefull: button might not exist anymore, when the view is rerendered
+                            if (node) {
+                                node.focus();
+                            }
+                        }
+                    );
+                }
             });
 
             eventhandlers.push(
@@ -1244,7 +1300,7 @@ Y.Event.define(DATETIMEPICKER_CLICK, {
         subscription._handle = node.on('click', function (e) {
             var targetNode = e.target;
 console.log('fase 1 '+e.target);
-            if (targetNode.hasClass(ITSABUTTON_DATETIME_CLASS)) {
+            if (targetNode.getAttribute('data-datetime')) {
 console.log('fase 2');
                 // The notifier triggers the subscriptions to be executed.
                 // Pass its fire() method the triggering DOM event facade

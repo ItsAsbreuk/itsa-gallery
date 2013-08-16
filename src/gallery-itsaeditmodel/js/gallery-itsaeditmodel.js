@@ -26,9 +26,10 @@ var body = Y.one('body'),
     Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
-    YNode = Y.Node,
     DATETIMEPICKER_CLICK = 'datetimepickerclick',
-
+    DATE = 'date',
+    TIME = 'time',
+    DATETIME = DATE+TIME,
 
 
     ITSAFormElement = Y.ITSAFormElement,
@@ -627,7 +628,7 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             var instance = this,
                 propertyName = node && node.getData('property'),
                 uiElement = propertyName && instance._UIelements[propertyName];
-            return (uiElement && (uiElement.nodeid===node.get(id))) ? propertyName : null;
+            return (uiElement && (uiElement.nodeid===node.get('id'))) ? propertyName : null;
         },
 
         _retreiveType : function(node) {
@@ -654,19 +655,20 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
             Y.one('body').on(DATETIMEPICKER_CLICK, function(e) {
                 var node = e.target,
                     propertyName = instance._retreiveProp(node),
+                    picker = Y.ItsaDateTimePicker,
                     value, uiElement, widgetconfig, type, promise, span, valuespan;
                 if (propertyName) {
                     value = instance.host.get(propertyName),
                     uiElement = instance._UIelements[propertyName],
                     widgetconfig = (uiElement && uiElement.widgetConfig) || {},
                     type = instance._retreiveType(node);
-                    if (type === ITSAFORMELEMENT_DATE_TYPE)) {
+                    if (type===DATE) {
                         promise = Y.bind(picker.getDate, picker);
                     }
-                    else if (type === ITSAFORMELEMENT_TIME_TYPE)) {
+                    else if (type===TIME) {
                         promise = Y.bind(picker.getTime, picker);
                     }
-                    else if (type === ITSAFORMELEMENT_DATETIME_TYPE)) {
+                    else if (type===DATETIME) {
                         promise = Y.bind(picker.getDateTime, picker);
                     }
                     span = node.one('span');
@@ -1296,7 +1298,7 @@ Y.Event.define(DATETIMEPICKER_CLICK, {
         subscription._handle = node.on('click', function (e) {
             var targetNode = e.target;
 console.log('fase 1 '+e.target);
-            if (targetNode.hasClass(ITSABUTTON_DATETIME_CLASS)) {
+            if (targetNode.getAttribute('data-datetime')) {
 console.log('fase 2');
                 // The notifier triggers the subscriptions to be executed.
                 // Pass its fire() method the triggering DOM event facade

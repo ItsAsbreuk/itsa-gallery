@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', function(Y) {
+YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', function(Y) {
     var model, formElArtist, formElFirstRelease, container;
 
     model = new Y.Model({
@@ -8,7 +8,7 @@ YUI(yuiconfig).use('model', 'gallery-itsaeditmodel', function(Y) {
         soldOut: true
     });
     model.plug(Y.Plugin.ITSAEditModel);
-    formElArtist = model.itsaeditmodel.getElement('artist', {type: 'input'});
+    formElArtist = model.itsaeditmodel.getElement('artist', {type: 'text'});
     formElFirstRelease = model.itsaeditmodel.getElement('firstRelease', {type: 'date', dateFormat: '%d-%m-%Y'});
 
     container = Y.one('#examplecontainer');
