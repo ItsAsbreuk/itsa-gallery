@@ -1,3 +1,9 @@
+.itsa-widget-parent {
+    display: inline-block;
+    *display: inline;
+    padding: 0;
+}
+
 .yui3-itsaformelement-hidden {
     display: none;
 }
