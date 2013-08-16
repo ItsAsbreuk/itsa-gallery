@@ -5,6 +5,7 @@
             "base-build",
             "node-base",
             "node-event-delegate",
+            "event-synthetic",
             "plugin",
             "pluginhost-base",
             "lazy-model-list",

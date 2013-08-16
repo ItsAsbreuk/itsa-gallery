@@ -28,6 +28,11 @@ var body = Y.one('body'),
     Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
+    YNode = Y.Node,
+    DATETIMEPICKER_CLICK = 'datetimepickerclick',
+
+
+
     ITSAFormElement = Y.ITSAFormElement,
     MESSAGE_WARN_MODELCHANGED = 'The data you are editing has been changed from outside the form. '+
                                 'If you save your data, then these former changed will be overridden.',
@@ -629,11 +634,18 @@ Y.namespace('Plugin').ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Plugin.Ba
         */
         _bindUI : function() {
             var instance = this,
-                eventhandlers = instance._eventhandlers;
+                eventhandlers = instance._eventhandlers,
+                 host = instance.host;
 
             Y.log('_bindUI', 'info', 'Itsa-EditModel');
+            // binding Y.Node-event to the host (Model), so we can listen for node-events on the host-instance
+
+            Y.one('body').on(DATETIMEPICKER_CLICK, function() {
+              alert('yes');
+            });
+
             eventhandlers.push(
-                Y.on(
+                host.on(
                     EVT_DATETIMEPICKER_CLICK,
                     function(e) {
                         var button = e.buttonNode,
@@ -678,7 +690,8 @@ console.log('clicked datetime fase 2');
                                 }
                             );
                         }
-                    }
+                    },
+                    '.'+ITSABUTTON_DATETIME_CLASS
                 )
             );
             eventhandlers.push(
@@ -1219,8 +1232,33 @@ console.log('clicked datetime fase 2');
 );
 
 //===================================================================
-// adding plug and unplug features to Y.Model:
+// Adding plug and unplug features to Y.Model:
 Y.augment(Y.Model, Y.Plugin.Host);
+
+// Define synthetic events
+Y.Event.define(DATETIMEPICKER_CLICK, {
+    on: function (node, subscription, notifier) {
+        // To make detaching easy, a common pattern is to add the subscription
+        // for the supporting DOM event to the subscription object passed in.
+        // This is then referenced in the detach() method below.
+        subscription._handle = node.on('click', function (e) {
+            var targetNode = e.target;
+console.log('fase 1 '+e.target);
+            if (targetNode.hasClass(ITSABUTTON_DATETIME_CLASS)) {
+console.log('fase 2');
+                // The notifier triggers the subscriptions to be executed.
+                // Pass its fire() method the triggering DOM event facade
+                notifier.fire(e);
+            }
+        });
+    },
+    // The logic executed when the 'tripleclick' subscription is `detach()`ed
+    detach: function (node, subscription) {
+        // Clean up supporting DOM subscriptions and other external hooks
+        // when the synthetic event subscription is detached.
+        subscription._handle.detach();
+    }
+});
 
 // now we need to set global eventhandlers, but only once.
 // unfortunatly they need to keep in memory, even when unplugged.
@@ -1351,6 +1389,7 @@ Y.augment(Y.Model, Y.Plugin.Host);
         "base-build",
         "node-base",
         "node-event-delegate",
+        "event-synthetic",
         "plugin",
         "pluginhost-base",
         "lazy-model-list",
