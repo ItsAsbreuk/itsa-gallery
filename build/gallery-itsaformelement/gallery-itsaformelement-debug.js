@@ -42,12 +42,13 @@ var ITSAFormElement,
     ICON_TIME_CLASS = PICKER_ICON+TIME,
     ICON_DATETIME_CLASS = PICKER_ICON+DATETIME,
 
-    PATTERN_EMAIL = '',
-    PATTERN_URLHTTP = '',
-    PATTERN_URLHTTPS = '',
-    PATTERN_URL = '',
-    PATTERN_INTEGER = '',
-    PATTERN_FLOAT = '',
+    PATTERN_EMAIL = '^[\\w!#$%&\'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&\'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
+    PATTERN_URLEND = '[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+(/[\\w-]+)*',
+    PATTERN_URLHTTP =  '^(http://)?'+PATTERN_URLEND,
+    PATTERN_URLHTTPS =  '^(https://)?'+PATTERN_URLEND,
+    PATTERN_URL = '^(https?://)?'+PATTERN_URLEND,
+    PATTERN_INTEGER = '^(([-]?[1-9][0-9]*)|0)$',
+    PATTERN_FLOAT = '^[-]?(([1-9][0-9]*)|0)(\\.[0-9]+)?$',
 
     LABEL_FOR_IS = '<label for="',
     ENDLABEL_EL = '</label>',
@@ -230,12 +231,14 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         nossl = config.nossl,
         onlyssl = config.onlyssl,
         digits = config.digits,
+        length = config.length,
         labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass;
 
     // making data a string
     data = config[DATA] || '';
 /*jshint expr:true */
     (data.length>0) && (data=' '+data);
+    length && (data+=' data-length="'+length+'"');
     subtituteConfig[DATA] = data;
     if (tooltip) {
         data = ' data-content="'+tooltip+'"';

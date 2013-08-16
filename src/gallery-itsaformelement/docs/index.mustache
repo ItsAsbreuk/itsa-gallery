@@ -116,13 +116,14 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>required</code> --> only valid for input-elements, textarea and date/time. defaults true when type===password</li>
       <li><code>disabled</code></li>
       <li><code>pattern</code> --> only valid for type==='text' or 'password'</li>
+      <li><code>length</code></li> --> only valid for input-elements. just a node attribute 'data-length' is added: needs to be processed yourself</li>
       <li><code>classname</code></li>
       <li><code>labelClassname</code></li>
       <li><code>focusable</code></li>
       <li><code>readonly</code> --> not applyable for buttons</li>
       <li><code>checked</code> --> only valid for checkboxes and radiobuttons</li>
-      <li><code>min</code> --> only valid for numbers</li>
-      <li><code>max</code> --> only valid for numbers</li>
+      <li><code>min</code> --> only valid for numbers. just a node attribute 'data-min' is added: needs to be processed yourself</li>
+      <li><code>max</code> --> only valid for numbers.  just a node attribute 'data-max' is added: needs to be processed yourself</li>
       <li><code>digits</code> --> only valid for numbers</li>
       <li><code>buttonTekst</code> --> only valid for 'no-dattime'-buttons</li>
       <li><code>primary</code> --> only valid for buttons</li>
