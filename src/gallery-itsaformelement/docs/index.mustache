@@ -34,16 +34,17 @@
         to render a widget upon. The rendering is done <u>automaticly</u> every time the node gets in the dom.
     </p>
 
-<h3>How to define a widget</h2>
+<h3>How to define a widget</h3>
     <p>
         Instead of passing a string to 'type'-argument, you can pass the Class (not an instance!). The instance will be created and rendered
         full automaticly, passing through 'config'. Just be sure the module that serves the widget is loaded.
     </p>
 
 <h2>Summary of available types</h2>
-<h3>Types that return simple elements</h2>
+<h3>Types that return simple elements</h3>
     <ul>
-      <li>input</li>
+      <li>text</li>
+      <li>number</li>
       <li>password</li>
       <li>textarea</li>
       <li>date</li>
@@ -51,29 +52,84 @@
       <li>datetime</li>
       <li>reset</li>
       <li>submit</li>
-      <li>save</li>
-      <li>add</li>
-      <li>destroy</li>
-      <li>stopedit</li>
       <li>button</li>
-      <li>email (not ready yet)</li>
-      <li>url (not ready yet)</li>
+      <li>email</li>
+      <li>url</li>
+    </ul>
+
+<h3>Types that return widgets</h3>
+    <ul>
+      <li>Y.Slider</li>
+      <li>Y.Dial</li>
+      <li>Y.EditorBase</li>
+      <li>Y.ITSACheckbox</li>
+      <li>Y.ITSASelectlist</li>
     </ul>
 
 <h2>Usage</h2>
-<h3>Simple form-elements</h2>
+<h3>Simple form-elements</h3>
 ```
 YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', function(Y) {
-    var formElement = Y.ITSAFormElement.getElement('input', {value: 'default value'});
+    var type, config, formElement;
+    type = 'input';
+    config = {
+        value: 'default value
+    };
+    formElement = Y.ITSAFormElement.getElement(type, config);
     Y.one('#myform').append(formElement.html);
 });
 ```
 
-<h3>Widget-elements</h2>
+<h3>Widget-elements</h3>
 ```
 YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox', function(Y) {
-    var formElement = Y.ITSAFormElement.getElement(Y.ITSACheckbox, {checked: true});
+    var type, config, formElement;
+    type = 'input';
+    config = {
+        checked: true
+    };
+    formElement = Y.ITSAFormElement.getElement(Y.ITSACheckbox, config);
     Y.one('#myform').append(formElement.html);
     // formElement.widget holds the handle to the widgetinstance
 });
 ```
+<h2>The config argument</h2>
+  <p>
+      Widgets pass through the config-argument to the instacne during initialization. Simple for-elements will use the config-properties to stringify the html-element. Depending of its type, some objectproperties are valid while others are ignored.
+  </p>
+<h3>Available extra objectproperties for widgets</h3>
+    <ul>
+      <li><code>label</code></li>
+      <li><code>labelClassname</code></li>
+      <li><code>focusable</code></li>
+      <li><code>tooltip</code></li>
+      <li><code>tooltipHeader</code></li>
+      <li><code>tooltipFooter</code></li>
+      <li><code>tooltipPlacement</code></li>
+    </ul>
+  <h3>Available objectproperties for simple form-elements</h3>
+    <ul>
+      <li><code>name</code></li>
+      <li><code>label</code></li>
+      <li><code>data</code></li> --> for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'
+      <li><code>placeholder</code> --> only valid for input-elements and textarea</li>
+      <li><code>required</code> --> only valid for input-elements, textarea and date/time. defaults true when type===password</li>
+      <li><code>disabled</code></li>
+      <li><code>pattern</code> --> only valid for type==='text' or 'password'</li>
+      <li><code>classname</code></li>
+      <li><code>labelClassname</code></li>
+      <li><code>focusable</code></li>
+      <li><code>readonly</code> --> not applyable for buttons</li>
+      <li><code>checked</code> --> only valid for checkboxes and radiobuttons</li>
+      <li><code>min</code> --> only valid for numbers</li>
+      <li><code>max</code> --> only valid for numbers</li>
+      <li><code>digits</code> --> only valid for numbers</li>
+      <li><code>buttonTekst</code> --> only valid for 'no-dattime'-buttons</li>
+      <li><code>primary</code> --> only valid for buttons</li>
+      <li><code>format</code> --> only valid for date/time</li>
+      <li><code>switched</code> --> only valid for date/time</li>
+      <li><code>tooltip</code></li>
+      <li><code>tooltipHeader</code></li>
+      <li><code>tooltipFooter</code></li>
+      <li><code>tooltipPlacement</code></li>
+    </ul>

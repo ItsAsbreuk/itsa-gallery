@@ -5,8 +5,8 @@ YUI.add('module-tests', function(Y) {
     suite.add(new Y.Test.Case({
         name: 'Test 1',
         'Create html-element input': function() {
-            var formElement = Y.ITSAFormElement.getElement('input');
-            Y.Assert.areEqual('<input id=', formElement.html.substr(0, 10), 'Created item doesn\'t seem to have the right syntax');
+            var formElement = Y.ITSAFormElement.getElement('text');
+            Y.Assert.areEqual('<input type="text" id="', formElement.html.substr(0, 23), 'Created item doesn\'t seem to have the right syntax');
         }
     }));
 
@@ -14,7 +14,7 @@ YUI.add('module-tests', function(Y) {
         name: 'Test 2',
         'Create html-element input with default value': function() {
             var formElement, inputnode, nodevalue;
-            formElement = Y.ITSAFormElement.getElement('input', {value: 'someName'});
+            formElement = Y.ITSAFormElement.getElement('text', {value: 'someName'});
             Y.one('body').append(formElement.html);
             inputnode = Y.one('#'+formElement.nodeid);
             nodevalue = inputnode.get('value');

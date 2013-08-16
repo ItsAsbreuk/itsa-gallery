@@ -25,6 +25,15 @@
             "modules"    : ["gallery-itsaformelement"],
             "tags"       : ["gallery-itsaformelement", "form-element", "widget"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "stringified-results",
+            "displayName": "Summary of all rendered form-elements",
+            "description": "Below is a summary of all stringified results",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformelement"],
+            "tags"       : ["gallery-itsaformelement", "form-element", "summary"],
+            "hideTableOfContents": true
         }
     ]
 }

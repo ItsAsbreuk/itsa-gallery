@@ -22,16 +22,18 @@
 var ITSAFormElement,
     DISABLED    = 'disabled',
     WIDGET_PARENT_CLASS = 'itsa-widget-parent',
-    PUREBUTTON_CLASS = 'pure-button',
-    ITSABUTTON_DATETIME_CLASS = 'pure-button-datetime',
+    PURE = 'pure',
+    BUTTON = 'button',
+    PUREBUTTON_CLASS = PURE+'-'+BUTTON,
+    DATE = 'date',
+    TIME = 'time',
+    DATETIME = DATE+TIME,
+    ITSABUTTON_DATETIME_CLASS = PUREBUTTON_CLASS+'-'+DATETIME,
     DISABLED_BUTTON_CLASS = PUREBUTTON_CLASS+'-'+DISABLED,
     PRIMARY_BUTTON_CLASS = PUREBUTTON_CLASS+'-primary',
 
     ERROR = 'error',
     BOOLEAN = 'boolean',
-    DATE = 'date',
-    TIME = 'time',
-    DATETIME = DATE+TIME,
 
     PICKER_ICON = 'itsa-'+DATETIME+'picker-icon',
     ICON_DATE_CLASS = PICKER_ICON+DATE,
@@ -45,6 +47,9 @@ var ITSAFormElement,
     PATTERN_INTEGER = '',
     PATTERN_FLOAT = '',
 
+    LABEL_FOR_IS = '<label for="',
+    ENDLABEL_EL = '</label>',
+
     TEXT = 'text',
     PASSWORD = 'password',
     EMAIL = 'email',
@@ -54,26 +59,31 @@ var ITSAFormElement,
     HIDDEN = 'hidden',
     TEXTAREA = 'textarea',
     DIV = 'div',
-    BUTTON = 'button',
     LABEL = 'label',
     SPAN  = 'span',
+
+    PURERADIO    = PURE+'-'+RADIO,
+    PURECHECKBOX = PURE+'-'+CHECKBOX,
 
     READONLY    = 'readonly',
     CHECKED     = 'checked',
     REQUIRED    = 'required',
-    NAME        = 'name',
+    NAMEDEF     = 'name', // cannot use NAMEDEF
     VALUE       = 'value',
     PLACEHOLDER = 'placeholder',
     PATTERN     = 'pattern',
     DATA        = 'data',
     CLASS       = 'class',
+    BUTTONTEXT  = 'buttonText',
+    DATETIME_CLASS   = DATETIME+CLASS,
+    LABELDATA        = LABEL+DATA,
     VALUESWITCHED    = 'valueswitched',
     VALUENONSWITCHED = 'valuenonswitched',
     DISABLED_SUB         = '{'+DISABLED+'}',
     READONLY_SUB         = '{'+READONLY+'}',
     CHECKED_SUB          = '{'+CHECKED+'}',
     REQUIRED_SUB         = '{'+REQUIRED+'}',
-    NAME_SUB             = '{'+NAME+'}',
+    NAME_SUB             = '{'+NAMEDEF+'}',
     VALUE_SUB            = '{'+VALUE+'}',
     PLACEHOLDER_SUB      = '{'+PLACEHOLDER+'}',
     PATTERN_SUB          = '{'+PATTERN+'}',
@@ -83,15 +93,17 @@ var ITSAFormElement,
     LABEL_FOR_ID_SUB     = '<label for="{id}"',
     VALUESWITCHED_SUB    = '{'+VALUESWITCHED+'}',
     VALUENONSWITCHED_SUB = '{'+VALUENONSWITCHED+'}',
+    LABELDATA_SUB        = '{'+LABELDATA+'}',
+    DATETIME_CLASS_SUB   = '{'+DATETIME_CLASS+'}',
+    BUTTONTEXT_SUB       = '{'+BUTTONTEXT+'}',
 
     TYPE           = 'type',
-    BUTTON         = 'button',
     SUBMIT         = 'submit',
     RESET          = 'reset',
     INPUT_TYPE_IS  = '<input '+TYPE+'="',
     BUTTON_TYPE_IS = '<'+BUTTON+' '+TYPE+'="',
-    BUTTONTEXT     = 'buttonText',
-    CLASSNAME      = CLASS+'name',
+    CLASSNAME      = CLASS+NAMEDEF,
+    LABELCLASSNAME = LABEL+'Class'+NAMEDEF,
     FOCUSABLE      = 'focusable',
 
     DATA_DATETIME = DATA+'-'+DATETIME+'=', // used as node data-attribute data-datetime
@@ -114,17 +126,17 @@ var ITSAFormElement,
 
     ELEMENT_WIDGET = '<'+DIV+' '+ID_SUB+DATA_SUB+CLASS_SUB+'></'+DIV+'>',
 
-    ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>{'+BUTTONTEXT+'}</'+BUTTON+'>',
-    ELEMENT_SUBMIT = BUTTON_TYPE_IS+'"'+SUBMIT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>{'+BUTTONTEXT+'}</'+BUTTON+'>',
-    ELEMENT_RESET = BUTTON_TYPE_IS+'"'+RESET+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>{'+BUTTONTEXT+'}</'+BUTTON+'>',
+    ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_SUBMIT = BUTTON_TYPE_IS+'"'+SUBMIT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_RESET = BUTTON_TYPE_IS+'"'+RESET+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
 
 
-    ELEMENT_DATE = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+
-                   ' '+CLASS+'="'+PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+'"><'+SPAN+' '+CLASS+'="'+ICON_DATE_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_TIME = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+
-                   ' '+CLASS+'="'+PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+'"><'+SPAN+' '+CLASS+'="'+ICON_TIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+
-                       ' '+CLASS+'="'+PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS+'"><'+SPAN+' '+CLASS+'="'+ICON_DATETIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+    ELEMENT_DATE = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+
+                   ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_DATE_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+    ELEMENT_TIME = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+
+                   ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_TIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+
+                       ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_DATETIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
     GETFORMATTED_DATEVALUE = function(type, value, format) {
         if (type==='date') {
@@ -174,7 +186,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     }
     element = {
         nodeid : nodeid,
-        html : ITSAFormElement._renderedElement((iswidget ? type.constructor.NAME : type), config, nodeid, iswidget)
+        html : ITSAFormElement._renderedElement((iswidget ? type.constructor.NAMEDEF : type), config, nodeid, iswidget)
     };
     if (iswidget) {
         WidgetClass = type;
@@ -206,7 +218,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     Y.log('_renderedElement', 'info', 'ITSAFormElement');
     var subtituteConfig = Y.merge(config),
         disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false,
-        required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : false,
+        required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD),
         readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false,
         focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
         tooltip = config.tooltip,
@@ -216,27 +228,38 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         nossl = config.nossl,
         onlyssl = config.onlyssl,
         digits = config.digits,
-        disabledbutton, primarybutton, template, data;
+        labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass;
+
+    // making data a string
+    data = config[DATA] || '';
+/*jshint expr:true */
+    (data.length>0) && (data=' '+data);
+    subtituteConfig[DATA] = data;
+    if (tooltip) {
+        data = ' data-content="'+tooltip+'"';
+        tooltipHeader && (data+=' data-header="'+tooltipHeader+'"');
+        tooltipFooter && (data+=' data-footer="'+tooltipFooter+'"');
+        tooltipPlacement && (data+=' data-placement="'+tooltipPlacement+'"');
+        // making it posible to concat data to labeldata by making it a string:
+        subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
+        // now cancatting:
+        subtituteConfig[config[LABEL] ? LABELDATA : DATA] += data;
+    }
+/*jshint expr:false */
     if (iswidget) {
         template = ELEMENT_WIDGET;
-        subtituteConfig[CLASS]=' '+CLASS+'="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + (focusable && (' '+FOCUSABLE)) + '"';
+        subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + (focusable ? (' '+FOCUSABLE) : '') + '"';
     }
     else {
 /*jshint expr:true */
-        disabled && (subtituteConfig[DISABLED]=' '+DISABLED+'="'+DISABLED+'"');
-        required && (subtituteConfig[REQUIRED]=' '+REQUIRED+'="'+REQUIRED+'"');
-        readonly && (subtituteConfig[READONLY]=' '+READONLY+'="'+READONLY+'"');
+        subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
+        subtituteConfig[REQUIRED] = required ? (' '+REQUIRED+'="'+REQUIRED+'"') : '';
+        subtituteConfig[READONLY] = readonly ? (' '+READONLY+'="'+READONLY+'"') : '';
+
         config[PLACEHOLDER] && (subtituteConfig[PLACEHOLDER]=' '+PLACEHOLDER+'="'+subtituteConfig[PLACEHOLDER]+'"');
         config[PATTERN] && (subtituteConfig[PATTERN]=' '+PATTERN+'="'+subtituteConfig[PATTERN]+'"');
-        config[NAME] && (subtituteConfig[NAME]=' '+NAME+'="'+subtituteConfig[NAME]+'"');
+        config[NAMEDEF] && (subtituteConfig[NAMEDEF]=' '+NAMEDEF+'="'+subtituteConfig[NAMEDEF]+'"');
         (type!==TEXTAREA) && config[VALUE] && (subtituteConfig[VALUE]=' '+VALUE+'="'+subtituteConfig[VALUE]+'"');
-        if (tooltip) {
-            data = ' data-content="'+tooltip+'"';
-            tooltipHeader && (data+=' data-header="'+tooltipHeader+'"');
-            tooltipFooter && (data+=' data-footer="'+tooltipFooter+'"');
-            tooltipPlacement && (data+=' data-placement="'+tooltipPlacement+'"');
-            subtituteConfig[DATA] = data;
-        }
 /*jshint expr:false */
         if (type===TEXT) {
             template = ELEMENT_TEXT;
@@ -260,11 +283,17 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         }
         else if (type==='number') {
             template = ((typeof digits===BOOLEAN) && digits) ? ELEMENT_FLOAT : ELEMENT_INTEGER;
+/*jshint expr:true */
+            config.min && (subtituteConfig[DATA] += ' data-min='+config.min);
+            config.max && (subtituteConfig[DATA] += ' data-max='+config.max);
+/*jshint expr:false */
         }
         else if (type===RADIO) {
+            surroundlabelclass = PURERADIO;
             template = ELEMENT_RADIO;
         }
         else if (type===CHECKBOX) {
+            surroundlabelclass = PURECHECKBOX;
             template = ELEMENT_CHECKBOX;
         }
         else if (type===HIDDEN) {
@@ -273,49 +302,59 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         else if (type===TEXTAREA) {
             template = ELEMENT_TEXTAREA;
         }
-        else if ((type===BUTTON) || (type==='save') || (type==='destroy') || (type==='add') || (type==='stopedit')) {
-            template = ELEMENT_BUTTON;
+        else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
+            if (type===BUTTON) {
+                template = ELEMENT_BUTTON;
+            }
+            else if (type===SUBMIT) {
+                template = ELEMENT_SUBMIT;
+            }
+            else {
+                template = ELEMENT_RESET;
+            }
             primarybutton = config.primary;
-            disabledbutton = config.disabled;
+            disabledbutton = disabled;
+/*jshint expr:true */
+            config[BUTTONTEXT] || (subtituteConfig[BUTTONTEXT]=(config[VALUE]||type));
+/*jshint expr:false */
         }
-        else if (type===SUBMIT) {
-            template = ELEMENT_SUBMIT;
-            primarybutton = config.primary;
-            disabledbutton = config.disabled;
-        }
-        else if (type===RESET) {
-            template = ELEMENT_RESET;
-            primarybutton = config.primary;
-            disabledbutton = config.disabled;
-        }
-        else if (type===DATE) {
-            template = ELEMENT_DATE;
-            subtituteConfig[config.switched ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, subtituteConfig[VALUE], subtituteConfig.format);
-            primarybutton = config.primary;
-            disabledbutton = config.disabled;
-        }
-        else if (type===TIME) {
-            template = ELEMENT_TIME;
-            subtituteConfig[config.switched ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, subtituteConfig[VALUE], subtituteConfig.format);
-            primarybutton = config.primary;
-            disabledbutton = config.disabled;
-        }
-        else if (type===DATETIME) {
-            template = ELEMENT_DATETIME;
-            subtituteConfig[config.switched ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, subtituteConfig[VALUE], subtituteConfig.format);
-            primarybutton = config.primary;
-            disabledbutton = config.disabled;
+        else if ((type===DATE) || (type===TIME) || (type===DATETIME)) {
+            if (type===DATE) {
+                template = ELEMENT_DATE;
+            }
+            else if (type===TIME) {
+                template = ELEMENT_TIME;
+            }
+            else if (type===DATETIME) {
+                template = ELEMENT_DATETIME;
+            }
+            subtituteConfig[DATA] += ' data-'+DATETIME+'picker="true"';
+            subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
+                                              (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
+                                              (config.primary ? (' '+PRIMARY_BUTTON_CLASS) : '');
+            subtituteConfig[config.switched ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format);
         }
         else {
             template = ELEMENT_UNDEFINED;
         }
 /*jshint expr:true */
-        (config[CLASSNAME] || focusable) && (subtituteConfig[CLASS]=' '+CLASS+'="'+(config[CLASSNAME] || '')+
-                                (focusable && (' '+FOCUSABLE))+
-                                (disabledbutton && (' '+DISABLED_BUTTON_CLASS))+
-                                (primarybutton && (' '+PRIMARY_BUTTON_CLASS))+
+        (config[CLASSNAME] || focusable) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
+                                (focusable ? (' '+FOCUSABLE) : '')+
+                                (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
+                                (primarybutton ? (' '+PRIMARY_BUTTON_CLASS) : '')+
                                 '"');
 /*jshint expr:false */
     }
+    if (config[LABEL]) {
+        if (surroundlabelclass) {
+            labelclass = ' class="'+surroundlabelclass+(config[LABELCLASSNAME] ? (' '+config[LABELCLASSNAME]) : '') + '"';
+            template = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">{label}'+template+ENDLABEL_EL;
+        }
+        else {
+            labelclass = config[LABELCLASSNAME] ? (' class="'+config[LABELCLASSNAME] + '"') : '';
+            template = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">{label}'+ENDLABEL_EL+template;
+        }
+    }
+    subtituteConfig.id=nodeid;
     return SUB(template, subtituteConfig);
 };

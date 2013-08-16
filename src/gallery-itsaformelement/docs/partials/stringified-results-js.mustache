@@ -1,0 +1,320 @@
+YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-itsacheckbox', function(Y) {
+    var type, emptyconfig, fullconfig, appendElement,
+        container = Y.one('#myform'),
+        NOCONFIG = 'no config',
+        FULLCONFIG = 'full config',
+        FULLCONFIGWITHLABEL = 'full config with label';
+
+    appendElement = function(type, config, desc) {
+        var element = Y.ITSAFormElement.getElement(type, config).html;
+        if (desc===NOCONFIG) {
+            iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE);
+            container.append('<div class="typeheader"><b>type: '+(iswidget ? 'Y.ITSACheckbox' : type)+'</b> '+element+'</div>');
+        }
+        container.append('<div class="codedesc">'+desc+'</div>');
+        container.append('<div class="code">'+Y.Escape.html(element)+'</div>');
+    };
+
+    //-------------------------------------------
+    type = Y.ITSACheckbox;
+    emptyconfig = {};
+    fullconfig = {
+        optionon: 'current value',
+        optionoff: 'propertyname',
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label for a disabled checkbox';
+    fullconfig.disabled = true;
+    fullconfig.readonly = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'text';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        pattern: '[A-Za-z]{3}',
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'number';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        min: 5,
+        max: 10,
+        digits: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'password';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: false,
+        disabled: true,
+        pattern: '[A-Za-z]{3}',
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'email';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'url';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'textarea';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'date';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        primary: true,
+        format: '%Y-%M-%d',
+        switched: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'time';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        primary: true,
+        format: '%Y-%M-%d',
+        switched: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'datetime';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        required: true,
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        primary: true,
+        format: '%Y-%M-%d',
+        switched: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'reset';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        buttonTekst: 'press on this button',
+        primary: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'submit';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        buttonTekst: 'press on this button',
+        primary: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+    type = 'button';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        disabled: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        buttonTekst: 'press on this button',
+        primary: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    //-------------------------------------------
+});
