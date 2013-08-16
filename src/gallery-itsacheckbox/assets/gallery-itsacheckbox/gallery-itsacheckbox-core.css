@@ -18,7 +18,7 @@
 .yui3-itsacheckbox-hidden {
     display: none;
 }
-.yui3-itsacheckbox-parent {
+.itsa-widget-parent {
     display: inline-block;
     *display: inline;
     padding: 0;
