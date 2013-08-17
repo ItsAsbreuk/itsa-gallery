@@ -78,10 +78,14 @@ var ITSAFormElement,
     DATA        = 'data',
     CLASS       = 'class',
     BUTTONTEXT  = 'buttonText',
+    SWITCH      = 'switch',
+    SWITCHED    = SWITCH+'ed',
+    SWITCHLABEL = SWITCH+LABEL,
+    SWITCHDATETIME   = SWITCH+DATETIME,
     DATETIME_CLASS   = DATETIME+CLASS,
     LABELDATA        = LABEL+DATA,
-    VALUESWITCHED    = 'valueswitched',
-    VALUENONSWITCHED = 'valuenonswitched',
+    VALUESWITCHED    = VALUE+SWITCHED,
+    VALUENONSWITCHED = VALUE+'non'+SWITCHED,
     DISABLED_SUB         = '{'+DISABLED+'}',
     READONLY_SUB         = '{'+READONLY+'}',
     CHECKED_SUB          = '{'+CHECKED+'}',
@@ -92,6 +96,7 @@ var ITSAFormElement,
     PATTERN_SUB          = '{'+PATTERN+'}',
     DATA_SUB             = '{'+DATA+'}',
     CLASS_SUB            = '{'+CLASS+'}',
+    HIDDEN_SUB            = '{'+HIDDEN+'}',
     ID_SUB               = 'id="{id}"',
     LABEL_FOR_ID_SUB     = '<label for="{id}"',
     VALUESWITCHED_SUB    = '{'+VALUESWITCHED+'}',
@@ -109,36 +114,37 @@ var ITSAFormElement,
     LABELCLASSNAME = LABEL+'Class'+NAMEDEF,
     FOCUSABLE      = 'focusable',
 
+    DATA_LABEL_DATETIME = ' data-labeldatetime="true"',
     DATA_DATETIME = DATA+'-'+DATETIME+'=', // used as node data-attribute data-datetime
 
     ELEMENT_UNDEFINED = '<'+SPAN+' '+ID_SUB+'>UNDEFINED ELEMENTTYPE</'+SPAN+'>',
 
-    ELEMENT_TEXT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+CLASS_SUB+' />',
-    ELEMENT_PASSWORD = INPUT_TYPE_IS+PASSWORD+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+CLASS_SUB+' />',
-    ELEMENT_EMAIL = INPUT_TYPE_IS+EMAIL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_EMAIL+'" />',
-    ELEMENT_URL = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URL+'" />',
-    ELEMENT_URLHTTP = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTP+'" />',
-    ELEMENT_URLHTTPS = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTPS+'" />',
-    ELEMENT_INTEGER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_INTEGER+'" />',
-    ELEMENT_FLOAT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_FLOAT+'" />',
-    ELEMENT_RADIO = INPUT_TYPE_IS+RADIO+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+CHECKED_SUB+DATA_SUB+CLASS_SUB+' />',
-    ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+CLASS_SUB+' />',
+    ELEMENT_TEXT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_PASSWORD = INPUT_TYPE_IS+PASSWORD+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_EMAIL = INPUT_TYPE_IS+EMAIL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_EMAIL+'" />',
+    ELEMENT_URL = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URL+'" />',
+    ELEMENT_URLHTTP = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTP+'" />',
+    ELEMENT_URLHTTPS = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTPS+'" />',
+    ELEMENT_INTEGER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_INTEGER+'" />',
+    ELEMENT_FLOAT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_FLOAT+'" />',
+    ELEMENT_RADIO = INPUT_TYPE_IS+RADIO+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+CHECKED_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
 
-    ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+CLASS_SUB+' />'+VALUE_SUB+'</'+TEXTAREA+'>',
+    ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />'+VALUE_SUB+'</'+TEXTAREA+'>',
 
     ELEMENT_WIDGET = '<'+DIV+' '+ID_SUB+DATA_SUB+CLASS_SUB+'></'+DIV+'>',
 
-    ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_SUBMIT = BUTTON_TYPE_IS+'"'+SUBMIT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_RESET = BUTTON_TYPE_IS+'"'+RESET+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_SUBMIT = BUTTON_TYPE_IS+'"'+SUBMIT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_RESET = BUTTON_TYPE_IS+'"'+RESET+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
 
 
-    ELEMENT_DATE = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+
+    ELEMENT_DATE = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+
                    ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_DATE_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_TIME = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+
+    ELEMENT_TIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+
                    ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_TIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+
+    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+
                        ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_DATETIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
     GETFORMATTED_DATEVALUE = function(type, value, format) {
@@ -220,10 +226,8 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
 ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     Y.log('_renderedElement', 'info', 'ITSAFormElement');
     var subtituteConfig = Y.merge(config),
-        disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false,
-        required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD),
-        readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false,
         focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
+        switchlabel = (typeof subtituteConfig[SWITCHLABEL]===BOOLEAN) ? subtituteConfig[SWITCHLABEL] : false,
         tooltip = config.tooltip,
         tooltipHeader = config.tooltipHeader,
         tooltipFooter = config.tooltipFooter,
@@ -232,8 +236,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         onlyssl = config.onlyssl,
         digits = config.digits,
         length = config.length,
-        labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass;
-
+        labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass, hidden, disabled, required, readonly, extralabel, elementWithtooltipOnLabel;
     // making data a string
     data = config[DATA] || '';
 /*jshint expr:true */
@@ -247,8 +250,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         tooltipPlacement && (data+=' data-placement="'+tooltipPlacement+'"');
         // making it posible to concat data to labeldata by making it a string:
         subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
+        elementWithtooltipOnLabel = (iswidget || (type===CHECKBOX) || (type===RADIO));
         // now cancatting:
-        subtituteConfig[config[LABEL] ? LABELDATA : DATA] += data;
+        subtituteConfig[(elementWithtooltipOnLabel && config[LABEL]) ? LABELDATA : DATA] += data;
     }
 /*jshint expr:false */
     if (iswidget) {
@@ -256,7 +260,12 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + (focusable ? (' '+FOCUSABLE) : '') + '"';
     }
     else {
+        disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false;
+        required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD);
+        readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false;
+        hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
 /*jshint expr:true */
+        subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
         subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         subtituteConfig[REQUIRED] = required ? (' '+REQUIRED+'="'+REQUIRED+'"') : '';
         subtituteConfig[READONLY] = readonly ? (' '+READONLY+'="'+READONLY+'"') : '';
@@ -279,7 +288,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             if ((typeof nossl===BOOLEAN) && nossl) {
                 template = ELEMENT_URLHTTP;
             }
-            if ((typeof onlyssl===BOOLEAN) && onlyssl) {
+            else if ((typeof onlyssl===BOOLEAN) && onlyssl) {
                 template = ELEMENT_URLHTTPS;
             }
             else {
@@ -308,6 +317,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             template = ELEMENT_TEXTAREA;
         }
         else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
+            delete subtituteConfig[LABEL]; // not allowed for buttons
             if (type===BUTTON) {
                 template = ELEMENT_BUTTON;
             }
@@ -337,7 +347,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
                                               (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
                                               (config.primary ? (' '+PRIMARY_BUTTON_CLASS) : '');
-            subtituteConfig[config.switched ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format);
+            subtituteConfig[config[SWITCHDATETIME] ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format);
         }
         else {
             template = ELEMENT_UNDEFINED;
@@ -350,14 +360,20 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
                                 '"');
 /*jshint expr:false */
     }
-    if (config[LABEL]) {
+    if (subtituteConfig[LABEL]) {
         if (surroundlabelclass) {
             labelclass = ' class="'+surroundlabelclass+(config[LABELCLASSNAME] ? (' '+config[LABELCLASSNAME]) : '') + '"';
-            template = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">{label}'+template+ENDLABEL_EL;
+            template = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">'+(switchlabel ? (template+'{label}') : ('{label}'+template))+ENDLABEL_EL;
         }
         else {
             labelclass = config[LABELCLASSNAME] ? (' class="'+config[LABELCLASSNAME] + '"') : '';
-            template = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">{label}'+ENDLABEL_EL+template;
+            extralabel = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">{label}'+ENDLABEL_EL;
+            if (switchlabel) {
+                template += extralabel;
+            }
+            else {
+                template = extralabel+template;
+            }
         }
     }
     subtituteConfig.id=nodeid;

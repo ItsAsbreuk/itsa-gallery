@@ -3,7 +3,10 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         container = Y.one('#myform'),
         NOCONFIG = 'no config',
         FULLCONFIG = 'full config',
-        FULLCONFIGWITHLABEL = 'full config with label';
+        FULLCONFIGWITHLABEL = 'full config with label',
+        FULLCONFIGWITHLABELSWITCHED = 'full config with label after element',
+        FULLCONFIGWITHDATESWITCHED = 'full config with date-value after element',
+        FULLCONFIGWITHLABELSWITCHEDANDDATESWITCHED = 'full config with label after element and date-value after elelemt';
 
     appendElement = function(type, config, desc) {
         var element = Y.ITSAFormElement.getElement(type, config).html;
@@ -32,6 +35,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     fullconfig.disabled = true;
     fullconfig.readonly = true;
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'text';
     emptyconfig = {};
@@ -42,6 +47,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
+        hidden: true,
         pattern: '[A-Za-z]{3}',
         length: 25,
         classname: 'yui3-element-class',
@@ -57,6 +63,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'number';
     emptyconfig = {};
@@ -67,6 +75,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
+        hidden: true,
         length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -84,6 +93,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'password';
     emptyconfig = {};
@@ -94,6 +105,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: false,
         disabled: true,
+        hidden: true,
         pattern: '[A-Za-z]{3}',
         length: 25,
         classname: 'yui3-element-class',
@@ -109,6 +121,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'email';
     emptyconfig = {};
@@ -119,6 +133,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
+        hidden: true,
         length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -133,6 +148,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'url';
     emptyconfig = {};
@@ -143,11 +160,13 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
+        hidden: true,
         length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
+        nossl: true,
         tooltip: 'here is some tooltipinfo',
         tooltipHeader: 'here is the tooltipheader',
         tooltipFooter: 'here is the tooltipfooter',
@@ -156,7 +175,11 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
+    fullconfig.nossl = false;
+    fullconfig.onlyssl = true;
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'textarea';
     emptyconfig = {};
@@ -167,6 +190,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
+        hidden: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
@@ -180,22 +204,80 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
+    //-------------------------------------------
+    type = 'checkbox';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        hidden: true,
+        checked: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
+    //-------------------------------------------
+    type = 'radio';
+    emptyconfig = {};
+    fullconfig = {
+        value: 'current value',
+        name: 'propertyname',
+        data: 'data-someinfo="somedata"',
+        placeholder: 'placeholderText',
+        required: true,
+        disabled: true,
+        hidden: true,
+        checked: true,
+        classname: 'yui3-element-class',
+        labelClassname: 'yui3-label-class',
+        focusable: false,
+        readonly: true,
+        tooltip: 'here is some tooltipinfo',
+        tooltipHeader: 'here is the tooltipheader',
+        tooltipFooter: 'here is the tooltipfooter',
+        tooltipPlacement: 'here is the tooltipplacement'
+    };
+    appendElement(type, emptyconfig, NOCONFIG);
+    appendElement(type, fullconfig, FULLCONFIG); // without label
+    fullconfig.label = 'this is the label';
+    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
     //-------------------------------------------
     type = 'date';
-    emptyconfig = {};
+    emptyconfig = {
+        value: new Date()
+    };
     fullconfig = {
-        value: 'current value',
+        value: new Date(),
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
+        hidden: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
         primary: true,
         format: '%Y-%M-%d',
-        switched: true,
         tooltip: 'here is some tooltipinfo',
         tooltipHeader: 'here is the tooltipheader',
         tooltipFooter: 'here is the tooltipfooter',
@@ -205,22 +287,31 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switched
+    fullconfig.switchlabel = false;
+    fullconfig.switchdatetime = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHDATESWITCHED); // with date-value switched
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHEDANDDATESWITCHED); // with label and date-value switched
     //-------------------------------------------
     type = 'time';
-    emptyconfig = {};
+    emptyconfig = {
+        value: new Date()
+    };
     fullconfig = {
-        value: 'current value',
+        value: new Date(),
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
+        hidden: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
         primary: true,
         format: '%Y-%M-%d',
-        switched: true,
         tooltip: 'here is some tooltipinfo',
         tooltipHeader: 'here is the tooltipheader',
         tooltipFooter: 'here is the tooltipfooter',
@@ -230,22 +321,31 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switched
+    fullconfig.switchlabel = false;
+    fullconfig.switchdatetime = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHDATESWITCHED); // with date-value switched
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHEDANDDATESWITCHED); // with label and date-value switched
     //-------------------------------------------
     type = 'datetime';
-    emptyconfig = {};
+    emptyconfig = {
+        value: new Date()
+    };
     fullconfig = {
-        value: 'current value',
+        value: new Date(),
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
+        hidden: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
         primary: true,
         format: '%Y-%M-%d',
-        switched: true,
         tooltip: 'here is some tooltipinfo',
         tooltipHeader: 'here is the tooltipheader',
         tooltipFooter: 'here is the tooltipfooter',
@@ -255,6 +355,13 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     appendElement(type, fullconfig, FULLCONFIG); // without label
     fullconfig.label = 'this is the label';
     appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switched
+    fullconfig.switchlabel = false;
+    fullconfig.switchdatetime = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHDATESWITCHED); // with date-value switched
+    fullconfig.switchlabel = true;
+    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHEDANDDATESWITCHED); // with label and date-value switched
     //-------------------------------------------
     type = 'reset';
     emptyconfig = {};
@@ -263,8 +370,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         disabled: true,
+        hidden: true,
         classname: 'yui3-element-class',
-        labelClassname: 'yui3-label-class',
         focusable: false,
         buttonTekst: 'press on this button',
         primary: true,
@@ -275,8 +382,6 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
-    fullconfig.label = 'this is the label';
-    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
     //-------------------------------------------
     type = 'submit';
     emptyconfig = {};
@@ -285,8 +390,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         disabled: true,
-        classname: 'yui3-element-class',
-        labelClassname: 'yui3-label-class',
+        hidden: true,
         focusable: false,
         buttonTekst: 'press on this button',
         primary: true,
@@ -297,8 +401,6 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
-    fullconfig.label = 'this is the label';
-    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
     //-------------------------------------------
     type = 'button';
     emptyconfig = {};
@@ -307,8 +409,8 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         disabled: true,
+        hidden: true,
         classname: 'yui3-element-class',
-        labelClassname: 'yui3-label-class',
         focusable: false,
         buttonTekst: 'press on this button',
         primary: true,
@@ -319,7 +421,5 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
-    fullconfig.label = 'this is the label';
-    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
     //-------------------------------------------
 });

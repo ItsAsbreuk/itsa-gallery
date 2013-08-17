@@ -4,10 +4,12 @@
   <p>{{description}}</p>
   <p>
       This module is used for creating stringified form-elements using Y.Lang.sub() and templates for all form-elements.
+      Using this module makes it easy to generate the right element based on a configobject. Labels can be rendered as well.
+  </p>
+  <p>
       The rendered strings are used by <code>gallery-itsaeditmodel</code>. It is preferable that you use that module
       to create editable html-elements, because that way thay are related to a Modelinstance.
   </p>
-  <p><b>Note:</b> This module is Beta. Needs performanceoptimization and not all elements can be used yet.
 </div>
 
 {{>getting-started}}
@@ -47,6 +49,8 @@
       <li>number</li>
       <li>password</li>
       <li>textarea</li>
+      <li>radio</li>
+      <li>checkbox</li>
       <li>date</li>
       <li>time</li>
       <li>datetime</li>
@@ -99,38 +103,43 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
   </p>
 <h3>Available extra objectproperties for widgets</h3>
     <ul>
-      <li><code>label</code></li>
-      <li><code>labelClassname</code></li>
-      <li><code>focusable</code></li>
-      <li><code>tooltip</code></li>
-      <li><code>tooltipHeader</code></li>
-      <li><code>tooltipFooter</code></li>
-      <li><code>tooltipPlacement</code></li>
+      <li><code>label</code> {String}</li>
+      <li><code>labelClassname</code> {String}</li>
+      <li><code>focusable</code> {Boolean}</li>
+      <li><code>tooltip</code> {String}</li>
+      <li><code>tooltipHeader</code> {String}</li>
+      <li><code>tooltipFooter</code> {String}</li>
+      <li><code>tooltipPlacement</code> {String}</li>
     </ul>
   <h3>Available objectproperties for simple form-elements</h3>
     <ul>
-      <li><code>name</code></li>
-      <li><code>label</code></li>
-      <li><code>data</code></li> --> for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'
-      <li><code>placeholder</code> --> only valid for input-elements and textarea</li>
-      <li><code>required</code> --> only valid for input-elements, textarea and date/time. defaults true when type===password</li>
-      <li><code>disabled</code></li>
-      <li><code>pattern</code> --> only valid for type==='text' or 'password'</li>
-      <li><code>length</code></li> --> only valid for input-elements. just a node attribute 'data-length' is added: needs to be processed yourself</li>
-      <li><code>classname</code></li>
-      <li><code>labelClassname</code></li>
-      <li><code>focusable</code></li>
-      <li><code>readonly</code> --> not applyable for buttons</li>
-      <li><code>checked</code> --> only valid for checkboxes and radiobuttons</li>
-      <li><code>min</code> --> only valid for numbers. just a node attribute 'data-min' is added: needs to be processed yourself</li>
-      <li><code>max</code> --> only valid for numbers.  just a node attribute 'data-max' is added: needs to be processed yourself</li>
-      <li><code>digits</code> --> only valid for numbers</li>
-      <li><code>buttonTekst</code> --> only valid for 'no-dattime'-buttons</li>
-      <li><code>primary</code> --> only valid for buttons</li>
-      <li><code>format</code> --> only valid for date/time</li>
-      <li><code>switched</code> --> only valid for date/time</li>
-      <li><code>tooltip</code></li>
-      <li><code>tooltipHeader</code></li>
-      <li><code>tooltipFooter</code></li>
-      <li><code>tooltipPlacement</code></li>
+      <li><code>name</code> {String}</li>
+      <li><code>value</code> {String}</li>
+      <li><code>label</code> {String} --> used for all elements (including date-time), except buttons</li>
+      <li><code>data</code> {String} --> for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'</li>
+      <li><code>placeholder</code> {String} --> only valid for input-elements and textarea</li>
+      <li><code>required</code> {Boolean} (defaults true for 'password', otherwise false)--> only valid for input-elements, textarea and date/time. defaults true when type===password</li>
+      <li><code>disabled</code> {Boolean} (defaults false)</li>
+      <li><code>pattern</code> {String} --> only valid for type==='text' or 'password'</li>
+      <li><code>length</code> {Number} --> only valid for input-elements. just a node attribute 'data-length' is added: needs to be processed yourself</li>
+      <li><code>classname</code> {String}</li>
+      <li><code>labelClassname</code> {String} --> used for all elements (including date-time), except buttons</li>
+      <li><code>hidden</code> {Boolean} (defaults false)</li>
+      <li><code>focusable</code> {Boolean} (defaults true)</li>
+      <li><code>readonly</code> {Boolean} (defaults false) --> not applyable for buttons</li>
+      <li><code>onlyssl</code> {Boolean} (defaults false) --> only applyable for type==='url'</li>
+      <li><code>nossl</code> {Boolean} (defaults false) --> only applyable for type==='url'</li>
+      <li><code>checked</code> {Boolean} (defaults false) --> only valid for checkboxes and radiobuttons</li>
+      <li><code>min</code> {Number} --> only valid for numbers. just a node attribute 'data-min' is added: needs to be processed yourself</li>
+      <li><code>max</code> {Number} --> only valid for numbers.  just a node attribute 'data-max' is added: needs to be processed yourself</li>
+      <li><code>digits</code> {Boolean} (defaults false) --> for floating numbers: only valid for numbers</li>
+      <li><code>buttonTekst</code> {String} --> only valid for non 'dattime'-buttons</li>
+      <li><code>primary</code> {Boolean} (defaults false) --> only valid for buttons</li>
+      <li><code>format</code> {String} --> only valid for date/time</li>
+      <li><code>switchlabel</code> {Boolean} (defaults false) --> switch the label behind the element</li>
+      <li><code>switchdatetime</code> {Boolean} (defaults false) --> switch the datetime-value behind the element: only valid for date/time</li>
+      <li><code>tooltip</code> {String}</li>
+      <li><code>tooltipHeader</code> {String}</li>
+      <li><code>tooltipFooter</code> {String}</li>
+      <li><code>tooltipPlacement</code> {String}</li>
     </ul>
