@@ -34,6 +34,15 @@
             "modules"    : ["gallery-itsaformelement"],
             "tags"       : ["gallery-itsaformelement", "form-element", "summary"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "events",
+            "displayName": "Listening for events",
+            "description": "This example shows how to listen to the events: submitclick, resetclick, datepickerclick, timepickerclick and datetimepickerclick.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformelement"],
+            "tags"       : ["gallery-itsaformelement", "form-element", "events"],
+            "hideTableOfContents": true
         }
     ]
 }

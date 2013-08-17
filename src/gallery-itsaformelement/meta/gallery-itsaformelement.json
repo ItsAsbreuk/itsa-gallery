@@ -2,15 +2,8 @@
     "gallery-itsaformelement": {
         "requires": [
             "yui-base",
-            "base",
-            "node-core",
-            "node-base",
             "datatype-date-format",
-            "classnamemanager",
-            "cssbutton",
-            "promise",
-            "widget-base",
-            "gallery-itsawidgetrenderpromise"
+            "event-synthetic"
         ],
         "skinnable": true
     }

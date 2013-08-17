@@ -143,3 +143,22 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>tooltipFooter</code> {String}</li>
       <li><code>tooltipPlacement</code> {String}</li>
     </ul>
+<h2>Different behaviour reset and submit</h2>
+  <p>
+     The reset- and submit-button are rendered as normal buttons. This means, the will not interact with the form natively. Instead, you should listen for the special intoduced events: <code>resetclick</code> and <code>submitclick</code>.
+  </p>
+<h2>Events</h2>
+  <p>
+     This module introduces 5 synthetic-events that can be subscribed to:
+  </p>
+    <ul>
+      <li><code>submitclick</code> --> fired when a submitbutton is clicked. This is <u>not the same</u> as the 'submit'-event which gets fired on a form-submit.</li>
+      <li><code>resetclick</code> --> fired when a resetbutton is clicked. This is <u>not the same</u> as the 'reset'-event which gets fired on a form-reset.</li>
+      <li><code>datepickerclick</code> --> fired when a datepicker-button is clicked.</li>
+      <li><code>timepickerclick</code> --> fired when a timepicker-button is clicked.</li>
+      <li><code>datetimepickerclick</code> --> fired when a datetimepicker-button is clicked.</li>
+    </ul>
+<h2>Purecss compatible</h2>
+  <p>
+      All elements are rendered with full purecss-compatability!
+  </p>

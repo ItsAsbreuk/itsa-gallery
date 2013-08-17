@@ -5,16 +5,13 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
 /*jshint maxlen:200 */
 
 /**
- * Class ITSAFormElement
  *
- * Static Class that should not be used of its own: purely made for ITSAEditModel to use.
- *
+ * Provides stringifying html-elements based on a config-object
  *
  * @module gallery-itsaformelement
  * @class ITSAFormElement
  * @static
- * @constructor
- * @since 0.2
+ * @since 0.1
  *
  * <i>Copyright (c) 2012 Marco Asbreuk - http://theinternetwizard.net</i>
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
@@ -22,6 +19,7 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
 */
 
 var ITSAFormElement,
+    YARRAY = Y.Array,
     DISABLED    = 'disabled',
     WIDGET_PARENT_CLASS = 'itsa-widget-parent',
     PURE = 'pure',
@@ -37,7 +35,9 @@ var ITSAFormElement,
     ERROR = 'error',
     BOOLEAN = 'boolean',
 
-    PICKER_ICON = 'itsa-'+DATETIME+'picker-icon',
+    PICKER = 'picker',
+    CLICK = 'click',
+    PICKER_ICON = 'itsa-icon',
     ICON_DATE_CLASS = PICKER_ICON+DATE,
     ICON_TIME_CLASS = PICKER_ICON+TIME,
     ICON_DATETIME_CLASS = PICKER_ICON+DATETIME,
@@ -130,22 +130,15 @@ var ITSAFormElement,
     ELEMENT_RADIO = INPUT_TYPE_IS+RADIO+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+CHECKED_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
-
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+' />'+VALUE_SUB+'</'+TEXTAREA+'>',
-
     ELEMENT_WIDGET = '<'+DIV+' '+ID_SUB+DATA_SUB+CLASS_SUB+'></'+DIV+'>',
-
     ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_SUBMIT = BUTTON_TYPE_IS+'"'+SUBMIT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_RESET = BUTTON_TYPE_IS+'"'+RESET+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-
-
     ELEMENT_DATE = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+
-                   ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_DATE_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+                   ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
     ELEMENT_TIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+
-                   ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_TIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+                   ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_TIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
     ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+
-                       ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><'+SPAN+' '+CLASS+'="'+ICON_DATETIME_CLASS+'"></'+SPAN+'></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+                       ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
     GETFORMATTED_DATEVALUE = function(type, value, format) {
         if (type==='date') {
@@ -174,14 +167,68 @@ ITSAFormElement = Y.ITSAFormElement = {};
 
 /**
  * Renderes a String that contains the completeFormElement definition. You can also define a widgetclass, by which the widget will
- * be created as soon as the returned 'html' gets into the dom. To be used in an external Form or with Y.ITSAEditModel.
+ * be created as soon as the returned 'html' gets into the dom. The next html-elements can be rendered:
+ *   <ul>
+ *     <li>text</li>
+ *     <li>number</li>
+ *     <li>password</li>
+ *     <li>textarea</li>
+ *     <li>radio</li>
+ *     <li>checkbox</li>
+ *     <li>date</li>
+ *     <li>time</li>
+ *     <li>datetime</li>
+ *     <li>reset</li>
+ *     <li>submit</li>
+ *     <li>button</li>
+ *     <li>email</li>
+ *     <li>url</li>
+ *   </ul>
+ * Or when widgets need to be created, use the <u>Class</u> (<b>not instance</b>) of the widget. F.i.:
+ *   <ul>
+ *     <li>Y.Slider</li>
+ *     <li>Y.Dial</li>
+ *     <li>Y.EditorBase</li>
+ *     <li>Y.ITSACheckbox</li>
+ *     <li>Y.ITSASelectlist</li>
+ *  </ul>
+ *
  * @method getElement
  * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
  * @param [config] {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
+ *   @param [config.buttonTekst] {String} only valid for non 'datetime'-buttons.
+ *   @param [config.checked=false] {Boolean} only valid for checkboxes and radiobuttons.
+ *   @param [config.classname] {String} additional classname for the html-element or widget.
+ *   @param [config.data] {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.
+ *   @param [config.digits=false] {Boolean} for floating numbers: only valid for type==='number'.
+ *   @param [config.disabled=false] {Boolean}
+ *   @param [config.focusable=true] {Boolean} adds an extra class 'focusable' which can be used as a selector by the FocusManager. Also applyable for Widgets.
+ *   @param [config.format] {String} Date-format: only valid for type==='date', 'time' or 'datetime'
+ *   @param [config.hidden=false] {Boolean}
+ *   @param [config.label] {String} can by used for all elements (including Widgets and date-time), except for buttons.
+ *   @param [config.labelClassname] {String} additional classname for the label. Can by used for all elements (including Widgets and date-time), except for buttons.
+ *   @param [config.length] {Number} adds a node attribute 'data-length': needs to be processed yourself. Only valid for input-elements.
+ *   @param [config.min] {Number} adds a node attribute 'data-min': needs to be processed yourself. Only valid for type==='number'.
+ *   @param [config.max] {Number} adds a node attribute 'data-min': needs to be processed yourself. Only valid for type==='number'.
+ *   @param [config.name] {String} used by html-forms to identify the element.
+ *   @param [config.nossl=false] {Boolean} making url's to validate only on non-ssl url's. Only applyable for type==='url'.
+ *   @param [config.onlyssl=false] {Boolean} making url's to validate only on ssl url's. Only applyable for type==='url'
+ *   @param [config.pattern] {String} regexp pattern that should be matched. Only applyable for type==='text' or 'password'.
+ *   @param [config.placeholder] {String} only applyable for input-elements and textarea.
+ *   @param [config.primary=false] {Boolean} making a button the primary button. Only applyable for buttons.
+ *   @param [config.required=false] {Boolean} (defaults true for 'type===password') when data is required. Only applyable for input-elements, textarea and date/time.
+ *   @param [config.readonly=false] {Boolean} not applyable for buttons.
+ *   @param [config.switchdatetime=false] {Boolean} make the datetime-value go behind the element. Only applyable for type==='date', 'time' or 'datetime'.
+ *   @param [config.switchlabel=false] {Boolean} make the label go behind the element.
+ *   @param [config.tooltip] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltipHeader] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltipFooter] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltipPlacement] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.value] {String} the value of the element.
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
  * @return {object} o.html --> rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAForm,
  *                             or Y.ITSAEditModel<br />
- *                  o.widget --> handle to the created widgetinstance.
+ *                  o.widget --> handle to the created widgetinstance.<br />
  *                  o.nodeid --> created node's id.
 */
 ITSAFormElement.getElement = function(type, config, nodeid) {
@@ -233,7 +280,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         onlyssl = config.onlyssl,
         digits = config.digits,
         length = config.length,
-        labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass, hidden, disabled, required, readonly, extralabel, elementWithtooltipOnLabel;
+        labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass, hidden, disabled, required,
+        purebutton, readonly, extralabel, elementWithtooltipOnLabel;
     // making data a string
     data = config[DATA] || '';
 /*jshint expr:true */
@@ -315,15 +363,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         }
         else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
-            if (type===BUTTON) {
-                template = ELEMENT_BUTTON;
-            }
-            else if (type===SUBMIT) {
-                template = ELEMENT_SUBMIT;
-            }
-            else {
-                template = ELEMENT_RESET;
-            }
+            template = ELEMENT_BUTTON;
+            purebutton = true;
+            subtituteConfig[DATA] += ' data-'+BUTTON+TYPE+'="'+type+'"';
             primarybutton = config.primary;
             disabledbutton = disabled;
 /*jshint expr:true */
@@ -350,8 +392,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             template = ELEMENT_UNDEFINED;
         }
 /*jshint expr:true */
-        (config[CLASSNAME] || focusable) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
+        (config[CLASSNAME] || focusable || purebutton) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
                                 (focusable ? (' '+FOCUSABLE) : '')+
+                                (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
                                 (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
                                 (primarybutton ? (' '+PRIMARY_BUTTON_CLASS) : '')+
                                 '"');
@@ -377,18 +420,112 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     return SUB(template, subtituteConfig);
 };
 
-}, '@VERSION@', {
-    "requires": [
-        "yui-base",
-        "base",
-        "node-core",
-        "node-base",
-        "datatype-date-format",
-        "classnamemanager",
-        "cssbutton",
-        "promise",
-        "widget-base",
-        "gallery-itsawidgetrenderpromise"
-    ],
-    "skinnable": true
-});
+
+// Define synthetic events 'datepickerclick', 'timepickerclick' and 'datetimepickerclick':
+
+/**
+  * Event fired when the datepicker-button is clicked.
+  *
+  * @event datepickerclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
+  *
+**/
+
+/**
+  * Event fired when the timepicker-button is clicked.
+  *
+  * @event timepickerclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
+  *
+**/
+
+/**
+  * Event fired when the datetimepicker-button is clicked.
+  *
+  * @event datetimepickerclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
+  *
+**/
+
+YARRAY.each(
+    [DATE, TIME, DATETIME],
+    function(eventtype) {
+        Y.Event.define(eventtype+PICKER+CLICK, {
+            on: function (node, subscription, notifier) {
+                // To make detaching easy, a common pattern is to add the subscription
+                // for the supporting DOM event to the subscription object passed in.
+                // This is then referenced in the detach() method below.
+                subscription._handle = node.on(CLICK, function (e) {
+                    var targetNode = e.target;
+                    if (targetNode.getAttribute(DATA+'-'+DATETIME)===eventtype) {
+                        // The notifier triggers the subscriptions to be executed.
+                        // Pass its fire() method the triggering DOM event facade
+                        notifier.fire(e);
+                    }
+                });
+            },
+            // The logic executed when the 'tripleclick' subscription is `detach()`ed
+            detach: function (node, subscription) {
+                // Clean up supporting DOM subscriptions and other external hooks
+                // when the synthetic event subscription is detached.
+                subscription._handle.detach();
+            }
+        });
+    }
+);
+
+// Define synthetic events 'submitclick' and 'resetclick':
+
+/**
+  * Event fired when the submitbutton is clicked. This is not the same as the 'submit'-event because the latter
+  * gets fired on a form-submit.
+  *
+  * @event submitclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
+  *
+**/
+
+/**
+  * Event fired when the resetbutton is clicked. This is not the same as the 'reset'-event because the latter
+  * gets fired on a form-reset.
+  *
+  * @event resetclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
+  *
+**/
+
+YARRAY.each(
+    [SUBMIT, RESET],
+    function(eventtype) {
+        Y.Event.define(eventtype+CLICK, {
+            on: function (node, subscription, notifier) {
+                // To make detaching easy, a common pattern is to add the subscription
+                // for the supporting DOM event to the subscription object passed in.
+                // This is then referenced in the detach() method below.
+                subscription._handle = node.on(CLICK, function (e) {
+                    var targetNode = e.target;
+                    if (targetNode.getAttribute(DATA+'-'+BUTTON+TYPE)===eventtype) {
+                        // The notifier triggers the subscriptions to be executed.
+                        // Pass its fire() method the triggering DOM event facade
+                        notifier.fire(e);
+                    }
+                });
+            },
+            // The logic executed when the 'tripleclick' subscription is `detach()`ed
+            detach: function (node, subscription) {
+                // Clean up supporting DOM subscriptions and other external hooks
+                // when the synthetic event subscription is detached.
+                subscription._handle.detach();
+            }
+        });
+    }
+);
+
+
+
+}, '@VERSION@', {"requires": ["yui-base", "datatype-date-format", "event-synthetic"], "skinnable": true});
