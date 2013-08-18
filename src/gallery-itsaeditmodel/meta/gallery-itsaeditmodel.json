@@ -2,6 +2,7 @@
     "gallery-itsaeditmodel": {
         "requires": [
             "yui-base",
+            "attribute-base",
             "base-build",
             "node-base",
             "node-event-delegate",
