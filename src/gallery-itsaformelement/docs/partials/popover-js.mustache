@@ -1,0 +1,15 @@
+YUI(yuiconfig).use('node-base', 'gallery-itsaformelement', 'gallery-popover', function(Y) {
+    var formElement = Y.ITSAFormElement.getElement(
+        'text',
+        {
+            value: 'default name',
+            tooltip: 'Enter here your name',
+            tooltipHeader: 'tooltipheader',
+            tooltipFooter: 'tooltipfooter',
+            tooltipPlacement: 'right'
+        }
+    );
+
+    Y.one('#myform').append(formElement.html);
+    new Y.Popover({selector: "[data-formelement='true']", width: 200}).render();
+});

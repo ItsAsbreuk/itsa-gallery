@@ -39,6 +39,7 @@ var ITSAFormElement,
     ICON_DATE_CLASS = PICKER_ICON+DATE,
     ICON_TIME_CLASS = PICKER_ICON+TIME,
     ICON_DATETIME_CLASS = PICKER_ICON+DATETIME,
+    DATA_FORM_ELEMENT = ' data-formelement="true"',
 
     PATTERN_EMAIL = '^[\\w!#$%&\'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&\'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
     PATTERN_URLEND = '[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+(/[\\w-]+)*',
@@ -84,7 +85,7 @@ var ITSAFormElement,
     LABELDATA        = LABEL+DATA,
     VALUESWITCHED    = VALUE+SWITCHED,
     VALUENONSWITCHED = VALUE+'non'+SWITCHED,
-    UNFOCUSABLE      = 'unfocusable',
+    FOCUSABLE      = 'focusable',
     DISABLED_SUB         = '{'+DISABLED+'}',
     READONLY_SUB         = '{'+READONLY+'}',
     CHECKED_SUB          = '{'+CHECKED+'}',
@@ -103,7 +104,7 @@ var ITSAFormElement,
     LABELDATA_SUB        = '{'+LABELDATA+'}',
     DATETIME_CLASS_SUB   = '{'+DATETIME_CLASS+'}',
     BUTTONTEXT_SUB       = '{'+BUTTONTEXT+'}',
-    UNFOCUSABLE_SUB      = '{'+UNFOCUSABLE+'}',
+    FOCUSABLE_SUB      = '{'+FOCUSABLE+'}',
 
     TYPE           = 'type',
     SUBMIT         = 'submit',
@@ -113,31 +114,30 @@ var ITSAFormElement,
     CLASSNAME      = CLASS+NAMEDEF,
     LABELCLASSNAME = LABEL+'Class'+NAMEDEF,
 
-    DATA_FORM_ELEMENT = ' data-formelement="true"',
     DATA_LABEL_DATETIME = ' data-labeldatetime="true"',
     DATA_DATETIME = DATA+'-'+DATETIME+'=', // used as node data-attribute data-datetime
 
     ELEMENT_UNDEFINED = '<'+SPAN+' '+ID_SUB+'>UNDEFINED ELEMENTTYPE</'+SPAN+'>',
 
-    ELEMENT_TEXT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
-    ELEMENT_PASSWORD = INPUT_TYPE_IS+PASSWORD+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
-    ELEMENT_EMAIL = INPUT_TYPE_IS+EMAIL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_EMAIL+'" />',
-    ELEMENT_URL = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URL+'" />',
-    ELEMENT_URLHTTP = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTP+'" />',
-    ELEMENT_URLHTTPS = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTPS+'" />',
-    ELEMENT_INTEGER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_INTEGER+'" />',
-    ELEMENT_FLOAT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_FLOAT+'" />',
-    ELEMENT_RADIO = INPUT_TYPE_IS+RADIO+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+CHECKED_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
-    ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_TEXT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_PASSWORD = INPUT_TYPE_IS+PASSWORD+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_EMAIL = INPUT_TYPE_IS+EMAIL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_EMAIL+'" />',
+    ELEMENT_URL = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URL+'" />',
+    ELEMENT_URLHTTP = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTP+'" />',
+    ELEMENT_URLHTTPS = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTPS+'" />',
+    ELEMENT_INTEGER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_INTEGER+'" />',
+    ELEMENT_FLOAT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_FLOAT+'" />',
+    ELEMENT_RADIO = INPUT_TYPE_IS+RADIO+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+CHECKED_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
-    ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />'+VALUE_SUB+'</'+TEXTAREA+'>',
-    ELEMENT_WIDGET = '<'+DIV+' '+ID_SUB+DATA_SUB+UNFOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>',
-    ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+UNFOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_DATE = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+UNFOCUSABLE_SUB+
+    ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />'+VALUE_SUB+'</'+TEXTAREA+'>',
+    ELEMENT_WIDGET = '<'+DIV+' '+ID_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>',
+    ELEMENT_BUTTON = BUTTON_TYPE_IS+'"'+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_DATE = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+VALUE_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+
                    ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_TIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+UNFOCUSABLE_SUB+
+    ELEMENT_TIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+VALUE_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+FOCUSABLE_SUB+
                    ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_TIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+UNFOCUSABLE_SUB+
+    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+VALUE_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+FOCUSABLE_SUB+
                        ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
     GETFORMATTED_DATEVALUE = function(type, value, format) {
@@ -202,7 +202,7 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.data] {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.
  *   @param [config.digits=false] {Boolean} for floating numbers: only valid for type==='number'.
  *   @param [config.disabled=false] {Boolean}
- *   @param [config.unfocusable=false] {Boolean} adds an extra attribute 'unfocusable' which can be used as a selector by the FocusManager. Also applyable for Widgets.
+ *   @param [config.focusable=true] {Boolean} adds an extra attribute 'focusable' which can be used as a selector by the FocusManager. Also applyable for Widgets.
  *   @param [config.format] {String} Date-format: only valid for type==='date', 'time' or 'datetime'
  *   @param [config.hidden=false] {Boolean}
  *   @param [config.label] {String} can by used for all elements (including Widgets and date-time), except for buttons.
@@ -228,8 +228,9 @@ ITSAFormElement = Y.ITSAFormElement = {};
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
  * @return {object} o.html --> rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAForm,
  *                             or Y.ITSAEditModel<br />
+ *                  o.config --> reference to the original configobject
+ *                  o.nodeid --> created node's id (without #)
  *                  o.widget --> handle to the created widgetinstance.<br />
- *                  o.nodeid --> created node's id.
 */
 ITSAFormElement.getElement = function(type, config, nodeid) {
     Y.log('getElement', 'info', 'ITSAFormElement');
@@ -242,6 +243,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     }
     element = {
         nodeid : nodeid,
+        config : config,
         html : ITSAFormElement._renderedElement((iswidget ? type.constructor.NAMEDEF : type), config, nodeid, iswidget)
     };
     if (iswidget) {
@@ -274,7 +276,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     Y.log('_renderedElement', 'info', 'ITSAFormElement');
     var subtituteConfig = Y.merge(config),
         switchlabel = (typeof subtituteConfig[SWITCHLABEL]===BOOLEAN) ? subtituteConfig[SWITCHLABEL] : false,
-        unfocusable = (typeof subtituteConfig[UNFOCUSABLE]===BOOLEAN) ? subtituteConfig[UNFOCUSABLE] : false,
+        focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
         tooltip = config.tooltip,
         tooltipHeader = config.tooltipHeader,
         tooltipFooter = config.tooltipFooter,
@@ -284,10 +286,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         digits = config.digits,
         length = config.length,
         configdata = config[DATA],
-        labelclass, disabledbutton, primarybutton, template, data, surroundlabelclass, hidden, disabled, required,
+        data = DATA_FORM_ELEMENT, // always initialize
+        labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
         purebutton, readonly, extralabel, elementWithtooltipOnLabel;
-    // making THE data a string
-    data = DATA_FORM_ELEMENT;
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
     length && (data+=' data-length="'+length+'"');
@@ -308,10 +309,10 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         template = ELEMENT_WIDGET;
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + '"';
         if (Y.UA.xhtml) {
-            subtituteConfig[UNFOCUSABLE] = unfocusable ? (' '+UNFOCUSABLE+'="'+UNFOCUSABLE+'"') : '';
+            subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
         }
         else {
-            subtituteConfig[UNFOCUSABLE] = unfocusable ? (' '+UNFOCUSABLE) : '';
+            subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE) : '';
         }
     }
     else {
@@ -321,14 +322,14 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
 /*jshint expr:true */
         if (Y.UA.xhtml) {
-            subtituteConfig[UNFOCUSABLE] = unfocusable ? (' '+UNFOCUSABLE+'="'+UNFOCUSABLE+'"') : '';
+            subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
             subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
             subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
             subtituteConfig[REQUIRED] = required ? (' '+REQUIRED+'="'+REQUIRED+'"') : '';
             subtituteConfig[READONLY] = readonly ? (' '+READONLY+'="'+READONLY+'"') : '';
         }
         else {
-            subtituteConfig[UNFOCUSABLE] = unfocusable ? (' '+UNFOCUSABLE) : '';
+            subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE) : '';
             subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN) : '';
             subtituteConfig[DISABLED] = disabled ? (' '+DISABLED) : '';
             subtituteConfig[REQUIRED] = required ? (' '+REQUIRED) : '';
@@ -401,6 +402,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             else if (type===DATETIME) {
                 template = ELEMENT_DATETIME;
             }
+            subtituteConfig[VALUE] = ' value="'+config.value.getTime()+'"';
             subtituteConfig[DATA] += ' data-'+DATETIME+'picker="true"';
             subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
                                               (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
@@ -442,27 +444,27 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
 // Define synthetic events 'datepickerclick', 'timepickerclick' and 'datetimepickerclick':
 
 /**
-  * Event fired when the datepicker-button is clicked.
+  * Node-event fired when the datepicker-button is clicked.
   *
-  * @event datepickerclick
+  * @event Y.Node.datepickerclick
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
-  * Event fired when the timepicker-button is clicked.
+  * Node-event fired when the timepicker-button is clicked.
   *
-  * @event timepickerclick
+  * @event Y.Node.timepickerclick
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
-  * Event fired when the datetimepicker-button is clicked.
+  * Node-event fired when the datetimepicker-button is clicked.
   *
-  * @event datetimepickerclick
+  * @event Y.Node.datetimepickerclick
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
@@ -498,20 +500,20 @@ YARRAY.each(
 // Define synthetic events 'submitclick' and 'resetclick':
 
 /**
-  * Event fired when the submitbutton is clicked. This is not the same as the 'submit'-event because the latter
+  * Node-event fired when the submitbutton is clicked. This is not the same as the 'submit'-event because the latter
   * gets fired on a form-submit.
   *
-  * @event submitclick
+  * @event Y.Node.submitclick
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
-  * Event fired when the resetbutton is clicked. This is not the same as the 'reset'-event because the latter
+  * Node-event fired when the resetbutton is clicked. This is not the same as the 'reset'-event because the latter
   * gets fired on a form-reset.
   *
-  * @event resetclick
+  * @event Y.Node.resetclick
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *

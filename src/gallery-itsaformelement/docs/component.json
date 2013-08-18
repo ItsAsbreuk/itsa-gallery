@@ -22,7 +22,7 @@
             "displayName": "Creating a widget form-element",
             "description": "This example shows how use Y.ITSAFormElement to render a widget form-element.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformelement"],
+            "modules"    : ["gallery-itsaformelement", "gallery-itsacheckbox"],
             "tags"       : ["gallery-itsaformelement", "form-element", "widget"],
             "hideTableOfContents": true
         },
@@ -31,7 +31,7 @@
             "displayName": "Summary of all rendered form-elements",
             "description": "Below is a summary of all stringified results",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformelement"],
+            "modules"    : ["node-base", "escape", "escape", "gallery-itsaformelement", "gallery-itsacheckbox"],
             "tags"       : ["gallery-itsaformelement", "form-element", "summary"],
             "hideTableOfContents": true
         },
@@ -42,6 +42,15 @@
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaformelement"],
             "tags"       : ["gallery-itsaformelement", "form-element", "events"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "popover",
+            "displayName": "Using Y.Popover",
+            "description": "This example shows how to use Y.ITSAFormElement with Y.Popover",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformelement", "gallery-popover"],
+            "tags"       : ["gallery-itsaformelement", "form-element", "gallery-tipsy", "gallery-popover", "tipsy", "popover"],
             "hideTableOfContents": true
         }
     ]
