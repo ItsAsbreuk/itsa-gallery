@@ -1,22 +1,85 @@
-YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', function(Y) {
-    var model, formElArtist, formElFirstRelease, container;
+YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
+    var model, artist, firstrelease, soldout, container;
 
-    model = new Y.Model({
+    Y.MyFormModel = Y.Base.create('pieModel', Y.ITSAEditModel, [], {}, {
+        ATTRS: {
+            artist: {
+                formtype: 'text',
+                formconfig: {
+                    required: true,
+                    disabled: true
+                },
+                validator: function(v) {return (typeof v==='string');}
+            },
+            country: {
+                formtype: 'text',
+                formconfig: {
+                    required: true,
+                    disabled: true
+                },
+                validator: function(v) {return (typeof v==='string');}
+            },
+            firstRelease: {
+                formtype: 'date',
+                formconfig: {
+                    required: true,
+                    format: '%Y-%m-%d'
+                }
+//                validator: function(v) {return (typeof v==='date');}
+            },
+            soldOut: {
+                value: false,
+                formtype: Y.ITSACheckbox,
+                formconfig: {
+                    required: true,
+                    disabled: true
+                },
+                validator: function(v) {return (typeof v==='boolean');}
+            }
+        }
+    });
+
+    model = new Y.MyFormModel({
         artist: 'Madonna',
         country: 'USA',
         firstRelease: new Date(1983, 1, 1),
         soldOut: true
     });
-    model.plug(Y.Plugin.ITSAEditModel);
-    formElArtist = model.itsaeditmodel.getElement('artist', {type: 'text'});
-    formElFirstRelease = model.itsaeditmodel.getElement('firstRelease', {type: 'date', dateFormat: '%d-%m-%Y'});
+
+    artist = model.renderFormElement('artist');
+    firstrelease = model.renderFormElement('firstRelease');
+    soldout = model.renderFormElement('soldOut');
 
     container = Y.one('#examplecontainer');
-    container.append(
-        'Artist : '+formElArtist+'<br />'+
-        'First release : '+formElFirstRelease
-    );
+    container.append(artist+'<br />');
+    container.append(firstrelease+'<br />');
+    container.append(soldout+'<br />');
+    container.append('<span class="comment">'+Y.Escape.html(artist)+'</span><br />');
+    container.append('<span class="comment">'+Y.Escape.html(firstrelease)+'</span><br />');
+    container.append('<span class="comment">'+Y.Escape.html(soldout)+'</span><br />');
 
-    container.append('<span class="comment">'+Y.Escape.html(formElArtist)+'</span>');
-    container.append('<span class="comment">'+Y.Escape.html(formElFirstRelease)+'</span>');
+    model.on('save', function() {
+        container.append('<span class="comment">model is saved (save-event occured)</edit>');
+    });
+
+    model.on('*:destroy', function() {
+        container.append('<span class="comment">model is destroyed (destroy-event occured)</edit>');
+    });
+
+    model.on('*:submit', function() {
+        container.append('<span class="comment">model is submitted (submit-event occured)</edit>');
+    });
+
+    model.after('saveclick', function(e) {
+        container.append('<span class="comment">model:saveclick event occured</edit>');
+    });
+
+    model.after('destroyclick', function(e) {
+        container.append('<span class="comment">model:destroyclick event occured</edit>');
+    });
+
+    model.after('submitclick', function(e) {
+        container.append('<span class="comment">model:submitclick event occured</edit>');
+    });
+
 });

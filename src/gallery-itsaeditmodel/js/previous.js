@@ -1069,7 +1069,7 @@ console.log('clicked datetime fase 2');
          * Sets the value of a property (or in case of Model, the attribute). Regardless which type the host is.
          * In case
          *
-         * @method _setProperty
+         * @method UItoModel
          * @param [propertyName] {String} Propertyname or -in case or Model- attribute-name. If set to 'null' then all attributes are set.
                   In tha case 'value' should be a hash containing properties and values, which can be passed through to 'Model.setAttrs()'
          * @param value {Any} The new value to be set.
@@ -1077,13 +1077,13 @@ console.log('clicked datetime fase 2');
          * @since 0.1
          *
         */
-        _setProperty: function(propertyName, value) {
+        _UItoModel: function(propertyName, value) {
             var instance = this,
                 host = instance.host,
                 options = {fromEditModel: true}, // set Attribute with option: '{fromEditModel: true}' --> now the view knows it must not re-render.
                 uiElement;
 
-            Y.log('_setProperty', 'info', 'Itsa-EditModel');
+            Y.log('UItoModel', 'info', 'Itsa-EditModel');
             uiElement = instance._UIelements[propertyName];
             if (uiElement) {
                 uiElement.value = value;
