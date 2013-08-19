@@ -34,6 +34,8 @@ var ITSAFormElement,
 
     ERROR = 'error',
     BOOLEAN = 'boolean',
+    MIN = 'min',
+    MAX = 'max',
 
     PICKER = 'picker',
     CLICK = 'click',
@@ -72,7 +74,7 @@ var ITSAFormElement,
     READONLY    = 'readonly',
     CHECKED     = 'checked',
     REQUIRED    = 'required',
-    NAMEDEF     = 'name', // cannot use NAMEDEF
+    NAMEDEF     = 'name', // cannot use NAME
     VALUE       = 'value',
     PLACEHOLDER = 'placeholder',
     PATTERN     = 'pattern',
@@ -98,7 +100,7 @@ var ITSAFormElement,
     PATTERN_SUB          = '{'+PATTERN+'}',
     DATA_SUB             = '{'+DATA+'}',
     CLASS_SUB            = '{'+CLASS+'}',
-    HIDDEN_SUB            = '{'+HIDDEN+'}',
+    HIDDEN_SUB           = '{'+HIDDEN+'}',
     ID_SUB               = 'id="{id}"',
     LABEL_FOR_ID_SUB     = '<label for="{id}"',
     VALUESWITCHED_SUB    = '{'+VALUESWITCHED+'}',
@@ -106,7 +108,9 @@ var ITSAFormElement,
     LABELDATA_SUB        = '{'+LABELDATA+'}',
     DATETIME_CLASS_SUB   = '{'+DATETIME_CLASS+'}',
     BUTTONTEXT_SUB       = '{'+BUTTONTEXT+'}',
-    FOCUSABLE_SUB      = '{'+FOCUSABLE+'}',
+    FOCUSABLE_SUB        = '{'+FOCUSABLE+'}',
+    MIN_SUB              = '{'+MIN+'}',
+    MAX_SUB              = '{'+MAX+'}',
 
     TYPE           = 'type',
     SUBMIT         = 'submit',
@@ -127,8 +131,10 @@ var ITSAFormElement,
     ELEMENT_URL = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URL+'" />',
     ELEMENT_URLHTTP = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTP+'" />',
     ELEMENT_URLHTTPS = INPUT_TYPE_IS+URL+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_URLHTTPS+'" />',
-    ELEMENT_INTEGER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_INTEGER+'" />',
-    ELEMENT_FLOAT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' '+PATTERN+'="'+PATTERN_FLOAT+'" />',
+    ELEMENT_INTEGER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+MIN_SUB+MAX_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+
+                      ' '+PATTERN+'="'+PATTERN_INTEGER+'" />',
+    ELEMENT_FLOAT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+MIN_SUB+MAX_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+
+                    ' '+PATTERN+'="'+PATTERN_FLOAT+'" />',
     ELEMENT_RADIO = INPUT_TYPE_IS+RADIO+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+CHECKED_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
@@ -142,19 +148,21 @@ var ITSAFormElement,
     ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+VALUE_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+FOCUSABLE_SUB+
                        ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
-    GETFORMATTED_DATEVALUE = function(type, value, format) {
-        if (type==='date') {
-            format = format || '%x';
-        }
-        else if (type==='time') {
-            format = format || '%X';
-        }
-        else if (type==='datetime') {
-            format = format || '%x %X';
+    GETFORMATTED_DATEVALUE = function(type, value, format, switchdatelabel) {
+        if (!format) {
+            if (type==='date') {
+                format = '%x';
+            }
+            else if (type==='time') {
+                format = '%X';
+            }
+            else {
+                format = '%x %X';
+            }
         }
         // asynchronious preloading the module
         Y.use('gallery-itsadatetimepicker');
-        return Y.Date.format(value, {format: format});
+        return '<span class="formattime '+(switchdatelabel ? 'timebehind' : 'timebefore')+'">'+Y.Date.format(value, {format: format})+'</span>';
     },
 
     SUBREGEX = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g,
@@ -230,6 +238,7 @@ ITSAFormElement = Y.ITSAFormElement = {};
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
  * @return {object} o.html --> rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAForm,
  *                             or Y.ITSAEditModel<br />
+ *                  o.name --> convenience-property===config.name
  *                  o.config --> reference to the original configobject
  *                  o.nodeid --> created node's id (without #)
  *                  o.widget --> handle to the created widgetinstance.<br />
@@ -245,6 +254,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     element = {
         nodeid : nodeid,
         config : config,
+        name : config.name,
         html : ITSAFormElement._renderedElement((iswidget ? type.constructor.NAMEDEF : type), config, nodeid, iswidget)
     };
     if (iswidget) {
@@ -287,7 +297,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
-        purebutton, readonly, extralabel, elementWithtooltipOnLabel;
+        purebutton, readonly, extralabel, elementWithtooltipOnLabel, switchdatelabel;
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
     length && (data+=' data-length="'+length+'"');
@@ -362,8 +372,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         else if (type==='number') {
             template = ((typeof digits===BOOLEAN) && digits) ? ELEMENT_FLOAT : ELEMENT_INTEGER;
 /*jshint expr:true */
-            config.min && (subtituteConfig[DATA] += ' data-min='+config.min);
-            config.max && (subtituteConfig[DATA] += ' data-max='+config.max);
+            config.min && (subtituteConfig[MIN] = ' min='+config.min+'"');
+            config.max && (subtituteConfig[MAX] += ' max='+config.max+'"');
 /*jshint expr:false */
         }
         else if (type===RADIO) {
@@ -389,6 +399,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             disabledbutton = disabled;
 /*jshint expr:true */
             config[BUTTONTEXT] || (subtituteConfig[BUTTONTEXT]=(config[VALUE]||type));
+            subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+subtituteConfig[BUTTONTEXT]+'"');
 /*jshint expr:false */
         }
         else if ((type===DATE) || (type===TIME) || (type===DATETIME)) {
@@ -401,12 +412,15 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             else if (type===DATETIME) {
                 template = ELEMENT_DATETIME;
             }
-            subtituteConfig[VALUE] = ' value="'+config.value.getTime()+'"';
+/*jshint expr:true */
+            config[VALUE] && (subtituteConfig[VALUE] = ' value="'+config[VALUE].getTime()+'"');
+/*jshint expr:false */
             subtituteConfig[DATA] += ' data-'+DATETIME+'picker="true"';
             subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
                                               (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
                                               (config.primary ? (' '+PRIMARY_BUTTON_CLASS) : '');
-            subtituteConfig[config[SWITCHDATETIME] ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format);
+            switchdatelabel = config[SWITCHDATETIME];
+            subtituteConfig[switchdatelabel ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format, switchdatelabel);
         }
         else {
             template = ELEMENT_UNDEFINED;
@@ -491,6 +505,19 @@ YARRAY.each(
                 // Clean up supporting DOM subscriptions and other external hooks
                 // when the synthetic event subscription is detached.
                 subscription._handle.detach();
+            },
+            delegate: function (node, subscription, notifier, filter) {
+                subscription._delegatehandle = node.on(CLICK, function (e) {
+                    var targetNode = e.target;
+                    if (filter && targetNode.getAttribute(DATA+'-'+DATETIME)===eventtype) {
+                        // The notifier triggers the subscriptions to be executed.
+                        // Pass its fire() method the triggering DOM event facade
+                        notifier.fire(e);
+                    }
+                }, filter); // filter is passed on to the underlying `delegate()` call
+            },
+            detachDelegate: function (node, subscription) {
+                subscription._delegatehandle.detach();
             }
         });
     }
@@ -540,6 +567,19 @@ YARRAY.each(
                 // Clean up supporting DOM subscriptions and other external hooks
                 // when the synthetic event subscription is detached.
                 subscription._handle.detach();
+            },
+            delegate: function (node, subscription, notifier, filter) {
+                subscription._delegatehandle = node.on(CLICK, function (e) {
+                    var targetNode = e.target;
+                    if (filter && targetNode.getAttribute(DATA+'-'+BUTTON+TYPE)===eventtype) {
+                        // The notifier triggers the subscriptions to be executed.
+                        // Pass its fire() method the triggering DOM event facade
+                        notifier.fire(e);
+                    }
+                }, filter); // filter is passed on to the underlying `delegate()` call
+            },
+            detachDelegate: function (node, subscription) {
+                subscription._delegatehandle.detach();
             }
         });
     }
@@ -549,4 +589,12 @@ Y.UA.xhtml = (Y.one('html').getAttribute('xmlns')==='http://www.w3.org/1999/xhtm
 
 
 
-}, '@VERSION@', {"requires": ["yui-base", "datatype-date-format", "event-synthetic"], "skinnable": true});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "datatype-date-format",
+        "event-synthetic",
+        "gallery-itsawidgetrenderpromise"
+    ],
+    "skinnable": true
+});

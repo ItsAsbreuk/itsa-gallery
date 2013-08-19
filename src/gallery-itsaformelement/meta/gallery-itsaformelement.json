@@ -3,7 +3,8 @@
         "requires": [
             "yui-base",
             "datatype-date-format",
-            "event-synthetic"
+            "event-synthetic",
+            "gallery-itsawidgetrenderpromise"
         ],
         "skinnable": true
     }
