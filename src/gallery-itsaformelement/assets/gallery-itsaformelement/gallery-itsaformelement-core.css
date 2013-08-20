@@ -45,3 +45,14 @@ label[data-labeldatetime][data-changed] {
 .itsa-icontime {
     background-position: -20px -1px;
 }
+
+div.itsa-widget-parent + label[data-widgetlabel="true"],
+label[data-widgetlabel="true"] + div.itsa-widget-parent,
+button[data-datetimepicker="true"] + span.formattime,
+span.formattime + button[data-datetimepicker="true"],
+input[type="radio"][data-formelement="true"] + span.formatlabel,
+span.formatlabel + input[type="radio"][data-formelement="true"],
+input[type="checkbox"][data-formelement="true"] + span.formatlabel,
+span.formatlabel + input[type="checkbox"][data-formelement="true"] {
+    margin-left: 5px;
+}

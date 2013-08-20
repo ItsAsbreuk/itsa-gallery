@@ -148,7 +148,7 @@ var ITSAFormElement,
     ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+VALUE_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+FOCUSABLE_SUB+
                        ' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
-    GETFORMATTED_DATEVALUE = function(type, value, format, switchdatelabel) {
+    GETFORMATTED_DATEVALUE = function(type, value, format) {
         if (!format) {
             if (type==='date') {
                 format = '%x';
@@ -162,7 +162,7 @@ var ITSAFormElement,
         }
         // asynchronious preloading the module
         Y.use('gallery-itsadatetimepicker');
-        return '<span class="formattime '+(switchdatelabel ? 'timebehind' : 'timebefore')+'">'+Y.Date.format(value, {format: format})+'</span>';
+        return '<span class="formattime">'+Y.Date.format(value, {format: format})+'</span>';
     },
 
     SUBREGEX = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g,
@@ -300,7 +300,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
-        purebutton, readonly, extralabel, elementWithtooltipOnLabel, switchdatelabel;
+        purebutton, readonly, extralabel, elementWithtooltipOnLabel;
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
     length && (data+=' data-length="'+length+'"');
@@ -320,6 +320,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     if (iswidget) {
         template = ELEMENT_WIDGET;
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + '"';
+/*jshint expr:true */
+        config[LABEL] && (subtituteConfig[LABELDATA] += ' data-widgetlabel="true"');
+/*jshint expr:false */
         if (Y.UA.xhtml) {
             subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
         }
@@ -422,8 +425,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
                                               (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
                                               (config.primary ? (' '+PRIMARY_BUTTON_CLASS) : '');
-            switchdatelabel = config[SWITCHDATETIME];
-            subtituteConfig[switchdatelabel ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format, switchdatelabel);
+            subtituteConfig[config[SWITCHDATETIME] ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, config[VALUE], subtituteConfig.format);
         }
         else {
             template = ELEMENT_UNDEFINED;
@@ -438,12 +440,13 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     }
     if (subtituteConfig[LABEL]) {
         if (surroundlabelclass) {
+            subtituteConfig[LABEL] = '<span class="formatlabel">' + subtituteConfig[LABEL] + '</span>';
             labelclass = ' class="'+surroundlabelclass+(config[LABELCLASSNAME] ? (' '+config[LABELCLASSNAME]) : '') + '"';
-            template = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">'+(switchlabel ? (template+'{label}') : ('{label}'+template))+ENDLABEL_EL;
+            template = LABEL_FOR_IS+'{id}"'+LABELDATA_SUB+labelclass+'>'+(switchlabel ? (template+'{label}') : ('{label}'+template))+ENDLABEL_EL;
         }
         else {
             labelclass = config[LABELCLASSNAME] ? (' class="'+config[LABELCLASSNAME] + '"') : '';
-            extralabel = LABEL_FOR_IS+'"{id}'+LABELDATA_SUB+labelclass+'">{label}'+ENDLABEL_EL;
+            extralabel = LABEL_FOR_IS+'{id}"'+LABELDATA_SUB+labelclass+'>{label}'+ENDLABEL_EL;
             if (switchlabel) {
                 template += extralabel;
             }

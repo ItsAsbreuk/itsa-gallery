@@ -12,18 +12,19 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         var element = Y.ITSAFormElement.getElement(type, config).html;
         if (desc===NOCONFIG) {
             iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE);
-            container.append('<div class="typeheader"><b>type: '+(iswidget ? 'Y.ITSACheckbox' : type)+'</b> '+element+'</div>');
+            container.append('<div class="typeheader"><b>type: '+(iswidget ? 'Y.ITSACheckbox' : type)+'</b></div>');
         }
         container.append('<div class="codedesc">'+desc+'</div>');
         container.append('<div class="code">'+Y.Escape.html(element)+'</div>');
+        container.append('<div>'+element+'</div>');
     };
 
     //-------------------------------------------
     type = Y.ITSACheckbox;
     emptyconfig = {};
     fullconfig = {
-        optionon: 'current value',
-        optionoff: 'propertyname',
+        optionon: 'power on',
+        optionoff: 'power off',
         tooltip: 'here is some tooltipinfo',
         tooltipHeader: 'here is the tooltipheader',
         tooltipFooter: 'here is the tooltipfooter',
@@ -48,7 +49,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         pattern: '[A-Za-z]{3}',
         length: 25,
         classname: 'yui3-element-class',
@@ -76,7 +77,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -106,7 +107,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: false,
         disabled: true,
-        hidden: true,
+        hidden: false,
         pattern: '[A-Za-z]{3}',
         length: 25,
         classname: 'yui3-element-class',
@@ -134,7 +135,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -161,7 +162,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -191,7 +192,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
@@ -217,7 +218,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         checked: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -244,7 +245,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         placeholder: 'placeholderText',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         checked: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
@@ -272,7 +273,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
@@ -306,7 +307,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
@@ -340,7 +341,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
@@ -371,7 +372,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         disabled: true,
-        hidden: true,
+        hidden: false,
         classname: 'yui3-element-class',
         focusable: false,
         buttonTekst: 'press on this button',
@@ -391,7 +392,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         disabled: true,
-        hidden: true,
+        hidden: false,
         focusable: false,
         buttonTekst: 'press on this button',
         primary: true,
@@ -410,7 +411,7 @@ YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-it
         name: 'propertyname',
         data: 'data-someinfo="somedata"',
         disabled: true,
-        hidden: true,
+        hidden: false,
         classname: 'yui3-element-class',
         focusable: false,
         buttonTekst: 'press on this button',
