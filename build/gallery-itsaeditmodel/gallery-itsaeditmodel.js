@@ -745,7 +745,7 @@ _defFnChangeDate : function(e) {
          */
         renderFormElement : function(attribute) {
             var instance = this,
-                uielements, attr, attrconfig, formelement, element, currentui, nodeid, formtype, formconfig;
+                uielements, attr, attrconfig, formelement, element, currentui, nodeid, formtype, formconfig, valuefield;
             uielements = instance._UIelements;
             attr = instance.get(attribute);
             if (attr) {
@@ -755,9 +755,10 @@ _defFnChangeDate : function(e) {
                 nodeid = currentui && currentui.nodeid;
                 // now we have an existing nodeid in case the element was rendered before
                 attrconfig = instance._getAttrCfg(attribute);
-                formtype = attrconfig.formtype;
-                formconfig = attrconfig.formconfig;
-                formconfig.value = attr;
+                formtype = attrconfig.formtype || 'text';
+                formconfig = attrconfig.formconfig || {};
+                valuefield = instance._getWidgetValueField(formtype);
+                formconfig[valuefield] = attr;
                 formelement = ITSAFormElement.getElement(formtype, formconfig, nodeid);
                 // store in both instance._NODEelements and instance._BUTTONelements
                 uielements[attribute] = instance._NODEelements[formelement.nodeid] = formelement;
@@ -875,6 +876,29 @@ _defFnChangeDate : function(e) {
                     item.detach();
                 }
             );
+        },
+
+        /**
+         * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
+         * but widgets might have a value-property with another name.
+         *
+         * @method _getWidgetValueField
+         * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
+         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
+         * @return {String} the valuefield (attribute-name in case of widget).
+         * @private
+         * @since 0.2
+         */
+        _getWidgetValueField : function(type) {
+            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
+                classname, value;
+            if (iswidget) {
+                classname = type.NAME;
+                if (classname==='itsacheckbox') {
+                    value = 'checked';
+                }
+            }
+            return value || 'value';
         },
 
         /**

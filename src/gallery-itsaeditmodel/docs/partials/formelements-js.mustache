@@ -28,12 +28,8 @@ YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsachec
 //                validator: function(v) {return (typeof v==='date');}
             },
             soldOut: {
-                value: false,
+                value: true,
                 formtype: Y.ITSACheckbox,
-                formconfig: {
-                    required: true,
-                    disabled: true
-                },
                 validator: function(v) {return (typeof v==='boolean');}
             }
         }
