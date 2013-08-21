@@ -48,8 +48,10 @@ label[data-labeldatetime][data-changed] {
 
 div.itsa-widget-parent + label[data-widgetlabel="true"],
 label[data-widgetlabel="true"] + div.itsa-widget-parent,
-button[data-datetimepicker="true"] + span.formattime,
-span.formattime + button[data-datetimepicker="true"],
+div.itsa-widget-parent + span.formatvalue,
+span.formatvalue + div.itsa-widget-parent,
+button[data-datetimepicker="true"] + span.formatvalue,
+span.formatvalue + button[data-datetimepicker="true"],
 input[type="radio"][data-formelement="true"] + span.formatlabel,
 span.formatlabel + input[type="radio"][data-formelement="true"],
 input[type="checkbox"][data-formelement="true"] + span.formatlabel,
