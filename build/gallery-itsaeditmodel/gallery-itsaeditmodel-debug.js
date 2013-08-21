@@ -57,34 +57,19 @@ var YArray = Y.Array,
     FOCUS_NEXT = 'focusnext',
 
     /**
-      * Event fired after an input-elements value is changed.
-      * The defaultfunction: defFnUIChanged() is empty by default, but can be overridden.
+      * Event fired after an input-element or textarea-value is changed.
+      * The defaultfunction: _defFnUIChanged() is empty by default, but can be overridden.
       * This function always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event uichanged
       * @param e {EventFacade} Event Facade including:
-      * @param e.inputNode {Y.Node} The Input-Node that was clicked
-      * @param e.elementId {String} Id of the Node that changed value.
-      * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
+      * @param e.value {Date} current value of the property
+      * @param e.node {Y.Node} reference to the element-node
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     UI_CHANGED = 'uichanged',
-
-    /**
-      * Event fired when an input-elements value is changed (life, without blurring): valuechange.
-      * The defaultfunction: defFnUIChanging() is empty by default, but can be overridden.
-      * This function always will be executed, unless the event is preventDefaulted or halted.
-      *
-      * @event uichanging
-      * @param e {EventFacade} Event Facade including:
-      * @param e.inputNode {Y.Node} The Input-Node that was clicked
-      * @param e.elementId {String} Id of the Node that chancged value.
-      * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
-      * @param e.uiElement {Object} reference to the UI-element
-      *
-    **/
-    UI_CHANGING = 'uichanging',
 
     /**
       * Fired when a button -rendered by this modelinstance using renderBtn()- is clicked.
@@ -94,7 +79,7 @@ var YArray = Y.Array,
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     BUTTON_CLICK = BUTTON+CLICK,
@@ -108,7 +93,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     DESTROY_CLICK = DESTROY+CLICK,
@@ -122,7 +107,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     SUBMIT_CLICK = SUBMIT+CLICK,
@@ -136,7 +121,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     CANCEL_CLICK = CANCEL+CLICK,
@@ -150,7 +135,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     RESET_CLICK = RESET+CLICK,
@@ -164,7 +149,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     EDIT_CLICK = EDIT+CLICK,
@@ -178,7 +163,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     SAVE_CLICK = SAVE+CLICK,
@@ -192,7 +177,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Date} current value of the property
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     DATEPICKER_CLICK = DATE+PICKER+CLICK,
@@ -206,7 +191,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Date} current value of the property
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     TIMEPICKER_CLICK = TIME+PICKER+CLICK,
@@ -220,7 +205,7 @@ var YArray = Y.Array,
       * @param e.target {Y.ITSAEditModel} The ITSAEditModel-instance
       * @param e.value {Date} current value of the property
       * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.uiElement {Object} reference to the UI-element
+      * @param e.formElement {Object} reference to the form-element
       *
     **/
     DATETIMEPICKER_CLICK = DATE+TIME+PICKER+CLICK;
@@ -237,7 +222,7 @@ Y.ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Model, [], {
         initializer : function() {
             var instance = this;
 
-            Y.log('initializer', 'info', 'Itsa-EditModel');
+            Y.log('initializer', 'info', 'ITSAEditModel');
            // -- Public Properties -------------------------------------------------
 
            /**
@@ -250,31 +235,23 @@ Y.ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Model, [], {
             instance._eventhandlers = [];
 
            /**
-            * internal backup of all created attribute-formelements, referenced by attributename
-            * @property _UIelements
-            * @default {}
-            * @private
-            * @type Object
-            */
-            instance._UIelements = {};
-
-           /**
             * internal backup of all created formelements: both attribute and buttons, referenced by nodeid's
-            * @property _UIelements
+            * @property _FORMelements
             * @default {}
             * @private
             * @type Object
             */
-            instance._NODEelements = {};
+            instance._FORMelements = {};
+
 
            /**
-            * internal backup of all created button-formelements, referenced by buttonvalue
-            * @property _BUTTONelements
+            * internal backup of which attribute generated what all nodeid's, referenced by attribute-name's
+            * @property _ATTRS_nodes
             * @default {}
             * @private
             * @type Object
             */
-            instance._BUTTONelements = {};
+            instance._ATTRS_nodes = {},
 
            /**
             * internal flag that tells whether updates on a UI-element should be stored at once.
@@ -313,14 +290,7 @@ Y.ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Model, [], {
             instance.publish(
                 UI_CHANGED,
                 {
-                    defaultFn: Y.bind(instance.defFnUIChanged, instance),
-                    emitFacade: true
-                }
-            );
-            instance.publish(
-                UI_CHANGING,
-                {
-                    defaultFn: Y.bind(instance.defFnUIChanging, instance),
+                    defaultFn: Y.bind(instance._defFnUIChanged, instance),
                     emitFacade: true
                 }
             );
@@ -384,106 +354,9 @@ Y.ITSAEditModel = Y.Base.create('itsaeditmodel', Y.Model, [], {
             instance._bindUI();
         },
 
-defFnFocusNext : function() {
-    // empty by default --> can be overridden
-},
-
-defFnUIChanged : function() {
-    // empty by default --> can be overridden
-},
-
-defFnUIChanging : function() {
-    // empty by default --> can be overridden
-},
-
-_defFnDestroy : function() {
-console.log('Default function destroy');
-    var instance = this;
-    instance.destroyPromise();
-
-},
-_defFnEdit : function() {
-    Y.log('_defFnEdit', 'info', 'Itsa-EditModel');
-    // may be overridden
-},
-_defFnSubmit : function() {
-console.log('Default function submit');
-    var instance = this;
-    instance.submitPromise();
-
-},
-_defFnCancel : function() {
-console.log('Default function cancel');
-
-},
-_defFnReset : function() {
-console.log('Default function reset');
-
-},
-_defFnSave : function() {
-console.log('Default function save');
-    var instance = this;
-    instance._UItoModel();
-    instance.savePromise();
-},
-_defFnChangeDate : function(e) {
-    Y.use('gallery-itsadatetimepicker', function() {
-        var instance = e.target,
-            type = e.type,
-            node = e.buttonNode,
-            picker = Y.ItsaDateTimePicker,
-            uiElement = e.uiElement,
-            promise, dateformat, labelnode;
-        if (type===DATEPICKER_CLICK) {
-            promise = Y.bind(picker.getDate, picker);
-        }
-        else if (type===TIMEPICKER_CLICK) {
-            promise = Y.bind(picker.getTime, picker);
-        }
-        else if (type===DATETIMEPICKER_CLICK) {
-            promise = Y.bind(picker.getDateTime, picker);
-        }
-        promise(new Date(e.value), uiElement.config)
-        .then(
-            function(newdate) {
-              // first we need to use the new datevalue and reflect it (update) to the UI-element
-              node.setAttribute('value', newdate.getTime());
-              dateformat = uiElement.config.format;
-              if (!dateformat) {
-                  if (type==='date') {
-                      dateformat = '%x';
-                  }
-                  else if (type==='time') {
-                      dateformat = '%X';
-                  }
-                  else {
-                      dateformat = '%x %X';
-                  }
-              }
-              labelnode = Y.one('label[for="'+node.get('id')+'"]');
-              labelnode = labelnode.one('span.formattime');
-              if (labelnode) {
-                  labelnode.set('text', Y.Date.format(newdate, {format: dateformat}));
-              }
-              if (instance._lifeUpdate) {
-                  instance._UItoModel(uiElement.name);
-              }
-            },
-            function() {
-                return true; // switch rejectstatus to fulfilled by returning a value
-            }
-        )
-        .then(
-            function() {
-                // should always be called
-                // be carefull: button might not exist anymore, when the view is rerendered
-                if (node) {
-                    node.focus();
-                }
-            }
-        );
-    });
-},
+        defFnFocusNext : function() {
+            // empty by default --> can be overridden
+        },
 
         /**
          *
@@ -511,8 +384,599 @@ _defFnChangeDate : function(e) {
          *
          */
         renderBtn : function(buttonText, config) {
-            Y.log('renderBtn', 'info', 'Itsa-EditModel');
+            Y.log('renderBtn', 'info', 'ITSAEditModel');
             return this._renderBtn(buttonText, config, BUTTON, true);
+        },
+
+        /**
+         *
+         * Renderes a formelement-cancelbutton.
+         * By specifying 'config', the button can be configured in more detail.
+         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-cancel"></i> cancel'
+         *
+         * @method renderCancelBtn
+         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled]
+         * @param [config.hidden]
+         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.focusable]
+         * @param [config.primary] making it the primary-button
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
+         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
+         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
+         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @return {String} stringified version of the button which can be inserted in the dom.
+         * @since 0.2
+         *
+         */
+        renderCancelBtn : function(buttonText, config) {
+            Y.log('renderCancelBtn', 'info', 'ITSAEditModel');
+            return this._renderBtn(buttonText, config, CANCEL, true);
+        },
+
+        /**
+         *
+         * Renderes a formelement-destroybutton.
+         * By specifying 'config', the button can be configured in more detail.
+         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-destroy"></i> destroy'
+         *
+         * @method renderDestroyBtn
+         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled]
+         * @param [config.hidden]
+         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.focusable]
+         * @param [config.primary] making it the primary-button
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
+         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
+         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
+         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @return {String} stringified version of the button which can be inserted in the dom.
+         * @since 0.2
+         *
+         */
+        renderDestroyBtn : function(buttonText, config) {
+            Y.log('renderDestroyBtn', 'info', 'ITSAEditModel');
+            return this._renderBtn(buttonText, config, DESTROY, true);
+        },
+
+        /**
+         *
+         * Renderes a formelement-editbutton.
+         * By specifying 'config', the button can be configured in more detail.
+         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-edit"></i> edit'
+         *
+         * @method renderEditBtn
+         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled]
+         * @param [config.hidden]
+         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.focusable]
+         * @param [config.primary] making it the primary-button
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
+         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
+         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
+         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @return {String} stringified version of the button which can be inserted in the dom.
+         * @since 0.2
+         *
+         */
+        renderEditBtn : function(buttonText, config) {
+            Y.log('renderEditBtn', 'info', 'ITSAEditModel');
+            return this._renderBtn(buttonText, config, EDIT, true);
+        },
+
+        /**
+         *
+         * Renderes a formelement-resetbutton.
+         * By specifying 'config', the button can be configured in more detail.
+         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-reset"></i> reset'
+         *
+         * @method renderResetBtn
+         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled]
+         * @param [config.hidden]
+         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.focusable]
+         * @param [config.primary] making it the primary-button
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
+         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
+         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
+         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @return {String} stringified version of the button which can be inserted in the dom.
+         * @since 0.2
+         *
+         */
+        renderResetBtn : function(buttonText, config) {
+            Y.log('renderResetBtn', 'info', 'ITSAEditModel');
+            return this._renderBtn(buttonText, config, RESET);
+        },
+
+        /**
+         *
+         * Renderes a formelement-savebutton.
+         * By specifying 'config', the button can be configured in more detail.
+         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-save"></i> save'
+         *
+         * @method renderSaveBtn
+         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled]
+         * @param [config.hidden]
+         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.focusable]
+         * @param [config.primary] making it the primary-button
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
+         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
+         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
+         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @return {String} stringified version of the button which can be inserted in the dom.
+         * @since 0.2
+         *
+         */
+        renderSaveBtn : function(buttonText, config) {
+            Y.log('renderSaveBtn', 'info', 'ITSAEditModel');
+            return this._renderBtn(buttonText, config, SAVE, true);
+        },
+
+        /**
+         *
+         * Renderes a formelement-submitbutton.
+         * By specifying 'config', the button can be configured in more detail.
+         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-press"></i> save'
+         *
+         * @method renderSubmitBtn
+         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled]
+         * @param [config.hidden]
+         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.focusable]
+         * @param [config.primary] making it the primary-button
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
+         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
+         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
+         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @return {String} stringified version of the button which can be inserted in the dom.
+         * @since 0.2
+         *
+         */
+        renderSubmitBtn : function(buttonText, config) {
+            Y.log('renderSubmitBtn', 'info', 'ITSAEditModel');
+            return this._renderBtn(buttonText, config, SUBMIT);
+        },
+
+        /**
+         *
+         * Renderes an attribute into its formelement.
+         *
+         * @method renderFormElement
+         * @param attribute {String} attribute that needs to be rendered.
+         * @return {String} stringified version of the element which can be inserted in the dom.
+         * @since 0.2
+         *
+        */
+        renderFormElement : function(attribute) {
+            var instance = this,
+                formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield, nodeid, widget;
+            Y.log('renderFormElement', 'info', 'ITSAEditModel');
+            formelements = instance._FORMelements;
+            attributenodes = instance._ATTRS_nodes;
+            attr = instance.get(attribute);
+            if (attr) {
+                attrconfig = instance._getAttrCfg(attribute);
+                formtype = attrconfig.formtype || 'text';
+                formconfig = attrconfig.formconfig || {};
+                valuefield = instance._getWidgetValueField(formtype);
+                formconfig[valuefield] = attr;
+                formconfig.modelattribute = true;
+                formconfig.name = attribute;
+                formelement = ITSAFormElement.getElement(formtype, formconfig);
+                // store in instance._FORMelements
+                nodeid = formelement.nodeid;
+                formelements[nodeid] = formelement;
+                // store in instance._ATTRS_nodes
+/*jshint expr:true */
+                attributenodes[attribute] || (attributenodes[attribute]=[]);
+/*jshint expr:false */
+                attributenodes[attribute].push(nodeid);
+                // if widget, then we need to add an eventlistener for valuechanges:
+                widget = formelement.widget;
+                if (widget) {
+                    instance._eventhandlers.push(
+                        widget.after(
+                            valuefield+'Change',
+                            Y.rbind(instance._updateSimularWidgetUI, instance, nodeid, attribute, valuefield)
+                        )
+                    );
+                }
+                element = formelement.html;
+                if (formelement.widget) {
+                    formelement.widget.addTarget(instance);
+                }
+            }
+            return element;
+        },
+
+        /**
+         * Cleans up bindings and removes plugin
+         * @method destructor
+         * @protected
+         * @since 0.1
+        */
+        destructor : function() {
+            var instance = this;
+            Y.log('destructor', 'info', 'ITSAEditModel');
+            if (instance._autoSaveTimer) {
+                instance._autoSaveTimer.cancel();
+            }
+            if (instance._fireEventTimer) {
+                instance._fireEventTimer.cancel();
+            }
+            instance._clearEventhandlers();
+            instance._removeTargets();
+            instance._FORMelements = {};
+            instance._ATTRS_nodes = {};
+        },
+
+        //===============================================================================================
+        // private methods
+        //===============================================================================================
+
+
+        /**
+         * Setting up eventlisteners
+         *
+         * @method _bindUI
+         * @private
+         * @since 0.1
+         *
+        */
+        _bindUI : function() {
+            var instance = this,
+                eventhandlers = instance._eventhandlers,
+                body = Y.one('body');
+
+            Y.log('_bindUI', 'info', 'ITSAEditModel');
+
+            // listening for a click on any 'datetimepicker'-button or a click on any 'form-element'-button in the dom
+            eventhandlers.push(
+                body.delegate(
+                    [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
+                     SAVE_CLICK, DESTROY_CLICK, EDIT_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
+                    function(e) {
+                        var node = e.target,
+                            type = e.type,
+                            value = node.getAttribute(VALUE),
+                            payload = {
+                                target: instance,
+                                value: ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) ? (new Date().setTime(parseInt(value, 10))) : value,
+                                formElement: instance._FORMelements[node.get('id')],
+                                buttonNode: node,
+                                type: type
+                            };
+                        // refireing, but now by the instance:
+                        instance.fire(type, payload);
+                    },
+                    function(delegatedNode, e){ // node === e.target
+                        // only process if node's id is part of this ITSAEditModel-instance:
+                        return instance._FORMelements[e.target.get('id')];
+                    }
+                )
+            );
+
+            // listening life for valuechanges
+            eventhandlers.push(
+                body.delegate(
+                    'valuechange',
+                    function(e) {
+                        var node = e.target,
+                            type = UI_CHANGED,
+                            payload = {
+                                target: instance,
+                                value: node.get(VALUE),
+                                formElement: instance._FORMelements[node.get('id')],
+                                node: node,
+                                type: type
+                            };
+                        // refireing, but now by the instance:
+                        instance.fire(type, payload);
+                    },
+                    function(delegatedNode, e){ // node === e.target
+                        // only process if node's id is part of this ITSAEditModel-instance:
+                        return instance._FORMelements[e.target.get('id')];
+                    }
+                )
+            );
+
+            // listening life for changes outside the UI --> do we need to update the UI?
+            eventhandlers.push(
+                instance.after(
+                    '*:change',
+                    function(e) {
+                        Y.confirm('Data has been changed from another source. Load it into the formelements?').then(
+                            Y.bind(instance._modelToUI, instance)
+                        );
+                    }
+                )
+            );
+
+
+        },
+
+        /**
+         * Cleaning up all eventlisteners
+         *
+         * @method _clearEventhandlers
+         * @private
+         * @since 0.1
+         *
+        */
+        _clearEventhandlers : function() {
+            Y.log('_clearEventhandlers', 'info', 'ITSAEditModel');
+            YArray.each(
+                this._eventhandlers,
+                function(item){
+                    item.detach();
+                }
+            );
+        },
+
+        /**
+         *
+         * Default function for the 'uichanged'-event which counts for non-widgets formelements.
+         *
+         * @method _defFnUIChanged
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnUIChanged : function(e) {
+            // should not be called by widgets
+            var instance = this,
+                attribute = e.formElement.name,
+                node = e.node;
+
+            Y.log('_defFnUIChanged, attribute  '+e.formElement.name, 'info', 'ITSAEditModel');
+            instance._updateSimularUI(node, attribute, e.value);
+            if (instance._lifeUpdate) {
+                instance._UItoModel(e.node);
+            }
+        },
+
+        /**
+         *
+         * Default function for the 'destroyclick'-event
+         *
+         * @method _defFnDestroy
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnDestroy : function() {
+            var instance = this;
+
+            Y.log('_defFnDestroy', 'info', 'ITSAEditModel');
+            instance.destroyPromise();
+        },
+
+        /**
+         *
+         * Default function for the 'editclick'-event
+         *
+         * @method _defFnEdit
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnEdit : function() {
+            Y.log('_defFnEdit', 'info', 'ITSAEditModel');
+            // may be overridden
+        },
+
+        /**
+         *
+         * Default function for the 'submitclick'-event
+         *
+         * @method _defFnSubmit
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnSubmit : function() {
+            var instance = this;
+
+            Y.log('_defFnSubmit', 'info', 'ITSAEditModel');
+            instance.submitPromise();
+        },
+
+        /**
+         *
+         * Default function for the 'cancelclick'-event
+         *
+         * @method _defFnCancel
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnCancel : function() {
+            Y.log('_defFnCancel', 'info', 'ITSAEditModel');
+        },
+
+        /**
+         *
+         * Default function for the 'resetclick'-event
+         *
+         * @method _defFnReset
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnReset : function() {
+            Y.log('_defFnReset', 'info', 'ITSAEditModel');
+        },
+
+        /**
+         *
+         * Default function for the 'saveclick'-event
+         *
+         * @method _defFnSave
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnSave : function() {
+            var instance = this;
+
+            Y.log('_defFnSave', 'info', 'ITSAEditModel');
+            instance._UItoModel();
+            instance.savePromise();
+        },
+
+        /**
+         *
+         * Default function for the 'datepickerclick'-, 'timepickerclick'- and 'datetimepickerclick'-event
+         *
+         * @method _defFnChangeDate
+         * @param e {EventTarget}
+         * @private
+         * @since 0.2
+         *
+        */
+        _defFnChangeDate : function(e) {
+            Y.log('_defFnChangeDate', 'info', 'ITSAEditModel');
+
+            Y.use('gallery-itsadatetimepicker', function() {
+                var instance = e.target,
+                    type = e.type,
+                    node = e.buttonNode,
+                    picker = Y.ItsaDateTimePicker,
+                    formElement = e.formElement,
+                    promise, dateformat;
+                if (type===DATEPICKER_CLICK) {
+                    promise = Y.bind(picker.getDate, picker);
+                }
+                else if (type===TIMEPICKER_CLICK) {
+                    promise = Y.bind(picker.getTime, picker);
+                }
+                else if (type===DATETIMEPICKER_CLICK) {
+                    promise = Y.bind(picker.getDateTime, picker);
+                }
+                promise(new Date(e.value), formElement.config)
+                .then(
+                    function(newdate) {
+                      // first we need to use the new datevalue and reflect it (update) to the UI-element
+                      node.setAttribute('value', newdate.getTime());
+                      dateformat = formElement.config.format;
+                      instance._updateDateTimeUI(formElement.name, newdate, type, dateformat);
+                      if (instance._lifeUpdate) {
+                          instance._UItoModel(node.get('id'));
+                      }
+                    },
+                    function() {
+                        return true; // switch rejectstatus to fulfilled by returning a value
+                    }
+                )
+                .then(
+                    function() {
+                        // should always be called
+                        // be carefull: button might not exist anymore, when the view is rerendered
+                        if (node) {
+                            node.focus();
+                        }
+                    }
+                );
+            });
+        },
+
+        /**
+         * Returns the widgets value. That is, the getter of tha attribute that represents the 'value' (determined by _getWidgetValueField).
+         *
+         * @method _getWidgetValue
+         * @param widget {Widget} the widgetinstance
+         * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
+         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
+         * @return {String} the valuefield (attribute-name in case of widget).
+         * @private
+         * @since 0.2
+         */
+        _getWidgetValue : function(widget, type) {
+            Y.log('_getWidgetValue', 'info', 'ITSAEditModel');
+            return (widget && widget.get(this._getWidgetValueField(type)));
+        },
+
+        /**
+         * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
+         * but widgets might have a value-property with another name.
+         *
+         * @method _getWidgetValueField
+         * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
+         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
+         * @return {String} the valuefield (attribute-name in case of widget).
+         * @private
+         * @since 0.2
+         */
+        _getWidgetValueField : function(type) {
+            Y.log('_getWidgetValueField', 'info', 'ITSAEditModel');
+            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
+                classname, value;
+            if (iswidget) {
+                classname = type.NAME;
+                if (classname==='itsacheckbox') {
+                    value = 'checked';
+                }
+            }
+            return value || 'value';
+        },
+
+        _modelToUI : function() {
+            console.log('_modelToUI');
+        },
+
+        /**
+         * Cleaning up all widgettargets
+         *
+         * @method _removeTargets
+         * @private
+         * @since 0.2
+         *
+        */
+        _removeTargets : function() {
+            var instance = this;
+
+            Y.log('_removeTargets', 'info', 'ITSAEditModel');
+            YObject.each(
+                instance._FORMelements,
+                function(formElement) {
+                    var widget = formElement.widget;
+                    if (widget) {
+                        widget.removeTarget(instance);
+                    }
+                }
+            );
         },
 
         /**
@@ -548,7 +1012,7 @@ _defFnChangeDate : function(e) {
                 buttonelements = instance._BUTTONelements,
                 formbutton, indexvalue;
 
-            Y.log('renderBtn', 'info', 'Itsa-EditModel');
+            Y.log('renderBtn', 'info', 'ITSAEditModel');
 /*jshint expr:true */
             config || (config = {});
             buttontype || (buttontype = BUTTON);
@@ -563,387 +1027,163 @@ _defFnChangeDate : function(e) {
                 extradata && (config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"');
 /*jshint expr:false */
                 formbutton = ITSAFormElement.getElement((((buttontype===SUBMIT) || (buttontype===RESET)) ? buttontype : BUTTON), config);
-                // store in both instance._NODEelements and instance._BUTTONelements
-                buttonelements[indexvalue] = instance._NODEelements[formbutton.nodeid] = formbutton;
+                // store in both instance._FORMelements and instance._BUTTONelements
+                buttonelements[indexvalue] = instance._FORMelements[formbutton.nodeid] = formbutton;
             }
             return buttonelements[indexvalue].html;
         },
 
         /**
+         * Sets the UI-value of a formelement to its Model-attribute.
          *
-         * Renderes a formelement-cancelbutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-cancel"></i> cancel'
+         * @method _UItoModel
+         * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
+         * @private
+         * @since 0.1
          *
-         * @method renderCancelBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderCancelBtn : function(buttonText, config) {
-            Y.log('renderCancelBtn', 'info', 'Itsa-EditModel');
-            return this._renderBtn(buttonText, config, CANCEL, true);
-        },
-
-        /**
-         *
-         * Renderes a formelement-destroybutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-destroy"></i> destroy'
-         *
-         * @method renderDestroyBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderDestroyBtn : function(buttonText, config) {
-            Y.log('renderDestroyBtn', 'info', 'Itsa-EditModel');
-            return this._renderBtn(buttonText, config, DESTROY, true);
-        },
-
-        /**
-         *
-         * Renderes a formelement-editbutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-edit"></i> edit'
-         *
-         * @method renderEditBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderEditBtn : function(buttonText, config) {
-            Y.log('renderEditBtn', 'info', 'Itsa-EditModel');
-            return this._renderBtn(buttonText, config, EDIT, true);
-        },
-
-        /**
-         *
-         * Renderes a formelement-resetbutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-reset"></i> reset'
-         *
-         * @method renderResetBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderResetBtn : function(buttonText, config) {
-            Y.log('renderResetBtn', 'info', 'Itsa-EditModel');
-            return this._renderBtn(buttonText, config, RESET);
-        },
-
-        /**
-         *
-         * Renderes a formelement-savebutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-save"></i> save'
-         *
-         * @method renderSaveBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderSaveBtn : function(buttonText, config) {
-            Y.log('renderSaveBtn', 'info', 'Itsa-EditModel');
-            return this._renderBtn(buttonText, config, SAVE, true);
-        },
-
-        /**
-         *
-         * Renderes a formelement-submitbutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-press"></i> save'
-         *
-         * @method renderSubmitBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderSubmitBtn : function(buttonText, config) {
-            Y.log('renderSubmitBtn', 'info', 'Itsa-EditModel');
-            return this._renderBtn(buttonText, config, SUBMIT);
-        },
-
-        /**
-         *
-         * Renderes an attribute into its formelement.
-         *
-         * @method renderFormElement
-         * @param attribute {String} attribute that needs to be rendered.
-         * @return {String} stringified version of the element which can be inserted in the dom.
-         * @since 0.2
-         *
-         */
-        renderFormElement : function(attribute) {
+        */
+        _UItoModel: function(nodeid) {
             var instance = this,
-                uielements, attr, attrconfig, formelement, element, currentui, nodeid, formtype, formconfig, valuefield;
-            Y.log('renderFormElement', 'info', 'Itsa-EditModel');
-            uielements = instance._UIelements;
-            attr = instance.get(attribute);
-            if (attr) {
-                // we cannot use backuplist because values may change
-                // but we do need the same nodeid's when the element has been rendered before
-                currentui = uielements[attribute];
-                nodeid = currentui && currentui.nodeid;
-                // now we have an existing nodeid in case the element was rendered before
-                attrconfig = instance._getAttrCfg(attribute);
-                formtype = attrconfig.formtype || 'text';
-                formconfig = attrconfig.formconfig || {};
-                valuefield = instance._getWidgetValueField(formtype);
-                formconfig[valuefield] = attr;
-                formelement = ITSAFormElement.getElement(formtype, formconfig, nodeid);
-                // store in both instance._NODEelements and instance._BUTTONelements
-                uielements[attribute] = instance._NODEelements[formelement.nodeid] = formelement;
-                if (formelement.widget) {
-                    formelement.widget.addTarget(instance);
-                }
-                element = uielements[attribute].html;
-            }
-            return element;
-        },
+                formElement, formElements, options, node, value, attribute, widget;
 
-        /**
-         * Cleans up bindings and removes plugin
-         * @method destructor
-         * @protected
-         * @since 0.1
-        */
-        destructor : function() {
-            var instance = this;
-            Y.log('destructor', 'info', 'Itsa-EditModel');
-            if (instance._autoSaveTimer) {
-                instance._autoSaveTimer.cancel();
-            }
-            if (instance._fireEventTimer) {
-                instance._fireEventTimer.cancel();
-            }
-            instance._clearEventhandlers();
-            instance._removeTargets();
-            instance._UIelements = {};
-            instance._NODEelements = {};
-            instance._BUTTONelements = {};
-        },
-
-        //===============================================================================================
-        // private methods
-        //===============================================================================================
-
-        /**
-         * Cleaning up all widgettargets
-         *
-         * @method _removeTargets
-         * @private
-         * @since 0.2
-         *
-        */
-        _removeTargets : function() {
-            var instance = this;
-
-            Y.log('_removeTargets', 'info', 'Itsa-EditModel');
-            YObject.each(
-                instance._UIelements,
-                function(uiElement) {
-                    var widget = uiElement.widget;
-                    if (widget) {
-                        widget.removeTarget(instance);
-                    }
-                }
-            );
-        },
-
-        /**
-         * Setting up eventlisteners
-         *
-         * @method _bindUI
-         * @private
-         * @since 0.1
-         *
-        */
-        _bindUI : function() {
-            var instance = this,
-                eventhandlers = instance._eventhandlers,
-                body = Y.one('body');
-
-            Y.log('_bindUI', 'info', 'Itsa-EditModel');
-
-            // listening for a click on any 'datetimepicker'-button or a click on any 'form-element'-button in the dom
-            eventhandlers.push(
-                body.delegate(
-                    [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
-                     SAVE_CLICK, DESTROY_CLICK, EDIT_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
-                    function(e) {
-                        var node = e.target,
-                            type = e.type,
-                            value = node.getAttribute(VALUE),
-                            payload = {
-                                target: instance,
-                                value: ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) ? (new Date().setTime(parseInt(value, 10))) : value,
-                                uiElement: instance._NODEelements[node.get('id')],
-                                buttonNode: node,
-                                type: type
-                            };
-                        // refireing, but now by the instance:
-                        instance.fire(type, payload);
-                    },
-                    function(delegatedNode, e){ // node === e.target
-                        // only process if node's id is part of this ITSAEditModel-instance:
-                        return instance._NODEelements[e.target.get('id')];
-                    }
-                )
-            );
-
-
-
-        },
-
-        /**
-         * Cleaning up all eventlisteners
-         *
-         * @method _clearEventhandlers
-         * @private
-         * @since 0.1
-         *
-        */
-        _clearEventhandlers : function() {
-            Y.log('_clearEventhandlers', 'info', 'Itsa-EditModel');
-            YArray.each(
-                this._eventhandlers,
-                function(item){
-                    item.detach();
-                }
-            );
-        },
-
-        /**
-         * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
-         * but widgets might have a value-property with another name.
-         *
-         * @method _getWidgetValueField
-         * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
-         *                                         --> see ItsaFormElement for the attribute 'type' for further information.
-         * @return {String} the valuefield (attribute-name in case of widget).
-         * @private
-         * @since 0.2
-         */
-        _getWidgetValueField : function(type) {
-            Y.log('_getWidgetValueField', 'info', 'Itsa-EditModel');
-            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
-                classname, value;
-            if (iswidget) {
-                classname = type.NAME;
-                if (classname==='itsacheckbox') {
-                    value = 'checked';
-                }
-            }
-            return value || 'value';
-        },
-
-        /**
-         * Sets the UI-value of a attribute to its Model-attribute.
-         *
-         * @method UItoModel
-         * @param [attribute] {String} Attributename, when left empty, all UI-properties are set.
-         * @private
-         * @since 0.1
-         *
-        */
-        _UItoModel: function(attribute) {
-            var instance = this,
-                uiElement, uiElements, options, node, value;
-
-            Y.log('UItoModel', 'info', 'Itsa-EditModel');
-            uiElements = instance._UIelements;
-            uiElement = attribute && uiElements[attribute];
-            if (uiElement) {
-                node = Y.one('#'+uiElement.nodeid);
-                value = node && node.getAttribute(VALUE);
+            Y.log('UItoModel', 'info', 'ITSAEditModel');
+            formElements = instance._FORMelements;
+            formElement = nodeid && formElements[nodeid];
+            if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
+                widget = formElement.widget;
+                value = widget ? instance._getWidgetValue(widget, formElement.type) : node.getAttribute(VALUE);
+                attribute = node.get('name');
                 if (value) {
-                    options = {fromEditModel: true}; // set Attribute with option: '{fromEditModel: true}' --> Views might not want to re-render.
+                    options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
                     instance.set(attribute, value, options);
                 }
             }
-//            else if (!attribute) {
+            else if (!nodeid) {
+                // save all attributes
+                YObject.each(
+                    instance._FORMelements,
+                    function(formelement, nodeid) {
+                        instance._UItoModel(nodeid);
+                    }
+                );
+            }
+        },
 
-//            }
+        /**
+         *
+         * Updates all Date-Time UI-elements (its time-value on the span-element that represent the time) when a datetime-picker changes its value.
+         * Has only effect on the label --> the pickervalue is not stored in the modelsattribute by this function.
+         *
+         * @method _updateDateTimeUI
+         * @param attribute {String} attribute that is changed by a UI-element
+         * @param newdate {Date} the new date-time
+         * @param type {String} which type ('date', 'time', or 'datetime')
+         * @param dateformat {String} the format on the span-element that represent the time
+         * @private
+         * @since 0.2
+         *
+        */
+        _updateDateTimeUI : function(attribute, newdate, type, dateformat) {
+            var instance = this,
+                attributenodes = instance._ATTRS_nodes[attribute];
+            if (attributenodes) {
+                if (!dateformat) {
+                    if (type==='date') {
+                        dateformat = '%x';
+                    }
+                    else if (type==='time') {
+                        dateformat = '%X';
+                    }
+                    else {
+                        dateformat = '%x %X';
+                    }
+                }
+                YArray.each(
+                    attributenodes,
+                    function(nodeid) {
+                        var labelnode = Y.one('label[for="'+nodeid+'"]');
+                        labelnode = labelnode && labelnode.one('span.formatvalue');
+        /*jshint expr:true */
+                        labelnode && labelnode.set('text', Y.Date.format(newdate, {format: dateformat}));
+        /*jshint expr:false */
+                    }
+                );
+            }
+        },
+
+        /**
+         *
+         * Updates all simular non-widget UI-elements when one of its value changes.
+         *
+         * @method _updateSimularUI
+         * @param changedNode {Node} the formelement-node that changed value
+         * @param attribute {String} attribute that is changed by a UI-element
+         * @param newvalue {String} the new value
+         * @private
+         * @since 0.2
+         *
+        */
+        _updateSimularUI : function(changedNode, attribute, newvalue) {
+            var instance = this,
+                attributenodes = instance._ATTRS_nodes[attribute];
+
+            Y.log('_updateSimularWidgetUI changedNode '+changedNode+' attribute: '+attribute+' newvalue:'+newvalue, 'info', 'ITSAEditModel');
+            if (attributenodes) {
+              YArray.each(
+                  attributenodes,
+                  function(nodeid) {
+                    var node = Y.one('#'+nodeid);
+        /*jshint expr:true */
+                        node && (node!==changedNode) && node.set('value', newvalue);
+        /*jshint expr:false */
+                  }
+              );
+            }
+        },
+
+        /**
+         *
+         * Updates all Widget UI-elements when a widget changes its value.
+         *
+         * @method _updateSimularWidgetUI
+         * @param e {eventtarget}
+         * @param changedNodeId {String} the nodeid (without '#') of the widget's container that caused the change
+         * @param attribute {String} attribute that is changed by a UI-element
+         * @param valueattribute {String} the widgets value-attribute
+         * @private
+         * @since 0.2
+         *
+        */
+        _updateSimularWidgetUI : function(e, changedNodeId, attribute, valueattribute) {
+            var instance = this,
+                attributenodes = instance._ATTRS_nodes[attribute],
+                value = e.newVal,
+                formelement, widget;
+
+            Y.log('_updateSimularWidgetUI changedNodeId '+changedNodeId+' attribute: '+attribute+' valueattribute:'+valueattribute+' newvalue:'+value, 'info', 'ITSAEditModel');
+            if (attributenodes) {
+              YArray.each(
+                  attributenodes,
+                  function(nodeid) {
+                      // update widgetvalue
+                      formelement = instance._FORMelements[nodeid];
+                      widget = formelement && formelement.widget;
+                      if (nodeid!==changedNodeId) {
+        /*jshint expr:true */
+                          widget && widget.set(valueattribute, value);
+        /*jshint expr:false */
+                      }
+                      // in case of slider: update valueattribute --> do this for ALL sliders
+        //console.log(widget.getDefaultLocale());
+                      if (widget && (widget.getClassName()==='yui3-slider')) {
+                          var labelnode = Y.one('span[for="'+nodeid+'"]');
+        /*jshint expr:true */
+                          labelnode && labelnode.set('text', value);
+        /*jshint expr:false */
+                      }
+                  }
+              );
+            }
         }
 
     }, {
@@ -1051,6 +1291,7 @@ YArray.each(
         "event-synthetic",
         "event-valuechange",
         "gallery-itsamodelsyncpromise",
-        "gallery-itsaformelement"
+        "gallery-itsaformelement",
+        "gallery-itsadialog"
     ]
 });

@@ -1,5 +1,6 @@
-YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
-    var model, artist, firstrelease, soldout, container;
+YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', 'slider', function(Y) {
+    var model, artist, artist2, country, country2, firstrelease, firstrelease2, records, records2, soldout, soldout2, container;
+Y.one('body').addClass('yui3-skin-sam');
 
     Y.MyFormModel = Y.Base.create('pieModel', Y.ITSAEditModel, [], {}, {
         ATTRS: {
@@ -7,15 +8,15 @@ YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsachec
                 formtype: 'text',
                 formconfig: {
                     required: true,
-                    disabled: true
+                    disabled: false
                 },
                 validator: function(v) {return (typeof v==='string');}
             },
             country: {
-                formtype: 'text',
+                formtype: 'textarea',
                 formconfig: {
                     required: true,
-                    disabled: true
+                    disabled: false
                 },
                 validator: function(v) {return (typeof v==='string');}
             },
@@ -26,6 +27,15 @@ YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsachec
                     format: '%Y-%m-%d'
                 }
 //                validator: function(v) {return (typeof v==='date');}
+            },
+            records: {
+                value: 10,
+                formtype: Y.Slider,
+                formconfig: {
+                    min: 5,
+                    max: 20
+                },
+                validator: function(v) {return (typeof v==='number');}
             },
             soldOut: {
                 value: true,
@@ -39,17 +49,32 @@ YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsachec
         artist: 'Madonna',
         country: 'USA',
         firstRelease: new Date(1983, 1, 1),
+//        records: 18,
         soldOut: true
     });
 
     artist = model.renderFormElement('artist');
+    artist2 = model.renderFormElement('artist');
+    country = model.renderFormElement('country');
+    country2 = model.renderFormElement('country');
     firstrelease = model.renderFormElement('firstRelease');
+    firstrelease2 = model.renderFormElement('firstRelease');
+    records = model.renderFormElement('records');
+    records2 = model.renderFormElement('records');
     soldout = model.renderFormElement('soldOut');
+    soldout2 = model.renderFormElement('soldOut');
 
     container = Y.one('#examplecontainer');
     container.append(artist+'<br />');
+    container.append(country+'<br />');
     container.append(firstrelease+'<br />');
+    container.append(records+'<br />');
     container.append(soldout+'<br />');
+    container.append(artist2+'<br />');
+    container.append(country2+'<br />');
+    container.append(firstrelease2+'<br />');
+    container.append(records2+'<br />');
+    container.append(soldout2+'<br />');
     container.append('<span class="comment">'+Y.Escape.html(artist)+'</span><br />');
     container.append('<span class="comment">'+Y.Escape.html(firstrelease)+'</span><br />');
     container.append('<span class="comment">'+Y.Escape.html(soldout)+'</span><br />');
@@ -77,5 +102,13 @@ YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsachec
     model.after('submitclick', function(e) {
         container.append('<span class="comment">model:submitclick event occured</edit>');
     });
+
+    Y.later(
+        5000,
+        null,
+        function() {
+            model.set('artist', 'Queen');
+        }
+    );
 
 });

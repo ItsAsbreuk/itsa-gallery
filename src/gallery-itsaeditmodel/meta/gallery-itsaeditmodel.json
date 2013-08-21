@@ -9,7 +9,8 @@
             "event-synthetic",
             "event-valuechange",
             "gallery-itsamodelsyncpromise",
-            "gallery-itsaformelement"
+            "gallery-itsaformelement",
+            "gallery-itsadialog"
         ]
     }
 }
