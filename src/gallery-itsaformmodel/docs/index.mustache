@@ -1,0 +1,208 @@
+<div class="intro">
+    <p>
+        {{description}} The plugin offers the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI.
+    </p>
+</div>
+
+<h2>Description</h2>
+After pluged-in, each property can be rendered into a form-element. Beside that, there is a method that can render buttons as well, which can be used to controll the UI. These major methods are supplied:<br />
+
+<ul>
+    <li>
+        <code>yourModel.itsaeditmodel.getElement()</code> --> renderes a model's property into a formelement.
+    </li>
+    <li>
+        <code>yourModel.itsaeditmodel.getButton()</code> --> renderes a button that can be used for UI-controll.
+    </li>
+    <li>
+        <code>yourModel.itsaeditmodel.toJSON()</code> --> renderes a complete set of formelements (both properties and buttons).
+    </li>
+</ul>
+
+<h2>Events fired by editmodel's buttons</h2>
+    <p>
+        The custom buttons have their defaultFunction which correspons with their names. When listening to these events, you catch a buttonclick. Because some defaultFuncs are asynchroniously, some defaultfunctions will add e.promise to the eventTarget (created by gallery-itsamodelsyncpromise):
+    </p>
+    <ul>
+        <li>
+            <code>button</code>   --> event 'model:buttonclick'
+        </li>
+        <li>
+            <code>add</code>      --> event 'model:addclick'
+        </li>
+        <li>
+            <code>stopedit</code> --> event 'model:stopeditclick'
+        </li>
+        <li>
+            <code>submit</code>   --> event 'model:submitclick'  --> e.promise
+        </li>
+        <li>
+            <code>save</code>     --> event 'model:saveclick'    --> e.promise
+        </li>
+        <li>
+            <code>destroy</code>  --> event 'model:destroyclick' --> e.promise
+        </li>
+    </ul>
+    <p>
+        <b>Important note:</b> Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
+    </p>
+
+<h2>Usage</h2>
+    <p>
+        ITSAEditModel is used to generate stringified form-elements that can be used for further usage, preferable by other widgets. The methods mentioned above all return a String that can be used to insert into the dom, or an object (toJSON) which can be processed using Y.Lang.sub(). It is up to the developer to use it in other widgets or programcode that does the final injection of the formelements in the dom.
+    </p>
+    <p>
+        After processing, there is more propertyinfo available, like the generated nodeid, or a handle to the widget (if applyable). This info can be retreived by calling <code>yourModel.itsaeditmodel.getGeneratedUIelement(propertyName)</code>. This returns an object with the following properties:
+        <ul>
+            <li>
+                <code>nodeid</code> {String} --> the nodeid of the generated form-element. In cas of a widget, it would be its generated containerNode (parentNode).
+            </li>
+            <li>
+                <code>type</code> {String|WidgetClass} --> the original type that is created.
+            </li>
+            <li>
+                <code>value</code> {any} --> the current value of the UI, which may differ from the model's value when not saved yet.
+            </li>
+            <li>
+                <code>config</code> {object} --> the original config passed through when creating the UI.
+            </li>
+            <li>
+                <code>html</code> {String} --> html that was originally created by getElement(), getButton() or toJSON().
+            </li>
+            <li>
+                <code>widget</code> {Widget} --> handle to the UI-widget - if applyable.
+            </li>
+        </ul>
+    </p>
+
+<h3>Creating form-element of a property</h3>
+    <p>
+        Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom.
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
+        var model, formElArtist, formElFirstRelease;
+
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1),
+            soldOut: true
+        });
+        model.plug(Y.Plugin.ITSAEditModel);
+        formElArtist = model.itsaeditmodel.getElement('artist', {type: 'input'});
+        formElFirstRelease = model.itsaeditmodel.getElement('firstRelease', {type: 'date', dateFormat: '%d-%m-%Y'});
+
+        Y.one('body').append(
+            'Artist : '+formElArtist+'<br />'+
+            'First release : '+formElFirstRelease
+        );
+    });
+    ```
+<h3>Creating widget-form-element of a property</h3>
+    <p>
+        Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom, while spcifying a widget-classname instead of a {String} as 'type'.
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
+        var model, formElSoldOut;
+
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1),
+            soldOut: true
+        });
+        model.plug(Y.Plugin.ITSAEditModel);
+
+        formElSoldOut = model.itsaeditmodel.getElement('soldOut', {type: Y.ITSACheckbox});
+        Y.one('body').append('Sold out : '+formElSoldOut); // <-- the widget will render automaticly once inserted
+
+        widgetReference = model.itsaeditmodel.getGeneratedUIelement('soldOut').widget;
+        widgetReference.uncheck(); // we can call the widget's methods this way
+    });
+    ```
+<h3>Creating form-buttons</h3>
+    </p>
+        ITSAEditModel does more than just creatin the buttons. Once pressed on a button, the corresponding event (f.i. model:saveclick-event) is fired. Thus, if you want buttons that correlate to the modelinstance, you should use the buttons this plugin provides.
+        Use <code>yourModel.itsaeditmodel.getButton()</code> to generate the stringified form-element and insert it in the dom
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
+        var model, formElSave;
+
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1),
+            soldOut: true
+        });
+        model.plug(Y.Plugin.ITSAEditModel);
+        formElSave = model.itsaeditmodel.getButton('save model', {type: 'save'});
+        Y.one('body').append(formElSave);
+    });
+    ```
+<h3>Creating all properties at once</h3>
+    </p>
+        ITSAEditModel does more than just creatin the buttons. Once pressed on a button, the corresponding event (f.i. model:save-event) is fired. Thus, if you want buttons that correlate to the modelinstance, you should use the buttons this plugin provides.
+        Use <code>yourModel.itsaeditmodel.getButton()</code> to generate the stringified form-element and insert it in the dom
+    </p>
+    ```js
+    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
+        var model, template, config, alleditproperties;
+
+        model = new Y.Model({
+            artist: 'Madonna',
+            country: 'USA',
+            firstRelease: new Date(1983, 1, 1),
+            soldOut: true
+        });
+        config = {
+            artist: {type: 'input'},
+            country: {type: 'input'},
+            firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
+            soldOut: {type: Y.ITSACheckbox},
+            saveButton: {type: 'save'}
+        };
+        template = 'The artist name is: {artist}<br />'+
+                   'Lives in Country: {country}<br />'+
+                   'First album released: {firstRelease}<br />'+
+                   'Is sold out: {soldOut}<br />'+
+                   '{saveButton}';
+
+        model.plug(Y.Plugin.ITSAEditModel);
+        alleditproperties = model.itsaeditmodel.toJSON(config);
+
+        Y.one('body').append(Y.Lang.sub(template, alleditproperties));
+
+    });
+    ```
+
+<h2>Widgets which make use of ITSAEditModel</h2>
+
+    <p>
+        You may not need to call the plugin's methods yourself, but want to use one of the next modules which do this automaticly:
+        <ul>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodel/">gallery-itsaviewmodel</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodellist/">gallery-itsaviewmodellist</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsascrollviewmodellist/">gallery-itsascrollviewmodellist</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodellistpanel/">gallery-itsaviewmodellistpanel</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsascrollviewmodellistpanel/">gallery-itsascrollviewmodellistpanel</a>
+            </li>
+        </ul>
+    </p>
+
+<u>licence</u>
+
+Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
+
+[YUI BSD License](http://developer.yahoo.com/yui/license.html)

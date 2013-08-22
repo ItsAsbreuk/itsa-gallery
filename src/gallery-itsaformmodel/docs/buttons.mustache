@@ -1,0 +1,33 @@
+<style type="text/css">
+{{>buttons-css}}
+</style>
+
+<div class="intro">
+    <p>
+        {{description}}
+    </p>
+    <p>
+        The savebutton is placed on the page; below it, the original stringified html is shown. By pressing the button, you see the model will be saved.
+    </p>
+</div>
+
+{{>buttons-html}}
+
+<h2>Complete Example Source</h2>
+```
+<body>
+
+{{>buttons-html}}
+
+<script>
+{{>buttons-js}}
+</script>
+
+</body>
+```
+
+<script>
+{{>init-loaderconfig-js}}
+{{>loaderconfig-js}}
+{{>buttons-js}}
+</script>

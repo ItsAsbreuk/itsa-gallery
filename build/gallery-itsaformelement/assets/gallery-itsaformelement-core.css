@@ -1,3 +1,5 @@
+/*csslint adjoining-classes: false, star-property-hack: false */
+
 .itsa-widget-parent {
     display: inline-block;
     *display: inline;

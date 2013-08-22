@@ -1,0 +1,48 @@
+{
+    "name"       : "gallery-itsaeditmodel",
+    "displayName": "Gallery: gallery-itsaeditmodel",
+    "description": "Plugin for Y.Model that makes Y.Model-instances able to change their properties through UI-form-elements.",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsaeditmodel" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "formelements",
+            "displayName": "Creating form-element",
+            "description": "This example shows how to create formelements of basic elementtypes.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaeditmodel", "model", "formelement"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "widgets",
+            "displayName": "Creating widget-form-element",
+            "description": "This example creates a formelement in the form of a widget. A boolean property will be rendered as a ITSACheckbox-instance.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaeditmodel", "model", "formelement", "widget", "itsacheckbox"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "buttons",
+            "displayName": "Creating form-buttons for the model",
+            "description": "This example creates a savebutton that makes the modelinstance to save through its synclayer and fire a model:saveclick",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaeditmodel", "model", "formelement", "button"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "all-properties",
+            "displayName": "Creating object for all editable-properties",
+            "description": "This example creates an object using toJSON(), which can be used by Y.Lang.sub().",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaeditmodel", "model", "formelement", "widget", "itsacheckbox"],
+            "hideTableOfContents": true
+        }
+    ]
+}
