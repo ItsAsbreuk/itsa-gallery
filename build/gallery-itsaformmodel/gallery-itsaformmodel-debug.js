@@ -1533,12 +1533,18 @@ YArray.each(
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "base-base",
         "attribute-base",
         "base-build",
+        "model",
+        "datatype-date-format",
         "node-base",
+        "node-core",
+        "oop",
         "node-event-delegate",
         "event-synthetic",
         "event-valuechange",
+        "event-base",
         "gallery-itsamodelsyncpromise",
         "gallery-itsaformelement"
     ]

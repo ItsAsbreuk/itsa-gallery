@@ -1,25 +1,92 @@
 <div class="intro">
     <p>
-        {{description}} The plugin offers the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI.
+        {{description}}
     </p>
+    <p>
+         Y.ITSAFormModel provides the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI. The Class can also generate form-buttons which take the right actions when clicked.
+     </p>
 </div>
 
 <h2>Description</h2>
-After pluged-in, each property can be rendered into a form-element. Beside that, there is a method that can render buttons as well, which can be used to controll the UI. These major methods are supplied:<br />
+    <p>
+        Y.ITSAFormModel should be used as a string-renderer. It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom.
+    </p>
+    <p>
+        Every property should have its own specific form-element defined. Therefore, two extra attribute-properties are introduced: <code>formtype</code> and <code>formconfig</code>
+```js
+        ATTRS: {
+            someAttribute: {
+                value: ...
+                formtype: 'textarea'
+                formconfig: {
+                    label: 'Description',
+                    required: true
+                },
+                validator: ...,
+                ...
+            }
+        }
+```
+        You can either specify a regular (standard) formelement by defining <code>formtype</code> as a String, or you can define a Widget by supplying a Widget-Class to the formtype-property:
+    </p>
+    <p>
+        Once the rendered strings are inserted in the dom, they are UI-elements that controll the Model's data. The UI does not reflect its data life to the Model-attributes. There are three ways to save the UI-values to the Model-instance:
+        <ul>
+            <li>
+                Using <code>savebutton</code> or <code>submitbutton</code> (inserted in the dom and pressed by the user).
+            </li>
+            <li>
+                By setting life-update <code>model.setLifeUpdate(true)</code> which will store every single change directly (even every keypress).
+            </li>
+            <li>
+                By calling <code>model.UIToModel()</code> which will store all formelement-values to the modelinstance.
+            </li>
+        </ul>
+    </p>
 
-<ul>
-    <li>
-        <code>yourModel.itsaeditmodel.getElement()</code> --> renderes a model's property into a formelement.
-    </li>
-    <li>
-        <code>yourModel.itsaeditmodel.getButton()</code> --> renderes a button that can be used for UI-controll.
-    </li>
-    <li>
-        <code>yourModel.itsaeditmodel.toJSON()</code> --> renderes a complete set of formelements (both properties and buttons).
-    </li>
-</ul>
 
-<h2>Events fired by editmodel's buttons</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Usage</h2>
+
+<h2>Important designrules</h2>
+<h3>Best way to use Y.ITSAFormModel</h3>
+    <p>
+        Y.ITSAFormModel renderes strings which should be inserted it into the dom. You don't need to do this yourself: there are modules available that do this automaticly. If you choose to do this yourself (probably by making a view-module), you should be aware of:
+    </p>
+    <ul>
+        <li>
+            <code>Widget-formelements</code> will render automaticly every time the render-string gets into the dom.
+        </li>
+        <li>
+            Every rendered formelement (attribute or button) should be inserted in the dom once at a time, because it has an unique node-id. However, it can be inserted, removed and re-inserted again.
+        </li>
+        <li>
+            Every rendered formelement (attribute or button) can be rendered into a string more than once. Every time it is rendered, a new node-id is generated, and therefore these elements can reside in the dom at the same time.
+        </li>
+    </ul>
+<h3>Difference between destroy- and remove-button</h3>
+    <ul>
+        <li>
+            The <code>destroy-button</code> destroys the model, but does not invoke the synclayer: it calls destroyPromise(). Should the model exist in a datasource than it resides there.
+        </li>
+        <li>
+            The <code>remove-button</code> destroys the model, and also invokes the synclayer: it calls destroyPromise({remove: true}). Should the model exist in a datasource than it will be removed.
+        </li>
+    </ul>
+
+<h2>Events fired by Y.ITSAFormModel-buttons</h2>
     <p>
         The custom buttons have their defaultFunction which correspons with their names. When listening to these events, you catch a buttonclick. Because some defaultFuncs are asynchroniously, some defaultfunctions will add e.promise to the eventTarget (created by gallery-itsamodelsyncpromise):
     </p>

@@ -252,12 +252,12 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
            /**
             * internal backup of all created formelements: both attribute and buttons, referenced by nodeid's
-            * @property _FORMelements
+            * @property _FORM_elements
             * @default {}
             * @private
             * @type Object
             */
-            instance._FORMelements = {};
+            instance._FORM_elements = {};
 
 
            /**
@@ -285,11 +285,11 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             * @private
             * @type Boolean
             */
-            instance._lifeUpdate = true;
+            instance._lifeUpdate = false;
 
            /**
             * internal hash that tells which forrmelements are listening for the enter-key to refocus.
-            * @property _lifeUpdate
+            * @property _focusNextElements
             * @private
             * @type Object
             */
@@ -641,7 +641,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             var instance = this,
                 formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield, nodeid, widget;
             Y.log('renderFormElement', 'info', 'ITSAFormModel');
-            formelements = instance._FORMelements;
+            formelements = instance._FORM_elements;
             attributenodes = instance._ATTRS_nodes;
             attr = instance.get(attribute);
             if (attr) {
@@ -653,7 +653,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 formconfig.modelattribute = true;
                 formconfig.name = attribute;
                 formelement = ITSAFormElement.getElement(formtype, formconfig);
-                // store in instance._FORMelements
+                // store in instance._FORM_elements
                 nodeid = formelement.nodeid;
                 formelements[nodeid] = formelement;
                 // store in instance._ATTRS_nodes
@@ -680,6 +680,17 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         },
 
         /**
+         * Sets the 'life-update'-status to true or false
+         *
+         * @method setLifeUpdate
+         * @since 0.1
+        */
+        setLifeUpdate : function(value) {
+            Y.log('setLifeUpdate '+value, 'info', 'ITSAFormModel');
+            (typeof value === 'boolean') && (this._lifeUpdate = value);
+        },
+
+        /**
          * Creates the hash that holds the attribute-values which sould be used during a resetclick- or cancelclick-event.
          * Call this method to freese the state that possibly needs to be restored.
          * <u>note:</u> if not called, than the hash holds the inititial model-attributes during creation.
@@ -692,6 +703,48 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
             Y.log('renderBtn', 'info', 'ITSAFormModel');
             instance._bkpAttrs = instance.getAttrs();
+        },
+
+        /**
+         * Copies the UI-value of a formelement into its Model-attribute.
+         *
+         * @method UIToModel
+         * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
+         * @since 0.1
+         *
+        */
+        UIToModel: function(nodeid) {
+            var instance = this,
+                formElement, formElements, options, node, value, attribute, widget, type;
+
+            Y.log('UItoModel', 'info', 'ITSAFormModel');
+            formElements = instance._FORM_elements;
+            formElement = nodeid && formElements[nodeid];
+            if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
+                widget = formElement.widget;
+                type = formElement.type;
+                value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
+                attribute = formElement.name;
+                if (Lang.isValue(value)) {
+                    options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
+/*jshint expr:true */
+                    ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
+/*jshint expr:false */
+                    if (type==='number') {
+                        value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10);
+                    }
+                    instance.set(attribute, value, options);
+                }
+            }
+            else if (!nodeid) {
+                // save all attributes
+                YObject.each(
+                    instance._FORM_elements,
+                    function(formelement, nodeid) {
+                        instance.UIToModel(nodeid);
+                    }
+                );
+            }
         },
 
         /**
@@ -711,7 +764,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             }
             instance._clearEventhandlers();
             instance._removeTargets();
-            instance._FORMelements = {};
+            instance._FORM_elements = {};
             instance._ATTRS_nodes = {};
             instance._focusNextElements = {};
         },
@@ -748,7 +801,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                             payload = {
                                 target: instance,
                                 value: ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) ? (new Date().setTime(parseInt(value, 10))) : value,
-                                formElement: instance._FORMelements[node.get('id')],
+                                formElement: instance._FORM_elements[node.get('id')],
                                 buttonNode: node,
                                 type: type
                             };
@@ -757,7 +810,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     },
                     function(delegatedNode, e){ // node === e.target
                         // only process if node's id is part of this ITSAFormModel-instance:
-                        return instance._FORMelements[e.target.get('id')];
+                        return instance._FORM_elements[e.target.get('id')];
                     }
                 )
             );
@@ -772,7 +825,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                             payload = {
                                 target: instance,
                                 value: node.get(VALUE),
-                                formElement: instance._FORMelements[node.get('id')],
+                                formElement: instance._FORM_elements[node.get('id')],
                                 node: node,
                                 type: type
                             };
@@ -781,7 +834,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     },
                     function(delegatedNode, e){ // node === e.target
                         // only process if node's id is part of this ITSAFormModel-instance:
-                        return instance._FORMelements[e.target.get('id')];
+                        return instance._FORM_elements[e.target.get('id')];
                     }
                 )
             );
@@ -798,7 +851,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                                     // the first parameter in the response needs to be 'null' and not the promise result
                                     Y.confirm(MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD).then(
                                         Y.bind(instance._modelToUI, instance, null),
-                                        Y.bind(instance._UIToModel, instance, null)
+                                        Y.bind(instance.UIToModel, instance, null)
                                     );
                                 }
                                 else {
@@ -829,7 +882,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     },
                     function(delegatedNode, e){ // node === e.target
                         // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
-                        var formelement = instance._FORMelements[e.target.get('id')];
+                        var formelement = instance._FORM_elements[e.target.get('id')];
                         return (formelement && (e.keyCode===13) && instance._focusNextElements[formelement.type]);
                     }
                 )
@@ -878,7 +931,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             Y.log('_defFnUIChanged, attribute  '+e.formElement.name, 'info', 'ITSAFormModel');
             instance._updateSimularUI(node, attribute, e.value);
             if (instance._lifeUpdate) {
-                instance._UIToModel(node.get('id'));
+                instance.UIToModel(node.get('id'));
             }
         },
 
@@ -962,7 +1015,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                       dateformat = formElement.config.format;
                       instance._updateDateTimeUI(formElement.name, newdate, type, dateformat);
                       if (instance._lifeUpdate) {
-                          instance._UIToModel(node.get('id'));
+                          instance.UIToModel(node.get('id'));
                       }
                     },
                     function() {
@@ -1061,7 +1114,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
             Y.log('_defFnSubmit', 'info', 'ITSAFormModel');
             prevAttrs = instance.getAttrs();
-            instance._UIToModel();
+            instance.UIToModel();
             instance.submitPromise().then(
                  null,
                  function() {
@@ -1092,7 +1145,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
             Y.log('_defFnSave', 'info', 'ITSAFormModel');
             prevAttrs = instance.getAttrs();
-            instance._UIToModel();
+            instance.UIToModel();
             instance.savePromise().then(
                  null,
                  function() {
@@ -1130,6 +1183,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @private
          * @since 0.1
          */
+_getWidgetValueField moet putten uit een lijst die dynamisch kan worden uitgebreid
         _getWidgetValueField : function(type) {
             Y.log('_getWidgetValueField', 'info', 'ITSAFormModel');
             var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
@@ -1146,7 +1200,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         /**
          * Copies the Model-attribute-value into the UI-formelement.
          *
-         * @method _UIToModel
+         * @method UIToModel
          * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
          * @private
          * @since 0.1
@@ -1157,7 +1211,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 formElement, formElements, node, value, attribute, widget, datetime, type, dateformat;
 
             Y.log('UItoModel', 'info', 'ITSAFormModel');
-            formElements = instance._FORMelements;
+            formElements = instance._FORM_elements;
             formElement = nodeid && formElements[nodeid];
             if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
                 widget = formElement.widget;
@@ -1181,7 +1235,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             else if (!nodeid) {
                 // save all attributes
                 YObject.each(
-                    instance._FORMelements,
+                    instance._FORM_elements,
                     function(formelement, nodeid) {
                         instance._modelToUI(nodeid);
                     }
@@ -1202,7 +1256,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
             Y.log('_removeTargets', 'info', 'ITSAFormModel');
             YObject.each(
-                instance._FORMelements,
+                instance._FORM_elements,
                 function(formElement) {
                     var widget = formElement.widget;
                     if (widget) {
@@ -1260,53 +1314,10 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 extradata && (config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"');
 /*jshint expr:false */
                 formbutton = ITSAFormElement.getElement((((buttontype===SUBMIT) || (buttontype===RESET)) ? buttontype : BUTTON), config);
-                // store in both instance._FORMelements and instance._BUTTONelements
-                buttonelements[indexvalue] = instance._FORMelements[formbutton.nodeid] = formbutton;
+                // store in both instance._FORM_elements and instance._BUTTONelements
+                buttonelements[indexvalue] = instance._FORM_elements[formbutton.nodeid] = formbutton;
             }
             return buttonelements[indexvalue].html;
-        },
-
-        /**
-         * Copies the UI-value of a formelement into its Model-attribute.
-         *
-         * @method _UIToModel
-         * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
-         * @private
-         * @since 0.1
-         *
-        */
-        _UIToModel: function(nodeid) {
-            var instance = this,
-                formElement, formElements, options, node, value, attribute, widget, type;
-
-            Y.log('UItoModel', 'info', 'ITSAFormModel');
-            formElements = instance._FORMelements;
-            formElement = nodeid && formElements[nodeid];
-            if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
-                widget = formElement.widget;
-                type = formElement.type;
-                value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
-                attribute = formElement.name;
-                if (Lang.isValue(value)) {
-                    options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
-/*jshint expr:true */
-                    ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
-/*jshint expr:false */
-                    if (type==='number') {
-                        value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10);
-                    }
-                    instance.set(attribute, value, options);
-                }
-            }
-            else if (!nodeid) {
-                // save all attributes
-                YObject.each(
-                    instance._FORMelements,
-                    function(formelement, nodeid) {
-                        instance._UIToModel(nodeid);
-                    }
-                );
-            }
         },
 
         /**
@@ -1382,7 +1393,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
               );
             }
             if (instance._lifeUpdate) {
-                instance._UIToModel(changedNode.get('id'));
+                instance.UIToModel(changedNode.get('id'));
             }
         },
 
@@ -1411,7 +1422,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     attributenodes,
                     function(nodeid) {
                         // update widgetvalue
-                        formelement = instance._FORMelements[nodeid];
+                        formelement = instance._FORM_elements[nodeid];
                         widget = formelement && formelement.widget;
                         if (nodeid!==changedNodeId) {
 /*jshint expr:true */
@@ -1429,7 +1440,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 );
             }
             if (instance._lifeUpdate) {
-                instance._UIToModel(changedNodeId);
+                instance.UIToModel(changedNodeId);
             }
         }
 
@@ -1441,50 +1452,50 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 //===================================================================
 //===================================================================
 
-// Define synthetic events to Y.Event
+// Define synthetic events to Y.Event. Choosing not to document these
 /**
   * Node-event fired when the normal button is clicked.
   * that is: generated through renderBtn() and not a specified button like 'save', or 'submit'.
   *
-  * @event Y.Node.buttonclick
-  * @param e {EventFacade} Event Facade including:
-  * @param e.target {Y.Node} The ButtonNode that was clicked
+  * event node:buttonclick
+  * param e {EventFacade} Event Facade including:
+  * param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
   * Node-event fired when the destroy-button is clicked.
   *
-  * @event Y.Node.destroyclick
-  * @param e {EventFacade} Event Facade including:
-  * @param e.target {Y.Node} The ButtonNode that was clicked
+  * event node:destroyclick
+  * param e {EventFacade} Event Facade including:
+  * param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
   * Node-event fired when the save-button is clicked.
   *
-  * @event Y.Node.saveclick
-  * @param e {EventFacade} Event Facade including:
-  * @param e.target {Y.Node} The ButtonNode that was clicked
+  * event node:saveclick
+  * param e {EventFacade} Event Facade including:
+  * param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
   * Node-event fired when the edit-button is clicked.
   *
-  * @event Y.Node.editclick
-  * @param e {EventFacade} Event Facade including:
-  * @param e.target {Y.Node} The ButtonNode that was clicked
+  * event node:editclick
+  * param e {EventFacade} Event Facade including:
+  * param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 
 /**
   * Node-event fired when the cancel-button is clicked.
   *
-  * @event Y.Node.cancelclick
-  * @param e {EventFacade} Event Facade including:
-  * @param e.target {Y.Node} The ButtonNode that was clicked
+  * event node:cancelclick
+  * param e {EventFacade} Event Facade including:
+  * param e.target {Y.Node} The ButtonNode that was clicked
   *
 **/
 

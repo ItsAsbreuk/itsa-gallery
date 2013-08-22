@@ -1,9 +1,9 @@
 {
-    "name"       : "gallery-itsaeditmodel",
-    "displayName": "Gallery: gallery-itsaeditmodel",
-    "description": "Plugin for Y.Model that makes Y.Model-instances able to change their properties through UI-form-elements.",
+    "name"       : "gallery-itsaformmodel",
+    "displayName": "Gallery: gallery-itsaformmodel",
+    "description": "Supplies Y.ITSAFormModel which extends Y.Model by giving it attributeproperties so the attributes can be rendered into formelements.",
     "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallery-itsaeditmodel" ],
+    "use"        : [ "gallery-itsaformmodel" ],
 
     "tags": [ "gallery" ],
 
@@ -13,8 +13,8 @@
             "displayName": "Creating form-element",
             "description": "This example shows how to create formelements of basic elementtypes.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaeditmodel", "model", "formelement"],
+            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement"],
             "hideTableOfContents": true
         },
         {
@@ -22,8 +22,8 @@
             "displayName": "Creating widget-form-element",
             "description": "This example creates a formelement in the form of a widget. A boolean property will be rendered as a ITSACheckbox-instance.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaeditmodel", "model", "formelement", "widget", "itsacheckbox"],
+            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "widget", "itsacheckbox"],
             "hideTableOfContents": true
         },
         {
@@ -31,8 +31,8 @@
             "displayName": "Creating form-buttons for the model",
             "description": "This example creates a savebutton that makes the modelinstance to save through its synclayer and fire a model:saveclick",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaeditmodel", "model", "formelement", "button"],
+            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "button"],
             "hideTableOfContents": true
         },
         {
@@ -40,8 +40,8 @@
             "displayName": "Creating object for all editable-properties",
             "description": "This example creates an object using toJSON(), which can be used by Y.Lang.sub().",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaeditmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaeditmodel", "model", "formelement", "widget", "itsacheckbox"],
+            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "widget", "itsacheckbox"],
             "hideTableOfContents": true
         }
     ]
