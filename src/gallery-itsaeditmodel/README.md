@@ -17,7 +17,7 @@ You may not need to call the plugin's methods yourself, but want to use one of t
 The plugin can create form-elements of all Model's-attributes. It also can create the next UI-buttons: <i>button, add, submit, save, destroy, stopedit</i>. In order to do so, you must declare 2 attributes:
 
 * <b>'template'</b> where the Model's-attributes can be between brackets (it uses Y.Lang.sub() for this), or conform the Y.Template.Micro-format. Also the UI-buttons -which are not part of the model- can be declared between brackets: just make sure you use a unique name: '{firstname} {lastname} {send}'.
-* <b>'config'</b> this is the configuration by which the plugin determines what type must be used for all specified properties within 'template'
+* <b>'editmodelConfigAttrs'</b> this is the configuration by which the plugin determines what type must be used for all specified properties within 'template'
 
 
 ##Events
@@ -33,9 +33,6 @@ the real action may take some time. The action performed are <b>not</b> model.lo
 
 Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
 
-##Styling
-It is recomended to include 'gallerycss-cssform', for this will lead to nice styling of the formelements.
-
 Examples
 --------
 [Online example](http://projects.itsasbreuk.nl/examples/itsaeditmodel/index.html)
@@ -49,8 +46,9 @@ Usage
 
 <b>Usage in conjunction with ITSAViewModel</b>
 ```js
-YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
-    var viewmodel, model, modeltemplate, edittemplate, config;
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-date-format', function(Y) {
+
+    var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
         artist: 'Madonna',
         country: 'USA',
@@ -64,7 +62,7 @@ YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel',
                    'First album released: {firstRelease}<br />'+
                    '{cancelButton} {saveButton}';
 
-    config = {
+    editmodelConfigAttrs = {
         artist: {type: 'input'},
         country: {type: 'input'},
         firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
@@ -72,7 +70,7 @@ YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel',
         saveButton: {type: 'save', buttonText: 'save'}
     };
 
-    model.plug(Y.Plugin.ITSAEditModel, {template: edittemplate, config : config});
+    model.plug(Y.Plugin.ITSAEditModel, {template: edittemplate, editmodelConfigAttrs : editmodelConfigAttrs});
 
     viewmodel = new Y.ITSAViewModel({
         boundingBox: "#myview",
@@ -89,8 +87,8 @@ YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel',
 
 <b>Usage in conjunction with ITSAScrollViewModellist</b>
 ```js
-YUI({gallery: 'gallery-2013.05.29-23-38'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', 'gallerycss-cssform', function(Y) {
-var myModellist, rendertemplate, myScrollview, editmodeltemplate, config, configForEditModel, changeModelTemplateConfig;
+YUI({gallery: 'gallery-2013.02.27-21-03'}).use('gallery-itsascrollviewmodellist', 'gallery-itsachangemodeltemplate', 'lazy-model-list', function(Y) {
+var myModellist, rendertemplate, myScrollview, editmodeltemplate, editmodelConfigAttrs, configForEditModel, changeModelTemplateConfig;
 
 //----- defining the LazyModelList -----------------------------------------------------
 
@@ -124,7 +122,7 @@ editmodeltemplate = 'continental: {Continental}<br />'+
                         'country: {Country}<br />'+
                         '{Reset} {Close} {Save}';
 
-config = {
+editmodelConfigAttrs = {
     Continental: {type: 'input', selectOnFocus: true},
     Country: {type: 'textarea', initialFocus: true},
     Reset: {type: 'reset', buttonText: 'reset'},
@@ -138,7 +136,7 @@ configForEditModel = {
 
 changeModelTemplateConfig = {
     editTemplate: editmodeltemplate,
-    config: config,
+    editmodelConfigAttrs: editmodelConfigAttrs,
     configForEditModel: configForEditModel
 };
 
@@ -155,13 +153,9 @@ myScrollview.render();
 
 <b>Using events</b>
 ```js
-<<<<<<< HEAD
-YUI({gallery: 'gallery-2013.05.29-23-38'}).use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', 'gallerycss-cssform', function(Y) {
-=======
-YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-date-format', function(Y) {
->>>>>>> 73699521c6cca0dbf0b7857ba206e6f0b9092ec9
+YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', datatype-date-format', function(Y) {
 
-    var viewmodel, model, modeltemplate, edittemplate, config;
+    var viewmodel, model, modeltemplate, edittemplate, editmodelConfigAttrs;
     model = new Y.Model({
         artist: 'Madonna',
         country: 'USA',
@@ -175,7 +169,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-d
                    'First album released: {firstRelease}<br />'+
                    '{cancelButton} {saveButton}';
 
-    config = {
+    editmodelConfigAttrs = {
         artist: {type: 'input'},
         country: {type: 'input'},
         firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
@@ -183,7 +177,7 @@ YUI().use('model', 'gallery-itsaviewmodel', 'gallery-itsaeditmodel', 'datatype-d
         saveButton: {type: 'save', buttonText: 'save'}
     };
 
-    model.plug(Y.Plugin.ITSAEditModel, {template: edittemplate, config : config});
+    model.plug(Y.Plugin.ITSAEditModel, {template: edittemplate, editmodelConfigAttrs : editmodelConfigAttrs});
 
     viewmodel = new Y.ITSAViewModel({
         boundingBox: "#myview",
