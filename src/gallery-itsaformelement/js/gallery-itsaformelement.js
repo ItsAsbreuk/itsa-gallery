@@ -264,7 +264,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     if (iswidget) {
         WidgetClass = type;
         try {
-            widget = element.widget = new WidgetClass(config);
+            widget = element.widget = new WidgetClass(config.widgetconfig);
             // when it is inserted in the dom: render it
             widget.renderWhenAvailable('#'+nodeid);
         }
