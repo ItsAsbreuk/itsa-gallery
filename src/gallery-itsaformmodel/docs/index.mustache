@@ -1,3 +1,5 @@
+{{>api-button}}
+
 <div class="intro">
     <p>
         {{description}}
@@ -5,18 +7,21 @@
     <p>
          Y.ITSAFormModel provides the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI. The Class can also generate form-buttons which take the right actions when clicked.
      </p>
+    <p>
+         <b>Note:</b> This module uses javascript to render the formelements, so <u>it is not suitable for progressive enhancement</u>.
+     </p>
 </div>
 
 <h2>Description</h2>
     <p>
-        Y.ITSAFormModel should be used as a string-renderer. It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom.
+        Y.ITSAFormModel should be used as a string-renderer. It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
     </p>
     <p>
-        Every attribute needs its own specific form-element defined. Therefore, two extra attribute-properties are introduced: <code>formtype</code> and <code>formconfig</code>. You can either specify a regular (standard) formelement by defining <code>formtype</code> as a String, or you can define a Widget by supplying a Widget-Class to the formtype-property:
+        Every attribute needs its own specific form-element (UI-element) defined. Therefore, two extra attribute-properties are introduced: <code>formtype</code> and <code>formconfig</code>. You can either specify a regular (standard) formelement by defining <code>formtype</code> as a String, or you can define a Widget by supplying a Widget-Class to the formtype-property:
     </p>
     <h3>syncing UI to the model</h3>
     <p>
-        Once the rendered strings are inserted in the dom, they are UI-elements that controll the Model's data. The UI <u>does not</u> reflect its data life to the Model-attributes by default. There are three ways to sync the UI-values to the Model-instance:
+        Once the rendered strings are inserted in the dom, they are UI-elements that controll the Model's data. The UI <u>does not by default</u> reflect its data to the Model-attributes. This can be done by three ways:
         <ol>
             <li>
                 Using <code>savebutton</code> or <code>submitbutton</code> (inserted in the dom and pressed by the user).
@@ -28,6 +33,7 @@
                 By calling <code>model.UIToModel()</code> which will store a single, or all UI-values to the modelinstance.
             </li>
         </ol>
+        In the rare case there are multiple UI-elements of the same attribute in the dom, they will always be synced agains each other.
     </p>
 
 <h2>Usage</h2>
@@ -51,8 +57,10 @@
                 formtype: Y.Slider
                 formconfig: {
                     label: 'age',
-                    min: 0,
-                    max: 100
+                    widgetconfig: {
+                        min: 0,
+                        max: 100
+                    },
                 },
                 validator: ...,
                 ...
@@ -61,31 +69,131 @@
     });
 
     var formmodel = new Y.MyFormModel();
+    formmodel.setLifeUpdate(true);
+
+    Y.one('body').append(formmodel.renderFormElement('someAttribute'));
     ```
 </p>
 
-
-
-
-
-
-
-
-
-
-
-
 <h2>Rendering form-elements</h2>
-<h3>standard form-elements</h3>
-<h3>widget form-elements</h3>
-<h3>form-buttons</h3>
+    <p>
+        Rendering the formelement is done by <code>yourformmodel.renderFormElement('someAttribute')</code>. After that, the string needs to be inserted in the dom, which is typically done by a View-instance (see later), but also can be done by the developer. When rendering buttons, you should use one of the renderBtn functions.
+    </p>
 
+<h3>standard form-elements</h3>
+    <p>
+        Standard form-elements should be specified by giving the formtype-property one of the next String-values, which all have their own formconfig.<br /><br />
+        <u>formtype:</u>
+        <ul>
+          <li><code>'text'</code></li>
+          <li><code>'number'</code></li>
+          <li><code>'password'</code></li>
+          <li><code>'textarea'</code></li>
+          <li><code>'checkbox'</code></li>
+          <li><code>'date'</code></li>
+          <li><code>'time'</code></li>
+          <li><code>'datetime'</code></li>
+          <li><code>'email'</code></li>
+          <li><code>'url'</code></li>
+        </ul>
+        <u>formconfig:</u>
+        <ul>
+            <li><code>checked=false</code> {Boolean} only valid for checkboxes and radiobuttons.</li>
+            <li><code>classname</code> {String} additional classname for the html-element.</li>
+            <li><code>data</code> {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.</li>
+            <li><code>digits=false</code> {Boolean} for floating numbers: only valid for type==='number'.</li>
+            <li><code>disabled=false</code> {Boolean}</li>
+            <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
+            <li><code>format</code> {String} Date-format: only valid for type==='date', 'time' or 'datetime'</li>
+            <li><code>hidden=false</code> {Boolean}</li>
+            <li><code>label</code> {String} The label belonging to the formelement.</li>
+            <li><code>labelClassname</code> {String} additional classname for the label.</li>
+            <li><code>length</code> {Number} adds a node attribute 'data-length': needs to be processed yourself. Only valid for input-elements.</li>
+            <li><code>min</code> {Number} adds a node attribute 'data-min': needs to be processed yourself. Only valid for type==='number'.</li>
+            <li><code>max</code> {Number} adds a node attribute 'data-min': needs to be processed yourself. Only valid for type==='number'.</li>
+            <li><code>nossl=false</code> {Boolean} making url's to validate only on non-ssl url's. Only applyable for type==='url'.</li>
+            <li><code>onlyssl=false</code> {Boolean} making url's to validate only on ssl url's. Only applyable for type==='url'</li>
+            <li><code>pattern</code> {String} regexp pattern that should be matched. Only applyable for type==='text' or 'password'.</li>
+            <li><code>placeholder</code> {String} only applyable for input-elements and textarea.</li>
+            <li><code>primary=false</code> {Boolean} making a button the primary button. Only applyable for buttons.</li>
+            <li><code>required=false</code> {Boolean} (defaults true for 'type===password'). Only applyable for input-elements, textarea and date/time.</li>
+            <li><code>readonly=false</code> {Boolean} not applyable for buttons.</li>
+            <li><code>switchvalue=false</code> {Boolean} make the value go behind the element. Only applyable for type=='date', 'time' or 'datetime'.</li>
+            <li><code>switchlabel=false</code> {Boolean} make the label go behind the element.</li>
+            <li><code>tooltip</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipFooter</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipPlacement</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+        </ul>
+
+
+    </p>
+
+<h3>widget form-elements</h3>
+    <p>
+        Widget form-elements should be specified by giving the formtype-property a valid WidgetClass (no String). There are some widgets that can be used straight ahead (mentioned below). If you have another widget, then it can be used without further action <u>only if its value is represented in the 'value'-attribute</u>. If not, then you need to declare which attribute your widget uses as its value-attribute by using yourformmodel.<code>setWidgetValueField();</code>
+    </p>
+    <p>
+        <code>formconfig.widgetconfig</code> is passed through to the widget-config. Here, you can set any widget-config-property you like.<br /><br />
+        <u>possible formtypes:</u>
+        <ul>
+          <li><code>Y.Slider</code></li>
+          <li><code>Y.ITSACheckbox</code></li>
+          <li><code>Y.ITSASelectList</code></li>
+          <li><code>...</code></li>
+        </ul>
+
+        <u>formconfig:</u>
+        <ul>
+            <li><code>classname</code> {String} additional classname set on widget's container (parentNode).</li>
+            <li><code>data</code> {String} for extra data-attributes set on widget's container.</li>
+            <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
+            <li><code>label</code> {String} The label next to the widget's container.</li>
+            <li><code>labelClassname</code> {String} additional classname for the label.</li>
+            <li><code>switchvalue=false</code> {Boolean} make the value go behind the element. Only applyable for type=='Y.Slider'</li>
+            <li><code>switchlabel=false</code> {Boolean} make the label go behind the element.</li>
+            <li><code>tooltip</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipFooter</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipPlacement</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>widgetconfig</code> {Object} passing through to the Widget during its initialization.</li>
+        </ul>
+    </p>
+
+<h3>form-buttons</h3>
+    <p>
+        Form-buttons should be rendered by one of the following functions:
+        <u>possible formbuttons:</u>
+        <ul>
+          <li><code>yourformmodel.renderBtn()</code></li>
+          <li><code>yourformmodel.renderCancelBtn()</code></li>
+          <li><code>yourformmodel.renderDestroyBtn()</code></li>
+          <li><code>yourformmodel.renderRemoveBtn()</code></li>
+          <li><code>yourformmodel.renderResetBtn()</code></li>
+          <li><code>yourformmodel.renderSaveBtn()</code></li>
+          <li><code>yourformmodel.renderSubmitBtn()</code></li>
+        </ul>
+
+        <u>buttonconfig:</u>
+        <ul>
+            <li><code>classname</code> {String} additional classname for the html-element.</li>
+            <li><code>data</code> {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.</li>
+            <li><code>disabled=false</code> {Boolean}</li>
+            <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
+            <li><code>hidden=false</code> {Boolean}</li>
+            <li><code>primary=false</code> {Boolean} making a button the primary button. Only applyable for buttons.</li>
+            <li><code>tooltip</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipFooter</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>tooltipPlacement</code> {String} marks the data-attribute used by Y.Typsy and Y.Tooltip.</li>
+            <li><code>value</code> {String} returnvalue which is available inside the eventlistener through e.value</li>
+        </ul>
+    </p>
 
 <h2>Important designrules</h2>
 <h3>Best way to use Y.ITSAFormModel</h3>
     <p>
-        Y.ITSAFormModel renderes strings which should be inserted it into the dom. You don't need to do this yourself: there are modules available that do this automaticly. If you choose to do this yourself (probably by making a view-module), you should be aware of:
-    </p>
+        Y.ITSAFormModel renderes strings which should be inserted it into the dom. You can do this yourself, or you can use modules that do this automaticly (see below). If you choose to do this yourself, you should be aware of:
     <ul>
         <li>
             <code>Widget-formelements</code> will render automaticly every time the render-string gets into the dom.
@@ -97,6 +205,37 @@
             Every rendered formelement (attribute or button) can be rendered into a string more than once. Every time it is rendered, a new node-id is generated, and therefore these elements can reside in the dom at the same time.
         </li>
     </ul>
+    </p>
+    <p>
+        For normal use with a view-module, you only should be aware of declaring a new Class with the right attributes, described in 'Usage'.
+    </p>
+
+<h3>Using the reset- and cancel-button</h3>
+    <p>
+        The reset- and cancel-button will restore <code>backuped attributes</code> to the model's attributes. The backuped attributes are generated at initialization of the model. If you need a new 'state' then you can call <code>yourformmodel.setResetAttrs()</code> which stores the current model-attributes into the backuped-attributes. There is a difference between the reset- and cancel-button:
+        <ul>
+            <li>
+                The <code>reset-button</code> fires 'resetclick' and resets model's attributes. The resetted attributes are passed through to all model's UI-elements, just as you expect from a reset-call.
+            </li>
+            <li>
+                The <code>cancel-button</code> fires 'cancelclick' and resets model's attributes. It does <u>nothing more</u>. It is up to the developer to take further action by listening to this event. Typically a FormView could be closed.
+            </li>
+        </ul>
+    </p>
+
+<h3>Difference between save- and submit-button</h3>
+    <ul>
+        <li>
+            The <code>save-button</code> calls savePromise(). What that does, depends on the synclayer. However: <u>action is only taken place is the model-instance is modified</u>
+        </li>
+        <li>
+            The <code>submit-button</code> calls submitPromise(). What that does, depends on the synclayer as well. This method always gets executed, even if the model-instance in unmodified.
+        </li>
+    </ul>
+    <p>
+        Both save- and submit-button will store the UI-elements-data into the modelinstance <u>before the synclayer is called</u>.
+    </p>
+
 <h3>Difference between destroy- and remove-button</h3>
     <ul>
         <li>
@@ -107,172 +246,21 @@
         </li>
     </ul>
 
-<h2>Events fired by Y.ITSAFormModel-buttons</h2>
+<h2>Events fired by Y.ITSAFormModel</h2>
     <p>
-        The custom buttons have their defaultFunction which correspons with their names. When listening to these events, you catch a buttonclick. Because some defaultFuncs are asynchroniously, some defaultfunctions will add e.promise to the eventTarget (created by gallery-itsamodelsyncpromise):
-    </p>
-    <ul>
-        <li>
-            <code>button</code>   --> event 'model:buttonclick'
-        </li>
-        <li>
-            <code>add</code>      --> event 'model:addclick'
-        </li>
-        <li>
-            <code>stopedit</code> --> event 'model:stopeditclick'
-        </li>
-        <li>
-            <code>submit</code>   --> event 'model:submitclick'  --> e.promise
-        </li>
-        <li>
-            <code>save</code>     --> event 'model:saveclick'    --> e.promise
-        </li>
-        <li>
-            <code>destroy</code>  --> event 'model:destroyclick' --> e.promise
-        </li>
-    </ul>
-    <p>
-        <b>Important note:</b> Because the defaultfunctions adds the promises to eventTarget, you need to listen for these using the model.after() events, not model.on().
+        All UI-formelements fire a <code>uichanged-event</code> when their UI-value changes. All form-buttons fire a <code>'buttontype'click-event</code> when clicked (f.i. 'cancelclick'). These events are fired by the modelinstance. The action related to those events can be prevented - except for buttons created with renderBtn(). See the <a href="http://galleryapi.itsasbreuk.nl/modules/gallery-itsaformmodel.html">API Docs</a> for the exact name of the button-events.
     </p>
 
-<h2>Usage</h2>
-    <p>
-        ITSAEditModel is used to generate stringified form-elements that can be used for further usage, preferable by other widgets. The methods mentioned above all return a String that can be used to insert into the dom, or an object (toJSON) which can be processed using Y.Lang.sub(). It is up to the developer to use it in other widgets or programcode that does the final injection of the formelements in the dom.
-    </p>
-    <p>
-        After processing, there is more propertyinfo available, like the generated nodeid, or a handle to the widget (if applyable). This info can be retreived by calling <code>yourModel.itsaeditmodel.getGeneratedUIelement(propertyName)</code>. This returns an object with the following properties:
-        <ul>
-            <li>
-                <code>nodeid</code> {String} --> the nodeid of the generated form-element. In cas of a widget, it would be its generated containerNode (parentNode).
-            </li>
-            <li>
-                <code>type</code> {String|WidgetClass} --> the original type that is created.
-            </li>
-            <li>
-                <code>value</code> {any} --> the current value of the UI, which may differ from the model's value when not saved yet.
-            </li>
-            <li>
-                <code>config</code> {object} --> the original config passed through when creating the UI.
-            </li>
-            <li>
-                <code>html</code> {String} --> html that was originally created by getElement(), getButton() or toJSON().
-            </li>
-            <li>
-                <code>widget</code> {Widget} --> handle to the UI-widget - if applyable.
-            </li>
-        </ul>
-    </p>
-
-<h3>Creating form-element of a property</h3>
-    <p>
-        Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom.
-    </p>
-    ```js
-    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
-        var model, formElArtist, formElFirstRelease;
-
-        model = new Y.Model({
-            artist: 'Madonna',
-            country: 'USA',
-            firstRelease: new Date(1983, 1, 1),
-            soldOut: true
-        });
-        model.plug(Y.Plugin.ITSAEditModel);
-        formElArtist = model.itsaeditmodel.getElement('artist', {type: 'input'});
-        formElFirstRelease = model.itsaeditmodel.getElement('firstRelease', {type: 'date', dateFormat: '%d-%m-%Y'});
-
-        Y.one('body').append(
-            'Artist : '+formElArtist+'<br />'+
-            'First release : '+formElFirstRelease
-        );
-    });
-    ```
-<h3>Creating widget-form-element of a property</h3>
-    <p>
-        Use <code>yourModel.itsaeditmodel.getElement()</code> to generate the stringified form-element and insert it in the dom, while spcifying a widget-classname instead of a {String} as 'type'.
-    </p>
-    ```js
-    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
-        var model, formElSoldOut;
-
-        model = new Y.Model({
-            artist: 'Madonna',
-            country: 'USA',
-            firstRelease: new Date(1983, 1, 1),
-            soldOut: true
-        });
-        model.plug(Y.Plugin.ITSAEditModel);
-
-        formElSoldOut = model.itsaeditmodel.getElement('soldOut', {type: Y.ITSACheckbox});
-        Y.one('body').append('Sold out : '+formElSoldOut); // <-- the widget will render automaticly once inserted
-
-        widgetReference = model.itsaeditmodel.getGeneratedUIelement('soldOut').widget;
-        widgetReference.uncheck(); // we can call the widget's methods this way
-    });
-    ```
-<h3>Creating form-buttons</h3>
-    </p>
-        ITSAEditModel does more than just creatin the buttons. Once pressed on a button, the corresponding event (f.i. model:saveclick-event) is fired. Thus, if you want buttons that correlate to the modelinstance, you should use the buttons this plugin provides.
-        Use <code>yourModel.itsaeditmodel.getButton()</code> to generate the stringified form-element and insert it in the dom
-    </p>
-    ```js
-    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', function(Y) {
-        var model, formElSave;
-
-        model = new Y.Model({
-            artist: 'Madonna',
-            country: 'USA',
-            firstRelease: new Date(1983, 1, 1),
-            soldOut: true
-        });
-        model.plug(Y.Plugin.ITSAEditModel);
-        formElSave = model.itsaeditmodel.getButton('save model', {type: 'save'});
-        Y.one('body').append(formElSave);
-    });
-    ```
-<h3>Creating all properties at once</h3>
-    </p>
-        ITSAEditModel does more than just creatin the buttons. Once pressed on a button, the corresponding event (f.i. model:save-event) is fired. Thus, if you want buttons that correlate to the modelinstance, you should use the buttons this plugin provides.
-        Use <code>yourModel.itsaeditmodel.getButton()</code> to generate the stringified form-element and insert it in the dom
-    </p>
-    ```js
-    YUI({gallery: '...'}).use('model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', function(Y) {
-        var model, template, config, alleditproperties;
-
-        model = new Y.Model({
-            artist: 'Madonna',
-            country: 'USA',
-            firstRelease: new Date(1983, 1, 1),
-            soldOut: true
-        });
-        config = {
-            artist: {type: 'input'},
-            country: {type: 'input'},
-            firstRelease: {type: 'date', dateFormat: '%d-%m-%Y'},
-            soldOut: {type: Y.ITSACheckbox},
-            saveButton: {type: 'save'}
-        };
-        template = 'The artist name is: {artist}<br />'+
-                   'Lives in Country: {country}<br />'+
-                   'First album released: {firstRelease}<br />'+
-                   'Is sold out: {soldOut}<br />'+
-                   '{saveButton}';
-
-        model.plug(Y.Plugin.ITSAEditModel);
-        alleditproperties = model.itsaeditmodel.toJSON(config);
-
-        Y.one('body').append(Y.Lang.sub(template, alleditproperties));
-
-    });
-    ```
-
-<h2>Widgets which make use of ITSAEditModel</h2>
+<h2>Modules that make use of ITSAFormModel</h2>
 
     <p>
-        You may not need to call the plugin's methods yourself, but want to use one of the next modules which do this automaticly:
+        Mostly you won't add the rendered strings in the dom yourself, but find yourself making use of modules that create Views:
         <ul>
             <li>
                 <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodel/">gallery-itsaviewmodel</a>
+            </li>
+            <li>
+                <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodelpanel/">gallery-itsaviewmodelpanel</a>
             </li>
             <li>
                 <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodellist/">gallery-itsaviewmodellist</a>
@@ -289,8 +277,12 @@
         </ul>
     </p>
 
-<u>licence</u>
+<h2>Purecss compatible</h2>
+  <p>
+      All elements are rendered with full purecss-compatability!
+  </p>
 
-Copyright (c) 2013 [Its Asbreuk](http://http://itsasbreuk.nl)
+<h2>licence</h2>
 
-[YUI BSD License](http://developer.yahoo.com/yui/license.html)
+Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>

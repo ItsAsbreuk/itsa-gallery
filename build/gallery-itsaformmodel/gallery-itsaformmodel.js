@@ -27,13 +27,13 @@ var YArray = Y.Array,
     ITSAFormElement = Y.ITSAFormElement,
     MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD = 'Data has been changed outside the form. Load it into the formelements? (if not, then the data will be reset to the current form-values)',
     MSG_MODELCHANGED_OUTSIDEFORM = 'Data has been changed outside the form. Load it into the formelements?',
+    UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
 
     CLICK = 'click',
     SAVE = 'save',
     DESTROY = 'destroy',
     REMOVE = 'remove',
     CANCEL = 'cancel',
-    EDIT = 'edit',
     SUBMIT = 'submit',
     RESET = 'reset',
 
@@ -61,15 +61,15 @@ var YArray = Y.Array,
     FOCUS_NEXT = 'focusnext',
 
     /**
-      * Event fired after an input-element or textarea-value is changed.
-      * The defaultfunction: _defFnUIChanged() is empty by default, but can be overridden.
-      * This function always will be executed, unless the event is preventDefaulted or halted.
+      * Event fired after a UI-formelement changes its value.
+      * defaultfunction: _defFnUIChanged() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event uichanged
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Date} current value of the property
       * @param e.node {Y.Node} reference to the element-node
+      * @param e.nodeid {String} id of the element-node (without '#')
       * @param e.formElement {Object} reference to the form-element
       *
     **/
@@ -159,20 +159,6 @@ var YArray = Y.Array,
     RESET_CLICK = RESET+CLICK,
 
     /**
-      * Fired when a button -rendered by this modelinstance using renderEditBtn()- is clicked.
-      * The defaultfunction: _defFnEdit() always will be executed, unless the event is preventDefaulted or halted.
-      *
-      * @event editclick
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
-      * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.formElement {Object} reference to the form-element
-      *
-    **/
-    EDIT_CLICK = EDIT+CLICK,
-
-    /**
       * Fired when a button -rendered by this modelinstance using renderSaveBtn()- is clicked.
       * The defaultfunction: _defFnSave() always will be executed, unless the event is preventDefaulted or halted.
       *
@@ -231,6 +217,19 @@ var YArray = Y.Array,
 Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
         _widgetValueFields : {}, // private prototypeobject can be filled by setWidgetValueField()
+
+        _allowedFormTypes : { // allowed string-formelement types
+            text: true,
+            number: true,
+            password: true,
+            textarea: true,
+            checkbox: true,
+            date: true,
+            time: true,
+            datetime: true,
+            email: true,
+            url: true
+        },
 
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
@@ -407,7 +406,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -435,7 +434,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderCancelBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -463,7 +462,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderDestroyBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -491,7 +490,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderRemoveBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -512,34 +511,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
         /**
          *
-         * Renderes a formelement-editbutton.
-         * By specifying 'config', the button can be configured in more detail.
-         * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-edit"></i> edit'
-         *
-         * @method renderEditBtn
-         * @param buttonText {String} Text on the button (equals buttonName whennot specified).
-         * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
-         * @return {String} stringified version of the button which can be inserted in the dom.
-         * @since 0.1
-         *
-         */
-        renderEditBtn : function(buttonText, config) {
-            return this._renderBtn(buttonText, config, EDIT, true);
-        },
-
-        /**
-         *
          * Renderes a formelement-resetbutton.
          * By specifying 'config', the button can be configured in more detail.
          * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-reset"></i> reset'
@@ -547,11 +518,11 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderResetBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
-         * @param [config.classname] for addeing extra classnames to the button
+         * @param [config.classname] for adding extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
          * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
@@ -575,7 +546,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderSaveBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -603,7 +574,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method renderSubmitBtn
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -634,16 +605,24 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         */
         renderFormElement : function(attribute) {
             var instance = this,
-                formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield, nodeid, widget;
+                formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield, nodeid, widget, iswidget;
             formelements = instance._FORM_elements;
             attributenodes = instance._ATTRS_nodes;
             attr = instance.get(attribute);
-            if (attr) {
-                attrconfig = instance._getAttrCfg(attribute);
-                formtype = attrconfig.formtype || 'text';
+            attrconfig = instance._getAttrCfg(attribute);
+            formtype = attrconfig.formtype || 'text';
+            iswidget = ((typeof formtype === 'function') && formtype.prototype.BOUNDING_TEMPLATE);
+            if (iswidget || instance._allowedFormTypes[formtype]) {
                 formconfig = attrconfig.formconfig || {};
-                valuefield = instance._getWidgetValueField(formtype);
-                formconfig[valuefield] = attr;
+                formconfig.value = attr;
+                // in case of a widget, also set its value property
+                if (iswidget) {
+                    valuefield = instance._getWidgetValueField(formtype);
+/*jshint expr:true */
+                    formconfig.widgetconfig || (formconfig.widgetconfig = {});
+/*jshint expr:false */
+                    formconfig.widgetconfig[valuefield] = attr;
+                }
                 formconfig.modelattribute = true;
                 formconfig.name = attribute;
                 formelement = ITSAFormElement.getElement(formtype, formconfig);
@@ -661,7 +640,19 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     instance._eventhandlers.push(
                         widget.after(
                             valuefield+'Change',
-                            Y.rbind(instance._updateSimularWidgetUI, instance, nodeid, attribute, valuefield)
+                            function(e) {
+                                var type = UI_CHANGED,
+                                    payload = {
+                                        target: instance,
+                                        value: e.newVal,
+                                        formElement: formelement,
+                                        node: Y.one('#'+nodeid),
+                                        nodeid: nodeid,
+                                        type: type
+                                    };
+                                // refireing, but now by the instance:
+                                instance.fire(type, payload);
+                            }
                         )
                     );
                 }
@@ -670,6 +661,9 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     formelement.widget.addTarget(instance);
                 }
             }
+            else {
+                element = UNDEFINED_ELEMENT;
+            }
             return element;
         },
 
@@ -677,12 +671,16 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * Sets the 'life-update'-status to true or false
          *
          * @method setLifeUpdate
+         * @chainable;
          * @since 0.1
         */
         setLifeUpdate : function(value) {
+            var instance = this;
+
 /*jshint expr:true */
-            (typeof value === 'boolean') && (this._lifeUpdate = value);
+            (typeof value === 'boolean') && (instance._lifeUpdate = value);
 /*jshint expr:false */
+            return instance;
         },
 
         /**
@@ -800,7 +798,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             eventhandlers.push(
                 body.delegate(
                     [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
-                     SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, EDIT_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
+                     SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
                     function(e) {
                         var node = e.target,
                             type = e.type,
@@ -834,6 +832,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                                 value: node.get(VALUE),
                                 formElement: instance._FORM_elements[node.get('id')],
                                 node: node,
+                                nodeid: node.get('id'),
                                 type: type
                             };
                         // refireing, but now by the instance:
@@ -916,13 +915,14 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
         /**
          *
-         * Default function for the 'uichanged'-event which counts for non-widgets formelements.
+         * Default function for the 'uichanged'-event which counts for every UI-formelements (meaning no buttons).
          *
          * @method _defFnUIChanged
          * @param e {EventFacade} Event Facade including:
          * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
          * @param e.value {Date} current value of the property
          * @param e.node {Y.Node} reference to the element-node
+         * @param e.nodeid {String} id of the element-node (without '#')
          * @param e.formElement {Object} reference to the form-element
          * @private
          * @since 0.1
@@ -931,12 +931,19 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         _defFnUIChanged : function(e) {
             // should not be called by widgets
             var instance = this,
-                attribute = e.formElement.name,
-                node = e.node;
+                formelement = e.formElement,
+                attribute = formelement.name,
+                node;
 
-            instance._updateSimularUI(node, attribute, e.value);
-            if (instance._lifeUpdate) {
-                instance.UIToModel(node.get('id'));
+            if (formelement.widget) {
+                instance._updateSimularWidgetUI(e.nodeid, attribute, instance._getWidgetValueField(formelement.type));
+            }
+            else {
+                node = e.node;
+                instance._updateSimularUI(node, attribute, e.value);
+                if (instance._lifeUpdate) {
+                    instance.UIToModel(node.get('id'));
+                }
             }
         },
 
@@ -1034,24 +1041,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     }
                 );
             });
-        },
-
-        /**
-         *
-         * Default function for the 'editclick'-event
-         *
-         * @method _defFnEdit
-         * @param e {EventFacade} Event Facade including:
-         * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-         * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
-         * @param e.buttonNode {Y.Node} reference to the buttonnode
-         * @param e.formElement {Object} reference to the form-element
-         * @private
-         * @since 0.1
-         *
-        */
-        _defFnEdit : function() {
-            // may be overridden
         },
 
         /**
@@ -1262,7 +1251,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @private
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
-         * @param [config.value] {Any} returnvalue which is available inside the eventlistener through e.value
+         * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
          * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
          * @param [config.disabled]
          * @param [config.hidden]
@@ -1438,55 +1427,46 @@ Y.ITSAFormModel.prototype._widgetValueFields.itsaselectlist = 'index';
 //===================================================================
 //===================================================================
 
-// Define synthetic events to Y.Event. Choosing not to document these
-/**
+// Define synthetic events to Y.Event. Choosing not to document these by altering the commentcode
+/*
   * Node-event fired when the normal button is clicked.
   * that is: generated through renderBtn() and not a specified button like 'save', or 'submit'.
   *
-  * event node:buttonclick
-  * param e {EventFacade} Event Facade including:
-  * param e.target {Y.Node} The ButtonNode that was clicked
+  * @event node:buttonclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
   *
-**/
+*/
 
-/**
+/*
   * Node-event fired when the destroy-button is clicked.
   *
-  * event node:destroyclick
-  * param e {EventFacade} Event Facade including:
-  * param e.target {Y.Node} The ButtonNode that was clicked
+  * @event node:destroyclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
   *
-**/
+*/
 
-/**
+/*
   * Node-event fired when the save-button is clicked.
   *
-  * event node:saveclick
-  * param e {EventFacade} Event Facade including:
-  * param e.target {Y.Node} The ButtonNode that was clicked
+  * @event node:saveclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
   *
-**/
+*/
 
-/**
-  * Node-event fired when the edit-button is clicked.
-  *
-  * event node:editclick
-  * param e {EventFacade} Event Facade including:
-  * param e.target {Y.Node} The ButtonNode that was clicked
-  *
-**/
-
-/**
+/*
   * Node-event fired when the cancel-button is clicked.
   *
-  * event node:cancelclick
-  * param e {EventFacade} Event Facade including:
-  * param e.target {Y.Node} The ButtonNode that was clicked
+  * @event node:cancelclick
+  * @param e {EventFacade} Event Facade including:
+  * @param e.target {Y.Node} The ButtonNode that was clicked
   *
-**/
+*/
 
 YArray.each(
-    [BUTTON, SAVE, DESTROY, REMOVE, EDIT, CANCEL],
+    [BUTTON, SAVE, DESTROY, REMOVE, CANCEL],
     function(eventtype) {
         Y.Event.define(eventtype+CLICK, {
             on: function (node, subscription, notifier) {

@@ -9,39 +9,21 @@
 
     "examples": [
         {
-            "name"       : "formelements",
-            "displayName": "Creating form-element",
-            "description": "This example shows how to create formelements of basic elementtypes.",
+            "name"       : "creating-form",
+            "displayName": "Creating a form",
+            "description": "This example shows how to create a form using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "widgets",
-            "displayName": "Creating widget-form-element",
-            "description": "This example creates a formelement in the form of a widget. A boolean property will be rendered as a ITSACheckbox-instance.",
+            "name"       : "recreate-purecss",
+            "displayName": "Recreate a Purecss form",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "widget", "itsacheckbox"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "buttons",
-            "displayName": "Creating form-buttons for the model",
-            "description": "This example creates a savebutton that makes the modelinstance to save through its synclayer and fire a model:saveclick",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "button"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "all-properties",
-            "displayName": "Creating object for all editable-properties",
-            "description": "This example creates an object using toJSON(), which can be used by Y.Lang.sub().",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "widget", "itsacheckbox"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
             "hideTableOfContents": true
         }
     ]
