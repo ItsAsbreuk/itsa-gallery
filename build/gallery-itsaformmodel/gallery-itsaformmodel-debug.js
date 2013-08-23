@@ -949,15 +949,16 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             var instance = this,
                 formelement = e.formElement,
                 attribute = formelement.name,
+                value = e.value,
                 node;
 
             Y.log('_defFnUIChanged, attribute  '+formelement.name, 'info', 'ITSAFormModel');
             if (formelement.widget) {
-                instance._updateSimularWidgetUI(e.nodeid, attribute, instance._getWidgetValueField(formelement.type));
+                instance._updateSimularWidgetUI(e.nodeid, attribute, instance._getWidgetValueField(formelement.type), value);
             }
             else {
                 node = e.node;
-                instance._updateSimularUI(node, attribute, e.value);
+                instance._updateSimularUI(node, attribute, value);
                 if (instance._lifeUpdate) {
                     instance.UIToModel(node.get('id'));
                 }
@@ -1027,6 +1028,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     node = e.buttonNode,
                     picker = Y.ItsaDateTimePicker,
                     formElement = e.formElement,
+                    date = Lang.isDate(e.value) ? e.value : (new Date()),
                     promise, dateformat;
                 if (type===DATEPICKER_CLICK) {
                     promise = Y.bind(picker.getDate, picker);
@@ -1037,7 +1039,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 else if (type===DATETIMEPICKER_CLICK) {
                     promise = Y.bind(picker.getDateTime, picker);
                 }
-                promise(new Date(e.value), formElement.config)
+                promise(new Date(date), formElement.config)
                 .then(
                     function(newdate) {
                       // first we need to use the new datevalue and reflect it (update) to the UI-element
@@ -1298,7 +1300,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         _renderBtn : function(buttonText, config, buttontype, extradata) {
             var instance = this,
-                buttonelements = instance._BUTTONelements,
                 formbutton, indexvalue;
 
             Y.log('renderBtn', 'info', 'ITSAFormModel');
@@ -1308,18 +1309,15 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             buttonText || (buttonText = buttontype);
 /*jshint expr:false */
             indexvalue = config.value || buttonText;
-            if (!buttonelements[indexvalue]) {
-                // create new
-                config.buttonText = buttonText;
+            config.buttonText = buttonText;
 /*jshint expr:true */
-                config.data || (config.data = '');
-                extradata && (config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"');
+            config.data || (config.data = '');
+            extradata && (config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"');
 /*jshint expr:false */
-                formbutton = ITSAFormElement.getElement((((buttontype===SUBMIT) || (buttontype===RESET)) ? buttontype : BUTTON), config);
-                // store in both instance._FORM_elements and instance._BUTTONelements
-                buttonelements[indexvalue] = instance._FORM_elements[formbutton.nodeid] = formbutton;
-            }
-            return buttonelements[indexvalue].html;
+            formbutton = ITSAFormElement.getElement((((buttontype===SUBMIT) || (buttontype===RESET)) ? buttontype : BUTTON), config);
+            // store in instance._FORM_elements
+            instance._FORM_elements[formbutton.nodeid] = formbutton;
+            return formbutton.html;
         },
 
         /**
@@ -1354,10 +1352,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 YArray.each(
                     attributenodes,
                     function(nodeid) {
-                        var node = Y.one('#'+nodeid),
-                            labelnode = Y.one('label[for="'+nodeid+'"]');
-                        node.setAttribute('value', newdate.getTime());
-                        labelnode = labelnode && labelnode.one('span.formatvalue');
+                        var labelnode = Y.one('span[data-for="'+nodeid+'"]');
         /*jshint expr:true */
                         labelnode && labelnode.set('text', Y.Date.format(newdate, {format: dateformat}));
         /*jshint expr:false */
@@ -1382,7 +1377,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             var instance = this,
                 attributenodes = instance._ATTRS_nodes[attribute];
 
-            Y.log('_updateSimularWidgetUI changedNode '+changedNode+' attribute: '+attribute+' newvalue:'+newvalue, 'info', 'ITSAFormModel');
+            Y.log('_updateSimularUI changedNode '+changedNode+' attribute: '+attribute+' newvalue:'+newvalue, 'info', 'ITSAFormModel');
             if (attributenodes) {
               YArray.each(
                   attributenodes,
@@ -1404,20 +1399,18 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * Updates all Widget UI-elements when a widget changes its value.
          *
          * @method _updateSimularWidgetUI
-         * @param e {eventtarget}
          * @param changedNodeId {String} the nodeid (without '#') of the widget's container that caused the change
          * @param attribute {String} attribute that is changed by a UI-element
          * @param valueattribute {String} the widgets value-attribute
+         * @param value {Any} widgets new value
          * @private
          * @since 0.1
          *
         */
-        _updateSimularWidgetUI : function(e, changedNodeId, attribute, valueattribute) {
+        _updateSimularWidgetUI : function(changedNodeId, attribute, valueattribute, value) {
             var instance = this,
                 attributenodes = instance._ATTRS_nodes[attribute],
-                value = e.newVal,
                 formelement, widget;
-
             Y.log('_updateSimularWidgetUI changedNodeId '+changedNodeId+' attribute: '+attribute+' valueattribute:'+valueattribute+' newvalue:'+value, 'info', 'ITSAFormModel');
             if (attributenodes) {
                 YArray.each(
@@ -1433,7 +1426,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                         }
                         // in case of slider: update valueattribute --> do this for ALL sliders
                         if (widget && (widget.getClassName()==='yui3-slider')) {
-                            var labelnode = Y.one('span[for="'+nodeid+'"]');
+                            var labelnode = Y.one('span[data-for="'+nodeid+'"]');
 /*jshint expr:true */
                             labelnode && labelnode.set('text', value);
 /*jshint expr:false */
