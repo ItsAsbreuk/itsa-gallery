@@ -151,7 +151,7 @@ var ITSAFormElement,
     ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+'<'+BUTTON+' '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+
                    FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
-    GETFORMATTED_DATEVALUE = function(type, name, value, format) {
+    GETFORMATTED_DATEVALUE = function(type, name, value, format, buttonnodeid) {
         if (!format) {
             if (type==='date') {
                 format = '%x';
@@ -165,7 +165,7 @@ var ITSAFormElement,
         }
         // asynchronious preloading the module
         Y.use('gallery-itsadatetimepicker');
-        return SPANCLASSISFORMAT+'value formattime-'+name+'">'+Y.Date.format(value, {format: format})+ENDSPAN;
+        return SPANCLASSISFORMAT+'value formattime-'+name+'" data-for="'+buttonnodeid+'">'+Y.Date.format(value, {format: format})+ENDSPAN;
     },
 
     SUBREGEX = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g,
@@ -233,10 +233,10 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.readonly=false] {Boolean} not applyable for buttons.
  *   @param [config.switchvalue=false] {Boolean} make the value go behind the element. Only applyable for type=='Y.Slider', 'date', 'time' or 'datetime'.
  *   @param [config.switchlabel=false] {Boolean} make the label go behind the element.
- *   @param [config.tooltip] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
- *   @param [config.tooltipHeader] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
- *   @param [config.tooltipFooter] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
- *   @param [config.tooltipPlacement] {String} marks the data-attribute used by Y.Typsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltip] {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltipHeader] {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltipFooter] {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip. Also applyable for Widgets.
+ *   @param [config.tooltipPlacement] {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip. Also applyable for Widgets.
  *   @param [config.value] {String} the value of the element.
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
  * @return {object} o.html   --> rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAForm,
@@ -266,7 +266,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     if (iswidget) {
         WidgetClass = type;
         try {
-            widget = element.widget = new WidgetClass(config);
+            widget = element.widget = new WidgetClass(config.widgetconfig);
             // when it is inserted in the dom: render it
             widget.renderWhenAvailable('#'+nodeid);
         }
@@ -308,7 +308,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
-        purebutton, readonly, extralabel, elementWithtooltipOnLabel;
+        purebutton, readonly, extralabel;
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
     length && (data+=' data-length="'+length+'"');
@@ -321,9 +321,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         tooltipPlacement && (data+=' data-placement="'+tooltipPlacement+'"');
         // making it posible to concat data to labeldata by making it a string:
         subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
-        elementWithtooltipOnLabel = (iswidget || (type===CHECKBOX) || (type===RADIO));
         // now cancatting:
-        subtituteConfig[(elementWithtooltipOnLabel && config[LABEL]) ? LABELDATA : DATA] += data;
+        subtituteConfig[DATA] += data;
     }
 /*jshint expr:false */
     if (iswidget) {
@@ -335,7 +334,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
         if (type==='slider') {
             // we want the value visible inside a span
-            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+'" for="'+nodeid+'">'+value+ENDSPAN;
+            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+'" data-for="'+nodeid+'">'+value+ENDSPAN;
         }
     }
     else {
@@ -424,7 +423,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
                                               (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
                                               (config.primary ? (' '+PRIMARY_BUTTON_CLASS) : '');
-            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, (config.name || ''), value, subtituteConfig.format);
+            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, (config.name || ''), value, subtituteConfig.format, nodeid);
         }
         else {
             template = ELEMENT_UNDEFINED;

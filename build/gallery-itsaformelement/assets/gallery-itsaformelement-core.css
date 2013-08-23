@@ -58,5 +58,9 @@ input[type="radio"][data-formelement="true"] + span.formatlabel,
 span.formatlabel + input[type="radio"][data-formelement="true"],
 input[type="checkbox"][data-formelement="true"] + span.formatlabel,
 span.formatlabel + input[type="checkbox"][data-formelement="true"] {
-    margin-left: 5px;
+    margin-left: 0.5em;
+}
+
+.pure-form-aligned .pure-control-group label[data-labeldatetime="true"] {
+    text-align: left;
 }
