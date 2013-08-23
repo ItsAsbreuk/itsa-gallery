@@ -1,8 +1,9 @@
-YUI(yuiconfig).use('escape', 'model', 'gallery-itsaeditmodel', 'gallery-itsacheckbox', 'slider', 'json', function(Y) {
-    var model, artist, artist2, country, country2, firstrelease, firstrelease2, records, records2, soldout, soldout2, container;
+YUI(yuiconfig).use('node', 'escape', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'json', 'gallery-itsaselectlist', function(Y) {
+    var model, artist, artist2, country, country2, firstrelease, firstrelease2, records, records2,
+    month, month2, soldout, soldout2, container;
 Y.one('body').addClass('yui3-skin-sam');
 
-    Y.MyFormModel = Y.Base.create('pieModel', Y.ITSAEditModel, [], {}, {
+    Y.MyFormModel = Y.Base.create('pieModel', Y.ITSAFormModel, [], {}, {
         ATTRS: {
             artist: {
                 formtype: 'number',
@@ -30,7 +31,7 @@ Y.one('body').addClass('yui3-skin-sam');
 //                validator: function(v) {return (typeof v==='date');}
             },
             records: {
-                value: 10,
+                value: null,
                 formtype: Y.Slider,
                 formconfig: {
                     min: 5,
@@ -42,6 +43,14 @@ Y.one('body').addClass('yui3-skin-sam');
                 value: true,
                 formtype: Y.ITSACheckbox,
                 validator: function(v) {return (typeof v==='boolean');}
+            },
+            month: {
+                value: 2,
+                formtype: Y.ITSASelectList,
+                formconfig: {
+                    items: ['Januar', 'Februar', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    buttonWidth: 200
+                }
             }
         }
     });
@@ -50,10 +59,10 @@ Y.one('body').addClass('yui3-skin-sam');
         artist: 100,
         country: 'USA',
         firstRelease: new Date(1983, 1, 1),
-//        records: 18,
+        records: 18,
         soldOut: true
     });
-
+model.setLifeUpdate(true);
     artist = model.renderFormElement('artist');
     artist2 = model.renderFormElement('artist');
     country = model.renderFormElement('country');
@@ -64,6 +73,8 @@ Y.one('body').addClass('yui3-skin-sam');
     records2 = model.renderFormElement('records');
     soldout = model.renderFormElement('soldOut');
     soldout2 = model.renderFormElement('soldOut');
+    month = model.renderFormElement('month');
+    month2 = model.renderFormElement('month');
 
     container = Y.one('#examplecontainer');
     container.append(artist+'<br />');
@@ -71,11 +82,13 @@ Y.one('body').addClass('yui3-skin-sam');
     container.append(firstrelease+'<br />');
     container.append(records+'<br />');
     container.append(soldout+'<br />');
+    container.append(month+'<br />');
     container.append(artist2+'<br />');
     container.append(country2+'<br />');
     container.append(firstrelease2+'<br />');
     container.append(records2+'<br />');
     container.append(soldout2+'<br />');
+    container.append(month2+'<br />');
     container.append('<span class="comment">'+Y.Escape.html(artist)+'</span><br />');
     container.append('<span class="comment">'+Y.Escape.html(firstrelease)+'</span><br />');
     container.append('<span class="comment">'+Y.Escape.html(soldout)+'</span><br />');

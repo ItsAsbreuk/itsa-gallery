@@ -228,6 +228,8 @@ var YArray = Y.Array,
 
 Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
+        _widgetValueFields : {}, // private prototypeobject can be filled by setWidgetValueField()
+
         /**
          * Sets up the toolbar during initialisation. Calls render() as soon as the hosts-editorframe is ready
          *
@@ -687,7 +689,9 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         */
         setLifeUpdate : function(value) {
             Y.log('setLifeUpdate '+value, 'info', 'ITSAFormModel');
+/*jshint expr:true */
             (typeof value === 'boolean') && (this._lifeUpdate = value);
+/*jshint expr:false */
         },
 
         /**
@@ -703,6 +707,22 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
             Y.log('renderBtn', 'info', 'ITSAFormModel');
             instance._bkpAttrs = instance.getAttrs();
+        },
+
+        /**
+         * Defines the valuefield for widget that hold the valu in an attribute other than 'value'.
+         * You must specify EVERY widget with a different valuefield that you want as a formmodel.
+         * The values are stored in the prototype, so you need to declare them only once. Y.ITSACheckbo and Y.ITSASelectList
+         * are already declared.
+         *
+         * @method setWidgetValueField
+         * @param widgetClassname {String} the widgets classname
+         * @param valueField {String} the widgets valuefield
+         * @since 0.1
+         */
+        setWidgetValueField : function(widgetClassname, valueField) {
+            Y.log('_getWidgetValueField', 'info', 'ITSAFormModel');
+            this._widgetValueFields[widgetClassname] = valueField;
         },
 
         /**
@@ -767,6 +787,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             instance._FORM_elements = {};
             instance._ATTRS_nodes = {};
             instance._focusNextElements = {};
+            // DO NOT EMPTY _widgetValueFields --> that is a prototype object
         },
 
         //===============================================================================================
@@ -1183,18 +1204,10 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @private
          * @since 0.1
          */
-_getWidgetValueField moet putten uit een lijst die dynamisch kan worden uitgebreid
         _getWidgetValueField : function(type) {
             Y.log('_getWidgetValueField', 'info', 'ITSAFormModel');
-            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE),
-                classname, value;
-            if (iswidget) {
-                classname = type.NAME;
-                if (classname==='itsacheckbox') {
-                    value = 'checked';
-                }
-            }
-            return value || 'value';
+            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE);
+            return (iswidget && this._widgetValueFields[type.NAME]) || 'value';
         },
 
         /**
@@ -1448,6 +1461,10 @@ _getWidgetValueField moet putten uit een lijst die dynamisch kan worden uitgebre
         _ATTR_CFG: ['formtype', 'formconfig']
     }
 );
+
+Y.ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';
+Y.ITSAFormModel.prototype._widgetValueFields.itsaselectlist = 'index';
+
 
 //===================================================================
 //===================================================================

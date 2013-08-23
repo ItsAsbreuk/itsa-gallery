@@ -12,9 +12,30 @@
         Y.ITSAFormModel should be used as a string-renderer. It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom.
     </p>
     <p>
-        Every property should have its own specific form-element defined. Therefore, two extra attribute-properties are introduced: <code>formtype</code> and <code>formconfig</code>
-```js
-        ATTRS: {
+        Every attribute needs its own specific form-element defined. Therefore, two extra attribute-properties are introduced: <code>formtype</code> and <code>formconfig</code>. You can either specify a regular (standard) formelement by defining <code>formtype</code> as a String, or you can define a Widget by supplying a Widget-Class to the formtype-property:
+    </p>
+    <h3>syncing UI to the model</h3>
+    <p>
+        Once the rendered strings are inserted in the dom, they are UI-elements that controll the Model's data. The UI <u>does not</u> reflect its data life to the Model-attributes by default. There are three ways to sync the UI-values to the Model-instance:
+        <ol>
+            <li>
+                Using <code>savebutton</code> or <code>submitbutton</code> (inserted in the dom and pressed by the user).
+            </li>
+            <li>
+                By setting life-update <code>model.setLifeUpdate(true)</code> which will store every single change directly (even every keypress).
+            </li>
+            <li>
+                By calling <code>model.UIToModel()</code> which will store a single, or all UI-values to the modelinstance.
+            </li>
+        </ol>
+    </p>
+
+<h2>Usage</h2>
+<p>
+    You need to create your own class using <code>Y.Base.create()</code> and define how the attributes look like:
+    ```js
+    Y.MyFormModel = Y.Base.create('formModel', Y.ITSAEditModel, [], {}, {
+    ATTRS: {
             someAttribute: {
                 value: ...
                 formtype: 'textarea'
@@ -25,24 +46,23 @@
                 validator: ...,
                 ...
             }
+            someWidgetAttribute: {
+                value: ...
+                formtype: Y.Slider
+                formconfig: {
+                    label: 'age',
+                    min: 0,
+                    max: 100
+                },
+                validator: ...,
+                ...
+            }
         }
-```
-        You can either specify a regular (standard) formelement by defining <code>formtype</code> as a String, or you can define a Widget by supplying a Widget-Class to the formtype-property:
-    </p>
-    <p>
-        Once the rendered strings are inserted in the dom, they are UI-elements that controll the Model's data. The UI does not reflect its data life to the Model-attributes. There are three ways to save the UI-values to the Model-instance:
-        <ul>
-            <li>
-                Using <code>savebutton</code> or <code>submitbutton</code> (inserted in the dom and pressed by the user).
-            </li>
-            <li>
-                By setting life-update <code>model.setLifeUpdate(true)</code> which will store every single change directly (even every keypress).
-            </li>
-            <li>
-                By calling <code>model.UIToModel()</code> which will store all formelement-values to the modelinstance.
-            </li>
-        </ul>
-    </p>
+    });
+
+    var formmodel = new Y.MyFormModel();
+    ```
+</p>
 
 
 
@@ -55,10 +75,11 @@
 
 
 
+<h2>Rendering form-elements</h2>
+<h3>standard form-elements</h3>
+<h3>widget form-elements</h3>
+<h3>form-buttons</h3>
 
-
-
-<h2>Usage</h2>
 
 <h2>Important designrules</h2>
 <h3>Best way to use Y.ITSAFormModel</h3>
