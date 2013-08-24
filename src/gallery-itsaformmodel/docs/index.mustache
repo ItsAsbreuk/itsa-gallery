@@ -138,6 +138,7 @@
         <u>possible formtypes:</u>
         <ul>
           <li><code>Y.Slider</code></li>
+          <li><code>Y.ToggleButton</code></li>
           <li><code>Y.ITSACheckbox</code></li>
           <li><code>Y.ITSASelectList</code></li>
           <li><code>...</code></li>
@@ -246,9 +247,29 @@
         </li>
     </ul>
 
+<h2>Validation</h2>
+    <h3>validation of the formelements</h3>
+    <p>
+        Each attribute is validated throught its <code>attribute.validation</code> method: there are no formconfig-properties 'required' or 'pattern'. Attributevalidation gives more control than the regexp 'pattern' that can be used on input-elements. Some formtypes have their own <code>pattern</code> by design, like formtype==='email'. In those cases, the attributes are validated through both the formtype-pattern as well as the attribute-validation. If not validated, a node-attribute is added: <code>data-validated="false"</code>, which is used for styling and could be used by formvalidation.
+    </p>
+
+    <h3>formvalidation</h3>
+    <p>
+        Even if you do not create a form, there is a validation of all the models UI-elements. That is when the save- or submitbutton are pressed. They only proceed if there is no unvalidated formelement, otherwise the <code>validationerror</code>-event is fired.
+    </p>
+
+    <h3>additional css</h3>
+    <p>
+        By adding the classname <code>pure-form-showinvalid</code> and/or <code>pure-form-showinvalid</code> to the same container as were <code>pure-form</code> resides, you get css 'ok' and 'error' images inside the input and texarea elements.
+    </p>
 <h2>Events fired by Y.ITSAFormModel</h2>
     <p>
-        All UI-formelements fire a <code>uichanged-event</code> when their UI-value changes. All form-buttons fire a <code>'buttontype'click-event</code> when clicked (f.i. 'cancelclick'). These events are fired by the modelinstance. The action related to those events can be prevented - except for buttons created with renderBtn(). See the <a href="http://galleryapi.itsasbreuk.nl/modules/gallery-itsaformmodel.html">API Docs</a> for the exact name of the button-events.
+        <ul>
+            <li><code>uichanged-event</code>, fired by all UI-formelementswhen their UI-value changes.</li>
+            <li><code>xxxxxclick-event</code>, fired by all Y.ITSAFormModel-buttons when clicked (f.i. 'cancelclick').</li>
+            <li><code>validationerror</code>, fired when the user pressed <code>submit-button</code> or <code>save-button</code> but the UI-elements were wrong validated.</li>
+        </ul>
+        All these events are fired by the modelinstance. The action related to those events can be prevented - except the events: <code>buttonclick</code> and <code>validationerror</code>. See the <a href="http://galleryapi.itsasbreuk.nl/modules/gallery-itsaformmodel.html">API Docs</a> for all events.
     </p>
 
 <h2>Modules that make use of ITSAFormModel</h2>

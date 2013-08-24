@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'gallery-itsaselectlist', 'gallery-popover', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'gallery-itsaselectlist', 'gallery-popover', 'gallery-itsadialog', 'button', 'json-stringify', function(Y) {
     var model, container;
 
     // adding skin sam to body for getting the right skin
@@ -23,10 +23,10 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'number',
                 formconfig: {
                     label: 'This is a "number"-formtype',
-                    tooltip: 'enter here your number',
+                    tooltip: 'enter here a number between 0-100',
                     tooltipPlacement: 'right'
                 },
-                validator: function(v) {return (typeof v==='number');}
+                validator: function(v) {return ((typeof v==='number') && (v>=0) && (v<=100));}
             },
             floatednumber: {
                 formtype: 'number',
@@ -150,6 +150,21 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                     }
                 },
                 validator: function(v) {return (typeof v==='number');}
+            },
+            togglebutton: {
+                value: true,
+                formtype: Y.ToggleButton,
+                formconfig: {
+                    label: 'This is a Y.ToggleButton-formtype',
+                    tooltip: 'click to toggle',
+                    tooltipPlacement: 'right',
+                    widgetconfig: {
+                        label: 'I can toggle'
+//                        items: ['Januar', 'Februar', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+//                        buttonWidth: 200
+                    }
+                },
+                validator: function(v) {return (typeof v==='boolean');}
             }
         }
     });
@@ -157,7 +172,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
     datenow = new Date();
     model = new Y.MyFormModel({
         number: 25,
-        floatednumber: 25,
+        floatednumber: 15,
         password: '',
         textarea: 'there is something here already',
         date: datenow,
@@ -171,6 +186,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
 
     container.append('<div class="pure-control-group">'+model.renderFormElement('text')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('number')+'</div>');
+    container.append('<div class="pure-control-group">'+model.renderFormElement('floatednumber')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('password')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('textarea')+'</div>');
     container.append('<div class="pure-controls">'+model.renderFormElement('checkbox')+'</div>');
@@ -185,10 +201,15 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
     container.append('<div class="pure-control-group">'+model.renderFormElement('slider')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('itsacheckbox')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('itsaselectlist')+'</div>');
+    container.append('<div class="pure-control-group">'+model.renderFormElement('togglebutton')+'</div>');
 
 
     model.on('save', function() {
-        Y.alert('model is saved!');
+        Y.alert('model is saved! Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
+    });
+
+    model.on('validationerror', function() {
+        Y.alert('validation error');
     });
 
 });

@@ -61,6 +61,17 @@ var YArray = Y.Array,
     FOCUS_NEXT = 'focusnext',
 
     /**
+      * Fired by the modelinstance when validation fails.
+      *
+      * @event validationerror
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+      * @param e.nodelist {Y.NodeList} reference to the element-nodes that are validated wrongly
+      * @since 0.1
+    **/
+    VALIDATION_ERROR = 'validationerror',
+
+    /**
       * Event fired after a UI-formelement changes its value.
       * defaultfunction: _defFnUIChanged() always will be executed, unless the event is preventDefaulted or halted.
       *
@@ -398,6 +409,37 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         },
 
         /**
+         * Finds the unvalidated UI-values that belongs to this modelinstance.
+         *
+         * @method getUnvalidatedUI
+         * @return {Y.NodeList} the found Nodes which validation failed
+         * @since 0.1
+         */
+        getUnvalidatedUI : function () {
+            var instance = this,
+                node, valid, unvalidNodes = [];
+
+            Y.log('getUnvalidatedUI', 'info', 'ITSAFormModel');
+            YObject.each(
+                this._FORM_elements,
+                function(formelement) {
+                    if (!formelement.widget) {
+                        node = Y.one('#'+formelement.nodeid);
+                        if (node) {
+                            valid = instance._validValue(node, formelement, formelement.name, node.get('value'));
+                            node.setAttribute('data-valid', valid);
+/*jshint expr:true */
+                            valid || unvalidNodes.push(node);
+/*jshint expr:false */
+                        }
+                    }
+                }
+            );
+            Y.log('getUnvalidatedUI found '+unvalidNodes.length+' wrong validated formelement', 'info', 'ITSAFormModel');
+            return new Y.NodeList(unvalidNodes);
+        },
+
+        /**
          *
          * Renderes a formelement-button. In order to be able to take action once the button is clicked, you can use config.value,
          * otherwise 'buttonText' will automaticly be the e.value inside the eventlistener. By specifying 'config',
@@ -613,7 +655,8 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         */
         renderFormElement : function(attribute) {
             var instance = this,
-                formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield, nodeid, widget, iswidget;
+                formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield,
+                nodeid, widget, iswidget, widgetValuefieldIsarray;
             Y.log('renderFormElement', 'info', 'ITSAFormModel');
             formelements = instance._FORM_elements;
             attributenodes = instance._ATTRS_nodes;
@@ -630,10 +673,25 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 /*jshint expr:true */
                     formconfig.widgetconfig || (formconfig.widgetconfig = {});
 /*jshint expr:false */
-                    formconfig.widgetconfig[valuefield] = attr;
+                    // some widgets like Y.ToggleButton can have different valuefields. We need to check them all.
+                    // In those cases, valuefield is an array.
+                    widgetValuefieldIsarray = (typeof valuefield !== 'string');
+                    if (widgetValuefieldIsarray) {
+                        YArray.each(
+                            valuefield,
+                            function(field) {
+                                formconfig.widgetconfig[field] = attr;
+                            }
+                        );
+                    }
+                    else {
+                        formconfig.widgetconfig[valuefield] = attr;
+                    }
                 }
                 formconfig.modelattribute = true;
                 formconfig.name = attribute;
+                formconfig.required = false; // disable by setting false
+                formconfig.removepattern = true; // specify to remove the pattern property
                 formelement = ITSAFormElement.getElement(formtype, formconfig);
                 // store in instance._FORM_elements
                 nodeid = formelement.nodeid;
@@ -646,24 +704,51 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 // if widget, then we need to add an eventlistener for valuechanges:
                 widget = formelement.widget;
                 if (widget) {
-                    instance._eventhandlers.push(
-                        widget.after(
-                            valuefield+'Change',
-                            function(e) {
-                                var type = UI_CHANGED,
-                                    payload = {
-                                        target: instance,
-                                        value: e.newVal,
-                                        formElement: formelement,
-                                        node: Y.one('#'+nodeid),
-                                        nodeid: nodeid,
-                                        type: type
-                                    };
-                                // refireing, but now by the instance:
-                                instance.fire(type, payload);
+                    if (widgetValuefieldIsarray) {
+                        YArray.each(
+                            valuefield,
+                            function(field) {
+                                instance._eventhandlers.push(
+                                    widget.after(
+                                        field+'Change',
+                                        function(e) {
+                                            var type = UI_CHANGED,
+                                                payload = {
+                                                    target: instance,
+                                                    value: e.newVal,
+                                                    formElement: formelement,
+                                                    node: Y.one('#'+nodeid),
+                                                    nodeid: nodeid,
+                                                    type: type
+                                                };
+                                            // refireing, but now by the instance:
+                                            instance.fire(type, payload);
+                                        }
+                                    )
+                                );
                             }
-                        )
-                    );
+                        );
+                    }
+                    else {
+                        instance._eventhandlers.push(
+                            widget.after(
+                                valuefield+'Change',
+                                function(e) {
+                                    var type = UI_CHANGED,
+                                        payload = {
+                                            target: instance,
+                                            value: e.newVal,
+                                            formElement: formelement,
+                                            node: Y.one('#'+nodeid),
+                                            nodeid: nodeid,
+                                            type: type
+                                        };
+                                    // refireing, but now by the instance:
+                                    instance.fire(type, payload);
+                                }
+                            )
+                        );
+                    }
                 }
                 element = formelement.html;
                 if (formelement.widget) {
@@ -716,7 +801,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          *
          * @method setWidgetValueField
          * @param widgetClassname {String} the widgets classname
-         * @param valueField {String} the widgets valuefield
+         * @param valueField {String|Array} the widgets valuefield. In case the Widget can have more than one valuefield (Y.ToggleButton does), you can supply an array of Strings
          * @since 0.1
          */
         setWidgetValueField : function(widgetClassname, valueField) {
@@ -743,6 +828,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 widget = formElement.widget;
                 type = formElement.type;
                 value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
+console.log('to model '+value);
                 attribute = formElement.name;
                 if (Lang.isValue(value)) {
                     options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
@@ -815,6 +901,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
                      SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
                     function(e) {
+                        e.preventDefault(); // prevent the form to be submitted
                         var node = e.target,
                             type = e.type,
                             value = node.getAttribute(VALUE),
@@ -832,6 +919,17 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                         // only process if node's id is part of this ITSAFormModel-instance:
                         return instance._FORM_elements[e.target.get('id')];
                     }
+                )
+            );
+
+            // listening for a click on any widget-element's parentnode and prevent the buttonclick form sending forms
+            eventhandlers.push(
+                body.delegate(
+                    'click',
+                    function(e) {
+                        e.preventDefault(); // prevent the form to be submitted
+                    },
+                    '.itsa-widget-parent'
                 )
             );
 
@@ -927,42 +1025,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     item.detach();
                 }
             );
-        },
-
-        /**
-         *
-         * Default function for the 'uichanged'-event which counts for every UI-formelements (meaning no buttons).
-         *
-         * @method _defFnUIChanged
-         * @param e {EventFacade} Event Facade including:
-         * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-         * @param e.value {Date} current value of the property
-         * @param e.node {Y.Node} reference to the element-node
-         * @param e.nodeid {String} id of the element-node (without '#')
-         * @param e.formElement {Object} reference to the form-element
-         * @private
-         * @since 0.1
-         *
-        */
-        _defFnUIChanged : function(e) {
-            // should not be called by widgets
-            var instance = this,
-                formelement = e.formElement,
-                attribute = formelement.name,
-                value = e.value,
-                node;
-
-            Y.log('_defFnUIChanged, attribute  '+formelement.name, 'info', 'ITSAFormModel');
-            if (formelement.widget) {
-                instance._updateSimularWidgetUI(e.nodeid, attribute, instance._getWidgetValueField(formelement.type), value);
-            }
-            else {
-                node = e.node;
-                instance._updateSimularUI(node, attribute, value);
-                if (instance._lifeUpdate) {
-                    instance.UIToModel(node.get('id'));
-                }
-            }
         },
 
         /**
@@ -1104,11 +1166,12 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             Y.log('_defFnReset', 'info', 'ITSAFormModel');
             instance.setAttrs(instance._bkpAttrs);
             instance._modelToUI();
+            instance._removeValidation();
         },
 
         /**
          *
-         * Default function for the 'submitclick'-event
+         * Default function for the 'submitclick'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
          *
          * @method _defFnSubmit
          * @param e {EventFacade} Event Facade including:
@@ -1122,24 +1185,30 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         */
         _defFnSubmit : function() {
             var instance = this,
-                prevAttrs;
+                prevAttrs, unvalidNodes;
 
             Y.log('_defFnSubmit', 'info', 'ITSAFormModel');
-            prevAttrs = instance.getAttrs();
-            instance.UIToModel();
-            instance.submitPromise().then(
-                 null,
-                 function() {
-                      // reset to previous values
-                     instance.setAttrs(prevAttrs);
-                     instance._modelToUI();
-                 }
-            );
+            unvalidNodes = instance.getUnvalidatedUI();
+            if (unvalidNodes.isEmpty()) {
+                prevAttrs = instance.getAttrs();
+                instance.UIToModel();
+                instance.submitPromise().then(
+                     null,
+                     function() {
+                          // reset to previous values
+                         instance.setAttrs(prevAttrs);
+                         instance._modelToUI();
+                     }
+                );
+            }
+            else {
+                instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
+            }
         },
 
         /**
          *
-         * Default function for the 'saveclick'-event
+         * Default function for the 'saveclick'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
          *
          * @method _defFnSave
          * @param e {EventFacade} Event Facade including:
@@ -1153,19 +1222,63 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         */
         _defFnSave : function() {
             var instance = this,
-                prevAttrs;
+                prevAttrs, unvalidNodes;
 
             Y.log('_defFnSave', 'info', 'ITSAFormModel');
-            prevAttrs = instance.getAttrs();
-            instance.UIToModel();
-            instance.savePromise().then(
-                 null,
-                 function() {
-                      // reset to previous values
-                     instance.setAttrs(prevAttrs);
-                     instance._modelToUI();
-                 }
-            );
+            unvalidNodes = instance.getUnvalidatedUI();
+            if (unvalidNodes.isEmpty()) {
+                prevAttrs = instance.getAttrs();
+                instance.UIToModel();
+                instance.savePromise().then(
+                     null,
+                     function() {
+                          // reset to previous values
+                         instance.setAttrs(prevAttrs);
+                         instance._modelToUI();
+                     }
+                );
+            }
+            else {
+                instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
+            }
+        },
+
+        /**
+         *
+         * Default function for the 'uichanged'-event which counts for every UI-formelements (meaning no buttons).
+         *
+         * @method _defFnUIChanged
+         * @param e {EventFacade} Event Facade including:
+         * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+         * @param e.value {Date} current value of the property
+         * @param e.node {Y.Node} reference to the element-node
+         * @param e.nodeid {String} id of the element-node (without '#')
+         * @param e.formElement {Object} reference to the form-element
+         * @private
+         * @since 0.1
+         *
+        */
+        _defFnUIChanged : function(e) {
+            // should not be called by widgets
+            var instance = this,
+                formelement = e.formElement,
+                attribute = formelement.name,
+                type = formelement.type,
+                value = e.value,
+                node, valid;
+
+            Y.log('_defFnUIChanged, attribute  '+formelement.name, 'info', 'ITSAFormModel');
+            if (formelement.widget) {
+                instance._updateSimularWidgetUI(e.nodeid, attribute, instance._getWidgetValueField(type), value);
+            }
+            else {
+                node = e.node;
+                valid = instance._validValue(node, formelement, attribute, value);
+                instance._updateSimularUI(node, attribute, value, valid);
+                if (instance._lifeUpdate && valid) {
+                    instance.UIToModel(node.get('id'));
+                }
+            }
         },
 
         /**
@@ -1181,7 +1294,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         _getWidgetValue : function(widget, type) {
             Y.log('_getWidgetValue', 'info', 'ITSAFormModel');
-            return (widget && widget.get(this._getWidgetValueField(type)));
+            var field = this._getWidgetValueField(type);
+console.log('_getWidgetValue '+widget);
+console.log('_getWidgetValue '+field);
+console.log('typeof field '+typeof field);
+console.log('_getWidgetValue '+field[1]);
+console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string') ? field : field[1])));
+            return (widget && widget.get((typeof field === 'string') ? field : field[1]));
         },
 
         /**
@@ -1191,7 +1310,8 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @method _getWidgetValueField
          * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
          *                                         --> see ItsaFormElement for the attribute 'type' for further information.
-         * @return {String} the valuefield (attribute-name in case of widget).
+         * @return {String|Array} the valuefield (attribute-name in case of widget). Some Widgets -like ToggleButton- can have different
+         * valuefiels: in that case an array is returned.
          * @private
          * @since 0.1
          */
@@ -1266,6 +1386,26 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     if (widget) {
                         widget.removeTarget(instance);
                     }
+                }
+            );
+        },
+
+        /**
+         * Removes the node-attribute 'data-valid' from all UI-elements that belong to this modelinstance.
+         *
+         * @method _removeValidation
+         * @private
+         * @since 0.1
+         */
+        _removeValidation : function () {
+            Y.log('_removeValidation', 'info', 'ITSAFormModel');
+            YObject.each(
+                this._FORM_elements,
+                function(formelement) {
+                    var node = Y.one('#'+formelement.nodeid);
+/*jshint expr:true */
+                    node && node.removeAttribute('data-valid');
+/*jshint expr:false */
                 }
             );
         },
@@ -1369,11 +1509,12 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param changedNode {Node} the formelement-node that changed value
          * @param attribute {String} attribute that is changed by a UI-element
          * @param newvalue {String} the new value
+         * @param valid {Boolean|null} whether the new value is validated
          * @private
          * @since 0.1
          *
         */
-        _updateSimularUI : function(changedNode, attribute, newvalue) {
+        _updateSimularUI : function(changedNode, attribute, newvalue, valid) {
             var instance = this,
                 attributenodes = instance._ATTRS_nodes[attribute];
 
@@ -1382,10 +1523,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
               YArray.each(
                   attributenodes,
                   function(nodeid) {
-                    var node = Y.one('#'+nodeid);
-        /*jshint expr:true */
-                        node && (node!==changedNode) && node.set('value', newvalue);
-        /*jshint expr:false */
+                      var node = Y.one('#'+nodeid);
+                      if (node) {
+/*jshint expr:true */
+                          (node!==changedNode) && node.set('value', newvalue);
+/*jshint expr:false */
+                          node.setAttribute('data-valid', valid);
+                      }
                   }
               );
             }
@@ -1437,6 +1581,35 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             if (instance._lifeUpdate) {
                 instance.UIToModel(changedNodeId);
             }
+        },
+
+        /**
+         * Checks whether the UI-value of a formelement has validated value. Not meant for widgets
+         *
+         * @method _validValue
+         * @param node {Y.Node} node of the formelement
+         * @param formelement {Object} item from the internal list instance._FORM_elements
+         * @param attribute {String} name of the attribute
+         * @param value {String} value of formelement
+         * @private
+         * @return {Boolean} true when valid
+         * @since 0.1
+         */
+        _validValue : function(node, formelement, attribute, value) {
+            var instance = this,
+                type = formelement.type,
+                typeok = ((type==='date') || (type==='time') || (type==='datetime') || (type==='checkbox')),
+                attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern;
+
+            Y.log('_validValue attribute  '+attribute, 'info', 'ITSAFormModel');
+            if (!typeok) { // typeok are types that are always is ok, for it was created by the datetimepicker, or a checkbox
+                attrconfig = instance._getAttrCfg(attribute);
+                attrValidationFunc = attrconfig.validator;
+                nodePattern = node.getAttribute('data-pattern');
+                validByAttrFunc = !attrValidationFunc || attrValidationFunc((type==='number' ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
+                validByPattern = !nodePattern || new RegExp(nodePattern, "i").test(value);
+            }
+            return typeok || (validByAttrFunc && validByPattern);
         }
 
     }, {
@@ -1446,6 +1619,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
 Y.ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';
 Y.ITSAFormModel.prototype._widgetValueFields.itsaselectlist = 'index';
+Y.ITSAFormModel.prototype._widgetValueFields.toggleButton = ['checked','pressed'];
 
 
 //===================================================================
