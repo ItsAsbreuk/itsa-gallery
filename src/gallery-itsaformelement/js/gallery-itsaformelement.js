@@ -246,7 +246,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     var element, iswidget, WidgetClass, widget;
     nodeid = nodeid || Y.guid();
     config = config || {};
-    iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE);
+    iswidget = ((typeof type === 'function') && type.NAME);
     if (typeof type==='string') {
         type = type.toLowerCase();
     }
@@ -262,7 +262,16 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
         try {
             widget = element.widget = new WidgetClass(config.widgetconfig);
             // when it is inserted in the dom: render it
-            widget.renderWhenAvailable('#'+nodeid);
+            if (type.NAME==='editorBase') {
+                Y.use('gallery-itsaeditorrenderpromise', function() {
+                    widget.renderWhenAvailable('#'+nodeid);
+                });
+            }
+            else {
+                Y.use('gallery-itsawidgetrenderpromise', function() {
+                    widget.renderWhenAvailable('#'+nodeid);
+                });
+            }
         }
         catch (e) {
             Y.log(e.message, ERROR, 'ITSAFormElement');
