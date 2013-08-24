@@ -64,3 +64,66 @@ span.formatlabel + input[type="checkbox"][data-formelement="true"] {
 .pure-form-aligned .pure-control-group label[data-labeldatetime="true"] {
     text-align: left;
 }
+
+.pure-form input:focus[data-valid="false"],
+.pure-form textarea:focus[data-valid="false"] {
+    color: #b94a48;
+    border: 1px solid #ee5f5b;
+}
+
+.pure-form input:focus[data-valid="false"]:focus,
+.pure-form textarea:focus[data-valid="false"]:focus {
+    border-color: #e9322d;
+}
+
+.pure-form.pure-form-showinvalid input[data-valid="false"],
+.pure-form.pure-form-showinvalid textarea[data-valid="false"] {
+    /* with markup false */
+    background-repeat: no-repeat;
+    background-position: right 3px center;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAUpJREFUeNpivBIUxEAJYMIhngnEB4D4PxLeBcQJhAxQhGqcBsT2aHKuQDwfiLcDsTQ2A3SB+CqyRmY+PgYmDg4wjQQ8gPgSEKsgG8AGxOuAmBNZJYugIAOPlRUDm7g4usuFgHg1yA6YAckwE5EBt64ug2x2NgOPtTW2cDIA4kCYAVF4g5qREZdMAhOS/zHA70+fGP7+B0bA16+4DNCFGcCPTfbv+/cMf37+ZPj98SMuA/hhBrzGJvsHaMCHrVsZfj16hMuA1zADLmNNZcAo/PvlC8N/3GFwGWbAAmyyXJqaDJLx8Qx85ua4DJgLM2AZEJ/FCMQXLxi+XL7M8OvhQ2yaDwLxVkakzARKxseAWAIl+kCxAKMRABQoJshhAAL3gRjk1uNwEZgmVM37oOrAAc+C5iyQyVZA7A3NeYrQNAIK5JvQsNqNrAEgwAAO6VaUCoOyHgAAAABJRU5ErkJggg==);
+    *background-image: url(invalid.png);
+}
+
+.pure-form.pure-form-showinvalid input[data-valid="false"]:focus,
+.pure-form.pure-form-showinvalid textarea[data-valid="false"]:focus {
+    /* no markup */
+    background-image: none;
+}
+
+.pure-form.pure-form-showvalid input[data-valid="true"],
+.pure-form.pure-form-showvalid textarea[data-valid="true"] {
+    /* with markup true */
+    background-repeat: no-repeat;
+    background-position: right 3px center;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASdJREFUeNpiibkQzEAJYMIhngnEB4D4PxI+ABXHa4AiVOE0ILZHk7OHih+AqgMDFiQFckB8Hoj5CbjaHqpOD4gfIbtgPhGaYYAfqh7uhVggdiIx/EDqY2EGJBBS3SFXxNAqm4sunAAzwBif5na5AgYJbisGZkZ2dCljkAHM6H5frL+GYbb6QjC7VTabQZrPhuH518MMFY96MMICZMBfIH6NLBp7MQQo+J1hoc4aBhl+R4YnHw8xVD6aiM1xr2FeuIkuk3Ezg+Hnnw8Mzz4eZah6PAmX727C0sFcILZBl027kUIobOfCXLAYiC+QGI0g9YthBoDCIRQ9LPCA11D1f5FT4h0gtiLCJReg6u5gy0wgQUMgjgbiTUD8FCr+FMqPhsrfgWkACDAAdeFJlrFXYEcAAAAASUVORK5CYII=);
+    *background-image: url(valid.png);
+}
+
+.pure-form.pure-form-showvalid input[type="text"],
+.pure-form.pure-form-showvalid input[type="password"],
+.pure-form.pure-form-showvalid input[type="email"],
+.pure-form.pure-form-showvalid input[type="url"],
+.pure-form.pure-form-showvalid textarea {
+    padding-right: 22px;
+}
+
+/* overrule pure-css its valid marking, because pattern validation sucks: better be done by [data-valid]; */
+.pure-form.pure-form-showinvalid input:focus:invalid[data-valid="true"],
+.pure-form.pure-form-showinvalid textarea:focus:invalid[data-valid="true"],
+.pure-form.pure-form-showinvalid input:focus:invalid:focus[data-valid="true"],
+.pure-form.pure-form-showinvalid textarea:focus:invalid:focus[data-valid="true"] {
+    color: #000;
+    border-color: #129FEA;
+}
+
+/* overrule pure-css its valid marking, because pattern validation sucks: better be done by [data-valid]; */
+.pure-form input:focus[data-valid="false"],
+.pure-form textarea:focus[data-valid="false"] {
+    color: #b94a48;
+    border: 1px solid #ee5f5b;
+}
+.pure-form input:focus[data-valid="false"]:focus,
+.pure-form textarea:focus[data-valid="false"]:focus {
+    border-color: #e9322d;
+}
