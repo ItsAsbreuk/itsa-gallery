@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'gallery-itsaselectlist', 'gallery-popover', 'gallery-itsadialog', 'button', 'json-stringify', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'editor', 'gallery-itsaselectlist', 'gallery-popover', 'gallery-itsadialog', 'button', 'json-stringify', function(Y) {
     var model, container;
 
     // adding skin sam to body for getting the right skin
@@ -165,6 +165,16 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                     }
                 },
                 validator: function(v) {return (typeof v==='boolean');}
+            },
+            editor: {
+                value: '<strong>This is <em>a test</em></strong> <strong>This is <em>a test</em></strong>',
+                formtype: Y.EditorBase,
+                formconfig: {
+                    label: 'This is a Y.Editor-formtype',
+                    tooltip: 'enter here the textarea input',
+                    tooltipPlacement: 'right'
+                },
+                validator: function(v) {return (typeof v==='string');}
             }
         }
     });
@@ -202,7 +212,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
     container.append('<div class="pure-control-group">'+model.renderFormElement('itsacheckbox')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('itsaselectlist')+'</div>');
     container.append('<div class="pure-control-group">'+model.renderFormElement('togglebutton')+'</div>');
-
+    container.append('<div class="pure-control-group">'+model.renderFormElement('editor')+'</div>');
 
     model.on('save', function() {
         Y.alert('model is saved! Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));

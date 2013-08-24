@@ -663,8 +663,9 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             attr = instance.get(attribute);
             attrconfig = instance._getAttrCfg(attribute);
             formtype = attrconfig.formtype || 'text';
-            iswidget = ((typeof formtype === 'function') && formtype.prototype.BOUNDING_TEMPLATE);
+            iswidget = ((typeof formtype === 'function') && formtype.NAME);
             if (iswidget || instance._allowedFormTypes[formtype]) {
+console.log(formtype.NAME);
                 formconfig = attrconfig.formconfig || {};
                 formconfig.value = attr;
                 // in case of a widget, also set its value property
@@ -828,7 +829,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 widget = formElement.widget;
                 type = formElement.type;
                 value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
-console.log('to model '+value);
                 attribute = formElement.name;
                 if (Lang.isValue(value)) {
                     options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
@@ -1265,11 +1265,22 @@ console.log('to model '+value);
                 attribute = formelement.name,
                 type = formelement.type,
                 value = e.value,
-                node, valid;
+                node, valid, field;
 
             Y.log('_defFnUIChanged, attribute  '+formelement.name, 'info', 'ITSAFormModel');
             if (formelement.widget) {
-                instance._updateSimularWidgetUI(e.nodeid, attribute, instance._getWidgetValueField(type), value);
+                field = this._getWidgetValueField(type);
+                if (typeof field === 'string') {
+                    instance._updateSimularWidgetUI(e.nodeid, attribute, field, value);
+                }
+                else {
+                    YArray.each(
+                        field,
+                        function(onefield) {
+                            instance._updateSimularWidgetUI(e.nodeid, attribute, onefield, value, true);
+                        }
+                    );
+                }
             }
             else {
                 node = e.node;
@@ -1295,12 +1306,8 @@ console.log('to model '+value);
         _getWidgetValue : function(widget, type) {
             Y.log('_getWidgetValue', 'info', 'ITSAFormModel');
             var field = this._getWidgetValueField(type);
-console.log('_getWidgetValue '+widget);
-console.log('_getWidgetValue '+field);
-console.log('typeof field '+typeof field);
-console.log('_getWidgetValue '+field[1]);
-console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string') ? field : field[1])));
-            return (widget && widget.get((typeof field === 'string') ? field : field[1]));
+            // In case of multiple fields, they all should be thes same, so we can take the first item of the array.
+            return (widget && widget.get((typeof field === 'string') ? field : field[0]));
         },
 
         /**
@@ -1317,7 +1324,7 @@ console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string')
          */
         _getWidgetValueField : function(type) {
             Y.log('_getWidgetValueField', 'info', 'ITSAFormModel');
-            var iswidget = ((typeof type === 'function') && type.prototype.BOUNDING_TEMPLATE);
+            var iswidget = ((typeof type === 'function') && type.NAME);
             return (iswidget && this._widgetValueFields[type.NAME]) || 'value';
         },
 
@@ -1332,7 +1339,7 @@ console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string')
         */
         _modelToUI : function(nodeid) {
             var instance = this,
-                formElement, formElements, node, value, attribute, widget, datetime, type, dateformat;
+                formElement, formElements, node, value, attribute, widget, datetime, type, dateformat, field;
 
             Y.log('UItoModel', 'info', 'ITSAFormModel');
             formElements = instance._FORM_elements;
@@ -1342,7 +1349,8 @@ console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string')
                 attribute = formElement.name;
                 value = instance.get(attribute, value);
                 if (widget) {
-                    widget.set(instance._getWidgetValueField(formElement.type), value);
+                    field = this._getWidgetValueField(formElement.type);
+                    widget.set(((typeof field === 'string') ? field : field[0]), value);
                 }
                 else {
                     type = formElement.type;
@@ -1551,7 +1559,7 @@ console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string')
          * @since 0.1
          *
         */
-        _updateSimularWidgetUI : function(changedNodeId, attribute, valueattribute, value) {
+        _updateSimularWidgetUI : function(changedNodeId, attribute, valueattribute, value, multiplefields) {
             var instance = this,
                 attributenodes = instance._ATTRS_nodes[attribute],
                 formelement, widget;
@@ -1563,7 +1571,7 @@ console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string')
                         // update widgetvalue
                         formelement = instance._FORM_elements[nodeid];
                         widget = formelement && formelement.widget;
-                        if (nodeid!==changedNodeId) {
+                        if ((nodeid!==changedNodeId) || multiplefields) { // in case of multiplefields always set the attribute, to make sure are fields are set
 /*jshint expr:true */
                             widget && widget.set(valueattribute, value);
 /*jshint expr:false */
@@ -1620,6 +1628,7 @@ console.log('_getWidgetValue '+(widget && widget.get((typeof field === 'string')
 Y.ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';
 Y.ITSAFormModel.prototype._widgetValueFields.itsaselectlist = 'index';
 Y.ITSAFormModel.prototype._widgetValueFields.toggleButton = ['checked','pressed'];
+Y.ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
 
 
 //===================================================================
