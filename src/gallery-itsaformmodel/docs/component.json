@@ -25,6 +25,15 @@
             "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "password-validation",
+            "displayName": "Validate double password",
+            "description": "This example shows to use ",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form"],
+            "hideTableOfContents": true
         }
     ]
 }

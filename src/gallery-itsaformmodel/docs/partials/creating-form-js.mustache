@@ -14,6 +14,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'text',
                 formconfig: {
                     label: 'This is a "text"-formtype',
+                    placeholder: 'enter text',
                     tooltip: 'enter here your text',
                     tooltipPlacement: 'right'
                 },
@@ -41,11 +42,12 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
             password: {
                 formtype: 'password',
                 formconfig: {
+                    placeholder: 'enter password',
                     label: 'This is a "password"-formtype',
                     tooltip: 'enter here your password',
                     tooltipPlacement: 'right'
                 },
-                validator: function(v) {return (typeof v==='string');}
+                validator: function(v) {return (typeof v==='string') && (v.length>=5) && (v.indexOf(' ')===-1);}
             },
             textarea: {
                 formtype: 'textarea',
