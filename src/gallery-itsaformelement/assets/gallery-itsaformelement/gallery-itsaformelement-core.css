@@ -4,6 +4,7 @@
     display: inline-block;
     *display: inline;
     padding: 0;
+    vertical-align: middle;
 }
 
 /**
@@ -106,6 +107,12 @@ span.formatlabel + input[type="checkbox"][data-formelement="true"] {
 .pure-form.pure-form-showvalid input[type="url"],
 .pure-form.pure-form-showvalid textarea {
     padding-right: 22px;
+}
+
+/* overrule pure-css its valid marking, because pattern validation sucks: better be done by [data-valid]; */
+.pure-form-aligned textarea[data-formelement="true"],
+.itsa-widget-parent[data-type="editorBase"] {
+    vertical-align: top;
 }
 
 /* overrule pure-css its valid marking, because pattern validation sucks: better be done by [data-valid]; */

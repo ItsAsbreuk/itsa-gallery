@@ -265,12 +265,12 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
             // when it is inserted in the dom: render it
             if (type.NAME==='editorBase') {
                 Y.use('gallery-itsaeditorrenderpromise', function() {
-                    widget.renderWhenAvailable('#'+nodeid);
+                    widget.renderOnAvailable('#'+nodeid);
                 });
             }
             else {
                 Y.use('gallery-itsawidgetrenderpromise', function() {
-                    widget.renderWhenAvailable('#'+nodeid);
+                    widget.renderOnAvailable('#'+nodeid);
                 });
             }
         }
@@ -329,6 +329,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
 /*jshint expr:false */
     if (iswidget) {
         template = ELEMENT_WIDGET;
+        subtituteConfig[DATA] += ' data-type="'+type+'"'
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + '"';
 /*jshint expr:true */
         config[LABEL] && (subtituteConfig[LABELDATA] += ' data-widgetlabel="true"');
