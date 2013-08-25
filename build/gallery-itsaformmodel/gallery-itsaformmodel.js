@@ -654,7 +654,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             formtype = attrconfig.formtype || 'text';
             iswidget = ((typeof formtype === 'function') && formtype.NAME);
             if (iswidget || instance._allowedFormTypes[formtype]) {
-console.log(formtype.NAME);
                 formconfig = attrconfig.formconfig || {};
                 formconfig.value = attr;
                 // in case of a widget, also set its value property

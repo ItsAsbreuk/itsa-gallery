@@ -198,10 +198,10 @@
         Y.ITSAFormModel renderes strings which should be inserted it into the dom. You can do this yourself, or you can use modules that do this automaticly (see below). If you choose to do this yourself, you should be aware of:
     <ul>
         <li>
-            <code>Widget-formelements</code> will render automaticly every time the render-string gets into the dom.
+            <code>Widget-formelements</code> will render automaticly once the render-string gets into the dom.
         </li>
         <li>
-            Every rendered formelement (attribute or button) should be inserted in the dom once at a time, because it has an unique node-id. However, it can be inserted, removed and re-inserted again.
+            Every rendered formelement (attribute or button) should be inserted in the dom <u>only once</u>. This is because it has an unique node-id and because its value is determined at time of creation. Besides, the Widget-elements will only render the first time the element gets into the dom. If you need to re-insert multiple times, then render the formelements over and over again.
         </li>
         <li>
             Every rendered formelement (attribute or button) can be rendered into a string more than once. Every time it is rendered, a new node-id is generated, and therefore these elements can reside in the dom at the same time.

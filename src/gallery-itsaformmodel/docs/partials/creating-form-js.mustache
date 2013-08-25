@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'editor', 'gallery-itsaselectlist', 'gallery-popover', 'gallery-itsadialog', 'button', 'json-stringify', function(Y) {
-    var model, container;
+    var model, container, containercontent;
 
     // adding skin sam to body for getting the right skin
     Y.one('body').addClass('yui3-skin-sam');
@@ -167,12 +167,13 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 validator: function(v) {return (typeof v==='boolean');}
             },
             editor: {
-                value: '<strong>This is <em>a test</em></strong> <strong>This is <em>a test</em></strong>',
+                value: '<strong>This is <em>a test</em></strong> This is <em>a test</em>',
                 formtype: Y.EditorBase,
                 formconfig: {
                     label: 'This is a Y.Editor-formtype',
                     tooltip: 'enter here the textarea input',
-                    tooltipPlacement: 'right'
+                    tooltipPlacement: 'right',
+                    classname: 'editorclass'
                 },
                 validator: function(v) {return (typeof v==='string');}
             }
@@ -193,26 +194,24 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
     });
 
     container = Y.one('#container');
-
-    container.append('<div class="pure-control-group">'+model.renderFormElement('text')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('number')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('floatednumber')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('password')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('textarea')+'</div>');
-    container.append('<div class="pure-controls">'+model.renderFormElement('checkbox')+'</div>');
-
-    container.append('<div class="pure-controls">'+model.renderSaveBtn('save values')+'</div>');
-
-    container.append('<div class="pure-control-group">'+model.renderFormElement('date')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('time')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('datetime')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('email')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('url')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('slider')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('itsacheckbox')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('itsaselectlist')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('togglebutton')+'</div>');
-    container.append('<div class="pure-control-group">'+model.renderFormElement('editor')+'</div>');
+    containercontent = '<div class="pure-control-group">'+model.renderFormElement('text')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('number')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('floatednumber')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('password')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('textarea')+'</div>'+
+                       '<div class="pure-controls">'+model.renderFormElement('checkbox')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('date')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('time')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('datetime')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('email')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('url')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('slider')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('itsacheckbox')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('itsaselectlist')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('togglebutton')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('editor')+'</div>'+
+                       '<div class="pure-controls">'+model.renderSaveBtn('save values')+'</div>';
+    container.append(containercontent);
 
     model.on('save', function() {
         Y.alert('model is saved! Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
