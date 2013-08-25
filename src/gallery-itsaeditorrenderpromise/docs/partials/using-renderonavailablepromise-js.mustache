@@ -1,0 +1,10 @@
+YUI(yuiconfig).use('node', 'gallery-itsaeditorrenderpromise', 'calendar', function(Y) {
+
+    new Y.EditorBase().renderOnAvailable('#calnode');
+
+    // now insert #calnode after delay of 3 seconds
+    Y.later(3000, null, function() {
+        Y.one('.sidebar').append('<div id="editornode" class="yui3-skin-sam"></div>');
+    });
+
+});
