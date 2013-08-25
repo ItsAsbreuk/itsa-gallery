@@ -98,14 +98,10 @@ Y.EditorBase.prototype.renderOnAvailablePromise = function(containerNodeid, opti
             Y.use(GALLERY_ITSANODEPROMISE, function() {
                 Y.Node.unavailablePromise(containerNodeid).then(
                     function() {
-                        var frame = instance.frame,
-                            framenode = frame && frame.get('node');
-/*jshint expr:true */
-                        frame && (frame._rendered = false);
-/*jshint expr:false */
-                        if (framenode) {
-                            framenode.empty();
-                            framenode.detachAll();
+                        var frame = instance.frame;
+                        if (frame) {
+                            frame._rendered = false;
+                            frame._ready = false;
                         }
                         // looping renderonavailable
                         instance.renderOnAvailablePromise(containerNodeid, options);

@@ -200,7 +200,7 @@ YUI.add('module-tests', function(Y) {
                 createnodetimer,
                 count = 0;
             editor.renderWhenAvailable('#testnode8');
-            editor.after('ready', function() {
+            editor.frame.after('ready', function() {
                 if (editor.frame && editor.frame._rendered) {
                     count++;
                 }

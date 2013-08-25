@@ -1,18 +1,22 @@
-YUI(yuiconfig).use('node', 'gallery-itsaeditorrenderpromise', 'gallery-itsacheckbox', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsaeditorrenderpromise', 'editor', function(Y) {
     var sidebarNode = Y.one('.sidebar');
-    new Y.ITSACheckbox().renderWhenAvailable('#checkboxnode');
+
+    new Y.EditorBase({
+        content: 'Here is <strong>some</strong> content'
+    }).renderWhenAvailable('#editornode');
 
     Y.one('#insertnode').on('click', function(){
-        var checkboxnode = Y.one("#checkboxnode");
-            if (!checkboxnode) {
-            sidebarNode.append('<div id="checkboxnode" class="yui3-skin-sam"></div>');
+        var editornode = Y.one("#editornnode");
+            if (!editornode) {
+            sidebarNode.append('<div id="editornode" class="yui3-skin-sam"></div>');
         }
     });
 
     Y.one('#removenode').on('click', function(){
-        var checkboxnode = Y.one("#checkboxnode");
-        if (checkboxnode) {
-            checkboxnode.remove(true);
+        var editornode = Y.one("#editornode");
+        if (editornode) {
+            editornode.remove(true);
         }
     });
+
 });

@@ -18,15 +18,6 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "using-readypromise",
-            "displayName": "Create editor-extention and make use of readyPromise()",
-            "description": "This example shows how to use readyPromise() to take action once a editor is complete ready.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaeditorrenderpromise", "node", "gallery-itsadialog", "panel", "promise", "base-build"],
-            "tags"    : ["gallery-itsaeditorrenderpromise", "readypromise"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "using-renderonavailablepromise",
             "displayName": "Render a editor before scrNode is in the DOM",
             "description": "This example shows how to use renderOnAvailable() to render an Y.Calendar-instance before the scrNode is in the DOM.",
