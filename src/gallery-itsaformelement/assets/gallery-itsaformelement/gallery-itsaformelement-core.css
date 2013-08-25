@@ -109,6 +109,18 @@ span.formatlabel + input[type="checkbox"][data-formelement="true"] {
     padding-right: 22px;
 }
 
+.pure-form-stacked div.itsa-widget-parent + label[data-widgetlabel="true"],
+.pure-form-stacked label[data-widgetlabel="true"] + div.itsa-widget-parent,
+.pure-form-stacked div.itsa-widget-parent + span.formatvalue,
+.pure-form-stacked span.formatvalue + div.itsa-widget-parent,
+.pure-form-stacked button[data-datetimepicker="true"] + span.formatvalue,
+.pure-form-stacked span.formatvalue + button[data-datetimepicker="true"],
+.pure-form-stacked .itsa-widget-parent {
+    display: block;
+    clear: both;
+    margin: 0.25em 0;
+}
+
 /* overrule pure-css its valid marking, because pattern validation sucks: better be done by [data-valid]; */
 .pure-form-aligned textarea[data-formelement="true"],
 .itsa-widget-parent[data-type="editorBase"] {

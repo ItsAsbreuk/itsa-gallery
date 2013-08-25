@@ -331,9 +331,10 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         template = ELEMENT_WIDGET;
         subtituteConfig[DATA] += ' data-type="'+type+'"'
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + '"';
-/*jshint expr:true */
-        config[LABEL] && (subtituteConfig[LABELDATA] += ' data-widgetlabel="true"');
-/*jshint expr:false */
+        if (config[LABEL]) {
+            subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
+            subtituteConfig[LABELDATA] += ' data-widgetlabel="true"';
+        }
         subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
         if (type==='slider') {
             // we want the value visible inside a span
