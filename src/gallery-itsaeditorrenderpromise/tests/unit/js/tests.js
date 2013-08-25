@@ -8,7 +8,7 @@ YUI.add('module-tests', function(Y) {
             var editor = new Y.EditorBase();
             editor.renderPromise(5000).then(
                 function() {
-                    Y.Assert.isTrue((editor.frame && editor.frame.get('node')), 'renderPromise is fulfilled, but the rendered-attribute is false');
+                    Y.Assert.isTrue((editor.frame && editor.frame._rendered), 'renderPromise is fulfilled, but the rendered-attribute is false');
                 },
                 function(reason) {
                     Y.Assert.fail(reason);
@@ -34,11 +34,11 @@ YUI.add('module-tests', function(Y) {
                 editor5.renderPromise()
             ).then(
                 function() {
-                    var allrendered = ((editor1.frame && editor1.frame.get('node')) &&
-                                       (editor2.frame && editor2.frame.get('node')) &&
-                                       (editor3.frame && editor3.frame.get('node')) &&
-                                       (editor4.frame && editor4.frame.get('node')) &&
-                                       (editor5.frame && editor5.frame.get('node')));
+                    var allrendered = ((editor1.frame && editor1.frame._rendered) &&
+                                       (editor2.frame && editor2.frame._rendered) &&
+                                       (editor3.frame && editor3.frame._rendered) &&
+                                       (editor4.frame && editor4.frame._rendered) &&
+                                       (editor5.frame && editor5.frame._rendered));
                     Y.Assert.isTrue(allrendered, 'all Y.batch()-renderPromises are fulfilled, but some rendered-attribute are false');
                 },
                 function(reason) {
@@ -61,7 +61,7 @@ YUI.add('module-tests', function(Y) {
                 editor = new Y.EditorBase();
             editor.promiseBeforeReady = function() {
                 // when this function is called, 'rendered' should be true
-                readyafterrender = (editor.frame && editor.frame.get('node'));
+                readyafterrender = (editor.frame && editor.frame._rendered);
                 return new Y.Promise(function (resolve) {
                     // simulate delay with a timer
                     Y.later(1000, null, function() {
@@ -91,7 +91,7 @@ YUI.add('module-tests', function(Y) {
             editor.renderOnAvailablePromise('#testnode4', {timeout: 2000}).then(
                 function() {
                     var nodeavailable = Y.one('#testnode4'),
-                        editorrendered = (editor.frame && editor.frame.get('node'));
+                        editorrendered = (editor.frame && editor.frame._rendered);
                     // we only can assert true if the editor is being rendered indeed:
                     editor.renderPromise(5000).then(
                         function() {
@@ -123,7 +123,7 @@ YUI.add('module-tests', function(Y) {
             editor.renderOnAvailablePromise('#testnode5', {promisetype: 'afterrender', timeout: 2000}).then(
                 function() {
                     var nodeavailable = Y.one('#testnode5'),
-                        editorrendered = (editor.frame && editor.frame.get('node'));
+                        editorrendered = (editor.frame && editor.frame._rendered);
                     Y.Assert.isTrue(
                         (nodeavailable && editorrendered),
                         'renderOnAvailablePromise is fulfilled, but '+ (!nodeavailable ? 'srcNode not in the DOM ' : '') + (!editorrendered ? 'editor is not rendered' : '')
@@ -196,12 +196,12 @@ YUI.add('module-tests', function(Y) {
     suite.add(new Y.Test.Case({
         name: 'test 8',
         'check renderWhenAvailable if an editor is rendered multiple times':  function() {
-            var editor = new Y.EditorBase();
+            var editor = new Y.EditorBase(),
                 createnodetimer,
                 count = 0;
             editor.renderWhenAvailable('#testnode8');
             editor.after('ready', function() {
-                if (editor.frame && editor.frame.get('node')) {
+                if (editor.frame && editor.frame._rendered) {
                     count++;
                 }
             });

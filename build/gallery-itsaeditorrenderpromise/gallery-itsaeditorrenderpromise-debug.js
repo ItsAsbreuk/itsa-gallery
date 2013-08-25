@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaeditorrenderpromise', function (Y, NAME) {
+
 'use strict';
 /**
  * This module adds some renderPromises to the Y.EditorBase class.
@@ -267,3 +269,5 @@ Y.EditorBase.prototype.readyPromise = function(timeout) {
     promiseslist.push(instance.promiseBeforeReady(timeout));
     return Y.batch.apply(Y, promiseslist);
 };
+
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "editor-base", "promise"]});

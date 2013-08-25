@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaeditorrenderpromise', function (Y, NAME) {
+
 'use strict';
 /**
  * This module adds some renderPromises to the Y.EditorBase class.
@@ -35,7 +37,6 @@ var DEFAULTTIMEOUT = 20000, // default timeout for renderPromise and readyPromis
  * @since 0.2
 */
 Y.EditorBase.prototype.renderOnAvailable = function(containerNodeid, timeout) {
-    Y.log('renderOnAvailable', 'info', 'editor');
     var instance = this;
     instance.renderOnAvailablePromise(containerNodeid, {timeout: timeout});
     return instance;
@@ -56,7 +57,6 @@ Y.EditorBase.prototype.renderOnAvailable = function(containerNodeid, timeout) {
  * @since 0.3
 */
 Y.EditorBase.prototype.renderWhenAvailable = function(containerNodeid, timeout) {
-    Y.log('renderWhenAvailable', 'info', 'editor');
     var instance = this;
     instance.renderWhenAvailablePromise(containerNodeid, {timeout: timeout});
     return instance;
@@ -87,7 +87,6 @@ Y.EditorBase.prototype.renderWhenAvailable = function(containerNodeid, timeout) 
  * @since 0.2
 */
 Y.EditorBase.prototype.renderOnAvailablePromise = function(containerNodeid, options) {
-    Y.log('renderOnAvailablePromise', 'info', 'editor');
     var instance = this,
         timeout = options && options.timeout,
         promisetype = options && options.promisetype,
@@ -185,7 +184,6 @@ Y.EditorBase.prototype.renderOnAvailablePromise = function(containerNodeid, opti
  * @since 0.3
 */
 Y.EditorBase.prototype.renderWhenAvailablePromise = function(containerNodeid, options) {
-    Y.log('renderWhenAvailablePromise', 'info', 'editor');
     options = options || {};
     options.stayalive = true;
     return this.renderOnAvailablePromise(containerNodeid, options);
@@ -203,7 +201,6 @@ Y.EditorBase.prototype.renderWhenAvailablePromise = function(containerNodeid, op
  * @since 0.1
 */
 Y.EditorBase.prototype.renderPromise = function(timeout) {
-    Y.log('renderPromise', 'info', 'editor');
     var instance = this;
     return new Y.Promise(function (resolve, reject) {
         instance.after(
@@ -259,7 +256,6 @@ Y.EditorBase.prototype.promiseBeforeReady = function() {
  * @since 0.2
 */
 Y.EditorBase.prototype.readyPromise = function(timeout) {
-    Y.log('readyPromise', 'info', 'editor');
     var instance = this,
           promiseslist;
     promiseslist = [];
@@ -267,3 +263,5 @@ Y.EditorBase.prototype.readyPromise = function(timeout) {
     promiseslist.push(instance.promiseBeforeReady(timeout));
     return Y.batch.apply(Y, promiseslist);
 };
+
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "editor-base", "promise"]});
