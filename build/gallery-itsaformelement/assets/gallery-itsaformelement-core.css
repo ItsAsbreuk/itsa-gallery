@@ -49,6 +49,31 @@ label[data-labeldatetime][data-changed] {
     background-position: -20px -1px;
 }
 
+/* adjusting colors for tipsy */
+.yui3-tipsy.tipsy-formelement {
+    background-color: #30418C;
+    color: #F0F1F8;
+}
+.yui3-tipsy.tipsy-formelement .yui3-widget-pointer-left {
+    border-right-color: #30418C;
+}
+.yui3-tipsy.tipsy-formelement-invalid {
+    background-color: #F00;
+    color: #F0F1F8;
+}
+.yui3-tipsy.tipsy-formelement-invalid .yui3-widget-pointer-left {
+    border-right-color: #F00;
+}
+/* end adjusting colors for tipsy */
+
+.pure-form span[data-formelement="true"] {
+    font-size: 90%;
+    vertical-align: top;
+    margin: 0.15em 0;
+    display: inline-block;
+    *display: inline;
+}
+
 div.itsa-widget-parent + label[data-widgetlabel="true"],
 label[data-widgetlabel="true"] + div.itsa-widget-parent,
 div.itsa-widget-parent + span.formatvalue,

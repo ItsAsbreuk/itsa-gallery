@@ -110,9 +110,7 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>labelClassname</code> {String}</li>
       <li><code>focusable</code> {Boolean}</li>
       <li><code>tooltip</code> {String}</li>
-      <li><code>tooltipHeader</code> {String}</li>
-      <li><code>tooltipFooter</code> {String}</li>
-      <li><code>tooltipPlacement</code> {String}</li>
+      <li><code>tooltipinvalid</code> {String}</li>
     </ul>
   <h3>Available objectproperties for simple form-elements</h3>
     <ul>
@@ -142,9 +140,7 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>switchlabel</code> {Boolean} (defaults false) --> switch the label behind the element</li>
       <li><code>switchdatetime</code> {Boolean} (defaults false) --> switch the datetime-value behind the element: only valid for date/time</li>
       <li><code>tooltip</code> {String}</li>
-      <li><code>tooltipHeader</code> {String}</li>
-      <li><code>tooltipFooter</code> {String}</li>
-      <li><code>tooltipPlacement</code> {String}</li>
+      <li><code>tooltipinvalid</code> {String} External routine should set this data (available as 'data-contentinvalid') into 'data-content' once invalid and replace it with 'data-contentvalid' once valid again.</li>
     </ul>
 <h2>Different behaviour reset and submit</h2>
   <p>
