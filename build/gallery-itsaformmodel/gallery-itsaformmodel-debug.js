@@ -239,7 +239,8 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             time: true,
             datetime: true,
             email: true,
-            url: true
+            url: true,
+            plain: true
         },
 
         /**
@@ -314,6 +315,22 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 textarea: true,
                 email: true,
                 url: true
+            };
+
+           /**
+            * internal hash with references to the renderBtn-functions, referenced by type ('button', 'cancel', 'destroy', 'remove', 'reset', 'save', 'submit').
+            * @property _renderBtnFns
+            * @private
+            * @type Object
+            */
+            instance._renderBtnFns = {
+                button: instance.renderBtn,
+                cancel: instance.renderCancelBtn,
+                destroy: instance.renderDestroyBtn,
+                remove: instance.renderRemoveBtn,
+                reset: instance.renderResetBtn,
+                save: instance.renderSaveBtn,
+                submit: instance.renderSubmitBtn
             };
 
             instance.publish(
@@ -398,6 +415,29 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         },
 
         /**
+         * Validates accross attributevalues interactive. F.i: you might have 2 password-fields, one for confirmation.
+         * In that case both need to be the same.
+         * <br />
+         * <br />
+         * Return an array with all the attributenames+validationerrormessages that are invalid. To do this, you should create an array
+         * and fill it with objects with the properties: 'attribute' and 'validationerror' (both String-type).
+         * <br />
+         * <br />
+         * This method needs to be overridden if needed, by default it is empty.
+         * <br />
+         * <b>Caution</b> don't read attribute-values with formmodel.get(), but read UI-values with formmodel.getUI() because you need to compare the values
+         * as they exist in the UI-elements.
+         *
+         * @method crossValidation
+         * @return {Array|null} array with objects that failed crossValidation. The objects have the properties 'attribute' and 'validationerror'
+         * @since 0.1
+        */
+        crossValidation : function() {
+            // empty by default --> can be overridden.
+            // should return an array with objects, where the objects have the fields: o.node {Y.Node} and a.validationerror {String}
+        },
+
+        /**
          * Cleans up bindings and removes plugin
          * @method defFnFocusNext
          * @param e {EventTarget}
@@ -409,6 +449,39 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         },
 
         /**
+         * returns the UI-value of a formelement into its Model-attribute. This might differ from the attribute-value as it resides in the Model-instance.
+         *
+         * @method getUI
+         * @param attributeName {String} name of the attribute which UI-value is to be returned.
+         * @return {Any} value of the UI-element that correspons with the attribute.
+         * @since 0.1
+         *
+        */
+        getUI: function(attributeName) {
+            var instance = this,
+                formElement, formElements, nodeid, nodeids, node, value, attribute, widget, type;
+
+            Y.log('getUI', 'info', 'ITSAFormModel');
+            nodeids = instance._ATTRS_nodes[attributeName];
+            nodeid = nodeids && (nodeids.length>0) && nodeids[0];
+            formElements = instance._FORM_elements;
+            formElement = nodeid && formElements[nodeid];
+            if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
+                widget = formElement.widget;
+                type = formElement.type;
+                value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
+                attribute = formElement.name;
+                if (Lang.isValue(value)) {
+/*jshint expr:true */
+                    ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
+                    (type==='number') && (value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10));
+/*jshint expr:false */
+                }
+            }
+            return value;
+        },
+
+        /**
          * Finds the unvalidated UI-values that belongs to this modelinstance.
          *
          * @method getUnvalidatedUI
@@ -417,7 +490,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         getUnvalidatedUI : function () {
             var instance = this,
-                node, valid, unvalidNodes = [];
+                node, valid, crossvalidation, unvalidNodes = [];
 
             Y.log('getUnvalidatedUI', 'info', 'ITSAFormModel');
             YObject.each(
@@ -427,7 +500,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                         node = Y.one('#'+formelement.nodeid);
                         if (node) {
                             valid = instance._validValue(node, formelement, formelement.name, node.get('value'));
-                            node.setAttribute('data-valid', valid);
+                            instance._setNodeValidation(node, valid);
 /*jshint expr:true */
                             valid || unvalidNodes.push(node);
 /*jshint expr:false */
@@ -435,6 +508,32 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     }
                 }
             );
+            // next we check 'crossValidation', this is done second, because the first step (validate per attribute) might set validation valid
+            crossvalidation = instance.crossValidation();
+            if (Lang.isArray(crossvalidation) && (crossvalidation.length>0)) {
+                YArray.each(
+                    crossvalidation,
+                    function(item) {
+                        var attribute = item.attribute,
+                            attributenodes = attribute && instance._ATTRS_nodes[attribute];
+                        if (attributenodes) {
+                            YArray.each(
+                                attributenodes,
+                                function(nodeid) {
+                                    var node = Y.one('#'+nodeid),
+                                        validationerror = item.validationerror,
+                                        error;
+                                    if (node) {
+                                        error = ((typeof validationerror === 'string') ? validationerror : null);
+                                        instance._setNodeValidation(node, false, error);
+                                        unvalidNodes.push(node);
+                                    }
+                                }
+                            );
+                        }
+                    }
+                );
+            }
             Y.log('getUnvalidatedUI found '+unvalidNodes.length+' wrong validated formelement', 'info', 'ITSAFormModel');
             return new Y.NodeList(unvalidNodes);
         },
@@ -456,10 +555,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -485,10 +581,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -514,10 +607,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -543,10 +633,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -572,10 +659,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for adding extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -601,10 +685,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -630,10 +711,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -690,6 +768,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 }
                 formconfig.modelattribute = true;
                 formconfig.name = attribute;
+                formconfig.tooltipinvalid = attrconfig.validationerror;
                 formconfig.required = false; // disable by setting false
                 formconfig.removepattern = true; // specify to remove the pattern property
                 formelement = ITSAFormElement.getElement(formtype, formconfig);
@@ -809,6 +888,35 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             this._widgetValueFields[widgetClassname] = valueField;
         },
 
+        toJSONUI : function(renderButtons) {
+            var instance = this,
+                UIattrs = {};
+
+            Y.log('toJSONUI', 'info', 'ITSAFormModel');
+            YObject.each(
+                instance.getAttrs(),
+                function(value, key) {
+                    UIattrs[key] = instance.renderFormElement(key);
+                }
+            );
+            if (Lang.isArray(renderButtons)) {
+                YArray.each(
+                    renderButtons,
+                    function(buttonobject) {
+                        var key = buttonobject.key,
+                            type = buttonobject.type,
+                            text = buttonobject.text,
+                            config = buttonobject.config,
+                            renderBtnFns = instance._renderBtnFns;
+/*jshint expr:true */
+                        key && type && renderBtnFns[type] && (UIattrs[key]=Y.bind(renderBtnFns[type], instance, text, config)());
+/*jshint expr:false */
+                    }
+                );
+            }
+            return UIattrs;
+        },
+
         /**
          * Copies the UI-value of a formelement into its Model-attribute.
          *
@@ -833,10 +941,8 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
 /*jshint expr:true */
                     ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
+                    (type==='number') && (value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10));
 /*jshint expr:false */
-                    if (type==='number') {
-                        value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10);
-                    }
                     instance.set(attribute, value, options);
                 }
             }
@@ -1405,13 +1511,15 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @since 0.1
          */
         _removeValidation : function () {
+            var instance = this;
+
             Y.log('_removeValidation', 'info', 'ITSAFormModel');
             YObject.each(
-                this._FORM_elements,
+                instance._FORM_elements,
                 function(formelement) {
                     var node = Y.one('#'+formelement.nodeid);
 /*jshint expr:true */
-                    node && node.removeAttribute('data-valid');
+                    node && instance._setNodeValidation(node, false);
 /*jshint expr:false */
                 }
             );
@@ -1435,10 +1543,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param [config.classname] for addeing extra classnames to the button
          * @param [config.focusable]
          * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tooltip is used
-         * @param [config.tooltipHeader] header of the tooltip, when using Y.Tooltip
-         * @param [config.tooltipFooter] footer of the tooltip when using Y.Tooltip
-         * @param [config.tooltipPlacement] tooltip's placement when using Y.Tooltip
+         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
          * @param [buttontype] {String} type of button that needs to be rendered
          * @param [extradata] {Boolean} whether 'data-buttonsubtype="buttontype"' should be added as a node-attribute
          * @return {String} stringified version of the button which can be inserted in the dom.
@@ -1535,13 +1640,34 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 /*jshint expr:true */
                           (node!==changedNode) && node.set('value', newvalue);
 /*jshint expr:false */
-                          node.setAttribute('data-valid', valid);
+                         instance._setNodeValidation(node, valid);
                       }
                   }
               );
             }
             if (instance._lifeUpdate) {
                 instance.UIToModel(changedNode.get('id'));
+            }
+        },
+
+        /**
+         * Sets node validation-state by specifying 'data-valid' true or false. Also sets valid- or invalid-tooltip.
+         *
+         * @method _setNodeValidation
+         * @param node {Y.Node} node which validation should be set
+         * @param value {Boolean} validated or not
+         * @param [tooltip] {String} to force a specific tooltip-message
+         * @private
+         * @since 0.1
+        */
+        _setNodeValidation : function (node, value, tooltip) {
+            var newContent;
+
+            Y.log('_setNodeValidation node '+node.get("id")+' --> '+value, 'info', 'ITSAFormModel');
+            node.setAttribute('data-valid', value);
+            newContent = tooltip || node.getAttribute('data-content' + (value ? 'valid' : 'invalid'));
+            if (newContent) {
+                node.setAttribute('data-content', newContent);
             }
         },
 
@@ -1620,7 +1746,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         }
 
     }, {
-        _ATTR_CFG: ['formtype', 'formconfig']
+        _ATTR_CFG: ['formtype', 'formconfig', 'validationerror']
     }
 );
 
@@ -1628,7 +1754,6 @@ Y.ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';
 Y.ITSAFormModel.prototype._widgetValueFields.itsaselectlist = 'index';
 Y.ITSAFormModel.prototype._widgetValueFields.toggleButton = ['checked','pressed'];
 Y.ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
-
 
 //===================================================================
 //===================================================================

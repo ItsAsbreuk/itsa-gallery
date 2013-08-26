@@ -1,22 +1,35 @@
-YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'editor', 'gallery-itsaselectlist', 'gallery-popover', 'gallery-itsadialog', 'button', 'json-stringify', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'slider', 'editor', 'gallery-itsaselectlist', 'gallery-itsadialog', 'button', 'dial', 'json-stringify', function(Y) {
     var model, container, containercontent;
 
     // adding skin sam to body for getting the right skin
     Y.one('body').addClass('yui3-skin-sam');
-    new Y.Popover({
-        selector: '[data-formelement][data-content]',
-        width: 300
-    }).render();
 
-    Y.MyFormModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {}, {
+    Y.MyFormModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
+        crossValidation: function() {
+            var instance = this,
+                errorattrs = [];
+ console.log('crossvalidation: '+instance.getUI('password')+' | '+instance.getUI('passwordcheck'));
+            if (instance.getUI('password') !== instance.getUI('passwordcheck')) {
+                errorattrs.push({
+                    attribute: 'password',
+                    validationerror: 'password and password-chack are not the same'
+                });
+                errorattrs.push({
+                    attribute: 'passwordcheck',
+                    validationerror: 'password and password-chack are not the same'
+                });
+            }
+ console.log('errorattrs: '+errorattrs);
+            return errorattrs;
+        }
+    }, {
         ATTRS: {
             text: {
                 formtype: 'text',
                 formconfig: {
                     label: 'This is a "text"-formtype',
                     placeholder: 'enter text',
-                    tooltip: 'enter here your text',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter "here" your text'
                 },
                 validator: function(v) {return (typeof v==='string');}
             },
@@ -24,18 +37,17 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'number',
                 formconfig: {
                     label: 'This is a "number"-formtype',
-                    tooltip: 'enter here a number between 0-100',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter a number between 0-100'
                 },
-                validator: function(v) {return ((typeof v==='number') && (v>=0) && (v<=100));}
+                validator: function(v) {return ((typeof v==='number') && (v>=0) && (v<=100));},
+                validationerror: 'You should enter a number between 0-100'
             },
             floatednumber: {
                 formtype: 'number',
                 formconfig: {
                     digits: true,
                     label: 'This is a floated "number"-formtype',
-                    tooltip: 'enter here your number',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter here your number'
                 },
                 validator: function(v) {return (typeof v==='number');}
             },
@@ -44,8 +56,16 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     placeholder: 'enter password',
                     label: 'This is a "password"-formtype',
-                    tooltip: 'enter here your password',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter here your password'
+                },
+                validator: function(v) {return (typeof v==='string') && (v.length>=5) && (v.indexOf(' ')===-1);}
+            },
+            passwordcheck: {
+                formtype: 'password',
+                formconfig: {
+                    placeholder: 're-enter password',
+                    label: 'This is a "password"-formtype',
+                    tooltip: 'check your password'
                 },
                 validator: function(v) {return (typeof v==='string') && (v.length>=5) && (v.indexOf(' ')===-1);}
             },
@@ -53,8 +73,17 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'textarea',
                 formconfig: {
                     label: 'This is a "textarea"-formtype',
-                    tooltip: 'enter here the textarea input',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter here the textarea input'
+                },
+                validator: function(v) {return (typeof v==='string');}
+            },
+            plain: {
+                value: 'Hey all, here is an attribute that can be shown, but not edited',
+                formtype: 'plain',
+                formconfig: {
+                    label: 'This is a "plain"-formtype',
+                    placeholder: 'enter text',
+                    tooltip: 'enter "here" your text'
                 },
                 validator: function(v) {return (typeof v==='string');}
             },
@@ -62,8 +91,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'checkbox',
                 formconfig: {
                     label: 'This is a "checkbox"-formtype',
-                    tooltip: 'enter here the checkbox value',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter here the checkbox value'
                 },
                 validator: function(v) {return (typeof v==='boolean');}
             },
@@ -72,7 +100,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     label: 'This is a "date"-formtype',
                     tooltip: 'enter here your date',
-                    tooltipPlacement: 'right',
                     format: '%Y-%m-%d'
                 },
                 validator: function(v) {return Y.Lang.isDate(v);}
@@ -82,7 +109,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     label: 'This is a "time"-formtype',
                     tooltip: 'enter here your time',
-                    tooltipPlacement: 'right',
                     format: '%H:%M:%S'
                 },
                 validator: function(v) {return Y.Lang.isDate(v);}
@@ -92,7 +118,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     label: 'This is a "datetime"-formtype',
                     tooltip: 'enter here your date and time',
-                    tooltipPlacement: 'right',
                     format: '%Y-%m-%d %H:%M:%S'
                 },
                 validator: function(v) {return Y.Lang.isDate(v);}
@@ -101,8 +126,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'email',
                 formconfig: {
                     label: 'This is a "email"-formtype',
-                    tooltip: 'enter here your emailadress',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter here your emailadress'
                 },
                 validator: function(v) {return (typeof v==='string');}
             },
@@ -110,8 +134,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: 'url',
                 formconfig: {
                     label: 'This is a "url"-formtype',
-                    tooltip: 'enter here your url',
-                    tooltipPlacement: 'right'
+                    tooltip: 'enter here your url'
                 },
                 validator: function(v) {return (typeof v==='string');}
             },
@@ -121,7 +144,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     label: 'This is a Y.Slider-formtype',
                     tooltip: 'slide to set value',
-                    tooltipPlacement: 'right',
                     widgetconfig: {
                         min: 5,
                         max: 20
@@ -134,8 +156,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formtype: Y.ITSACheckbox,
                 formconfig: {
                     label: 'This is a Y.ITSACheckbox-formtype',
-                    tooltip: 'click to set value',
-                    tooltipPlacement: 'right'
+                    tooltip: 'click to set value'
                 },
                 validator: function(v) {return (typeof v==='boolean');}
             },
@@ -145,7 +166,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     label: 'This is a Y.ITSASelectList-formtype',
                     tooltip: 'select the Month',
-                    tooltipPlacement: 'right',
                     widgetconfig: {
                         items: ['Januar', 'Februar', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                         buttonWidth: 200
@@ -159,14 +179,25 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                 formconfig: {
                     label: 'This is a Y.ToggleButton-formtype',
                     tooltip: 'click to toggle',
-                    tooltipPlacement: 'right',
                     widgetconfig: {
                         label: 'I can toggle'
-//                        items: ['Januar', 'Februar', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-//                        buttonWidth: 200
                     }
                 },
                 validator: function(v) {return (typeof v==='boolean');}
+            },
+            dial: {
+                value: 20,
+                formtype: Y.Dial,
+                formconfig: {
+                    label: 'This is a Y.Dial-formtype',
+                    tooltip: 'rotate to change value',
+                    widgetconfig: {
+                        min: 0,
+                        max: 60,
+                        stepsPerRevolution: 60
+                    }
+                },
+                validator: function(v) {return (typeof v==='number');}
             },
             editor: {
                 value: '<strong>This is <em>a test</em></strong> This is <em>a test</em>',
@@ -200,7 +231,9 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                        '<div class="pure-control-group">'+model.renderFormElement('number')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('floatednumber')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('password')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('passwordcheck')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('textarea')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('plain')+'</div>'+
                        '<div class="pure-controls">'+model.renderFormElement('checkbox')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('date')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('time')+'</div>'+
@@ -211,6 +244,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                        '<div class="pure-control-group">'+model.renderFormElement('itsacheckbox')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('itsaselectlist')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('togglebutton')+'</div>'+
+                       '<div class="pure-control-group">'+model.renderFormElement('dial')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('editor')+'</div>'+
                        '<div class="pure-controls">'+model.renderSaveBtn('save values')+'</div>';
     container.append(containercontent);

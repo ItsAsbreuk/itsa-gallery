@@ -17,7 +17,12 @@
         Y.ITSAFormModel should be used as a string-renderer. It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
     </p>
     <p>
-        Every attribute needs its own specific form-element (UI-element) defined. Therefore, two extra attribute-properties are introduced: <code>formtype</code> and <code>formconfig</code>. You can either specify a regular (standard) formelement by defining <code>formtype</code> as a String, or you can define a Widget by supplying a Widget-Class to the formtype-property:
+        Every attribute needs its own specific form-element (UI-element) defined. Therefore, three extra attribute-properties are introduced:
+        <ul>
+            <li><code>formtype</code> either specified as a regular-formelement by defining it as a <code>String</code>, or a Widget by defining a <code>Widget-Class</code>.</li>
+            <li><code>formconfig</code> which is used as configuration of the formtype.</li>
+            <li><code>validationerror</code> the errormessage that is shown on validationerrors using gallery-tipsy</li>
+        </ul>
     </p>
     <h3>syncing UI to the model</h3>
     <p>
@@ -50,6 +55,7 @@
                     required: true
                 },
                 validator: ...,
+                validatorerror: 'you entered a wrong input',
                 ...
             }
             someWidgetAttribute: {
@@ -62,7 +68,7 @@
                         max: 100
                     },
                 },
-                validator: ...,
+                // validator not needed: Y.Slider always returns a valid number
                 ...
             }
         }
@@ -95,6 +101,7 @@
           <li><code>'datetime'</code></li>
           <li><code>'email'</code></li>
           <li><code>'url'</code></li>
+          <li><code>'plain'</code> --> plain text, no UI</li>
         </ul>
         <u>formconfig:</u>
         <ul>
@@ -120,10 +127,7 @@
             <li><code>readonly=false</code> {Boolean} not applyable for buttons.</li>
             <li><code>switchvalue=false</code> {Boolean} make the value go behind the element. Only applyable for type=='date', 'time' or 'datetime'.</li>
             <li><code>switchlabel=false</code> {Boolean} make the label go behind the element.</li>
-            <li><code>tooltip</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipFooter</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipPlacement</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
+            <li><code>tooltip</code> {String} marks the data-attribute used by an internal Y.Tipsy instance.</li>
         </ul>
 
 
@@ -139,6 +143,7 @@
         <ul>
           <li><code>Y.EditorBase</code> --> even not a Widget, the Y.EditorBase can be used.</li>
           <li><code>Y.Slider</code></li>
+          <li><code>Y.Dial</code></li>
           <li><code>Y.ToggleButton</code></li>
           <li><code>Y.ITSACheckbox</code></li>
           <li><code>Y.ITSASelectList</code></li>
@@ -154,10 +159,7 @@
             <li><code>labelClassname</code> {String} additional classname for the label.</li>
             <li><code>switchvalue=false</code> {Boolean} make the value go behind the element. Only applyable for type=='Y.Slider'</li>
             <li><code>switchlabel=false</code> {Boolean} make the label go behind the element.</li>
-            <li><code>tooltip</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipFooter</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipPlacement</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
+            <li><code>tooltip</code> {String} marks the data-attribute used by an internal Y.Tipsy instance.</li>
             <li><code>widgetconfig</code> {Object} passing through to the Widget during its initialization.</li>
         </ul>
     </p>
@@ -187,7 +189,6 @@
             <li><code>tooltip</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
             <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
             <li><code>tooltipFooter</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
-            <li><code>tooltipPlacement</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
             <li><code>value</code> {String} returnvalue which is available inside the eventlistener through e.value</li>
         </ul>
     </p>
@@ -254,9 +255,42 @@
         Each attribute is validated throught its <code>attribute.validation</code> method: there are no formconfig-properties 'required' or 'pattern'. Attributevalidation gives more control than the regexp 'pattern' that can be used on input-elements. Some formtypes have their own <code>pattern</code> by design, like formtype==='email'. In those cases, the attributes are validated through both the formtype-pattern as well as the attribute-validation. If not validated, a node-attribute is added: <code>data-validated="false"</code>, which is used for styling and could be used by formvalidation.
     </p>
 
+    <h3>cross-validation</h3>
+    <p>
+        Cross-validation is validation of attribute-values among each other. Each separate attribute might validate true, while a combination might fail. Typically this is the case when you have a password-field and a confirm-password field. Both should match.
+    </p>
+    <p>
+        To deal with this, you should override the function <code>crossValidation()</code>, which is empty by default. Inside this function UI-element-values could be compared and marked as 'not-valid'. Make the function return an Array with objects, where each object has two fields: o.attribute and o.validationerror. The latter is the tooltip-description that will be set on the UI-element.
+        <br />
+        <b>Importante note:</b> be sure you check the UI-values instead of the attributes by using <code>formmodel.getUI()</code> and not formmodel.get().
+        ```js
+        Y.MyFormModel = Y.Base.create('formModel', Y.ITSAEditModel, [], {}, {
+            crossValidation: function() {
+                var instance = this,
+                    errorattrs = [];
+                if (instance.getUI('password') !== instance.getUI('passwordcheck')) {
+                    errorattrs.push({
+                        attribute: 'password',
+                        validationerror: 'password and password-chack are not the same'
+                    });
+                    errorattrs.push({
+                        attribute: 'passwordcheck',
+                        validationerror: 'password and password-chack are not the same'
+                    });
+                }
+                return errorattrs;
+            }
+        }
+        ATTRS: {
+                ...
+            }
+        });
+        ```
+    </p>
+
     <h3>formvalidation</h3>
     <p>
-        Even if you do not create a form, there is a validation of all the models UI-elements. That is when the save- or submitbutton are pressed. They only proceed if there is no unvalidated formelement, otherwise the <code>validationerror</code>-event is fired.
+        Even if this module supplies a Model and not a View, there is a validation of all the models UI-elements. That is when the save- or submitbutton are pressed. They only proceed if there is no unvalidated formelement, otherwise the <code>validationerror</code>-event is fired.
     </p>
 
     <h3>additional css</h3>
