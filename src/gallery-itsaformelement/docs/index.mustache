@@ -122,17 +122,17 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>required</code> {Boolean} (defaults true for 'password', otherwise false)--> only valid for input-elements, textarea and date/time. defaults true when type===password</li>
       <li><code>disabled</code> {Boolean} (defaults false)</li>
       <li><code>pattern</code> {String} --> only valid for type==='text' or 'password'</li>
-      <li><code>length</code> {Number} --> only valid for input-elements. just a node attribute 'data-length' is added: needs to be processed yourself</li>
       <li><code>classname</code> {String}</li>
       <li><code>labelClassname</code> {String} --> used for all elements (including date-time), except buttons</li>
       <li><code>hidden</code> {Boolean} (defaults false)</li>
-      <li><code>focusable</code> {Boolean} (defaults true)</li>
       <li><code>readonly</code> {Boolean} (defaults false) --> not applyable for buttons</li>
+      <li><code>focusable</code> {Boolean} (defaults true)</li>
+      <li><code>fullselect</code> {Boolean} selects all text when focussed --> only valid for input-elements and textarea</li>
+      <li><code>cursorend</code> {Boolean} sets the cursor at the end when focussed --> only valid for input-elements and textarea and with 'fullselect' is falsy</li>
+      <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
       <li><code>onlyssl</code> {Boolean} (defaults false) --> only applyable for type==='url'</li>
       <li><code>nossl</code> {Boolean} (defaults false) --> only applyable for type==='url'</li>
       <li><code>checked</code> {Boolean} (defaults false) --> only valid for checkboxes and radiobuttons</li>
-      <li><code>min</code> {Number} --> only valid for numbers. just a node attribute 'data-min' is added: needs to be processed yourself</li>
-      <li><code>max</code> {Number} --> only valid for numbers.  just a node attribute 'data-max' is added: needs to be processed yourself</li>
       <li><code>digits</code> {Boolean} (defaults false) --> for floating numbers: only valid for numbers</li>
       <li><code>buttonTekst</code> {String} --> only valid for non 'dattime'-buttons</li>
       <li><code>primary</code> {Boolean} (defaults false) --> only valid for buttons</li>

@@ -4,7 +4,10 @@
             "yui-base",
             "datatype-date-format",
             "event-synthetic",
-            "gallery-tipsy"
+            "yui-later",
+            "promise",
+            "gallery-tipsy",
+            "gallery-itsawidgetrenderpromise"
         ],
         "skinnable": true
     }

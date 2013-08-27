@@ -46,11 +46,11 @@
         },
         {
             "name"       : "popover",
-            "displayName": "Using Y.Popover",
-            "description": "This example shows how to use Y.ITSAFormElement with Y.Popover",
+            "displayName": "Using tooltips",
+            "description": "This example shows how to use Y.ITSAFormElement with tooltips (using gallery-tipsy). Just set focus on the text-element.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformelement", "gallery-popover"],
-            "tags"       : ["gallery-itsaformelement", "form-element", "gallery-tipsy", "gallery-popover", "tipsy", "popover"],
+            "modules"    : ["gallery-itsaformelement"],
+            "tags"       : ["gallery-itsaformelement", "form-element", "gallery-tipsy", "tipsy"],
             "hideTableOfContents": true
         }
     ]
