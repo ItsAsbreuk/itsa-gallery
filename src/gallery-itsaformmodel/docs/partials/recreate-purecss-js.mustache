@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'gallery-itsaselectlist', 'gallery-itsadialog', 'json-stringify', function(Y) {
+YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsaselectlist', 'gallery-itsacheckbox', 'gallery-itsadialog', 'json-stringify', function(Y) {
     var model, container, containercontent;
 
     // adding skin sam to body for getting the right skin
@@ -28,7 +28,7 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'gal
                     classname: 'fixmargin',
                     widgetconfig: {
                         items: ['AL', 'CA', 'IL'],
-                        buttonWidth: 200
+                        buttonWidth: 70
                     }
                 }
             },
@@ -52,7 +52,8 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'gal
     container.append(containercontent);
 
     model.on('submit', function() {
-        Y.alert('Form is submitted! Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
+        Y.alert('Form is submitted! Here are all the attribute-values: '+
+                 Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
     });
 
     model.on('validationerror', function() {

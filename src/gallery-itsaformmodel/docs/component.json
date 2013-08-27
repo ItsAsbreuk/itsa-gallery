@@ -9,30 +9,39 @@
 
     "examples": [
         {
-            "name"       : "creating-form",
-            "displayName": "Creating a form",
-            "description": "This example shows how to create a form using Y.ITSAFormElement.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "recreate-purecss",
             "displayName": "Recreate a Purecss form",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "password-validation",
-            "displayName": "Validate double password",
-            "description": "This example shows to use ",
+            "name"       : "creating-form",
+            "displayName": "Form with all formelements",
+            "description": "This example shows how to create a form using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaformmodel", "gallery-checkbox", "model"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form"],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsacheckbox", "slider", "editor", "gallery-itsaselectlist", "gallery-itsadialog", "button", "dial", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "widget", "widgets"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "validation",
+            "displayName": "Validation",
+            "description": "This example shows to use attribute-validation as well as crossvalidation",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsadialog", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "validate", "validation"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "sizes",
+            "displayName": "Styling formelements",
+            "description": "This example shows style your formelements",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaformmodel", "model"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "css", "style", "styling"],
             "hideTableOfContents": true
         }
     ]

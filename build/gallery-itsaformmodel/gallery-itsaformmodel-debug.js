@@ -1685,6 +1685,9 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             if (newContent) {
                 node.setAttribute('data-content', newContent);
             }
+            else {
+                node.removeAttribute('data-content');
+            }
         },
 
         /**

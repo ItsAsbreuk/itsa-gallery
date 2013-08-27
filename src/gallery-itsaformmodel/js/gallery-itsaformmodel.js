@@ -9,8 +9,8 @@
  * Y.ITSAFormModel does not rendering to the dom itself. That needs to be done by an Y.View-instance, like Y.ITSAViewModel.
  *
  * @module gallery-itsaformmodel
- * @class ITSAFormModel
  * @extends Model
+ * @class ITSAFormModel
  * @constructor
  * @since 0.1
  *
@@ -1450,7 +1450,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         /**
          * Copies the Model-attribute-value into the UI-formelement.
          *
-         * @method UIToModel
+         * @method _modelToUI
          * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
          * @private
          * @since 0.1
@@ -1682,6 +1682,9 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             newContent = tooltip || node.getAttribute('data-content' + (value ? 'valid' : 'invalid'));
             if (newContent) {
                 node.setAttribute('data-content', newContent);
+            }
+            else {
+                node.removeAttribute('data-content');
             }
         },
 

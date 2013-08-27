@@ -107,7 +107,6 @@
         <ul>
             <li><code>checked=false</code> {Boolean} only valid for checkboxes and radiobuttons.</li>
             <li><code>classname</code> {String} additional classname for the html-element.</li>
-            <li><code>cursorend</code> {Boolean} sets the cursor at the end when focussed --> only valid for input-elements and textarea and with 'fullselect' is falsy</li>
             <li><code>data</code> {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.</li>
             <li><code>digits=false</code> {Boolean} for floating numbers: only valid for type==='number'.</li>
             <li><code>disabled=false</code> {Boolean}</li>
@@ -252,7 +251,7 @@
 <h2>Validation</h2>
     <h3>validation of the formelements</h3>
     <p>
-        Each attribute is validated throught its <code>attribute.validation</code> method: there are no formconfig-properties 'required' or 'pattern'. Attributevalidation gives more control than the regexp 'pattern' that can be used on input-elements. Some formtypes have their own <code>pattern</code> by design, like formtype==='email'. In those cases, the attributes are validated through both the formtype-pattern as well as the attribute-validation. If not validated, a node-attribute is added: <code>data-validated="false"</code>, which is used for styling and could be used by formvalidation.
+        Each attribute is validated throught its <code>attribute.validation</code> method: there are no formconfig-properties 'required' or 'pattern'. Attributevalidation gives more control than the regexp 'pattern' that can be used on input-elements. Some formtypes have their own <code>pattern</code> served by ITSAFormElement. These are <code>number</code>, <code>email</code> and <code>url</code>. When using these types, the attributes are validated through both the formelement-pattern as well as the attribute-validation. If not validated, a node-attribute is added: <code>data-validated="false"</code>, which is used for styling and could be used by formvalidation.
     </p>
 
     <h3>cross-validation</h3>
