@@ -873,7 +873,23 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             this._widgetValueFields[widgetClassname] = valueField;
         },
 
-        toJSONUI : function(renderButtons) {
+        /**
+         * Returns a this model's attributes rendered as UI-elements, that can be passed to Y.JSON.stringify() or used for other nefarious purposes.
+         * <br /><br />
+         * By specifying 'buttons', you can declare extra keys that represent the buttons. 'buttons' needs to be an array that holds objects with the next properties:
+         *
+         * <ul>
+         * <li>key --> reference-key which will be part (key) of the result</li>
+         * <li>type --> 'button', 'cancel', 'destroy', 'remove', 'reset', 'save' or 'submit'</li>
+         * <li>buttonText --> text rendered on the button</li>
+         * <li>config</li> config-object that is passed through the renderBtn-function</li>
+         *
+         * @method toJSONUI
+         * @param buttons {Array} the widgets classname
+         * @param valueField {String|Array} the widgets valuefield. In case the Widget can have more than one valuefield (Y.ToggleButton does), you can supply an array of Strings
+         * @since 0.1
+         */
+        toJSONUI : function(buttons) {
             var instance = this,
                 UIattrs = {};
 
@@ -883,17 +899,17 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     UIattrs[key] = instance.renderFormElement(key);
                 }
             );
-            if (Lang.isArray(renderButtons)) {
+            if (Lang.isArray(buttons)) {
                 YArray.each(
-                    renderButtons,
+                    buttons,
                     function(buttonobject) {
                         var key = buttonobject.key,
                             type = buttonobject.type,
-                            text = buttonobject.text,
+                            buttonText = buttonobject.buttonText,
                             config = buttonobject.config,
                             renderBtnFns = instance._renderBtnFns;
 /*jshint expr:true */
-                        key && type && renderBtnFns[type] && (UIattrs[key]=Y.bind(renderBtnFns[type], instance, text, config)());
+                        key && type && renderBtnFns[type] && (UIattrs[key]=Y.bind(renderBtnFns[type], instance, buttonText, config)());
 /*jshint expr:false */
                     }
                 );

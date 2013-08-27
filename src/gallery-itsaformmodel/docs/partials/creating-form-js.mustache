@@ -8,7 +8,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
         crossValidation: function() {
             var instance = this,
                 errorattrs = [];
- console.log('crossvalidation: '+instance.getUI('password')+' | '+instance.getUI('passwordcheck'));
             if (instance.getUI('password') !== instance.getUI('passwordcheck')) {
                 errorattrs.push({
                     attribute: 'password',
@@ -19,7 +18,6 @@ YUI(yuiconfig).use('node', 'gallery-itsaformmodel', 'gallery-itsacheckbox', 'sli
                     validationerror: 'password and password-chack are not the same'
                 });
             }
- console.log('errorattrs: '+errorattrs);
             return errorattrs;
         }
     }, {

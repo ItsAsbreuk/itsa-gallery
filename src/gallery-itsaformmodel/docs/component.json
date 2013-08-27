@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsaformmodel",
     "displayName": "Gallery: gallery-itsaformmodel",
-    "description": "Supplies Y.ITSAFormModel which extends Y.Model by giving it attributeproperties so the attributes can be rendered into formelements.",
+    "description": "Y.ITSAFormModel extends Y.Model by giving it attributeproperties so the attributes can be rendered into UI-formelements.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaformmodel" ],
 

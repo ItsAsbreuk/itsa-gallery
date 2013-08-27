@@ -8,13 +8,13 @@
          Y.ITSAFormModel provides the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI. The Class can also generate form-buttons which take the right actions when clicked.
      </p>
     <p>
-         <b>Note:</b> This module uses javascript to render the formelements, so <u>it is not suitable for progressive enhancement</u>.
+         <b>Note:</b> This module uses javascript to render the formelements. No html needs/should be used.
      </p>
 </div>
 
 <h2>Description</h2>
     <p>
-        Y.ITSAFormModel should be used as a string-renderer. It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
+        <u>Y.ITSAFormModel should be used as a string-renderer.</u> It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
     </p>
     <p>
         Every attribute needs its own specific form-element (UI-element) defined. Therefore, three extra attribute-properties are introduced:
@@ -55,7 +55,7 @@
                     required: true
                 },
                 validator: ...,
-                validatorerror: 'you entered a wrong input',
+                validationerror: 'you entered a wrong input',
                 ...
             }
             someWidgetAttribute: {
@@ -107,17 +107,17 @@
         <ul>
             <li><code>checked=false</code> {Boolean} only valid for checkboxes and radiobuttons.</li>
             <li><code>classname</code> {String} additional classname for the html-element.</li>
+            <li><code>cursorend</code> {Boolean} sets the cursor at the end when focussed --> only valid for input-elements and textarea and with 'fullselect' is falsy</li>
             <li><code>data</code> {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.</li>
             <li><code>digits=false</code> {Boolean} for floating numbers: only valid for type==='number'.</li>
             <li><code>disabled=false</code> {Boolean}</li>
             <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
             <li><code>format</code> {String} Date-format: only valid for type==='date', 'time' or 'datetime'</li>
+            <li><code>fullselect</code> {Boolean} selects all text when focussed --> only valid for input-elements and textarea</li>
             <li><code>hidden=false</code> {Boolean}</li>
+            <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
             <li><code>label</code> {String} The label belonging to the formelement.</li>
             <li><code>labelClassname</code> {String} additional classname for the label.</li>
-            <li><code>length</code> {Number} adds a node attribute 'data-length': needs to be processed yourself. Only valid for input-elements.</li>
-            <li><code>min</code> {Number} adds a node attribute 'data-min': needs to be processed yourself. Only valid for type==='number'.</li>
-            <li><code>max</code> {Number} adds a node attribute 'data-min': needs to be processed yourself. Only valid for type==='number'.</li>
             <li><code>nossl=false</code> {Boolean} making url's to validate only on non-ssl url's. Only applyable for type==='url'.</li>
             <li><code>onlyssl=false</code> {Boolean} making url's to validate only on ssl url's. Only applyable for type==='url'</li>
             <li><code>pattern</code> {String} regexp pattern that should be matched. Only applyable for type==='text' or 'password'.</li>
@@ -129,8 +129,6 @@
             <li><code>switchlabel=false</code> {Boolean} make the label go behind the element.</li>
             <li><code>tooltip</code> {String} marks the data-attribute used by an internal Y.Tipsy instance.</li>
         </ul>
-
-
     </p>
 
 <h3>widget form-elements</h3>
@@ -155,6 +153,7 @@
             <li><code>classname</code> {String} additional classname set on widget's container (parentNode).</li>
             <li><code>data</code> {String} for extra data-attributes set on widget's container.</li>
             <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
+            <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
             <li><code>label</code> {String} The label next to the widget's container.</li>
             <li><code>labelClassname</code> {String} additional classname for the label.</li>
             <li><code>switchvalue=false</code> {Boolean} make the value go behind the element. Only applyable for type=='Y.Slider'</li>
@@ -185,6 +184,7 @@
             <li><code>disabled=false</code> {Boolean}</li>
             <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
             <li><code>hidden=false</code> {Boolean}</li>
+            <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
             <li><code>primary=false</code> {Boolean} making a button the primary button. Only applyable for buttons.</li>
             <li><code>tooltip</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
             <li><code>tooltipHeader</code> {String} marks the data-attribute used by Y.Tipsy and Y.Tooltip.</li>
@@ -295,7 +295,79 @@
 
     <h3>additional css</h3>
     <p>
-        By adding the classname <code>pure-form-showinvalid</code> and/or <code>pure-form-showinvalid</code> to the same container as were <code>pure-form</code> resides, you get css 'ok' and 'error' images inside the input and texarea elements.
+        By adding the classname <code>pure-form-showinvalid</code> and/or <code>pure-form-showvalid</code> to the same container as were <code>pure-form</code> resides, you get css 'ok' and 'error' images inside the input and texarea elements. The style of the images and tooltip can be changed by override these css:
+        ```css
+            .pure-form input:focus[data-valid="false"],
+            .pure-form textarea:focus[data-valid="false"] {
+                color: #b94a48;
+                border: 1px solid #ee5f5b;
+            }
+
+            .pure-form input:focus[data-valid="false"]:focus,
+            .pure-form textarea:focus[data-valid="false"]:focus {
+                border-color: #e9322d;
+            }
+
+            .pure-form.pure-form-showinvalid input[data-valid="false"],
+            .pure-form.pure-form-showinvalid textarea[data-valid="false"] {
+                /* with markup false */
+                background-repeat: no-repeat;
+                background-position: right 3px center;
+                background-image: url(invalid.png);
+            }
+
+            .pure-form.pure-form-showinvalid input[data-valid="false"]:focus,
+            .pure-form.pure-form-showinvalid textarea[data-valid="false"]:focus {
+                /* no markup */
+                background-image: none;
+            }
+
+            .pure-form.pure-form-showvalid input[data-valid="true"],
+            .pure-form.pure-form-showvalid textarea[data-valid="true"] {
+                /* with markup true */
+                background-repeat: no-repeat;
+                background-position: right 3px center;
+                background-image: url(valid.png);
+            }
+
+            .pure-form.pure-form-showinvalid input:focus:invalid[data-valid="true"],
+            .pure-form.pure-form-showinvalid textarea:focus:invalid[data-valid="true"],
+            .pure-form.pure-form-showinvalid input:focus:invalid:focus[data-valid="true"],
+            .pure-form.pure-form-showinvalid textarea:focus:invalid:focus[data-valid="true"] {
+                color: #000;
+                border-color: #129FEA;
+            }
+
+            /* overrule pure-css its valid marking, because pattern validation sucks: better be done by [data-valid]; */
+            .pure-form input:focus[data-valid="false"],
+            .pure-form textarea:focus[data-valid="false"] {
+                color: #b94a48;
+                border: 1px solid #ee5f5b;
+            }
+
+            .pure-form input:focus[data-valid="false"]:focus,
+            .pure-form textarea:focus[data-valid="false"]:focus {
+                border-color: #e9322d;
+            }
+
+            .yui3-tipsy.tipsy-formelement {
+                background-color: #30418C;
+                color: #F0F1F8;
+            }
+
+            .yui3-tipsy.tipsy-formelement .yui3-widget-pointer-left {
+                border-right-color: #30418C;
+            }
+
+            .yui3-tipsy.tipsy-formelement-invalid {
+                background-color: #F00;
+                color: #F0F1F8;
+            }
+
+            .yui3-tipsy.tipsy-formelement-invalid .yui3-widget-pointer-left {
+                border-right-color: #F00;
+            }
+        ```
     </p>
 <h2>Events fired by Y.ITSAFormModel</h2>
     <p>
@@ -305,6 +377,16 @@
             <li><code>validationerror</code>, fired when the user pressed <code>submit-button</code> or <code>save-button</code> but the UI-elements were wrong validated.</li>
         </ul>
         All these events are fired by the modelinstance. The action related to those events can be prevented - except the events: <code>buttonclick</code> and <code>validationerror</code>. See the <a href="http://galleryapi.itsasbreuk.nl/modules/gallery-itsaformmodel.html">API Docs</a> for all events.
+    </p>
+
+<h2>Tooltips</h2>
+    <p>
+        All formelements can show a tooltip using <code>gallery-tipsy</code>. There are 2 different tooltips working with both different style:
+        <ul>
+            <li><code>formconfig.tooltip</code> tooltip that shows when an element gets focus.</li>
+            <li><code>validationerror-tooltip</code> tooltip that shows when an element is falsy validated. This overrules the formconfig.tootltip until validation succeeds.</li>
+        </ul>
+        The validation-error tooltip is generated automaticly, based on the values of ATTRS.validator and ATTRS.validationerror of each attribute. The tooltips are rendered asynchroniously by Y.ITSAFormElement. If you want to focus an UI-element using JS, be sure the tooltip is rendered by using  <code>Y.ITSAFormElement.tooltipReadyPromise()</code>.
     </p>
 
 <h2>Modules that make use of ITSAFormModel</h2>
