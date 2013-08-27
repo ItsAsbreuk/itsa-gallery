@@ -415,7 +415,7 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 // -- Public Static Properties -------------------------------------------------
 
 var YArray = Y.Array,
-    DEFAULT_ITEM_SELECTOR = '.focusable',
+    DEFAULT_ITEM_SELECTOR = '[focusable="true"]',
     YUI_PRIMARYBUTTON_CLASS = 'yui3-button-primary',
     ITSAFORMELEMENT_SELECTONFOCUS = 'data-fullselect',
     ITSAFORMELEMENT_FIRSTFOCUS = 'data-initialfocus="true"';
