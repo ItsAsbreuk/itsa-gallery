@@ -419,9 +419,8 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 var YArray = Y.Array,
     DEFAULT_ITEM_SELECTOR = '.focusable',
     YUI_PRIMARYBUTTON_CLASS = 'yui3-button-primary',
-    FORMELEMENT_CLASS = 'yui3-itsaformelement',
-    ITSAFORMELEMENT_SELECTONFOCUS_CLASS = FORMELEMENT_CLASS + '-selectall',
-    ITSAFORMELEMENT_FIRSTFOCUS_CLASS = FORMELEMENT_CLASS + '-firstfocus';
+    ITSAFORMELEMENT_SELECTONFOCUS = 'data-fullselect',
+    ITSAFORMELEMENT_FIRSTFOCUS = 'data-initialfocus="true"';
 
 
 Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.Plugin.FocusManager, [], {
@@ -511,7 +510,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             var instance = this,
                 focusitem, widgetbd, widgetft;
 
-            focusitem = instance.first({selector: '.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS}) ||
+            focusitem = instance.first({selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
                         instance.first({selector: '.'+YUI_PRIMARYBUTTON_CLASS}) ||
                         ((widgetbd=instance.host.one('.yui3-widget-bd')) ? instance.first({container: widgetbd}) : null) ||
                         ((widgetft=instance.host.one('.yui3-widget-ft')) ? instance.first({container: widgetft}) : null) ||
@@ -663,14 +662,15 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             }
             nodeisfocusable = node && instance._nodeIsFocusable(node);
             if (nodeisfocusable) {
-                container.all('.'+ITSAFORMELEMENT_FIRSTFOCUS_CLASS).removeClass(ITSAFORMELEMENT_FIRSTFOCUS_CLASS);
-                node.addClass(ITSAFORMELEMENT_FIRSTFOCUS_CLASS);
+                container.all('['+ITSAFORMELEMENT_FIRSTFOCUS+']').removeAttribute(ITSAFORMELEMENT_FIRSTFOCUS);
+                node.addAttribute(ITSAFORMELEMENT_FIRSTFOCUS);
             }
         },
 
         /**
          * Makes the Node to be in a state that all text will be selected once the Node gets Focus. Enables or disables the state.
-         * Be aware that this has only effect on Nodes of the type: <b>'input[type=text], input[type=password], textarea'</b>.
+         * Be aware that this has only effect on Nodes of the type: <b>'input[type=text], input[type=password], input[type=url],
+         * input[type=email], textarea'</b>.
          *
          * @method setSelectText
          * @param select {Boolean} whether the 'selectall' option is active or not
@@ -689,8 +689,13 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             if (node && (node instanceof Y.Node)) {
                 // only 1 node needs to be set
                 nodeisfocusable = instance._nodeIsFocusable(node);
-                if (nodeisfocusable && node.test('input[type=text], input[type=password], textarea')) {
-                    node.toggleClass(ITSAFORMELEMENT_SELECTONFOCUS_CLASS, select);
+                if (nodeisfocusable && node.test('input[type=text], input[type=password], input[type=url], input[type=email], textarea')) {
+                    if (select) {
+                        node.setAttribute(ITSAFORMELEMENT_SELECTONFOCUS, 'true');
+                    }
+                    else {
+                        node.removeAttribute(ITSAFORMELEMENT_SELECTONFOCUS);
+                    }
                 }
             }
             else {
@@ -700,9 +705,14 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 disabledSelector = instance.get('disabledSelector');
                 allNodes.each(
                     function(oneNode) {
-                        if (oneNode.test('input[type=text], input[type=password], textarea') &&
+                        if (oneNode.test('input[type=text], input[type=password], input[type=url], input[type=email], textarea') &&
                             (!disabledSelector || !oneNode.test(disabledSelector))) {
-                            oneNode.toggleClass(ITSAFORMELEMENT_SELECTONFOCUS_CLASS, select);
+                            if (select) {
+                                oneNode.setAttribute(ITSAFORMELEMENT_SELECTONFOCUS, 'true');
+                            }
+                            else {
+                                oneNode.removeAttribute(ITSAFORMELEMENT_SELECTONFOCUS);
+                            }
                         }
                     }
                 );
@@ -817,7 +827,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         _selectNode : function(node) {
             if (node && node.test('input[type=text], input[type=password], textarea')) {
-                if (node.hasClass(ITSAFORMELEMENT_SELECTONFOCUS_CLASS)) {
+                if (node.hasClass(ITSAFORMELEMENT_SELECTONFOCUS)) {
                     node.select();
                 }
                 else {
