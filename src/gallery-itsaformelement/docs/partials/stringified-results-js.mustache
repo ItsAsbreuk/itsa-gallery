@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-itsacheckbox', 'slider', function(Y) {
+YUI(yuiconfig).use('node-base', 'escape', 'gallery-itsaformelement', 'gallery-itsacheckbox', function(Y) {
     var type, emptyconfig, fullconfig, appendElement,
         container = Y.one('#myform'),
         NOCONFIG = 'no config',
@@ -29,38 +29,6 @@ Y.one('body').addClass('yui3-skin-sam');
         optionon: 'power on',
         optionoff: 'power off',
         tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above',
-        focusable: false
-    };
-    appendElement(type, emptyconfig, NOCONFIG);
-    appendElement(type, fullconfig, FULLCONFIG); // without label
-    fullconfig.label = 'this is the label for a disabled checkbox';
-    fullconfig.disabled = true;
-    fullconfig.readonly = true;
-    appendElement(type, fullconfig, FULLCONFIGWITHLABEL); // with label
-    fullconfig.switchlabel = true;
-    appendElement(type, fullconfig, FULLCONFIGWITHLABELSWITCHED); // with label switchlabel
-    //-------------------------------------------
-    type = Y.Slider;
-    emptyconfig = {
-        value: 10,
-        min: 5,
-        max: 20,
-        name: 'propname'
-    };
-    fullconfig = {
-        initialfocus: true,
-        value: 10,
-        min: 5,
-        max: 20,
-        name: 'propname',
-        switchvalue: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above',
         focusable: false
     };
     appendElement(type, emptyconfig, NOCONFIG);
@@ -83,18 +51,13 @@ Y.one('body').addClass('yui3-skin-sam');
         disabled: true,
         hidden: false,
         fullselect: true,
-        cursorend: true,
         initialfocus: true,
         pattern: '[A-Za-z]{3}',
-        length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -114,20 +77,13 @@ Y.one('body').addClass('yui3-skin-sam');
         disabled: true,
         hidden: false,
         fullselect: true,
-        cursorend: true,
         initialfocus: true,
-        length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        min: 5,
-        max: 10,
         digits: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -145,20 +101,15 @@ Y.one('body').addClass('yui3-skin-sam');
         placeholder: 'placeholderText',
         required: false,
         disabled: true,
-        hidden: false,
+        hidden: true,
         fullselect: true,
-        cursorend: true,
         initialfocus: true,
         pattern: '[A-Za-z]{3}',
-        length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -178,17 +129,12 @@ Y.one('body').addClass('yui3-skin-sam');
         disabled: true,
         hidden: false,
         fullselect: true,
-        cursorend: true,
         initialfocus: true,
-        length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -208,18 +154,13 @@ Y.one('body').addClass('yui3-skin-sam');
         disabled: true,
         hidden: false,
         fullselect: true,
-        cursorend: true,
         initialfocus: true,
-        length: 25,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
         nossl: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -241,16 +182,12 @@ Y.one('body').addClass('yui3-skin-sam');
         disabled: true,
         hidden: false,
         fullselect: true,
-        cursorend: true,
         initialfocus: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -275,10 +212,7 @@ Y.one('body').addClass('yui3-skin-sam');
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -303,10 +237,7 @@ Y.one('body').addClass('yui3-skin-sam');
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -332,11 +263,8 @@ Y.one('body').addClass('yui3-skin-sam');
         focusable: false,
         readonly: true,
         primary: true,
-        format: '%Y-%M-%d',
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        format: '%Y-%m-%d',
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -367,11 +295,8 @@ Y.one('body').addClass('yui3-skin-sam');
         focusable: false,
         readonly: true,
         primary: true,
-        format: '%Y-%M-%d',
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        format: '%H:%M:%S',
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -395,18 +320,15 @@ Y.one('body').addClass('yui3-skin-sam');
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
-        hidden: false,
+        hidden: true,
         initialfocus: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
         focusable: false,
         readonly: true,
         primary: true,
-        format: '%Y-%M-%d',
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        format: '%Y-%m-%d %H:HM:%S',
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -433,10 +355,7 @@ Y.one('body').addClass('yui3-skin-sam');
         focusable: false,
         buttonTekst: 'press on this button',
         primary: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -451,12 +370,9 @@ Y.one('body').addClass('yui3-skin-sam');
         hidden: false,
         initialfocus: true,
         focusable: false,
-        buttonTekst: 'press on this button',
+        buttonText: 'press on this button',
         primary: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -472,12 +388,9 @@ Y.one('body').addClass('yui3-skin-sam');
         initialfocus: true,
         classname: 'yui3-element-class',
         focusable: false,
-        buttonTekst: 'press on this button',
+        buttonText: 'press on this button',
         primary: true,
-        tooltip: 'here is some tooltipinfo',
-        tooltipHeader: 'here is the tooltipheader',
-        tooltipFooter: 'here is the tooltipfooter',
-        tooltipPlacement: 'above'
+        tooltip: 'here is some tooltipinfo'
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label

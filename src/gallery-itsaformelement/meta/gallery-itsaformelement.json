@@ -6,6 +6,7 @@
             "event-synthetic",
             "yui-later",
             "promise",
+            "event-tap",
             "gallery-tipsy",
             "gallery-itsawidgetrenderpromise"
         ],

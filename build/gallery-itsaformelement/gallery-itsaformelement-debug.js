@@ -20,6 +20,17 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
 
 var ITSAFormElement, tipsyOK, tipsyInvalid,
     YARRAY = Y.Array,
+    Lang = Y.Lang,
+    DELAY_FOCUSACTION = 200, // ms delay for focusaction on inputelements --> need delay
+                             // to take action after tap-event which occurs later than the focusevent
+                             // This way we prevent the focusaction to occur on mouseclicks.
+                             // Too small a value and focusaction will occur even with mouseclicks
+                             // Too large and the user experiences delay in the replacing of the cursor to the end or
+                             // fullselection of the text. (that is, on focus without clicking)
+                             // Trail and error gave the turnarround value of 100ms, which should be the least.
+                             // however, slower systems may need a higher delayvalue.
+    BODY = Y.one('body'),
+    ACTION_FROMTAB = ACTION_FROMTAB,
     DISABLED    = 'disabled',
     WIDGET_PARENT_CLASS = 'itsa-widget-parent',
     PURE = 'pure',
@@ -69,7 +80,6 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     LABEL = 'label',
     SPAN  = 'span',
     PLAIN = 'plain',
-    CURSOREND = 'cursorend',
     INITIALFOCUS = 'initialfocus',
     FULLSELECT = 'fullselect',
     NUMBER = 'number',
@@ -140,13 +150,13 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+TEXTAREA+'>',
-    ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
+    ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
     ELEMENT_BUTTON = BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_DATE = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
+    ELEMENT_DATE = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_TIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
+    ELEMENT_TIME = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_TIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
+    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
 
     TEMPLATES = {
@@ -230,7 +240,6 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.buttonTekst] {String} only valid for non 'datetime'-buttons.
  *   @param [config.checked=false] {Boolean} only valid for checkboxes and radiobuttons.
  *   @param [config.classname] {String} additional classname for the html-element or widget.
- *   @param [config.cursorend=false] {Boolean} sets the cursor at the end when focussed --> only valid for input-elements and textarea and with 'fullselect' is falsy.
  *   @param [config.data] {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.
  *   @param [config.digits=false] {Boolean} for floating numbers: only valid for type==='number'.
  *   @param [config.disabled=false] {Boolean}
@@ -256,13 +265,13 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *           set this data (available as 'data-contentinvalid') into 'data-content' once invalid and replace it with 'data-contentvalid' once valid again.
  *   @param [config.value] {String} the value of the element.
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
- * @return {object} o.html   --> rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAForm,
- *                               or Y.ITSAEditModel<br />
- *                  o.name   --> convenience-property===config.name
- *                  o.config --> reference to the original configobject
- *                  o.nodeid --> created node's id (without #)
- *                  o.type   --> the created type - passed as the first parameter
- *                  o.widget --> handle to the created widgetinstance.<br />
+ * @return {object} with the folowwing proprties:<ul>
+ *                  <li>html   --> rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
+ *                  <li>name   --> convenience-property===config.name</li>
+ *                  <li>config --> reference to the original configobject</li>
+ *                  <li>nodeid --> created node's id (without #)</li>
+ *                  <li>type   --> the created type - passed as the first parameter</li>
+ *                  <li>widget --> handle to the created widgetinstance</li></ul>
  * @since 0.1
 */
 ITSAFormElement.getElement = function(type, config, nodeid) {
@@ -322,6 +331,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     var subtituteConfig = Y.merge(config),
         switchlabel = (typeof subtituteConfig[SWITCHLABEL]===BOOLEAN) ? subtituteConfig[SWITCHLABEL] : false,
         focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
+        fullselect = (typeof subtituteConfig[FULLSELECT]===BOOLEAN) ? subtituteConfig[FULLSELECT] : false,
         tooltip = config.tooltip,
         tooltipinvalid = config.tooltipinvalid,
         nossl = config.nossl,
@@ -333,7 +343,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
-        purebutton, readonly, extralabel;
+        checked, purebutton, readonly, extralabel;
     // first setting up global data-attributes
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
@@ -345,6 +355,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     }
     tooltipinvalid && (typeof tooltipinvalid === 'string') && (tooltipinvalid.length>0) && (subtituteConfig[DATA] += ' data-contentinvalid="'+tooltipinvalid.replace(/"/g, '\'\'')+'"');
     config[INITIALFOCUS] && (subtituteConfig[DATA] += ' data-'+INITIALFOCUS+'="true"');
+    config[NAMEDEF] && (subtituteConfig[NAMEDEF]=' '+NAMEDEF+'="'+subtituteConfig[NAMEDEF]+'"');
 /*jshint expr:false */
     if (iswidget) {
         subtituteConfig[DATA] += ' data-type="'+type+'"';
@@ -353,7 +364,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
             subtituteConfig[LABELDATA] += ' data-widgetlabel="true"';
         }
-        subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
+        subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
         if (type==='slider') {
             // we want the value visible inside a span
             subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+'" data-for="'+nodeid+'">'+value+ENDSPAN;
@@ -367,14 +378,13 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false;
         hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
 /*jshint expr:true */
-        subtituteConfig[FOCUSABLE] = focusable ? (' '+FOCUSABLE+'="'+FOCUSABLE+'"') : '';
+        subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
         subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
         subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         subtituteConfig[REQUIRED] = required ? (' '+REQUIRED+'="'+REQUIRED+'"') : '';
         subtituteConfig[READONLY] = readonly ? (' '+READONLY+'="'+READONLY+'"') : '';
         config[PLACEHOLDER] && (subtituteConfig[PLACEHOLDER]=' '+PLACEHOLDER+'="'+subtituteConfig[PLACEHOLDER]+'"');
         config[PATTERN] && (subtituteConfig[PATTERN]=' '+PATTERN+'="'+subtituteConfig[PATTERN]+'"');
-        config[NAMEDEF] && (subtituteConfig[NAMEDEF]=' '+NAMEDEF+'="'+subtituteConfig[NAMEDEF]+'"');
         (type!==TEXTAREA) && (type!==PLAIN) && value && (subtituteConfig[VALUE]=' '+VALUE+'="'+subtituteConfig[VALUE]+'"');
 /*jshint expr:false */
         if (type===EMAIL) {
@@ -395,11 +405,11 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         else if (type===NUMBER) {
             subtituteConfig[PATTERN] =' '+PATTERN+'="'+(((typeof digits===BOOLEAN) && digits) ? PATTERN_FLOAT : PATTERN_INTEGER)+'"';
         }
-        else if (type===RADIO) {
-            surroundlabelclass = PURERADIO;
-        }
-        else if (type===CHECKBOX) {
-            surroundlabelclass = PURECHECKBOX;
+        else if ((type===RADIO) || (type===CHECKBOX)) {
+            surroundlabelclass = (type===RADIO) ? PURERADIO : PURECHECKBOX;
+            checked = (typeof subtituteConfig[CHECKED]===BOOLEAN) ? subtituteConfig[CHECKED] : false;
+            subtituteConfig[CHECKED] = checked ? (' '+CHECKED+'="'+CHECKED+'"') : '';
+            subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         }
         else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
@@ -414,8 +424,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         }
         else if ((type===DATE) || (type===TIME) || (type===DATETIME)) {
 /*jshint expr:true */
-            value && (subtituteConfig[VALUE] = ' value="'+value.getTime()+'"');
+            Lang.isDate(value) || (value = new Date());
 /*jshint expr:false */
+            subtituteConfig[VALUE] = ' value="'+value.getTime()+'"';
             subtituteConfig[DATA] += ' data-'+DATETIME+'picker="true"';
             subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
                                               (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
@@ -428,10 +439,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
              delete subtituteConfig[PATTERN];
         }
 /*jshint expr:true */
-        if ((type===TEXT) || (type===NUMBER) || (type===PASSWORD) || (type===TEXTAREA) || (type===EMAIL) || (type===URL)) {
-            config[FULLSELECT] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
-            config[CURSOREND] && (subtituteConfig[DATA] += ' data-'+CURSOREND+'="true"');
-        }
+        fullselect && ((type===TEXT) || (type===NUMBER) || (type===PASSWORD) || (type===TEXTAREA) || (type===EMAIL) || (type===URL)) && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         (config[CLASSNAME] || purebutton) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
                                 (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
@@ -444,11 +452,11 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         if (surroundlabelclass) {
             subtituteConfig[LABEL] = '<span class="formatlabel">' + subtituteConfig[LABEL] + ENDSPAN;
             labelclass = ' class="'+surroundlabelclass+(config[LABELCLASSNAME] ? (' '+config[LABELCLASSNAME]) : '') + '"';
-            template = LABEL_FOR_IS+'{id}"'+LABELDATA_SUB+labelclass+'>'+(switchlabel ? (template+'{label}') : ('{label}'+template))+ENDLABEL_EL;
+            template = LABEL_FOR_IS+'{id}"'+HIDDEN_SUB+LABELDATA_SUB+labelclass+'>'+(switchlabel ? (template+'{label}') : ('{label}'+template))+ENDLABEL_EL;
         }
         else {
             labelclass = config[LABELCLASSNAME] ? (' class="'+config[LABELCLASSNAME] + '"') : '';
-            extralabel = LABEL_FOR_IS+'{id}"'+LABELDATA_SUB+labelclass+'>{label}'+ENDLABEL_EL;
+            extralabel = LABEL_FOR_IS+'{id}"'+HIDDEN_SUB+LABELDATA_SUB+labelclass+'>{label}'+ENDLABEL_EL;
             if (switchlabel) {
                 template += extralabel;
             }
@@ -508,6 +516,72 @@ ITSAFormElement.tooltipReadyPromise = function() {
 
 // force making promise ready after 0.5 seconds:
 Y.later(500, null, ITSAFormElement.tooltipReadyPromise);
+
+// listen to focus-events on input and textarea-items
+BODY.delegate(
+    'focus',
+    function(e) {
+        var node = e.target,
+            fullselection = (node.getAttribute(DATA+'-'+FULLSELECT)==='true');
+/*jshint expr:true */
+        // in case of 'input', default action would be that the content is fully selected. We suppress this:
+        !fullselection && node.test('input') && e.preventDefault();
+/*jshint expr:false */
+        // because the behavious or selecting/cursor-to-end MUST NOT happen on a mouseclick or tap,
+        // we need to make extra precautions. This is needed, because the tap-event occurs AFTER the focus-event.
+        // Thus, we delay to make sure we take action after a tap-event might have been occurred
+
+        if (Y.ITSAFormElement._focustimer) {
+            Y.ITSAFormElement._focustimer.cancel();
+        }
+        Y.ITSAFormElement._focustimer = Y.later(DELAY_FOCUSACTION, null, function() {
+            var camefromtap = node.getData(ACTION_FROMTAB);
+            Y.ITSAFormElement._activeNode = node;
+            if (camefromtap) {
+                node.clearData(ACTION_FROMTAB);
+            }
+            else {
+                if (fullselection) {
+                    node.select();
+                }
+                else {
+                    node.set('selectionStart', node.get('value').length);
+                    // set 'scrollTop' high to make Chrome scroll the last character into view
+                    node.set('scrollTop', 999999);
+                }
+            }
+        });
+    },
+    function(node, evt){
+        var targetnode = evt.target;
+        return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
+    }
+);
+
+// listen to focus-events on input and textarea-items
+BODY.delegate(
+    'tap',
+    function(e) {
+        var node = e.target;
+/*jshint expr:true */
+        (Y.ITSAFormElement._activeNode !== node) && node.setData(ACTION_FROMTAB, true);
+/*jshint expr:false */
+    },
+    function(node, evt){
+        var targetnode = evt.target;
+        return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
+    }
+);
+
+// listen to focus-events on input and textarea-items
+BODY.delegate(
+    'blur',
+    function() {
+        if (Y.ITSAFormElement._focustimer) {
+            Y.ITSAFormElement._focustimer.cancel();
+        }
+    }
+);
 
 // Define synthetic events 'datepickerclick', 'timepickerclick' and 'datetimepickerclick':
 
@@ -648,6 +722,7 @@ YARRAY.each(
         "event-synthetic",
         "yui-later",
         "promise",
+        "event-tap",
         "gallery-tipsy",
         "gallery-itsawidgetrenderpromise"
     ],
