@@ -1294,7 +1294,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('BUTTON', this.node.get('tagName'), 'submit - Wrong tag created');
         },
         'check type': function() {
-            Y.Assert.areEqual('button', this.node.getAttribute('type'), 'submit - Wrong type created');
+            Y.Assert.areEqual('submit', this.node.getAttribute('type'), 'submit - Wrong type created');
         },
         'check subtype': function() {
             Y.Assert.areEqual('submit', this.node.getAttribute('data-buttontype'), 'submit - Wrong button subtype created');
@@ -1492,7 +1492,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('BUTTON', this.node.get('tagName'), 'reset - Wrong tag created');
         },
         'check type': function() {
-            Y.Assert.areEqual('button', this.node.getAttribute('type'), 'reset - Wrong type created');
+            Y.Assert.areEqual('reset', this.node.getAttribute('type'), 'reset - Wrong type created');
         },
         'check subtype': function() {
             Y.Assert.areEqual('reset', this.node.getAttribute('data-buttontype'), 'reset - Wrong button subtype created');

@@ -132,6 +132,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     CLASSNAME      = CLASS+NAMEDEF,
     LABELCLASSNAME = LABEL+'Class'+NAMEDEF,
     WIDGET         = 'widget',
+    TYPE_SUB       = '{'+TYPE+'}',
 
     DATA_LABEL_DATETIME = ' data-labeldatetime="true"',
     DATA_DATETIME = DATA+'-'+DATETIME+'=', // used as node data-attribute data-datetime
@@ -149,7 +150,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+TEXTAREA+'>',
     ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
-    ELEMENT_BUTTON = BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_BUTTON = BUTTON_TYPE_IS+TYPE_SUB+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
     ELEMENT_DATE = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
     ELEMENT_TIME = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
@@ -412,7 +413,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
             purebutton = true;
-            subtituteConfig[DATA] += ' data-'+BUTTON+TYPE+'="'+type+'"';
+            subtituteConfig[TYPE] = type;
+            subtituteConfig[DATA] += ' data-'+BUTTON+TYPE+'="'+(config[BUTTON+TYPE] || type)+'"';
             primarybutton = config.primary;
             disabledbutton = disabled;
 /*jshint expr:true */

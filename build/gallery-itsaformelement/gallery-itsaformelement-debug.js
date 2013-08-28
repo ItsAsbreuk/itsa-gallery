@@ -134,6 +134,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     CLASSNAME      = CLASS+NAMEDEF,
     LABELCLASSNAME = LABEL+'Class'+NAMEDEF,
     WIDGET         = 'widget',
+    TYPE_SUB       = '{'+TYPE+'}',
 
     DATA_LABEL_DATETIME = ' data-labeldatetime="true"',
     DATA_DATETIME = DATA+'-'+DATETIME+'=', // used as node data-attribute data-datetime
@@ -151,7 +152,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+TEXTAREA+'>',
     ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
-    ELEMENT_BUTTON = BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_BUTTON = BUTTON_TYPE_IS+TYPE_SUB+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
     ELEMENT_DATE = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
     ELEMENT_TIME = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
@@ -266,12 +267,12 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.value] {String} the value of the element.
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
  * @return {object} with the folowwing proprties:<ul>
- *                  <li>html   --> rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
- *                  <li>name   --> convenience-property===config.name</li>
- *                  <li>config --> reference to the original configobject</li>
- *                  <li>nodeid --> created node's id (without #)</li>
- *                  <li>type   --> the created type - passed as the first parameter</li>
- *                  <li>widget --> handle to the created widgetinstance</li></ul>
+ *                  <li>config --> {object} reference to the original configobject</li>
+ *                  <li>html   --> {String} rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
+ *                  <li>name   --> {String} convenience-property===config.name</li>
+ *                  <li>nodeid --> {String} created node's id (without #)</li>
+ *                  <li>type   --> {String|WidgetClass} the created type - passed as the first parameter</li>
+ *                  <li>widget --> {Widget-instance}handle to the created widgetinstance</li></ul>
  * @since 0.1
 */
 ITSAFormElement.getElement = function(type, config, nodeid) {
@@ -414,7 +415,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
             purebutton = true;
-            subtituteConfig[DATA] += ' data-'+BUTTON+TYPE+'="'+type+'"';
+            subtituteConfig[TYPE] = type;
+            subtituteConfig[DATA] += ' data-'+BUTTON+TYPE+'="'+(config[BUTTON+TYPE] || type)+'"';
             primarybutton = config.primary;
             disabledbutton = disabled;
 /*jshint expr:true */
