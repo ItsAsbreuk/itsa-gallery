@@ -1,5 +1,6 @@
 {
     "silent": false,
     "istanbul": true,
+    "cssproc": "itsa-gallery/build/",
     "build-dir": "../build/"
 }
