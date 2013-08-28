@@ -10,6 +10,7 @@ YUI.add('module-tests', function(Y) {
         NODE_NOT_CONTENTREADY = 'Node not contentready',
         NODE_NOT_REMOVED_INTIME = 'Node not removed within timeout settings',
         NODE_REMOVED_BUT_SHOULDNT = 'Node was marked as removed but still exists',
+        NODE_UNAVAILABLE_BEFORE_AVAILABLE = 'Node was noticed as unavailable before it got available, when using "afteravailable=true"',
         bodynode = Y.one('body'),
         YNode = Y.Node;
 
@@ -287,6 +288,29 @@ YUI.add('module-tests', function(Y) {
         }
     }));
 
+    suite.add(new Y.Test.Case({
+        name: 'test 16',
+        'check if unavailable with afteravailable=true works':  function() {
+            var follownr = 16,
+                insertedbydelay = false,
+                nodeUnavailablePromise = YNode.unavailablePromise(nodeId+follownr, {afteravailable: true, timeout: 3000});
+            nodeUnavailablePromise.then(
+                function() {
+                    Y.Assert.isTrue(insertedbydelay, NODE_UNAVAILABLE_BEFORE_AVAILABLE);
+                },
+                function(reason) {
+                    Y.Assert.fail(NODE_NOT_REMOVED_INTIME);
+                }
+            );
+            Y.later(2000, null, function() {
+                Y.one(nodeId+follownr).remove(true);
+            });
+            Y.later(1500, null, function() {
+                insertedbydelay = true;
+                Y.one('body').append('<div id="'+nodeName+follownr+'"></div>');
+            });
+        }
+    }));
 
     Y.Test.Runner.add(suite);
 

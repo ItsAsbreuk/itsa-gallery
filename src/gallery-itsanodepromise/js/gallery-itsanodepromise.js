@@ -92,6 +92,8 @@ YNode.contentreadyPromise = function(nodeid, timeout) {
  * @static
  * @param nodeid {String} Node-selector by id. You must include the #
  * @param [options] {object}
+ * @param [options.afteravailable=false] {Boolean} Only fulfills after the node is first available and then gets unavailable again.
+ *                          This is usefull to get an unavailablePromise but the node has to be inserted in the dom first.
  * @param [options.timeout] {int} Timeout in ms, after which the promise will be rejected.
  *                          If omitted, the Promise will never be rejected and can only be fulfilled once the node is removed.
  * @param [options.intervalNonNative] {int} Interval in ms, for checking the node's removal in browsers that don't support supportsMutationEvents.
@@ -100,56 +102,69 @@ YNode.contentreadyPromise = function(nodeid, timeout) {
  * @since 0.1
 */
 YNode.unavailablePromise = function(nodeid, options) {
+    var instance = this,
+        optionsWithoutAfterAvailable;
+
     Y.log('unavailablePromise', 'info', 'node');
-    return new Y.Promise(function (resolve, reject) {
-        var continousNodeCheck, unavailableListener,
-            timeout = options && options.timeout,
-            intervalNonNative = options && options.intervalNonNative;
-        if (!Y.one(nodeid)) {
-            resolve(nodeid);
-        }
-        else {
-            if (supportsMutationEvents) {
-                unavailableListener = Y.after(
-                    'DOMNodeRemoved',
-                    function() {
-                        // Even if supportsMutationEvents exists, a parentnode could be removed by which the
-                        // eventlistener doesn't catch the removal of nodeid. Therefore we always need to check with Y.one
-                        // We need to check asynchroniously for node's existance --> otherwise Y.one() reutrns true even is node is removed!
-                        Y.soon(
-                            function() {
-                                if (!Y.one(nodeid)) {
-                                    unavailableListener.detach();
-                                    resolve(nodeid);
-                                }
-                            }
-                        );
-                    }
-                );
+    options = options || {};
+    if (options.afteravailable) {
+        optionsWithoutAfterAvailable = Y.merge(options);
+        delete optionsWithoutAfterAvailable.afteravailable;
+        return this.availablePromise(nodeid, options.timeout).then(
+            Y.bind(instance.unavailablePromise, instance, nodeid, optionsWithoutAfterAvailable)
+        );
+    }
+    else {
+        return new Y.Promise(function (resolve, reject) {
+            var continousNodeCheck, unavailableListener,
+                timeout = options && options.timeout,
+                intervalNonNative = options && options.intervalNonNative;
+            if (!Y.one(nodeid)) {
+                resolve(nodeid);
             }
-            // now support for MutationEvents (IE<9) --> we need to check by timer continiously
             else {
-                continousNodeCheck = Y.later(intervalNonNative || NODECHECK_TIMER, null, function() {
-                    if (!Y.one(nodeid)) {
-                        continousNodeCheck.cancel();
-                        resolve(nodeid);
-                    }
-                }, null, true);
+                if (supportsMutationEvents) {
+                    unavailableListener = Y.after(
+                        'DOMNodeRemoved',
+                        function() {
+                            // Even if supportsMutationEvents exists, a parentnode could be removed by which the
+                            // eventlistener doesn't catch the removal of nodeid. Therefore we always need to check with Y.one
+                            // We need to check asynchroniously for node's existance --> otherwise Y.one() reutrns true even is node is removed!
+                            Y.soon(
+                                function() {
+                                    if (!Y.one(nodeid)) {
+                                        unavailableListener.detach();
+                                        resolve(nodeid);
+                                    }
+                                }
+                            );
+                        }
+                    );
+                }
+                // now support for MutationEvents (IE<9) --> we need to check by timer continiously
+                else {
+                    continousNodeCheck = Y.later(intervalNonNative || NODECHECK_TIMER, null, function() {
+                        if (!Y.one(nodeid)) {
+                            continousNodeCheck.cancel();
+                            resolve(nodeid);
+                        }
+                    }, null, true);
+                }
+                if (timeout) {
+                    Y.later(timeout, null, function() {
+                        var errormessage = 'node ' + nodeid + ' was not removed within ' + timeout + ' ms';
+                        // if no MutationEvents are supported, then do a final check for the nodes existance
+                        if (!supportsMutationEvents && !Y.one(nodeid)) {
+                            resolve(nodeid);
+                        }
+                        else {
+                            reject(new Error(errormessage));
+                        }
+                    });
+                }
             }
-            if (timeout) {
-                Y.later(timeout, null, function() {
-                    var errormessage = 'node ' + nodeid + ' was not removed within ' + timeout + ' ms';
-                    // if no MutationEvents are supported, then do a final check for the nodes existance
-                    if (!supportsMutationEvents && !Y.one(nodeid)) {
-                        resolve(nodeid);
-                    }
-                    else {
-                        reject(new Error(errormessage));
-                    }
-                });
-            }
-        }
-    });
+        });
+    }
 };
 
 // Adding support for the DONNodeRemoved event if browser supports it:

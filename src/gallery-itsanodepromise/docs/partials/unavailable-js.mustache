@@ -4,7 +4,7 @@ YUI(yuiconfig).use('node', 'gallery-itsanodepromise', 'gallery-itsadialog', func
     Y.one('body').addClass('yui3-skin-sam');
 
     // as soon as the node is unavailable, pop-up a message
-    Y.Node.unavailablePromise('#examplenode').then(
+    Y.Node.unavailablePromise('#examplenode2', {afteravailable: true}).then(
         function() {
             Y.alert('Y.Node.unavailablePromise', 'The node is removed from the DOM');
         }
@@ -12,7 +12,13 @@ YUI(yuiconfig).use('node', 'gallery-itsanodepromise', 'gallery-itsadialog', func
 
     // remove the node after 3 seconds
     Y.later(3000, null, function() {
-        Y.one('#examplenode').remove();
+        Y.one('#examplenode2').remove();
     });
+
+    // remove the node after 3 seconds
+    Y.later(500, null, function() {
+        Y.one('body').append('<div id="examplenode2"></div>');
+    });
+
 
 });
