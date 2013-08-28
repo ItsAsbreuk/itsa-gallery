@@ -11,8 +11,8 @@ YUI.add('gallery-itsaformmodel', function (Y, NAME) {
  * Y.ITSAFormModel does not rendering to the dom itself. That needs to be done by an Y.View-instance, like Y.ITSAViewModel.
  *
  * @module gallery-itsaformmodel
- * @class ITSAFormModel
  * @extends Model
+ * @class ITSAFormModel
  * @constructor
  * @since 0.1
  *
@@ -274,7 +274,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             */
             instance._FORM_elements = {};
 
-
            /**
             * internal backup of which attribute generated what all nodeid's, referenced by attribute-name's
             * @property _ATTRS_nodes
@@ -433,6 +432,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @since 0.1
         */
         crossValidation : function() {
+            Y.log('crossValidation is not overruled --> return empty', 'info', 'ITSAFormModel');
             // empty by default --> can be overridden.
             // should return an array with objects, where the objects have the fields: o.node {Y.Node} and a.validationerror {String}
         },
@@ -445,24 +445,65 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @since 0.1
         */
         defFnFocusNext : function() {
+            Y.log('defFnFocusNext is not overruled --> return empty', 'info', 'ITSAFormModel');
             // empty by default --> can be overridden
+        },
+
+        /**
+         * Returns an array with arrribute's current UI-elements {object} that are present in the DOM.
+         * Mostly this will hold one item, but there might be cases where an attribute has multiple UI's in the dom.
+         *
+         * @method getCurrentFormElements
+         * @param attribute {String} name of the attribute which FormElements need to be returned.
+         * @return {Array} Returnvalue is an array of ITSAFormElement-objects. These objects are as specified
+         * by gallery-itsaformelement, extended with the property 'node'<ul>
+         *                  <li>config --> {object} reference to the original configobject</li>
+         *                  <li>html   --> {String} rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
+         *                  <li>name   --> {String} convenience-property===config.name</li>
+         *                  <li>node   --> {Y.Node}</li>
+         *                  <li>nodeid --> {String} created node's id (without #)</li>
+         *                  <li>type   --> {String|WidgetClass} the created type - passed as the first parameter</li>
+         *                  <li>widget --> {Widget-instance}handle to the created widgetinstance</li></ul>
+
+         * @since 0.1
+         *
+        */
+        getCurrentFormElements : function(attribute) {
+          var instance = this,
+              attributenodes = instance._ATTRS_nodes[attribute],
+              currentElements = [],
+              formelement;
+
+            Y.log('getCurrentFormElements', 'info', 'ITSAFormModel');
+            YArray.each(
+                attributenodes,
+                function(nodeid) {
+                    var node = Y.one('#'+nodeid);
+                    if (node) {
+                        formelement = instance._FORM_elements[nodeid];
+                        formelement.node = node;
+                        currentElements.push(formelement);
+                    }
+                }
+            );
+            return currentElements;
         },
 
         /**
          * returns the UI-value of a formelement into its Model-attribute. This might differ from the attribute-value as it resides in the Model-instance.
          *
          * @method getUI
-         * @param attributeName {String} name of the attribute which UI-value is to be returned.
+         * @param attribute {String} name of the attribute which UI-value is to be returned.
          * @return {Any} value of the UI-element that correspons with the attribute.
          * @since 0.1
          *
         */
-        getUI: function(attributeName) {
+        getUI: function(attribute) {
             var instance = this,
-                formElement, formElements, nodeid, nodeids, node, value, attribute, widget, type;
+                formElement, formElements, nodeid, nodeids, node, value, widget, type;
 
             Y.log('getUI', 'info', 'ITSAFormModel');
-            nodeids = instance._ATTRS_nodes[attributeName];
+            nodeids = instance._ATTRS_nodes[attribute];
             nodeid = nodeids && (nodeids.length>0) && nodeids[0];
             formElements = instance._FORM_elements;
             formElement = nodeid && formElements[nodeid];
@@ -470,7 +511,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 widget = formElement.widget;
                 type = formElement.type;
                 value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
-                attribute = formElement.name;
                 if (Lang.isValue(value)) {
 /*jshint expr:true */
                     ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
@@ -1452,7 +1492,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         /**
          * Copies the Model-attribute-value into the UI-formelement.
          *
-         * @method UIToModel
+         * @method _modelToUI
          * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
          * @private
          * @since 0.1

@@ -201,7 +201,7 @@
             <code>Widget-formelements</code> will render automaticly once the render-string gets into the dom.
         </li>
         <li>
-            Every rendered formelement (attribute or button) should be inserted in the dom <u>only once</u>. This is because it has an unique node-id and because its value is determined at time of creation. Besides, the Widget-elements will only render the first time the element gets into the dom. If you need to re-insert multiple times, then render the formelements over and over again.
+            Every rendered formelement (attribute or button) <b>should be inserted in the dom only once</b>. Once it gets out of the dom again, it is freed from internal lists and reinsertion doesn't work as expected. If you need to re-insert multiple times, then render the formelements over and over again.
         </li>
         <li>
             Every rendered formelement (attribute or button) can be rendered into a string more than once. Every time it is rendered, a new node-id is generated, and therefore these elements can reside in the dom at the same time.
