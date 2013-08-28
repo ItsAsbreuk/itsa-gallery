@@ -846,10 +846,8 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                             index = attributenodeids && YArray.indexOf(attributenodeids, nodeid);
                         delete formelements[nodeid];
                         if (index>0) {
-alert('removing attribute '+attribute+' at index '+index);
                             attributenodeids.splice(index, 1);
                         }
-alert('removing attribute '+attribute+'from formelements');
                     }
                 );
                 // if widget, then we need to add an eventlistener for valuechanges:
@@ -1640,6 +1638,7 @@ alert('removing attribute '+attribute+'from formelements');
          */
         _renderBtn : function(buttonText, config, buttontype, extradata) {
             var instance = this,
+                formelements = instance._FORM_elements,
                 formbutton, nodeid;
 
             Y.log('renderBtn', 'info', 'ITSAFormModel');
@@ -1659,13 +1658,11 @@ alert('removing attribute '+attribute+'from formelements');
             formbutton = ITSAFormElement.getElement(BUTTON, config);
             nodeid = formbutton.nodeid;
             // store in instance._FORM_elements
-            instance._FORM_elements[nodeid] = formbutton;
-
+            formelements[nodeid] = formbutton;
             // make sure elements gets removed from instance._FORM_elements
             // when the element is inserted in the dom and gets removed from the dom again
             YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
                 function() {
-alert('removing button '+attribute+'from formelements');
                     delete formelements[nodeid];
                 }
             );

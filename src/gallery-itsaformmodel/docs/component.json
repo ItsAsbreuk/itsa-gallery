@@ -43,6 +43,15 @@
             "modules"    : ["gallery-itsaformmodel", "model"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "css", "style", "styling"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "tojsonui",
+            "displayName": "Templating with toJSONUI()",
+            "description": "This example how to use of formmodel.toJSONUI() with templates.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "base-build", "gallery-itsaformmodel", "gallery-itsacheckbox", "gallery-itsawidgetrenderpromise", "promimse"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "template", "tojson", "tojsonui", "templating"],
+            "hideTableOfContents": true
         }
     ]
 }

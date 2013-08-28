@@ -32,7 +32,7 @@ YUI.add('module-tests', function(Y) {
     model2 = new Y.MyFormModel();
     model3 = new Y.MyFormModel();
     model.setLifeUpdate(true);
-/*
+
     suite.add(new Y.Test.Case({
         name: 'Attributes to UI',
         setUp : function () {
@@ -197,7 +197,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual(3, model2._ATTRS_nodes['text1'].length, 'formmodel._ATTRS_nodes[attribute] has the wrong arraysize');
         }
     }));
-*/
+
     suite.add(new Y.Test.Case({
         name: 'Check size internal hashes cleaning up',
         setUp : function () {
@@ -206,13 +206,14 @@ YUI.add('module-tests', function(Y) {
             body.append(model3.renderFormElement('text1'));
             body.append(model3.renderSubmitBtn(null, {name: 'submitbtn'}));
             var formelementsText = model3.getCurrentFormElements('text1'),
-                primsehash = [];
+                promisehash = [],
+                nodetext;
             Y.Array.each(
                 formelementsText,
                 function(formelementText) {
                     nodetext = formelementText.node;
                     if (nodetext) {
-                        primsehash.push(YNode.unavailablePromise('#'+formelementText.nodeid, {afteravailable: true}));
+                        promisehash.push(Y.Node.unavailablePromise('#'+formelementText.nodeid, {afteravailable: true}));
                         nodetext.remove(true);
                     }
                 }
@@ -221,10 +222,10 @@ YUI.add('module-tests', function(Y) {
                 firstelementSubmit = formelementsSubmit && formelementsSubmit[0],
                 nodesubmit = firstelementSubmit && firstelementSubmit.node;
             if (nodesubmit) {
-                primsehash.push(YNode.unavailablePromise('#'+firstelementSubmit.nodeid, {afteravailable: true}));
+                promisehash.push(Y.Node.unavailablePromise('#'+firstelementSubmit.nodeid, {afteravailable: true}));
                 nodesubmit.remove(true);
             }
-            this.allNodesRemvovedPromise = Y.batch.apply(Y, primsehash);
+            this.allNodesRemvovedPromise = Y.batch.apply(Y, promisehash);
         },
         'size instance._FORM_elements - after cleaning up': function() {
             this.allNodesRemvovedPromise.then(
