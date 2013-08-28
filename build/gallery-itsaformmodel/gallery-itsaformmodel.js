@@ -23,6 +23,7 @@ YUI.add('gallery-itsaformmodel', function (Y, NAME) {
 
 var YArray = Y.Array,
     YObject = Y.Object,
+    YNode = Y.Node,
     Lang = Y.Lang,
     ITSAFormElement = Y.ITSAFormElement,
     MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD = 'Data has been changed outside the form. Load it into the formelements? (if not, then the data will be reset to the current form-values)',
@@ -449,9 +450,10 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         /**
          * Returns an array with arrribute's current UI-elements {object} that are present in the DOM.
          * Mostly this will hold one item, but there might be cases where an attribute has multiple UI's in the dom.
+         * If 'attribute' can be a model-attribute or a buttons 'name'.
          *
          * @method getCurrentFormElements
-         * @param attribute {String} name of the attribute which FormElements need to be returned.
+         * @param attribute {String} name of the attribute or buttonname which FormElements need to be returned.
          * @return {Array} Returnvalue is an array of ITSAFormElement-objects. These objects are as specified
          * by gallery-itsaformelement, extended with the property 'node'<ul>
          *                  <li>config --> {object} reference to the original configobject</li>
@@ -459,7 +461,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          *                  <li>name   --> {String} convenience-property===config.name</li>
          *                  <li>node   --> {Y.Node}</li>
          *                  <li>nodeid --> {String} created node's id (without #)</li>
-         *                  <li>type   --> {String|WidgetClass} the created type - passed as the first parameter</li>
+         *                  <li>type   --> {String|WidgetClass} the created type
          *                  <li>widget --> {Widget-instance}handle to the created widgetinstance</li></ul>
 
          * @since 0.1
@@ -471,22 +473,40 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
               currentElements = [],
               formelement;
 
-            YArray.each(
-                attributenodes,
-                function(nodeid) {
-                    var node = Y.one('#'+nodeid);
-                    if (node) {
-                        formelement = instance._FORM_elements[nodeid];
-                        formelement.node = node;
-                        currentElements.push(formelement);
+            if (attributenodes) {
+                // attribute is an attribute --> looking this way is quicker then iterating through instance._FORM_elements
+                YArray.each(
+                    attributenodes,
+                    function(nodeid) {
+                        var node = Y.one('#'+nodeid);
+                        if (node) {
+                            formelement = instance._FORM_elements[nodeid];
+                            formelement.node = node;
+                            currentElements.push(formelement);
+                        }
                     }
-                }
-            );
+                );
+            }
+            else {
+                // looking for the buttons by iterating through instance._FORM_elements
+                YObject.each(
+                    instance._FORM_elements,
+                    function(formelement) {
+                        var node = Y.one('#'+formelement.nodeid);
+                        if (node && node.getAttribute('name')===attribute) {
+                            formelement.node = node;
+                            currentElements.push(formelement);
+                        }
+                    }
+                );
+            }
             return currentElements;
         },
 
         /**
-         * returns the UI-value of a formelement into its Model-attribute. This might differ from the attribute-value as it resides in the Model-instance.
+         * Returns the UI-value of a formelement into its Model-attribute. This might differ from the attribute-value as it resides in the Model-instance.
+         * If the attribute has multiple UI in the dom, then it returns the value of the first UI-element. Which should be equal to all other UI-elements
+         * byt moduledesign.
          *
          * @method getUI
          * @param attribute {String} name of the attribute which UI-value is to be returned.
@@ -805,6 +825,20 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 attributenodes[attribute] || (attributenodes[attribute]=[]);
 /*jshint expr:false */
                 attributenodes[attribute].push(nodeid);
+                // make sure elements gets removed from instance._ATTRS_nodes and instance._FORM_elements
+                // when the element is inserted in the dom and gets removed from the dom again
+                YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
+                    function() {
+                        var attributenodeids = attributenodes[attribute],
+                            index = attributenodeids && YArray.indexOf(attributenodeids, nodeid);
+                        delete formelements[nodeid];
+                        if (index>0) {
+alert('removing attribute '+attribute+' at index '+index);
+                            attributenodeids.splice(index, 1);
+                        }
+alert('removing attribute '+attribute+'from formelements');
+                    }
+                );
                 // if widget, then we need to add an eventlistener for valuechanges:
                 widget = formelement.widget;
                 if (widget) {
@@ -1572,22 +1606,35 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         _renderBtn : function(buttonText, config, buttontype, extradata) {
             var instance = this,
-                formbutton, indexvalue;
+                formbutton, nodeid;
 
 /*jshint expr:true */
             config || (config = {});
             buttontype || (buttontype = BUTTON);
             buttonText || (buttonText = buttontype);
 /*jshint expr:false */
-            indexvalue = config.value || buttonText;
             config.buttonText = buttonText;
+            if (extradata) {
 /*jshint expr:true */
-            config.data || (config.data = '');
-            extradata && (config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"');
+                config.data || (config.data = '');
 /*jshint expr:false */
-            formbutton = ITSAFormElement.getElement((((buttontype===SUBMIT) || (buttontype===RESET)) ? buttontype : BUTTON), config);
+                config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
+            }
+            config.buttontype = buttontype;
+            formbutton = ITSAFormElement.getElement(BUTTON, config);
+            nodeid = formbutton.nodeid;
             // store in instance._FORM_elements
-            instance._FORM_elements[formbutton.nodeid] = formbutton;
+            instance._FORM_elements[nodeid] = formbutton;
+
+            // make sure elements gets removed from instance._FORM_elements
+            // when the element is inserted in the dom and gets removed from the dom again
+            YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
+                function() {
+alert('removing button '+attribute+'from formelements');
+                    delete formelements[nodeid];
+                }
+            );
+
             return formbutton.html;
         },
 
@@ -1869,6 +1916,7 @@ YArray.each(
         "event-synthetic",
         "event-valuechange",
         "event-base",
+        "gallery-itsanodepromise",
         "gallery-itsamodelsyncpromise",
         "gallery-itsaformelement"
     ]
