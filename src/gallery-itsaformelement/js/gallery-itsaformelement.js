@@ -264,12 +264,12 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.value] {String} the value of the element.
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
  * @return {object} with the folowwing proprties:<ul>
- *                  <li>html   --> rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
- *                  <li>name   --> convenience-property===config.name</li>
- *                  <li>config --> reference to the original configobject</li>
- *                  <li>nodeid --> created node's id (without #)</li>
- *                  <li>type   --> the created type - passed as the first parameter</li>
- *                  <li>widget --> handle to the created widgetinstance</li></ul>
+ *                  <li>config --> {object} reference to the original configobject</li>
+ *                  <li>html   --> {String} rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
+ *                  <li>name   --> {String} convenience-property===config.name</li>
+ *                  <li>nodeid --> {String} created node's id (without #)</li>
+ *                  <li>type   --> {String|WidgetClass} the created type - passed as the first parameter</li>
+ *                  <li>widget --> {Widget-instance}handle to the created widgetinstance</li></ul>
  * @since 0.1
 */
 ITSAFormElement.getElement = function(type, config, nodeid) {
