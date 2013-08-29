@@ -607,13 +607,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -633,13 +633,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -659,13 +659,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -685,13 +685,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -711,13 +711,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for adding extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -737,13 +737,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -763,13 +763,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
@@ -961,22 +961,26 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         /**
          * Returns a this model's attributes rendered as UI-elements, that can be passed to Y.JSON.stringify() or used for other nefarious purposes.
          * <br /><br />
-         * By specifying 'buttons', you can declare extra keys that represent the buttons. 'buttons' needs to be an array that holds objects with the next properties:
+         * By specifying 'buttons', you can render extra buttons. 'buttons' needs to be an object or an array that holds objects, with the next properties:
          *
          * <ul>
-         * <li>key --> reference-key which will be part (key) of the result</li>
+         * <li>propertykey --> reference-key which will be part (a property) of the result</li>
          * <li>type --> 'button', 'cancel', 'destroy', 'remove', 'reset', 'save' or 'submit'</li>
          * <li>buttonText --> text rendered on the button</li>
-         * <li>config</li> config-object that is passed through the renderBtn-function</li>
+         * <li>config --> config-object that is passed through the renderBtn-function</li>
+         * </ul>
+         * The buttons-object is used to call the related 'renderBtn' method.
          *
          * @method toJSONUI
-         * @param buttons {Array} the widgets classname
+         * @param buttons {Array|Object} the widgets classname
          * @param valueField {String|Array} the widgets valuefield. In case the Widget can have more than one valuefield (Y.ToggleButton does), you can supply an array of Strings
          * @since 0.1
          */
         toJSONUI : function(buttons) {
             var instance = this,
-                UIattrs = {};
+                UIattrs = {},
+                renderBtnFns = instance._renderBtnFns,
+                propertykey, type, buttonText, config;
 
             Y.log('toJSONUI', 'info', 'ITSAFormModel');
             YObject.each(
@@ -985,17 +989,25 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     UIattrs[key] = instance.renderFormElement(key);
                 }
             );
-            if (Lang.isArray(buttons)) {
+            if (Lang.isObject(buttons)) {
+                propertykey = buttons.propertykey;
+                type = buttons.type;
+                buttonText = buttons.buttonText;
+                config = buttons.config;
+/*jshint expr:true */
+                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, buttonText, config)());
+/*jshint expr:false */
+            }
+            else if (Lang.isArray(buttons)) {
                 YArray.each(
                     buttons,
                     function(buttonobject) {
-                        var key = buttonobject.key,
-                            type = buttonobject.type,
-                            buttonText = buttonobject.buttonText,
-                            config = buttonobject.config,
-                            renderBtnFns = instance._renderBtnFns;
+                        propertykey = buttonobject.propertykey;
+                        type = buttonobject.type;
+                        buttonText = buttonobject.buttonText;
+                        config = buttonobject.config;
 /*jshint expr:true */
-                        key && type && renderBtnFns[type] && (UIattrs[key]=Y.bind(renderBtnFns[type], instance, buttonText, config)());
+                        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, buttonText, config)());
 /*jshint expr:false */
                     }
                 );
@@ -1092,7 +1104,9 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                     [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
                      SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
                     function(e) {
+console.log('check 2');
                         e.preventDefault(); // prevent the form to be submitted
+console.log('check 3');
                         var node = e.target,
                             type = e.type,
                             value = node.getAttribute(VALUE),
@@ -1104,9 +1118,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                                 type: type
                             };
                         // refireing, but now by the instance:
+console.log('check 4');
                         instance.fire(type, payload);
+console.log('check 5');
                     },
-                    function(delegatedNode, e){ // node === e.target
+                    function(delegatedNode, e) { // node === e.target
+alert('?');
+console.log('check 1');
                         // only process if node's id is part of this ITSAFormModel-instance:
                         return instance._FORM_elements[e.target.get('id')];
                     }
@@ -1414,7 +1432,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         _defFnSave : function() {
             var instance = this,
                 prevAttrs, unvalidNodes;
-
+console.log('def function save');
             Y.log('_defFnSave', 'info', 'ITSAFormModel');
             unvalidNodes = instance.getUnvalidatedUI();
             if (unvalidNodes.isEmpty()) {
@@ -1432,6 +1450,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             else {
                 instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
             }
+console.log('def function save end');
         },
 
         /**
@@ -1623,13 +1642,13 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          * @param buttonText {String} Text on the button (equals buttonName whennot specified).
          * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
          * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
-         * @param [config.data] when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
-         * @param [config.disabled]
-         * @param [config.hidden]
+         * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+         * @param [config.disabled=false] {Boolean}
+         * @param [config.hidden=false] {Boolean}
          * @param [config.classname] for addeing extra classnames to the button
-         * @param [config.focusable]
-         * @param [config.primary] making it the primary-button
-         * @param [config.tooltip] tooltip when Y.Tipsy or Y.Tipsy is used
+         * @param [config.focusable=true] {Boolean}
+         * @param [config.primary=false] {Boolean} making it the primary-button
+         * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @param [buttontype] {String} type of button that needs to be rendered
          * @param [extradata] {Boolean} whether 'data-buttonsubtype="buttontype"' should be added as a node-attribute
          * @return {String} stringified version of the button which can be inserted in the dom.
@@ -1654,7 +1673,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 /*jshint expr:false */
                 config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
             }
-            config.buttontype = buttontype;
+            config.buttontype = BUTTON;
             formbutton = ITSAFormElement.getElement(BUTTON, config);
             nodeid = formbutton.nodeid;
             // store in instance._FORM_elements
@@ -1900,6 +1919,7 @@ Y.ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
 YArray.each(
     [BUTTON, SAVE, DESTROY, REMOVE, CANCEL],
     function(eventtype) {
+console.log('defining '+eventtype);
         Y.Event.define(eventtype+CLICK, {
             on: function (node, subscription, notifier) {
                 // To make detaching easy, a common pattern is to add the subscription
@@ -1907,7 +1927,9 @@ YArray.each(
                 // This is then referenced in the detach() method below.
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
+console.log('clicked '+targetNode.getAttribute(DATA_BUTTON_TYPE));
                     if ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype)) {
+console.log('fireing '+eventtype+CLICK);
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
                         notifier.fire(e);
