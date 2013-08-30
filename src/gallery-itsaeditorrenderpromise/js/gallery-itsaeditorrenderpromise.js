@@ -43,6 +43,8 @@ Y.EditorBase.prototype.renderOnAvailable = function(containerNodeid, timeout) {
 
 /**
  * Same as 'renderOnAvailable', with the exception that rendering is done <b>every time</b> parentNode gets inserted in the DOM,
+ * <b>Cautious:</b> even if this method is available, it is advised to use it with care. Even native dom-available-node-events cause
+ * a true performacehit.
  *
  * @method renderWhenAvailable
  * @param [containerNodeid] {String} Node-selector by id. You must include the '#'. If not defined, then the editor will be rendered at once

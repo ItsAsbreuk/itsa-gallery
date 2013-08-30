@@ -187,6 +187,7 @@ YUI.add('module-tests', function(Y) {
             );
             // now insert #testnode4 after delay
             Y.later(1000, null, function() {
+                // this will lead to an 'editor-error' becuase frame-node isn't there, but for this test, that is ok.
                 editor.destroy();
                 Y.one('body').prepend('<div id="testnode7"></div>');
             });
@@ -216,6 +217,28 @@ YUI.add('module-tests', function(Y) {
                 createnodetimer.cancel();
                 Y.Assert.areEqual(4, count, 'renderWhenAvailable did not render the editor the expected amout of times.');
             }, 4750);
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'test 9',
+        'check if we can set content after renderPromise':  function() {
+            var editor = new Y.EditorBase();
+            editor.renderPromise(5000).then(
+                function() {
+                    try {
+                        editor.set('content', 'new content');
+                        Y.Assert.pass();
+                    }
+                    catch (e) {
+                        Y.Assert.fail('couldn\'t set new content');
+                    }
+                },
+                function(reason) {
+                    Y.Assert.fail(reason);
+                }
+            );
+            editor.render();
         }
     }));
 
