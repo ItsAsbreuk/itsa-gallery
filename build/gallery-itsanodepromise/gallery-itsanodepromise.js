@@ -33,6 +33,14 @@ var YNode = Y.Node,
  *    <li>contentreadyagain</li>
  *    <li>unavailableagain</li>
  * </ul>
+ * The reason why you need to subscribe all node you want, is because the 'unavailable'-event isn't supported by all browsers. For browsers who
+ * don't support this event (IE<9), a timer will check its unavailability. This has a performance-hit.
+ * <br />
+ * <br />
+ * <b>Important notes:</b>
+ * <br />
+ * 1. Use this method with care! Once called, you introduce dom-monitoring which causes a true performancehit.
+ * 2. Only nodes that are re-inserted as a String have these events multiple times. Y.Node instances that are inserted are <u>not affected</u>
  *
  * @method fireAvailabilities
  * @static
@@ -164,6 +172,8 @@ YNode.contentreadyPromise = function(nodeid, timeout) {
 /**
  * Promise that will be resolved once a node is NOT in the DOM.
  * That is, when it is not in the DOM already, or when it is removed (using the 'DOMNodeRemoved'-event).
+ * <br />
+ * <b>Cautious:</b>Once called, you introduce a true performancehit until the promise gets fulfilled.
  *
  * @method unavailablePromise
  * @static
