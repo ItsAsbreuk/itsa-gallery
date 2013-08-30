@@ -2,9 +2,8 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
 
 'use strict';
 /**
- * This module adds static methods Y.Node.availablePromise() and Y.Node.contentreadyPromise() to the Y.Node class.<br />
- * By using these Promises, you don't need to listen for the Y.on('available') and Y.on('contentready') events,
- * but can use Promises.
+ *
+ * This module adds some static methods to the Y.Node class that can be used to controll node-availabilities.<br />
  *
  * @module gallery-itsanodepromise
  * @extends Node
@@ -19,10 +18,89 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
 var YNode = Y.Node,
     // To check DOMNodeRemoved-event, the browser must support 'mutation events'. To check this:
     supportsMutationEvents = document.implementation.hasFeature("MutationEvents", "2.0"),
-    NODECHECK_TIMER = 250; // ms to repeately check for the node's existance. Only for browsers without supportsMutationEvents
+    NODECHECK_TIMER = 250, // ms to repeately check for the node's existance. Only for browsers without supportsMutationEvents
+    AVAILABLE_AGAIN = 'availableagain',
+    UNAVAILABLE_AGAIN = 'unavailableagain',
+    CONTENTREADY_AGAIN = 'contentreadyagain';
 
-// To make these 2 methods static, we must declare their functions first and then add them to the prototype.
+// To make these 4 methods static, we must declare their functions first and then add them to the prototype.
 // We cannot declare the prototypefunctions directly, for it would become instance-methods instead of static.
+
+/**
+ * When this method is set for a nodeid, then the node will fire the next events over and over again:
+ * <ul>
+ *    <li>availableagain</li>
+ *    <li>contentreadyagain</li>
+ *    <li>unavailableagain</li>
+ * </ul>
+ *
+ * @method fireAvailabilities
+ * @static
+ * @param nodeid {String} Node-selector by id. You must include the #
+ * @since 0.2
+*/
+YNode.fireAvailabilities = function(nodeid) {
+    /**
+      * Fired when node gets available again. The same as the 'available'-event except that availableagain repeats fireing when the node
+      * gets inserted into the dom multiple times.
+      *
+      * @event Y.availableagain
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.Node} the targetnode
+      * @param e.type {String} eventtype
+      *
+    **/
+    /**
+      * Fired when node gets contentready again. The same as the 'contentready'-event except that availableagain repeats fireing when the node
+      * gets inserted into the dom multiple times.
+      *
+      * @event Y.contentreadyagain
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.Node} the targetnode
+      * @param e.type {String} eventtype
+      *
+    **/
+    /**
+      * Fired when node gets unavailable again. The unavailableagain repeats fireing every time the node gets removed from the dom.
+      *
+      * @event Y.unavailableagain
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.Node} the targetnode
+      * @param e.type {String} eventtype
+      *
+    **/
+    var instance = this,
+        loopingEvents;
+
+    Y.log('availablePromise', 'info', 'node');
+    if (!instance._loopingEvents) {
+        instance._loopingEvents = {};
+    }
+    loopingEvents = instance._loopingEvents;
+    if (!loopingEvents[nodeid]) {
+        // creating looping-events for this nodeid
+        loopingEvents[nodeid] = function() {
+            instance.availablePromise(nodeid).then(
+                function(node) {
+                    Y.fire(AVAILABLE_AGAIN, {target: node, type: AVAILABLE_AGAIN});
+                    instance.unavailablePromise(nodeid).then(
+                        function(node) {
+                            Y.fire(UNAVAILABLE_AGAIN, {target: node, type: UNAVAILABLE_AGAIN});
+                            loopingEvents[nodeid]();
+                        }
+                    );
+                }
+            );
+            instance.contentreadyPromise(nodeid).then(
+                function(node) {
+                    Y.fire(CONTENTREADY_AGAIN, {target: node, type: CONTENTREADY_AGAIN});
+                }
+            );
+        };
+        // calling for the first time = initialize:
+        loopingEvents[nodeid]();
+    }
+};
 
 /**
  * Promise that will be resolved once a node is available in the DOM.

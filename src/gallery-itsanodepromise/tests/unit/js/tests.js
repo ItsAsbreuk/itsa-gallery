@@ -11,6 +11,7 @@ YUI.add('module-tests', function(Y) {
         NODE_NOT_REMOVED_INTIME = 'Node not removed within timeout settings',
         NODE_REMOVED_BUT_SHOULDNT = 'Node was marked as removed but still exists',
         NODE_UNAVAILABLE_BEFORE_AVAILABLE = 'Node was noticed as unavailable before it got available, when using "afteravailable=true"',
+        NODE_AVAILABLE_AGAIN_NOT_WORKING = 'Y.Node.fireAvailabilities --> availableagain didn\'t fire expected number of times',
         bodynode = Y.one('body'),
         YNode = Y.Node;
 
@@ -309,6 +310,41 @@ YUI.add('module-tests', function(Y) {
                 insertedbydelay = true;
                 Y.one('body').append('<div id="'+nodeName+follownr+'"></div>');
             });
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'test 17',
+        'check if availableagain event gets fired multiple times':  function() {
+            var follownr = 17,
+                nodestring = '<div id="'+nodeName+follownr+'"></div>',
+                body = Y.one('body'),
+                count = 0;
+            YNode.fireAvailabilities(nodeId+follownr);
+            Y.later(100, null, function() {
+                body.append(nodestring);
+            });
+            Y.later(200, null, function() {
+                Y.one(nodeId+follownr).remove(true);
+            });
+            Y.later(300, null, function() {
+                body.append(nodestring);
+            });
+            Y.later(400, null, function() {
+                Y.one(nodeId+follownr).remove(false);
+            });
+            Y.later(500, null, function() {
+                body.append(nodestring);
+            });
+            Y.later(600, null, function() {
+                Y.one(nodeId+follownr).remove(true);
+            });
+            Y.on('availableagain', function() {
+                count++;
+            }, nodeId+follownr);
+            this.wait(function() {
+                Y.Assert.areEqual(3, count, NODE_AVAILABLE_AGAIN_NOT_WORKING);
+            }, 1000);
         }
     }));
 
