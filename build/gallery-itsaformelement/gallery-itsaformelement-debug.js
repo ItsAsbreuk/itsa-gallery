@@ -21,14 +21,6 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
 var ITSAFormElement, tipsyOK, tipsyInvalid,
     YARRAY = Y.Array,
     Lang = Y.Lang,
-    DELAY_FOCUSACTION = 200, // ms delay for focusaction on inputelements --> need delay
-                             // to take action after tap-event which occurs later than the focusevent
-                             // This way we prevent the focusaction to occur on mouseclicks.
-                             // Too small a value and focusaction will occur even with mouseclicks
-                             // Too large and the user experiences delay in the replacing of the cursor to the end or
-                             // fullselection of the text. (that is, on focus without clicking)
-                             // Trail and error gave the turnarround value of 100ms, which should be the least.
-                             // however, slower systems may need a higher delayvalue.
     BODY = Y.one('body'),
     ACTION_FROMTAB = ACTION_FROMTAB,
     DISABLED    = 'disabled',
@@ -43,6 +35,8 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     DISABLED_BUTTON_CLASS = PUREBUTTON_CLASS+'-'+DISABLED,
     PRIMARY_BUTTON_CLASS = PUREBUTTON_CLASS+'-primary',
     MODELATTRIBUTE = 'modelattribute',
+    HIDEATSTARTUP = 'hideatstartup',
+    INVISIBLE_CLASS = 'itsa-invisible',
 
     ERROR = 'error',
     BOOLEAN = 'boolean',
@@ -138,6 +132,8 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
 
     DATA_LABEL_DATETIME = ' data-labeldatetime="true"',
     DATA_DATETIME = DATA+'-'+DATETIME+'=', // used as node data-attribute data-datetime
+    DATA_BUTTON_TYPE = DATA+'-'+BUTTON+TYPE,
+    DATA_BUTTON_SUBTYPE = DATA+'-'+BUTTON+'sub'+TYPE,
 
     ELEMENT_UNDEFINED = '<'+SPAN+' '+ID_SUB+'>UNDEFINED ELEMENTTYPE</'+SPAN+'>',
     ELEMENT_PLAIN = '<'+SPAN+' '+ID_SUB+NAME_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+SPAN+'>',
@@ -151,7 +147,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ELEMENT_CHECKBOX = INPUT_TYPE_IS+CHECKBOX+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DISABLED_SUB+READONLY_SUB+CHECKED_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+TEXTAREA+'>',
-    ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
+    ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+HIDDEN_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
     ELEMENT_BUTTON = BUTTON_TYPE_IS+TYPE_SUB+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
     ELEMENT_DATE = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
@@ -333,6 +329,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         switchlabel = (typeof subtituteConfig[SWITCHLABEL]===BOOLEAN) ? subtituteConfig[SWITCHLABEL] : false,
         focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
         fullselect = (typeof subtituteConfig[FULLSELECT]===BOOLEAN) ? subtituteConfig[FULLSELECT] : false,
+        hideatstartup = (typeof subtituteConfig[HIDEATSTARTUP]===BOOLEAN) ? subtituteConfig[HIDEATSTARTUP] : false,
         tooltip = config.tooltip,
         tooltipinvalid = config.tooltipinvalid,
         nossl = config.nossl,
@@ -347,6 +344,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         checked, purebutton, readonly, extralabel;
     // first setting up global data-attributes
 /*jshint expr:true */
+    config['remove'+REQUIRED] && (delete subtituteConfig[REQUIRED]);
     configdata && (data+=' '+configdata);
     modelattribute && (data+=' data-'+MODELATTRIBUTE+'="true"');
     subtituteConfig[DATA] = data;
@@ -357,10 +355,12 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     tooltipinvalid && (typeof tooltipinvalid === 'string') && (tooltipinvalid.length>0) && (subtituteConfig[DATA] += ' data-contentinvalid="'+tooltipinvalid.replace(/"/g, '\'\'')+'"');
     config[INITIALFOCUS] && (subtituteConfig[DATA] += ' data-'+INITIALFOCUS+'="true"');
     config[NAMEDEF] && (subtituteConfig[NAMEDEF]=' '+NAMEDEF+'="'+subtituteConfig[NAMEDEF]+'"');
+    hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
+    subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
 /*jshint expr:false */
     if (iswidget) {
         subtituteConfig[DATA] += ' data-type="'+type+'"';
-        subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + '"';
+        subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + (hideatstartup ? (' '+INVISIBLE_CLASS) : '') + '"';
         if (config[LABEL]) {
             subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
             subtituteConfig[LABELDATA] += ' data-widgetlabel="true"';
@@ -368,7 +368,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
         if (type==='slider') {
             // we want the value visible inside a span
-            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+'" data-for="'+nodeid+'">'+value+ENDSPAN;
+            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+'" data-for="'+nodeid+'"'+HIDDEN_SUB+'>'+value+ENDSPAN;
         }
         // now make sure we get the right 'template', by re-defining 'type'
         type = WIDGET;
@@ -377,10 +377,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false;
         required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD);
         readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false;
-        hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
 /*jshint expr:true */
         subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
-        subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
         subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         subtituteConfig[REQUIRED] = required ? (' '+REQUIRED+'="'+REQUIRED+'"') : '';
         subtituteConfig[READONLY] = readonly ? (' '+READONLY+'="'+READONLY+'"') : '';
@@ -442,10 +440,11 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         }
 /*jshint expr:true */
         fullselect && ((type===TEXT) || (type===NUMBER) || (type===PASSWORD) || (type===TEXTAREA) || (type===EMAIL) || (type===URL)) && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
-        (config[CLASSNAME] || purebutton) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
+        (config[CLASSNAME] || purebutton || hideatstartup) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
                                 (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
                                 (primarybutton ? (' '+PRIMARY_BUTTON_CLASS) : '')+
+                                (hideatstartup ? (' '+INVISIBLE_CLASS) : '')+
                                 '"');
 /*jshint expr:false */
     }
@@ -524,7 +523,8 @@ BODY.delegate(
     'focus',
     function(e) {
         var node = e.target,
-            fullselection = (node.getAttribute(DATA+'-'+FULLSELECT)==='true');
+            fullselection = (node.getAttribute(DATA+'-'+FULLSELECT)==='true'),
+            camefromtap;
 /*jshint expr:true */
         // in case of 'input', default action would be that the content is fully selected. We suppress this:
         !fullselection && node.test('input') && e.preventDefault();
@@ -533,26 +533,21 @@ BODY.delegate(
         // we need to make extra precautions. This is needed, because the tap-event occurs AFTER the focus-event.
         // Thus, we delay to make sure we take action after a tap-event might have been occurred
 
-        if (Y.ITSAFormElement._focustimer) {
-            Y.ITSAFormElement._focustimer.cancel();
+        camefromtap = node.getData(ACTION_FROMTAB);
+        Y.ITSAFormElement._activeNode = node;
+        if (camefromtap) {
+            node.clearData(ACTION_FROMTAB);
         }
-        Y.ITSAFormElement._focustimer = Y.later(DELAY_FOCUSACTION, null, function() {
-            var camefromtap = node.getData(ACTION_FROMTAB);
-            Y.ITSAFormElement._activeNode = node;
-            if (camefromtap) {
-                node.clearData(ACTION_FROMTAB);
+        else {
+            if (fullselection) {
+                node.select();
             }
             else {
-                if (fullselection) {
-                    node.select();
-                }
-                else {
-                    node.set('selectionStart', node.get('value').length);
-                    // set 'scrollTop' high to make Chrome scroll the last character into view
-                    node.set('scrollTop', 999999);
-                }
+                node.set('selectionStart', node.get('value').length);
+                // set 'scrollTop' high to make Chrome scroll the last character into view
+                node.set('scrollTop', 999999);
             }
-        });
+        }
     },
     function(node, evt){
         var targetnode = evt.target;
@@ -562,7 +557,7 @@ BODY.delegate(
 
 // listen to focus-events on input and textarea-items
 BODY.delegate(
-    'tap',
+    'mousedown',
     function(e) {
         var node = e.target;
 /*jshint expr:true */
@@ -573,16 +568,6 @@ BODY.delegate(
         var targetnode = evt.target;
         return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
     }
-);
-
-// listen to focus-events on input and textarea-items
-BODY.delegate(
-    'blur',
-    function() {
-        if (Y.ITSAFormElement._focustimer) {
-            Y.ITSAFormElement._focustimer.cancel();
-        }
-    }
 );
 
 // Define synthetic events 'datepickerclick', 'timepickerclick' and 'datetimepickerclick':
@@ -617,7 +602,7 @@ BODY.delegate(
 YARRAY.each(
     [DATE, TIME, DATETIME],
     function(eventtype) {
-        Y.Event.define(eventtype+PICKER+CLICK, {
+        var conf = {
             on: function (node, subscription, notifier) {
                 // To make detaching easy, a common pattern is to add the subscription
                 // for the supporting DOM event to the subscription object passed in.
@@ -636,21 +621,11 @@ YARRAY.each(
                 // Clean up supporting DOM subscriptions and other external hooks
                 // when the synthetic event subscription is detached.
                 subscription._handle.detach();
-            },
-            delegate: function (node, subscription, notifier, filter) {
-                subscription._delegatehandle = node.on(CLICK, function (e) {
-                    var targetNode = e.target;
-                    if (filter && targetNode.getAttribute(DATA+'-'+DATETIME)===eventtype) {
-                        // The notifier triggers the subscriptions to be executed.
-                        // Pass its fire() method the triggering DOM event facade
-                        notifier.fire(e);
-                    }
-                }, filter); // filter is passed on to the underlying `delegate()` call
-            },
-            detachDelegate: function (node, subscription) {
-                subscription._delegatehandle.detach();
             }
-        });
+        };
+        conf.delegate = conf.on;
+        conf.detachDelegate = conf.detach;
+        Y.Event.define(eventtype+PICKER+CLICK, conf);
     }
 );
 
@@ -679,14 +654,15 @@ YARRAY.each(
 YARRAY.each(
     [SUBMIT, RESET],
     function(eventtype) {
-        Y.Event.define(eventtype+CLICK, {
+        var conf = {
             on: function (node, subscription, notifier) {
                 // To make detaching easy, a common pattern is to add the subscription
                 // for the supporting DOM event to the subscription object passed in.
                 // This is then referenced in the detach() method below.
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
-                    if (targetNode.getAttribute(DATA+'-'+BUTTON+TYPE)===eventtype) {
+                    if ((targetNode.getAttribute(DATA_BUTTON_TYPE)===eventtype) ||
+                        ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype))) {
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
                         notifier.fire(e);
@@ -698,21 +674,11 @@ YARRAY.each(
                 // Clean up supporting DOM subscriptions and other external hooks
                 // when the synthetic event subscription is detached.
                 subscription._handle.detach();
-            },
-            delegate: function (node, subscription, notifier, filter) {
-                subscription._delegatehandle = node.on(CLICK, function (e) {
-                    var targetNode = e.target;
-                    if (filter && targetNode.getAttribute(DATA+'-'+BUTTON+TYPE)===eventtype) {
-                        // The notifier triggers the subscriptions to be executed.
-                        // Pass its fire() method the triggering DOM event facade
-                        notifier.fire(e);
-                    }
-                }, filter); // filter is passed on to the underlying `delegate()` call
-            },
-            detachDelegate: function (node, subscription) {
-                subscription._delegatehandle.detach();
             }
-        });
+        };
+        conf.delegate = conf.on;
+        conf.detachDelegate = conf.detach;
+        Y.Event.define(eventtype+CLICK, conf);
     }
 );
 

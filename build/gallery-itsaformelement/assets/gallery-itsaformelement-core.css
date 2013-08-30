@@ -7,13 +7,18 @@
     vertical-align: middle;
 }
 
+.itsa-invisible {
+    visibility: hidden !important;
+}
 /**
  * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
  * Modern browser will hide even without this css
  * Known issue: no IE 6 support.
  */
-[hidden] {
-    display: none;
+[hidden],
+label[hidden],
+.pure-form [hidden] {
+    display: none !important;
 }
 
 form [data-changed] {

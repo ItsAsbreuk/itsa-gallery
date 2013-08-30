@@ -29,7 +29,8 @@ Y.one('body').addClass('yui3-skin-sam');
         optionon: 'power on',
         optionoff: 'power off',
         tooltip: 'here is some tooltipinfo',
-        focusable: false
+        focusable: false,
+        hidden: true
     };
     appendElement(type, emptyconfig, NOCONFIG);
     appendElement(type, fullconfig, FULLCONFIG); // without label
@@ -101,7 +102,7 @@ Y.one('body').addClass('yui3-skin-sam');
         placeholder: 'placeholderText',
         required: false,
         disabled: true,
-        hidden: true,
+        hidden: false,
         fullselect: true,
         initialfocus: true,
         pattern: '[A-Za-z]{3}',
@@ -320,7 +321,7 @@ Y.one('body').addClass('yui3-skin-sam');
         data: 'data-someinfo="somedata"',
         required: true,
         disabled: true,
-        hidden: true,
+        hidden: false,
         initialfocus: true,
         classname: 'yui3-element-class',
         labelClassname: 'yui3-label-class',
