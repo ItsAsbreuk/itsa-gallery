@@ -10,6 +10,10 @@ YUI.add('module-tests', function(Y) {
                 value: 'Marco Asbreuk',
                 formtype: 'text'
             },
+            text1: {
+                value: 'Marco Asbreuk',
+                formtype: 'text'
+            },
             text2: {
                 value: 'Marco Asbreuk',
                 formtype: 'text'
@@ -224,13 +228,13 @@ YUI.add('module-tests', function(Y) {
     suite.add(new Y.Test.Case({
         name: 'Check size internal hashes growing',
         setUp : function () {
-            body.append(model2.renderFormElement('text1'));
-            body.append(model2.renderFormElement('text1'));
-            body.append(model2.renderFormElement('text1'));
+            body.append(model2.renderFormElement('text'));
+            body.append(model2.renderFormElement('text'));
+            body.append(model2.renderFormElement('text'));
             body.append(model2.renderSubmitBtn(null, {name: 'submitbtn'}));
         },
         tearDown : function () {
-            var formelementsText = model2.getCurrentFormElements('text1');
+            var formelementsText = model2.getCurrentFormElements('text');
             Y.Array.each(
                 formelementsText,
                 function(formelementText) {
@@ -247,19 +251,19 @@ YUI.add('module-tests', function(Y) {
                 nodesubmit.remove(true);
             }
         },
-        'size instance._FORM_elements': function() {
+        'size instance._FORM_elements formmodel._FORM_elements': function() {
             Y.Assert.areEqual(4, Y.Object.size(model2._FORM_elements), 'formmodel._FORM_elements has the wrong object-size');
         },
-        'size instance._FORM_elements': function() {
+        'size instance._FORM_elements formmodel._ATTRS_nodes': function() {
             Y.Assert.areEqual(1, Y.Object.size(model2._ATTRS_nodes), 'formmodel._ATTRS_nodes has the wrong object-size');
         },
-        'size instance._FORM_elements': function() {
-            Y.Assert.areEqual(3, model2._ATTRS_nodes['text1'].length, 'formmodel._ATTRS_nodes[attribute] has the wrong arraysize');
+        'size instance._FORM_elements formmodel._ATTRS_nodes one element': function() {
+            Y.Assert.areEqual(9, model2._ATTRS_nodes['text'].length, 'formmodel._ATTRS_nodes[attribute] has the wrong arraysize');
         }
     }));
 
     suite.add(new Y.Test.Case({
-        name: 'Check size internal hashes cleaning up',
+        name: 'Check size internal hashes when deleting',
         setUp : function () {
             body.append(model3.renderFormElement('text1'));
             body.append(model3.renderFormElement('text1'));
@@ -273,7 +277,7 @@ YUI.add('module-tests', function(Y) {
                 function(formelementText) {
                     nodetext = formelementText.node;
                     if (nodetext) {
-                        promisehash.push(Y.Node.unavailablePromise('#'+formelementText.nodeid, {afteravailable: true}));
+                        promisehash.push(Y.Node.unavailablePromise('#'+formelementText.nodeid));
                         nodetext.remove(true);
                     }
                 }
@@ -282,44 +286,62 @@ YUI.add('module-tests', function(Y) {
                 firstelementSubmit = formelementsSubmit && formelementsSubmit[0],
                 nodesubmit = firstelementSubmit && firstelementSubmit.node;
             if (nodesubmit) {
-                promisehash.push(Y.Node.unavailablePromise('#'+firstelementSubmit.nodeid, {afteravailable: true}));
+                promisehash.push(Y.Node.unavailablePromise('#'+firstelementSubmit.nodeid));
                 nodesubmit.remove(true);
             }
-            this.allNodesRemvovedPromise = Y.batch.apply(Y, promisehash);
+            this.allNodesRemovedPromise = Y.batch.apply(Y, promisehash);
         },
         'size instance._FORM_elements - after cleaning up': function() {
-            this.allNodesRemvovedPromise.then(
+            var instance = this;
+            this.allNodesRemovedPromise.then(
                 function() {
-                    Y.Assert.areEqual(0, Y.Object.size(model3._FORM_elements), 'formmodel._FORM_elements has the wrong object-size - after cleaning up');
+                    instance.resume(function(){
+                        Y.Assert.areEqual(4, Y.Object.size(model3._FORM_elements), 'formmodel._FORM_elements has the wrong object-size - after cleaning up');
+                    });
                 },
                 function(reason) {
-                    Y.Assert.fail('formmodel._FORM_elements has the wrong object-size - after cleaning up '+reason);
+                    instance.resume(function(){
+                        Y.Assert.fail('formmodel._FORM_elements has the wrong object-size - after cleaning up '+reason);
+                    });
                 }
             );
+            instance.wait(2000);
         },
         'size instance._ATTRS_nodes - after cleaning up': function() {
-            this.allNodesRemvovedPromise.then(
+            var instance = this;
+            this.allNodesRemovedPromise.then(
                 function() {
-                    Y.Assert.areEqual(0, Y.Object.size(model3._ATTRS_nodes), 'formmodel._ATTRS_nodes has the wrong object-size - after cleaning up');
+                    instance.resume(function(){
+                        Y.Assert.areEqual(1, Y.Object.size(model3._ATTRS_nodes), 'formmodel._ATTRS_nodes has the wrong object-size - after cleaning up');
+                    });
                 },
                 function(reason) {
-                    Y.Assert.fail('formmodel._ATTRS_nodes has the wrong object-size - after cleaning up '+reason);
+                    instance.resume(function(){
+                        Y.Assert.fail('formmodel._ATTRS_nodes has the wrong object-size - after cleaning up '+reason);
+                    });
                 }
             );
+            instance.wait(2000);
         },
         'size instance._ATTRS_nodes - after cleaning up - one attribute': function() {
-            this.allNodesRemvovedPromise.then(
+            var instance = this;
+            this.allNodesRemovedPromise.then(
                 function() {
-                    Y.Assert.areEqual(0, model3._ATTRS_nodes['text1'].length, 'formmodel._ATTRS_nodes[attribute] has the wrong arraysize - after cleaning up');
+                    instance.resume(function(){
+                        Y.Assert.areEqual(9, model3._ATTRS_nodes['text1'].length, 'formmodel._ATTRS_nodes[attribute] has the wrong arraysize - after cleaning up');
+                    });
                 },
                 function(reason) {
-                    Y.Assert.fail('formmodel._ATTRS_nodes[attribute] has the wrong arraysize - after cleaning up '+reason);
+                    instance.resume(function(){
+                        Y.Assert.fail('formmodel._ATTRS_nodes[attribute] has the wrong arraysize - after cleaning up '+reason);
+                    });
                 }
             );
+            instance.wait(2000);
         }
     }));
 
     Y.Test.Runner.add(suite);
 
 
-},'', { requires: [ 'test', 'gallery-itsaformmodel', 'base-build', 'slider', 'gallery-itsawidgetrenderpromise', 'node-event-simulate', 'promise' ] });
+},'', { requires: [ 'test', 'gallery-itsaformmodel', 'base-build', 'slider', 'gallery-itsanodepromise', 'gallery-itsawidgetrenderpromise', 'node-event-simulate', 'promise' ] });

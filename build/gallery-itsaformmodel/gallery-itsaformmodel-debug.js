@@ -30,6 +30,9 @@ var YArray = Y.Array,
     MSG_MODELCHANGED_OUTSIDEFORM = 'Data has been changed outside the form.<br />Load it into the form?',
     UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
     INVISIBLE_CLASS = 'itsa-invisible',
+    DUPLICATE_NODE = '<span style="background-color:F00; color:#FFF">DUPLICATED FORMELEMENT is not allowed</span>',
+    MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
+    MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
 
     CLICK = 'click',
     SAVE = 'save',
@@ -231,8 +234,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
         _widgetValueFields : {}, // private prototypeobject can be filled by setWidgetValueField()
 
-        _knownNodeIds : {}, // private prototypeobject that records all nodeid's that are created
-
         _allowedFormTypes : { // allowed string-formelement types
             text: true,
             number: true,
@@ -286,6 +287,17 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             * @type Object
             */
             instance._ATTRS_nodes = {},
+
+           /**
+            * internal backup of which nodeid's have been inserted in the dom before, referenced by nodei's
+            * object-properties are 'true' when not found the be removed from the dom yet and a timestamps when
+            * out of the dom (stamped with the time out-of-dom was registered)
+            * @property _knownNodeIds
+            * @default {}
+            * @private
+            * @type Object
+            */
+            instance._knownNodeIds = {}, // private prototypeobject that records all nodeid's that are created
 
            /**
             * internal hash that holds the attribute-values which sould be used during a resetclick- or cancelclick-event.
@@ -415,6 +427,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             );
 
             instance._bindUI();
+            instance._gcTimer = Y.later(MS_BEFORE_CLEANUP, instance, instance._garbageCollect, null, true);
         },
 
         /**
@@ -798,7 +811,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             var instance = this,
                 knownNodeIds = instance._knownNodeIds,
                 formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield,
-                nodeid, widget, iswidget, widgetValuefieldIsarray;
+                nodeid, widget, iswidget, widgetValuefieldIsarray, iseditorbase;
             Y.log('renderFormElement', 'info', 'ITSAFormModel');
             formelements = instance._FORM_elements;
             attributenodes = instance._ATTRS_nodes;
@@ -841,7 +854,6 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 formelement = ITSAFormElement.getElement(formtype, formconfig);
                 // store in instance._FORM_elements
                 nodeid = formelement.nodeid;
-console.log('nodeid '+nodeid+' was generated for '+attribute);
                 formelements[nodeid] = formelement;
                 // store in instance._ATTRS_nodes
 /*jshint expr:true */
@@ -851,6 +863,36 @@ console.log('nodeid '+nodeid+' was generated for '+attribute);
                 // if widget, then we need to add an eventlistener for valuechanges:
                 widget = formelement.widget;
                 if (widget) {
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    // The last thing we need to do is, set some action when the node gets into the dom: We need to
+                    // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
+                    // and after that we make it visible and store it internally, so we know the node has been inserted
+                    iseditorbase = (formtype.NAME==='editorBase');
+                    Y.use(iseditorbase ? 'gallery-itsaeditorrenderpromise' : 'gallery-itsawidgetrenderpromise', function() {
+                        widget.renderPromise().then(
+                            function() {
+                                var node = Y.one('#'+nodeid);
+                                if (knownNodeIds[nodeid]) {
+                                    // was rendered before --> we need to replace it by an errornode
+                                    Y.log('renderFormElement --> nodeid '+nodeid+' for attribute '+attribute+' was already inserted in the dom: won\'t be rendered again', 'warn', 'ITSAFormModel');
+                                    node.insert(DUPLICATE_NODE, 'replace');
+                                }
+                                else {
+                                    knownNodeIds[nodeid] = true;
+                                    // preferably remove the hissen class after updating content.
+                                    // but EditorBase cannot get new content when made invivible
+/*jshint expr:true */
+                                    iseditorbase && node.removeClass(INVISIBLE_CLASS);
+/*jshint expr:false */
+                                    instance._modelToUI(nodeid);
+/*jshint expr:true */
+                                    !iseditorbase && node.removeClass(INVISIBLE_CLASS);
+/*jshint expr:false */
+                                }
+                            }
+                        );
+                    });
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     if (widgetValuefieldIsarray) {
                         YArray.each(
                             valuefield,
@@ -897,43 +939,39 @@ console.log('nodeid '+nodeid+' was generated for '+attribute);
                         );
                     }
                 }
+                else {
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    // The last thing we need to do is, set some action when the node gets into the dom: We need to
+                    // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
+                    // and after that we make it visible and store it internally, so we know the node has been inserted
+                    YNode.availablePromise('#'+nodeid).then(
+                        function(node) {
+                            if (knownNodeIds[nodeid]) {
+                                // was rendered before --> we need to replace it by an errornode
+                                Y.log('renderFormElement --> nodeid '+nodeid+' for attribute '+attribute+' was already inserted in the dom: won\'t be rendered again', 'warn', 'ITSAFormModel');
+                                node.insert(DUPLICATE_NODE, 'replace');
+                            }
+                            else {
+                                knownNodeIds[nodeid] = true;
+                                instance._modelToUI(nodeid);
+                                if ((formtype==='datetime') || (formtype==='date') || (formtype==='time')) {
+                                    node = Y.one('label[data-labeldatetime="true"][for="'+nodeid+'"]');
+/*jshint expr:true */
+                                    node && node.removeClass(INVISIBLE_CLASS);
+/*jshint expr:false */
+                                }
+                                else {
+                                    node.removeClass(INVISIBLE_CLASS);
+                                }
+                            }
+                        }
+                    );
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                }
                 element = formelement.html;
                 if (formelement.widget) {
                     formelement.widget.addTarget(instance);
                 }
-                //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                // The last thing we need to do is, set some action when the node gets into the dom or when removed
-                // now we need to make sure the UI-element gets synced with the current attribute-value once
-                // it gets into the dom:
-                YNode.fireAvailabilities('#'+nodeid); // registering for 'availableagain' event
-                // now listen for every time it gets available in the dom:
-                Y.on('availableagain', function(e) {
-                    var node = e.target;
-                    if (knownNodeIds[nodeid]) {
-console.log('available but was here before '+node.get("id"));
-                        // was rendered before --> we need to remove it and replace it by a new instance
-                        node.insert(instance.renderFormElement(attribute), 'replace');
-                    }
-                    else {
-console.log('available for the first time '+node.get("id"));
-                        knownNodeIds[nodeid] = true;
-                        instance._modelToUI(nodeid);
-                        node.removeClass(INVISIBLE_CLASS);
-                    }
-                }, '#'+nodeid);
-                // make sure elements gets removed from instance._ATTRS_nodes and instance._FORM_elements
-                // when the element is inserted in the dom and gets removed from the dom again:
-                YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
-                    function() {
-                        var attributenodeids = attributenodes[attribute],
-                            index = attributenodeids && YArray.indexOf(attributenodeids, nodeid);
-                        delete formelements[nodeid];
-                        if (index>0) {
-                            attributenodeids.splice(index, 1);
-                        }
-                    }
-                );
-                //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             }
             else {
                 element = UNDEFINED_ELEMENT;
@@ -1102,24 +1140,19 @@ console.log('available for the first time '+node.get("id"));
         destructor : function() {
             var instance = this;
             Y.log('destructor', 'info', 'ITSAFormModel');
-            if (instance._autoSaveTimer) {
-                instance._autoSaveTimer.cancel();
-            }
-            if (instance._fireEventTimer) {
-                instance._fireEventTimer.cancel();
-            }
             instance._clearEventhandlers();
             instance._removeTargets();
             instance._FORM_elements = {};
             instance._ATTRS_nodes = {};
             instance._focusNextElements = {};
-            // DO NOT EMPTY _widgetValueFields --> that is a prototype object
+            instance._widgetValueFields = {};
+            instance._knownNodeIds = {};
+            instance._gcTimer.cancel();
         },
 
         //===============================================================================================
         // private methods
         //===============================================================================================
-
 
         /**
          * Setting up eventlisteners
@@ -1532,6 +1565,63 @@ console.log('available for the first time '+node.get("id"));
         },
 
         /**
+         * Runs the garbagecollector, cleaning up internal refferences of node's that were once in the dom, but not there anymore
+         *
+         * @method _garbageCollect
+         * @private
+         * @protected
+         * @since 0.1
+         */
+        _garbageCollect : function() {
+            var instance = this,
+                timestamp = (new Date()).getTime(),
+                attributenodes = instance._ATTRS_nodes,
+                formelements = instance._FORM_elements,
+                knownNodeIds = instance._knownNodeIds,
+                knowdIdsRemoval = [],
+                attributenodeids, index, formelement, attribute;
+
+            Y.log('_garbageCollect', 'info', 'ITSAFormModel');
+            timestamp -= MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE;
+            YObject.each(
+                knownNodeIds,
+                function(value, nodeid, obj) {
+                    if (typeof value === 'boolean') {
+                        // has no timestamp, thus it hasn't been detected as removed from the dom
+                        if (!Y.one('#'+nodeid)) {
+                            // not in the dom anymore --> add a timestamp
+                            Y.log('_garbageCollect marked time of node '+nodeid, 'info', 'ITSAFormModel');
+                            obj[nodeid] = (new Date()).getTime();
+                        }
+                    }
+                    else {
+                        // has a timedstamp -- check if it is timedout
+                        if (value<timestamp) {
+                            Y.log('_garbageCollect removed node '+nodeid, 'info', 'ITSAFormModel');
+                            formelement = formelements[nodeid];
+                            attribute = formelement.name;
+                            attributenodeids = attributenodes[attribute];
+                            index = attributenodeids && YArray.indexOf(attributenodeids, nodeid);
+                            delete formelements[nodeid];
+                            if (index>0) {
+                                attributenodeids.splice(index, 1);
+                            }
+                            // now store the nodeid, because it has to be removed from instance._knownNodeIds
+                            knowdIdsRemoval.push(nodeid);
+                        }
+                    }
+                }
+            );
+            // now remove it from knownNodeIds
+            YArray.each(
+                knowdIdsRemoval,
+                function(nodeid) {
+                    delete knownNodeIds[nodeid];
+                }
+            );
+        },
+
+        /**
          * Returns the widgets value. That is, the getter of tha attribute that represents the 'value' (determined by _getWidgetValueField).
          *
          * @method _getWidgetValue
@@ -1686,6 +1776,7 @@ console.log('available for the first time '+node.get("id"));
         _renderBtn : function(buttonText, config, buttontype) {
             var instance = this,
                 formelements = instance._FORM_elements,
+                knownNodeIds = instance._knownNodeIds,
                 formbutton, nodeid;
 
             Y.log('renderBtn', 'info', 'ITSAFormModel');
@@ -1704,12 +1795,18 @@ console.log('available for the first time '+node.get("id"));
             formelements[nodeid] = formbutton;
             // make sure elements gets removed from instance._FORM_elements
             // when the element is inserted in the dom and gets removed from the dom again
-            YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
-                function() {
-                    delete formelements[nodeid];
+            YNode.availablePromise('#'+nodeid).then(
+                function(node) {
+                    if (knownNodeIds[nodeid]) {
+                        // was rendered before --> we need to replace it by an errornode
+                        Y.log('renderBtn --> nodeid '+nodeid+' for button '+config.buttonText+' was already inserted in the dom: won\'t be rendered again', 'warn', 'ITSAFormModel');
+                        node.insert(DUPLICATE_NODE, 'replace');
+                    }
+                    else {
+                        knownNodeIds[nodeid] = true;
+                    }
                 }
             );
-
             return formbutton.html;
         },
 
