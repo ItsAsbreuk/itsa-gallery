@@ -24,9 +24,10 @@ var YArray = Y.Array,
     YNode = Y.Node,
     Lang = Y.Lang,
     ITSAFormElement = Y.ITSAFormElement,
-    MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD = 'Data has been changed outside the form. Load it into the formelements? (if not, then the data will be reset to the current form-values)',
-    MSG_MODELCHANGED_OUTSIDEFORM = 'Data has been changed outside the form. Load it into the formelements?',
+    MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD = 'Data has been changed outside the form.<br />Load it into the form? (if not, then the data will be reset to the current form-values)',
+    MSG_MODELCHANGED_OUTSIDEFORM = 'Data has been changed outside the form.<br />Load it into the form?',
     UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
+    INVISIBLE_CLASS = 'itsa-invisible',
 
     CLICK = 'click',
     SAVE = 'save',
@@ -227,6 +228,8 @@ var YArray = Y.Array,
 Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
 
         _widgetValueFields : {}, // private prototypeobject can be filled by setWidgetValueField()
+
+        _knownNodeIds : {}, // private prototypeobject that records all nodeid's that are created
 
         _allowedFormTypes : { // allowed string-formelement types
             text: true,
@@ -620,7 +623,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         renderBtn : function(buttonText, config) {
             Y.log('renderBtn', 'info', 'ITSAFormModel');
-            return this._renderBtn(buttonText, config, BUTTON, true);
+            return this._renderBtn(buttonText, config, BUTTON);
         },
 
         /**
@@ -646,7 +649,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         renderCancelBtn : function(buttonText, config) {
             Y.log('renderCancelBtn', 'info', 'ITSAFormModel');
-            return this._renderBtn(buttonText, config, CANCEL, true);
+            return this._renderBtn(buttonText, config, CANCEL);
         },
 
         /**
@@ -672,7 +675,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         renderDestroyBtn : function(buttonText, config) {
             Y.log('renderDestroyBtn', 'info', 'ITSAFormModel');
-            return this._renderBtn(buttonText, config, DESTROY, true);
+            return this._renderBtn(buttonText, config, DESTROY);
         },
 
         /**
@@ -698,7 +701,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         renderRemoveBtn : function(buttonText, config) {
             Y.log('renderRemoveBtn', 'info', 'ITSAFormModel');
-            return this._renderBtn(buttonText, config, REMOVE, true);
+            return this._renderBtn(buttonText, config, REMOVE);
         },
 
         /**
@@ -750,7 +753,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
          */
         renderSaveBtn : function(buttonText, config) {
             Y.log('renderSaveBtn', 'info', 'ITSAFormModel');
-            return this._renderBtn(buttonText, config, SAVE, true);
+            return this._renderBtn(buttonText, config, SAVE);
         },
 
         /**
@@ -791,6 +794,7 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         */
         renderFormElement : function(attribute) {
             var instance = this,
+                knownNodeIds = instance._knownNodeIds,
                 formelements, attributenodes, attr, attrconfig, formelement, element, formtype, formconfig, valuefield,
                 nodeid, widget, iswidget, widgetValuefieldIsarray;
             Y.log('renderFormElement', 'info', 'ITSAFormModel');
@@ -827,29 +831,21 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 formconfig.modelattribute = true;
                 formconfig.name = attribute;
                 formconfig.tooltipinvalid = attrconfig.validationerror;
-                formconfig.required = false; // disable by setting false
+                formconfig.removerequired = true; // disable by setting false
                 formconfig.removepattern = true; // specify to remove the pattern property
+                // hide the element by adding a invisible-classname --> we wmake it visible once it gets the right data (after inserted in the dom):
+                formconfig.hideatstartup = true;
+                // now generate the element
                 formelement = ITSAFormElement.getElement(formtype, formconfig);
                 // store in instance._FORM_elements
                 nodeid = formelement.nodeid;
+console.log('nodeid '+nodeid+' was generated for '+attribute);
                 formelements[nodeid] = formelement;
                 // store in instance._ATTRS_nodes
 /*jshint expr:true */
                 attributenodes[attribute] || (attributenodes[attribute]=[]);
 /*jshint expr:false */
                 attributenodes[attribute].push(nodeid);
-                // make sure elements gets removed from instance._ATTRS_nodes and instance._FORM_elements
-                // when the element is inserted in the dom and gets removed from the dom again
-                YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
-                    function() {
-                        var attributenodeids = attributenodes[attribute],
-                            index = attributenodeids && YArray.indexOf(attributenodeids, nodeid);
-                        delete formelements[nodeid];
-                        if (index>0) {
-                            attributenodeids.splice(index, 1);
-                        }
-                    }
-                );
                 // if widget, then we need to add an eventlistener for valuechanges:
                 widget = formelement.widget;
                 if (widget) {
@@ -903,6 +899,39 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
                 if (formelement.widget) {
                     formelement.widget.addTarget(instance);
                 }
+                //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                // The last thing we need to do is, set some action when the node gets into the dom or when removed
+                // now we need to make sure the UI-element gets synced with the current attribute-value once
+                // it gets into the dom:
+                YNode.fireAvailabilities('#'+nodeid); // registering for 'availableagain' event
+                // now listen for every time it gets available in the dom:
+                Y.on('availableagain', function(e) {
+                    var node = e.target;
+                    if (knownNodeIds[nodeid]) {
+console.log('available but was here before '+node.get("id"));
+                        // was rendered before --> we need to remove it and replace it by a new instance
+                        node.insert(instance.renderFormElement(attribute), 'replace');
+                    }
+                    else {
+console.log('available for the first time '+node.get("id"));
+                        knownNodeIds[nodeid] = true;
+                        instance._modelToUI(nodeid);
+                        node.removeClass(INVISIBLE_CLASS);
+                    }
+                }, '#'+nodeid);
+                // make sure elements gets removed from instance._ATTRS_nodes and instance._FORM_elements
+                // when the element is inserted in the dom and gets removed from the dom again:
+                YNode.unavailablePromise('#'+nodeid, {afteravailable: true}).then(
+                    function() {
+                        var attributenodeids = attributenodes[attribute],
+                            index = attributenodeids && YArray.indexOf(attributenodeids, nodeid);
+                        delete formelements[nodeid];
+                        if (index>0) {
+                            attributenodeids.splice(index, 1);
+                        }
+                    }
+                );
+                //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             }
             else {
                 element = UNDEFINED_ELEMENT;
@@ -979,12 +1008,19 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
         toJSONUI : function(buttons) {
             var instance = this,
                 UIattrs = {},
+                allAttrs = instance.getAttrs(),
                 renderBtnFns = instance._renderBtnFns,
                 propertykey, type, buttonText, config;
 
             Y.log('toJSONUI', 'info', 'ITSAFormModel');
+            delete allAttrs.clientId;
+            delete allAttrs.destroyed;
+            delete allAttrs.initialized;
+            if (instance.idAttribute !== 'id') {
+                delete allAttrs.id;
+            }
             YObject.each(
-                instance.getAttrs(),
+                allAttrs,
                 function(value, key) {
                     UIattrs[key] = instance.renderFormElement(key);
                 }
@@ -1099,35 +1135,28 @@ Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {
             Y.log('_bindUI', 'info', 'ITSAFormModel');
 
             // listening for a click on any 'datetimepicker'-button or a click on any 'form-element'-button in the dom
+            // DO NOT KNOW WHY, but the firth argument never gets called. that is why inside is the first if-statement
             eventhandlers.push(
                 body.delegate(
                     [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
                      SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
                     function(e) {
-console.log('check 2');
-                        e.preventDefault(); // prevent the form to be submitted
-console.log('check 3');
-                        var node = e.target,
-                            type = e.type,
-                            value = node.getAttribute(VALUE),
-                            payload = {
-                                target: instance,
-                                value: ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) ? (new Date().setTime(parseInt(value, 10))) : value,
-                                formElement: instance._FORM_elements[node.get('id')],
-                                buttonNode: node,
-                                type: type
-                            };
-                        // refireing, but now by the instance:
-console.log('check 4');
-                        instance.fire(type, payload);
-console.log('check 5');
-                    },
-                    function(delegatedNode, e) { // node === e.target
-alert('?');
-console.log('check 1');
-                        // only process if node's id is part of this ITSAFormModel-instance:
-                        return instance._FORM_elements[e.target.get('id')];
-                    }
+                       if (instance._FORM_elements[e.target.get('id')]) {
+                            e.preventDefault(); // prevent the form to be submitted
+                            var node = e.target,
+                                type = e.type,
+                                value = node.getAttribute(VALUE),
+                                payload = {
+                                    target: instance,
+                                    value: ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) ? (new Date().setTime(parseInt(value, 10))) : value,
+                                    formElement: instance._FORM_elements[node.get('id')],
+                                    buttonNode: node,
+                                    type: type
+                                };
+                            // refireing, but now by the instance:
+                            instance.fire(type, payload);
+                        }
+                    }
                 )
             );
 
@@ -1167,7 +1196,7 @@ console.log('check 1');
                 )
             );
 
-            // listening life for changes outside the UI --> do we need to update the UI?
+            // listening life for changes outside the UI --> do we need to update the UI? (Latency compensation)
             eventhandlers.push(
                 instance.after(
                     '*:change',
@@ -1432,7 +1461,6 @@ console.log('check 1');
         _defFnSave : function() {
             var instance = this,
                 prevAttrs, unvalidNodes;
-console.log('def function save');
             Y.log('_defFnSave', 'info', 'ITSAFormModel');
             unvalidNodes = instance.getUnvalidatedUI();
             if (unvalidNodes.isEmpty()) {
@@ -1450,7 +1478,6 @@ console.log('def function save');
             else {
                 instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
             }
-console.log('def function save end');
         },
 
         /**
@@ -1557,7 +1584,7 @@ console.log('def function save end');
             if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
                 widget = formElement.widget;
                 attribute = formElement.name;
-                value = instance.get(attribute, value);
+                value = instance.get(attribute, value) || '';
                 if (widget) {
                     field = this._getWidgetValueField(formElement.type);
                     widget.set(((typeof field === 'string') ? field : field[0]), value);
@@ -1650,12 +1677,11 @@ console.log('def function save end');
          * @param [config.primary=false] {Boolean} making it the primary-button
          * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
          * @param [buttontype] {String} type of button that needs to be rendered
-         * @param [extradata] {Boolean} whether 'data-buttonsubtype="buttontype"' should be added as a node-attribute
          * @return {String} stringified version of the button which can be inserted in the dom.
          * @since 0.1
          *
          */
-        _renderBtn : function(buttonText, config, buttontype, extradata) {
+        _renderBtn : function(buttonText, config, buttontype) {
             var instance = this,
                 formelements = instance._FORM_elements,
                 formbutton, nodeid;
@@ -1665,15 +1691,11 @@ console.log('def function save end');
             config || (config = {});
             buttontype || (buttontype = BUTTON);
             buttonText || (buttonText = buttontype);
+            config.data || (config.data = '');
 /*jshint expr:false */
-            config.buttonText = buttonText;
-            if (extradata) {
-/*jshint expr:true */
-                config.data || (config.data = '');
-/*jshint expr:false */
-                config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
-            }
+            config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
             config.buttontype = BUTTON;
+            config.buttonText = buttonText;
             formbutton = ITSAFormElement.getElement(BUTTON, config);
             nodeid = formbutton.nodeid;
             // store in instance._FORM_elements
@@ -1852,16 +1874,21 @@ console.log('def function save end');
             var instance = this,
                 type = formelement.type,
                 typeok = ((type==='date') || (type==='time') || (type==='datetime') || (type==='checkbox')),
-                attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern;
+                attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern, nodeRequired, formconfigrequired, formconfig;
 
             Y.log('_validValue attribute  '+attribute, 'info', 'ITSAFormModel');
             if (!typeok) { // typeok are types that are always is ok, for it was created by the datetimepicker, or a checkbox
                 attrconfig = instance._getAttrCfg(attribute);
                 attrValidationFunc = attrconfig.validator;
                 nodePattern = node.getAttribute('data-pattern');
+                // because 'required' is removed from the nodeattribute, we need to check this from formconfig
+                formconfig = attrconfig.formconfig;
+                formconfigrequired = formconfig && formconfig.required;
+                nodeRequired = (typeof formconfigrequired === 'boolean') && formconfigrequired;
                 validByAttrFunc = !attrValidationFunc || attrValidationFunc((type==='number' ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
-                validByPattern = !nodePattern || new RegExp(nodePattern, "i").test(value);
+                validByPattern = !nodePattern || ((value==='') && !nodeRequired) || new RegExp(nodePattern, "i").test(value);
             }
+            Y.log('attribute is validated '+(typeok || (validByAttrFunc && validByPattern)), (typeok || (validByAttrFunc && validByPattern)) ? 'info' : 'warn', 'ITSAFormModel');
             return typeok || (validByAttrFunc && validByPattern);
         }
 
@@ -1919,17 +1946,14 @@ Y.ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
 YArray.each(
     [BUTTON, SAVE, DESTROY, REMOVE, CANCEL],
     function(eventtype) {
-console.log('defining '+eventtype);
-        Y.Event.define(eventtype+CLICK, {
+        var conf = {
             on: function (node, subscription, notifier) {
                 // To make detaching easy, a common pattern is to add the subscription
                 // for the supporting DOM event to the subscription object passed in.
                 // This is then referenced in the detach() method below.
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
-console.log('clicked '+targetNode.getAttribute(DATA_BUTTON_TYPE));
                     if ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype)) {
-console.log('fireing '+eventtype+CLICK);
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
                         notifier.fire(e);
@@ -1941,20 +1965,10 @@ console.log('fireing '+eventtype+CLICK);
                 // Clean up supporting DOM subscriptions and other external hooks
                 // when the synthetic event subscription is detached.
                 subscription._handle.detach();
-            },
-            delegate: function (node, subscription, notifier, filter) {
-                subscription._delegatehandle = node.on(CLICK, function (e) {
-                    var targetNode = e.target;
-                    if (filter && (targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype)) {
-                        // The notifier triggers the subscriptions to be executed.
-                        // Pass its fire() method the triggering DOM event facade
-                        notifier.fire(e);
-                    }
-                }, filter); // filter is passed on to the underlying `delegate()` call
-            },
-            detachDelegate: function (node, subscription) {
-                subscription._delegatehandle.detach();
             }
-        });
+        };
+        conf.delegate = conf.on;
+        conf.detachDelegate = conf.detach;
+        Y.Event.define(eventtype+CLICK, conf);
     }
 );

@@ -18,11 +18,19 @@ YUI.add('module-tests', function(Y) {
                 value: 'Marco Asbreuk',
                 formtype: 'text'
             },
+            text4: {
+                value: 'Marco Asbreuk',
+                formtype: 'text'
+            },
             slider: {
                 value: 10,
                 formtype: Y.Slider
             },
             slider2: {
+                value: 10,
+                formtype: Y.Slider
+            },
+            slider3: {
                 value: 10,
                 formtype: Y.Slider
             }
@@ -68,6 +76,52 @@ YUI.add('module-tests', function(Y) {
                     Y.fail('Slider-attributes value did not get into a UI with the right value '+e);
                 }
             );
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'Attributes to UI when changed intermediate',
+        setUp : function () {
+            var text4 = model.renderFormElement('text4'),
+                slider3 = model.renderFormElement('slider3');
+            model.set('text4', 'Its Asbreuk', {silent: true}); // silent, to suppress itsadialog
+            model.set('slider3', 15, {silent: true}); // silent, to suppress itsadialog
+            body.append(text4);
+            body.append(slider3);
+        },
+        tearDown : function () {
+            var formelementsText = model.getCurrentFormElements('text4'),
+                firstelementText = formelementsText && formelementsText[0],
+                nodetext = firstelementText && firstelementText.node,
+                formelementsSlider = model.getCurrentFormElements('slider3'),
+                firstelementSlider = formelementsSlider && formelementsSlider[0],
+                nodeslider = firstelementSlider && firstelementSlider.node;
+            if (nodetext) {
+                nodetext.remove(true);
+            }
+            if (nodeslider) {
+                nodeslider.remove(true);
+            }
+        },
+        'text going into elements': function() {
+            this.wait(function() {
+                Y.Assert.areEqual('Its Asbreuk', model.getUI('text4'), 'text-attribute value did not get into a UI with the right value when attribute changed before UI was rendered');
+            }, 1000);
+        },
+        'Y.Slider going into elements': function() {
+            this.wait(function() {
+                var formelementsSlider = model.getCurrentFormElements('slider3'),
+                    firstelementSlider = formelementsSlider && formelementsSlider[0],
+                    slider = firstelementSlider && firstelementSlider.widget;
+                slider.renderPromise().then(
+                    function() {
+                        Y.Assert.areEqual(15, model.getUI('slider'), 'Slider-attributes value did not get into a UI with the right value when attribute changed before UI was rendered');
+                    },
+                    function(e) {
+                        Y.fail('Slider-attributes value did not get into a UI with the right value '+e);
+                    }
+                );
+            }, 1000);
         }
     }));
 
@@ -119,7 +173,7 @@ YUI.add('module-tests', function(Y) {
     }));
 
     suite.add(new Y.Test.Case({
-        name: 'UI to model',
+        name: 'UI to model by button',
         setUp : function () {
             body.append(model.renderFormElement('text3'));
             body.append(model.renderSubmitBtn(null, {name: 'submitbtn'}));
@@ -146,14 +200,20 @@ YUI.add('module-tests', function(Y) {
                 formelementsSubmit = model.getCurrentFormElements('submitbtn');
                 firstelementSubmit = formelementsSubmit && formelementsSubmit[0];
                 nodesubmit = firstelementSubmit && firstelementSubmit.node;
-            nodetext3.set('value', 'Its Asbreuk');
-            model.after('submitclick', function() {
+            // wait 1 second, for Y.Node.availablePromise() will reset the value once inserted in the dom
+            Y.later(1000, null, function() {
+                nodetext3.set('value', 'Its Asbreuk');
+            });
+            model.after('submit', function() {
                 instance.resume(function(){
-                    Y.Assert.areEqual('Its Asbreuk', model.get('text3'), 'UI-text value did not get into the model-attribute with the right value by pressing save');
+                    // delay to make sure submit finished its asynchroinious action
+                    instance.wait(function() {
+                       Y.Assert.areEqual('Its Asbreuk', model.get('text3'), 'UI-text value did not get into the model-attribute with the right value by pressing save');
+                    }, 1000);
                 });
             });
             if (nodesubmit) {
-                Y.later(1000, null, function() {
+                Y.later(1500, null, function() {
                     nodesubmit.simulate('click'); // even if setLifeUpdate===true, it wasn't triggered by just set('value')
                 });
             }
@@ -262,4 +322,4 @@ YUI.add('module-tests', function(Y) {
     Y.Test.Runner.add(suite);
 
 
-},'', { requires: [ 'test', 'gallery-itsaformmodel', 'base-build', 'slider', 'gallery-itsawidgetrenderpromise', 'node-event-simulate', 'promises' ] });
+},'', { requires: [ 'test', 'gallery-itsaformmodel', 'base-build', 'slider', 'gallery-itsawidgetrenderpromise', 'node-event-simulate', 'promise' ] });

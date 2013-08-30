@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsaformmodel",
     "displayName": "Gallery: gallery-itsaformmodel",
-    "description": "Y.ITSAFormModel extends Y.Model by giving it attributeproperties so the attributes can be rendered into UI-formelements.",
+    "description": "Y.ITSAFormModel extends Y.Model by giving it attributeproperties in a way that the attributes can be rendered into UI-formelements.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaformmodel" ],
 
@@ -45,8 +45,26 @@
             "hideTableOfContents": true
         },
         {
+            "name"       : "sync-modelchange",
+            "displayName": "Latency compensation",
+            "description": "This example shows how attribute's value-changes reflect the UI.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "base-build", "gallery-itsaformmodel", "gallery-itsacheckbox", "gallery-itsawidgetrenderpromise", "promimse"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "template", "tojson", "tojsonui", "templating"],
+            "hideTableOfContents": true
+        },
+        {
             "name"       : "tojsonui",
             "displayName": "Templating with toJSONUI()",
+            "description": "This example how to use of formmodel.toJSONUI() with templates.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "base-build", "gallery-itsaformmodel", "gallery-itsacheckbox", "gallery-itsawidgetrenderpromise", "promimse"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "template", "tojson", "tojsonui", "templating"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "doublefields",
+            "displayName": "Using the same UI more than once",
             "description": "This example how to use of formmodel.toJSONUI() with templates.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "base-build", "gallery-itsaformmodel", "gallery-itsacheckbox", "gallery-itsawidgetrenderpromise", "promimse"],

@@ -14,14 +14,14 @@
 
 <h2>Description</h2>
     <p>
-        <u>Y.ITSAFormModel should be used as a string-renderer.</u> It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
+        <u>Y.ITSAFormModel should be used as a string-renderer.</u> It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. However, you might want to take advantage of <a href='#views'>views</a> who do this automaticly. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
     </p>
     <p>
-        Every attribute needs its own specific form-element (UI-element) defined. Therefore, three extra attribute-properties are introduced:
+        Every attribute needs a definition of its form-element (UI-element). Therefore, three extra attribute-properties are introduced:
         <ul>
             <li><code>formtype</code> either specified as a regular-formelement by defining it as a <code>String</code>, or a Widget by defining a <code>Widget-Class</code>.</li>
             <li><code>formconfig</code> which is used as configuration of the formtype.</li>
-            <li><code>validationerror</code> the errormessage that is shown on validationerrors using gallery-tipsy</li>
+            <li><code>validationerror</code> the errormessage that is shown on validationerrors using <a href="http://tilomitra.github.io/tipsy/" target="_blank">gallery-tipsy</a></li>
         </ul>
     </p>
     <h3>syncing UI to the model</h3>
@@ -83,7 +83,7 @@
 
 <h2>Rendering form-elements</h2>
     <p>
-        Rendering the formelement is done by <code>yourformmodel.renderFormElement('someAttribute')</code>. After that, the string needs to be inserted in the dom, which is typically done by a View-instance (see later), but also can be done by the developer. When rendering buttons, you should use one of the renderBtn functions.
+        Rendering the formelement is done by <code>yourformmodel.renderFormElement('someAttribute')</code>. After that, the string needs to be inserted in the dom, which is typically done by a <a href='#views'>View-instance</a>, but also can be done by the developer. When rendering buttons, you should use one of the renderBtn functions.
     </p>
 
 <h3>standard form-elements</h3>
@@ -132,7 +132,7 @@
 
 <h3>widget form-elements</h3>
     <p>
-        Widget form-elements should be specified by giving the formtype-property a valid WidgetClass (no String). There are some widgets that can be used straight ahead (mentioned below). If you have another widget, then it can be used without further action <u>only if its value is represented in the 'value'-attribute</u>. If not, then you need to declare which attribute your widget uses as its value-attribute by using yourformmodel.<code>setWidgetValueField();</code>
+        Widget form-elements should be specified by giving the formtype-property a valid <b>WidgetClass</b> (no String). There are some widgets that can be used straight ahead (mentioned below). If you have another widget, then it can be used without further action <u>only if its value is represented in the 'value'-attribute</u>. If not, then you need to declare which attribute your widget uses as its value-attribute by using yourformmodel.<code>setWidgetValueField();</code>. Don't forget to load the widgets-dependencies.
     </p>
     <p>
         <code>formconfig.widgetconfig</code> is passed through to the widget-config. Here, you can set any widget-config-property you like.<br /><br />
@@ -164,7 +164,7 @@
 
 <h3>form-buttons</h3>
     <p>
-        Form-buttons should be rendered by one of the following functions:
+        Formbuttons can be rendered which are related to the ITSAFormModel-instance. It is <u>highly advisable</u> that you make use of the class <code>pure-form-showinvalid</code> to notice when submit or save should fail (see <a href='#validation'>Validation</a>). Form-buttons should be rendered by one of the following functions:
         <u>possible formbuttons:</u>
         <ul>
           <li><code>yourformmodel.renderBtn()</code></li>
@@ -195,7 +195,7 @@
 <h2>Important designrules</h2>
 <h3>Best way to use Y.ITSAFormModel</h3>
     <p>
-        Y.ITSAFormModel renderes strings which should be inserted it into the dom. You can do this yourself, or you can use modules that do this automaticly (see below). If you choose to do this yourself, you should be aware of:
+        Y.ITSAFormModel renderes strings which should be inserted it into the dom. You can do this yourself, or -as said before- you can use modules that do this automaticly (see <a href='#views'>Views</a>). If you choose to do this yourself, you should be aware of:
     <ul>
         <li>
             <code>Widget-formelements</code> will render automaticly once the render-string gets into the dom.
@@ -380,15 +380,15 @@
 
 <h2>Tooltips</h2>
     <p>
-        All formelements can show a tooltip using <code>gallery-tipsy</code>. There are 2 different tooltips working with both different style:
+        All formelements can show a tooltip using <a href="http://tilomitra.github.io/tipsy/" target="_blank">gallery-tipsy</a>. There are 2 different tooltips working with both different style:
         <ul>
             <li><code>formconfig.tooltip</code> tooltip that shows when an element gets focus.</li>
             <li><code>validationerror-tooltip</code> tooltip that shows when an element is falsy validated. This overrules the formconfig.tootltip until validation succeeds.</li>
         </ul>
-        The validation-error tooltip is generated automaticly, based on the values of ATTRS.validator and ATTRS.validationerror of each attribute. The tooltips are rendered asynchroniously by Y.ITSAFormElement. If you want to focus an UI-element using JS, be sure the tooltip is rendered by using  <code>Y.ITSAFormElement.tooltipReadyPromise()</code>.
+        The validation-error tooltip is generated automaticly, based on the values of ATTRS.validator and ATTRS.validationerror of each attribute. The tooltips are rendered asynchroniously by Y.ITSAFormElement. If you want to focus an UI-element using JS, be sure the tooltip is rendered by using <a href="http://galleryapi.itsasbreuk.nl/classes/ITSAFormElement.html#method_tooltipReadyPromise" target="_blank">Y.ITSAFormElement.tooltipReadyPromise()</a>.
     </p>
 
-<h2>Views which can make use of ITSAFormModel</h2>
+<h2 id='views'>Views which can make use of ITSAFormModel</h2>
 
     <p>
         Mostly you won't add the rendered strings in the dom yourself, but find yourself making use of modules that create Views:

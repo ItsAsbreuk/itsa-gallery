@@ -1,0 +1,45 @@
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
+
+<style type="text/css">
+{{>doublefields-css}}
+</style>
+
+<div class="intro">
+    <p>
+        {{description}}
+    </p>
+    <p>
+        Tis is a differentation of the example <a href="tojsonui.html">Templating with toJSONUI()</a>. In this example the same modelinstance is used twice and the template renderes some attributes twice. By editing one value, related UI's get updated.
+    </p>
+</div>
+
+{{>doublefields-html}}
+
+<h2>Code</h2>
+```
+{{>doublefields-js}}
+```
+
+<h2>Complete Example Source</h2>
+```
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
+<style type="text/css">
+{{>doublefields-css}}
+</style>
+
+<body>
+
+{{>doublefields-html}}
+
+<script>
+{{>doublefields-js}}
+</script>
+
+</body>
+```
+
+<script>
+{{>init-loaderconfig-js}}
+{{>loaderconfig-js}}
+{{>doublefields-js}}
+</script>
