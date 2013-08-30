@@ -23,6 +23,8 @@ This repo contains open source YUI components that have been contributed to the
 
 
 ## Infrastructure
+[ITSAFormModel](src/gallery-itsaformmodel)
+
 [ITSAScrollViewModellist](src/gallery-itsascrollviewmodellist)
 
 [ITSAScrollViewModellistPanel](src/gallery-itsascrollviewmodellistpanel) --under construction--
