@@ -54,7 +54,7 @@ YUI(yuiconfig).use('node', 'base-build', 'promise', 'gallery-itsaformmodel', 'ga
                '<div class="pure-control-group">{email}</div>'+
                '<div class="pure-control-group">{website}</div>'+
                '<div class="pure-control-group">{active}</div>'+
-               '<div class="pure-controls">{submit}</div>';
+               '<div class="pure-controls">{resetbtn}</div>';
 
     // creating model
     model = new Y.MyFormModel({
@@ -66,9 +66,9 @@ YUI(yuiconfig).use('node', 'base-build', 'promise', 'gallery-itsaformmodel', 'ga
     container1 = Y.one('#container1');
     container2 = Y.one('#container2');
     savebuttonObject = { // define object to make it render a savebutton
-        propertykey: 'submit',
-        type: 'submit',
-        buttonText: 'store',
+        propertykey: 'resetbtn',
+        type: 'reset',
+        buttonText: 'reset values',
         config: {
             primary: true
         }

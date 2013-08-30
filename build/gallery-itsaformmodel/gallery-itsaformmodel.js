@@ -1703,7 +1703,7 @@ ITSAFormModel.prototype._removeValidation  = function() {
         function(formelement) {
             var node = Y.one('#'+formelement.nodeid);
 /*jshint expr:true */
-            node && instance._setNodeValidation(node, false);
+            node && instance._setNodeValidation(node, true);
 /*jshint expr:false */
         }
     );
