@@ -26,6 +26,10 @@ YUI.add('module-tests', function(Y) {
                 value: 'Marco Asbreuk',
                 formtype: 'text'
             },
+            text5: {
+                value: 'Marco Asbreuk',
+                formtype: 'text'
+            },
             slider: {
                 value: 10,
                 formtype: Y.Slider
@@ -339,6 +343,48 @@ YUI.add('module-tests', function(Y) {
             );
             instance.wait(2000);
         }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'setResetAttrs',
+        setUp : function () {
+            body.append(model.renderFormElement('text5'));
+            mymodel.set('text5', 'Its Asbreuk');
+            mymodel.reset();
+        },
+        tearDown : function () {
+            var formelementsText = model.getCurrentFormElements('text5'),
+                firstelementText = formelementsText && formelementsText[0],
+                nodetext = firstelementText && firstelementText.node;
+            if (nodetext) {
+                nodetext.remove(true);
+            }
+        },
+        'reset': function() {
+            Y.Assert.areEqual('Marco Asbreuk', model.getUI('text5'), 'text-attribute value did not reset');
+        },
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'setResetAttrs',
+        setUp : function () {
+            body.append(model.renderFormElement('text5'));
+            mymodel.set('text5', 'Its Asbreuk');
+            mymodel.storeNewInit();
+            mymodel.set('firstname', 'Something else');
+            mymodel.reset();
+        },
+        tearDown : function () {
+            var formelementsText = model.getCurrentFormElements('text5'),
+                firstelementText = formelementsText && formelementsText[0],
+                nodetext = firstelementText && firstelementText.node;
+            if (nodetext) {
+                nodetext.remove(true);
+            }
+        },
+        'storeNewInit': function() {
+            Y.Assert.areEqual('Its Asbreuk', model.getUI('text5'), 'text-attribute value did not reset well after store newinit');
+        },
     }));
 
     Y.Test.Runner.add(suite);

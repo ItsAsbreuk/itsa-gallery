@@ -40,7 +40,6 @@ var YArray = Y.Array,
     REMOVE = 'remove',
     CANCEL = 'cancel',
     SUBMIT = 'submit',
-    RESET = 'reset',
 
     DATE = 'date',
     TIME = 'time',
@@ -52,6 +51,17 @@ var YArray = Y.Array,
     TYPE = 'type',
     DATA_BUTTON_SUBTYPE = DATA+'-'+BUTTON+'sub'+TYPE,
     DATA_BUTTON_TYPE = DATA+'-'+BUTTON+TYPE,
+
+    /**
+      * Fired when a the UI is reset, either by clicking on a reset-button, cancel-button  or by calling formmodel.reset();
+      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
+      *
+      * @event reset
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+      *
+    **/
+    RESET = 'reset',
 
     /**
       * Fired by input-elements that can force a 'focusnext' when they detect an enter-key.
@@ -77,7 +87,7 @@ var YArray = Y.Array,
     VALIDATION_ERROR = 'validationerror',
 
     /**
-      * Event fired after a UI-formelement changes its value.
+      * Event fired after a UI-formelement changes its value from a userinput (not when updated internally).
       * defaultfunction: _defFnUIChanged() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event uichanged
@@ -139,7 +149,7 @@ var YArray = Y.Array,
       * @event submitclick
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
+      * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
       * @param e.formElement {Object} reference to the form-element
       *
@@ -153,7 +163,7 @@ var YArray = Y.Array,
       * @event cancelclick
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
+      * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
       * @param e.formElement {Object} reference to the form-element
       *
@@ -167,7 +177,7 @@ var YArray = Y.Array,
       * @event resetclick
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
+      * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
       * @param e.formElement {Object} reference to the form-element
       *
@@ -181,7 +191,7 @@ var YArray = Y.Array,
       * @event saveclick
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Could be used to identify the button --> defined during rendering by config.value
+      * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
       * @param e.buttonNode {Y.Node} reference to the buttonnode
       * @param e.formElement {Object} reference to the form-element
       *
@@ -300,15 +310,6 @@ ITSAFormModel.prototype.initializer = function() {
     * @type Object
     */
     instance._knownNodeIds = {}, // private prototypeobject that records all nodeid's that are created
-
-   /**
-    * internal hash that holds the attribute-values which sould be used during a resetclick- or cancelclick-event.
-    * @property _bkpAttrs
-    * @default getAttrs at initialization
-    * @private
-    * @type Boolean
-    */
-    instance._bkpAttrs = instance.getAttrs();
 
    /**
     * internal flag that tells whether updates on a UI-element should be stored at once.
@@ -982,6 +983,27 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
 };
 
 /**
+ * Resets attribute's initial state-values and syncs these to the UI. Thus both models attribute as well as the UI are effected.
+ *
+ * @method reset
+ * @since 0.1
+*/
+ITSAFormModel.prototype.reset = function() {
+    var instance = this,
+        payload;
+
+    Y.log('reset', 'info', 'ITSAFormModel');
+    instance.constructor.superclass.constructor.superclass.reset.apply(instance, arguments);
+    instance._modelToUI();
+    instance._removeValidation();
+    payload = {
+        type: RESET,
+        target: instance
+    };
+    instance.fire(RESET, payload);
+};
+
+/**
  * Sets the 'life-update'-status to true or false
  *
  * @method setLifeUpdate
@@ -1007,10 +1029,24 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
  * @since 0.1
 */
 ITSAFormModel.prototype.setResetAttrs = function() {
-    var instance = this;
+    var instance = this,
+        allAttrs = instance.getAttrs();
 
-    Y.log('renderBtn', 'info', 'ITSAFormModel');
-    instance._bkpAttrs = instance.getAttrs();
+    Y.log('setResetAttrs', 'info', 'ITSAFormModel');
+    delete allAttrs.clientId;
+    delete allAttrs.destroyed;
+    delete allAttrs.initialized;
+    if (instance.idAttribute !== 'id') {
+        delete allAttrs.id;
+    }
+    YObject.each(
+        allAttrs,
+        function(value, name) {
+/*jshint expr:true */
+            value && instance._state.add(name, 'initValue', value);
+/*jshint expr:false */
+        }
+    );
 };
 
 /**
@@ -1316,10 +1352,8 @@ ITSAFormModel.prototype._clearEventhandlers = function() {
  *
 */
 ITSAFormModel.prototype._defFnCancel = function() {
-    var instance = this;
-
     Y.log('_defFnCancel', 'info', 'ITSAFormModel');
-    instance.setAttrs(instance._bkpAttrs);
+    this.reset();
 };
 
 /**
@@ -1438,9 +1472,7 @@ ITSAFormModel.prototype._defFnReset = function() {
     var instance = this;
 
     Y.log('_defFnReset', 'info', 'ITSAFormModel');
-    instance.setAttrs(instance._bkpAttrs);
-    instance._modelToUI();
-    instance._removeValidation();
+    instance.reset();
 };
 
 /**
@@ -1532,6 +1564,7 @@ ITSAFormModel.prototype._defFnSave = function() {
  *
 */
 ITSAFormModel.prototype._defFnUIChanged = function(e) {
+console.log('ui changed');
     // should not be called by widgets
     var instance = this,
         formelement = e.formElement,
