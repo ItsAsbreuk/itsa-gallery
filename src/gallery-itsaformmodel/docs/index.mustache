@@ -370,8 +370,10 @@
 <h2>Events fired by Y.ITSAFormModel</h2>
     <p>
         <ul>
-            <li><code>uichanged-event</code>, fired by all UI-formelementswhen their UI-value changes.</li>
             <li><code>xxxxxclick-event</code>, fired by all Y.ITSAFormModel-buttons when clicked (f.i. 'cancelclick').</li>
+            <li><code>focusnext</code>, fired when a UI-element would like to re-focus the next UI-element (in practice when a 'enterkey' is pressed on a 'input'-element). Its up to a focusmanager to handle the behaviour.</li>
+            <li><code>reset</code>, fired when the formmodel gets resetted, either by pressing 'reset'-button, 'cancel'-button or by formmodel.reset().</li>
+            <li><code>uichanged-event</code>, fired by all UI-formelements when their UI-value changes by userinteraction (not from changes done by the modelinstance).</li>
             <li><code>validationerror</code>, fired when the user pressed <code>submit-button</code> or <code>save-button</code> but the UI-elements were wrong validated.</li>
         </ul>
         All these events are fired by the modelinstance. The action related to those events can be prevented - except the events: <code>buttonclick</code> and <code>validationerror</code>. See the <a href="http://galleryapi.itsasbreuk.nl/modules/gallery-itsaformmodel.html">API Docs</a> for all events.
