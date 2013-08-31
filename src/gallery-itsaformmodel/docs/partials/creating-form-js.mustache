@@ -177,7 +177,11 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsaformmodel', 'gallery-itsac
     });
 
     datenow = new Date();
-    model = new Y.MyFormModel();
+    model = new Y.MyFormModel({
+        date: datenow,
+        time: datenow,
+        datetime: datenow
+    });
 
     container = Y.one('#container');
     containercontent = '<div class="pure-control-group">'+model.renderFormElement('text')+'</div>'+
@@ -208,6 +212,10 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsaformmodel', 'gallery-itsac
 
     model.on('validationerror', function() {
         Y.alert('validation error');
+    });
+
+    model.on('focusnext', function() {
+        console.log('focusnext found');
     });
 
 });

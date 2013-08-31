@@ -26,6 +26,7 @@ var YArray = Y.Array,
     YNode = Y.Node,
     Lang = Y.Lang,
     ITSAFormElement = Y.ITSAFormElement,
+    MSG_MODELCHANGED_TITLE = 'Notification:',
     MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD = 'Data has been changed outside the form.<br />Load it into the form? (if not, then the data will be reset to the current form-values)',
     MSG_MODELCHANGED_OUTSIDEFORM = 'Data has been changed outside the form.<br />Load it into the form?',
     UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
@@ -34,6 +35,7 @@ var YArray = Y.Array,
     MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
     MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
 
+    GALLERY_ITSA = 'gallery-itsa',
     CLICK = 'click',
     SAVE = 'save',
     DESTROY = 'destroy',
@@ -43,6 +45,10 @@ var YArray = Y.Array,
 
     DATE = 'date',
     TIME = 'time',
+    DATETIME = DATE+TIME,
+    NUMBER = 'number',
+    STRING = 'string',
+    BOOLEAN = 'boolean',
     PICKER = 'picker',
 
     DATA = 'data',
@@ -51,6 +57,10 @@ var YArray = Y.Array,
     TYPE = 'type',
     DATA_BUTTON_SUBTYPE = DATA+'-'+BUTTON+'sub'+TYPE,
     DATA_BUTTON_TYPE = DATA+'-'+BUTTON+TYPE,
+
+    DATA_MODELATTRIBUTE = DATA+'-modelattribute',
+    ID = 'id',
+    DATA_CONTENT = DATA+'-content',
 
     /**
       * Fired when a the UI is reset, either by clicking on a reset-button, cancel-button  or by calling formmodel.reset();
@@ -463,6 +473,7 @@ ITSAFormModel.prototype.crossValidation = function() {
  * @since 0.1
 */
 ITSAFormModel.prototype.defFnFocusNext = function() {
+console.log('focus next');
     // empty by default --> can be overridden
 };
 
@@ -565,14 +576,14 @@ ITSAFormModel.prototype.getUI = function(attribute) {
     nodeid = nodeids && (nodeids.length>0) && nodeids[0];
     formElements = instance._FORM_elements;
     formElement = nodeid && formElements[nodeid];
-    if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
+    if (formElement && (node=Y.one('#'+nodeid)) && node.getAttribute(DATA_MODELATTRIBUTE)) {
         widget = formElement.widget;
         type = formElement.type;
         value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
         if (Lang.isValue(value)) {
 /*jshint expr:true */
-            ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
-            (type==='number') && (value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10));
+            ((type===DATE) || (type===TIME) || (type===DATE)) && (value = new Date(parseInt(value, 10)));
+            (type===NUMBER) && (value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10));
 /*jshint expr:false */
         }
     }
@@ -596,7 +607,7 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
             if (!formelement.widget) {
                 node = Y.one('#'+formelement.nodeid);
                 if (node) {
-                    valid = instance._validValue(node, formelement, formelement.name, node.get('value'));
+                    valid = instance._validValue(node, formelement, formelement.name, node.get(VALUE));
                     instance._setNodeValidation(node, valid);
 /*jshint expr:true */
                     valid || unvalidNodes.push(node);
@@ -621,7 +632,7 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
                                 validationerror = item.validationerror,
                                 error;
                             if (node) {
-                                error = ((typeof validationerror === 'string') ? validationerror : null);
+                                error = ((typeof validationerror === STRING) ? validationerror : null);
                                 instance._setNodeValidation(node, false, error);
                                 unvalidNodes.push(node);
                             }
@@ -842,7 +853,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
 /*jshint expr:false */
             // some widgets like Y.ToggleButton can have different valuefields. We need to check them all.
             // In those cases, valuefield is an array.
-            widgetValuefieldIsarray = (typeof valuefield !== 'string');
+            widgetValuefieldIsarray = (typeof valuefield !== STRING);
             if (widgetValuefieldIsarray) {
                 YArray.each(
                     valuefield,
@@ -881,7 +892,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
             // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
             // and after that we make it visible and store it internally, so we know the node has been inserted
             iseditorbase = (formtype.NAME==='editorBase');
-            Y.use(iseditorbase ? 'gallery-itsaeditorrenderpromise' : 'gallery-itsawidgetrenderpromise', function() {
+            Y.use(iseditorbase ? GALLERY_ITSA+'editorrenderpromise' : GALLERY_ITSA+'widgetrenderpromise', function() {
                 widget.renderPromise().then(
                     function() {
                         var node = Y.one('#'+nodeid);
@@ -965,14 +976,12 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                     else {
                         knownNodeIds[nodeid] = true;
                         instance._modelToUI(nodeid);
-                        if ((formtype==='datetime') || (formtype==='date') || (formtype==='time')) {
-                            node = Y.one('label[data-labeldatetime="true"][for="'+nodeid+'"]');
+                        node.removeClass(INVISIBLE_CLASS);
+                        if ((formtype===DATE) || (formtype===TIME) || (formtype===DATETIME)) {
+                            node = Y.one('span.formatvalue[data-for="'+nodeid+'"]');
 /*jshint expr:true */
                             node && node.removeClass(INVISIBLE_CLASS);
 /*jshint expr:false */
-                        }
-                        else {
-                            node.removeClass(INVISIBLE_CLASS);
                         }
                     }
                 }
@@ -1021,7 +1030,7 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
     var instance = this;
 
 /*jshint expr:true */
-    (typeof value === 'boolean') && (instance._lifeUpdate = value);
+    (typeof value === BOOLEAN) && (instance._lifeUpdate = value);
 /*jshint expr:false */
     return instance;
 };
@@ -1041,7 +1050,7 @@ ITSAFormModel.prototype.setResetAttrs = function() {
     delete allAttrs.clientId;
     delete allAttrs.destroyed;
     delete allAttrs.initialized;
-    if (instance.idAttribute !== 'id') {
+    if (instance.idAttribute !== ID) {
         delete allAttrs.id;
     }
     YObject.each(
@@ -1055,7 +1064,7 @@ ITSAFormModel.prototype.setResetAttrs = function() {
 };
 
 /**
- * Defines the valuefield for widget that hold the valu in an attribute other than 'value'.
+ * Defines the valuefield for widget that hold the valu in an attribute other than VALUE.
  * You must specify EVERY widget with a different valuefield that you want as a formmodel.
  * The values are stored in the prototype, so you need to declare them only once. Y.ITSACheckbo and Y.ITSASelectList
  * are already declared.
@@ -1097,7 +1106,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
     delete allAttrs.clientId;
     delete allAttrs.destroyed;
     delete allAttrs.initialized;
-    if (instance.idAttribute !== 'id') {
+    if (instance.idAttribute !== ID) {
         delete allAttrs.id;
     }
     YObject.each(
@@ -1146,7 +1155,7 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
 
     formElements = instance._FORM_elements;
     formElement = nodeid && formElements[nodeid];
-    if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
+    if (formElement && (node=Y.one('#'+nodeid)) && node.getAttribute(DATA_MODELATTRIBUTE)) {
         widget = formElement.widget;
         type = formElement.type;
         value = widget ? instance._getWidgetValue(widget, type) : node.get(VALUE);
@@ -1154,8 +1163,8 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
         if (Lang.isValue(value)) {
             options = {formelement: true}; // set Attribute with option: '{formelement: true}' --> Form-Views might not want to re-render.
 /*jshint expr:true */
-            ((type==='date') || (type==='time') || (type==='date')) && (value = new Date(parseInt(value, 10)));
-            (type==='number') && (value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10));
+            ((type===DATE) || (type===TIME) || (type===DATE)) && (value = new Date(parseInt(value, 10)));
+            (type===NUMBER) && (value = formElement.config.digits ? parseFloat(value) : parseInt(value, 10));
 /*jshint expr:false */
             instance.set(attribute, value, options);
         }
@@ -1214,18 +1223,24 @@ ITSAFormModel.prototype._bindUI = function() {
             [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK,
              SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
             function(e) {
-               if (instance._FORM_elements[e.target.get('id')]) {
+               var type = e.type,
+                   node = e.target,
+                   payload, value, datevalue;
+               if (instance._FORM_elements[node.get(ID)]) {
                     e.preventDefault(); // prevent the form to be submitted
-                    var node = e.target,
-                        type = e.type,
-                        value = node.getAttribute(VALUE),
-                        payload = {
-                            target: instance,
-                            value: ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) ? (new Date().setTime(parseInt(value, 10))) : value,
-                            formElement: instance._FORM_elements[node.get('id')],
-                            buttonNode: node,
-                            type: type
-                        };
+                    value = node.getAttribute(VALUE);
+                    if ((type===DATEPICKER_CLICK) || (type===TIMEPICKER_CLICK) || (type===DATETIMEPICKER_CLICK)) {
+                        datevalue = new Date();
+                        datevalue.setTime(parseInt(value, 10));
+                        value = datevalue;
+                    }
+                    payload = {
+                        target: instance,
+                        value: value,
+                        formElement: instance._FORM_elements[node.get(ID)],
+                        buttonNode: node,
+                        type: type
+                    };
                     // refireing, but now by the instance:
                     instance.fire(type, payload);
                 }
@@ -1254,9 +1269,9 @@ ITSAFormModel.prototype._bindUI = function() {
                     payload = {
                         target: instance,
                         value: node.get(VALUE),
-                        formElement: instance._FORM_elements[node.get('id')],
+                        formElement: instance._FORM_elements[node.get(ID)],
                         node: node,
-                        nodeid: node.get('id'),
+                        nodeid: node.get(ID),
                         type: type
                     };
                 // refireing, but now by the instance:
@@ -1264,7 +1279,7 @@ ITSAFormModel.prototype._bindUI = function() {
             },
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance:
-                return instance._FORM_elements[e.target.get('id')];
+                return instance._FORM_elements[e.target.get(ID)];
             }
         )
     );
@@ -1276,17 +1291,17 @@ ITSAFormModel.prototype._bindUI = function() {
             function(e) {
                 // if e.formelement, then the changes came from the UI
                 if (!e.formelement) {
-                    Y.use('gallery-itsadialog', function() {
+                    Y.use(GALLERY_ITSA+'dialog', function() {
                         if (instance._lifeUpdate) {
                             // the first parameter in the response needs to be 'null' and not the promise result
-                            Y.confirm(MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD).then(
+                            Y.confirm(MSG_MODELCHANGED_TITLE, MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD).then(
                                 Y.bind(instance._modelToUI, instance, null),
                                 Y.bind(instance.UIToModel, instance, null)
                             );
                         }
                         else {
                             // the first parameter in the response needs to be 'null' and not the promise result
-                            Y.confirm(MSG_MODELCHANGED_OUTSIDEFORM).then(
+                            Y.confirm(MSG_MODELCHANGED_TITLE, MSG_MODELCHANGED_OUTSIDEFORM).then(
                                 Y.bind(instance._modelToUI, instance, null)
                             );
                         }
@@ -1312,7 +1327,7 @@ ITSAFormModel.prototype._bindUI = function() {
             },
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
-                var formelement = instance._FORM_elements[e.target.get('id')];
+                var formelement = instance._FORM_elements[e.target.get(ID)];
                 return (formelement && (e.keyCode===13) && instance._focusNextElements[formelement.type]);
             }
         )
@@ -1388,14 +1403,14 @@ ITSAFormModel.prototype._defFnDestroy = function() {
 */
 ITSAFormModel.prototype._defFnChangeDate = function(e) {
 
-    Y.use('gallery-itsadatetimepicker', function() {
+    Y.use(GALLERY_ITSA+'datetimepicker', function() {
         var instance = e.target,
             type = e.type,
             node = e.buttonNode,
             picker = Y.ItsaDateTimePicker,
             formElement = e.formElement,
             date = Lang.isDate(e.value) ? e.value : (new Date()),
-            promise, dateformat;
+            promise, dateformat, tipsycontent;
         if (type===DATEPICKER_CLICK) {
             promise = Y.bind(picker.getDate, picker);
         }
@@ -1405,14 +1420,14 @@ ITSAFormModel.prototype._defFnChangeDate = function(e) {
         else if (type===DATETIMEPICKER_CLICK) {
             promise = Y.bind(picker.getDateTime, picker);
         }
-        promise(new Date(date), formElement.config)
+        promise(new Date(date), {alignToNode: node, modal: true, forceSelectdate: false})
         .then(
             function(newdate) {
               // first we need to use the new datevalue and reflect it (update) to the UI-element
               dateformat = formElement.config.format;
               instance._updateDateTimeUI(formElement.name, newdate, type, dateformat);
               if (instance._lifeUpdate) {
-                  instance.UIToModel(node.get('id'));
+                  instance.UIToModel(node.get(ID));
               }
             },
             function() {
@@ -1422,10 +1437,22 @@ ITSAFormModel.prototype._defFnChangeDate = function(e) {
         .then(
             function() {
                 // should always be called
+                var type = FOCUS_NEXT,
+                    payload = {
+                        target: node,
+                        type: type
+                    };
                 // be carefull: button might not exist anymore, when the view is rerendered
                 if (node) {
+                    node.removeAttribute(DATA_CONTENT);
                     node.focus();
+                    tipsycontent = node.getAttribute(DATA+'-contentvalid');
+/*jshint expr:true */
+                    tipsycontent && node.setAttribute(DATA_CONTENT, tipsycontent);
+/*jshint expr:false */
                 }
+                // refireing, but now by the instance:
+                instance.fire(type, payload);
             }
         );
     });
@@ -1556,7 +1583,6 @@ ITSAFormModel.prototype._defFnSave = function() {
  *
 */
 ITSAFormModel.prototype._defFnUIChanged = function(e) {
-console.log('ui changed');
     // should not be called by widgets
     var instance = this,
         formelement = e.formElement,
@@ -1567,7 +1593,7 @@ console.log('ui changed');
 
     if (formelement.widget) {
         field = this._getWidgetValueField(type);
-        if (typeof field === 'string') {
+        if (typeof field === STRING) {
             instance._updateSimularWidgetUI(e.nodeid, attribute, field, value);
         }
         else {
@@ -1584,7 +1610,7 @@ console.log('ui changed');
         valid = instance._validValue(node, formelement, attribute, value);
         instance._updateSimularUI(node, attribute, value, valid);
         if (instance._lifeUpdate && valid) {
-            instance.UIToModel(node.get('id'));
+            instance.UIToModel(node.get(ID));
         }
     }
 };
@@ -1610,7 +1636,7 @@ ITSAFormModel.prototype._garbageCollect = function() {
     YObject.each(
         knownNodeIds,
         function(value, nodeid, obj) {
-            if (typeof value === 'boolean') {
+            if (typeof value === BOOLEAN) {
                 // has no timestamp, thus it hasn't been detected as removed from the dom
                 if (!Y.one('#'+nodeid)) {
                     // not in the dom anymore --> add a timestamp
@@ -1644,7 +1670,7 @@ ITSAFormModel.prototype._garbageCollect = function() {
 };
 
 /**
- * Returns the widgets value. That is, the getter of tha attribute that represents the 'value' (determined by _getWidgetValueField).
+ * Returns the widgets value. That is, the getter of tha attribute that represents the VALUE (determined by _getWidgetValueField).
  *
  * @method _getWidgetValue
  * @param widget {Widget} the widgetinstance
@@ -1657,11 +1683,11 @@ ITSAFormModel.prototype._garbageCollect = function() {
 ITSAFormModel.prototype._getWidgetValue = function(widget, type) {
     var field = this._getWidgetValueField(type);
     // In case of multiple fields, they all should be thes same, so we can take the first item of the array.
-    return (widget && widget.get((typeof field === 'string') ? field : field[0]));
+    return (widget && widget.get((typeof field === STRING) ? field : field[0]));
 };
 
 /**
- * Renderes the field or attribute that holds the value. With ordinary form-elements this will be 'value',
+ * Renderes the field or attribute that holds the value. With ordinary form-elements this will be VALUE,
  * but widgets might have a value-property with another name.
  *
  * @method _getWidgetValueField
@@ -1674,7 +1700,7 @@ ITSAFormModel.prototype._getWidgetValue = function(widget, type) {
  */
 ITSAFormModel.prototype._getWidgetValueField = function(type) {
     var iswidget = ((typeof type === 'function') && type.NAME);
-    return (iswidget && this._widgetValueFields[type.NAME]) || 'value';
+    return (iswidget && this._widgetValueFields[type.NAME]) || VALUE;
 };
 
 /**
@@ -1692,23 +1718,23 @@ ITSAFormModel.prototype._modelToUI = function(nodeid) {
 
     formElements = instance._FORM_elements;
     formElement = nodeid && formElements[nodeid];
-    if (formElement && (node=Y.one('#'+nodeid)) && node.getData('modelattribute')) {
+    if (formElement && (node=Y.one('#'+nodeid)) && node.getAttribute(DATA_MODELATTRIBUTE)) {
         widget = formElement.widget;
         attribute = formElement.name;
         value = instance.get(attribute, value) || '';
         if (widget) {
             field = this._getWidgetValueField(formElement.type);
-            widget.set(((typeof field === 'string') ? field : field[0]), value);
+            widget.set(((typeof field === STRING) ? field : field[0]), value);
         }
         else {
             type = formElement.type;
-            datetime = ((type==='date') || (type==='time') || (type==='datetime'));
+            datetime = ((type===DATE) || (type===TIME) || (type===DATETIME));
             if (datetime) {
                 dateformat = formElement.config.format;
                 instance._updateDateTimeUI(formElement.name, value, type, dateformat);
             }
             else {
-                node.set('value', value);
+                node.set(VALUE, value);
             }
         }
     }
@@ -1800,9 +1826,9 @@ ITSAFormModel.prototype._renderBtn = function(buttonText, config, buttontype) {
     config || (config = {});
     buttontype || (buttontype = BUTTON);
     buttonText || (buttonText = buttontype);
-    config.data || (config.data = '');
+    config[DATA] || (config[DATA] = '');
 /*jshint expr:false */
-    config.data += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
+    config[DATA] += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
     config.buttontype = BUTTON;
     config.buttonText = buttonText;
     formbutton = ITSAFormElement.getElement(BUTTON, config);
@@ -1833,7 +1859,7 @@ ITSAFormModel.prototype._renderBtn = function(buttonText, config, buttontype) {
  * @method _updateDateTimeUI
  * @param attribute {String} attribute that is changed by a UI-element
  * @param newdate {Date} the new date-time
- * @param type {String} which type ('date', 'time', or 'datetime')
+ * @param type {String} which type (DATE, TIME, or DATETIME)
  * @param dateformat {String} the format on the span-element that represent the time
  * @private
  * @since 0.1
@@ -1844,10 +1870,10 @@ ITSAFormModel.prototype._updateDateTimeUI = function(attribute, newdate, type, d
         attributenodes = instance._ATTRS_nodes[attribute];
     if (attributenodes) {
         if (!dateformat) {
-            if (type==='date') {
+            if (type===DATE) {
                 dateformat = '%x';
             }
-            else if (type==='time') {
+            else if (type===TIME) {
                 dateformat = '%X';
             }
             else {
@@ -1857,8 +1883,10 @@ ITSAFormModel.prototype._updateDateTimeUI = function(attribute, newdate, type, d
         YArray.each(
             attributenodes,
             function(nodeid) {
-                var labelnode = Y.one('span[data-for="'+nodeid+'"]');
+                var node = Y.one('#'+nodeid),
+                    labelnode = Y.one('span[data-for="'+nodeid+'"]');
 /*jshint expr:true */
+                node && node.set(VALUE, newdate.getTime());
                 labelnode && labelnode.set('text', Y.Date.format(newdate, {format: dateformat}));
 /*jshint expr:false */
             }
@@ -1890,7 +1918,7 @@ ITSAFormModel.prototype._updateSimularUI = function(changedNode, attribute, newv
               var node = Y.one('#'+nodeid);
               if (node) {
 /*jshint expr:true */
-                  (node!==changedNode) && node.set('value', newvalue);
+                  (node!==changedNode) && node.set(VALUE, newvalue);
 /*jshint expr:false */
                  instance._setNodeValidation(node, valid);
               }
@@ -1898,7 +1926,7 @@ ITSAFormModel.prototype._updateSimularUI = function(changedNode, attribute, newv
       );
     }
     if (instance._lifeUpdate) {
-        instance.UIToModel(changedNode.get('id'));
+        instance.UIToModel(changedNode.get(ID));
     }
 };
 
@@ -1915,13 +1943,13 @@ ITSAFormModel.prototype._updateSimularUI = function(changedNode, attribute, newv
 ITSAFormModel.prototype._setNodeValidation  = function(node, value, tooltip) {
     var newContent;
 
-    node.setAttribute('data-valid', value);
-    newContent = tooltip || node.getAttribute('data-content' + (value ? 'valid' : 'invalid'));
+    node.setAttribute(DATA+'-valid', value);
+    newContent = tooltip || node.getAttribute(DATA_CONTENT + (value ? 'valid' : 'invalid'));
     if (newContent) {
-        node.setAttribute('data-content', newContent);
+        node.setAttribute(DATA_CONTENT, newContent);
     }
     else {
-        node.removeAttribute('data-content');
+        node.removeAttribute(DATA_CONTENT);
     }
 };
 
@@ -1984,18 +2012,18 @@ ITSAFormModel.prototype._updateSimularWidgetUI = function(changedNodeId, attribu
 ITSAFormModel.prototype._validValue = function(node, formelement, attribute, value) {
     var instance = this,
         type = formelement.type,
-        typeok = ((type==='date') || (type==='time') || (type==='datetime') || (type==='checkbox')),
+        typeok = ((type===DATE) || (type===TIME) || (type===DATETIME) || (type==='checkbox')),
         attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern, nodeRequired, formconfigrequired, formconfig;
 
     if (!typeok) { // typeok are types that are always is ok, for it was created by the datetimepicker, or a checkbox
         attrconfig = instance._getAttrCfg(attribute);
         attrValidationFunc = attrconfig.validator;
-        nodePattern = node.getAttribute('data-pattern');
+        nodePattern = node.getAttribute(DATA+'-pattern');
         // because 'required' is removed from the nodeattribute, we need to check this from formconfig
         formconfig = attrconfig.formconfig;
         formconfigrequired = formconfig && formconfig.required;
-        nodeRequired = (typeof formconfigrequired === 'boolean') && formconfigrequired;
-        validByAttrFunc = !attrValidationFunc || attrValidationFunc((type==='number' ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
+        nodeRequired = (typeof formconfigrequired === BOOLEAN) && formconfigrequired;
+        validByAttrFunc = !attrValidationFunc || attrValidationFunc((type===NUMBER ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
         validByPattern = !nodePattern || ((value==='') && !nodeRequired) || new RegExp(nodePattern, "i").test(value);
     }
     return typeok || (validByAttrFunc && validByPattern);
@@ -2057,6 +2085,11 @@ YArray.each(
                 // This is then referenced in the detach() method below.
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
+                    // It could be that targetNode is an innerNode of the button! (in case of imagebuttons) --> we do a 1 level up check:
+                    if (targetNode.get('tagName')!=='BUTTON') {
+                        targetNode = targetNode.get('parentNode');
+                        e.target = targetNode;
+                    }
                     if ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype)) {
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
@@ -2092,6 +2125,7 @@ YArray.each(
         "event-synthetic",
         "event-valuechange",
         "event-base",
+        "event-custom",
         "gallery-itsanodepromise",
         "gallery-itsamodelsyncpromise",
         "gallery-itsaformelement"
