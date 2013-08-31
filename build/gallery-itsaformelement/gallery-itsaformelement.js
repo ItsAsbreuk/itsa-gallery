@@ -19,7 +19,7 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
 */
 
 var ITSAFormElement, tipsyOK, tipsyInvalid,
-    YARRAY = Y.Array,
+    YArray = Y.Array,
     Lang = Y.Lang,
     BODY = Y.one('body'),
     ACTION_FROMTAB = ACTION_FROMTAB,
@@ -95,7 +95,6 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     SWITCHED    = SWITCH+'ed',
     SWITCHLABEL = SWITCH+LABEL,
     SWITCHVALUE = SWITCH+VALUE,
-    DATETIME_CLASS   = DATETIME+CLASS,
     LABELDATA        = LABEL+DATA,
     VALUESWITCHED    = VALUE+SWITCHED,
     VALUENONSWITCHED = VALUE+'non'+SWITCHED,
@@ -112,11 +111,9 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     CLASS_SUB            = '{'+CLASS+'}',
     HIDDEN_SUB           = '{'+HIDDEN+'}',
     ID_SUB               = 'id="{id}"',
-    LABEL_FOR_ID_SUB     = '<label for="{id}"',
     VALUESWITCHED_SUB    = '{'+VALUESWITCHED+'}',
     VALUENONSWITCHED_SUB = '{'+VALUENONSWITCHED+'}',
     LABELDATA_SUB        = '{'+LABELDATA+'}',
-    DATETIME_CLASS_SUB   = '{'+DATETIME_CLASS+'}',
     BUTTONTEXT_SUB       = '{'+BUTTONTEXT+'}',
     FOCUSABLE_SUB        = '{'+FOCUSABLE+'}',
 
@@ -149,12 +146,12 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+TEXTAREA+'>',
     ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+HIDDEN_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
     ELEMENT_BUTTON = BUTTON_TYPE_IS+TYPE_SUB+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
-    ELEMENT_DATE = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
-                   ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_TIME = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
-                   ' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_TIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
-    ELEMENT_DATETIME = LABEL_FOR_ID_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+CLASS_SUB+'>'+VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+READONLY_SUB+
-                   ' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+FOCUSABLE_SUB+' '+CLASS+'="'+DATETIME_CLASS_SUB+'"><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB+'</'+LABEL+'>',
+    ELEMENT_DATE = VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+READONLY_SUB+
+                   ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB,
+    ELEMENT_TIME = VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+READONLY_SUB+
+                   ' '+DATA_DATETIME+'"'+TIME+'"'+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'><i '+CLASS+'="'+ICON_TIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB,
+    ELEMENT_DATETIME = VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+READONLY_SUB+
+                   ' '+DATA_DATETIME+'"'+DATETIME+'"'+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'><i '+CLASS+'="'+ICON_DATETIME_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB,
 
     TEMPLATES = {
         widget: ELEMENT_WIDGET,
@@ -175,7 +172,10 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         time: ELEMENT_TIME,
         datetime: ELEMENT_DATETIME
     },
-    GETFORMATTED_DATEVALUE = function(type, name, value, format, buttonnodeid) {
+    GETFORMATTED_DATEVALUE = function(type, name, value, format, classname, hiddenstring, hideatstartup, buttonnodeid) {
+        var className = classname ? (' '+classname) : '',
+            invisibleStarup = (hideatstartup ? (' '+INVISIBLE_CLASS) : ''),
+            formattimename = ((typeof name === 'string') && (name.length>0)) ? (' formattime-'+name) : '';
         if (!format) {
             if (type==='date') {
                 format = '%x';
@@ -189,7 +189,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         }
         // asynchronious preloading the module
         Y.use('gallery-itsadatetimepicker');
-        return SPANCLASSISFORMAT+'value formattime-'+name+'" data-for="'+buttonnodeid+'">'+Y.Date.format(value, {format: format})+ENDSPAN;
+        return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" data-for="'+buttonnodeid+'"'+className+hiddenstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
     },
 
     SUBREGEX = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g,
@@ -337,6 +337,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         switchvalue = config[SWITCHVALUE],
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
+        isdatetime = (type===DATE) || (type===TIME) || (type===DATETIME),
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
         checked, purebutton, readonly, extralabel;
     // first setting up global data-attributes
@@ -365,7 +366,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
         if (type==='slider') {
             // we want the value visible inside a span
-            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+'" data-for="'+nodeid+'"'+HIDDEN_SUB+'>'+value+ENDSPAN;
+            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+(config[CLASSNAME] ? (' '+config[CLASSNAME]) : '')+
+                                                                              '" data-for="'+nodeid+'"'+subtituteConfig[HIDDEN]+'>'+value+ENDSPAN;
         }
         // now make sure we get the right 'template', by re-defining 'type'
         type = WIDGET;
@@ -419,16 +421,16 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+subtituteConfig[BUTTONTEXT]+'"');
 /*jshint expr:false */
         }
-        else if ((type===DATE) || (type===TIME) || (type===DATETIME)) {
+        else if (isdatetime) {
 /*jshint expr:true */
             Lang.isDate(value) || (value = new Date());
 /*jshint expr:false */
+            purebutton = true;
+            disabledbutton = disabled;
             subtituteConfig[VALUE] = ' value="'+value.getTime()+'"';
             subtituteConfig[DATA] += ' data-'+DATETIME+'picker="true"';
-            subtituteConfig[DATETIME_CLASS] = PUREBUTTON_CLASS+' '+ITSABUTTON_DATETIME_CLASS +
-                                              (disabled ? (' '+DISABLED_BUTTON_CLASS) : '') +
-                                              (config.primary ? (' '+PRIMARY_BUTTON_CLASS) : '');
-            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, (config.name || ''), value, subtituteConfig.format, nodeid);
+            subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, (config.name || ''), value, subtituteConfig.format,
+                                                                                                     config[CLASSNAME], subtituteConfig[HIDDEN], hideatstartup, nodeid);
         }
         if (config.removepattern && subtituteConfig[PATTERN]) {
              // don't want pattern but want the pattern as a node-data-attribute --> this prevents the browser to focus unmatched patterns
@@ -437,8 +439,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         }
 /*jshint expr:true */
         fullselect && ((type===TEXT) || (type===NUMBER) || (type===PASSWORD) || (type===TEXTAREA) || (type===EMAIL) || (type===URL)) && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
-        (config[CLASSNAME] || purebutton || hideatstartup) && (subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '')+
+        (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
+                                (isdatetime ? (' '+ITSABUTTON_DATETIME_CLASS) : '')+
                                 (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
                                 (primarybutton ? (' '+PRIMARY_BUTTON_CLASS) : '')+
                                 (hideatstartup ? (' '+INVISIBLE_CLASS) : '')+
@@ -454,7 +457,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         }
         else {
             labelclass = config[LABELCLASSNAME] ? (' class="'+config[LABELCLASSNAME] + '"') : '';
-            extralabel = LABEL_FOR_IS+'{id}"'+HIDDEN_SUB+LABELDATA_SUB+labelclass+'>{label}'+ENDLABEL_EL;
+            extralabel = (isdatetime ? ('<'+LABEL) : (LABEL_FOR_IS+'{id}"'))+HIDDEN_SUB+LABELDATA_SUB+labelclass+'>{label}'+ENDLABEL_EL;
             if (switchlabel) {
                 template += extralabel;
             }
@@ -596,7 +599,7 @@ BODY.delegate(
   *
 **/
 
-YARRAY.each(
+YArray.each(
     [DATE, TIME, DATETIME],
     function(eventtype) {
         var conf = {
@@ -606,6 +609,11 @@ YARRAY.each(
                 // This is then referenced in the detach() method below.
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
+                    // do not compare with variabele BUTTON, because that one is lowercase
+                    if (targetNode.get('tagName')!=='BUTTON') {
+                        targetNode = targetNode.get('parentNode');
+                        e.target = targetNode;
+                    }
                     if (targetNode.getAttribute(DATA+'-'+DATETIME)===eventtype) {
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
@@ -648,7 +656,7 @@ YARRAY.each(
   *
 **/
 
-YARRAY.each(
+YArray.each(
     [SUBMIT, RESET],
     function(eventtype) {
         var conf = {
@@ -658,6 +666,11 @@ YARRAY.each(
                 // This is then referenced in the detach() method below.
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
+                    // It could be that targetNode is an innerNode of the button! (in case of imagebuttons) --> we do a 1 level up check:
+                    if (targetNode.get('tagName')!=='BUTTON') {
+                        targetNode = targetNode.get('parentNode');
+                        e.target = targetNode;
+                    }
                     if ((targetNode.getAttribute(DATA_BUTTON_TYPE)===eventtype) ||
                         ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype))) {
                         // The notifier triggers the subscriptions to be executed.
@@ -688,6 +701,7 @@ YARRAY.each(
         "yui-later",
         "promise",
         "event-tap",
+        "event-custom",
         "gallery-tipsy",
         "gallery-itsawidgetrenderpromise"
     ],

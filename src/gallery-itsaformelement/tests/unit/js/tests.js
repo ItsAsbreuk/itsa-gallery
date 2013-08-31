@@ -934,16 +934,14 @@ YUI.add('module-tests', function(Y) {
             });
             body.append(this.formElement.html);
             this.node = Y.one('#'+this.formElement.nodeid);
-            this.labelnode = Y.one('label[for="'+this.formElement.nodeid+'"][data-labeldatetime="true"]');
             this.timenode = Y.one('span[data-for="'+this.formElement.nodeid+'"]');
-            this.wraplabel = Y.one('label[for="'+this.formElement.nodeid+'"].yui3-label-class');
+            this.labelnode = this.timenode.previous();
         },
         tearDown : function () {
             delete this.formElement;
             delete this.node;
             delete this.labelnode;
             delete this.timenode;
-            delete this.wraplabel;
         },
         'availablility node': function() {
             Y.Assert.isNotNull(this.node, 'date - formelement not created');
@@ -953,9 +951,6 @@ YUI.add('module-tests', function(Y) {
         },
         'availablility timenode': function() {
             Y.Assert.isNotNull(this.timenode, 'date - formelement\'s timenode is not created');
-        },
-        'availablility wraplabel': function() {
-            Y.Assert.isNotNull(this.wraplabel, 'date - formelement\'s wraplabel is not created');
         },
         'creation tagName': function() {
             Y.Assert.areEqual('BUTTON', this.node.get('tagName'), 'date - Wrong tag created');
@@ -976,16 +971,22 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('', this.node.getAttribute('placeholder'), 'date - Wrong placeholder created');
         },
         'check required': function() {
-            Y.Assert.areEqual('', this.node.getAttribute('required'), 'date - Wrong value for required created');
+            Y.Assert.areEqual('required', this.node.getAttribute('required'), 'date - Wrong value for required created');
         },
         'check disabled': function() {
             Y.Assert.isTrue(this.node.hasClass('pure-button-disabled'), 'date - Disabled didn\'t render the right classname');
         },
         'check primary': function() {
-            Y.Assert.isTrue(this.node.hasClass('pure-button-primary'), 'date - Primary-button didn\'t render the right classname');
+            Y.Assert.isFalse(this.node.hasClass('pure-button-primary'), 'date - Primary-button didn\'t render the right classname');
         },
         'check hidden': function() {
-            Y.Assert.areEqual('hidden', this.wraplabel.getAttribute('hidden'), 'date - Wrong value for hidden created');
+            Y.Assert.areEqual('hidden', this.labelnode.getAttribute('hidden'), 'date - Wrong value for label-hidden created');
+        },
+        'check hidden timenode': function() {
+            Y.Assert.areEqual('hidden', this.timenode.getAttribute('hidden'), 'date - Wrong value for timenode-hidden created');
+        },
+        'check hidden buttonnode': function() {
+            Y.Assert.areEqual('hidden', this.node.getAttribute('hidden'), 'date - Wrong value for buttonnode-hidden created');
         },
         'check fullselect': function() {
             Y.Assert.areEqual('', this.node.getAttribute('data-fullselect'), 'date - Wrong value for fullselect created');
@@ -997,10 +998,10 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('', this.node.getAttribute('pattern'), 'date - Wrong value for pattern created');
         },
         'check classname': function() {
-            Y.Assert.isTrue(this.labelnode.hasClass('yui3-element-class'), 'date - Wrong value for classname created');
+            Y.Assert.isTrue(this.timenode.hasClass('yui3-element-class'), 'date - Wrong value for element-classname created '+this.timenode.getAttribute('class'));
         },
         'check labelClassname': function() {
-            Y.Assert.isTrue(this.wraplabel.hasClass('yui3-label-class'), 'date - Wrong value for classname created');
+            Y.Assert.isTrue(this.labelnode.hasClass('yui3-label-class'), 'date - Wrong value for label-classname created');
         },
         'check focusable': function() {
             Y.Assert.areEqual('true', this.node.getAttribute('data-focusable'), 'date - Wrong value for focusable created');
@@ -1009,7 +1010,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('here is some tooltipinfo', this.node.getAttribute('data-content'), 'date - Wrong value for tooltip created');
         },
         'check labelcontent': function() {
-            Y.Assert.areEqual('this is the label', this.wraplabel.get('text'), 'date - Wrong labelvalue created');
+            Y.Assert.areEqual('this is the label', this.labelnode.get('text'), 'date - Wrong labelvalue created');
         },
         'check time': function() {
             Y.Assert.areEqual('2013-01-01', this.timenode.get('text'), 'date - Wrong timevalue created');
@@ -1048,16 +1049,14 @@ YUI.add('module-tests', function(Y) {
             });
             body.append(this.formElement.html);
             this.node = Y.one('#'+this.formElement.nodeid);
-            this.labelnode = Y.one('label[for="'+this.formElement.nodeid+'"][data-labeldatetime="true"]');
             this.timenode = Y.one('span[data-for="'+this.formElement.nodeid+'"]');
-            this.wraplabel = Y.one('label[for="'+this.formElement.nodeid+'"].yui3-label-class');
+            this.labelnode = this.timenode.previous();
         },
         tearDown : function () {
             delete this.formElement;
             delete this.node;
             delete this.labelnode;
             delete this.timenode;
-            delete this.wraplabel;
         },
         'availablility node': function() {
             Y.Assert.isNotNull(this.node, 'time - formelement not created');
@@ -1067,9 +1066,6 @@ YUI.add('module-tests', function(Y) {
         },
         'availablility timenode': function() {
             Y.Assert.isNotNull(this.timenode, 'time - formelement\'s timenode is not created');
-        },
-        'availablility wraplabel': function() {
-            Y.Assert.isNotNull(this.wraplabel, 'time - formelement\'s wraplabel is not created');
         },
         'creation tagName': function() {
             Y.Assert.areEqual('BUTTON', this.node.get('tagName'), 'time - Wrong tag created');
@@ -1090,16 +1086,22 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('', this.node.getAttribute('placeholder'), 'time - Wrong placeholder created');
         },
         'check required': function() {
-            Y.Assert.areEqual('', this.node.getAttribute('required'), 'time - Wrong value for required created');
+            Y.Assert.areEqual('required', this.node.getAttribute('required'), 'time - Wrong value for required created');
         },
         'check disabled': function() {
             Y.Assert.isTrue(this.node.hasClass('pure-button-disabled'), 'time - Disabled didn\'t render the right classname');
         },
         'check primary': function() {
-            Y.Assert.isTrue(this.node.hasClass('pure-button-primary'), 'time - Primary-button didn\'t render the right classname');
+            Y.Assert.isFalse(this.node.hasClass('pure-button-primary'), 'time - Primary-button didn\'t render the right classname');
         },
         'check hidden': function() {
-            Y.Assert.areEqual('hidden', this.wraplabel.getAttribute('hidden'), 'time - Wrong value for hidden created');
+            Y.Assert.areEqual('hidden', this.labelnode.getAttribute('hidden'), 'date - Wrong value for label-hidden created');
+        },
+        'check hidden timenode': function() {
+            Y.Assert.areEqual('hidden', this.timenode.getAttribute('hidden'), 'date - Wrong value for timenode-hidden created');
+        },
+        'check hidden buttonnode': function() {
+            Y.Assert.areEqual('hidden', this.node.getAttribute('hidden'), 'date - Wrong value for buttonnode-hidden created');
         },
         'check fullselect': function() {
             Y.Assert.areEqual('', this.node.getAttribute('data-fullselect'), 'time - Wrong value for fullselect created');
@@ -1111,10 +1113,10 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('', this.node.getAttribute('pattern'), 'time - Wrong value for pattern created');
         },
         'check classname': function() {
-            Y.Assert.isTrue(this.labelnode.hasClass('yui3-element-class'), 'time - Wrong value for classname created');
+            Y.Assert.isTrue(this.timenode.hasClass('yui3-element-class'), 'time - Wrong value for element-classname created');
         },
         'check labelClassname': function() {
-            Y.Assert.isTrue(this.wraplabel.hasClass('yui3-label-class'), 'time - Wrong value for classname created');
+            Y.Assert.isTrue(this.labelnode.hasClass('yui3-label-class'), 'time - Wrong value for label-classname created');
         },
         'check focusable': function() {
             Y.Assert.areEqual('true', this.node.getAttribute('data-focusable'), 'time - Wrong value for focusable created');
@@ -1123,7 +1125,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('here is some tooltipinfo', this.node.getAttribute('data-content'), 'time - Wrong value for tooltip created');
         },
         'check labelcontent': function() {
-            Y.Assert.areEqual('this is the label', this.wraplabel.get('text'), 'time - Wrong labelvalue created');
+            Y.Assert.areEqual('this is the label', this.labelnode.get('text'), 'time - Wrong labelvalue created');
         },
         'check time': function() {
             Y.Assert.areEqual('30:00', this.timenode.get('text'), 'time - Wrong timevalue created');
@@ -1162,16 +1164,14 @@ YUI.add('module-tests', function(Y) {
             });
             body.append(this.formElement.html);
             this.node = Y.one('#'+this.formElement.nodeid);
-            this.labelnode = Y.one('label[for="'+this.formElement.nodeid+'"][data-labeldatetime="true"]');
             this.timenode = Y.one('span[data-for="'+this.formElement.nodeid+'"]');
-            this.wraplabel = Y.one('label[for="'+this.formElement.nodeid+'"].yui3-label-class');
+            this.labelnode = this.timenode.previous();
         },
         tearDown : function () {
             delete this.formElement;
             delete this.node;
             delete this.labelnode;
             delete this.timenode;
-            delete this.wraplabel;
         },
         'availablility node': function() {
             Y.Assert.isNotNull(this.node, 'datetime - formelement not created');
@@ -1181,9 +1181,6 @@ YUI.add('module-tests', function(Y) {
         },
         'availablility timenode': function() {
             Y.Assert.isNotNull(this.timenode, 'datetime - formelement\'s timenode is not created');
-        },
-        'availablility wraplabel': function() {
-            Y.Assert.isNotNull(this.wraplabel, 'datetime - formelement\'s wraplabel is not created');
         },
         'creation tagName': function() {
             Y.Assert.areEqual('BUTTON', this.node.get('tagName'), 'datetime - Wrong tag created');
@@ -1204,16 +1201,22 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('', this.node.getAttribute('placeholder'), 'datetime - Wrong placeholder created');
         },
         'check required': function() {
-            Y.Assert.areEqual('', this.node.getAttribute('required'), 'datetime - Wrong value for required created');
+            Y.Assert.areEqual('required', this.node.getAttribute('required'), 'datetime - Wrong value for required created');
         },
         'check disabled': function() {
             Y.Assert.isTrue(this.node.hasClass('pure-button-disabled'), 'datetime - Disabled didn\'t render the right classname');
         },
         'check primary': function() {
-            Y.Assert.isTrue(this.node.hasClass('pure-button-primary'), 'datetime - Primary-button didn\'t render the right classname');
+            Y.Assert.isFalse(this.node.hasClass('pure-button-primary'), 'datetime - Primary-button didn\'t render the right classname');
         },
         'check hidden': function() {
-            Y.Assert.areEqual('hidden', this.wraplabel.getAttribute('hidden'), 'datetime - Wrong value for hidden created');
+            Y.Assert.areEqual('hidden', this.labelnode.getAttribute('hidden'), 'date - Wrong value for label-hidden created');
+        },
+        'check hidden timenode': function() {
+            Y.Assert.areEqual('hidden', this.timenode.getAttribute('hidden'), 'date - Wrong value for timenode-hidden created');
+        },
+        'check hidden buttonnode': function() {
+            Y.Assert.areEqual('hidden', this.node.getAttribute('hidden'), 'date - Wrong value for buttonnode-hidden created');
         },
         'check fullselect': function() {
             Y.Assert.areEqual('', this.node.getAttribute('data-fullselect'), 'datetime - Wrong value for fullselect created');
@@ -1225,10 +1228,10 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('', this.node.getAttribute('pattern'), 'datetime - Wrong value for pattern created');
         },
         'check classname': function() {
-            Y.Assert.isTrue(this.labelnode.hasClass('yui3-element-class'), 'datetime - Wrong value for classname created');
+            Y.Assert.isTrue(this.timenode.hasClass('yui3-element-class'), 'datetime - Wrong value for element-classname created');
         },
         'check labelClassname': function() {
-            Y.Assert.isTrue(this.wraplabel.hasClass('yui3-label-class'), 'datetime - Wrong value for classname created');
+            Y.Assert.isTrue(this.labelnode.hasClass('yui3-label-class'), 'datetime - Wrong value for label=classname created');
         },
         'check focusable': function() {
             Y.Assert.areEqual('true', this.node.getAttribute('data-focusable'), 'datetime - Wrong value for focusable created');
@@ -1237,7 +1240,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('here is some tooltipinfo', this.node.getAttribute('data-content'), 'datetime - Wrong value for tooltip created');
         },
         'check labelcontent': function() {
-            Y.Assert.areEqual('this is the label', this.wraplabel.get('text'), 'datetime - Wrong labelvalue created');
+            Y.Assert.areEqual('this is the label', this.labelnode.get('text'), 'datetime - Wrong labelvalue created');
         },
         'check time': function() {
             Y.Assert.areEqual('2013-01-01 30:00', this.timenode.get('text'), 'datetime - Wrong timevalue created');
@@ -1599,14 +1602,12 @@ YUI.add('module-tests', function(Y) {
             this.node = Y.one('#'+this.formElement.nodeid);
             this.labelnode = Y.one('label[for="'+this.formElement.nodeid+'"][data-labeldatetime="true"]');
             this.timenode = Y.one('span[data-for="'+this.formElement.nodeid+'"]');
-            this.wraplabel = Y.one('label[for="'+this.formElement.nodeid+'"].yui3-label-class');
         },
         tearDown : function () {
             delete this.formElement;
             delete this.node;
             delete this.labelnode;
             delete this.timenode;
-            delete this.wraplabel;
         },
         'check pattern': function() {
             Y.Assert.areEqual(this.node.previous(), this.timenode, 'Timenode not found on the left side of the dateelement');
@@ -1625,14 +1626,12 @@ YUI.add('module-tests', function(Y) {
             this.node = Y.one('#'+this.formElement.nodeid);
             this.labelnode = Y.one('label[for="'+this.formElement.nodeid+'"][data-labeldatetime="true"]');
             this.timenode = Y.one('span[data-for="'+this.formElement.nodeid+'"]');
-            this.wraplabel = Y.one('label[for="'+this.formElement.nodeid+'"].yui3-label-class');
         },
         tearDown : function () {
             delete this.formElement;
             delete this.node;
             delete this.labelnode;
             delete this.timenode;
-            delete this.wraplabel;
         },
         'check pattern': function() {
             Y.Assert.areEqual(this.node.next(), this.timenode, 'Timenode not found on the left side of the dateelement');

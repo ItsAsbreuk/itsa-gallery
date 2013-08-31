@@ -7,6 +7,7 @@
             "yui-later",
             "promise",
             "event-tap",
+            "event-custom",
             "gallery-tipsy",
             "gallery-itsawidgetrenderpromise"
         ],
