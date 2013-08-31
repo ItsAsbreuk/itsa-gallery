@@ -203,7 +203,7 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsaformmodel', 'gallery-itsac
     container.append(containercontent);
 
     model.on('save', function() {
-        Y.alert('model is saved! Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
+        Y.alert('Values are saved', 'Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
     });
 
     model.on('validationerror', function() {

@@ -52,7 +52,7 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsaformmodel', 'gallery-itsas
     container.append(containercontent);
 
     model.on('submit', function() {
-        Y.alert('Form is submitted! Here are all the attribute-values: '+
+        Y.alert('Signed in', 'Here are all the attribute-values: '+
                  Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
     });
 

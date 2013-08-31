@@ -79,7 +79,7 @@ YUI(yuiconfig).use('node', 'base-build', 'promise', 'gallery-itsaformmodel', 'ga
 
     // showing the values when send
     model.after('submit', function() {
-        Y.alert('Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
+        Y.alert('Model is submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(model.toJSON()).replace(/\,/g, '</br>'));
     });
 
     Y.later(3000, null, function() {
