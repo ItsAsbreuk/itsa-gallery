@@ -467,9 +467,33 @@ ITSAFormModel.prototype.defFnFocusNext = function() {
 };
 
 /**
+ * Returns an object of the arrribute's current UI-elements {object} that is present in the DOM.
+ * In the rare case that the attribute has multiple UI-elements, the first UI will be returned.
+ * 'attribute' can be a model-attribute or a buttons 'name'.
+ *
+ * @method getCurrentFormElement
+ * @param attribute {String} name of the attribute or buttonname which FormElements need to be returned.
+ * @return {Object} Returnvalue is an ITSAFormElement-object. This object is as specified
+ * by gallery-itsaformelement, extended with the property 'node'<ul>
+ *                  <li>config --> {object} reference to the original configobject</li>
+ *                  <li>html   --> {String} rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
+ *                  <li>name   --> {String} convenience-property===config.name</li>
+ *                  <li>node   --> {Y.Node}</li>
+ *                  <li>nodeid --> {String} created node's id (without #)</li>
+ *                  <li>type   --> {String|WidgetClass} the created type
+ *                  <li>widget --> {Widget-instance}handle to the created widgetinstance</li></ul>
+
+ * @since 0.1
+ *
+*/
+ITSAFormModel.prototype.getCurrentFormElement = function(attribute) {
+    return this.getCurrentFormElements(attribute)[0] || null;
+};
+
+/**
  * Returns an array with arrribute's current UI-elements {object} that are present in the DOM.
  * Mostly this will hold one item, but there might be cases where an attribute has multiple UI's in the dom.
- * If 'attribute' can be a model-attribute or a buttons 'name'.
+ * 'attribute' can be a model-attribute or a buttons 'name'.
  *
  * @method getCurrentFormElements
  * @param attribute {String} name of the attribute or buttonname which FormElements need to be returned.
