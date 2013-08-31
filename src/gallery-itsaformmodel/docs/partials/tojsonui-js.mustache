@@ -82,8 +82,8 @@ YUI(yuiconfig).use('node', 'base-build', 'promise', 'gallery-itsaformmodel', 'ga
     Y.one('#container2').append(Y.Lang.sub(template, model2.toJSONUI(savebuttonObject)));
 
     // making the conatiners visible once rendered
-    checkboxModel1 = model1.getCurrentFormElements('active')[0].widget;
-    checkboxModel2 = model2.getCurrentFormElements('active')[0].widget;
+    checkboxModel1 = model1.getCurrentFormElement('active').widget;
+    checkboxModel2 = model2.getCurrentFormElement('active').widget;
     Y.batch(
         checkboxModel1.renderPromise(),
         checkboxModel2.renderPromise()
