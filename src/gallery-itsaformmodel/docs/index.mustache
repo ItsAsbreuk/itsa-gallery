@@ -45,7 +45,7 @@
 <p>
     You need to create your own class using <code>Y.Base.create()</code> and define how the attributes look like:
     ```js
-    Y.MyFormModel = Y.Base.create('formModel', Y.ITSAEditModel, [], {}, {
+    Y.MyFormModel = Y.Base.create('formModel', Y.ITSAFormModel, [], {}, {
     ATTRS: {
             someAttribute: {
                 value: ...
@@ -263,7 +263,7 @@
         <br />
         <b>Importante note:</b> be sure you check the UI-values instead of the attributes by using <code>formmodel.getUI()</code> and not formmodel.get().
         ```js
-        Y.MyFormModel = Y.Base.create('formModel', Y.ITSAEditModel, [], {}, {
+        Y.MyFormModel = Y.Base.create('formModel', Y.ITSAFormModel, [], {}, {
             crossValidation: function() {
                 var instance = this,
                     errorattrs = [];
