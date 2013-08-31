@@ -119,7 +119,6 @@
             <li><code>labelClassname</code> {String} additional classname for the label.</li>
             <li><code>nossl=false</code> {Boolean} making url's to validate only on non-ssl url's. Only applyable for type==='url'.</li>
             <li><code>onlyssl=false</code> {Boolean} making url's to validate only on ssl url's. Only applyable for type==='url'</li>
-            <li><code>pattern</code> {String} regexp pattern that should be matched. Only applyable for type==='text' or 'password'.</li>
             <li><code>placeholder</code> {String} only applyable for input-elements and textarea.</li>
             <li><code>primary=false</code> {Boolean} making a button the primary button. Only applyable for buttons.</li>
             <li><code>required=false</code> {Boolean} (defaults true for 'type===password'). Only applyable for input-elements, textarea and date/time.</li>
@@ -251,7 +250,7 @@
 <h2>Validation</h2>
     <h3>validation of the formelements</h3>
     <p>
-        Each attribute is validated throught its <code>attribute.validation</code> method: there are no formconfig-properties 'required' or 'pattern'. Attributevalidation gives more control than the regexp 'pattern' that can be used on input-elements. Some formtypes have their own <code>pattern</code> served by ITSAFormElement. These are <code>number</code>, <code>email</code> and <code>url</code>. When using these types, the attributes are validated through both the formelement-pattern as well as the attribute-validation. If not validated, a node-attribute is added: <code>data-validated="false"</code>, which is used for styling and could be used by formvalidation.
+        Each attribute is validated throught its <code>attribute.validation</code> method: there are no formconfig-properties 'required' or 'pattern'. Attributevalidation gives more control than the regexp 'pattern' that can be used on input-elements. Some formtypes have their own <code>pattern</code> defined by ITSAFormElement: <code>number</code>, <code>email</code> and <code>url</code>. When using these types, the attributes are validated through both the formelement-pattern as well as the attribute-validation. If not validated, a node-attribute is added: <code>data-validated="false"</code>, which is used for styling and could be used by formvalidation.
     </p>
 
     <h3>cross-validation</h3>

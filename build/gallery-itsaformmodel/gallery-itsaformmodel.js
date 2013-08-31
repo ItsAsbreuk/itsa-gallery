@@ -835,6 +835,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
         formconfig.name = attribute;
         formconfig.tooltipinvalid = attrconfig.validationerror;
         formconfig.removerequired = true; // disable by setting false
+        delete formconfig.pattern; // do not use pattern --> user should use validation
         formconfig.removepattern = true; // specify to remove the pattern property
         // hide the element by adding a invisible-classname --> we wmake it visible once it gets the right data (after inserted in the dom):
         formconfig.hideatstartup = true;
