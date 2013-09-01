@@ -46,7 +46,7 @@
         },
         {
             "name"       : "sync-modelchange",
-            "displayName": "Latency compensation",
+            "displayName": "Handling concurrency",
             "description": "This example shows how attribute's value-changes reflect the UI.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "base-build", "gallery-itsaformmodel", "gallery-itsacheckbox", "gallery-itsawidgetrenderpromise", "promimse"],
