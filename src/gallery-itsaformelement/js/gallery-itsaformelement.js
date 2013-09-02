@@ -357,6 +357,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
     subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
 /*jshint expr:false */
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++ specific widget formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if (iswidget) {
         subtituteConfig[DATA] += ' data-type="'+type+'"';
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + (hideatstartup ? (' '+INVISIBLE_CLASS) : '') + '"';
@@ -374,6 +377,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         type = WIDGET;
     }
     else {
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ non-widget formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false;
         required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD);
         readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false;
@@ -386,10 +392,18 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         config[PATTERN] && (subtituteConfig[PATTERN]=' '+PATTERN+'="'+subtituteConfig[PATTERN]+'"');
         (type!==TEXTAREA) && (type!==PLAIN) && value && (subtituteConfig[VALUE]=' '+VALUE+'="'+subtituteConfig[VALUE]+'"');
 /*jshint expr:false */
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ specific email formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if (type===EMAIL) {
             // redefine pattern
             subtituteConfig[PATTERN] = ' '+PATTERN+'="'+PATTERN_EMAIL+'"';
         }
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ specific url formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if (type===URL) {
             if ((typeof nossl===BOOLEAN) && nossl) {
                 subtituteConfig[PATTERN] =' '+PATTERN+'="'+PATTERN_URLHTTP+'"';
@@ -401,15 +415,27 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
                 subtituteConfig[PATTERN] =' '+PATTERN+'="'+PATTERN_URL+'"';
             }
         }
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ specific number formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if (type===NUMBER) {
             subtituteConfig[PATTERN] =' '+PATTERN+'="'+(((typeof digits===BOOLEAN) && digits) ? PATTERN_FLOAT : PATTERN_INTEGER)+'"';
         }
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ specific radio and checkbox formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if ((type===RADIO) || (type===CHECKBOX)) {
             surroundlabelclass = (type===RADIO) ? PURERADIO : PURECHECKBOX;
             checked = (typeof subtituteConfig[CHECKED]===BOOLEAN) ? subtituteConfig[CHECKED] : false;
             subtituteConfig[CHECKED] = checked ? (' '+CHECKED+'="'+CHECKED+'"') : '';
             subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         }
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ specific button/submit/reset formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
             purebutton = true;
@@ -422,6 +448,10 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+subtituteConfig[LABELHTML]+'"');
 /*jshint expr:false */
         }
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ specific datetime formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if (isdatetime) {
 /*jshint expr:true */
             Lang.isDate(value) || (value = new Date());
@@ -433,12 +463,20 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, (config.name || ''), value, subtituteConfig.format,
                                                                                                      config[CLASSNAME], subtituteConfig[HIDDEN], hideatstartup, nodeid);
         }
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++ ITSAFormModel uses own pattern instead of pattern by the element ++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if (config.removepattern && subtituteConfig[PATTERN]) {
              // don't want pattern but want the pattern as a node-data-attribute --> this prevents the browser to focus unmatched patterns
              subtituteConfig[DATA] += ' data-'+PATTERN+'='+subtituteConfig[PATTERN].substr(9);
              delete subtituteConfig[PATTERN];
         }
+
 /*jshint expr:true */
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         fullselect && ((type===TEXT) || (type===NUMBER) || (type===PASSWORD) || (type===TEXTAREA) || (type===EMAIL) || (type===URL)) && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
@@ -449,7 +487,15 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
                                 '"');
 /*jshint expr:false */
     }
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++ creating template +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     template = TEMPLATES[type] || ELEMENT_UNDEFINED;
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++ creating label ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if (subtituteConfig[LABEL]) {
         if (surroundlabelclass) {
             subtituteConfig[LABEL] = '<span class="formatlabel">' + subtituteConfig[LABEL] + ENDSPAN;
@@ -467,7 +513,15 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             }
         }
     }
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++ set nodeid ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     subtituteConfig.id=nodeid;
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++ return result +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     return SUB(template, subtituteConfig);
 };
 
