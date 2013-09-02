@@ -193,7 +193,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 boundingBox = instance.get('boundingBox'),
                 model = instance.get('model'),
                 modelEditable = instance.get('modelEditable'),
-                itsaeditmodel = (modelEditable && model.itsaeditmodel),
+                itsaeditmodel = (modelEditable && (model.),
                 panelwidgetbd = boundingBox.one('.yui3-widget-bd');
 
             Y.log('renderer', 'info', 'Itsa-ViewModel');
@@ -744,6 +744,10 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.Widget, [], {
                 lazyAdd: false,
                 validator: function(v){
                     return Lang.isBoolean(v);
+                },
+                getter: function(v) {
+                    var model = this.get('model');
+                    return (v && model && model.toJSONUI);
                 }
             },
 
