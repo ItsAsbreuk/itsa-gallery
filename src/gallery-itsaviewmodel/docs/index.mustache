@@ -1,14 +1,64 @@
+{{>api-button}}
+
 <div class="intro">
     <p>
-    *Summary Goes Here*
+        {{description}} The View-instance is also capable of handling Y.ITSAFormModel-instances, in a way that you can create html-form elements.
     </p>
 </div>
 
+{{>getting-started}}
+
 <h2>Description</h2>
+    <p>
+        Using Y.ITSAViewModel is great to render Models on the page, where the view keeps synced with the model. Whenever a new Model-instance is attached, or the template changes, the view will re-render automaticly. To make use of the view, at least three attributes need to be set:
+        <ul>
+            <li><code>container</code> html-node in which the content will be rendered. This can be a css-selector, or a Y.Node instance (present, or new created by Y.Node.create().</li>
+            <li><code>model</code> the model or object that holds the data.</li>
+            <li><code>template</code> the template which determines how the data will be rendered, either as a Y.Lang,sub - or Y.Template.Micro </li>
+        </ul>
+    </p>
 
-<p>*Module Description Goes Here*</p>
-
+<h2>Using the model-attribute</h2>
+<p>Here is a small example of how the code can be used:
+</p>
 ```
-//Module example code
-```
+YUI().use('gallery-itsaviewmodel', function(Y) {
+    var view, artistobject, artisttemplate;
 
+    artistobject = {
+        artist: 'U2',
+        country: 'Ireland'
+    };
+
+    artisttemplate = 'name: {artist}<br />'+
+                     'country: {country}';
+
+    view = new Y.ITSAViewModel({
+        container: Y.Node.create('<div/>'),
+        model: artistobject,
+        template: artisttemplate
+    });
+
+    view.render();
+});
+```
+    <p>The model-attribute is responsible for the content that will be rendered inside the view's container. There are several ways to use this attribute:
+    </p>
+<h3>Attaching models v.s. objects</h3>
+    <p>
+        Both can be attached. The view is allmost fully responsive in both cases, which might be a reason to prefer plain objects (for performance reasons). However, there are some issues to keep in mind when using objects:
+        <ul>
+            <li>Changes to objectproperties will not make the view to be updated. You need to call the <code>render()</code> manually in order to do so.</li>
+            <li>Objects cannot create form-elements: you need <code>Y.ITSAFormModel</code> to do so.</li>
+        </ul>
+    </p>
+
+<h3>Attaching Y.ITSAFormModel</h3>
+    <p>
+        When a Y.ITSAFormModel-instance is attached to the model-attribute, you can make advantage of the UI-elements defined by Y.ITSAFormModel. Whether the view renders the UI-elements or not, depends on the attribute <code>editable</code>.
+    </p>
+
+<h3>Attaching plain text</h3>
+    <p>
+        Y.ITSAVieewModel makes it is posible to add plain text (string) to the model-attribute. This leads to 'just' rendering the text inside the view-container ignoring the template.
+    </p>

@@ -1,11 +1,57 @@
 {
     "name"       : "gallery-itsaviewmodel",
     "displayName": "Gallery: gallery-itsaviewmodel",
-    "description": "*Summary Goes Here*",
+    "description": "ITSAViewModel is a extention of Y.View and renderes Y.Model-instances -or just plain objects- full automaticly, based on templates.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaviewmodel" ],
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "simple-view",
+            "displayName": "Creating a simple view",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "changing-models",
+            "displayName": "Recreate a Purecss form",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "changing-template",
+            "displayName": "Recreate a Purecss form",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "changing-editability",
+            "displayName": "Recreate a Purecss form",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "using-microtemplates",
+            "displayName": "Recreate a Purecss form",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        }
+    ]
 }
