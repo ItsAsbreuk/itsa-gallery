@@ -1275,7 +1275,7 @@ YUI.add('module-tests', function(Y) {
                 readonly: true,
                 format: '%Y-%M-%d',
                 primary: true,
-                buttonText: 'press on this button',
+                labelHTML: 'press on this button',
                 tooltip: 'here is some tooltipinfo'
             });
             body.append(this.formElement.html);
@@ -1374,7 +1374,7 @@ YUI.add('module-tests', function(Y) {
                 readonly: true,
                 format: '%Y-%M-%d',
                 primary: true,
-                buttonText: 'press on this button',
+                labelHTML: 'press on this button',
                 tooltip: 'here is some tooltipinfo'
             });
             body.append(this.formElement.html);
@@ -1473,7 +1473,7 @@ YUI.add('module-tests', function(Y) {
                 readonly: true,
                 format: '%Y-%M-%d',
                 primary: true,
-                buttonText: 'press on this button',
+                labelHTML: 'press on this button',
                 tooltip: 'here is some tooltipinfo'
             });
             body.append(this.formElement.html);

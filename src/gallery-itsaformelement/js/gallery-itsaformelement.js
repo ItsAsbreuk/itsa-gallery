@@ -88,7 +88,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     PATTERN     = 'pattern',
     DATA        = 'data',
     CLASS       = 'class',
-    BUTTONTEXT  = 'buttonText',
+    LABELHTML  = 'labelHTML',
     SWITCH      = 'switch',
     SWITCHED    = SWITCH+'ed',
     SWITCHLABEL = SWITCH+LABEL,
@@ -112,7 +112,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     VALUESWITCHED_SUB    = '{'+VALUESWITCHED+'}',
     VALUENONSWITCHED_SUB = '{'+VALUENONSWITCHED+'}',
     LABELDATA_SUB        = '{'+LABELDATA+'}',
-    BUTTONTEXT_SUB       = '{'+BUTTONTEXT+'}',
+    LABELHTML_SUB       = '{'+LABELHTML+'}',
     FOCUSABLE_SUB        = '{'+FOCUSABLE+'}',
 
     TYPE           = 'type',
@@ -143,7 +143,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ELEMENT_HIDDEN = INPUT_TYPE_IS+HIDDEN+'" '+ID_SUB+NAME_SUB+VALUE_SUB+' />',
     ELEMENT_TEXTAREA = '<'+TEXTAREA+' '+ID_SUB+NAME_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+TEXTAREA+'>',
     ELEMENT_WIDGET = VALUENONSWITCHED_SUB+'<'+DIV+' '+ID_SUB+NAME_SUB+HIDDEN_SUB+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'></'+DIV+'>'+VALUESWITCHED_SUB,
-    ELEMENT_BUTTON = BUTTON_TYPE_IS+TYPE_SUB+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+BUTTONTEXT_SUB+'</'+BUTTON+'>',
+    ELEMENT_BUTTON = BUTTON_TYPE_IS+TYPE_SUB+'" '+ID_SUB+NAME_SUB+VALUE_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+'>'+LABELHTML_SUB+'</'+BUTTON+'>',
     ELEMENT_DATE = VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+READONLY_SUB+
                    ' '+DATA_DATETIME+'"'+DATE+'"'+DATA_SUB+FOCUSABLE_SUB+CLASS_SUB+'><i '+CLASS+'="'+ICON_DATE_CLASS+'"></i></'+BUTTON+'>'+VALUESWITCHED_SUB,
     ELEMENT_TIME = VALUENONSWITCHED_SUB+BUTTON_TYPE_IS+BUTTON+'" '+ID_SUB+NAME_SUB+VALUE_SUB+HIDDEN_SUB+REQUIRED_SUB+DATA_LABEL_DATETIME+READONLY_SUB+
@@ -232,7 +232,7 @@ ITSAFormElement = Y.ITSAFormElement = {};
  * @method getElement
  * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
  * @param [config] {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
- *   @param [config.buttonTekst] {String} only valid for non 'datetime'-buttons.
+ *   @param [config.labelHTML] {String} only valid for non 'datetime'-buttons.
  *   @param [config.checked=false] {Boolean} only valid for checkboxes and radiobuttons.
  *   @param [config.classname] {String} additional classname for the html-element or widget.
  *   @param [config.data] {String} for extra data-attributes, f.i. data: 'data-someinfo="somedata" data-moreinfo="moredata"'.
@@ -418,8 +418,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             primarybutton = config.primary;
             disabledbutton = disabled;
 /*jshint expr:true */
-            config[BUTTONTEXT] || (subtituteConfig[BUTTONTEXT]=(value||type));
-            subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+subtituteConfig[BUTTONTEXT]+'"');
+            config[LABELHTML] || (subtituteConfig[LABELHTML]=(value||type));
+            subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+subtituteConfig[LABELHTML]+'"');
 /*jshint expr:false */
         }
         else if (isdatetime) {
