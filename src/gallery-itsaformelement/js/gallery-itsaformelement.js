@@ -343,7 +343,6 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         checked, purebutton, readonly, extralabel;
     // first setting up global data-attributes
 /*jshint expr:true */
-    config['remove'+REQUIRED] && (delete subtituteConfig[REQUIRED]);
     configdata && (data+=' '+configdata);
     modelattribute && (data+=' data-'+MODELATTRIBUTE+'="true"');
     subtituteConfig[DATA] = data;
@@ -381,7 +380,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++ non-widget formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false;
-        required = (typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD);
+        required = !config['remove'+REQUIRED] && ((typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD));
         readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false;
 /*jshint expr:true */
         subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
