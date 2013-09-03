@@ -2059,22 +2059,25 @@ ITSAFormModel.prototype._validValue = function(node, formelement, attribute, val
     var instance = this,
         type = formelement.type,
         typeok = ((type===DATE) || (type===TIME) || (type===DATETIME) || (type==='checkbox')),
-        attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern, nodeRequired, formconfigrequired, formconfig;
+        attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern, nodeRequired, formconfigrequired, formconfig, emptyNodeOk;
 
     Y.log('_validValue attribute  '+attribute, 'info', 'ITSAFormModel');
     if (!typeok) { // typeok are types that are always is ok, for it was created by the datetimepicker, or a checkbox
-        attrconfig = instance._getAttrCfg(attribute);
-        attrValidationFunc = attrconfig.validator;
-        nodePattern = node.getAttribute(DATA+'-pattern');
         // because 'required' is removed from the nodeattribute, we need to check this from formconfig
+        attrconfig = instance._getAttrCfg(attribute);
         formconfig = attrconfig.formconfig;
         formconfigrequired = formconfig && formconfig.required;
-        nodeRequired = (typeof formconfigrequired === BOOLEAN) && formconfigrequired;
-        validByAttrFunc = !attrValidationFunc || attrValidationFunc((type===NUMBER ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
-        validByPattern = !nodePattern || ((value==='') && !nodeRequired) || new RegExp(nodePattern, "i").test(value);
+        nodeRequired = ((typeof formconfigrequired === BOOLEAN) && formconfigrequired) || (type==='password');
+        emptyNodeOk = ((value==='') && !nodeRequired);
+        if (!emptyNodeOk) {
+            attrValidationFunc = attrconfig.validator;
+            nodePattern = node.getAttribute(DATA+'-pattern');
+            validByAttrFunc = !attrValidationFunc || attrValidationFunc((type===NUMBER ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
+            validByPattern = !nodePattern || new RegExp(nodePattern, "i").test(value);
+        }
     }
     Y.log('attribute is validated '+(typeok || (validByAttrFunc && validByPattern)), (typeok || (validByAttrFunc && validByPattern)) ? 'info' : 'warn', 'ITSAFormModel');
-    return typeok || (validByAttrFunc && validByPattern);
+    return typeok || emptyNodeOk || (validByAttrFunc && validByPattern);
 };
 
 ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';

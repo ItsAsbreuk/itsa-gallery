@@ -131,7 +131,7 @@ var YArray = Y.Array,
       * @event destroyclick
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+      * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
       * @param e.buttonNode {Y.Node} reference to the buttonnode
       * @param e.formElement {Object} reference to the form-element
       *
@@ -145,7 +145,7 @@ var YArray = Y.Array,
       * @event removeclick
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+      * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
       * @param e.buttonNode {Y.Node} reference to the buttonnode
       * @param e.formElement {Object} reference to the form-element
       *
@@ -656,12 +656,12 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
 /**
  *
  * Renderes a formelement-button. In order to be able to take action once the button is clicked, you can use config.value,
- * otherwise 'buttonText' will automaticly be the e.value inside the eventlistener. By specifying 'config',
+ * otherwise 'labelHTML' will automaticly be the e.value inside the eventlistener. By specifying 'config',
  * the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-press"></i> press me'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-press"></i> press me'
  *
  * @method renderBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -675,19 +675,19 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderBtn = function(labelHTML, config) {
     Y.log('renderBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, BUTTON);
+    return this._renderBtn(labelHTML, config, BUTTON);
 };
 
 /**
  *
  * Renderes a formelement-cancelbutton.
  * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-cancel"></i> cancel'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-cancel"></i> cancel'
  *
  * @method renderCancelBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -701,19 +701,19 @@ ITSAFormModel.prototype.renderBtn = function(buttonText, config) {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderCancelBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderCancelBtn = function(labelHTML, config) {
     Y.log('renderCancelBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, CANCEL);
+    return this._renderBtn(labelHTML, config, CANCEL);
 };
 
 /**
  *
  * Renderes a formelement-destroybutton. 'destroy' differs from 'remove' by NOT calling the destroy-method from the persistence layer (no syncing destroy).
  * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-destroy"></i> destroy'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-destroy"></i> destroy'
  *
  * @method renderDestroyBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -727,19 +727,19 @@ ITSAFormModel.prototype.renderCancelBtn = function(buttonText, config) {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderDestroyBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderDestroyBtn = function(labelHTML, config) {
     Y.log('renderDestroyBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, DESTROY);
+    return this._renderBtn(labelHTML, config, DESTROY);
 };
 
 /**
  *
  * Renderes a formelement-removebutton. 'remove' differs from 'destroy' by calling the destroy-method from the persistence layer (syncing destroy).
  * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-remove"></i> remove'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-remove"></i> remove'
  *
  * @method renderRemoveBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -753,19 +753,19 @@ ITSAFormModel.prototype.renderDestroyBtn = function(buttonText, config) {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderRemoveBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderRemoveBtn = function(labelHTML, config) {
     Y.log('renderRemoveBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, REMOVE);
+    return this._renderBtn(labelHTML, config, REMOVE);
 };
 
 /**
  *
  * Renderes a formelement-resetbutton.
  * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-reset"></i> reset'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-reset"></i> reset'
  *
  * @method renderResetBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -779,19 +779,19 @@ ITSAFormModel.prototype.renderRemoveBtn = function(buttonText, config) {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderResetBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderResetBtn = function(labelHTML, config) {
     Y.log('renderResetBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, RESET);
+    return this._renderBtn(labelHTML, config, RESET);
 };
 
 /**
  *
  * Renderes a formelement-savebutton.
  * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-save"></i> save'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-save"></i> save'
  *
  * @method renderSaveBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -805,19 +805,19 @@ ITSAFormModel.prototype.renderResetBtn = function(buttonText, config) {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderSaveBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderSaveBtn = function(labelHTML, config) {
     Y.log('renderSaveBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, SAVE);
+    return this._renderBtn(labelHTML, config, SAVE);
 };
 
 /**
  *
  * Renderes a formelement-submitbutton.
  * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-press"></i> save'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-press"></i> save'
  *
  * @method renderSubmitBtn
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -831,9 +831,9 @@ ITSAFormModel.prototype.renderSaveBtn = function(buttonText, config) {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype.renderSubmitBtn = function(buttonText, config) {
+ITSAFormModel.prototype.renderSubmitBtn = function(labelHTML, config) {
     Y.log('renderSubmitBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(buttonText, config, SUBMIT);
+    return this._renderBtn(labelHTML, config, SUBMIT);
 };
 
 /**
@@ -1108,7 +1108,7 @@ ITSAFormModel.prototype.setWidgetValueField = function(widgetClassname, valueFie
  * <ul>
  * <li>propertykey --> reference-key which will be part (a property) of the result</li>
  * <li>type --> 'button', 'cancel', 'destroy', 'remove', 'reset', 'save' or 'submit'</li>
- * <li>buttonText --> text rendered on the button</li>
+ * <li>labelHTML --> text rendered on the button</li>
  * <li>config --> config-object that is passed through the renderBtn-function</li>
  * </ul>
  * The buttons-object is used to call the related 'renderBtn' method.
@@ -1123,7 +1123,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
         UIattrs = {},
         allAttrs = instance.getAttrs(),
         renderBtnFns = instance._renderBtnFns,
-        propertykey, type, buttonText, config;
+        propertykey, type, labelHTML, config;
 
     Y.log('toJSONUI', 'info', 'ITSAFormModel');
     delete allAttrs.clientId;
@@ -1141,10 +1141,10 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
     if (Lang.isObject(buttons)) {
         propertykey = buttons.propertykey;
         type = buttons.type;
-        buttonText = buttons.buttonText;
+        labelHTML = buttons.labelHTML;
         config = buttons.config;
 /*jshint expr:true */
-        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, buttonText, config)());
+        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, labelHTML, config)());
 /*jshint expr:false */
     }
     else if (Lang.isArray(buttons)) {
@@ -1153,10 +1153,10 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
             function(buttonobject) {
                 propertykey = buttonobject.propertykey;
                 type = buttonobject.type;
-                buttonText = buttonobject.buttonText;
+                labelHTML = buttonobject.labelHTML;
                 config = buttonobject.config;
 /*jshint expr:true */
-                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, buttonText, config)());
+                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, labelHTML, config)());
 /*jshint expr:false */
             }
         );
@@ -1385,7 +1385,7 @@ ITSAFormModel.prototype._clearEventhandlers = function() {
  * @method _defFnCancel
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1404,7 +1404,7 @@ ITSAFormModel.prototype._defFnCancel = function() {
  * @method _defFnDestroy
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1423,7 +1423,7 @@ ITSAFormModel.prototype._defFnDestroy = function() {
  * @method _defFnChangeDate
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1495,7 +1495,7 @@ ITSAFormModel.prototype._defFnChangeDate = function(e) {
  * @method _defFnRemove
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1514,7 +1514,7 @@ ITSAFormModel.prototype._defFnRemove = function() {
  * @method _defFnReset
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1535,7 +1535,7 @@ ITSAFormModel.prototype._defFnReset = function() {
  * @method _defFnSubmit
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1572,7 +1572,7 @@ ITSAFormModel.prototype._defFnSubmit = function() {
  * @method _defFnSave
  * @param e {EventFacade} Event Facade including:
  * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or buttonText
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
  * @param e.buttonNode {Y.Node} reference to the buttonnode
  * @param e.formElement {Object} reference to the form-element
  * @private
@@ -1838,13 +1838,13 @@ ITSAFormModel.prototype._removeValidation  = function() {
 /**
  *
  * Renderes a formelement-button. In order to be able to take action once the button is clicked, you can use config.value,
- * otherwise 'buttonText' will automaticly be the e.value inside the eventlistener. By specifying 'config',
+ * otherwise 'labelHTML' will automaticly be the e.value inside the eventlistener. By specifying 'config',
  * the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'buttonText', f.i.: '<i class="icon-press"></i> press me'
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-press"></i> press me'
  *
  * @method _renderBtn
  * @private
- * @param buttonText {String} Text on the button (equals buttonName whennot specified).
+ * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
  * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
  * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
@@ -1859,7 +1859,7 @@ ITSAFormModel.prototype._removeValidation  = function() {
  * @since 0.1
  *
  */
-ITSAFormModel.prototype._renderBtn = function(buttonText, config, buttontype) {
+ITSAFormModel.prototype._renderBtn = function(labelHTML, config, buttontype) {
     var instance = this,
         formelements = instance._FORM_elements,
         knownNodeIds = instance._knownNodeIds,
@@ -1869,12 +1869,12 @@ ITSAFormModel.prototype._renderBtn = function(buttonText, config, buttontype) {
 /*jshint expr:true */
     config || (config = {});
     buttontype || (buttontype = BUTTON);
-    buttonText || (buttonText = buttontype);
+    labelHTML || (labelHTML = buttontype);
     config[DATA] || (config[DATA] = '');
 /*jshint expr:false */
     config[DATA] += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
     config.buttontype = BUTTON;
-    config.buttonText = buttonText;
+    config.labelHTML = labelHTML;
     formbutton = ITSAFormElement.getElement(BUTTON, config);
     nodeid = formbutton.nodeid;
     // store in instance._FORM_elements
@@ -1885,7 +1885,7 @@ ITSAFormModel.prototype._renderBtn = function(buttonText, config, buttontype) {
         function(node) {
             if (knownNodeIds[nodeid]) {
                 // was rendered before --> we need to replace it by an errornode
-                Y.log('renderBtn --> nodeid '+nodeid+' for button '+config.buttonText+' was already inserted in the dom: won\'t be rendered again', 'warn', 'ITSAFormModel');
+                Y.log('renderBtn --> nodeid '+nodeid+' for button '+config.labelHTML+' was already inserted in the dom: won\'t be rendered again', 'warn', 'ITSAFormModel');
                 node.insert(DUPLICATE_NODE, 'replace');
             }
             else {
@@ -2061,22 +2061,25 @@ ITSAFormModel.prototype._validValue = function(node, formelement, attribute, val
     var instance = this,
         type = formelement.type,
         typeok = ((type===DATE) || (type===TIME) || (type===DATETIME) || (type==='checkbox')),
-        attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern, nodeRequired, formconfigrequired, formconfig;
+        attrconfig, attrValidationFunc, nodePattern, validByAttrFunc, validByPattern, nodeRequired, formconfigrequired, formconfig, emptyNodeOk;
 
     Y.log('_validValue attribute  '+attribute, 'info', 'ITSAFormModel');
     if (!typeok) { // typeok are types that are always is ok, for it was created by the datetimepicker, or a checkbox
-        attrconfig = instance._getAttrCfg(attribute);
-        attrValidationFunc = attrconfig.validator;
-        nodePattern = node.getAttribute(DATA+'-pattern');
         // because 'required' is removed from the nodeattribute, we need to check this from formconfig
+        attrconfig = instance._getAttrCfg(attribute);
         formconfig = attrconfig.formconfig;
         formconfigrequired = formconfig && formconfig.required;
-        nodeRequired = (typeof formconfigrequired === BOOLEAN) && formconfigrequired;
-        validByAttrFunc = !attrValidationFunc || attrValidationFunc((type===NUMBER ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
-        validByPattern = !nodePattern || ((value==='') && !nodeRequired) || new RegExp(nodePattern, "i").test(value);
+        nodeRequired = ((typeof formconfigrequired === BOOLEAN) && formconfigrequired) || (type==='password');
+        emptyNodeOk = ((value==='') && !nodeRequired);
+        if (!emptyNodeOk) {
+            attrValidationFunc = attrconfig.validator;
+            nodePattern = node.getAttribute(DATA+'-pattern');
+            validByAttrFunc = !attrValidationFunc || attrValidationFunc((type===NUMBER ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
+            validByPattern = !nodePattern || new RegExp(nodePattern, "i").test(value);
+        }
     }
     Y.log('attribute is validated '+(typeok || (validByAttrFunc && validByPattern)), (typeok || (validByAttrFunc && validByPattern)) ? 'info' : 'warn', 'ITSAFormModel');
-    return typeok || (validByAttrFunc && validByPattern);
+    return typeok || emptyNodeOk || (validByAttrFunc && validByPattern);
 };
 
 ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';
