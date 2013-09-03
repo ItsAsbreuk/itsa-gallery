@@ -46,7 +46,7 @@
         },
         {
             "name"       : "changing-editability",
-            "displayName": "Using UI-element of Y.ITSAFormModel",
+            "displayName": "Using UI-elements of Y.ITSAFormModel",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],

@@ -8,7 +8,8 @@
          Y.ITSAFormModel provides the ability to transform a property into a form-element. This way the Model's properties can be controlled using UI. The Class can also generate form-buttons which take the right actions when clicked.
      </p>
     <p>
-         <b>Note:</b> This module uses javascript to render the formelements. No html needs/should be used.
+         <b>Note1:</b> This module uses javascript to render the formelements. No html needs/should be used.<br />
+         <b>Note2:</b> For performancereason, the rendered elements needs to be inserted in the dom within 10 seconds after creation.
      </p>
 </div>
 
@@ -16,7 +17,8 @@
 
 <h2>Description</h2>
     <p>
-        <u>Y.ITSAFormModel should be used as a string-renderer.</u> It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. However, you might want to take advantage of <a href='#views'>views</a> who do this automaticly. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.
+        <u>Y.ITSAFormModel should be used as a string-renderer.</u> It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. However, you might want to take advantage of <a href='#views'>views</a> who do this automaticly. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.<br />
+         <b>Note:</b> For performancereason, the rendered elements needs to be inserted in the dom within 10 seconds after creation. This way we clean-up 'on-available'-events which might not being used and decrease performance.
     </p>
     <p>
         Every attribute needs a definition of its form-element (UI-element). Therefore, three extra attribute-properties are introduced:
@@ -198,6 +200,9 @@
     <p>
         Y.ITSAFormModel renderes strings which should be inserted it into the dom. You can do this yourself, or -as said before- you can use modules that do this automaticly (see <a href='#views'>Views</a>). If you choose to do this yourself, you should be aware of:
     <ul>
+        <li>
+            For performancereason, the rendered elements needs to be inserted in the dom within 10 seconds after creation. This way we clean-up 'on-available'-events which might not being used and decrease performance. If the element is not inserted within this timespan, then it will be inserted but remains hidden.
+        </li>
         <li>
             <code>Widget-formelements</code> will render automaticly once the render-string gets into the dom.
         </li>

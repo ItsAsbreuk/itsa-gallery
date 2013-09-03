@@ -32,6 +32,7 @@ var YArray = Y.Array,
     UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
     INVISIBLE_CLASS = 'itsa-invisible',
     DUPLICATE_NODE = '<span style="background-color:F00; color:#FFF">DUPLICATED FORMELEMENT is not allowed</span>',
+    MS_TIME_TO_INSERT = 10000, // time to insert the nodes, we set this time to avoid unnecessary onavailable listeners.
     MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
     MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
 
@@ -967,8 +968,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
             // The last thing we need to do is, set some action when the node gets into the dom: We need to
             // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
             // and after that we make it visible and store it internally, so we know the node has been inserted
-console.log('generate availablepromise for attribute '+attribute+' | node  '+nodeid);
-            YNode.availablePromise('#'+nodeid, {timeout:2000}).then(
+            YNode.availablePromise('#'+nodeid, MS_TIME_TO_INSERT).then(
                 function(node) {
                     if (knownNodeIds[nodeid]) {
                         // was rendered before --> we need to replace it by an errornode
@@ -977,11 +977,9 @@ console.log('generate availablepromise for attribute '+attribute+' | node  '+nod
                     else {
                         knownNodeIds[nodeid] = true;
                         instance._modelToUI(nodeid);
-console.log('attribute '+attribute+' | node '+node+' removing hidden class');
                         node.removeClass(INVISIBLE_CLASS);
                         if ((formtype===DATE) || (formtype===TIME) || (formtype===DATETIME)) {
                             node = Y.one('span.formatvalue[data-for="'+nodeid+'"]');
-console.log('attribute '+attribute+' | node '+node+' removing hidden class');
 /*jshint expr:true */
                             node && node.removeClass(INVISIBLE_CLASS);
 /*jshint expr:false */
@@ -989,7 +987,6 @@ console.log('attribute '+attribute+' | node '+node+' removing hidden class');
                     }
                 },
                 function(reason) {
-alert(reason);
                 }
             );
             //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1890,10 +1887,11 @@ ITSAFormModel.prototype._updateDateTimeUI = function(attribute, newdate, type, d
             attributenodes,
             function(nodeid) {
                 var node = Y.one('#'+nodeid),
-                    labelnode = Y.one('span[data-for="'+nodeid+'"]');
+                    labelnode = Y.one('span[data-for="'+nodeid+'"]'),
+                    validdate = Lang.isDate(newdate);
 /*jshint expr:true */
-                node && node.set(VALUE, newdate.getTime());
-                labelnode && labelnode.set('text', Y.Date.format(newdate, {format: dateformat}));
+                validdate && node && node.set(VALUE, newdate.getTime());
+                labelnode && labelnode.set('text', validdate ? Y.Date.format(newdate, {format: dateformat}) : ('invalid Date: '+newdate));
 /*jshint expr:false */
             }
         );
