@@ -982,7 +982,8 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
             // The last thing we need to do is, set some action when the node gets into the dom: We need to
             // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
             // and after that we make it visible and store it internally, so we know the node has been inserted
-            YNode.availablePromise('#'+nodeid).then(
+console.log('generate availablepromise for attribute '+attribute+' | node  '+nodeid);
+            YNode.availablePromise('#'+nodeid, 2000).then(
                 function(node) {
                     if (knownNodeIds[nodeid]) {
                         // was rendered before --> we need to replace it by an errornode
@@ -992,14 +993,19 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                     else {
                         knownNodeIds[nodeid] = true;
                         instance._modelToUI(nodeid);
+console.log('attribute '+attribute+' | node '+node+' removing hidden class');
                         node.removeClass(INVISIBLE_CLASS);
                         if ((formtype===DATE) || (formtype===TIME) || (formtype===DATETIME)) {
                             node = Y.one('span.formatvalue[data-for="'+nodeid+'"]');
+console.log('attribute '+attribute+' | node '+node+' removing hidden class');
 /*jshint expr:true */
                             node && node.removeClass(INVISIBLE_CLASS);
 /*jshint expr:false */
                         }
                     }
+                },
+                function(reason) {
+alert(reason);
                 }
             );
             //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
