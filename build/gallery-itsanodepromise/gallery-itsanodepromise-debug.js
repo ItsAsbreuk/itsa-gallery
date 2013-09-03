@@ -80,7 +80,7 @@ YNode.fireAvailabilities = function(nodeid) {
     var instance = this,
         loopingEvents;
 
-    Y.log('availablePromise', 'info', 'node');
+    Y.log('fireAvailabilities', 'info', 'node');
     if (!instance._loopingEvents) {
         instance._loopingEvents = {};
     }
@@ -124,8 +124,8 @@ YNode.fireAvailabilities = function(nodeid) {
 */
 YNode.availablePromise = function(nodeid, timeout) {
     Y.log('availablePromise', 'info', 'node');
-    return new Y.Promise(function (resolve, reject) {
-        Y.once(
+    var promise =  new Y.Promise(function (resolve, reject) {
+        var evt = Y.once(
             'available',
             function() {
                 resolve(Y.one(nodeid));
@@ -136,9 +136,13 @@ YNode.availablePromise = function(nodeid, timeout) {
             Y.later(timeout, null, function() {
                 var errormessage = 'node ' + nodeid + ' was not available within ' + timeout + ' ms';
                 reject(new Error(errormessage));
+/*jshint expr:true */
+                (promise.getStatus()==='pending') && evt.detach();
+/*jshint expr:false */
             });
         }
     });
+    return promise;
 };
 
 /**
@@ -155,8 +159,8 @@ YNode.availablePromise = function(nodeid, timeout) {
 */
 YNode.contentreadyPromise = function(nodeid, timeout) {
     Y.log('contentreadyPromise', 'info', 'node');
-    return new Y.Promise(function (resolve, reject) {
-        Y.once(
+    var promise = new Y.Promise(function (resolve, reject) {
+        var evt = Y.once(
             'contentready',
             function() {
                 resolve(Y.one(nodeid));
@@ -167,9 +171,13 @@ YNode.contentreadyPromise = function(nodeid, timeout) {
             Y.later(timeout, null, function() {
                 var errormessage = 'the content of node ' + nodeid + ' was not ready within ' + timeout + ' ms';
                 reject(new Error(errormessage));
+/*jshint expr:true */
+                (promise.getStatus()==='pending') && evt.detach();
+/*jshint expr:false */
             });
         }
     });
+    return promise;
 };
 
 /**
@@ -193,7 +201,7 @@ YNode.contentreadyPromise = function(nodeid, timeout) {
 */
 YNode.unavailablePromise = function(nodeid, options) {
     var instance = this,
-        optionsWithoutAfterAvailable;
+        optionsWithoutAfterAvailable, promise;
 
     Y.log('unavailablePromise', 'info', 'node');
     options = options || {};
@@ -205,7 +213,7 @@ YNode.unavailablePromise = function(nodeid, options) {
         );
     }
     else {
-        return new Y.Promise(function (resolve, reject) {
+        promise = new Y.Promise(function (resolve, reject) {
             var continousNodeCheck, unavailableListener,
                 timeout = options && options.timeout,
                 intervalNonNative = options && options.intervalNonNative;
@@ -250,10 +258,14 @@ YNode.unavailablePromise = function(nodeid, options) {
                         else {
                             reject(new Error(errormessage));
                         }
+/*jshint expr:true */
+                        unavailableListener && (promise.getStatus()==='pending') && unavailableListener.detach();
+/*jshint expr:false */
                     });
                 }
             }
         });
+        return promise;
     }
 };
 
