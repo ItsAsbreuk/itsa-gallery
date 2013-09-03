@@ -1,0 +1,62 @@
+YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', function(Y) {
+    var view, firstobject, secondobject, artisttemplate;
+
+    // create MyFormModelClass
+    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {}, {
+        ATTRS: {
+            name: {
+                formtype: 'text',
+                formconfig: {
+                    placeholder: 'artist',
+                    required: true
+                }
+            },
+            country: {
+                country: 'text',
+                formconfig: {
+                    placeholder: 'country',
+                    required: true
+                }
+            },
+            firstalbum: {
+                formtype: 'text',
+                formconfig: {
+                    placeholder: 'first album',
+                    required: true
+                }
+            },
+            release: {
+                formtype: 'date'
+            }
+        }
+    });
+
+    artist = new Y.ArtistModel({
+        name: 'U2',
+        country: 'Ireland',
+        firstalbum: 'Boy',
+        release: 1980
+    });
+
+    artisttemplate = 'Artist: {name}<br />'+
+                     'Country: {country}<br />'+
+                     'First album: {firstalbum}<br />'+
+                     'Releaseyear: {release}';
+
+    view = new Y.ITSAViewModel({
+        container: '#viewcont',
+        model: artist,
+        template: artisttemplate,
+        styled: true
+    });
+
+    view.render();
+
+    Y.one('#modelnonedit').on('click', function(){
+        view.set('editable', false);
+    });
+
+    Y.one('#modeledit').on('click', function(){
+        view.set('editable', true);
+    });
+});

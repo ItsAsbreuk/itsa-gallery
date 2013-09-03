@@ -18,8 +18,17 @@
             "hideTableOfContents": true
         },
         {
+            "name"       : "update-modelattributes",
+            "displayName": "Update modelattributes",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
             "name"       : "changing-models",
-            "displayName": "Recreate a Purecss form",
+            "displayName": "Replacing models inside view",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
@@ -28,7 +37,7 @@
         },
         {
             "name"       : "changing-template",
-            "displayName": "Recreate a Purecss form",
+            "displayName": "Different templates",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
@@ -37,16 +46,7 @@
         },
         {
             "name"       : "changing-editability",
-            "displayName": "Recreate a Purecss form",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "using-microtemplates",
-            "displayName": "Recreate a Purecss form",
+            "displayName": "Using UI-element of Y.ITSAFormModel",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],

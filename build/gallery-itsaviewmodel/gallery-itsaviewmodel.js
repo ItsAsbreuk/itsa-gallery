@@ -227,7 +227,7 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.View, [], {
             );
             eventhandlers.push(
                 instance.after(
-                    'modelEditableChange',
+                    'editableChange',
                     function(e) {
                         var newEditable = e.newVal,
                             model = instance.get('model');
@@ -290,6 +290,74 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.View, [], {
         },
 
         /**
+         * Method that is responsible for rendering the Model into the view.
+         *
+         * @method render
+         * @param [clear] {Boolean} whether to clear the view = making it empty without the template.
+         * normally you don't want this: leaving empty means the Model is drawn.
+         * @private
+         * @chainable
+         * @since 0.1
+         *
+        */
+        render : function (clear) {
+            var instance = this,
+                container = instance.get('container'),
+                itsatabkeymanager = container.itsatabkeymanager,
+                model = instance.get('model'),
+                editMode = instance.get('editable'),
+                itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
+                html = (clear || !model) ? '' : instance._modelRenderer(model);
+
+            // Render this view's HTML into the container element.
+            // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
+            if (editMode || instance._isMicroTemplate) {
+                if (editMode) {
+                    instance._initialEditAttrs = model.getAttrs();
+                }
+                container.cleanupWidgets(true);
+            }
+            // Append the container element to the DOM if it's not on the page already.
+            if (!instance._rendered) {
+/*jshint expr:true */
+                container.inDoc() || Y.one('body').append(container);
+                container.addClass('itsa-viewmodel');
+/*jshint expr:false */
+                instance._bindUI();
+            }
+            instance._rendered = true;
+            container.setHTML(html);
+            // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
+            if (editMode) {
+                Y.use('gallery-itsatabkeymanager', function() {
+                    if (itsatabkeymanager) {
+                        itsatabkeymanager.refresh(container);
+                    }
+                    else {
+                        container.plug(Y.Plugin.ITSATabKeyManager);
+                        itsatabkeymanager = container.itsatabkeymanager;
+                    }
+                    if (instance.get('focused')) {
+                        itsatabkeymanager.focusInitialItem();
+                    }
+                });
+            }
+            if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
+                itsaDateTimePicker.hide(true);
+            }
+            /**
+            * Fired when the view is rendered
+            *
+            * @event viewrendered
+            * @param e {EventFacade} Event Facade including:
+            * @param e.target {Y.ITSAViewModel} This instance.
+            * @since 0.2
+            */
+            instance.fire('viewrendered', {target: instance});
+            return instance;
+        },
+
+        /**
          * Cleans up bindings
          * @method destructor
          * @protected
@@ -348,74 +416,6 @@ Y.ITSAViewModel = Y.Base.create('itsaviewmodel', Y.View, [], {
                     return Lang.sub(template, jsondata);
                 };
             }
-        },
-
-        /**
-         * Method that is responsible for rendering the Model into the view.
-         *
-         * @method render
-         * @param [clear] {Boolean} whether to clear the view = making it empty without the template.
-         * normally you don't want this: leaving empty means the Model is drawn.
-         * @private
-         * @chainable
-         * @since 0.1
-         *
-        */
-        render : function (clear) {
-            var instance = this,
-                container = instance.get('container'),
-                itsatabkeymanager = container.itsatabkeymanager,
-                model = instance.get('model'),
-                editMode = instance.get('editable'),
-                itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
-                html = (clear || !model) ? '' : instance._modelRenderer(model);
-
-            // Render this view's HTML into the container element.
-            // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
-            if (editMode || instance._isMicroTemplate) {
-                if (editMode) {
-                    instance._initialEditAttrs = model.getAttrs();
-                }
-                container.cleanupWidgets(true);
-            }
-            // Append the container element to the DOM if it's not on the page already.
-            if (!instance._rendered) {
-/*jshint expr:true */
-                container.inDoc() || Y.one('body').append(container);
-                container.addClass('itsa-viewmodel');
-/*jshint expr:false */
-
-            }
-            instance._rendered = true;
-            container.setHTML(html);
-            // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
-            if (editMode) {
-                Y.use('gallery-itsatabkeymanager', function() {
-                    if (itsatabkeymanager) {
-                        itsatabkeymanager.refresh(container);
-                    }
-                    else {
-                        container.plug(Y.Plugin.ITSATabKeyManager);
-                        itsatabkeymanager = container.itsatabkeymanager;
-                    }
-                    if (instance.get('focused')) {
-                        itsatabkeymanager.focusInitialItem();
-                    }
-                });
-            }
-            if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
-                itsaDateTimePicker.hide(true);
-            }
-            /**
-            * Fired when the view is rendered
-            *
-            * @event viewrendered
-            * @param e {EventFacade} Event Facade including:
-            * @param e.target {Y.ITSAViewModel} This instance.
-            * @since 0.2
-            */
-            instance.fire('viewrendered', {target: instance});
-            return instance;
         },
 
         /**
