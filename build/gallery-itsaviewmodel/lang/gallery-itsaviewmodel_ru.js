@@ -1,0 +1,1 @@
+YUI.add("lang/gallery-itsaviewmodel_ru",function(e){e.Intl.add("gallery-itsaviewmodel","ru",{cancel:"cancel",destroy:"destroy",remove:"remove",reset:"reset",save:"save",submit:"submit",load:"load",undefined_template:"template is undefined"})},"@VERSION@");

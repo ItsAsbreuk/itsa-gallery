@@ -1,0 +1,1 @@
+YUI.add("lang/gallery-itsaviewmodel_nl",function(e){e.Intl.add("gallery-itsaviewmodel","nl",{cancel:"annuleer",destroy:"vernietig",remove:"verwijder",reset:"herstel",save:"opslaan",submit:"verstuur",undefined_template:"template is ongedefinieerd"})},"@VERSION@");

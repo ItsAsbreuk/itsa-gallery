@@ -1,10 +1,10 @@
 /*csslint adjoining-classes: false, star-property-hack: false */
 
-.itsa-viewmodel {
+.itsaviewmodel {
     overflow: auto;
 }
 
-.itsa-viewmodel-styled {
+.itsaviewmodel-styled {
     border: solid 1px #CCC;
     padding: 18px 14px;
     background-color: #EDF5FF;

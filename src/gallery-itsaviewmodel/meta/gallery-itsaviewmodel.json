@@ -1,12 +1,28 @@
 {
     "gallery-itsaviewmodel": {
         "requires": [
+            "intl",
             "base-build",
-            "widget",
             "view",
             "template-micro",
             "model",
+            "event-custom",
             "pluginhost-base"
+        ],
+        "lang" : [
+            "ar",
+            "de",
+            "en",
+            "es",
+            "fr",
+            "hu",
+            "it",
+            "ja",
+            "nb",
+            "nl",
+            "pt",
+            "ru",
+            "zh"
         ],
         "skinnable": true
     }

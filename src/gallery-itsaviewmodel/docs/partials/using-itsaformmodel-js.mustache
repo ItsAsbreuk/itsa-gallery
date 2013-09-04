@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', function(Y) {
-    var view, artist, artisttemplate, artisttemplateedit;
+    var view, viewedit, artist, artisttemplate, artisttemplateedit;
 
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
@@ -52,7 +52,6 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', f
     });
     artist.setLifeUpdate(true);
 
-
     artisttemplate = '<fieldset>'+
                         '<legend>Non-editable template</legend>'+
                         '<table class="pure-table pure-table-horizontal">'+
@@ -85,6 +84,13 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', f
                              '<div class="pure-control-group">{release}</div>'+
                          '</fieldset>';
 
+    viewedit = new Y.ITSAViewModel({
+        container: '#viewcontedit',
+        model: artist,
+        template: artisttemplateedit,
+        editable: true,
+        styled: true
+    });
     view = new Y.ITSAViewModel({
         container: '#viewcont',
         model: artist,
@@ -92,16 +98,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', f
         styled: true
     });
 
+    viewedit.render();
     view.render();
-
-    Y.one('#modelnonedit').on('click', function(){
-        view.set('template', artisttemplate, {silent: true});
-        view.set('editable', false);
-    });
-
-    Y.one('#modeledit').on('click', function(){
-        view.set('template', artisttemplateedit, {silent: true});
-        view.set('editable', true);
-    });
 
 });
