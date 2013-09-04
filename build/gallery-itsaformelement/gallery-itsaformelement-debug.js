@@ -202,6 +202,29 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
 
 ITSAFormElement = Y.ITSAFormElement = {};
 
+ITSAFormElement._dateTimeTypes = { // proper date/time-formelement types
+    date: true,
+    time: true,
+    datetime: true
+};
+ITSAFormElement._fullSelectTypes = { // formelement types that are allowed to be full selected
+    text: true,
+    number: true,
+    password: true,
+    textarea: true,
+    email: true,
+    url: true
+};
+ITSAFormElement._buttonsTypes = { // button-formelement types
+    button: true,
+    submit: true,
+    reset: true
+};
+ITSAFormElement._radioCheckboxTypes = { // radio and checkbox-formelement types
+    radio: true,
+    checkbox: true
+};
+
 /**
  * Renderes a String that contains the completeFormElement definition. You can also define a widgetclass, by which the widget will
  * be created as soon as the returned 'html' gets into the dom. The next html-elements can be rendered:
@@ -233,7 +256,7 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *
  * @method getElement
  * @param type {String|widgetClass} the elementtype to be created. Can also be a widgetclass.
- * @param [config] {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
+ * @param [config] {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the ITSAFormElement.
  *   @param [config.labelHTML] {String} only valid for non 'datetime'-buttons.
  *   @param [config.checked=false] {Boolean} only valid for checkboxes and radiobuttons.
  *   @param [config.classname] {String} additional classname for the html-element or widget.
@@ -317,7 +340,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
  * @method _renderedElement
  * @private
  * @param type {String} the elementtype
- * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the instance.
+ * @param config {Object} The config-attributes for the element which is passed through to the <b>Attributes</b> of the ITSAFormElement.
  * @param nodeid {String} The unique id of the node (without the '#').
  * @param [iswidget] {Boolean} whether the element is a widget
  * @return {String} rendered Node which is NOT part of the DOM yet! Must be inserted into the DOM manually, or through Y.ITSAFORM
@@ -340,7 +363,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         switchvalue = config[SWITCHVALUE],
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
-        isdatetime = (type===DATE) || (type===TIME) || (type===DATETIME),
+        isdatetime = ITSAFormElement._dateTimeTypes[type],
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
         checked, purebutton, readonly, extralabel;
     // first setting up global data-attributes
@@ -427,7 +450,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++ specific radio and checkbox formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        else if ((type===RADIO) || (type===CHECKBOX)) {
+        else if (ITSAFormElement._radioCheckboxTypes[type]) {
             surroundlabelclass = (type===RADIO) ? PURERADIO : PURECHECKBOX;
             checked = (typeof subtituteConfig[CHECKED]===BOOLEAN) ? subtituteConfig[CHECKED] : false;
             subtituteConfig[CHECKED] = checked ? (' '+CHECKED+'="'+CHECKED+'"') : '';
@@ -437,7 +460,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++ specific button/submit/reset formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        else if ((type===BUTTON) || (type===SUBMIT) || (type===RESET)) {
+        else if (ITSAFormElement._buttonsTypes[type]) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
             purebutton = true;
             subtituteConfig[TYPE] = type;
@@ -478,7 +501,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        fullselect && ((type===TEXT) || (type===NUMBER) || (type===PASSWORD) || (type===TEXTAREA) || (type===EMAIL) || (type===URL)) && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
+        fullselect && ITSAFormElement._fullSelectTypes[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
                                 (isdatetime ? (' '+ITSABUTTON_DATETIME_CLASS) : '')+
@@ -666,11 +689,11 @@ YArray.each(
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
                     // do not compare with variabele BUTTON, because that one is lowercase
-                    if (targetNode.get('tagName')!=='BUTTON') {
+                    if (targetNode && (targetNode.get('tagName')!=='BUTTON')) {
                         targetNode = targetNode.get('parentNode');
                         e.target = targetNode;
                     }
-                    if (targetNode.getAttribute(DATA+'-'+DATETIME)===eventtype) {
+                    if (targetNode && (targetNode.getAttribute(DATA+'-'+DATETIME)===eventtype)) {
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
                         notifier.fire(e);
@@ -723,12 +746,12 @@ YArray.each(
                 subscription._handle = node.on(CLICK, function (e) {
                     var targetNode = e.target;
                     // It could be that targetNode is an innerNode of the button! (in case of imagebuttons) --> we do a 1 level up check:
-                    if (targetNode.get('tagName')!=='BUTTON') {
+                    if (targetNode && (targetNode.get('tagName')!=='BUTTON')) {
                         targetNode = targetNode.get('parentNode');
                         e.target = targetNode;
                     }
-                    if ((targetNode.getAttribute(DATA_BUTTON_TYPE)===eventtype) ||
-                        ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype))) {
+                    if (targetNode && ((targetNode.getAttribute(DATA_BUTTON_TYPE)===eventtype) ||
+                        ((targetNode.getAttribute(DATA_BUTTON_TYPE)===BUTTON) && (targetNode.getAttribute(DATA_BUTTON_SUBTYPE)===eventtype)))) {
                         // The notifier triggers the subscriptions to be executed.
                         // Pass its fire() method the triggering DOM event facade
                         notifier.fire(e);
