@@ -417,9 +417,8 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 // -- Public Static Properties -------------------------------------------------
 
 var YArray = Y.Array,
-    DEFAULT_ITEM_SELECTOR = '[focusable="true"]',
+    DEFAULT_ITEM_SELECTOR = '[data-focusable="true"]',
     YUI_PRIMARYBUTTON_CLASS = 'yui3-button-primary',
-    ITSAFORMELEMENT_SELECTONFOCUS = 'data-fullselect',
     ITSAFORMELEMENT_FIRSTFOCUS = 'data-initialfocus="true"';
 
 
@@ -484,12 +483,12 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 container        = (options && options.container) || instance.host,
                 disabledSelector = instance.get('disabledSelector'),
                 itemSelector     = (options && options.selector) || instance.get('itemSelector'),
-                item             = container.one(itemSelector),
+                item             = container && container.one(itemSelector),
                 i                = 0,
                 allItems;
 
             while (item && disabledSelector && item.test(disabledSelector)) {
-                allItems = allItems || container.all(itemSelector);
+                allItems = allItems || (container && container.all(itemSelector));
                 item = (++i<allItems.size()) ? allItems.item(i) : null;
             }
             if (!options.silent) {
@@ -517,7 +516,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                         instance.first();
             if (focusitem) {
                 focusitem.focus();
-                instance._selectNode(focusitem);
             }
         },
 
@@ -536,8 +534,8 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             var instance         = this,
                 container        = (options && options.container) || instance.host,
                 disabledSelector = instance.get('disabledSelector'),
-                allItems         = container.all(instance.get('itemSelector')),
-                i                = allItems.size() - 1,
+                allItems         = container && container.all(instance.get('itemSelector')),
+                i                = allItems ? (allItems.size() - 1) : 0,
                 item             = allItems.pop();
 
             options = options || {};
@@ -575,8 +573,8 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 return instance.first(options);
             }
             disabledSelector = instance.get('disabledSelector');
-            allItems = container.all(instance.get('itemSelector'));
-            itemSize = allItems.size();
+            allItems = container && container.all(instance.get('itemSelector'));
+            itemSize = allItems ? allItems.size() : 0;
             index = allItems.indexOf(activeItem);
             nextItem = (++index<itemSize) ? allItems.item(index) : null;
             // Get the next item that matches the itemSelector and isn't
@@ -622,8 +620,8 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 return instance.first(options);
             }
             disabledSelector = instance.get('disabledSelector');
-            allItems = container.all(instance.get('itemSelector'));
-            index = allItems.indexOf(activeItem);
+            allItems = container && container.all(instance.get('itemSelector'));
+            index = allItems ? allItems.indexOf(activeItem) : 0;
             prevItem = (--index>=0) ? allItems.item(index) : null;
             // Get the next item that matches the itemSelector and isn't
             // disabled.
@@ -662,60 +660,10 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             }
             nodeisfocusable = node && instance._nodeIsFocusable(node);
             if (nodeisfocusable) {
-                container.all('['+ITSAFORMELEMENT_FIRSTFOCUS+']').removeAttribute(ITSAFORMELEMENT_FIRSTFOCUS);
+/*jshint expr:true */
+                container && container.all('['+ITSAFORMELEMENT_FIRSTFOCUS+']').removeAttribute(ITSAFORMELEMENT_FIRSTFOCUS);
+/*jshint expr:false */
                 node.addAttribute(ITSAFORMELEMENT_FIRSTFOCUS);
-            }
-        },
-
-        /**
-         * Makes the Node to be in a state that all text will be selected once the Node gets Focus. Enables or disables the state.
-         * Be aware that this has only effect on Nodes of the type: <b>'input[type=text], input[type=password], input[type=url],
-         * input[type=email], textarea'</b>.
-         *
-         * @method setSelectText
-         * @param select {Boolean} whether the 'selectall' option is active or not
-         * @param [node] {Y.Node|String} the Node, Nodelist or Selector of the nodes to be set. Has to be inside the host (container) and focusable.
-                  If undefined, than the new setting will be applyable to all focusable text-Nodes.
-         * @since 0.1
-        */
-        setSelectText : function(select, node) {
-            var instance = this,
-                container = instance.host,
-                nodeisfocusable, itemSelector, disabledSelector, allNodes;
-
-            if (typeof node === 'string') {
-                node = Y.all(node);
-            }
-            if (node && (node instanceof Y.Node)) {
-                // only 1 node needs to be set
-                nodeisfocusable = instance._nodeIsFocusable(node);
-                if (nodeisfocusable && node.test('input[type=text], input[type=password], input[type=url], input[type=email], textarea')) {
-                    if (select) {
-                        node.setAttribute(ITSAFORMELEMENT_SELECTONFOCUS, 'true');
-                    }
-                    else {
-                        node.removeAttribute(ITSAFORMELEMENT_SELECTONFOCUS);
-                    }
-                }
-            }
-            else {
-                allNodes = node || container.all(itemSelector);
-                // allNodes need to be set --> this is a NodeList
-                itemSelector = instance.get('itemSelector');
-                disabledSelector = instance.get('disabledSelector');
-                allNodes.each(
-                    function(oneNode) {
-                        if (oneNode.test('input[type=text], input[type=password], input[type=url], input[type=email], textarea') &&
-                            (!disabledSelector || !oneNode.test(disabledSelector))) {
-                            if (select) {
-                                oneNode.setAttribute(ITSAFORMELEMENT_SELECTONFOCUS, 'true');
-                            }
-                            else {
-                                oneNode.removeAttribute(ITSAFORMELEMENT_SELECTONFOCUS);
-                            }
-                        }
-                    }
-                );
             }
         },
 
@@ -789,7 +737,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 container           = instance.host,
                 disabledSelector    = instance.get('disabledSelector'),
                 itemSelector        = instance.get('itemSelector'),
-                nodeInsideContainer = node && container.contains(node),
+                nodeInsideContainer = node && container && container.contains(node),
                 isFocusable;
 
             isFocusable = (nodeInsideContainer && node.test(itemSelector) && (!disabledSelector || !node.test(disabledSelector)));
@@ -797,7 +745,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         },
 
         /**
-         * Retreive the focus agian on the 'activeItem', or -when none- on the initial Item.
+         * Retreive the focus again on the 'activeItem', or -when none- on the initial Item.
          * Is called when the host-node gets focus.
          *
          * @method _retreiveFocus
@@ -810,49 +758,15 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
 
             if (activeItem) {
                 activeItem.focus();
-                instance._selectNode(activeItem);
             }
             else {
                 instance.focusInitialItem();
-            }
-        },
-
-        /**
-         * Selects the text inside the Node, or repositions the cursor to the end.
-         *
-         * @method _selectNode
-         * @private
-         * @since 0.1
-         *
-        */
-        _selectNode : function(node) {
-            if (node && node.test('input[type=text], input[type=password], textarea')) {
-                if (node.hasClass(ITSAFORMELEMENT_SELECTONFOCUS)) {
-                    node.select();
-                }
-                else {
-                    node.set('selectionStart', node.get('value').length);
-                    // set 'scrollTop' high to make Chrome scroll the last character into view
-                    node.set('scrollTop', 999999);
-                }
             }
         }
 
     }, {
         NS : 'itsatabkeymanager',
         ATTRS : {
-            /**
-             * Node that's currently either focused or focusable as part of the
-             * document's tab flow. Overridden because we need a different valueFn.
-             *
-             * @attribute {Node|null} activeItem
-            **/
-            activeItem: {
-                value: null,
-                setter: function(val) {
-                    this._selectNode(val);
-                }
-            },
             /**
              * Non-anchored CSS selector that matches item nodes that should be
              * focusable.
