@@ -45,13 +45,13 @@ var ITSAViewModel,
     Lang = Y.Lang,
     YArray = Y.Array,
     YIntl = Y.Intl,
+    IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
     GALLERY = 'gallery-',
     ITSAVIEWMODEL = 'itsaviewmodel',
     BUTTON = 'button',
     MODEL = 'model',
     SAVE_FIRSTCAP = 'Save',
-    CANCEL_FIRSTCAP = 'cancel',
     SUBMIT_FIRSTCAP = 'Submit',
     LOAD_FIRSTCAP = 'Load',
     DESTROY_FIRSTCAP = 'Destroy',
@@ -64,19 +64,15 @@ var ITSAViewModel,
     FUNCTION = 'function',
     EDITABLE = 'editable',
     CONTAINER = 'container',
-
-    /**
-      * Fired when view's model is canceled, either by clicking on a cancel-button or by calling formmodel.cancel();
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelcancel
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
-    CANCEL = 'cancel',
+    // hidden prototype property for internal use:
+    VALID_BUTTON_TYPES = {
+        destroy: true,
+        remove: true,
+        reset: true,
+        save: true,
+        submit: true,
+        load: true
+    },
 
     /**
       * Fired when view's model is destroyed.
@@ -156,18 +152,42 @@ var ITSAViewModel,
     **/
     SUBMIT = 'submit',
 
-    DATE = 'date',
-    TIME = 'time',
-    PICKER = 'picker',
     CLICK = 'click',
+    ABORT = 'abort',
+    CANCEL = 'cancel',
+    IGNORE = 'ignore',
+    NO = 'no',
+    OK = 'ok',
+    RETRY = 'retry',
+    YES = 'yes',
     BTN = 'btn_',
+    BTN_ABORT = BTN+ABORT,
     BTN_CANCEL = BTN+CANCEL,
     BTN_DESTROY = BTN+DESTROY,
+    BTN_IGNORE = BTN+IGNORE,
+    BTN_LOAD = BTN+LOAD,
+    BTN_NO = BTN+NO,
+    BTN_OK = BTN+OK,
     BTN_REMOVE = BTN+REMOVE,
     BTN_RESET = BTN+RESET,
+    BTN_RETRY = BTN+RETRY,
     BTN_SAVE = BTN+SAVE,
-    BTN_LOAD = BTN+LOAD,
     BTN_SUBMIT = BTN+SUBMIT,
+    BTN_YES = BTN+YES,
+    IMG = 'img',
+    IMGBTN_ABORT = IMG+BTN_ABORT,
+    IMGBTN_CANCEL = IMG+BTN_CANCEL,
+    IMGBTN_DESTROY = IMG+BTN_DESTROY,
+    IMGBTN_IGNORE = IMG+BTN_IGNORE,
+    IMGBTN_LOAD = IMG+BTN_LOAD,
+    IMGBTN_NO = IMG+BTN_NO,
+    IMGBTN_OK = IMG+BTN_OK,
+    IMGBTN_REMOVE = IMG+BTN_REMOVE,
+    IMGBTN_RESET = IMG+BTN_RESET,
+    IMGBTN_RETRY = IMG+BTN_RETRY,
+    IMGBTN_SAVE = IMG+BTN_SAVE,
+    IMGBTN_SUBMIT = IMG+BTN_SUBMIT,
+    IMGBTN_YES = IMG+BTN_YES,
 
     /**
       * Fired when a UI-elemnt needs to ficuds to the next element (in case of editable view).
@@ -295,22 +315,6 @@ var ITSAViewModel,
     SUBMIT_CLICK = SUBMIT+CLICK,
 
     /**
-      * Fired when a template-button {btn_cancel} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
-      *
-      * @event cancelclick
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
-      * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.formElement {Object} reference to the form-element
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
-    CANCEL_CLICK = CANCEL+CLICK,
-
-    /**
       * Fired when a template-button {btn_reset} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
@@ -340,55 +344,7 @@ var ITSAViewModel,
       * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
       *
     **/
-    SAVE_CLICK = SAVE+CLICK,
-
-    /**
-      * Fired when a datepickerbutton is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
-      *
-      * @event datepickerclick
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Date} current value of the property
-      * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.formElement {Object} reference to the form-element
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
-    DATEPICKER_CLICK = DATE+PICKER+CLICK,
-
-    /**
-      * Fired when a timepickerbutton is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
-      *
-      * @event timepickerclick
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Date} current value of the property
-      * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.formElement {Object} reference to the form-element
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
-    TIMEPICKER_CLICK = TIME+PICKER+CLICK,
-
-    /**
-      * Fired when a datetimepickerbutton is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
-      *
-      * @event datetimepickerclick
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Date} current value of the property
-      * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.formElement {Object} reference to the form-element
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
-    DATETIMEPICKER_CLICK = DATE+TIME+PICKER+CLICK;
+    SAVE_CLICK = SAVE+CLICK;
 
 
 //===============================================================================================
@@ -526,17 +482,6 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
     }
 );
 
-// hidden prototype property for internal use:
-ITSAViewModel.prototype._validBtnTypes = {
-    cancel: true,
-    destroy: true,
-    remove: true,
-    reset: true,
-    save: true,
-    submit: true,
-    load: true
-};
-
 /**
  * @method initializer
  * @protected
@@ -545,15 +490,6 @@ ITSAViewModel.prototype.initializer = function() {
     var instance = this,
         model = instance.get(MODEL);
 
-
-    /**
-     * PreventDefault function of cancelclick-event.
-     * Will pass the 'preventDefault'-method through to the underlying model
-     *
-     * @method _defPrevFn_cancelclick
-     * @private
-     * @protected
-    */
 
     /**
      * PreventDefault function of destroyclick-event.
@@ -601,33 +537,6 @@ ITSAViewModel.prototype.initializer = function() {
     */
 
     /**
-     * PreventDefault function of datetimepickerclick-event.
-     * Will pass the 'preventDefault'-method through to the underlying model
-     *
-     * @method _defPrevFn_datetimepickerclick
-     * @private
-     * @protected
-    */
-
-    /**
-     * PreventDefault function of datepickerclick-event.
-     * Will pass the 'preventDefault'-method through to the underlying model
-     *
-     * @method _defPrevFn_datepickerclick
-     * @private
-     * @protected
-    */
-
-    /**
-     * PreventDefault function of timepickerclick-event.
-     * Will pass the 'preventDefault'-method through to the underlying model
-     *
-     * @method _defPrevFn_timepickerclick
-     * @private
-     * @protected
-    */
-
-    /**
      * PreventDefault function of validationerror-event.
      * Will pass the 'preventDefault'-method through to the underlying model
      *
@@ -663,8 +572,7 @@ ITSAViewModel.prototype.initializer = function() {
      * @protected
     */
     YArray.each(
-        [CANCEL_CLICK, DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK,
-         DATETIMEPICKER_CLICK, DATEPICKER_CLICK, TIMEPICKER_CLICK, VALIDATION_ERROR, UI_CHANGED],
+        [DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK, VALIDATION_ERROR, UI_CHANGED],
         function(event) {
             instance['_defPrevFn_'+event] = function(e) {
                 e.modelEventFacade.preventDefault();
@@ -768,7 +676,7 @@ ITSAViewModel.prototype.initializer = function() {
  * Removes custom buttonlabels defined with setButtonLabel().
  *
  * @method removeButtonLabel
- * @param buttonType {String} the buttontype which text should be replaced, either: 'cancel', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
+ * @param buttonType {String} the buttontype which text should be replaced, either: 'cancel', 'abort', 'retry', 'ok', 'ignore', 'yes', 'no', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
  * @since 0.3
  *
 */
@@ -845,12 +753,40 @@ ITSAViewModel.prototype.render = function (clear) {
 };
 
 /**
- * Creates a custom label for the buttons that are referenced by 'btn_cancel', 'btn_destroy', 'btn_remove', 'btn_reset', 'btn_save', 'btn_load' and 'btn_submit'.
+ * Creates a custom label for the buttons that are referenced by one of the folowing buttonTypes:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ * </ul>
  * 'labelHTML' may consist <u>{label}</u> which will be replaced by the default internationalized labelHTML. This way you can create imagebuttons that still hold the default label.
  * <b>Note</b> The default buttonLabels are internationalized, this feature will be lost when using this method (unless you use <u>{label}</u> in the new labelHTML).
  *
  * @method setButtonLabel
- * @param buttonType {String} the buttontype which text should be replaced, either: 'cancel', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
+ * @param buttonType {String} the buttontype which text should be replaced, either: 'cancel', 'abort', 'retry', 'ok', 'ignore', 'yes', 'no', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
  * @param labelHTML {String} new button-label
  * @since 0.3
  *
@@ -858,7 +794,7 @@ ITSAViewModel.prototype.render = function (clear) {
 ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
     var instance = this;
 /*jshint expr:true */
-    instance._validBtnTypes[buttonType] && (typeof labelHTML === STRING) && (labelHTML.length>0) && (instance._customBtnLabel[buttonType]=labelHTML);
+    VALID_BUTTON_TYPES[buttonType] && (typeof labelHTML === STRING) && (labelHTML.length>0) && (instance._customBtnLabel[buttonType]=labelHTML);
 /*jshint expr:false */
 };
 
@@ -995,18 +931,18 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
     YArray.each(
-        [CANCEL, DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD,
-         CANCEL_CLICK, DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK,
-         DATETIMEPICKER_CLICK, DATEPICKER_CLICK, TIMEPICKER_CLICK, VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
+        [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD,
+         DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK,
+         VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
             eventhandlers.push(
                 instance.on(
                     '*:'+event,
                     function(e) {
                         var payload;
-                        // check if e.target===instance, because it checks by *: and will recurde
+                        // check if e.target===instance, because it checks by *: and will recurse
                         if (e.target!==instance) {
-                            if (instance._validBtnTypes[event]) {
+                            if (VALID_BUTTON_TYPES[event]) {
                                 event = MODEL+event;
                             }
                             payload = {
@@ -1032,15 +968,6 @@ ITSAViewModel.prototype._bindUI = function() {
  * Saves the view's model-instance.
  *
  * @method modelSave
- * @since 0.3
- *
-*/
-
-/**
- * Cancels the view's model-instance: which causes UI-elements reset (in case of a editable form) and fires the cancel-event
- * Only effective in case of Y.ITSAFormModel
- *
- * @method modelCancel
  * @since 0.3
  *
 */
@@ -1085,7 +1012,7 @@ ITSAViewModel.prototype._bindUI = function() {
  *
 */
 YArray.each(
-    [SAVE_FIRSTCAP, CANCEL_FIRSTCAP, SUBMIT_FIRSTCAP, LOAD_FIRSTCAP, DESTROY_FIRSTCAP, RESET_FIRSTCAP],
+    [SAVE_FIRSTCAP, SUBMIT_FIRSTCAP, LOAD_FIRSTCAP, DESTROY_FIRSTCAP, RESET_FIRSTCAP],
     function(fn) {
         ITSAViewModel.prototype[MODEL+fn] = function() {
             var instance = this,
@@ -1186,7 +1113,35 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
 };
 
 /**
- * Creates 'btn_cancel', 'btn_destroy', 'btn_remove', 'btn_reset', 'btn_save', 'btn_load' and 'btn_submit' properties so that the templates can refer to these.
+ * Creates button-properties so that the templates can refer them. The next button-properties are defined:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ * </ul>
  *
  * @method _createButtons
  * @private
@@ -1200,39 +1155,160 @@ ITSAViewModel.prototype._createButtons = function() {
 
     instance._buttons = [
         {
+            propertykey: BTN_ABORT,
+            type: BUTTON,
+            value: ABORT,
+            labelHTML: customBtnLabels[ABORT] ? Lang.sub(customBtnLabels[ABORT], {label: instance._intl[ABORT]}) : instance._intl[ABORT]
+        },
+        {
             propertykey: BTN_CANCEL,
-            type: CANCEL,
+            type: BUTTON,
+            value: CANCEL,
             labelHTML: customBtnLabels[CANCEL] ? Lang.sub(customBtnLabels[CANCEL], {label: instance._intl[CANCEL]}) : instance._intl[CANCEL]
         },
         {
             propertykey: BTN_DESTROY,
             type: DESTROY,
+            value: DESTROY,
             labelHTML: customBtnLabels[DESTROY] ? Lang.sub(customBtnLabels[DESTROY], {label: instance._intl[DESTROY]}) : instance._intl[DESTROY]
+        },
+        {
+            propertykey: BTN_IGNORE,
+            type: BUTTON,
+            value: IGNORE,
+            labelHTML: customBtnLabels[IGNORE] ? Lang.sub(customBtnLabels[IGNORE], {label: instance._intl[IGNORE]}) : instance._intl[IGNORE]
+        },
+        {
+            propertykey: BTN_LOAD,
+            type: LOAD,
+            value: LOAD,
+            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : instance._intl[LOAD]
+        },
+        {
+            propertykey: BTN_NO,
+            type: BUTTON,
+            value: NO,
+            labelHTML: customBtnLabels[NO] ? Lang.sub(customBtnLabels[NO], {label: instance._intl[NO]}) : instance._intl[NO]
+        },
+        {
+            propertykey: BTN_OK,
+            type: BUTTON,
+            value: OK,
+            labelHTML: customBtnLabels[OK] ? Lang.sub(customBtnLabels[OK], {label: instance._intl[OK]}) : instance._intl[OK]
         },
         {
             propertykey: BTN_REMOVE,
             type: REMOVE,
+            value: REMOVE,
             labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : instance._intl[REMOVE]
         },
         {
             propertykey: BTN_RESET,
             type: RESET,
+            value: RESET,
             labelHTML: customBtnLabels[RESET] ? Lang.sub(customBtnLabels[RESET], {label: instance._intl[RESET]}) : instance._intl[RESET]
+        },
+        {
+            propertykey: BTN_RETRY,
+            type: BUTTON,
+            value: RETRY,
+            labelHTML: customBtnLabels[RETRY] ? Lang.sub(customBtnLabels[RETRY], {label: instance._intl[RETRY]}) : instance._intl[RETRY]
         },
         {
             propertykey: BTN_SAVE,
             type: SAVE,
+            value: SAVE,
             labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : instance._intl[SAVE]
-        },
-        {
-            propertykey: BTN_LOAD,
-            type: LOAD,
-            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : instance._intl[LOAD]
         },
         {
             propertykey: BTN_SUBMIT,
             type: SUBMIT,
+            value: SUBMIT,
             labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : instance._intl[SUBMIT]
+        },
+        {
+            propertykey: BTN_YES,
+            type: BUTTON,
+            value: YES,
+            labelHTML: customBtnLabels[YES] ? Lang.sub(customBtnLabels[YES], {label: instance._intl[YES]}) : instance._intl[YES]
+        },
+        {
+            propertykey: IMGBTN_ABORT,
+            type: BUTTON,
+            value: ABORT,
+            labelHTML: customBtnLabels[ABORT] ? Lang.sub(customBtnLabels[ABORT], {label: instance._intl[ABORT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: ABORT})+instance._intl[ABORT])
+        },
+        {
+            propertykey: IMGBTN_CANCEL,
+            type: BUTTON,
+            value: CANCEL,
+            labelHTML: customBtnLabels[CANCEL] ? Lang.sub(customBtnLabels[CANCEL], {label: instance._intl[CANCEL]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CANCEL])
+        },
+        {
+            propertykey: IMGBTN_DESTROY,
+            type: DESTROY,
+            value: DESTROY,
+            labelHTML: customBtnLabels[DESTROY] ? Lang.sub(customBtnLabels[DESTROY], {label: instance._intl[DESTROY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: DESTROY})+instance._intl[DESTROY])
+        },
+        {
+            propertykey: IMGBTN_IGNORE,
+            type: BUTTON,
+            value: IGNORE,
+            labelHTML: customBtnLabels[IGNORE] ? Lang.sub(customBtnLabels[IGNORE], {label: instance._intl[IGNORE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: IGNORE})+instance._intl[IGNORE])
+        },
+        {
+            propertykey: IMGBTN_LOAD,
+            type: LOAD,
+            value: LOAD,
+            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD])
+        },
+        {
+            propertykey: IMGBTN_NO,
+            type: BUTTON,
+            value: NO,
+            labelHTML: customBtnLabels[NO] ? Lang.sub(customBtnLabels[NO], {label: instance._intl[NO]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: NO})+instance._intl[NO])
+        },
+        {
+            propertykey: IMGBTN_OK,
+            type: BUTTON,
+            value: OK,
+            labelHTML: customBtnLabels[OK] ? Lang.sub(customBtnLabels[OK], {label: instance._intl[OK]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: OK})+instance._intl[OK])
+        },
+        {
+            propertykey: IMGBTN_REMOVE,
+            type: REMOVE,
+            value: REMOVE,
+            labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE])
+        },
+        {
+            propertykey: IMGBTN_RESET,
+            type: RESET,
+            value: RESET,
+            labelHTML: customBtnLabels[RESET] ? Lang.sub(customBtnLabels[RESET], {label: instance._intl[RESET]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RESET})+instance._intl[RESET])
+        },
+        {
+            propertykey: IMGBTN_RETRY,
+            type: BUTTON,
+            value: RETRY,
+            labelHTML: customBtnLabels[RETRY] ? Lang.sub(customBtnLabels[RETRY], {label: instance._intl[RETRY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RETRY})+instance._intl[RETRY])
+        },
+        {
+            propertykey: IMGBTN_SAVE,
+            type: SAVE,
+            value: SAVE,
+            labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE])
+        },
+        {
+            propertykey: IMGBTN_SUBMIT,
+            type: SUBMIT,
+            value: SUBMIT,
+            labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT])
+        },
+        {
+            propertykey: IMGBTN_YES,
+            type: BUTTON,
+            value: YES,
+            labelHTML: customBtnLabels[YES] ? Lang.sub(customBtnLabels[YES], {label: instance._intl[YES]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: YES})+instance._intl[YES])
         }
     ];
 };

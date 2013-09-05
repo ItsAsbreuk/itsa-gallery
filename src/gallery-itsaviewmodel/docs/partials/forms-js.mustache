@@ -59,7 +59,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
-                    '<div class="pure-controls">{btn_reset} {btn_submit}</div>';
+                    '<div class="pure-controls">{btn_reset} {imgbtn_submit}</div>';
                 '</fieldset>';
 
     view = new Y.ITSAViewModel({
@@ -71,6 +71,11 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     });
 
     view.render();
+
+    view.on('buttonclick', function(e) {
+        console.log('buttonclick');
+    });
+
 
     view.after('modelsubmit', function(e) {
         Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
