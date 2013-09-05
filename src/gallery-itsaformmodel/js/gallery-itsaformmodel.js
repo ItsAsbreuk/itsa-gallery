@@ -10,6 +10,7 @@
  *
  * @module gallery-itsaformmodel
  * @extends Model
+ * @uses gallery-itsamodelsyncpromise
  * @class ITSAFormModel
  * @constructor
  * @since 0.1
@@ -42,6 +43,15 @@ var YArray = Y.Array,
     LOAD = 'load',
     DESTROY = 'destroy',
     REMOVE = 'remove',
+   /**
+     * Fired after model is submitted from the sync layer.
+     * @event submit
+     * @param e {EventFacade} Event Facade including:
+     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
+     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @since 0.1
+    **/
     SUBMIT = 'submit',
 
     DATE = 'date',
@@ -63,19 +73,17 @@ var YArray = Y.Array,
     ID = 'id',
     DATA_CONTENT = DATA+'-content',
 
-    /**
-      * Fired when a the UI is cancelled, either by clicking on a cancel-button  or by calling formmodel.cancel();
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event cancel
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      *
-    **/
-    CANCEL = 'cancel',
+    FOCUS_NEXT_ELEMENTS = {
+        text: true,
+        number: true,
+        password: true,
+        textarea: true,
+        email: true,
+        url: true
+    },
 
     /**
-      * Fired when a the UI is reset, either by clicking on a reset-button, cancel-button  or by calling formmodel.reset();
+      * Fired when a the UI is reset, either by clicking on a reset-button or by calling formmodel.reset();
       * No defaultFunction, so listen to the 'on' and 'after' event are the same.
       *
       * @event reset
@@ -126,7 +134,7 @@ var YArray = Y.Array,
       * Fired when a button -rendered by this modelinstance using renderBtn()- is clicked.
       * No defaultFunction, so listen to the 'on' and 'after' event are the same.
       *
-      * @event buttonclick
+      * @event button:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
@@ -134,13 +142,13 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    BUTTON_CLICK = BUTTON+CLICK,
+    BUTTON_CLICK = BUTTON+':'+CLICK,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderDestroyBtn()- is clicked.
       * The defaultfunction: _defFn_destroy() always will be executed, unless the event is preventDefaulted or halted.
       *
-      * @event destroyclick
+      * @event destroy:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
@@ -148,13 +156,13 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    DESTROY_CLICK = DESTROY+CLICK,
+    DESTROY_CLICK = DESTROY+':'+CLICK,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderRemoveBtn()- is clicked.
       * The defaultfunction: _defFn_remove() always will be executed, unless the event is preventDefaulted or halted.
       *
-      * @event removeclick
+      * @event remove:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
@@ -162,13 +170,13 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    REMOVE_CLICK = REMOVE+CLICK,
+    REMOVE_CLICK = REMOVE+':'+CLICK,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderSubmitBtn()- is clicked.
       * The defaultfunction: _defFn_submit() always will be executed, unless the event is preventDefaulted or halted.
       *
-      * @event submitclick
+      * @event submit:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
@@ -176,27 +184,13 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    SUBMIT_CLICK = SUBMIT+CLICK,
-
-    /**
-      * Fired when a button -rendered by this modelinstance using renderCancelBtn()- is clicked.
-      * The defaultfunction: _defFn_cancel() always will be executed, unless the event is preventDefaulted or halted.
-      *
-      * @event cancelclick
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
-      * @param e.buttonNode {Y.Node} reference to the buttonnode
-      * @param e.formElement {Object} reference to the form-element
-      *
-    **/
-    CANCEL_CLICK = CANCEL+CLICK,
+    SUBMIT_CLICK = SUBMIT+':'+CLICK,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderResetBtn()- is clicked.
       * The defaultfunction: _defFn_reset() always will be executed, unless the event is preventDefaulted or halted.
       *
-      * @event resetclick
+      * @event reset:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
@@ -204,13 +198,13 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    RESET_CLICK = RESET+CLICK,
+    RESET_CLICK = RESET+':'+CLICK,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderSaveBtn()- is clicked.
       * The defaultfunction: _defFn_save() always will be executed, unless the event is preventDefaulted or halted.
       *
-      * @event saveclick
+      * @event save:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
@@ -218,13 +212,13 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    SAVE_CLICK = SAVE+CLICK,
+    SAVE_CLICK = SAVE+':'+CLICK,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderLoadBtn()- is clicked.
       * The defaultfunction: _defFn_load() always will be executed, unless the event is preventDefaulted or halted.
       *
-      * @event loadclick
+      * @event load:click
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.value {Any} Buttonvalue: could be used to identify the button --> defined during rendering by config.value
@@ -232,7 +226,7 @@ var YArray = Y.Array,
       * @param e.formElement {Object} reference to the form-element
       *
     **/
-    LOAD_CLICK = LOAD+CLICK,
+    LOAD_CLICK = LOAD+':'+CLICK,
 
     /**
       * Fired when a datepickerbutton -rendered by this modelinstance- is clicked.
@@ -369,29 +363,13 @@ ITSAFormModel.prototype.initializer = function() {
     instance._lifeUpdate = false;
 
    /**
-    * internal hash that tells which forrmelements are listening for the enter-key to refocus.
-    * @property _focusNextElements
-    * @private
-    * @type Object
-    */
-    instance._focusNextElements = {
-        text: true,
-        number: true,
-        password: true,
-        textarea: true,
-        email: true,
-        url: true
-    };
-
-   /**
-    * internal hash with references to the renderBtn-functions, referenced by type ('button', 'cancel', 'destroy', 'remove', 'reset', 'save', 'load', 'submit').
+    * internal hash with references to the renderBtn-functions, referenced by type ('button', 'destroy', 'remove', 'reset', 'save', 'load', 'submit').
     * @property _renderBtnFns
     * @private
     * @type Object
     */
     instance._renderBtnFns = {
         button: instance.renderBtn,
-        cancel: instance.renderCancelBtn,
         destroy: instance.renderDestroyBtn,
         remove: instance.renderRemoveBtn,
         reset: instance.renderResetBtn,
@@ -425,13 +403,6 @@ ITSAFormModel.prototype.initializer = function() {
         SUBMIT_CLICK,
         {
             defaultFn: Y.bind(instance._defFn_submit, instance),
-            emitFacade: true
-        }
-    );
-    instance.publish(
-        CANCEL_CLICK,
-        {
-            defaultFn: Y.bind(instance._defFn_cancel, instance),
             emitFacade: true
         }
     );
@@ -480,17 +451,6 @@ ITSAFormModel.prototype.initializer = function() {
 
     instance._bindUI();
     instance._gcTimer = Y.later(MS_BEFORE_CLEANUP, instance, instance._garbageCollect, null, true);
-};
-
-/**
- * Cancels the UI by firing the 'cancel'-event
- *
- * @method cancel
- * @since 0.1
-*/
-ITSAFormModel.prototype[CANCEL] = function() {
-    Y.log(CANCEL, 'info', 'ITSAFormModel');
-    this.fire(CANCEL);
 };
 
 /**
@@ -727,32 +687,6 @@ ITSAFormModel.prototype[REMOVE] = function() {
 ITSAFormModel.prototype.renderBtn = function(labelHTML, config) {
     Y.log('renderBtn', 'info', 'ITSAFormModel');
     return this._renderBtn(labelHTML, config, BUTTON);
-};
-
-/**
- *
- * Renderes a formelement-cancelbutton.
- * By specifying 'config', the button can be configured in more detail.
- * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-cancel"></i> cancel'
- *
- * @method renderCancelBtn
- * @param labelHTML {String} Text on the button (equals buttonName whennot specified).
- * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
- * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
- * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
- * @param [config.disabled=false] {Boolean}
- * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
- * @param [config.focusable=true] {Boolean}
- * @param [config.primary=false] {Boolean} making it the primary-button
- * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
- * @return {String} stringified version of the button which can be inserted in the dom.
- * @since 0.1
- *
- */
-ITSAFormModel.prototype.renderCancelBtn = function(labelHTML, config) {
-    Y.log('renderCancelBtn', 'info', 'ITSAFormModel');
-    return this._renderBtn(labelHTML, config, CANCEL);
 };
 
 /**
@@ -1139,7 +1073,7 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
 };
 
 /**
- * Creates the hash that holds the attribute-values which sould be used during a resetclick- or cancelclick-event.
+ * Creates the hash that holds the attribute-values which should be used during a resetclick-event.
  * Call this method to freese the state that possibly needs to be restored.
  * <u>note:</u> if not called, than the hash holds the inititial model-attributes during creation.
  *
@@ -1202,7 +1136,7 @@ ITSAFormModel.prototype[SUBMIT] = function() {
  *
  * <ul>
  * <li>propertykey --> reference-key which will be part (a property) of the result</li>
- * <li>type --> 'button', 'cancel', 'destroy', 'remove', 'reset', 'save' 'load' or 'submit'</li>
+ * <li>type --> 'button', 'destroy', 'remove', 'reset', 'save' 'load' or 'submit'</li>
  * <li>labelHTML --> text rendered on the button</li>
  * <li>config --> config-object that is passed through the renderBtn-function</li>
  * </ul>
@@ -1212,7 +1146,7 @@ ITSAFormModel.prototype[SUBMIT] = function() {
  * @param buttons {Array|Object} button object, or array of buttonobjects. The objects whould consist of this structure:<br />
  * <ul>
  * <li>propertykey --> reference-key which will be part (a property) of the result</li>
- * <li>type --> 'button', 'cancel', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'</li>
+ * <li>type --> 'button', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'</li>
  * <li>labelHTML --> text rendered on the button</li>
  * <li>config --> config-object that is passed through the renderBtn-function</li>
  * </ul>
@@ -1318,7 +1252,6 @@ ITSAFormModel.prototype.destructor = function() {
     instance._removeTargets();
     instance._FORM_elements = {};
     instance._ATTRS_nodes = {};
-    instance._focusNextElements = {};
     instance._widgetValueFields = {};
     instance._knownNodeIds = {};
     instance._gcTimer.cancel();
@@ -1348,7 +1281,7 @@ ITSAFormModel.prototype._bindUI = function() {
     eventhandlers.push(
         body.delegate(
             [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK, LOAD_CLICK,
-             SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, CANCEL_CLICK, SUBMIT_CLICK, RESET_CLICK],
+             SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, SUBMIT_CLICK, RESET_CLICK],
             function(e) {
                var type = e.type,
                    node = e.target,
@@ -1406,7 +1339,7 @@ ITSAFormModel.prototype._bindUI = function() {
             },
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance:
-                return e && e.ratget && instance._FORM_elements[e.target.get(ID)];
+                return e && e.target && instance._FORM_elements[e.target.get(ID)];
             }
         )
     );
@@ -1446,7 +1379,7 @@ ITSAFormModel.prototype._bindUI = function() {
         body.delegate(
             'keypress',
             function(e) {
-                e.halt();
+//                e.halt();
                 var type = FOCUS_NEXT,
                     payload = {
                         target: e.target,
@@ -1458,7 +1391,7 @@ ITSAFormModel.prototype._bindUI = function() {
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
                 var formelement = instance._FORM_elements[e.target.get(ID)];
-                return (formelement && (e.keyCode===13) && instance._focusNextElements[formelement.type]);
+                return (formelement && (e.keyCode===13) && FOCUS_NEXT_ELEMENTS[formelement.type]);
             }
         )
     );
@@ -1480,33 +1413,6 @@ ITSAFormModel.prototype._clearEventhandlers = function() {
             item.detach();
         }
     );
-};
-
-/**
- *
- * Default function for the 'cancelclick'-event
- *
- * @method _defFn_cancel
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-ITSAFormModel.prototype._defFn_cancel = function() {
-    var instance = this,
-        payload = {
-            type: CANCEL,
-            target: instance
-        };
-
-    Y.log('_defFn_cancel', 'info', 'ITSAFormModel');
-    instance.fire(CANCEL, payload);
-    this.reset();
 };
 
 /**
@@ -2241,7 +2147,7 @@ ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
   * Node-event fired when the normal button is clicked.
   * that is: generated through renderBtn() and not a specified button like 'save', or 'submit'.
   *
-  * @event node:buttonclick
+  * @event button:click
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
@@ -2250,7 +2156,7 @@ ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
 /*
   * Node-event fired when the destroy-button is clicked.
   *
-  * @event node:destroyclick
+  * @event destroy:click
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
@@ -2259,23 +2165,14 @@ ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
 /*
   * Node-event fired when the save-button is clicked.
   *
-  * @event node:saveclick
-  * @param e {EventFacade} Event Facade including:
-  * @param e.target {Y.Node} The ButtonNode that was clicked
-  *
-*/
-
-/*
-  * Node-event fired when the cancel-button is clicked.
-  *
-  * @event node:cancelclick
+  * @event save:click
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
 */
 
 YArray.each(
-    [BUTTON, SAVE, DESTROY, REMOVE, CANCEL, LOAD],
+    [BUTTON, SAVE, DESTROY, REMOVE, LOAD],
     function(eventtype) {
         var conf = {
             on : function(node, subscription, notifier) {
@@ -2305,6 +2202,6 @@ YArray.each(
         };
         conf.delegate = conf.on;
         conf.detachDelegate = conf.detach;
-        Y.Event.define(eventtype+CLICK, conf);
+        Y.Event.define(eventtype+':'+CLICK, conf);
     }
 );

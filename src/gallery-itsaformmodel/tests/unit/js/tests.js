@@ -200,7 +200,7 @@ YUI.add('module-tests', function(Y) {
                 nodesubmit.remove(true);
             }
         },
-        'UI-text going into model by pressing save': function() {
+        'UI-text going into model by pressing submit': function() {
             var instance = this,
                 formelementsText = model.getCurrentFormElements('text3'),
                 firstelementText = formelementsText && formelementsText[0],
@@ -216,7 +216,7 @@ YUI.add('module-tests', function(Y) {
                 instance.resume(function(){
                     // delay to make sure submit finished its asynchroinious action
                     instance.wait(function() {
-                       Y.Assert.areEqual('Its Asbreuk', model.get('text3'), 'UI-text value did not get into the model-attribute with the right value by pressing save');
+                       Y.Assert.areEqual('Its Asbreuk', model.get('text3'), 'UI-text value did not get into the model-attribute with the right value by pressing submit');
                     }, 1000);
                 });
             });

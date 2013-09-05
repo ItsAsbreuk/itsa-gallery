@@ -40,8 +40,6 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsaformmodel', function(Y) {
     });
 
     model = new Y.MyFormModel();
-    model.setLifeUpdate(true); // <-- life saving UI instaed of using save-buttons
-
     container = Y.one('#container');
     containercontent = '<div class="pure-control-group">'+model.renderFormElement('firstname')+'</div>'+
                        '<div class="pure-control-group">'+model.renderFormElement('lastname')+'</div>'+
