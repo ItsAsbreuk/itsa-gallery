@@ -66,11 +66,11 @@
     EVT_LOAD = 'load',
    /**
      * Fired after model is saved through the sync layer.
-     * @event submit
+     * @event save
      * @param e {EventFacade} Event Facade including:
      * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the save-request, if there was a response.
+     * @param [e.response] {any} The sync layer's raw, unparsed response to the save-request, if there was one.
      * @since 0.1
     **/
     EVT_SAVE = 'save',
