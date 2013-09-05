@@ -1,0 +1,10 @@
+{
+    "name": "gallerycss-itsa-editorbase",
+    "builds": {
+        "gallerycss-itsa-editorbase": {
+            "cssfiles": [
+                "css/gallerycss-itsa-editorbase.css"
+            ]
+        }
+    }
+}

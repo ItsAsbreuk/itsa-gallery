@@ -1,0 +1,11 @@
+{
+    "name"       : "gallerycss-itsa-triangles",
+    "displayName": "Gallery: gallerycss-itsa-triangles",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallerycss-itsa-triangles" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

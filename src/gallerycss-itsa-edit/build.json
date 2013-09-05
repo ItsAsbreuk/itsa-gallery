@@ -1,0 +1,10 @@
+{
+    "name": "gallerycss-itsa-edit",
+    "builds": {
+        "gallerycss-itsa-edit": {
+            "cssfiles": [
+                "css/gallerycss-itsa-edit.css"
+            ]
+        }
+    }
+}

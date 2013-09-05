@@ -1,0 +1,10 @@
+{
+    "name": "gallerycss-itsa-shop",
+    "builds": {
+        "gallerycss-itsa-shop": {
+            "cssfiles": [
+                "css/gallerycss-itsa-shop.css"
+            ]
+        }
+    }
+}

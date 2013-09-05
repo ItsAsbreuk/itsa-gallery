@@ -1,0 +1,10 @@
+{
+    "name": "gallerycss-itsa-triangles",
+    "builds": {
+        "gallerycss-itsa-triangles": {
+            "cssfiles": [
+                "css/gallerycss-itsa-triangles.css"
+            ]
+        }
+    }
+}

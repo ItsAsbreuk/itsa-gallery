@@ -1,0 +1,11 @@
+{
+    "name"       : "gallerycss-itsa-shop",
+    "displayName": "Gallery: gallerycss-itsa-shop",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallerycss-itsa-shop" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

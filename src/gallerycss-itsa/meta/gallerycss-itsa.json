@@ -1,0 +1,18 @@
+{
+    "gallerycss-itsa": {
+        "type": "css",
+        "requires": [
+            "gallerycss-itsa-controll",
+            "gallerycss-itsa-datetime",
+            "gallerycss-itsa-edit",
+            "gallerycss-itsa-editorbase",
+            "gallerycss-itsa-editoradvanced",
+            "gallerycss-itsa-form",
+            "gallerycss-itsa-grid",
+            "gallerycss-itsa-shop",
+            "gallerycss-itsa-social",
+            "gallerycss-itsa-triangles"
+        ]
+
+    }
+}
