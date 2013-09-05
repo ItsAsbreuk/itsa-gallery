@@ -191,6 +191,28 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         Y.use('gallery-itsadatetimepicker');
         return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" data-for="'+buttonnodeid+'"'+className+hiddenstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
     },
+    DATETIME_TYPES = { // proper date/time-formelement types
+        date: true,
+        time: true,
+        datetime: true
+    },
+    FULLSELECT_TYPES = { // formelement types that are allowed to be full selected
+        text: true,
+        number: true,
+        password: true,
+        textarea: true,
+        email: true,
+        url: true
+    },
+    BUTTONS_TYPES = { // button-formelement types
+        button: true,
+        submit: true,
+        reset: true
+    },
+    RADIO_CHECKBOX_TYPES = { // radio and checkbox-formelement types
+        radio: true,
+        checkbox: true
+    },
 
     SUBREGEX = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g,
     SUB = function(s, o) {
@@ -201,29 +223,6 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
 
 
 ITSAFormElement = Y.ITSAFormElement = {};
-
-ITSAFormElement._dateTimeTypes = { // proper date/time-formelement types
-    date: true,
-    time: true,
-    datetime: true
-};
-ITSAFormElement._fullSelectTypes = { // formelement types that are allowed to be full selected
-    text: true,
-    number: true,
-    password: true,
-    textarea: true,
-    email: true,
-    url: true
-};
-ITSAFormElement._buttonsTypes = { // button-formelement types
-    button: true,
-    submit: true,
-    reset: true
-};
-ITSAFormElement._radioCheckboxTypes = { // radio and checkbox-formelement types
-    radio: true,
-    checkbox: true
-};
 
 /**
  * Renderes a String that contains the completeFormElement definition. You can also define a widgetclass, by which the widget will
@@ -363,7 +362,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         switchvalue = config[SWITCHVALUE],
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
-        isdatetime = ITSAFormElement._dateTimeTypes[type],
+        isdatetime = DATETIME_TYPES[type],
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
         checked, purebutton, readonly, extralabel;
     // first setting up global data-attributes
@@ -450,7 +449,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++ specific radio and checkbox formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        else if (ITSAFormElement._radioCheckboxTypes[type]) {
+        else if (RADIO_CHECKBOX_TYPES[type]) {
             surroundlabelclass = (type===RADIO) ? PURERADIO : PURECHECKBOX;
             checked = (typeof subtituteConfig[CHECKED]===BOOLEAN) ? subtituteConfig[CHECKED] : false;
             subtituteConfig[CHECKED] = checked ? (' '+CHECKED+'="'+CHECKED+'"') : '';
@@ -460,7 +459,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++ specific button/submit/reset formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        else if (ITSAFormElement._buttonsTypes[type]) {
+        else if (BUTTONS_TYPES[type]) {
             delete subtituteConfig[LABEL]; // not allowed for buttons
             purebutton = true;
             subtituteConfig[TYPE] = type;
@@ -469,7 +468,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             disabledbutton = disabled;
 /*jshint expr:true */
             config[LABELHTML] || (subtituteConfig[LABELHTML]=(value||type));
-            subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+subtituteConfig[LABELHTML]+'"');
+            subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+Y.Escape.html(subtituteConfig[LABELHTML])+'"');
 /*jshint expr:false */
         }
 
@@ -501,7 +500,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        fullselect && ITSAFormElement._fullSelectTypes[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
+        fullselect && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
                                 (isdatetime ? (' '+ITSABUTTON_DATETIME_CLASS) : '')+
@@ -719,7 +718,7 @@ YArray.each(
   * Node-event fired when the submitbutton is clicked. This is not the same as the 'submit'-event because the latter
   * gets fired on a form-submit.
   *
-  * @event Y.Node.submitclick
+  * @event Y.Node.submit:click
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
@@ -729,7 +728,7 @@ YArray.each(
   * Node-event fired when the resetbutton is clicked. This is not the same as the 'reset'-event because the latter
   * gets fired on a form-reset.
   *
-  * @event Y.Node.resetclick
+  * @event Y.Node.reset:click
   * @param e {EventFacade} Event Facade including:
   * @param e.target {Y.Node} The ButtonNode that was clicked
   *
@@ -767,7 +766,7 @@ YArray.each(
         };
         conf.delegate = conf.on;
         conf.detachDelegate = conf.detach;
-        Y.Event.define(eventtype+CLICK, conf);
+        Y.Event.define(eventtype+':'+CLICK, conf);
     }
 );
 
@@ -781,6 +780,7 @@ YArray.each(
         "promise",
         "event-tap",
         "event-custom",
+        "escape",
         "gallery-tipsy",
         "gallery-itsawidgetrenderpromise"
     ],

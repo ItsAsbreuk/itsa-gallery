@@ -8,6 +8,7 @@
             "promise",
             "event-tap",
             "event-custom",
+            "escape",
             "gallery-tipsy",
             "gallery-itsawidgetrenderpromise"
         ],
