@@ -8,8 +8,7 @@
             "model",
             "event-custom",
             "pluginhost-base",
-            "gallerycss-itsa-form",
-            "gallerycss-itsa-animatespin"
+            "gallerycss-itsa-form"
         ],
         "lang" : [
             "ar",
