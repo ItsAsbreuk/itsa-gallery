@@ -1,0 +1,11 @@
+{
+    "name": "gallerycss-itsa-base",
+    "builds": {
+        "gallerycss-itsa-base": {
+            "cssfiles": [
+                "css/base-ie7.css",
+                "css/base.css"
+            ]
+        }
+    }
+}
