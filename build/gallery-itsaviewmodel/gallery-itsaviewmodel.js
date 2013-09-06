@@ -1422,7 +1422,8 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
         "model",
         "event-custom",
         "pluginhost-base",
-        "gallerycss-itsa-form"
+        "gallerycss-itsa-form",
+        "gallerycss-itsa-animatespin"
     ],
     "lang": [
         "ar",
