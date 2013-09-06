@@ -5,7 +5,19 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     Y.one('body').addClass('yui3-skin-sam');
 
     // create MyFormModelClass
-    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {}, {
+    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
+        sync: function (action, options, callback) {
+            switch (action) {
+              case 'submit':
+                Y.later(4000, null, function() {
+                    callback();
+                });
+                return;
+              default:
+                callback('Invalid action');
+            }
+        }
+    }, {
         ATTRS: {
             name: {
                 formtype: 'text',
@@ -59,7 +71,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
-                    '<div class="pure-controls">{btn_reset} {imgbtn_submit}</div>';
+                    '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>';
                 '</fieldset>';
 
     view = new Y.ITSAViewModel({

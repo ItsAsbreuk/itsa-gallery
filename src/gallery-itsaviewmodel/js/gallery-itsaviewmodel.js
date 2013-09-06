@@ -43,7 +43,7 @@ var ITSAViewModel,
     Lang = Y.Lang,
     YArray = Y.Array,
     YIntl = Y.Intl,
-    IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-{type}"></i>',
+    IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
     GALLERY = 'gallery-',
     ITSAVIEWMODEL = 'itsaviewmodel',
@@ -186,6 +186,11 @@ var ITSAViewModel,
     IMGBTN_SAVE = IMG+BTN_SAVE,
     IMGBTN_SUBMIT = IMG+BTN_SUBMIT,
     IMGBTN_YES = IMG+BTN_YES,
+    SPIN = 'spin',
+    SPINBTN_LOAD = SPIN+BTN_LOAD,
+    SPINBTN_REMOVE = SPIN+BTN_REMOVE,
+    SPINBTN_SAVE = SPIN+BTN_SAVE,
+    SPINBTN_SUBMIT = SPIN+BTN_SUBMIT,
 
     /**
       * Fired when a UI-elemnt needs to ficuds to the next element (in case of editable view).
@@ -233,7 +238,7 @@ var ITSAViewModel,
     UI_CHANGED = 'uichanged',
 
     /**
-      * Fired when a template-button {btn_button} is clicked.
+      * Fired when a template-button {btn_button}, {imgbtn_button} or {spinbtn_button} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event buttonclick
@@ -249,7 +254,7 @@ var ITSAViewModel,
     BUTTON_CLICK = BUTTON+CLICK,
 
     /**
-      * Fired when a template-button {btn_destroy} is clicked.
+      * Fired when a template-button {btn_destroy} or {imgbtn_destroy} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event destroyclick
@@ -265,7 +270,7 @@ var ITSAViewModel,
     DESTROY_CLICK = DESTROY+CLICK,
 
     /**
-      * Fired when a template-button {btn_remove} is clicked.
+      * Fired when a template-button {btn_remove}, {imgbtn_remove} or {spinbtn_remove} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event removeclick
@@ -281,7 +286,7 @@ var ITSAViewModel,
     REMOVE_CLICK = REMOVE+CLICK,
 
     /**
-      * Fired when a template-button {btn_load} is clicked.
+      * Fired when a template-button {btn_load}, {imgbtn_load} or {spinbtn_load} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event loadclick
@@ -297,7 +302,7 @@ var ITSAViewModel,
     LOAD_CLICK = LOAD+CLICK,
 
     /**
-      * Fired when a template-button {btn_submit} is clicked.
+      * Fired when a template-button {btn_submit}, {imgbtn_submit} or {spinbtn_submit} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event submitclick
@@ -313,7 +318,7 @@ var ITSAViewModel,
     SUBMIT_CLICK = SUBMIT+CLICK,
 
     /**
-      * Fired when a template-button {btn_reset} is clicked.
+      * Fired when a template-button {btn_reset} or {imgbtn_reset} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event resetclick
@@ -329,7 +334,7 @@ var ITSAViewModel,
     RESET_CLICK = RESET+CLICK,
 
     /**
-      * Fired when a template-button {btn_save} is clicked.
+      * Fired when a template-button {btn_save}, {imgbtn_save} or {spinbtn_save} is clicked.
       * Convenience-event which takes place together with the underlying models-event.
       *
       * @event saveclick
@@ -784,6 +789,11 @@ ITSAViewModel.prototype.render = function (clear) {
  *   <li>imgbtn_save</li>
  *   <li>imgbtn_submit</li>
  *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ *   <li>spinbtn_yes</li>
  * </ul>
  * 'labelHTML' may consist <u>{label}</u> which will be replaced by the default internationalized labelHTML. This way you can create imagebuttons that still hold the default label.
  * <b>Note</b> The default buttonLabels are internationalized, this feature will be lost when using this method (unless you use <u>{label}</u> in the new labelHTML).
@@ -1151,6 +1161,11 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
  *   <li>imgbtn_save</li>
  *   <li>imgbtn_submit</li>
  *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method _createButtons
@@ -1320,6 +1335,34 @@ ITSAViewModel.prototype._createButtons = function() {
             type: BUTTON,
             value: YES,
             labelHTML: customBtnLabels[YES] ? Lang.sub(customBtnLabels[YES], {label: instance._intl[YES]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: YES})+instance._intl[YES])
+        },
+        {
+            propertykey: SPINBTN_LOAD,
+            type: LOAD,
+            value: LOAD,
+            config: {spinbusy: true},
+            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD])
+        },
+        {
+            propertykey: SPINBTN_REMOVE,
+            type: REMOVE,
+            value: REMOVE,
+            config: {spinbusy: true},
+            labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE])
+        },
+        {
+            propertykey: SPINBTN_SAVE,
+            type: SAVE,
+            value: SAVE,
+            config: {spinbusy: true},
+            labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE])
+        },
+        {
+            propertykey: SPINBTN_SUBMIT,
+            type: SUBMIT,
+            value: SUBMIT,
+            config: {spinbusy: true},
+            labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT])
         }
     ];
 };

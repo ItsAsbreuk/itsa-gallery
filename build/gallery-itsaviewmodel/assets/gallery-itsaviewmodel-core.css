@@ -13,10 +13,10 @@
     box-shadow:         5px 5px 6px rgba(50, 50, 50, 0.45);
 }
 
-button[data-formelement="true"] .animate-spin:before {
+button[data-formelement="true"] .itsa-busy:before {
     content: '\e802'; /* Fontelico '' */
 }
 
-button[data-formelement="true"] .animate-spin:not(.itsaicon-load) {
+button[data-formelement="true"] .itsa-busy:not(.itsaicon-load) {
     margin-right: 0.35em;
 }
