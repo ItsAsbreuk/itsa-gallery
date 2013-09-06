@@ -1,5 +1,4 @@
 [class^="itsaicon-"], [class*=" itsaicon-"] {
-  font-family: 'itsaform';
   font-style: normal;
   font-weight: normal;
 
@@ -10,16 +9,20 @@
   /* font-size: 120%; */
 }
 
-.itsaicon-yes, .itsaicon-ok { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
-.itsaicon-abort, .itsaicon-no { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
-.itsaicon-reset { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
-.itsaicon-retry { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
-.itsaicon-cancel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
-.itsaicon-submit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
-.itsaicon-remove, .itsaicon-destroy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-load { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
-.itsaicon-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-ignore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }@font-face {
+[class^="itsaicon-form-"], [class*=" itsaicon-form-"] {
+  font-family: 'itsaform';
+}
+
+.itsaicon-form-yes, .itsaicon-form-ok { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
+.itsaicon-form-abort, .itsaicon-form-no { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.itsaicon-form-reset { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
+.itsaicon-form-retry { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
+.itsaicon-form-cancel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.itsaicon-form-submit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
+.itsaicon-form-remove, .itsaicon-form-destroy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.itsaicon-form-load { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.itsaicon-form-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.itsaicon-form-ignore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }@font-face {
   font-family: 'itsaform';
   src: url('itsa-gallery/build/gallerycss-itsa-form/assets/font/itsaform.eot?76603106');
   src: url('itsa-gallery/build/gallerycss-itsa-form/assets/font/itsaform.eot?76603106#iefix') format('embedded-opentype'),
@@ -43,8 +46,7 @@
 }
 */
 
- [class^="itsaicon-"]:before, [class*=" itsaicon-"]:before {
-  font-family: "itsaform";
+[class^="itsaicon-"]:before, [class*=" itsaicon-"]:before {
   font-style: normal;
   font-weight: normal;
   speak: none;
@@ -75,20 +77,24 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
+[class^="itsaicon-form-"]:before, [class*=" itsaicon-form-"]:before {
+  font-family: "itsaform";
+}
+
 [class^="itsaicon-"], [class*=" itsaicon-"] {
   /* set margin-right for more space, NOT on :before; --> that would disturb animation */
   margin-right: .55em;
 }
 
-.itsaicon-yes:before, .itsaicon-ok:before { content: '\e805'; } /* Web Symbols '' */
-.itsaicon-abort:before, .itsaicon-no:before { content: '\e806'; font-size: 90%;} /* Web Symbols '' */
-.itsaicon-reset:before { content: '\e809'; } /* Entypo '' */
-.itsaicon-retry:before { content: '\e80a'; } /* Entypo '' */
-.itsaicon-cancel:before { content: '\e803'; } /* Typicons '' */
-.itsaicon-submit:before { content: '\e808';} /* MFG Labs '' */
-.itsaicon-remove:before, .itsaicon-destroy:before { content: '\e801'; } /* Modern Pictograms '' */
-.itsaicon-load:before { content: '\e802'; margin-left: .2em; } /* Fontelico '' */
-.itsaicon-save:before { content: '\e800'; } /* Entypo '' */
-.itsaicon-ignore:before { content: '\e807'; } /* Web Symbols '' */
+.itsaicon-form-yes:before, .itsaicon-form-ok:before { content: '\e805'; } /* Web Symbols '' */
+.itsaicon-form-abort:before, .itsaicon-form-no:before { content: '\e806'; font-size: 90%;} /* Web Symbols '' */
+.itsaicon-form-reset:before { content: '\e809'; } /* Entypo '' */
+.itsaicon-form-retry:before { content: '\e80a'; } /* Entypo '' */
+.itsaicon-form-cancel:before { content: '\e803'; } /* Typicons '' */
+.itsaicon-form-submit:before { content: '\e808';} /* MFG Labs '' */
+.itsaicon-form-remove:before, .itsaicon-form-destroy:before { content: '\e801'; } /* Modern Pictograms '' */
+.itsaicon-form-load:before { content: '\e802'; margin-left: .2em; } /* Fontelico '' */
+.itsaicon-form-save:before { content: '\e800'; } /* Entypo '' */
+.itsaicon-form-ignore:before { content: '\e807'; } /* Web Symbols '' */
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-form { display: none; }
