@@ -36,6 +36,11 @@ var YArray = Y.Array,
     MS_TIME_TO_INSERT = 10000, // time to insert the nodes, we set this time to avoid unnecessary onavailable listeners.
     MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
     MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
+    TRUE = 'true',
+    LI_ICON = 'li[class^="itsaicon-"], li[class*=" itsaicon-"]',
+    ITSA_BUSY = 'itsa-busy',
+    DATA_SPIN_BUSY = 'data-spinbusy',
+    PURE_BUTTON_DISABLED = 'pure-button-disabled',
 
     GALLERY_ITSA = 'gallery-itsa',
     FUNCTION = 'function',
@@ -681,6 +686,7 @@ ITSAFormModel.prototype[REMOVE] = function() {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -707,6 +713,7 @@ ITSAFormModel.prototype.renderBtn = function(labelHTML, config) {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -733,6 +740,7 @@ ITSAFormModel.prototype.renderDestroyBtn = function(labelHTML, config) {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -759,6 +767,7 @@ ITSAFormModel.prototype.renderLoadBtn = function(labelHTML, config) {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -785,6 +794,7 @@ ITSAFormModel.prototype.renderRemoveBtn = function(labelHTML, config) {
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -811,6 +821,7 @@ ITSAFormModel.prototype.renderResetBtn = function(labelHTML, config) {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -837,6 +848,7 @@ ITSAFormModel.prototype.renderSaveBtn = function(labelHTML, config) {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.1
@@ -1512,6 +1524,49 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
 
 /**
  *
+ * Default function for the 'loadclick'-event.
+ *
+ * @method _defFn_load
+ * @param e {EventFacade} Event Facade including:
+ * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+ * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
+ * @param e.buttonNode {Y.Node} reference to the buttonnode
+ * @param e.formElement {Object} reference to the form-element
+ * @private
+ * @protected
+ * @since 0.1
+ *
+*/
+ITSAFormModel.prototype._defFn_load = function(e) {
+    var instance = this,
+        buttonNode = e.buttonNode,
+        iconNode = buttonNode.one(LI_ICON),
+        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE);
+
+    Y.log('_defFn_load', 'info', 'ITSAFormModel');
+    buttonNode.addClass(PURE_BUTTON_DISABLED);
+/*jshint expr:true */
+    canSpin && iconNode.addClass(ITSA_BUSY);
+/*jshint expr:false */
+    instance.loadPromise({fromInternal: true}).then(
+        function() {
+            instance.setResetAttrs();
+/*jshint expr:true */
+            canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+        },
+        function() {
+/*jshint expr:true */
+            canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+        }
+    );
+};
+
+/**
+ *
  * Default function for the 'destroyclick'-event
  *
  * @method _defFn_remove
@@ -1525,9 +1580,32 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
  * @since 0.1
  *
 */
-ITSAFormModel.prototype._defFn_remove = function() {
+
+ITSAFormModel.prototype._defFn_remove = function(e) {
+    var buttonNode = e.buttonNode,
+        iconNode = buttonNode.one(LI_ICON),
+        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE);
+
+
     Y.log('_defFn_remove', 'info', 'ITSAFormModel');
-    this.destroyPromise({remove: true});
+    buttonNode.addClass(PURE_BUTTON_DISABLED);
+/*jshint expr:true */
+    canSpin && iconNode.addClass(ITSA_BUSY);
+/*jshint expr:false */
+    this.destroyPromise({remove: true}).then(
+        function() {
+/*jshint expr:true */
+            canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+        },
+        function() {
+/*jshint expr:true */
+            canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+        }
+    );
 };
 
 /**
@@ -1567,23 +1645,39 @@ ITSAFormModel.prototype._defFn_reset = function() {
  * @since 0.1
  *
 */
-ITSAFormModel.prototype._defFn_save = function() {
+
+ITSAFormModel.prototype._defFn_save = function(e) {
     var instance = this,
+        buttonNode = e.buttonNode,
+        iconNode = buttonNode.one(LI_ICON),
+        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE),
         prevAttrs, unvalidNodes;
     Y.log('_defFn_save', 'info', 'ITSAFormModel');
     unvalidNodes = instance.getUnvalidatedUI();
     if (unvalidNodes.isEmpty()) {
+        buttonNode.addClass(PURE_BUTTON_DISABLED);
+/*jshint expr:true */
+        canSpin && iconNode.addClass(ITSA_BUSY);
+/*jshint expr:false */
         prevAttrs = instance.getAttrs();
         instance.UIToModel();
         instance.savePromise().then(
              function() {
                  // set the new values as the standard reset
                  instance.setResetAttrs();
+/*jshint expr:true */
+                 canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+                 buttonNode.removeClass(PURE_BUTTON_DISABLED);
              },
              function() {
                   // reset to previous values
-                 instance.setAttrs(prevAttrs);
-                 instance._modelToUI();
+                instance.setAttrs(prevAttrs);
+                instance._modelToUI();
+/*jshint expr:true */
+                canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+                buttonNode.removeClass(PURE_BUTTON_DISABLED);
              }
         );
     }
@@ -1607,51 +1701,44 @@ ITSAFormModel.prototype._defFn_save = function() {
  * @since 0.1
  *
 */
-ITSAFormModel.prototype._defFn_submit = function() {
+
+ITSAFormModel.prototype._defFn_submit = function(e) {
     var instance = this,
+        buttonNode = e.buttonNode,
+        iconNode = buttonNode.one(LI_ICON),
+        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE),
         prevAttrs, unvalidNodes;
 
     Y.log('_defFn_submit', 'info', 'ITSAFormModel');
     unvalidNodes = instance.getUnvalidatedUI();
     if (unvalidNodes.isEmpty()) {
+        buttonNode.addClass(PURE_BUTTON_DISABLED);
+/*jshint expr:true */
+        canSpin && iconNode.addClass(ITSA_BUSY);
+/*jshint expr:false */
         prevAttrs = instance.getAttrs();
         instance.UIToModel();
         instance.submitPromise().then(
-             null,
+             function() {
+/*jshint expr:true */
+                 canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+                 buttonNode.removeClass(PURE_BUTTON_DISABLED);
+             },
              function() {
                   // reset to previous values
                  instance.setAttrs(prevAttrs);
                  instance._modelToUI();
+/*jshint expr:true */
+                 canSpin && iconNode.removeClass(ITSA_BUSY);
+/*jshint expr:false */
+                 buttonNode.removeClass(PURE_BUTTON_DISABLED);
              }
         );
     }
     else {
         instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
     }
-};
-
-/**
- *
- * Default function for the 'loadclick'-event.
- *
- * @method _defFn_load
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-ITSAFormModel.prototype._defFn_load = function() {
-    var instance = this;
-
-    Y.log('_defFn_load', 'info', 'ITSAFormModel');
-    instance.loadPromise({fromInternal: true}).then(
-        Y.bind(instance.setResetAttrs, instance)
-    );
 };
 
 /**
@@ -1906,6 +1993,7 @@ ITSAFormModel.prototype._removeValidation  = function() {
  * @param [config.classname] for addeing extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
  * @param [buttontype] {String} type of button that needs to be rendered
  * @return {String} stringified version of the button which can be inserted in the dom.
