@@ -101,6 +101,7 @@ YUI.add('module-tests', function(Y) {
                 focusable: true,
                 checked: true,
                 readonly: true,
+                spinbusy: true,
                 tooltip: 'here is some tooltipinfo'
             });
             body.append(this.formElement.html);
@@ -147,6 +148,9 @@ YUI.add('module-tests', function(Y) {
         },
         'check hidden': function() {
             Y.Assert.areEqual('hidden', this.node.getAttribute('hidden'), 'text - Wrong value for hidden created');
+        },
+        'check spinbusy': function() {
+            Y.Assert.areEqual('', this.node.getAttribute('data-spinbusy'), 'text - Wrong value for spinbusy created');
         },
         'check fullselect': function() {
             Y.Assert.areEqual('true', this.node.getAttribute('data-fullselect'), 'text - Wrong value for fullselect created');
@@ -1275,6 +1279,7 @@ YUI.add('module-tests', function(Y) {
                 readonly: true,
                 format: '%Y-%M-%d',
                 primary: true,
+                spinbusy: true,
                 labelHTML: 'press on this button',
                 tooltip: 'here is some tooltipinfo'
             });
@@ -1326,6 +1331,9 @@ YUI.add('module-tests', function(Y) {
         'check primary': function() {
             Y.Assert.isTrue(this.node.hasClass('pure-button-primary'), 'submit - Primary-button didn\'t render the right classname');
         },
+        'check spinbusy': function() {
+            Y.Assert.areEqual('true', this.node.getAttribute('data-spinbusy'), 'submit - Wrong value for spinbusy created');
+        },
         'check hidden': function() {
             Y.Assert.areEqual('hidden', this.node.getAttribute('hidden'), 'submit - Wrong value for hidden created');
         },
@@ -1353,7 +1361,7 @@ YUI.add('module-tests', function(Y) {
     }));
 
     suite.add(new Y.Test.Case({
-        name: 'Creating submitbutton',
+        name: 'Creating button',
         setUp : function () {
             this.formElement = Y.ITSAFormElement.getElement('button', {
                 value: 'current value',
@@ -1425,6 +1433,9 @@ YUI.add('module-tests', function(Y) {
         'check primary': function() {
             Y.Assert.isTrue(this.node.hasClass('pure-button-primary'), 'button - Primary-button didn\'t render the right classname');
         },
+        'check spinbusy': function() {
+            Y.Assert.areEqual('', this.node.getAttribute('data-spinbusy'), 'button - Wrong value for spinbusy created');
+        },
         'check hidden': function() {
             Y.Assert.areEqual('hidden', this.node.getAttribute('hidden'), 'button - Wrong value for hidden created');
         },
@@ -1465,6 +1476,7 @@ YUI.add('module-tests', function(Y) {
                 hidden: true,
                 fullselect: true,
                 initialfocus: true,
+                spinbusy: false,
                 pattern: '[A-Za-z]{3}',
                 classname: 'yui3-element-class',
                 labelClassname: 'yui3-label-class',
@@ -1529,6 +1541,9 @@ YUI.add('module-tests', function(Y) {
         },
         'check fullselect': function() {
             Y.Assert.areEqual('', this.node.getAttribute('data-fullselect'), 'reset - Wrong value for fullselect created');
+        },
+        'check spinbusy': function() {
+            Y.Assert.areEqual('', this.node.getAttribute('data-spinbusy'), 'reset - Wrong value for spinbusy created');
         },
         'check initialfocus': function() {
             Y.Assert.areEqual('true', this.node.getAttribute('data-initialfocus'), 'reset - Wrong value for initialfocus created');
@@ -1664,4 +1679,4 @@ YUI.add('module-tests', function(Y) {
     Y.Test.Runner.add(suite);
 
 
-},'', { requires: [ 'test', 'gallery-itsaformelement', 'gallery-itsacheckbox', 'gallery-itsadatetimepicker' ] });
+},'', { requires: [ 'test', 'gallery-itsaformelement', 'gallery-itsacheckbox', 'gallery-itsadatetimepicker', 'panel' ] });

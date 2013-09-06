@@ -24,7 +24,8 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     BODY = Y.one('body'),
     ACTION_FROMTAB = ACTION_FROMTAB,
     DISABLED    = 'disabled',
-    WIDGET_PARENT_CLASS = 'itsa-widget-parent',
+    WIDGET = 'widget',
+    WIDGET_PARENT_CLASS = 'itsa-'+WIDGET+'-parent',
     PURE = 'pure',
     BUTTON = 'button',
     PUREBUTTON_CLASS = PURE+'-'+BUTTON,
@@ -37,7 +38,10 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     MODELATTRIBUTE = 'modelattribute',
     HIDEATSTARTUP = 'hideatstartup',
     INVISIBLE_CLASS = 'itsa-invisible',
-
+    RENDERPROMISE = 'renderpromise',
+    GALLERY = 'gallery',
+    ITSA = '-itsa',
+    EDITOR = 'editor',
     ERROR = 'error',
     BOOLEAN = 'boolean',
 
@@ -99,6 +103,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     VALUESWITCHED    = VALUE+SWITCHED,
     VALUENONSWITCHED = VALUE+'non'+SWITCHED,
     FOCUSABLE      = 'focusable',
+    SPINBUSY       = 'spinbusy',
     DISABLED_SUB         = '{'+DISABLED+'}',
     READONLY_SUB         = '{'+READONLY+'}',
     CHECKED_SUB          = '{'+CHECKED+'}',
@@ -124,7 +129,6 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     BUTTON_TYPE_IS = '<'+BUTTON+' '+TYPE+'="',
     CLASSNAME      = CLASS+NAMEDEF,
     LABELCLASSNAME = LABEL+'Class'+NAMEDEF,
-    WIDGET         = 'widget',
     TYPE_SUB       = '{'+TYPE+'}',
 
     DATA_LABEL_DATETIME = ' data-labeldatetime="true"',
@@ -188,7 +192,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
             }
         }
         // asynchronious preloading the module
-        Y.use('gallery-itsadatetimepicker');
+        Y.use(GALLERY+ITSA+'datetimepicker');
         return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" data-for="'+buttonnodeid+'"'+className+hiddenstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
     },
     DATETIME_TYPES = { // proper date/time-formelement types
@@ -277,6 +281,8 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.primary=false] {Boolean} making a button the primary button. Only applyable for buttons.
  *   @param [config.required=false] {Boolean} (defaults true for 'type===password') when data is required. Only applyable for input-elements, textarea and date/time.
  *   @param [config.readonly=false] {Boolean} not applyable for buttons.
+ *   @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy. (Actually only adds the data-attribute: data-spinbusy="true" --> which should be used by other js to make it spin).
+ *                                            Only applyable for buttons.
  *   @param [config.switchvalue=false] {Boolean} make the value go behind the element. Only applyable for type=='Y.Slider', 'date', 'time' or 'datetime'.
  *   @param [config.switchlabel=false] {Boolean} make the label go behind the element.
  *   @param [config.tooltip] {String} marks the data-attribute used by Y.Tipsy. Also applyable for Widgets.
@@ -314,13 +320,13 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
         try {
             widget = element.widget = new WidgetClass(config.widgetconfig);
             // when it is inserted in the dom: render it
-            if (type.NAME==='editorBase') {
-                Y.use('gallery-itsaeditorrenderpromise', function() {
+            if (type.NAME===EDITOR+'Base') {
+                Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, function() {
                     widget.renderOnAvailable('#'+nodeid);
                 });
             }
             else {
-                Y.use('gallery-itsawidgetrenderpromise', function() {
+                Y.use(GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
                     widget.renderOnAvailable('#'+nodeid);
                 });
             }
@@ -388,7 +394,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         subtituteConfig[CLASS]=' class="'+(config[CLASSNAME] || '') + ' ' + WIDGET_PARENT_CLASS + (hideatstartup ? (' '+INVISIBLE_CLASS) : '') + '"';
         if (config[LABEL]) {
             subtituteConfig[LABELDATA] = subtituteConfig[LABELDATA] || '';
-            subtituteConfig[LABELDATA] += ' data-widgetlabel="true"';
+            subtituteConfig[LABELDATA] += ' data-'+WIDGET+LABEL+'="true"';
         }
         subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
         if (type==='slider') {
@@ -466,6 +472,10 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[DATA] += ' data-'+BUTTON+TYPE+'="'+(config[BUTTON+TYPE] || type)+'"';
             primarybutton = config.primary;
             disabledbutton = disabled;
+            if (config[SPINBUSY]) {
+                subtituteConfig[DATA]+=' data-'+SPINBUSY+'="true"';
+                Y.use(GALLERY+'css'+ITSA+'-animatespin');
+            }
 /*jshint expr:true */
             config[LABELHTML] || (subtituteConfig[LABELHTML]=(value||type));
             subtituteConfig[VALUE] = ' '+VALUE+'="'+(config[VALUE] || Y.Escape.html(subtituteConfig[LABELHTML]))+'"';
@@ -566,28 +576,30 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
 ITSAFormElement.tooltipReadyPromise = function() {
     if (!ITSAFormElement._tooltipreadypromise) {
         ITSAFormElement._tooltipreadypromise = new Y.Promise(function (resolve, reject) {
-            tipsyOK = new Y.Tipsy({
-                placement: 'right',
-                selector: '[data-formelement][data-content]:not([data-valid="false"])',
-                showOn: ['touchstart', 'focus'],
-                hideOn: ['touchend', 'blur', 'keypress']
-            }).render();
-            tipsyInvalid = new Y.Tipsy({
-                placement: 'right',
-                selector: '[data-formelement][data-content][data-valid="false"]',
-                showOn: ['touchstart', 'focus'],
-                hideOn: ['touchend', 'blur', 'keypress']
-            }).render();
-            tipsyOK.get('boundingBox').addClass('tipsy-formelement');
-            tipsyInvalid.get('boundingBox').addClass('tipsy-formelement-invalid');
-            Y.batch(
-                tipsyOK.renderPromise(),
-                tipsyInvalid.renderPromise()
-            )
-            .then(
-                resolve,
-                reject
-            );
+            Y.use(GALLERY+'-tipsy', GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
+                tipsyOK = new Y.Tipsy({
+                    placement: 'right',
+                    selector: '[data-formelement][data-content]:not([data-valid="false"])',
+                    showOn: ['touchstart', 'focus'],
+                    hideOn: ['touchend', 'blur', 'keypress']
+                }).render();
+                tipsyInvalid = new Y.Tipsy({
+                    placement: 'right',
+                    selector: '[data-formelement][data-content][data-valid="false"]',
+                    showOn: ['touchstart', 'focus'],
+                    hideOn: ['touchend', 'blur', 'keypress']
+                }).render();
+                tipsyOK.get('boundingBox').addClass('tipsy-formelement');
+                tipsyInvalid.get('boundingBox').addClass('tipsy-formelement-invalid');
+                Y.batch(
+                    tipsyOK.renderPromise(),
+                    tipsyInvalid.renderPromise()
+                )
+                .then(
+                    resolve,
+                    reject
+                );
+            });
         });
     }
     return ITSAFormElement._tooltipreadypromise;
@@ -774,15 +786,16 @@ YArray.each(
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "node-core",
+        "node-event-delegate",
         "datatype-date-format",
+        "event-base",
         "event-synthetic",
         "yui-later",
         "promise",
         "event-tap",
         "event-custom",
-        "escape",
-        "gallery-tipsy",
-        "gallery-itsawidgetrenderpromise"
+        "escape"
     ],
     "skinnable": true
 });

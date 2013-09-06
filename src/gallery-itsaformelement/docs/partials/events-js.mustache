@@ -14,11 +14,11 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformelement', 'gallery-itsadialog',
     });
 
     // The node-events bubble up, so we can listen on 'container'
-    container.on('submitclick', function() {
+    container.on('submit:click', function() {
         Y.alert('Clicked on the submit-button'); // Y.alert is provided by gallery-itsadialog
     });
 
-    container.on('resetclick', function() {
+    container.on('reset:click', function() {
         Y.alert('Clicked on the reset-button'); // Y.alert is provided by gallery-itsadialog
     });
 
