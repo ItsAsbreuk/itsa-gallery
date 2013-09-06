@@ -35,7 +35,7 @@ var YArray = Y.Array,
     MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
     MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
     TRUE = 'true',
-    LI_ICON = 'li[class^="itsaicon-"], li[class*=" itsaicon-"]',
+    LI_ICON = 'i[class^="itsaicon-"], i[class*=" itsaicon-"]',
     ITSA_BUSY = 'itsa-busy',
     DATA_SPIN_BUSY = 'data-spinbusy',
     PURE_BUTTON_DISABLED = 'pure-button-disabled',
