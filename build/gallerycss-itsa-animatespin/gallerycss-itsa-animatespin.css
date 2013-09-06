@@ -1,10 +1,12 @@
 /*
    Animation example, for spinners
 */
+.itsa-busy:before,
 .animate-spin:before {
   margin-right: .2em;
   margin-left: .2em;
 }
+.itsa-busy,
 .animate-spin {
   -moz-animation: spin 2s infinite linear;
   -o-animation: spin 2s infinite linear;
