@@ -1,0 +1,2 @@
+gallerycss-itsa-animatespin
+========

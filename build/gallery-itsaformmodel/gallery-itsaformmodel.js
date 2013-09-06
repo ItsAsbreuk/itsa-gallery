@@ -1878,6 +1878,7 @@ ITSAFormModel.prototype._renderBtn = function(labelHTML, config, buttontype) {
     buttontype || (buttontype = BUTTON);
     labelHTML || (labelHTML = buttontype);
     config[DATA] || (config[DATA] = '');
+    config[VALUE] || (config[VALUE]=buttontype);
 /*jshint expr:false */
     config[DATA] += ' '+DATA_BUTTON_SUBTYPE+'="'+buttontype+'"';
     config.buttontype = BUTTON;

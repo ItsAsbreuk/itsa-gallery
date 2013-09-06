@@ -10,6 +10,6 @@
     retry: 'retry',
     ok: 'ok',
     yes: 'yes',
-    no: 'no'
+    no: 'no',
     undefined_template: 'template is ongedefinieerd'
 }

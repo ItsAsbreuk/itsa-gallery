@@ -2,6 +2,7 @@
     "gallerycss-itsa": {
         "type": "css",
         "requires": [
+            "gallerycss-itsa-animatespin",
             "gallerycss-itsa-controll",
             "gallerycss-itsa-datetime",
             "gallerycss-itsa-edit",

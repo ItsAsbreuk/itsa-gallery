@@ -3,7 +3,6 @@
     "builds": {
         "gallerycss-itsa-form": {
             "cssfiles": [
-                "css/animation.css",
                 "css/form-ie7.css",
                 "css/form.css"
             ]

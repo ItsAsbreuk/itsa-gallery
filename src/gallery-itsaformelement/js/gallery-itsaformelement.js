@@ -466,7 +466,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             disabledbutton = disabled;
 /*jshint expr:true */
             config[LABELHTML] || (subtituteConfig[LABELHTML]=(value||type));
-            subtituteConfig[VALUE] || (subtituteConfig[VALUE] = ' '+VALUE+'="'+Y.Escape.html(subtituteConfig[LABELHTML])+'"');
+            subtituteConfig[VALUE] = ' '+VALUE+'="'+(config[VALUE] || Y.Escape.html(subtituteConfig[LABELHTML]))+'"';
 /*jshint expr:false */
         }
 

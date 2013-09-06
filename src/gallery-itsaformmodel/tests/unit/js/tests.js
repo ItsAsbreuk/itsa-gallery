@@ -30,6 +30,10 @@ YUI.add('module-tests', function(Y) {
                 value: 'Marco Asbreuk',
                 formtype: 'text'
             },
+            text6: {
+                value: 'Marco Asbreuk',
+                formtype: 'text'
+            },
             slider: {
                 value: 10,
                 formtype: Y.Slider
@@ -346,11 +350,11 @@ YUI.add('module-tests', function(Y) {
     }));
 
     suite.add(new Y.Test.Case({
-        name: 'setResetAttrs',
+        name: 'setResetAttrs test 1',
         setUp : function () {
             body.append(model.renderFormElement('text5'));
-            mymodel.set('text5', 'Its Asbreuk');
-            mymodel.reset();
+            model.set('text5', 'Its Asbreuk', {silent: true}); // silent, to suppress itsadialog
+            model.reset();
         },
         tearDown : function () {
             var formelementsText = model.getCurrentFormElements('text5'),
@@ -360,31 +364,61 @@ YUI.add('module-tests', function(Y) {
                 nodetext.remove(true);
             }
         },
-        'reset': function() {
+        'reset test': function() {
             Y.Assert.areEqual('Marco Asbreuk', model.getUI('text5'), 'text-attribute value did not reset');
         },
     }));
 
     suite.add(new Y.Test.Case({
-        name: 'setResetAttrs',
+        name: 'setResetAttrs test 2',
         setUp : function () {
-            body.append(model.renderFormElement('text5'));
-            mymodel.set('text5', 'Its Asbreuk');
-            mymodel.storeNewInit();
-            mymodel.set('firstname', 'Something else');
-            mymodel.reset();
+            body.append(model.renderFormElement('text6'));
+            model.set('text6', 'Its Asbreuk', {silent: true}); // silent, to suppress itsadialog
+            model.setResetAttrs();
+            model.set('text6', 'Something else', {silent: true}); // silent, to suppress itsadialog
+            model.reset();
         },
         tearDown : function () {
-            var formelementsText = model.getCurrentFormElements('text5'),
+            var formelementsText = model.getCurrentFormElements('text6'),
                 firstelementText = formelementsText && formelementsText[0],
                 nodetext = firstelementText && firstelementText.node;
             if (nodetext) {
                 nodetext.remove(true);
             }
         },
-        'storeNewInit': function() {
-            Y.Assert.areEqual('Its Asbreuk', model.getUI('text5'), 'text-attribute value did not reset well after store newinit');
+        'setResetAttrs test': function() {
+            Y.Assert.areEqual('Its Asbreuk', model.getUI('text6'), 'text-attribute value did not reset well after setResetAttrs()');
         },
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'buttonvalues and labels',
+        setUp : function () {
+            body.append('<div id="buttoncheck">'+model.renderSubmitBtn('<i>mylabel</i>')+'</div>');
+        },
+        'checkValue test': function() {
+            var btn = Y.one('#buttoncheck button');
+            Y.Assert.areEqual('submit', btn && btn.get('value'), 'button\'s value is not set right');
+        },
+        'checkLabel test': function() {
+            var btn = Y.one('#buttoncheck button');
+            Y.Assert.areEqual('<i>mylabel</i>', btn && btn.getHTML(), 'button\'s value is not set right');
+        }
+    }));
+
+    suite.add(new Y.Test.Case({
+        name: 'buttonvalues and labels when customized',
+        setUp : function () {
+            body.append('<div id="buttoncheck2">'+model.renderSubmitBtn('<i>mylabel</i>', {value: 'othervalue'})+'</div>');
+        },
+        'checkValue test 2': function() {
+            var btn = Y.one('#buttoncheck2 button');
+            Y.Assert.areEqual('othervalue', btn && btn.get('value'), 'button\'s value is not set right when used customized value');
+        },
+        'checkLabel test 2': function() {
+            var btn = Y.one('#buttoncheck button');
+            Y.Assert.areEqual('<i>mylabel</i>', btn && btn.getHTML(), 'button\'s value is not set right when used customized value');
+        }
     }));
 
     Y.Test.Runner.add(suite);

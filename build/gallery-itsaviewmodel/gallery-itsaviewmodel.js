@@ -18,7 +18,7 @@ YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
  *
  *
  * Using this widget is great to render Model on the page, where the widget keeps synced with the model. Whenever a new Model-instance
- * is attached to the widget, or another template is used, the wodget will be re-rendered automaticly.
+ * is attached to the widget, or another template is used, the wodget will be re-rendered automaticly
  *
  * Attaching MODEL with Y.Model-instances or objects?
  * Both can be attached. Whenever widgetattribute change, the widget will be re-rendered is needed (template- or model-attribute). This also
@@ -31,7 +31,7 @@ YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
  * By default, the widget comes with its own style. You can disable this by setting the attribute 'styled' to false.
  *
  * @module gallery-itsaviewmodel
- * @extends Widget
+ * @extends View
  * @class ITSAViewModel
  * @constructor
  * @since 0.3
@@ -1421,7 +1421,8 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
         "template-micro",
         "model",
         "event-custom",
-        "pluginhost-base"
+        "pluginhost-base",
+        "gallerycss-itsa-form"
     ],
     "lang": [
         "ar",
