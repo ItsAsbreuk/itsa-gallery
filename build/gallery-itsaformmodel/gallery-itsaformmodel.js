@@ -40,7 +40,12 @@ var YArray = Y.Array,
     LI_ICON = 'i[class^="itsaicon-"], i[class*=" itsaicon-"]',
     ITSA_BUSY = 'itsa-busy',
     DATA_SPIN_BUSY = 'data-spinbusy',
-    PURE_BUTTON_DISABLED = 'pure-button-disabled',
+    DISABLED = 'disabled',
+    BUTTON = 'button',
+    PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
+    DISABLED_BEFORE = '-before',
+    SPAN_DATA_FOR_IS = 'span[data-for="',
+    YUI3_SLIDER = 'yui3-slider',
 
     GALLERY_ITSA = 'gallery-itsa',
     FUNCTION = 'function',
@@ -71,7 +76,6 @@ var YArray = Y.Array,
 
     DATA = 'data',
     VALUE = 'value',
-    BUTTON = 'button',
     TYPE = 'type',
     DATA_BUTTON_SUBTYPE = DATA+'-'+BUTTON+'sub'+TYPE,
     DATA_BUTTON_TYPE = DATA+'-'+BUTTON+TYPE,
@@ -480,6 +484,121 @@ ITSAFormModel.prototype.initializer = function() {
 ITSAFormModel.prototype.crossValidation = function() {
     // empty by default --> can be overridden.
     // should return an array with objects, where the objects have the fields: o.node {Y.Node} and a.validationerror {String}
+};
+
+/**
+ * Disables all UI-elements so that there is no userinteraction possible. F.i. for usage when submitting a form.
+ *
+ * @method disableUI
+ * @since 0.1
+ *
+*/
+ITSAFormModel.prototype.disableUI = function() {
+    var instance = this,
+        formelements = instance._FORM_elements;
+
+    YObject.each(
+        formelements,
+        function(formelement, nodeid) {
+            // always check if the nodes are still available in the dom: they might be gone!
+            var node = Y.one('#'+nodeid),
+                widget = formelement.widget,
+                isButton, wasDisabled, labelnode, isDateTime;
+            if (node) {
+                if (widget) {
+                    wasDisabled = widget.get(DISABLED);
+                    if (!wasDisabled) {
+                        widget.disable();
+                        // if the widget is slider, then also disable the valuespan
+                        if (widget.getClassName()===YUI3_SLIDER) {
+                            labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
+        /*jshint expr:true */
+                            labelnode && labelnode.setAttribute(DISABLED, DISABLED);
+        /*jshint expr:false */
+                        }
+                    }
+                }
+                else {
+                    isButton = (node.get('tagName')==='BUTTON') && (node.getAttribute(TYPE)===BUTTON);
+                    isDateTime = (node.getAttribute('data-datetimepicker')===TRUE);
+                    if (isButton) {
+                        wasDisabled = node.hasClass(PURE_BUTTON_DISABLED);
+/*jshint expr:true */
+                        wasDisabled || node.addClass(PURE_BUTTON_DISABLED);
+/*jshint expr:false */
+                    }
+                    else {
+                        wasDisabled = (node.getAttribute(DISABLED)!=='');
+/*jshint expr:true */
+                        wasDisabled || node.setAttribute(DISABLED, DISABLED);
+/*jshint expr:false */
+                    }
+                    if (isDateTime) {
+                        labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
+/*jshint expr:true */
+                        labelnode && labelnode.setAttribute(DISABLED, DISABLED);
+/*jshint expr:false */
+                    }
+                }
+/*jshint expr:true */
+                wasDisabled && node.setData(DISABLED_BEFORE, true);
+/*jshint expr:false */
+            }
+        }
+    );
+};
+
+/**
+ * Enables all UI-elements so that there is userinteraction possible again. For usage in conjunction with disableUI().
+ *
+ * @method disableUI
+ * @since 0.1
+ *
+*/
+ITSAFormModel.prototype.enableUI = function() {
+    var instance = this,
+        formelements = instance._FORM_elements;
+
+    YObject.each(
+        formelements,
+        function(formelement, nodeid) {
+            // always check if the nodes are still available in the dom: they might be gone!
+            var node = Y.one('#'+nodeid),
+                widget = formelement.widget,
+                isButton, nodeWasDisabled, labelnode, isDateTime;
+            if (node) {
+                nodeWasDisabled = node.getData(DISABLED_BEFORE);
+                if (nodeWasDisabled) {
+                    node.clearData(DISABLED_BEFORE);
+                }
+                else {
+                    if (widget) {
+                        widget.enable();
+                        // if the widget is slider, then also disable the valuespan
+                        if (widget.getClassName()===YUI3_SLIDER) {
+                            labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
+        /*jshint expr:true */
+                            labelnode && labelnode.removeAttribute(DISABLED);
+        /*jshint expr:false */
+                        }
+                    }
+                    else {
+                        isButton = (node.get('tagName')==='BUTTON') && (node.getAttribute(TYPE)===BUTTON);
+                        isDateTime = (node.getAttribute('data-datetimepicker')===TRUE);
+/*jshint expr:true */
+                        isButton ? node.removeClass(PURE_BUTTON_DISABLED) : node.removeAttribute(DISABLED);
+/*jshint expr:false */
+                        if (isDateTime) {
+                            labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
+/*jshint expr:true */
+                            labelnode && labelnode.removeAttribute(DISABLED);
+/*jshint expr:false */
+                        }
+                    }
+                }
+            }
+        }
+    );
 };
 
 /**
@@ -1512,23 +1631,31 @@ ITSAFormModel.prototype._defFn_load = function(e) {
         iconNode = buttonNode.one(LI_ICON),
         canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE);
 
-    buttonNode.addClass(PURE_BUTTON_DISABLED);
+    instance.disableUI();
 /*jshint expr:true */
     canSpin && iconNode.addClass(ITSA_BUSY);
 /*jshint expr:false */
     instance.loadPromise({fromInternal: true}).then(
         function() {
             instance.setResetAttrs();
+            // because the buttonnode could be gone away from the dom, first check is it's available
+            buttonNode = Y.one('#'+buttonNode.get('id'));
+            if (buttonNode) {
 /*jshint expr:true */
-            canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                instance.enableUI();
+            }
         },
         function() {
+            // because the buttonnode could be gone away from the dom, first check is it's available
+            buttonNode = Y.one('#'+buttonNode.get('id'));
+            if (buttonNode) {
 /*jshint expr:true */
-            canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                instance.enableUI();
+            }
         }
     );
 };
@@ -1550,27 +1677,36 @@ ITSAFormModel.prototype._defFn_load = function(e) {
 */
 
 ITSAFormModel.prototype._defFn_remove = function(e) {
-    var buttonNode = e.buttonNode,
+    var instance = this,
+        buttonNode = e.buttonNode,
         iconNode = buttonNode.one(LI_ICON),
         canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE);
 
 
-    buttonNode.addClass(PURE_BUTTON_DISABLED);
+    instance.disableUI();
 /*jshint expr:true */
     canSpin && iconNode.addClass(ITSA_BUSY);
 /*jshint expr:false */
-    this.destroyPromise({remove: true}).then(
+    instance.destroyPromise({remove: true}).then(
         function() {
+            // because the buttonnode could be gone away from the dom, first check is it's available
+            buttonNode = Y.one('#'+buttonNode.get('id'));
+            if (buttonNode) {
 /*jshint expr:true */
-            canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                instance.enableUI();
+            }
         },
         function() {
+            // because the buttonnode could be gone away from the dom, first check is it's available
+            buttonNode = Y.one('#'+buttonNode.get('id'));
+            if (buttonNode) {
 /*jshint expr:true */
-            canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-            buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                instance.enableUI();
+            }
         }
     );
 };
@@ -1620,7 +1756,7 @@ ITSAFormModel.prototype._defFn_save = function(e) {
         prevAttrs, unvalidNodes;
     unvalidNodes = instance.getUnvalidatedUI();
     if (unvalidNodes.isEmpty()) {
-        buttonNode.addClass(PURE_BUTTON_DISABLED);
+        instance.disableUI();
 /*jshint expr:true */
         canSpin && iconNode.addClass(ITSA_BUSY);
 /*jshint expr:false */
@@ -1629,20 +1765,28 @@ ITSAFormModel.prototype._defFn_save = function(e) {
         instance.savePromise().then(
              function() {
                  // set the new values as the standard reset
-                 instance.setResetAttrs();
+                instance.setResetAttrs();
+                // because the buttonnode could be gone away from the dom, first check is it's available
+                buttonNode = Y.one('#'+buttonNode.get('id'));
+                if (buttonNode) {
 /*jshint expr:true */
-                 canSpin && iconNode.removeClass(ITSA_BUSY);
+                     canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-                 buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                     instance.enableUI();
+                }
              },
              function() {
                   // reset to previous values
                 instance.setAttrs(prevAttrs);
-                instance._modelToUI();
+                // because the buttonnode could be gone away from the dom, first check is it's available
+                buttonNode = Y.one('#'+buttonNode.get('id'));
+                if (buttonNode) {
+                    instance._modelToUI();
 /*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY);
+                    canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-                buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                    instance.enableUI();
+                }
              }
         );
     }
@@ -1676,7 +1820,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
 
     unvalidNodes = instance.getUnvalidatedUI();
     if (unvalidNodes.isEmpty()) {
-        buttonNode.addClass(PURE_BUTTON_DISABLED);
+        instance.disableUI();
 /*jshint expr:true */
         canSpin && iconNode.addClass(ITSA_BUSY);
 /*jshint expr:false */
@@ -1684,19 +1828,27 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
         instance.UIToModel();
         instance.submitPromise().then(
              function() {
+                // because the buttonnode could be gone away from the dom, first check is it's available
+                buttonNode = Y.one('#'+buttonNode.get('id'));
+                if (buttonNode) {
 /*jshint expr:true */
-                 canSpin && iconNode.removeClass(ITSA_BUSY);
+                     canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-                 buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                     instance.enableUI();
+                }
              },
              function() {
                   // reset to previous values
                  instance.setAttrs(prevAttrs);
-                 instance._modelToUI();
+                 // because the buttonnode could be gone away from the dom, first check is it's available
+                 buttonNode = Y.one('#'+buttonNode.get('id'));
+                 if (buttonNode) {
+                     instance._modelToUI();
 /*jshint expr:true */
-                 canSpin && iconNode.removeClass(ITSA_BUSY);
+                     canSpin && iconNode.removeClass(ITSA_BUSY);
 /*jshint expr:false */
-                 buttonNode.removeClass(PURE_BUTTON_DISABLED);
+                     instance.enableUI();
+                 }
              }
         );
     }
@@ -2121,7 +2273,7 @@ ITSAFormModel.prototype._updateSimularWidgetUI = function(changedNodeId, attribu
 /*jshint expr:false */
                 }
                 // in case of slider: update valueattribute --> do this for ALL sliders
-                if (widget && (widget.getClassName()==='yui3-slider')) {
+                if (widget && (widget.getClassName()===YUI3_SLIDER)) {
                     var labelnode = Y.one('span[data-for="'+nodeid+'"]');
 /*jshint expr:true */
                     labelnode && labelnode.set('text', value);
