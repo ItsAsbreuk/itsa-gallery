@@ -174,7 +174,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         time: ELEMENT_TIME,
         datetime: ELEMENT_DATETIME
     },
-    GETFORMATTED_DATEVALUE = function(type, name, value, format, classname, hiddenstring, hideatstartup, buttonnodeid) {
+    GETFORMATTED_DATEVALUE = function(type, name, value, format, classname, hiddenstring, disabledstring, hideatstartup, buttonnodeid) {
         var className = classname ? (' '+classname) : '',
             invisibleStarup = (hideatstartup ? (' '+INVISIBLE_CLASS) : ''),
             formattimename = ((typeof name === 'string') && (name.length>0)) ? (' formattime-'+name) : '';
@@ -191,7 +191,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         }
         // asynchronious preloading the module
         Y.use(GALLERY+ITSA+'datetimepicker');
-        return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" data-for="'+buttonnodeid+'"'+className+hiddenstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
+        return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" data-for="'+buttonnodeid+'"'+className+hiddenstring+disabledstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
     },
     DATETIME_TYPES = { // proper date/time-formelement types
         date: true,
@@ -382,7 +382,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     config[INITIALFOCUS] && (subtituteConfig[DATA] += ' data-'+INITIALFOCUS+'="true"');
     config[NAMEDEF] && (subtituteConfig[NAMEDEF]=' '+NAMEDEF+'="'+subtituteConfig[NAMEDEF]+'"');
     hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
+    disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false;
     subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
+    subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
 /*jshint expr:false */
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //++ specific widget formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -398,7 +400,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         if (type==='slider') {
             // we want the value visible inside a span
             subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+(config[CLASSNAME] ? (' '+config[CLASSNAME]) : '')+
-                                                                              '" data-for="'+nodeid+'"'+subtituteConfig[HIDDEN]+'>'+value+ENDSPAN;
+                                                                              '" data-for="'+nodeid+'"'+subtituteConfig[HIDDEN]+subtituteConfig[DISABLED]+'>'+value+ENDSPAN;
         }
         // now make sure we get the right 'template', by re-defining 'type'
         type = WIDGET;
@@ -407,12 +409,10 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++ non-widget formatting +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        disabled = (typeof subtituteConfig[DISABLED]===BOOLEAN) ? subtituteConfig[DISABLED] : false;
         required = !config['remove'+REQUIRED] && ((typeof subtituteConfig[REQUIRED]===BOOLEAN) ? subtituteConfig[REQUIRED] : (type===PASSWORD));
         readonly = (typeof subtituteConfig[READONLY]===BOOLEAN) ? subtituteConfig[READONLY] : false;
 /*jshint expr:true */
         subtituteConfig[FOCUSABLE] = focusable ? (' data-'+FOCUSABLE+'="true"') : '';
-        subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         subtituteConfig[REQUIRED] = required ? (' '+REQUIRED+'="'+REQUIRED+'"') : '';
         subtituteConfig[READONLY] = readonly ? (' '+READONLY+'="'+READONLY+'"') : '';
         config[PLACEHOLDER] && (subtituteConfig[PLACEHOLDER]=' '+PLACEHOLDER+'="'+subtituteConfig[PLACEHOLDER]+'"');
@@ -457,7 +457,6 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             surroundlabelclass = (type===RADIO) ? PURERADIO : PURECHECKBOX;
             checked = (typeof subtituteConfig[CHECKED]===BOOLEAN) ? subtituteConfig[CHECKED] : false;
             subtituteConfig[CHECKED] = checked ? (' '+CHECKED+'="'+CHECKED+'"') : '';
-            subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
         }
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -492,7 +491,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[VALUE] = ' value="'+value.getTime()+'"';
             subtituteConfig[DATA] += ' data-'+DATETIME+'picker="true"';
             subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = GETFORMATTED_DATEVALUE(type, (config.name || ''), value, subtituteConfig.format,
-                                                                                                     config[CLASSNAME], subtituteConfig[HIDDEN], hideatstartup, nodeid);
+                                                                                                     config[CLASSNAME], subtituteConfig[HIDDEN], subtituteConfig[DISABLED], hideatstartup, nodeid);
         }
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

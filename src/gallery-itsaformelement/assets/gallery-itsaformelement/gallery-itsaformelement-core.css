@@ -111,6 +111,11 @@ label[data-labeldatetime][data-changed] {
     -webkit-font-smoothing: antialiased;
 }
 
+span.formatvalue[disabled] {
+    color: #CAD2D3;
+    background-color: #EAEDED;
+}
+
 .pure-form span.formatvalue {
     font-size: 0.8em;
 }
