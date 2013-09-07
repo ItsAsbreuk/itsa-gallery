@@ -90,7 +90,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
 
 
     view.after('modelsubmit', function(e) {
-        Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
+     //   Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
     });
 
     view.on('validationerror', function(e) {

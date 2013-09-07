@@ -894,13 +894,11 @@ ITSAViewModel.prototype._bindUI = function() {
             '*:resetclick',
             function() {
                 var itsatabkeymanager = container.itsatabkeymanager;
-                if (instance._isMicroTemplate) {
-                    // need to re-render because the code might have made items visible/invisible based on their value
-                    instance.render();
-                }
-                if (itsatabkeymanager) {
-                    itsatabkeymanager.focusInitialItem();
-                }
+                // need to re-render because the code might have made items visible/invisible based on their value
+/*jshint expr:true */
+                instance._isMicroTemplate && instance.render();
+                itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+/*jshint expr:false */
             }
         )
     );
@@ -924,6 +922,20 @@ ITSAViewModel.prototype._bindUI = function() {
             function(e) {
                 if ((e.target instanceof Y.Model) && !instance.get(EDITABLE)) {
                     instance.render();
+                }
+            }
+        )
+    );
+    eventhandlers.push(
+        instance.after(
+            [MODEL+SUBMIT, MODEL+SAVE, MODEL+LOAD, MODEL+RESET],
+            function(e) {
+                var itsatabkeymanager = container.itsatabkeymanager;
+                if (itsatabkeymanager) {
+                    // first enable the UI again, this is done within the submit-defaultfunc of the model as well, but that code comes LATER.
+                    // and we need enabled element to set the focus
+                    e.model.enableUI();
+                    itsatabkeymanager.focusInitialItem();
                 }
             }
         )
