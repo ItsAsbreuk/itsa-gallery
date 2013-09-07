@@ -701,7 +701,15 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             instance._eventhandlers.push(
                 host.after(
                     'click',
-                    Y.rbind(instance._retreiveFocus, instance)
+                    function(e) {
+                        var node = e.target;
+                        if ((node.get('tagName')==='BUTTON') && instance._nodeIsFocusable(node)) {
+                            node.focus();
+                        }
+                        else {
+                            instance._retreiveFocus();
+                        }
+                    }
                 )
             );
         },
