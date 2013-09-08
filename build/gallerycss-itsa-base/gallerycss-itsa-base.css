@@ -29,5 +29,8 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
+.pure-button.pure-button-notext {
+    padding: 0.5em;
+}
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-base { display: none; }
