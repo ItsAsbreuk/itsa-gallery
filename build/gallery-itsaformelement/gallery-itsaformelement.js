@@ -32,7 +32,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     DATE = 'date',
     TIME = 'time',
     DATETIME = DATE+TIME,
-    ITSABUTTON_DATETIME_CLASS = PUREBUTTON_CLASS+'-'+DATETIME,
+    ITSABUTTON_DATETIME_CLASS = ' '+PUREBUTTON_CLASS+'-'+DATETIME+' '+PUREBUTTON_CLASS+'-notext',
     DISABLED_BUTTON_CLASS = PUREBUTTON_CLASS+'-'+DISABLED,
     PRIMARY_BUTTON_CLASS = PUREBUTTON_CLASS+'-primary',
     MODELATTRIBUTE = 'modelattribute',
@@ -510,7 +510,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         fullselect && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
-                                (isdatetime ? (' '+ITSABUTTON_DATETIME_CLASS) : '')+
+                                (isdatetime ? (ITSABUTTON_DATETIME_CLASS) : '')+
                                 (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
                                 (primarybutton ? (' '+PRIMARY_BUTTON_CLASS) : '')+
                                 (hideatstartup ? (' '+INVISIBLE_CLASS) : '')+
