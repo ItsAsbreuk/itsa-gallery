@@ -6,8 +6,8 @@
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
-  margin-right: .2em;
   text-align: center;
+  vertical-align: middle;
   /* opacity: .8; */
 
   /* For safety - reset parent styles, that can break glyph codes */
