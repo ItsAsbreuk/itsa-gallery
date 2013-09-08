@@ -32,3 +32,8 @@
 .pure-button.pure-button-notext {
     padding: 0.5em;
 }
+
+.pure-button:not(.pure-button-notext) [class^="itsaicon-"], .pure-button:not(.pure-button-notext) [class*=" itsaicon-"] {
+  /* set margin-right for more space, NOT on :before; --> that would disturb animation */
+  margin-right: .55em;
+}
