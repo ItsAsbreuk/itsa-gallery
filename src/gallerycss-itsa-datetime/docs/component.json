@@ -1,6 +1,6 @@
 {
-    "name"       : "gallerycss-itsa-form",
-    "displayName": "Gallery: gallerycss-itsa-form",
+    "name"       : "gallerycss-itsa-datetime",
+    "displayName": "Gallery: gallerycss-itsa-datetime",
     "description": "Supplies form-iconfonts which can be used by adding a classname.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallerycss-itsa-form" ],
