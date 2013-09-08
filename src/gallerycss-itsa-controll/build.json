@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-controll": {
             "cssfiles": [
-                "css/gallerycss-itsa-controll.css"
+                "css/controll-ie7.css",
+                "css/controll.css"
             ]
         }
     }
