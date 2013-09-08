@@ -47,7 +47,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
 
     PICKER = 'picker',
     CLICK = 'click',
-    PICKER_ICON = 'itsa-icon',
+    PICKER_ICON = 'itsaicon-datetime-',
     ICON_DATE_CLASS = PICKER_ICON+DATE,
     ICON_TIME_CLASS = PICKER_ICON+TIME,
     ICON_DATETIME_CLASS = PICKER_ICON+DATETIME,
@@ -482,6 +482,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++ specific datetime formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if (isdatetime) {
+            Y.use(GALLERY+'css'+ITSA+'-base', GALLERY+'css'+ITSA+'-'+DATETIME);
 /*jshint expr:true */
             Lang.isDate(value) || (value = new Date());
 /*jshint expr:false */

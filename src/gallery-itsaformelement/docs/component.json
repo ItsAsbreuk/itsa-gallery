@@ -27,15 +27,6 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "stringified-results",
-            "displayName": "Summary of all rendered form-elements",
-            "description": "Below is a summary of all stringified results",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node-base", "escape", "escape", "gallery-itsaformelement", "gallery-itsacheckbox"],
-            "tags"       : ["gallery-itsaformelement", "form-element", "summary"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "events",
             "displayName": "Listening for events",
             "description": "This example shows how to listen to the events: submitclick, resetclick, datepickerclick, timepickerclick and datetimepickerclick.",
@@ -51,6 +42,15 @@
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaformelement"],
             "tags"       : ["gallery-itsaformelement", "form-element", "gallery-tipsy", "tipsy"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "stringified-results",
+            "displayName": "Summary of all rendered form-elements",
+            "description": "Below is a summary of all stringified results",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node-base", "escape", "escape", "gallery-itsaformelement", "gallery-itsacheckbox"],
+            "tags"       : ["gallery-itsaformelement", "form-element", "summary"],
             "hideTableOfContents": true
         }
     ]
