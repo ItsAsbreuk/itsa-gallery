@@ -16,7 +16,3 @@
 button[data-formelement="true"] .itsa-busy:before {
     content: '\e802'; /* Fontelico '' */
 }
-
-button[data-formelement="true"] .itsa-busy:not(.itsaicon-load) {
-    margin-right: 0.35em;
-}
