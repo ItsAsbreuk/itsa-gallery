@@ -1,13 +1,4 @@
-[class^="itsaicon-"], [class*=" itsaicon-"] {
-  font-style: normal;
-  font-weight: normal;
-
-  /* fix buttons height */
-  line-height: 1em;
-
-  /* you can be more comfortable with increased icons size */
-  /* font-size: 120%; */
-}[class^="itsaicon-"]:before, [class*=" itsaicon-"]:before {
+[class^="itsaicon-"]:before, [class*=" itsaicon-"]:before {
   font-style: normal;
   font-weight: normal;
   speak: none;
