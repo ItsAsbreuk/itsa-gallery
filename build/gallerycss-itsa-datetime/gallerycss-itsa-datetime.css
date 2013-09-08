@@ -36,8 +36,5 @@
 .itsaicon-datetime-time:before { content: '\e801'; } /* Elusive '' */
 .itsaicon-datetime-datetime:before { content: '\e800\0000a0\e801';} /* Elusive '' */
 
-.pure-button.pure-button-datetime {
-    padding: 0.5em 0.5em;
-}
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-datetime { display: none; }
