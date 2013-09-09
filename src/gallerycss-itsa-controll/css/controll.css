@@ -22,11 +22,12 @@
 }
 */
 
-[class^="itsaicon-controll-"]:before, [class*=" itsaicon-controll-"]:before {
+i[class^="itsaicon-controll-"]:before,
+i[class*=" itsaicon-controll-"]:before {
   font-family: "itsacontroll";
 }
 
-.itsaicon-controll-add-user:before { content: '\e81e'; } /* Entypo '' */
+.itsaicon-controll-adduser:before { content: '\e81e'; } /* Entypo '' */
 .itsaicon-controll-archive:before { content: '\e822'; } /* Entypo '' */
 .itsaicon-controll-attention:before { content: '\e81a'; } /* Entypo '' */
 .itsaicon-controll-camera:before { content: '\e80e'; } /* Entypo '' */
