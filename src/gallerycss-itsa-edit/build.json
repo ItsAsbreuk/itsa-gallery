@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-edit": {
             "cssfiles": [
-                "css/gallerycss-itsa-edit.css"
+                "css/edit-ie7.css",
+                "css/edit.css"
             ]
         }
     }

@@ -1,8 +1,14 @@
-@font-face {
+.itsaicon-edit-cut { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.itsaicon-edit-edit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.itsaicon-edit-remove { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
+.itsaicon-edit-duplicate { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.itsaicon-edit-copy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.itsaicon-edit-paste { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.itsaicon-edit-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }@font-face {
   font-family: 'itsaedit';
-  src: url('assets/font/itsaedit.eot?44076284');
-  src: url('assets/font/itsaedit.eot?44076284#iefix') format('embedded-opentype'),
-       url('assets/font/itsaedit.svg?44076284#edit') format('svg');
+  src: url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.eot?44076284');
+  src: url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.eot?44076284#iefix') format('embedded-opentype'),
+       url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.svg?44076284#edit') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -17,7 +23,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'edit';
-    src: url('assets/font/itsaedit.svg?44076284#edit') format('svg');
+    src: url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.svg?44076284#edit') format('svg');
   }
 }
 */
@@ -34,3 +40,5 @@ i[class*=" itsaicon-edit-"]:before {
 .itsaicon-edit-copy:before { content: '\e801'; } /* Font Awesome '' */
 .itsaicon-edit-paste:before { content: '\e802'; } /* Font Awesome '' */
 .itsaicon-edit-save:before { content: '\e804'; } /* Entypo '' */
+/* YUI CSS Detection Stamp */
+#yui3-css-stamp.gallerycss-itsa-edit { display: none; }
