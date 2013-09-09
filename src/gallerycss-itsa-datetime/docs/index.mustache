@@ -11,58 +11,27 @@
 {{>getting-started}}
 
 <h2>Description</h2>
-<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The best way to create an icon, is by defining an empty <code>i-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
+<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The css only works if you define an empty <code>i-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
 </p>
 <p>
-    Be aware of the load-delay. Iconfonts-modules have are relative big-sized. To speed up initial loading, it is advisable to load the css-modules in a second separate Y.use() statement without a callback.
+    Be aware of the load-delay. Iconfonts-modules have are relative big-sized. To speed up initial loading, it is advizable to load the css-modules in a second separate Y.use() statement without a callback.
 </p>
 
 <h2>Available iconclasses</h2>
     <ul>
-        <li><i class="itsaicon-arrows-down"></i> <code>itsaicon-arrows-down</code></li>
-        <li><i class="itsaicon-arrows-left"></i> <code>itsaicon-arrows-left</code></li>
-        <li><i class="itsaicon-arrows-right"></i> <code>itsaicon-arrows-right</code></li>
-        <li><i class="itsaicon-arrows-up"></i> <code>itsaicon-arrows-up</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down2"></i> <code>itsaicon-arrows-down2</code></li>
-        <li><i class="itsaicon-arrows-left2"></i> <code>itsaicon-arrows-left2</code></li>
-        <li><i class="itsaicon-arrows-right2"></i> <code>itsaicon-arrows-right2</code></li>
-        <li><i class="itsaicon-arrows-up2"></i> <code>itsaicon-arrows-up2</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down3"></i> <code>itsaicon-arrows-down3</code></li>
-        <li><i class="itsaicon-arrows-left3"></i> <code>itsaicon-arrows-left3</code></li>
-        <li><i class="itsaicon-arrows-right3"></i> <code>itsaicon-arrows-right3</code></li>
-        <li><i class="itsaicon-arrows-up3"></i> <code>itsaicon-arrows-up3</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down4"></i> <code>itsaicon-arrows-down4</code></li>
-        <li><i class="itsaicon-arrows-left4"></i> <code>itsaicon-arrows-left4</code></li>
-        <li><i class="itsaicon-arrows-right4"></i> <code>itsaicon-arrows-right4</code></li>
-        <li><i class="itsaicon-arrows-up4"></i> <code>itsaicon-arrows-up4</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down5"></i> <code>itsaicon-arrows-down5</code></li>
-        <li><i class="itsaicon-arrows-left5"></i> <code>itsaicon-arrows-left5</code></li>
-        <li><i class="itsaicon-arrows-right5"></i> <code>itsaicon-arrows-right5</code></li>
-        <li><i class="itsaicon-arrows-up5"></i> <code>itsaicon-arrows-up5</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down-double"></i> <code>itsaicon-arrows-down-double</code></li>
-        <li><i class="itsaicon-arrows-left-double"></i> <code>itsaicon-arrows-left-double</code></li>
-        <li><i class="itsaicon-arrows-right-double"></i> <code>itsaicon-arrows-right-double</code></li>
-        <li><i class="itsaicon-arrows-up-double"></i> <code>itsaicon-arrows-up-double</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down-round"></i> <code>itsaicon-arrows-down-round</code></li>
-        <li><i class="itsaicon-arrows-left-round"></i> <code>itsaicon-arrows-left-round</code></li>
-        <li><i class="itsaicon-arrows-right-round"></i> <code>itsaicon-arrows-right-round</code></li>
-        <li><i class="itsaicon-arrows-up-round"></i> <code>itsaicon-arrows-up-round</code></li>
+        <li><i class="itsaicon-datetime-date"></i> <code>itsaicon-datetime-date</code></li>
+        <li><i class="itsaicon-datetime-time"></i> <code>itsaicon-datetime-time</code></li>
+        <li><i class="itsaicon-datetime-datetime"></i> <code>itsaicon-datetime-datetime</code></li>
     </ul>
 
 <h2>Usage</h2>
 ```html
-<button class="pure-button">Next<i class="itsaicon-arrows-right-double"></i></button>
+<button class="pure-button">Next<i class="itsaicon-datetime-date"></i></button>
 ```
 
 ```js
 YUI(yuiconfig).use('yui-base', function(Y) {
-    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-arrows'); // now the iconfonts will load asynchroniously
+    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-datetime'); // now the iconfonts will load asynchroniously
 
     // code can be executed
     ...
@@ -79,7 +48,7 @@ The iconfont has its definition inside <code>.itsaicon-iconname:before</code>. Y
 button {
     font-size: 120%;
 }
-itsaicon-yes:before {
+itsaicon-datetime-date:before {
     font-size: 150%;
 }
 ```
@@ -94,7 +63,7 @@ The icon-color has its definition inside <code>.itsaicon-iconname:before</code>.
 button {
     color: #F00;
 }
-itsaicon-yes:before {
+itsaicon-datetime-date:before {
     color: #0F0;
 }
 ```
@@ -108,17 +77,17 @@ itsaicon-yes:before {
 
 <h3>Iconbuttons without text</h3>
 ```html
-<button<i class="itsaicon-arrows-up-double"></i></button>
+<button<i class="itsaicon-datetime-date"></i></button>
 ```
 
 <h3>Textbuttons with a left-icon</h3>
 ```html
-<button class="itsabutton-iconleft"><i class="itsaicon-arrows-up-double"></i>Up</button>
+<button class="itsabutton-iconleft"><i class="itsaicon-datetime-date"></i>Date</button>
 ```
 
 <h3>Textbuttons with a right-icon</h3>
 ```html
-<button class="itsabutton-iconright">Up<i class="itsaicon-arrows-up-double"></i></button>
+<button class="itsabutton-iconright">Date<i class="itsaicon-datetime-date"></i></button>
 ```
 
 <script>
