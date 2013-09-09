@@ -3,8 +3,8 @@
 */
 .itsa-busy:before,
 .animate-spin:before {
-  margin-right: .2em;
-  margin-left: .2em;
+  margin-right: .3em;
+  margin-left: .3em;
 }
 .itsa-busy,
 .animate-spin {
