@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-shop": {
             "cssfiles": [
-                "css/gallerycss-itsa-shop.css"
+                "css/shop-ie7.css",
+                "css/shop.css"
             ]
         }
     }
