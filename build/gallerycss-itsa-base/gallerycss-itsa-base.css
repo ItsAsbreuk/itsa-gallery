@@ -1,4 +1,4 @@
-[class^="itsaicon-"]:before, [class*=" itsaicon-"]:before {
+i[class^="itsaicon-"]:before, i[class*=" itsaicon-"]:before {
   font-style: normal;
   font-weight: normal;
   speak: none;
@@ -44,20 +44,38 @@ button.itsabutton-iconright,
     padding: 0.5em 1.2em 0.5em 1.5em;
 }
 
-button.itsabutton-iconleft [class^="itsaicon-"],
-button.itsabutton-iconleft [class*=" itsaicon-"],
-.pure-button.itsabutton-iconleft [class^="itsaicon-"],
-.pure-button.itsabutton-iconleft [class*=" itsaicon-"] {
+button.itsabutton-iconleft i[class^="itsaicon-"],
+button.itsabutton-iconleft i[class*=" itsaicon-"],
+.pure-button.itsabutton-iconleft i[class^="itsaicon-"],
+.pure-button.itsabutton-iconleft i[class*=" itsaicon-"] {
   /* set margin-right for more space, NOT on :before; --> that would disturb animation */
   margin-right: .55em;
 }
 
-button.itsabutton-iconright [class^="itsaicon-"],
-button.itsabutton-iconright [class*=" itsaicon-"],
+button.itsabutton-iconright i[class^="itsaicon-"],
+button.itsabutton-iconright i[class*=" itsaicon-"],
 .pure-button.itsabutton-iconright [class^="itsaicon-"],
 .pure-button.itsabutton-iconright [class*=" itsaicon-"] {
   /* set margin-right for more space, NOT on :before; --> that would disturb animation */
   margin-left: .55em;
+}
+
+button.itsabutton-iconleft i.itsa-busy,
+button.itsabutton-iconleft i.animate-spin,
+.pure-button.itsabutton-iconleft i.itsa-busy,
+.pure-button.itsabutton-iconleft i.animate-spin {
+  /* set margin-right for more space, NOT on :before; --> that would disturb animation */
+  margin-right: .25em;
+  margin-left: -0.3em;
+}
+
+button.itsabutton-iconright i.itsa-busy,
+button.itsabutton-iconright i.animate-spin,
+.pure-button.itsabutton-iconright i.itsa-busy,
+.pure-button.itsabutton-iconright i.animate-spin {
+  /* set margin-right for more space, NOT on :before; --> that would disturb animation */
+  margin-left: .25em;
+  margin-right: -0.3em;
 }
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-base { display: none; }
