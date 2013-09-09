@@ -11,10 +11,10 @@
 {{>getting-started}}
 
 <h2>Description</h2>
-<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The best way to create an icon, is by defining an empty <code>i-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
+<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The css only works if you define an empty <code>i-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
 </p>
 <p>
-    Be aware of the load-delay. Iconfonts-modules have are relative big-sized. To speed up initial loading, it is advisable to load the css-modules in a second separate Y.use() statement without a callback.
+    Be aware of the load-delay. Iconfonts-modules have are relative big-sized. To speed up initial loading, it is advizable to load the css-modules in a second separate Y.use() statement without a callback.
 </p>
 
 <h2>Available iconclasses</h2>
@@ -79,7 +79,7 @@ The iconfont has its definition inside <code>.itsaicon-iconname:before</code>. Y
 button {
     font-size: 120%;
 }
-itsaicon-yes:before {
+itsaicon-arrows-down:before {
     font-size: 150%;
 }
 ```
@@ -94,7 +94,7 @@ The icon-color has its definition inside <code>.itsaicon-iconname:before</code>.
 button {
     color: #F00;
 }
-itsaicon-yes:before {
+itsaicon-arrows-down:before {
     color: #0F0;
 }
 ```
