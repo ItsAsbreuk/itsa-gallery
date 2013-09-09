@@ -22,7 +22,8 @@
 }
 */
 
-[class^="itsaicon-datetime-"]:before, [class*=" itsaicon-datetime-"]:before {
+i[class^="itsaicon-datetime-"]:before,
+i[class*=" itsaicon-datetime-"]:before {
   font-family: "itsadatetime";
 }
 
