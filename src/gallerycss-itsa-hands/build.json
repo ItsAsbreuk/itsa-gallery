@@ -1,0 +1,10 @@
+{
+    "name": "gallerycss-itsa-hands",
+    "builds": {
+        "gallerycss-itsa-hands": {
+            "cssfiles": [
+                "css/gallerycss-itsa-hands.css"
+            ]
+        }
+    }
+}
