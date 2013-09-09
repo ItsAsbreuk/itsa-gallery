@@ -1,2 +1,0 @@
-gallerycss-itsa-triangles
-========
