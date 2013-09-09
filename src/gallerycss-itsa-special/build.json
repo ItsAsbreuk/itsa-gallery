@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-special": {
             "cssfiles": [
-                "css/gallerycss-itsa-special.css"
+                "css/special.css",
+                "css/special.css"
             ]
         }
     }
