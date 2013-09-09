@@ -7,7 +7,7 @@
   text-decoration: inherit;
   width: 1em;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: baseline;
   /* opacity: .8; */
 
   /* For safety - reset parent styles, that can break glyph codes */
@@ -29,11 +29,33 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
-.pure-button.pure-button-notext {
-    padding: 0.5em;
+button:not(.itsabutton-iconleft):not(.itsabutton-iconright),
+.pure-button:not(.itsabutton-iconleft):not(.itsabutton-iconright) {
+    padding: 0.5em 0.47em 0.5em 0.53em;
 }
 
-.pure-button:not(.pure-button-notext) [class^="itsaicon-"], .pure-button:not(.pure-button-notext) [class*=" itsaicon-"] {
+button.itsabutton-iconleft,
+.pure-button.itsabutton-iconleft) {
+    padding: 0.5em 1.5em 0.5em 1.2em;
+}
+
+button.itsabutton-iconright,
+.pure-button.itsabutton-iconright {
+    padding: 0.5em 1.2em 0.5em 1.5em;
+}
+
+button.itsabutton-iconleft [class^="itsaicon-"],
+button.itsabutton-iconleft [class*=" itsaicon-"],
+.pure-button.itsabutton-iconleft [class^="itsaicon-"],
+.pure-button.itsabutton-iconleft [class*=" itsaicon-"] {
   /* set margin-right for more space, NOT on :before; --> that would disturb animation */
   margin-right: .55em;
+}
+
+button.itsabutton-iconright [class^="itsaicon-"],
+button.itsabutton-iconright [class*=" itsaicon-"],
+.pure-button.itsabutton-iconright [class^="itsaicon-"],
+.pure-button.itsabutton-iconright [class*=" itsaicon-"] {
+  /* set margin-right for more space, NOT on :before; --> that would disturb animation */
+  margin-left: .55em;
 }

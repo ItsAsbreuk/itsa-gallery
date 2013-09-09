@@ -4,46 +4,68 @@
 
 <div class="intro">
     <p>
-    *Summary Goes Here*
+    {{description}}
     </p>
 </div>
 
 {{>getting-started}}
 
 <h2>Description</h2>
-<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The best way to create an icon, is by defining a <code>li-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
+<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The best way to create an icon, is by defining an empty <code>i-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
 </p>
 <p>
-    Be aware of the load-delay: if you use progressive enhancement, you might want the nodes to be invisible until loading has finished.
+    Be aware of the load-delay. Iconfonts-modules have are relative big-sized. To speed up initial loading, it is advisable to load the css-modules in a second separate Y.use() statement without a callback.
 </p>
 
 <h2>Available iconclasses</h2>
     <ul>
-        <li><i class="itsaicon-abort"></i><code>itsaicon-abort</code></li>
-        <li><i class="itsaicon-cancel"></i><code>itsaicon-cancel</code></li>
-        <li><i class="itsaicon-destroy"></i><code>itsaicon-destroy</code></li>
-        <li><i class="itsaicon-ignore"></i><code>itsaicon-ignore</code></li>
-        <li><i class="itsaicon-load"></i><code>itsaicon-load</code></li>
-        <li><i class="itsaicon-no"></i><code>itsaicon-no</code></li>
-        <li><i class="itsaicon-ok"></i><code>itsaicon-ok</code></li>
-        <li><i class="itsaicon-remove"></i><code>itsaicon-remove</code></li>
-        <li><i class="itsaicon-reset"></i><code>itsaicon-reset</code></li>
-        <li><i class="itsaicon-retry"></i><code>itsaicon-retry</code></li>
-        <li><i class="itsaicon-save"></i><code>itsaicon-save</code></li>
-        <li><i class="itsaicon-submit"></i><code>itsaicon-submit</code></li>
-        <li><i class="itsaicon-yes"></i><code>itsaicon-yes</code></li>
+        <li><i class="itsaicon-arrows-down"></i> <code>itsaicon-arrows-down</code></li>
+        <li><i class="itsaicon-arrows-left"></i> <code>itsaicon-arrows-left</code></li>
+        <li><i class="itsaicon-arrows-right"></i> <code>itsaicon-arrows-right</code></li>
+        <li><i class="itsaicon-arrows-up"></i> <code>itsaicon-arrows-up</code></li>
+
+        <li class="newgroup"><i class="itsaicon-arrows-down2"></i> <code>itsaicon-arrows-down2</code></li>
+        <li><i class="itsaicon-arrows-left2"></i> <code>itsaicon-arrows-left2</code></li>
+        <li><i class="itsaicon-arrows-right2"></i> <code>itsaicon-arrows-right2</code></li>
+        <li><i class="itsaicon-arrows-up2"></i> <code>itsaicon-arrows-up2</code></li>
+
+        <li class="newgroup"><i class="itsaicon-arrows-down3"></i> <code>itsaicon-arrows-down3</code></li>
+        <li><i class="itsaicon-arrows-left3"></i> <code>itsaicon-arrows-left3</code></li>
+        <li><i class="itsaicon-arrows-right3"></i> <code>itsaicon-arrows-right3</code></li>
+        <li><i class="itsaicon-arrows-up3"></i> <code>itsaicon-arrows-up3</code></li>
+
+        <li class="newgroup"><i class="itsaicon-arrows-down4"></i> <code>itsaicon-arrows-down4</code></li>
+        <li><i class="itsaicon-arrows-left4"></i> <code>itsaicon-arrows-left4</code></li>
+        <li><i class="itsaicon-arrows-right4"></i> <code>itsaicon-arrows-right4</code></li>
+        <li><i class="itsaicon-arrows-up4"></i> <code>itsaicon-arrows-up4</code></li>
+
+        <li class="newgroup"><i class="itsaicon-arrows-down5"></i> <code>itsaicon-arrows-down5</code></li>
+        <li><i class="itsaicon-arrows-left5"></i> <code>itsaicon-arrows-left5</code></li>
+        <li><i class="itsaicon-arrows-right5"></i> <code>itsaicon-arrows-right5</code></li>
+        <li><i class="itsaicon-arrows-up5"></i> <code>itsaicon-arrows-up5</code></li>
+
+        <li class="newgroup"><i class="itsaicon-arrows-down-double"></i> <code>itsaicon-arrows-down-double</code></li>
+        <li><i class="itsaicon-arrows-left-double"></i> <code>itsaicon-arrows-left-double</code></li>
+        <li><i class="itsaicon-arrows-right-double"></i> <code>itsaicon-arrows-right-double</code></li>
+        <li><i class="itsaicon-arrows-up-double"></i> <code>itsaicon-arrows-up-double</code></li>
+
+        <li class="newgroup"><i class="itsaicon-arrows-down-round"></i> <code>itsaicon-arrows-down-round</code></li>
+        <li><i class="itsaicon-arrows-left-round"></i> <code>itsaicon-arrows-left-round</code></li>
+        <li><i class="itsaicon-arrows-right-round"></i> <code>itsaicon-arrows-right-round</code></li>
+        <li><i class="itsaicon-arrows-up-round"></i> <code>itsaicon-arrows-up-round</code></li>
     </ul>
 
 <h2>Usage</h2>
 ```html
-<button class="pure-button"><i class="itsaicon-save"></i><code>Save</button>
+<button class="pure-button">Next<i class="itsaicon-arrows-right-double"></i></button>
 ```
 
 ```js
-YUI(yuiconfig).use('gallerycss-itsa-form', function(Y) {
-    // by loading the module, the css will be available
-    // be aware of the load-delay: if you use progressive enhancement, you might want
-    // the nodes to be invisible until loading has finished.
+YUI(yuiconfig).use('yui-base', function(Y) {
+    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-arrows'); // now the iconfonts will load asynchroniously
+
+    // code can be executed
+    ...
 
 });
 ```
@@ -75,6 +97,28 @@ button {
 itsaicon-yes:before {
     color: #0F0;
 }
+```
+<h2>Creating imagebuttons (purecss compatible)</h2>
+    <p>
+        Imagebuttons can be created by creating a button and add an empty <code>i-element</code> inside. To be sure the space arround the iconfont gets right, you need to add the right classname to the button as well.
+    </p>
+    <p>
+        These iconfonts work perfectly well with pure-css. So you can add the class <code>pure-button</code> to the button-element. But you don't need to.
+    </p>
+
+<h3>Iconbuttons without text</h3>
+```html
+<button<i class="itsaicon-arrows-up-double"></i></button>
+```
+
+<h3>Textbuttons with a left-icon</h3>
+```html
+<button class="itsabutton-iconleft"><i class="itsaicon-arrows-up-double"></i>Up</button>
+```
+
+<h3>Textbuttons with a right-icon</h3>
+```html
+<button class="itsabutton-iconright">Up<i class="itsaicon-arrows-up-double"></i></button>
 ```
 
 <script>

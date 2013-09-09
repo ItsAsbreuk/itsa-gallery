@@ -1,9 +1,9 @@
 {
-    "name"       : "gallerycss-itsa-form",
-    "displayName": "Gallery: gallerycss-itsa-form",
-    "description": "Supplies form-iconfonts which can be used by adding a classname.",
+    "name"       : "gallerycss-itsa-arrows",
+    "displayName": "Gallery: gallerycss-itsa-arrows",
+    "description": "Supplies arrow-iconfonts which can be used by adding a classname.",
     "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallerycss-itsa-form" ],
+    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-arrows" ],
 
     "tags": [ "gallery" ],
 
@@ -13,8 +13,8 @@
             "displayName": "Creating imagebuttons",
             "description": "This is a summary of all available icon-fonts this module offers, applied to purecss-buttons.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-form"],
-            "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form"],
+            "modules"    : ["gallerycss-itsa-arrows"],
+            "tags"       : ["gallerycss-itsa-arrows", "iconfonts", "icons", "arrows"],
             "hideTableOfContents": true
         },
         {
@@ -22,17 +22,8 @@
             "displayName": "Custom styling",
             "description": "This example shows how to customize an icon.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-form"],
-            "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form", "customize", "styling"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "animation",
-            "displayName": "Adding animation",
-            "description": "This example shows how to spin an iconfont by using both 'gallerycss-itsa-form' and 'gallerycss-itsa-animatespin'.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-form", "gallerycss-itsa-animatespin"],
-            "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form", "customize", "animated", "animation"],
+            "modules"    : ["gallerycss-itsa-arrows"],
+            "tags"       : ["gallerycss-itsa-arrows", "iconfonts", "icons", "arrows", "customize", "styling"],
             "hideTableOfContents": true
         }
     ]

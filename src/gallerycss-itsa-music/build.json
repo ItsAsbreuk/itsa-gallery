@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-music": {
             "cssfiles": [
-                "css/gallerycss-itsa-music.css"
+                "css/music-ie7.css",
+                "css/music.css"
             ]
         }
     }

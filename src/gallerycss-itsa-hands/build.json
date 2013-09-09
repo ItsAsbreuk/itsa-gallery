@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-hands": {
             "cssfiles": [
-                "css/gallerycss-itsa-hands.css"
+                "css/hands-ie7.css",
+                "css/hands.css"
             ]
         }
     }
