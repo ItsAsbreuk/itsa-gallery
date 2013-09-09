@@ -1,7 +1,7 @@
 {
     "name"       : "gallerycss-itsa-form",
     "displayName": "Gallery: gallerycss-itsa-form",
-    "description": "Supplies form-iconfonts which can be used by adding a classname.",
+    "description": "Supplies form-iconfonts which can be used by adding a classname. Always load both this module and the base module 'gallerycss-itsa-base' to get the right base-css.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallerycss-itsa-form" ],
 
