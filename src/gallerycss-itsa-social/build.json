@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-social": {
             "cssfiles": [
-                "css/gallerycss-itsa-social.css"
+                "css/social-ie7.css",
+                "css/social.css"
             ]
         }
     }
