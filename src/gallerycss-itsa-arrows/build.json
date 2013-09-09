@@ -3,7 +3,8 @@
     "builds": {
         "gallerycss-itsa-arrows": {
             "cssfiles": [
-                "css/gallerycss-itsa-arrows.css"
+                "css/arrows-ie7.css",
+                "css/arrows.css"
             ]
         }
     }
