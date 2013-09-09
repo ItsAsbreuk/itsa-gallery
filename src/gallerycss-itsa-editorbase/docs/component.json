@@ -1,9 +1,9 @@
 {
-    "name"       : "gallerycss-itsa-arrows",
-    "displayName": "Gallery: gallerycss-itsa-arrows",
+    "name"       : "gallerycss-itsa-editorbase",
+    "displayName": "Gallery: gallerycss-itsa-editorbase",
     "description": "Supplies arrow-iconfonts which can be used by adding a classname. Always load both this module and the base module 'gallerycss-itsa-base' to get the right base-css.",
     "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-arrows" ],
+    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-editorbase" ],
 
     "tags": [ "gallery" ],
 
@@ -13,8 +13,8 @@
             "displayName": "Creating imagebuttons",
             "description": "This is a summary of all available icon-fonts this module offers, applied to purecss-buttons.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-arrows"],
-            "tags"       : ["gallerycss-itsa-arrows", "iconfonts", "icons", "arrows"],
+            "modules"    : ["gallerycss-itsa-editorbase"],
+            "tags"       : ["gallerycss-itsa-editorbase", "iconfonts", "icons", "editorbase"],
             "hideTableOfContents": true
         },
         {
@@ -22,8 +22,8 @@
             "displayName": "Custom styling",
             "description": "This example shows how to customize an icon.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-arrows"],
-            "tags"       : ["gallerycss-itsa-arrows", "iconfonts", "icons", "arrows", "customize", "styling"],
+            "modules"    : ["gallerycss-itsa-editorbase"],
+            "tags"       : ["gallerycss-itsa-editorbase", "iconfonts", "icons", "editorbase", "customize", "styling"],
             "hideTableOfContents": true
         }
     ]
