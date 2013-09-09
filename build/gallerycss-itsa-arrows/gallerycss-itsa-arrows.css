@@ -49,7 +49,8 @@
 }
 */
 
-[class^="itsaicon-arrows-"]:before, [class*=" itsaicon-arrows-"]:before {
+i[class^="itsaicon-arrows-"]:before,
+i[class*=" itsaicon-arrows-"]:before {
   font-family: "itsaarrows";
 }
 
