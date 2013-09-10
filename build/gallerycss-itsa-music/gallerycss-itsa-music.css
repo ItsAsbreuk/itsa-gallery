@@ -1,8 +1,40 @@
-@font-face {
+.itsaicon-music-itunes { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.itsaicon-music-soundcloud { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.itsaicon-music-pause { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe819;&nbsp;'); }
+.itsaicon-music-forward { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81e;&nbsp;'); }
+.itsaicon-music-backward { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81f;&nbsp;'); }
+.itsaicon-music-to-end { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81a;&nbsp;'); }
+.itsaicon-music-to-start { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81c;&nbsp;'); }
+.itsaicon-music-stop { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe818;&nbsp;'); }
+.itsaicon-music-play { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
+.itsaicon-music-note { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80e;&nbsp;'); }
+.itsaicon-music-note3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80f;&nbsp;'); }
+.itsaicon-music-note2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.itsaicon-music-note6 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe820;&nbsp;'); }
+.itsaicon-music-stop-round { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe813;&nbsp;'); }
+.itsaicon-music-backward-round { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe815;&nbsp;'); }
+.itsaicon-music-record-round { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe817;&nbsp;'); }
+.itsaicon-music-play-round { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe812;&nbsp;'); }
+.itsaicon-music-pause-round { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe814;&nbsp;'); }
+.itsaicon-music-note5 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe810;&nbsp;'); }
+.itsaicon-music-headphones4 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80d;&nbsp;'); }
+.itsaicon-music-forward-round { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe816;&nbsp;'); }
+.itsaicon-music-note8 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
+.itsaicon-music-note4 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
+.itsaicon-music-headphones2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80c;&nbsp;'); }
+.itsaicon-music-volume { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
+.itsaicon-music-to-last { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81b;&nbsp;'); }
+.itsaicon-music-to-first { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81d;&nbsp;'); }
+.itsaicon-music-headphones { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.itsaicon-music-headphones3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe811;&nbsp;'); }
+.itsaicon-music-note7 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
+.itsaicon-music-volume-off { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.itsaicon-music-volume-down { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
+.itsaicon-music-volume-up { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }@font-face {
   font-family: 'itsamusic';
-  src: url('assets/font/itsamusic.eot?37981720');
-  src: url('assets/font/itsamusic.eot?37981720#iefix') format('embedded-opentype'),
-       url('assets/font/itsamusic.svg?37981720#itsamusic') format('svg');
+  src: url('itsa-gallery/build/gallerycss-itsa-music/assets/font/itsamusic.eot?37981720');
+  src: url('itsa-gallery/build/gallerycss-itsa-music/assets/font/itsamusic.eot?37981720#iefix') format('embedded-opentype'),
+       url('itsa-gallery/build/gallerycss-itsa-music/assets/font/itsamusic.svg?37981720#itsamusic') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -17,7 +49,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'music';
-    src: url('assets/font/itsamusic.svg?37981720#itsamusic') format('svg');
+    src: url('itsa-gallery/build/gallerycss-itsa-music/assets/font/itsamusic.svg?37981720#itsamusic') format('svg');
   }
 }
 */
@@ -59,3 +91,5 @@ i[class^="itsaicon-music-"]:before, i[class*=" itsaicon-music-"]:before {
 .itsaicon-music-volume-down:before { content: '\e804'; } /* Font Awesome '' */
 .itsaicon-music-volume-off:before { content: '\e803'; } /* Font Awesome '' */
 .itsaicon-music-volume-up:before { content: '\e805'; } /* Font Awesome '' */
+/* YUI CSS Detection Stamp */
+#yui3-css-stamp.gallerycss-itsa-music { display: none; }
