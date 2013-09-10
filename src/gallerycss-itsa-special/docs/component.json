@@ -25,6 +25,15 @@
             "modules"    : ["gallerycss-itsa-special"],
             "tags"       : ["gallerycss-itsa-special", "iconfonts", "icons", "special", "customize", "styling"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "starrating",
+            "displayName": "Star rating",
+            "description": "This example shows to create a customized star-rating utility. Press the buttons to vote.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallerycss-itsa-special"],
+            "tags"       : ["gallerycss-itsa-special", "iconfonts", "icons", "special", "customize", "starrating", "stars", "rating"],
+            "hideTableOfContents": true
         }
     ]
 }

@@ -3,7 +3,7 @@
     "builds": {
         "gallerycss-itsa-special": {
             "cssfiles": [
-                "css/special.css",
+                "css/special-ie7.css",
                 "css/special.css"
             ]
         }
