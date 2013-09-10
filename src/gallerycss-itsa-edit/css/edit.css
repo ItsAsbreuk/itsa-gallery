@@ -27,10 +27,10 @@ i[class*=" itsaicon-edit-"]:before {
   font-family: "itsaedit";
 }
 
-.itsaicon-edit-cut:before { content: '\e803'; } /* Font Awesome '' */
-.itsaicon-edit-edit:before { content: '\e800'; } /* Font Awesome '' */
-.itsaicon-edit-remove:before { content: '\e805'; } /* Modern Pictograms '' */
-.itsaicon-edit-duplicate:before { content: '\e806'; } /* Font Awesome '' */
-.itsaicon-edit-copy:before { content: '\e801'; } /* Font Awesome '' */
-.itsaicon-edit-paste:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-edit-save:before { content: '\e804'; } /* Entypo '' */
+i.itsaicon-edit-cut:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-edit-edit:before { content: '\e800'; } /* Font Awesome '' */
+i.itsaicon-edit-remove:before { content: '\e805'; } /* Modern Pictograms '' */
+i.itsaicon-edit-duplicate:before { content: '\e806'; } /* Font Awesome '' */
+i.itsaicon-edit-copy:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-edit-paste:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-edit-save:before { content: '\e804'; } /* Entypo '' */
