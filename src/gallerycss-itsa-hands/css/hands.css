@@ -26,13 +26,13 @@ i[class^="itsaicon-hands-"]:before, i[class*=" itsaicon-hands-"]:before {
   font-family: "itsahands";
 }
 
-.itsaicon-hands-down:before { content: '\e803'; } /* Font Awesome '' */
-.itsaicon-hands-down-mirror:before { content: '\e805'; } /* Elusive '' */
-.itsaicon-hands-left:before { content: '\e801'; } /* Font Awesome '' */
-.itsaicon-hands-right:before { content: '\e800'; } /* Font Awesome '' */
-.itsaicon-hands-thumbs-up:before { content: '\e808'; } /* Font Awesome '' */
-.itsaicon-hands-thumbs-up2:before { content: '\e806'; } /* Font Awesome '' */
-.itsaicon-hands-thumbs-down:before { content: '\e809'; } /* Font Awesome '' */
-.itsaicon-hands-thumbs-down2:before { content: '\e807'; } /* Font Awesome '' */
-.itsaicon-hands-up:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-hands-up-mirror:before { content: '\e804'; } /* Elusive '' */
+i.itsaicon-hands-down:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-hands-down-mirror:before { content: '\e805'; } /* Elusive '' */
+i.itsaicon-hands-left:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-hands-right:before { content: '\e800'; } /* Font Awesome '' */
+i.itsaicon-hands-thumbs-up:before { content: '\e808'; } /* Font Awesome '' */
+i.itsaicon-hands-thumbs-up2:before { content: '\e806'; } /* Font Awesome '' */
+i.itsaicon-hands-thumbs-down:before { content: '\e809'; } /* Font Awesome '' */
+i.itsaicon-hands-thumbs-down2:before { content: '\e807'; } /* Font Awesome '' */
+i.itsaicon-hands-up:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-hands-up-mirror:before { content: '\e804'; } /* Elusive '' */
