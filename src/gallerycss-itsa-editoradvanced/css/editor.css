@@ -25,17 +25,17 @@
 i[class^="itsaicon-editor-"]:before, i[class*=" itsaicon-editor-"]:before {
   font-family: "itsaeditoradvanced";
 }
-.itsaicon-editor-attachment:before { content: '\e806'; } /* Web Symbols '' */
-.itsaicon-editor-clearcode:before { content: '\e80a'; } /* Font Awesome '' */
-.itsaicon-editor-bgcolor:before { content: '\e807'; } /* MFG Labs '' */
-.itsaicon-editor-colorstrike:before { content: '\e808'; } /* Font Awesome '' */
-.itsaicon-editor-image:before { content: '\e809'; } /* Font Awesome '' */
-.itsaicon-editor-link:before { content: '\e80d'; } /* Font Awesome '' */
-.itsaicon-editor-mail:before { content: '\e80b'; } /* Font Awesome '' */
-.itsaicon-editor-redo:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-editor-strike:before { content: '\e800'; } /* Font Awesome '' */
-.itsaicon-editor-sub:before { content: '\e805'; } /* Font Awesome '' */
-.itsaicon-editor-super:before { content: '\e804'; } /* Font Awesome '' */
-.itsaicon-editor-undo:before { content: '\e803'; } /* Font Awesome '' */
-.itsaicon-editor-unlink:before { content: '\e80e'; } /* Font Awesome '' */
-.itsaicon-editor-video:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-editor-attachment:before { content: '\e806'; } /* Web Symbols '' */
+i.itsaicon-editor-clearcode:before { content: '\e80a'; } /* Font Awesome '' */
+i.itsaicon-editor-bgcolor:before { content: '\e807'; } /* MFG Labs '' */
+i.itsaicon-editor-colorstrike:before { content: '\e808'; } /* Font Awesome '' */
+i.itsaicon-editor-image:before { content: '\e809'; } /* Font Awesome '' */
+i.itsaicon-editor-link:before { content: '\e80d'; } /* Font Awesome '' */
+i.itsaicon-editor-mail:before { content: '\e80b'; } /* Font Awesome '' */
+i.itsaicon-editor-redo:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-editor-strike:before { content: '\e800'; } /* Font Awesome '' */
+i.itsaicon-editor-sub:before { content: '\e805'; } /* Font Awesome '' */
+i.itsaicon-editor-super:before { content: '\e804'; } /* Font Awesome '' */
+i.itsaicon-editor-undo:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-editor-unlink:before { content: '\e80e'; } /* Font Awesome '' */
+i.itsaicon-editor-video:before { content: '\e801'; } /* Font Awesome '' */
