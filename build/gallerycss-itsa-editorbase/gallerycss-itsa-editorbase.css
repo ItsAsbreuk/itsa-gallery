@@ -1,8 +1,19 @@
-@font-face {
+.itsaicon-editor-bold { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.itsaicon-editor-italic { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.itsaicon-editor-align-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
+.itsaicon-editor-align-center { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
+.itsaicon-editor-align-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.itsaicon-editor-align-justify { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
+.itsaicon-editor-indent-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
+.itsaicon-editor-indent-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
+.itsaicon-editor-color { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.itsaicon-editor-list-bullet { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
+.itsaicon-editor-list-numbered { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
+.itsaicon-editor-underline { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }@font-face {
   font-family: 'itsaeditorbase';
-  src: url('assets/font/itsaeditorbase.eot?65128147');
-  src: url('assets/font/itsaeditorbase.eot?65128147#iefix') format('embedded-opentype'),
-       url('assets/font/itsaeditorbase.svg?65128147#itsaeditorbase') format('svg');
+  src: url('itsa-gallery/build/gallerycss-itsa-editorbase/assets/font/itsaeditorbase.eot?65128147');
+  src: url('itsa-gallery/build/gallerycss-itsa-editorbase/assets/font/itsaeditorbase.eot?65128147#iefix') format('embedded-opentype'),
+       url('itsa-gallery/build/gallerycss-itsa-editorbase/assets/font/itsaeditorbase.svg?65128147#itsaeditorbase') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -17,12 +28,12 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'itsaeditorbase';
-    src: url('../font/itsaeditorbase.svg?65128147#itsaeditorbase') format('svg');
+    src: url('itsa-gallery/build/font/itsaeditorbase.svg?65128147#itsaeditorbase') format('svg');
   }
 }
 */
 
-i[class^="itsaicon-editor-"]:before, i[class*=" itsaicon-editor-"]:before {
+[class^="itsaicon-editor-"]:before, [class*=" itsaicon-editor-"]:before {
   font-family: "itsaeditorbase";
 }
 
@@ -38,3 +49,5 @@ i[class^="itsaicon-editor-"]:before, i[class*=" itsaicon-editor-"]:before {
 .itsaicon-editor-list-bullet:before { content: '\e808'; } /* Font Awesome '' */
 .itsaicon-editor-list-numbered:before { content: '\e809'; } /* Font Awesome '' */
 .itsaicon-editor-underline:before { content: '\e803'; } /* Font Awesome '' */
+/* YUI CSS Detection Stamp */
+#yui3-css-stamp.gallerycss-itsa-editorbase { display: none; }
