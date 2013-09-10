@@ -26,15 +26,15 @@ i[class^="itsaicon-editor-"]:before, i[class*=" itsaicon-editor-"]:before {
   font-family: "itsaeditorbase";
 }
 
-.itsaicon-editor-align-left:before { content: '\e804'; } /* Font Awesome '' */
-.itsaicon-editor-align-center:before { content: '\e805'; } /* Font Awesome '' */
-.itsaicon-editor-align-right:before { content: '\e806'; } /* Font Awesome '' */
-.itsaicon-editor-align-justify:before { content: '\e807'; } /* Font Awesome '' */
-.itsaicon-editor-bold:before { content: '\e801'; } /* Font Awesome '' */
-.itsaicon-editor-color:before { content: '\e800'; } /* Entypo '' */
-.itsaicon-editor-indent-left:before { content: '\e80a'; } /* Font Awesome '' */
-.itsaicon-editor-indent-right:before { content: '\e80b'; } /* Font Awesome '' */
-.itsaicon-editor-italic:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-editor-list-bullet:before { content: '\e808'; } /* Font Awesome '' */
-.itsaicon-editor-list-numbered:before { content: '\e809'; } /* Font Awesome '' */
-.itsaicon-editor-underline:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-editor-align-left:before { content: '\e804'; } /* Font Awesome '' */
+i.itsaicon-editor-align-center:before { content: '\e805'; } /* Font Awesome '' */
+i.itsaicon-editor-align-right:before { content: '\e806'; } /* Font Awesome '' */
+i.itsaicon-editor-align-justify:before { content: '\e807'; } /* Font Awesome '' */
+i.itsaicon-editor-bold:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-editor-color:before { content: '\e800'; } /* Entypo '' */
+i.itsaicon-editor-indent-left:before { content: '\e80a'; } /* Font Awesome '' */
+i.itsaicon-editor-indent-right:before { content: '\e80b'; } /* Font Awesome '' */
+i.itsaicon-editor-italic:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-editor-list-bullet:before { content: '\e808'; } /* Font Awesome '' */
+i.itsaicon-editor-list-numbered:before { content: '\e809'; } /* Font Awesome '' */
+i.itsaicon-editor-underline:before { content: '\e803'; } /* Font Awesome '' */
