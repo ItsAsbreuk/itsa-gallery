@@ -1,8 +1,17 @@
-@font-face {
+.itsaicon-hands-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.itsaicon-hands-up { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.itsaicon-hands-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.itsaicon-hands-down { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.itsaicon-hands-down-mirror { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
+.itsaicon-hands-up-mirror { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
+.itsaicon-hands-thumbs-up2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.itsaicon-hands-thumbs-down2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
+.itsaicon-hands-thumbs-up { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
+.itsaicon-hands-thumbs-down { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }@font-face {
   font-family: 'itsahands';
-  src: url('assets/font/itsahands.eot?21407990');
-  src: url('assets/font/itsahands.eot?21407990#iefix') format('embedded-opentype'),
-       url('assets/font/itsahands.svg?21407990#itsaarrows') format('svg');
+  src: url('itsa-gallery/build/gallerycss-itsa-hands/assets/font/itsahands.eot?21407990');
+  src: url('itsa-gallery/build/gallerycss-itsa-hands/assets/font/itsahands.eot?21407990#iefix') format('embedded-opentype'),
+       url('itsa-gallery/build/gallerycss-itsa-hands/assets/font/itsahands.svg?21407990#itsaarrows') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -17,12 +26,12 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'arrows';
-    src: url('assets/font/itsaarrows.svg?21407990#itsaarrows') format('svg');
+    src: url('itsa-gallery/build/gallerycss-itsa-hands/assets/font/itsaarrows.svg?21407990#itsaarrows') format('svg');
   }
 }
 */
 
-i[class^="itsaicon-hands-"]:before, i[class*=" itsaicon-hands-"]:before {
+[class^="itsaicon-hands-"]:before, [class*=" itsaicon-hands-"]:before {
   font-family: "itsahands";
 }
 
@@ -36,3 +45,5 @@ i[class^="itsaicon-hands-"]:before, i[class*=" itsaicon-hands-"]:before {
 .itsaicon-hands-thumbs-down2:before { content: '\e807'; } /* Font Awesome '' */
 .itsaicon-hands-up:before { content: '\e802'; } /* Font Awesome '' */
 .itsaicon-hands-up-mirror:before { content: '\e804'; } /* Elusive '' */
+/* YUI CSS Detection Stamp */
+#yui3-css-stamp.gallerycss-itsa-hands { display: none; }
