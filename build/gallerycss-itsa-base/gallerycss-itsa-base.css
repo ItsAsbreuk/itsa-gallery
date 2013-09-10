@@ -4,6 +4,18 @@
     box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset;
 }
 
+.pure-button.pure-button-round {
+    border-radius: 0.2em;
+}
+
+.pure-button.pure-button-roundheavy {
+    border-radius: 0.5em;
+}
+
+.pure-button.pure-button-circle {
+    border-radius: 1em;
+}
+
 /* next: iconfonts base css */
 
 i[class^="itsaicon-"]:before, i[class*=" itsaicon-"]:before {
