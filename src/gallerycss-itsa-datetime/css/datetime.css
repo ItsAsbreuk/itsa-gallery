@@ -27,12 +27,9 @@ i[class*=" itsaicon-datetime-"]:before {
   font-family: "itsadatetime";
 }
 
-.itsaicon-datetime-date:before { content: '\e800'; } /* Elusive '' */
-.itsaicon-datetime-time:before { content: '\e801'; } /* Elusive '' */
-.itsaicon-datetime-datetime:before {
-    content: '\e800\0000a0\e801'; /* Elusive '' */
-}
-
+i.itsaicon-datetime-date:before { content: '\e800'; } /* Elusive '' */
+i.itsaicon-datetime-time:before { content: '\e801'; } /* Elusive '' */
 i.itsaicon-datetime-datetime:before {
+    content: '\e800\0000a0\e801'; /* Elusive '' */
     width: 2.2em;
 }
