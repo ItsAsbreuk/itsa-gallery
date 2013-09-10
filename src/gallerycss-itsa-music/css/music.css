@@ -26,36 +26,36 @@ i[class^="itsaicon-music-"]:before, i[class*=" itsaicon-music-"]:before {
   font-family: "itsamusic";
 }
 
-.itsaicon-music-backward:before { content: '\e81f'; } /* Font Awesome '' */
-.itsaicon-music-backward-round:before { content: '\e815'; } /* Elusive '' */
-.itsaicon-music-forward:before { content: '\e81e'; } /* Font Awesome '' */
-.itsaicon-music-forward-round:before { content: '\e816'; } /* Elusive '' */
-.itsaicon-music-headphones:before { content: '\e806'; } /* Font Awesome '' */
-.itsaicon-music-headphones2:before { content: '\e80c'; } /* Elusive '' */
-.itsaicon-music-headphones3:before { content: '\e811'; } /* Iconic '' */
-.itsaicon-music-headphones4:before { content: '\e80d'; } /* Typicons '' */
-.itsaicon-music-itunes:before { content: '\e800'; } /* Zocial '' */
-.itsaicon-music-note:before { content: '\e80e'; } /* Entypo '' */
-.itsaicon-music-note2:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-music-note3:before { content: '\e80f'; } /* Entypo '' */
-.itsaicon-music-note4:before { content: '\e809'; } /* Typicons '' */
-.itsaicon-music-note5:before { content: '\e810'; } /* Elusive '' */
-.itsaicon-music-note6:before { content: '\e820'; } /* Lineicons '' */
-.itsaicon-music-note7:before { content: '\e807'; } /* Entypo '' */
-.itsaicon-music-note8:before { content: '\e808'; } /* Typicons '' */
-.itsaicon-music-pause:before { content: '\e819'; } /* Font Awesome '' */
-.itsaicon-music-pause-round:before { content: '\e814'; } /* Elusive '' */
-.itsaicon-music-play:before { content: '\e80b'; } /* Font Awesome '' */
-.itsaicon-music-play-round:before { content: '\e812'; } /* Elusive '' */
-.itsaicon-music-record-round:before { content: '\e817'; } /* Elusive '' */
-.itsaicon-music-soundcloud:before { content: '\e801'; } /* Zocial '' */
-.itsaicon-music-stop:before { content: '\e818'; } /* Font Awesome '' */
-.itsaicon-music-stop-round:before { content: '\e813'; } /* Elusive '' */
-.itsaicon-music-to-end:before { content: '\e81a'; } /* Font Awesome '' */
-.itsaicon-music-to-first:before { content: '\e81d'; } /* Font Awesome '' */
-.itsaicon-music-to-last:before { content: '\e81b'; } /* Font Awesome '' */
-.itsaicon-music-to-start:before { content: '\e81c'; } /* Font Awesome '' */
-.itsaicon-music-volume:before { content: '\e80a'; } /* Entypo '' */
-.itsaicon-music-volume-down:before { content: '\e804'; } /* Font Awesome '' */
-.itsaicon-music-volume-off:before { content: '\e803'; } /* Font Awesome '' */
-.itsaicon-music-volume-up:before { content: '\e805'; } /* Font Awesome '' */
+i.itsaicon-music-backward:before { content: '\e81f'; } /* Font Awesome '' */
+i.itsaicon-music-backward-round:before { content: '\e815'; } /* Elusive '' */
+i.itsaicon-music-forward:before { content: '\e81e'; } /* Font Awesome '' */
+i.itsaicon-music-forward-round:before { content: '\e816'; } /* Elusive '' */
+i.itsaicon-music-headphones:before { content: '\e806'; } /* Font Awesome '' */
+i.itsaicon-music-headphones2:before { content: '\e80c'; } /* Elusive '' */
+i.itsaicon-music-headphones3:before { content: '\e811'; } /* Iconic '' */
+i.itsaicon-music-headphones4:before { content: '\e80d'; } /* Typicons '' */
+i.itsaicon-music-itunes:before { content: '\e800'; } /* Zocial '' */
+i.itsaicon-music-note:before { content: '\e80e'; } /* Entypo '' */
+i.itsaicon-music-note2:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-music-note3:before { content: '\e80f'; } /* Entypo '' */
+i.itsaicon-music-note4:before { content: '\e809'; } /* Typicons '' */
+i.itsaicon-music-note5:before { content: '\e810'; } /* Elusive '' */
+i.itsaicon-music-note6:before { content: '\e820'; } /* Lineicons '' */
+i.itsaicon-music-note7:before { content: '\e807'; } /* Entypo '' */
+i.itsaicon-music-note8:before { content: '\e808'; } /* Typicons '' */
+i.itsaicon-music-pause:before { content: '\e819'; } /* Font Awesome '' */
+i.itsaicon-music-pause-round:before { content: '\e814'; } /* Elusive '' */
+i.itsaicon-music-play:before { content: '\e80b'; } /* Font Awesome '' */
+i.itsaicon-music-play-round:before { content: '\e812'; } /* Elusive '' */
+i.itsaicon-music-record-round:before { content: '\e817'; } /* Elusive '' */
+i.itsaicon-music-soundcloud:before { content: '\e801'; } /* Zocial '' */
+i.itsaicon-music-stop:before { content: '\e818'; } /* Font Awesome '' */
+i.itsaicon-music-stop-round:before { content: '\e813'; } /* Elusive '' */
+i.itsaicon-music-to-end:before { content: '\e81a'; } /* Font Awesome '' */
+i.itsaicon-music-to-first:before { content: '\e81d'; } /* Font Awesome '' */
+i.itsaicon-music-to-last:before { content: '\e81b'; } /* Font Awesome '' */
+i.itsaicon-music-to-start:before { content: '\e81c'; } /* Font Awesome '' */
+i.itsaicon-music-volume:before { content: '\e80a'; } /* Entypo '' */
+i.itsaicon-music-volume-down:before { content: '\e804'; } /* Font Awesome '' */
+i.itsaicon-music-volume-off:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-music-volume-up:before { content: '\e805'; } /* Font Awesome '' */
