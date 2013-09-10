@@ -1,3 +1,11 @@
+/* first we set some custom extentions to pure-css styles */
+
+.pure-button-border {
+    box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset;
+}
+
+/* next: iconfonts base css */
+
 i[class^="itsaicon-"]:before, i[class*=" itsaicon-"]:before {
   font-style: normal;
   font-weight: normal;
