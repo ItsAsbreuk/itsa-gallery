@@ -37,6 +37,20 @@ i[class^="itsaicon-"]:before, i[class*=" itsaicon-"]:before {
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
+button i[class^="itsaicon-"]:before,
+button i[class*=" itsaicon-"]:before,
+button i[class^="itsaicon-"]:before,
+button i[class*=" itsaicon-"]:before {
+  vertical-align: middle;
+}
+
+button.itsabutton-iconleft i[class^="itsaicon-"]:before,
+button.itsabutton-iconleft i[class*=" itsaicon-"]:before,
+button.itsabutton-iconright i[class^="itsaicon-"]:before,
+button.itsabutton-iconright i[class*=" itsaicon-"]:before {
+  vertical-align: baseline;
+}
+
 button:not(.itsabutton-iconleft):not(.itsabutton-iconright),
 .pure-button:not(.itsabutton-iconleft):not(.itsabutton-iconright) {
     padding: 0.5em 0.47em 0.5em 0.53em;
