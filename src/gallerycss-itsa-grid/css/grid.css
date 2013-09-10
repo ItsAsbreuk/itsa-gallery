@@ -26,9 +26,9 @@ i[class^="itsaicon-grid-"]:before, i[class*=" itsaicon-grid-"]:before {
   font-family: "itsagrid";
 }
 
-.itsaicon-grid-detail:before { content: '\e800'; } /* MFG Labs '' */
-.itsaicon-grid-large:before { content: '\e802'; } /* Elusive '' */
-.itsaicon-grid-list:before { content: '\e806'; } /* Elusive '' */
-.itsaicon-grid-small:before { content: '\e805'; } /* Elusive '' */
-.itsaicon-grid-sort-down:before { content: '\e804'; margin-left: -0.05em; margin-right: 0.05em;} /* Font Awesome '' */
-.itsaicon-grid-sort-up:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-grid-detail:before { content: '\e800'; } /* MFG Labs '' */
+i.itsaicon-grid-large:before { content: '\e802'; } /* Elusive '' */
+i.itsaicon-grid-list:before { content: '\e806'; } /* Elusive '' */
+i.itsaicon-grid-small:before { content: '\e805'; } /* Elusive '' */
+i.itsaicon-grid-sort-down:before { content: '\e804'; margin-left: -0.05em; margin-right: 0.05em;} /* Font Awesome '' */
+i.itsaicon-grid-sort-up:before { content: '\e803'; } /* Font Awesome '' */
