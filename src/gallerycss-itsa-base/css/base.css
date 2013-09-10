@@ -16,6 +16,13 @@
     border-radius: 1em;
 }
 
+.pure-button.pure-button-oval {
+    border-radius: 50%;
+}
+.pure-button.pure-button-ovalhalf {
+    border-radius: 25%;
+}
+
 /* next: iconfonts base css */
 
 i[class^="itsaicon-"]:before, i[class*=" itsaicon-"]:before {
