@@ -19,50 +19,30 @@
 
 <h2>Available iconclasses</h2>
     <ul>
-        <li><i class="itsaicon-arrows-down"></i> <code>itsaicon-arrows-down</code></li>
-        <li><i class="itsaicon-arrows-left"></i> <code>itsaicon-arrows-left</code></li>
-        <li><i class="itsaicon-arrows-right"></i> <code>itsaicon-arrows-right</code></li>
-        <li><i class="itsaicon-arrows-up"></i> <code>itsaicon-arrows-up</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down2"></i> <code>itsaicon-arrows-down2</code></li>
-        <li><i class="itsaicon-arrows-left2"></i> <code>itsaicon-arrows-left2</code></li>
-        <li><i class="itsaicon-arrows-right2"></i> <code>itsaicon-arrows-right2</code></li>
-        <li><i class="itsaicon-arrows-up2"></i> <code>itsaicon-arrows-up2</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down3"></i> <code>itsaicon-arrows-down3</code></li>
-        <li><i class="itsaicon-arrows-left3"></i> <code>itsaicon-arrows-left3</code></li>
-        <li><i class="itsaicon-arrows-right3"></i> <code>itsaicon-arrows-right3</code></li>
-        <li><i class="itsaicon-arrows-up3"></i> <code>itsaicon-arrows-up3</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down4"></i> <code>itsaicon-arrows-down4</code></li>
-        <li><i class="itsaicon-arrows-left4"></i> <code>itsaicon-arrows-left4</code></li>
-        <li><i class="itsaicon-arrows-right4"></i> <code>itsaicon-arrows-right4</code></li>
-        <li><i class="itsaicon-arrows-up4"></i> <code>itsaicon-arrows-up4</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down5"></i> <code>itsaicon-arrows-down5</code></li>
-        <li><i class="itsaicon-arrows-left5"></i> <code>itsaicon-arrows-left5</code></li>
-        <li><i class="itsaicon-arrows-right5"></i> <code>itsaicon-arrows-right5</code></li>
-        <li><i class="itsaicon-arrows-up5"></i> <code>itsaicon-arrows-up5</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down-double"></i> <code>itsaicon-arrows-down-double</code></li>
-        <li><i class="itsaicon-arrows-left-double"></i> <code>itsaicon-arrows-left-double</code></li>
-        <li><i class="itsaicon-arrows-right-double"></i> <code>itsaicon-arrows-right-double</code></li>
-        <li><i class="itsaicon-arrows-up-double"></i> <code>itsaicon-arrows-up-double</code></li>
-
-        <li class="newgroup"><i class="itsaicon-arrows-down-round"></i> <code>itsaicon-arrows-down-round</code></li>
-        <li><i class="itsaicon-arrows-left-round"></i> <code>itsaicon-arrows-left-round</code></li>
-        <li><i class="itsaicon-arrows-right-round"></i> <code>itsaicon-arrows-right-round</code></li>
-        <li><i class="itsaicon-arrows-up-round"></i> <code>itsaicon-arrows-up-round</code></li>
+        <li><i class="itsaicon-editor-attachment"></i> <code>itsaicon-editor-attachment</code></li>
+        <li><i class="itsaicon-editor-clearcode"></i> <code>itsaicon-editor-clearcode</code></li>
+        <li><i class="itsaicon-editor-bgcolor"></i> <code>itsaicon-editor-bgcolor</code></li>
+        <li><i class="itsaicon-editor-colorstrike"></i> <code>itsaicon-editor-colorstrike</code></li>
+        <li><i class="itsaicon-editor-image"></i> <code>itsaicon-editor-image</code></li>
+        <li><i class="itsaicon-editor-link"></i> <code>itsaicon-editor-link</code></li>
+        <li><i class="itsaicon-editor-mail"></i> <code>itsaicon-editor-mail</code></li>
+        <li><i class="itsaicon-editor-redo"></i> <code>itsaicon-editor-redo</code></li>
+        <li><i class="itsaicon-editor-strike"></i> <code>itsaicon-editor-strike</code></li>
+        <li><i class="itsaicon-editor-sub"></i> <code>itsaicon-editor-sub</code></li>
+        <li><i class="itsaicon-editor-super"></i> <code>itsaicon-editor-super</code></li>
+        <li><i class="itsaicon-editor-undo"></i> <code>itsaicon-editor-undo</code></li>
+        <li><i class="itsaicon-editor-unlink"></i> <code>itsaicon-editor-unlink</code></li>
+        <li><i class="itsaicon-editor-video"></i> <code>itsaicon-editor-video</code></li>
     </ul>
 
 <h2>Usage</h2>
 ```html
-<button class="pure-button">Next<i class="itsaicon-arrows-right-double"></i></button>
+<button><i class="itsaicon-editor-attachment"></i></button>
 ```
 
 ```js
 YUI(yuiconfig).use('yui-base', function(Y) {
-    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-arrows'); // now the iconfonts will load asynchroniously
+    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-editoradvanced'); // now the iconfonts will load asynchroniously
 
     // code can be executed
     ...
@@ -79,7 +59,7 @@ The iconfont has its definition inside <code>.itsaicon-iconname:before</code>. Y
 button {
     font-size: 120%;
 }
-itsaicon-yes:before {
+itsaicon-editor-attachment:before {
     font-size: 150%;
 }
 ```
@@ -94,7 +74,7 @@ The icon-color has its definition inside <code>.itsaicon-iconname:before</code>.
 button {
     color: #F00;
 }
-itsaicon-yes:before {
+itsaicon-editor-attachment:before {
     color: #0F0;
 }
 ```
@@ -108,17 +88,17 @@ itsaicon-yes:before {
 
 <h3>Iconbuttons without text</h3>
 ```html
-<button<i class="itsaicon-arrows-up-double"></i></button>
+<button<i class="itsaicon-editor-attachment"></i></button>
 ```
 
 <h3>Textbuttons with a left-icon</h3>
 ```html
-<button class="itsabutton-iconleft"><i class="itsaicon-arrows-up-double"></i>Up</button>
+<button class="itsabutton-iconleft"><i class="itsaicon-editor-attachment"></i>Attachment</button>
 ```
 
 <h3>Textbuttons with a right-icon</h3>
 ```html
-<button class="itsabutton-iconright">Up<i class="itsaicon-arrows-up-double"></i></button>
+<button class="itsabutton-iconright">Attachment<i class="itsaicon-editor-attachment"></i></button>
 ```
 
 <script>
