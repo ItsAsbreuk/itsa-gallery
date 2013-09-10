@@ -1,8 +1,28 @@
+.itsaicon-shop-add-basket { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;&#xe802;&nbsp;'); }
+.itsaicon-shop-add-basket2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;&#xe801;&nbsp;'); }
+.itsaicon-shop-add-basket3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;&#xe800;&nbsp;'); }
+
+.itsaicon-shop-add2-basket { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;&#xe802;&nbsp;'); }
+.itsaicon-shop-add2-basket2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;&#xe801;&nbsp;'); }
+.itsaicon-shop-add2-basket3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;&#xe800;&nbsp;'); }
+
+.itsaicon-shop-add3-basket { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;&#xe802;&nbsp;'); }
+.itsaicon-shop-add3-basket2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;&#xe801;&nbsp;'); }
+.itsaicon-shop-add3-basket3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;&#xe800;&nbsp;'); }
+
+.itsaicon-shop-basket { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.itsaicon-shop-basket2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.itsaicon-shop-basket3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+
+.itsaicon-shop-remove { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.itsaicon-shop-remove2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
+.itsaicon-shop-remove3 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.itsaicon-shop-remove4 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
 @font-face {
   font-family: 'itsashop';
-  src: url('assets/font/itsashop.eot?39094226');
-  src: url('assets/font/itsashop.eot?39094226#iefix') format('embedded-opentype'),
-       url('assets/font/itsashop.svg?39094226#itsashop') format('svg');
+  src: url('itsa-gallery/build/gallerycss-itsa-shop/assets/font/itsashop.eot?39094226');
+  src: url('itsa-gallery/build/gallerycss-itsa-shop/assets/font/itsashop.eot?39094226#iefix') format('embedded-opentype'),
+       url('itsa-gallery/build/gallerycss-itsa-shop/assets/font/itsashop.svg?39094226#itsashop') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -17,7 +37,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'shop';
-    src: url('assets/font/itsashop.svg?39094226#itsashop') format('svg');
+    src: url('itsa-gallery/build/gallerycss-itsa-shop/assets/font/itsashop.svg?39094226#itsashop') format('svg');
   }
 }
 */
@@ -58,3 +78,6 @@ i.itsaicon-shop-add3-basket2:before,
 i.itsaicon-shop-add3-basket3:before {
     width: 1.9em;
 }
+
+/* YUI CSS Detection Stamp */
+#yui3-css-stamp.gallerycss-itsa-shop { display: none; }
