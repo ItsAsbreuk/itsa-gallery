@@ -22,7 +22,7 @@
 }
 */
 
-[class^="itsaicon-form-"]:before, [class*=" itsaicon-form-"]:before {
+i[class^="itsaicon-form-"]:before, i[class*=" itsaicon-form-"]:before {
   font-family: "itsaform";
 }
 

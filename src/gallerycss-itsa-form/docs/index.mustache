@@ -19,24 +19,24 @@
 
 <h2>Available iconclasses</h2>
     <ul>
-        <li><i class="itsaicon-abort"></i><code>itsaicon-abort</code></li>
-        <li><i class="itsaicon-cancel"></i><code>itsaicon-cancel</code></li>
-        <li><i class="itsaicon-destroy"></i><code>itsaicon-destroy</code></li>
-        <li><i class="itsaicon-ignore"></i><code>itsaicon-ignore</code></li>
-        <li><i class="itsaicon-load"></i><code>itsaicon-load</code></li>
-        <li><i class="itsaicon-no"></i><code>itsaicon-no</code></li>
-        <li><i class="itsaicon-ok"></i><code>itsaicon-ok</code></li>
-        <li><i class="itsaicon-remove"></i><code>itsaicon-remove</code></li>
-        <li><i class="itsaicon-reset"></i><code>itsaicon-reset</code></li>
-        <li><i class="itsaicon-retry"></i><code>itsaicon-retry</code></li>
-        <li><i class="itsaicon-save"></i><code>itsaicon-save</code></li>
-        <li><i class="itsaicon-submit"></i><code>itsaicon-submit</code></li>
-        <li><i class="itsaicon-yes"></i><code>itsaicon-yes</code></li>
+        <li><i class="itsaicon-form-abort"></i><code>itsaicon-form-abort</code></li>
+        <li><i class="itsaicon-form-cancel"></i><code>itsaicon-form-cancel</code></li>
+        <li><i class="itsaicon-form-destroy"></i><code>itsaicon-form-destroy</code></li>
+        <li><i class="itsaicon-form-ignore"></i><code>itsaicon-form-ignore</code></li>
+        <li><i class="itsaicon-form-load"></i><code>itsaicon-form-load</code></li>
+        <li><i class="itsaicon-form-no"></i><code>itsaicon-form-no</code></li>
+        <li><i class="itsaicon-form-ok"></i><code>itsaicon-form-ok</code></li>
+        <li><i class="itsaicon-form-remove"></i><code>itsaicon-form-remove</code></li>
+        <li><i class="itsaicon-form-reset"></i><code>itsaicon-form-reset</code></li>
+        <li><i class="itsaicon-form-retry"></i><code>itsaicon-form-retry</code></li>
+        <li><i class="itsaicon-form-save"></i><code>itsaicon-form-save</code></li>
+        <li><i class="itsaicon-form-submit"></i><code>itsaicon-form-submit</code></li>
+        <li><i class="itsaicon-form-yes"></i><code>itsaicon-form-yes</code></li>
     </ul>
 
 <h2>Usage</h2>
 ```html
-<button class="pure-button"><i class="itsaicon-save"></i><code>Save</button>
+<button class="itsabutton-iconleft"><i class="itsaicon-form-save"></i><code>Save</button>
 ```
 
 ```js
@@ -57,7 +57,7 @@ The iconfont has its definition inside <code>.itsaicon-iconname:before</code>. Y
 button {
     font-size: 120%;
 }
-itsaicon-yes:before {
+itsaicon-form-yes:before {
     font-size: 150%;
 }
 ```
@@ -72,9 +72,31 @@ The icon-color has its definition inside <code>.itsaicon-iconname:before</code>.
 button {
     color: #F00;
 }
-itsaicon-yes:before {
+itsaicon-form-yes:before {
     color: #0F0;
 }
+```
+<h2>Creating imagebuttons (purecss compatible)</h2>
+    <p>
+        Imagebuttons can be created by creating a button and add an empty <code>i-element</code> inside. To be sure the space arround the iconfont gets right, you need to add the right classname to the button as well.
+    </p>
+    <p>
+        These iconfonts work perfectly well with pure-css. So you can add the class <code>pure-button</code> to the button-element. But you don't need to.
+    </p>
+
+<h3>Iconbuttons without text</h3>
+```html
+<button<i class="itsaicon-form-ok"></i></button>
+```
+
+<h3>Textbuttons with a left-icon</h3>
+```html
+<button class="itsabutton-iconleft"><i class="itsaicon-form-ok"></i>Ok</button>
+```
+
+<h3>Textbuttons with a right-icon</h3>
+```html
+<button class="itsabutton-iconright">Ok<i class="itsaicon-form-ok"></i></button>
 ```
 
 <script>
