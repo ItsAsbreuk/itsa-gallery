@@ -27,18 +27,18 @@ i[class*=" itsaicon-users-"]:before {
   font-family: "itsausers";
 }
 
-.itsaicon-users-add:before { content: '\e802'; } /* Entypo '' */
-.itsaicon-users-dislike:before { content: '\e80e'; } /* Entypo '' */
-.itsaicon-users-download:before { content: '\e80c'; } /* Entypo '' */
-.itsaicon-users-info:before { content: '\e805'; } /* Entypo '' */
-.itsaicon-users-love:before { content: '\e807'; } /* Entypo '' */
-.itsaicon-users-love-transparent:before { content: '\e808'; } /* Entypo '' */
-.itsaicon-users-like:before { content: '\e80d'; } /* Entypo '' */
-.itsaicon-users-remove:before { content: '\e804'; } /* Entypo '' */
-.itsaicon-users-remove-round:before { content: '\e803'; } /* Entypo '' */
-.itsaicon-users-star:before { content: '\e809'; } /* Entypo '' */
-.itsaicon-users-star-transparent:before { content: '\e80a'; } /* Entypo '' */
-.itsaicon-users-upload:before { content: '\e80b'; } /* Entypo '' */
-.itsaicon-users-user:before { content: '\e800'; } /* Entypo '' */
-.itsaicon-users-users:before { content: '\e801'; } /* Entypo '' */
-.itsaicon-users-whois:before { content: '\e806'; } /* Entypo '' */
+i.itsaicon-users-add:before { content: '\e802'; } /* Entypo '' */
+i.itsaicon-users-dislike:before { content: '\e80e'; } /* Entypo '' */
+i.itsaicon-users-download:before { content: '\e80c'; } /* Entypo '' */
+i.itsaicon-users-info:before { content: '\e805'; } /* Entypo '' */
+i.itsaicon-users-love:before { content: '\e807'; } /* Entypo '' */
+i.itsaicon-users-love-transparent:before { content: '\e808'; } /* Entypo '' */
+i.itsaicon-users-like:before { content: '\e80d'; } /* Entypo '' */
+i.itsaicon-users-remove:before { content: '\e804'; } /* Entypo '' */
+i.itsaicon-users-remove-round:before { content: '\e803'; } /* Entypo '' */
+i.itsaicon-users-star:before { content: '\e809'; } /* Entypo '' */
+i.itsaicon-users-star-transparent:before { content: '\e80a'; } /* Entypo '' */
+i.itsaicon-users-upload:before { content: '\e80b'; } /* Entypo '' */
+i.itsaicon-users-user:before { content: '\e800'; } /* Entypo '' */
+i.itsaicon-users-users:before { content: '\e801'; } /* Entypo '' */
+i.itsaicon-users-whois:before { content: '\e806'; } /* Entypo '' */
