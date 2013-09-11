@@ -6,6 +6,14 @@
     <p>
     {{description}}
     </p>
+    <p>
+       <b>Notes:</b>
+       <ul>
+           <li>You need to load this module <u>together with 'gallerycss-itsa-base'</u> in order to work.</li>
+           <li>These fonticons always need to be declared inside a <u>i-element</u>, see the examples.</li>
+           <li>Special thanks to <a href='http://fontello.com' target='_blank'>http://fontello.com</a> by which means this gallerymodule is created</li>
+       </ul>
+    </p>
 </div>
 
 {{>getting-started}}
@@ -125,6 +133,56 @@ button {
 ```html
 <button class="itsabutton-iconright">itunes<i class="itsaicon-music-itunes"></i></button>
 ```
+
+<h3>Rounded buttons with a border</h3>
+    <p>
+        Bordered and rounded buttons can be made by using special button-classes supllied by <a href='http://gallerydocs.itsasbreuk.ml/gallerycss-itsa-base/index.html' target='_blank>'>gallerycss-itsa-base</a>.
+    </p>
+```html
+<button class="pure-button itsabutton-bordered itsabutton-circle"><i class="itsaicon-music-itunes"></i></button>
+```
+<h2>Licences</h2>
+    Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+    Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
+<h3>Font licence info</h3>
+<ul class='disc'>
+   <li>Zocial<br />
+           Copyright (C) 2012 by Sam Collins<br />
+           Author:    Sam Collins<br />
+           License:   MIT (<a href='http://opensource.org/licenses/mit-license.php' target='_blank'>http://opensource.org/licenses/mit-license.php</a>)<br />
+           Homepage:  <a href='http://zocial.smcllns.com/' target='_blank'>http://zocial.smcllns.com/</a></li>
+   <li>Font Awesome<br />
+           Copyright (C) 2012 by Dave Gandy<br />
+           Author:    Dave Gandy<br />
+           License:   SIL ()<br />
+           Homepage:  <a href='http://fortawesome.github.com/Font-Awesome/' target='_blank'>http://fortawesome.github.com/Font-Awesome/</a></li>
+   <li>Entypo<br />
+           Copyright (C) 2012 by Daniel Bruce<br />
+           Author:    Daniel Bruce<br />
+           License:   CC BY-SA (<a href='http://creativecommons.org/licenses/by-sa/2.0/' target='_blank'>http://creativecommons.org/licenses/by-sa/2.0/</a>)<br />
+           Homepage:  <a href='http://www.entypo.com' target='_blank'>http://www.entypo.com</a></li>
+   <li>Linecons<br />
+           Copyright (C) 2013 by Designmodo<br />
+           Author:    Designmodo for Smashing Magazine<br />
+           License:   CC BY ()<br />
+           Homepage:  <a href='http://designmodo.com/linecons-free/' target='_blank'>http://designmodo.com/linecons-free/</a></li>
+   <li>Elusive<br />
+           Copyright (C) 2013 by Aristeides Stathopoulos<br />
+           Author:    Aristeides Stathopoulos<br />
+           License:   SIL (<a href='http://scripts.sil.org/OFL' target='_blank'>http://scripts.sil.org/OFL</a>)<br />
+           Homepage:  <a href='http://aristeides.com/' target='_blank'>http://aristeides.com/</a></li>
+   <li>Typicons<br />
+           (c) Stephen Hutchings 2012<br />
+           Author:    Stephen Hutchings<br />
+           License:   CC BY-SA 3.0 (<a href='http://creativecommons.org/licenses/by-sa/3.0/' target='_blank'>http://creativecommons.org/licenses/by-sa/3.0/</a>)<br />
+           Homepage:  <a href='http://typicons.com/' target='_blank'>http://typicons.com/</a></li>
+   <li>Iconic<br />
+           Copyright (C) 2012 by P.J. Onori<br />
+           Author:    P.J. Onori<br />
+           License:   SIL (<a href='http://scripts.sil.org/OFL' target='_blank'>http://scripts.sil.org/OFL</a>)<br />
+           Homepage:  <a href='http://somerandomdude.com/work/iconic/' target='_blank'>http://somerandomdude.com/work/iconic/</a>
+   </li>
+</ul>
 
 <script>
 {{>init-loaderconfig-js}}

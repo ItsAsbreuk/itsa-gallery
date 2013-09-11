@@ -6,6 +6,14 @@
     <p>
     {{description}}
     </p>
+    <p>
+       <b>Notes:</b>
+       <ul>
+           <li>You need to load this module <u>together with 'gallerycss-itsa-base'</u> in order to work.</li>
+           <li>These fonticons always need to be declared inside a <u>i-element</u>, see the examples.</li>
+           <li>Special thanks to <a href='http://fontello.com' target='_blank'>http://fontello.com</a> by which means this gallerymodule is created</li>
+       </ul>
+    </p>
 </div>
 
 {{>getting-started}}
@@ -92,6 +100,36 @@ button {
 ```html
 <button class="itsabutton-iconright">Sort down<i class="itsaicon-grid-sort-down"></i></button>
 ```
+
+<h3>Rounded buttons with a border</h3>
+    <p>
+        Bordered and rounded buttons can be made by using special button-classes supllied by <a href='http://gallerydocs.itsasbreuk.ml/gallerycss-itsa-base/index.html' target='_blank>'>gallerycss-itsa-base</a>.
+    </p>
+```html
+<button class="pure-button itsabutton-bordered itsabutton-rounded"><i class="itsaicon-grid-sort-down"></i></button>
+```
+<h2>Licences</h2>
+    Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+    Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
+<h3>Font licence info</h3>
+<ul class='disc'>
+   <li>Elusive<br />
+           Copyright (C) 2013 by Aristeides Stathopoulos<br />
+           Author:    Aristeides Stathopoulos<br />
+           License:   SIL (<a href='http://scripts.sil.org/OFL' target='_blank'>http://scripts.sil.org/OFL</a>)<br />
+           Homepage:  /<a href='http://aristeides.com' target='_blank'>http://aristeides.com</a></li>
+   <li>MFG Labs<br />
+           Copyright (C) 2012 by Daniel Bruce<br />
+           Author:    MFG Labs<br />
+           License:   SIL (<a href='http://scripts.sil.org/OFL' target='_blank'>http://scripts.sil.org/OFL</a>)<br />
+           Homepage:  <a href='http://www.mfglabs.com/' target='_blank'>http://www.mfglabs.com/</a></li>
+   <li>Font Awesome<br />
+           Copyright (C) 2012 by Dave Gandy<br />
+           Author:    Dave Gandy<br />
+           License:   SIL ()<br />
+           Homepage:  <a href='http://fortawesome.github.com/Font-Awesome/' target='_blank'>http://fortawesome.github.com/Font-Awesome/</a>
+   </li>
+</ul>
 
 <script>
 {{>init-loaderconfig-js}}
