@@ -1,17 +1,17 @@
-.itsaicon-editor-undo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
-.itsaicon-editor-redo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
-.itsaicon-editor-bgcolor { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
-.itsaicon-editor-strike { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-editor-mail { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
-.itsaicon-editor-clearcode { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
-.itsaicon-editor-unlink { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80e;&nbsp;'); }
-.itsaicon-editor-super { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
-.itsaicon-editor-sub { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
-.itsaicon-editor-colorstrike { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
-.itsaicon-editor-image { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
-.itsaicon-editor-video { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-editor-attachment { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
-.itsaicon-editor-link { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80d;&nbsp;'); }@font-face {
+i.itsaicon-editor-undo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe803;&nbsp;'); }
+i.itsaicon-editor-redo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe802;&nbsp;'); }
+i.itsaicon-editor-bgcolor { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe807;&nbsp;'); }
+i.itsaicon-editor-strike { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
+i.itsaicon-editor-mail { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80b;&nbsp;'); }
+i.itsaicon-editor-clearcode { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80a;&nbsp;'); }
+i.itsaicon-editor-unlink { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80e;&nbsp;'); }
+i.itsaicon-editor-super { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe804;&nbsp;'); }
+i.itsaicon-editor-sub { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe805;&nbsp;'); }
+i.itsaicon-editor-colorstrike { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe808;&nbsp;'); }
+i.itsaicon-editor-image { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe809;&nbsp;'); }
+i.itsaicon-editor-video { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe801;&nbsp;'); }
+i.itsaicon-editor-attachment { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe806;&nbsp;'); }
+i.itsaicon-editor-link { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80d;&nbsp;'); }@font-face {
   font-family: 'itsaeditoradvanced';
   src: url('itsa-gallery/build/gallerycss-itsa-editoradvanced/assets/font/itsaeditoradvanced.eot?44236042');
   src: url('itsa-gallery/build/gallerycss-itsa-editoradvanced/assets/font/itsaeditoradvanced.eot?44236042#iefix') format('embedded-opentype'),
@@ -29,29 +29,29 @@
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'editor';
+    font-family: 'itsaeditor';
     src: url('itsa-gallery/build/gallerycss-itsa-editoradvanced/assets/font/itsaeditoradvanced.svg?44236042#itsaeditoradvanced') format('svg');
   }
 }
 */
 
-[class^="itsaicon-editor-"]:before, [class*=" itsaicon-editor-"]:before {
+i[class^="itsaicon-editor-"]:before, i[class*=" itsaicon-editor-"]:before {
   font-family: "itsaeditoradvanced";
 }
-.itsaicon-editor-attachment:before { content: '\e806'; } /* Web Symbols '' */
-.itsaicon-editor-clearcode:before { content: '\e80a'; } /* Font Awesome '' */
-.itsaicon-editor-bgcolor:before { content: '\e807'; } /* MFG Labs '' */
-.itsaicon-editor-colorstrike:before { content: '\e808'; } /* Font Awesome '' */
-.itsaicon-editor-image:before { content: '\e809'; } /* Font Awesome '' */
-.itsaicon-editor-link:before { content: '\e80d'; } /* Font Awesome '' */
-.itsaicon-editor-mail:before { content: '\e80b'; } /* Font Awesome '' */
-.itsaicon-editor-redo:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-editor-strike:before { content: '\e800'; } /* Font Awesome '' */
-.itsaicon-editor-sub:before { content: '\e805'; } /* Font Awesome '' */
-.itsaicon-editor-super:before { content: '\e804'; } /* Font Awesome '' */
-.itsaicon-editor-undo:before { content: '\e803'; } /* Font Awesome '' */
-.itsaicon-editor-unlink:before { content: '\e80e'; } /* Font Awesome '' */
-.itsaicon-editor-video:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-editor-attachment:before { content: '\e806'; } /* Web Symbols '' */
+i.itsaicon-editor-clearcode:before { content: '\e80a'; } /* Font Awesome '' */
+i.itsaicon-editor-bgcolor:before { content: '\e807'; } /* MFG Labs '' */
+i.itsaicon-editor-colorstrike:before { content: '\e808'; } /* Font Awesome '' */
+i.itsaicon-editor-image:before { content: '\e809'; } /* Font Awesome '' */
+i.itsaicon-editor-link:before { content: '\e80d'; } /* Font Awesome '' */
+i.itsaicon-editor-mail:before { content: '\e80b'; } /* Font Awesome '' */
+i.itsaicon-editor-redo:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-editor-strike:before { content: '\e800'; } /* Font Awesome '' */
+i.itsaicon-editor-sub:before { content: '\e805'; } /* Font Awesome '' */
+i.itsaicon-editor-super:before { content: '\e804'; } /* Font Awesome '' */
+i.itsaicon-editor-undo:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-editor-unlink:before { content: '\e80e'; } /* Font Awesome '' */
+i.itsaicon-editor-video:before { content: '\e801'; } /* Font Awesome '' */
 
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-editoradvanced { display: none; }
