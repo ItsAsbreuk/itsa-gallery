@@ -1,9 +1,9 @@
 {
-    "name"       : "gallerycss-itsa-editoreditorbase",
-    "displayName": "Gallery: gallerycss-itsa-editoreditorbase",
+    "name"       : "gallerycss-itsa-editorbase",
+    "displayName": "Gallery: gallerycss-itsa-editorbase",
     "description": "This module supplies beautiful stylable iconfonts from the category 'editor', which can be used by classname.",
     "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-editoreditorbase" ],
+    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-editorbase" ],
 
     "tags": [ "gallery" ],
 
@@ -13,8 +13,8 @@
             "displayName": "Creating imagebuttons",
             "description": "This is a summary of all available icon-fonts this module offers, applied to purecss-buttons.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-editoreditorbase"],
-            "tags"       : ["gallerycss-itsa-editoreditorbase", "iconfonts", "icons", "editoreditorbase"],
+            "modules"    : ["gallerycss-itsa-editorbase"],
+            "tags"       : ["gallerycss-itsa-editorbase", "iconfonts", "icons", "editorbase"],
             "hideTableOfContents": true
         },
         {
@@ -22,8 +22,8 @@
             "displayName": "Custom styling",
             "description": "This example shows how to customize an icon.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-editoreditorbase"],
-            "tags"       : ["gallerycss-itsa-editoreditorbase", "iconfonts", "icons", "editoreditorbase", "customize", "styling"],
+            "modules"    : ["gallerycss-itsa-editorbase"],
+            "tags"       : ["gallerycss-itsa-editorbase", "iconfonts", "icons", "editorbase", "customize", "styling"],
             "hideTableOfContents": true
         }
     ]
