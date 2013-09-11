@@ -1,15 +1,15 @@
-.itsaicon-editor-bold { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-editor-italic { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
-.itsaicon-editor-align-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
-.itsaicon-editor-align-center { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
-.itsaicon-editor-align-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
-.itsaicon-editor-align-justify { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
-.itsaicon-editor-indent-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
-.itsaicon-editor-indent-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
-.itsaicon-editor-color { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-editor-list-bullet { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
-.itsaicon-editor-list-numbered { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
-.itsaicon-editor-underline { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }@font-face {
+i.itsaicon-editor-bold { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe801;&nbsp;'); }
+i.itsaicon-editor-italic { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe802;&nbsp;'); }
+i.itsaicon-editor-align-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe804;&nbsp;'); }
+i.itsaicon-editor-align-center { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe805;&nbsp;'); }
+i.itsaicon-editor-align-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe806;&nbsp;'); }
+i.itsaicon-editor-align-justify { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe807;&nbsp;'); }
+i.itsaicon-editor-indent-left { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80a;&nbsp;'); }
+i.itsaicon-editor-indent-right { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80b;&nbsp;'); }
+i.itsaicon-editor-color { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
+i.itsaicon-editor-list-bullet { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe808;&nbsp;'); }
+i.itsaicon-editor-list-numbered { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe809;&nbsp;'); }
+i.itsaicon-editor-underline { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe803;&nbsp;'); }@font-face {
   font-family: 'itsaeditorbase';
   src: url('itsa-gallery/build/gallerycss-itsa-editorbase/assets/font/itsaeditorbase.eot?65128147');
   src: url('itsa-gallery/build/gallerycss-itsa-editorbase/assets/font/itsaeditorbase.eot?65128147#iefix') format('embedded-opentype'),
@@ -33,21 +33,21 @@
 }
 */
 
-[class^="itsaicon-editor-"]:before, [class*=" itsaicon-editor-"]:before {
+i[class^="itsaicon-editor-"]:before, i[class*=" itsaicon-editor-"]:before {
   font-family: "itsaeditorbase";
 }
 
-.itsaicon-editor-align-left:before { content: '\e804'; } /* Font Awesome '' */
-.itsaicon-editor-align-center:before { content: '\e805'; } /* Font Awesome '' */
-.itsaicon-editor-align-right:before { content: '\e806'; } /* Font Awesome '' */
-.itsaicon-editor-align-justify:before { content: '\e807'; } /* Font Awesome '' */
-.itsaicon-editor-bold:before { content: '\e801'; } /* Font Awesome '' */
-.itsaicon-editor-color:before { content: '\e800'; } /* Entypo '' */
-.itsaicon-editor-indent-left:before { content: '\e80a'; } /* Font Awesome '' */
-.itsaicon-editor-indent-right:before { content: '\e80b'; } /* Font Awesome '' */
-.itsaicon-editor-italic:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-editor-list-bullet:before { content: '\e808'; } /* Font Awesome '' */
-.itsaicon-editor-list-numbered:before { content: '\e809'; } /* Font Awesome '' */
-.itsaicon-editor-underline:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-editor-align-left:before { content: '\e804'; } /* Font Awesome '' */
+i.itsaicon-editor-align-center:before { content: '\e805'; } /* Font Awesome '' */
+i.itsaicon-editor-align-right:before { content: '\e806'; } /* Font Awesome '' */
+i.itsaicon-editor-align-justify:before { content: '\e807'; } /* Font Awesome '' */
+i.itsaicon-editor-bold:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-editor-color:before { content: '\e800'; } /* Entypo '' */
+i.itsaicon-editor-indent-left:before { content: '\e80a'; } /* Font Awesome '' */
+i.itsaicon-editor-indent-right:before { content: '\e80b'; } /* Font Awesome '' */
+i.itsaicon-editor-italic:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-editor-list-bullet:before { content: '\e808'; } /* Font Awesome '' */
+i.itsaicon-editor-list-numbered:before { content: '\e809'; } /* Font Awesome '' */
+i.itsaicon-editor-underline:before { content: '\e803'; } /* Font Awesome '' */
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-editorbase { display: none; }
