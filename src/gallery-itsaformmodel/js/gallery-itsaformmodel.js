@@ -552,7 +552,7 @@ ITSAFormModel.prototype.disableUI = function() {
 /**
  * Enables all UI-elements so that there is userinteraction possible again. For usage in conjunction with disableUI().
  *
- * @method disableUI
+ * @method enableUI
  * @since 0.1
  *
 */
