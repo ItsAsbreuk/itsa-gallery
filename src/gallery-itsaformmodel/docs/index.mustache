@@ -17,7 +17,7 @@
 
 <h2>Description</h2>
     <p>
-        <u>Y.ITSAFormModel should be used as a string-renderer.</u> It can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. However, you might want to take advantage of <a href='#views'>views</a> who do this automaticly. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.<br />
+        Y.ITSAFormModel can be used just like Y.Model with the extra formelement-methods. The UI-elements <u>should be string-renderered with renderFormElement() or toJSONUI() and inserted in the DOM manually.</u> The instance can render Strings of all its attributes and all major form-buttons. It is up to the developer to insert the Strings in the dom. However, you might want to take advantage of <a href='#views'>views</a> who do this automaticly. Once inserted in the dom, they are form-elements that represent the model-data, also called <b>UI-elements</b>.<br />
          <b>Note:</b> For performancereason, the rendered elements needs to be inserted in the dom within 10 seconds after creation. This way we clean-up 'on-available'-events which might not being used and decrease performance.
     </p>
     <p>
