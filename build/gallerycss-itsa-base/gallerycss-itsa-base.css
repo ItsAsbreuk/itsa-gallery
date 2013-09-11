@@ -15,11 +15,6 @@
     border-radius: 0.5em;
 }
 
-.itsabutton-circle,
-.pure-button.itsabutton-circle {
-    border-radius: 1em;
-}
-
 .itsabutton-oval,
 .pure-button.itsabutton-oval {
     border-radius: 50%;
@@ -77,8 +72,8 @@ button.itsabutton-iconright i[class*=" itsaicon-"]:before {
   vertical-align: baseline;
 }
 
-button:not(.itsabutton-iconleft):not(.itsabutton-iconright),
-.pure-button:not(.itsabutton-iconleft):not(.itsabutton-iconright) {
+button.itsabutton-onlyicon,
+.pure-button.itsabutton-onlyicon {
     padding: 0.5em 0.47em 0.5em 0.53em;
 }
 
