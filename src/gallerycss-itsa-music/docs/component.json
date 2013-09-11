@@ -1,7 +1,7 @@
 {
     "name"       : "gallerycss-itsa-music",
     "displayName": "Gallery: gallerycss-itsa-music",
-    "description": "Supplies arrow-iconfonts which can be used by adding a classname. Always load both this module and the base module 'gallerycss-itsa-base' to get the right base-css.",
+    "description": "This module supplies beautiful stylable iconfonts from the category 'music', which can be used by classname.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-music" ],
 
