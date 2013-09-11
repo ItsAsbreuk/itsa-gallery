@@ -1,25 +1,32 @@
 /* first we set some custom extentions to pure-css styles */
 
-.pure-button-border {
+.itsabutton-bordered,
+.pure-button.itsabutton-bordered {
     box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset;
 }
 
-.pure-button.pure-button-round {
+.itsabutton-rounded,
+.pure-button.itsabutton-rounded {
     border-radius: 0.2em;
 }
 
-.pure-button.pure-button-roundheavy {
+.itsabutton-heavyrounded,
+.pure-button.itsabutton-heavyrounded {
     border-radius: 0.5em;
 }
 
-.pure-button.pure-button-circle {
+.itsabutton-circle,
+.pure-button.itsabutton-circle {
     border-radius: 1em;
 }
 
-.pure-button.pure-button-oval {
+.itsabutton-oval,
+.pure-button.itsabutton-oval {
     border-radius: 50%;
 }
-.pure-button.pure-button-ovalhalf {
+
+.itsabutton-halfoval,
+.pure-button.itsabutton-halfoval {
     border-radius: 25%;
 }
 

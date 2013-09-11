@@ -4,81 +4,47 @@
 
 <div class="intro">
     <p>
-    *Summary Goes Here*
+    {{description}}
     </p>
 </div>
 
 {{>getting-started}}
 
 <h2>Description</h2>
-<p>By adding this module, you have some classnames at your proposal, which can be used to create icons. The best way to create an icon, is by defining a <code>li-element</code> and add the right class to it. Typically the icons are inside a <code>button-element</code> but this is not required.
-</p>
-<p>
-    Be aware of the load-delay: if you use progressive enhancement, you might want the nodes to be invisible until loading has finished.
-</p>
-
-<h2>Available iconclasses</h2>
+    <p>This module delivers kind of basecss:
+    </p>
     <ul>
-        <li><i class="itsaicon-abort"></i><code>itsaicon-abort</code></li>
-        <li><i class="itsaicon-cancel"></i><code>itsaicon-cancel</code></li>
-        <li><i class="itsaicon-destroy"></i><code>itsaicon-destroy</code></li>
-        <li><i class="itsaicon-ignore"></i><code>itsaicon-ignore</code></li>
-        <li><i class="itsaicon-load"></i><code>itsaicon-load</code></li>
-        <li><i class="itsaicon-no"></i><code>itsaicon-no</code></li>
-        <li><i class="itsaicon-ok"></i><code>itsaicon-ok</code></li>
-        <li><i class="itsaicon-remove"></i><code>itsaicon-remove</code></li>
-        <li><i class="itsaicon-reset"></i><code>itsaicon-reset</code></li>
-        <li><i class="itsaicon-retry"></i><code>itsaicon-retry</code></li>
-        <li><i class="itsaicon-save"></i><code>itsaicon-save</code></li>
-        <li><i class="itsaicon-submit"></i><code>itsaicon-submit</code></li>
-        <li><i class="itsaicon-yes"></i><code>itsaicon-yes</code></li>
+        <li>When you load one of the <code>gallerycss-itsa-*</code>-modules, you always need to load this basemodule as well. It has base-css that is needed in all other gallerycss-itsa mudules.
+        </li>
+        <li>This module adds several css-classes that can be used to fintune buttons-styling.
+        </li>
+    </ul>
+
+<h2>Available iconclasses for buttonstyling</h2>
+    <p>When used, the classes mentioned below should be added to a button-element.</p>
+    <ul>
+        <li><code>itsabutton-bordered</code> adds a thin buttonborder, handy when used together with the 'pure-button'-class.</li>
+        <li><code>itsabutton-rounded</code> rounds the buttonedges.</li>
+        <li><code>itsabutton-heavyrounded</code> heavily rounds the buttonedges.</li>
+        <li><code>itsabutton-oval</code> creates oval buttons.</li>
+        <li><code>itsabutton-halfoval</code> creates half-oval buttons.</li>
+        <li><code>itsabutton-iconleft</code> you should add this class when the button holds an icon left to the buttontext: this will make the padding right.</li>
+        <li><code>itsabutton-iconright</code> you should add this class when the button holds an icon right to the buttontext: this will make the padding right.</li>
     </ul>
 
 <h2>Usage</h2>
 ```html
-<button class="pure-button"><i class="itsaicon-save"></i><code>Save</button>
+<button class="pure-button itsabutton-bordered itsabutton-iconleft">
+    <i class="itsaicon-form-save"></i>Save
+</button>
 ```
 
 ```js
-YUI(yuiconfig).use('gallerycss-itsa-form', function(Y) {
-    // by loading the module, the css will be available
-    // be aware of the load-delay: if you use progressive enhancement, you might want
-    // the nodes to be invisible until loading has finished.
+YUI(yuiconfig).use('yui-base', function(Y) {
+    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-form'); // now the iconfonts will load asynchroniously
+
+    // code can be executed
+    ...
 
 });
 ```
-<h3>Changing size</h3>
-<p>Iconfonts are handled as regular characters. The font size is detemined by the calculated font-size value of the element. To change the icon-size, you need to change the font-size.
-</p>
-<p>
-The iconfont has its definition inside <code>.itsaicon-iconname:before</code>. You can set a fontsize here, or at a ancestor-node, depending what needs to be set.
-</p>
-```css
-button {
-    font-size: 120%;
-}
-itsaicon-yes:before {
-    font-size: 150%;
-}
-```
-
-<h3>Changing color</h3>
-<p>Iconfonts are handled as regular characters. The iconcolor is detemined by the calculated color-value of the element. To change the icon-color, you need to change the color of the icon.
-</p>
-<p>
-The icon-color has its definition inside <code>.itsaicon-iconname:before</code>. You can set a color here, or at a ancestor-node, depending what needs to be set.
-</p>
-```css
-button {
-    color: #F00;
-}
-itsaicon-yes:before {
-    color: #0F0;
-}
-```
-
-<script>
-{{>init-loaderconfig-js}}
-{{>loaderconfig-js}}
-{{>index-js}}
-</script>

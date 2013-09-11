@@ -15,11 +15,6 @@
     border-radius: 0.5em;
 }
 
-.itsabutton-circle,
-.pure-button.itsabutton-circle {
-    border-radius: 1em;
-}
-
 .itsabutton-oval,
 .pure-button.itsabutton-oval {
     border-radius: 50%;
