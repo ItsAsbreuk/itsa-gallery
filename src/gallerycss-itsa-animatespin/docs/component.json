@@ -1,31 +1,13 @@
 {
-    "name"       : "gallerycss-itsa-form",
-    "displayName": "Gallery: gallerycss-itsa-form",
+    "name"       : "gallerycss-itsa-animatespin",
+    "displayName": "Gallery: gallerycss-itsa-animatespin",
     "description": "This module supplies animation-functionality to the 'gallerycss-itsa-*' modules.",
     "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallerycss-itsa-form" ],
+    "use"        : [ "gallerycss-itsa-animatespin" ],
 
     "tags": [ "gallery" ],
 
     "examples": [
-        {
-            "name"       : "simple-usage",
-            "displayName": "Creating imagebuttons",
-            "description": "This is a summary of all available icon-fonts this module offers, applied to purecss-buttons.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-form"],
-            "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "custom-style",
-            "displayName": "Custom styling",
-            "description": "This example shows how to customize an icon.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-form"],
-            "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form", "customize", "styling"],
-            "hideTableOfContents": true
-        },
         {
             "name"       : "animation",
             "displayName": "Adding animation",
@@ -33,6 +15,15 @@
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallerycss-itsa-form", "gallerycss-itsa-animatespin"],
             "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form", "customize", "animated", "animation"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "toggle-animation",
+            "displayName": "Toggle animation",
+            "description": "This example shows how to toggle spin. Click on the button to toggle spin-behaviour.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallerycss-itsa-form", "gallerycss-itsa-animatespin"],
+            "tags"       : ["gallerycss-itsa-form", "iconfonts", "icons", "form", "customize", "animated", "animation", "toggle"],
             "hideTableOfContents": true
         }
     ]
