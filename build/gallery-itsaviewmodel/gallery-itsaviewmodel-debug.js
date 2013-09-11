@@ -45,6 +45,7 @@ var ITSAViewModel,
     Lang = Y.Lang,
     YArray = Y.Array,
     YIntl = Y.Intl,
+    BUTTON_ICON_LEFT = 'itsabutton-iconleft',
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
     GALLERY = 'gallery-',
@@ -64,7 +65,6 @@ var ITSAViewModel,
     FUNCTION = 'function',
     EDITABLE = 'editable',
     CONTAINER = 'container',
-    // hidden prototype property for internal use:
     VALID_BUTTON_TYPES = {
         destroy: true,
         remove: true,
@@ -72,6 +72,39 @@ var ITSAViewModel,
         save: true,
         submit: true,
         load: true
+    },
+    PROTECTED_BUTTON_TYPES = {
+        btn_abort: true,
+        btn_cancel: true,
+        btn_destroy: true,
+        btn_ignore: true,
+        btn_load: true,
+        btn_no: true,
+        btn_ok: true,
+        btn_remove: true,
+        btn_reset: true,
+        btn_retry: true,
+        btn_save: true,
+        btn_submit: true,
+        btn_yes: true,
+        imgbtn_abort: true,
+        imgbtn_cancel: true,
+        imgbtn_destroy: true,
+        imgbtn_ignore: true,
+        imgbtn_load: true,
+        imgbtn_no: true,
+        imgbtn_ok: true,
+        imgbtn_remove: true,
+        imgbtn_reset: true,
+        imgbtn_retry: true,
+        imgbtn_save: true,
+        imgbtn_submit: true,
+        imgbtn_yes: true,
+        spinbtn_load: true,
+        spinbtn_remove: true,
+        spinbtn_save: true,
+        spinbtn_submit: true,
+        spinbtn_yes: true
     },
 
     /**
@@ -659,7 +692,17 @@ ITSAViewModel.prototype.initializer = function() {
     instance._intl = YIntl.get(GALLERY+ITSAVIEWMODEL);
 
     /**
-     * Internal hash with custom buttnlabels
+     * Internal hash with custom buttons
+     *
+     * @property _customBtns
+     * @private
+     * @default {}
+     * @type Object
+    */
+    instance._customBtns = {};
+
+    /**
+     * Internal hash with custom buttonlabels
      *
      * @property _customBtnLabels
      * @private
@@ -668,6 +711,38 @@ ITSAViewModel.prototype.initializer = function() {
     */
     instance._customBtnLabels = {};
     instance._createButtons();
+};
+
+/**
+ *
+ * Defines a custom property that can be refered to using templating, f.i. {btn_button_1}
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-press"></i> press me' --> see module 'gallerycss-itsa-base' for more info.
+ *
+ * @method addCustomBtn
+ * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @param labelHTML {String} Text on the button (equals buttonId when not specified). You can use imagebuttons: see module 'gallerycss-itsa-base' how to create.
+ * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+ * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
+ * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+ * @param [config.disabled=false] {Boolean}
+ * @param [config.hidden=false] {Boolean}
+ * @param [config.classname] for adding extra classnames to the button
+ * @param [config.focusable=true] {Boolean}
+ * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
+ * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
+ * @return {String} stringified version of the button which can be inserted in the dom.
+ * @since 0.3
+ *
+ */
+ITSAViewModel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
+/*jshint expr:true */
+    PROTECTED_BUTTON_TYPES[buttonId] || (this._customBtns[buttonId]={
+        propertykey: buttonId,
+        config: config,
+        labelHTML: labelHTML || buttonId
+    });
+/*jshint expr:false */
 };
 
 /**
@@ -686,6 +761,30 @@ ITSAViewModel.prototype.initializer = function() {
  *
  * @method removeButtonLabel
  * @param buttonType {String} the buttontype which text should be replaced, either: 'cancel', 'abort', 'retry', 'ok', 'ignore', 'yes', 'no', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
+    delete this._customBtnLabels[buttonType];
+};
+
+/**
+ * Removes custom buttons defined with addCustomBtn().
+ *
+ * @method removeCustomBtn
+ * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
+    delete this._customBtns[buttonId];
+};
+
+/**
+ * Removes custom buttonlabels defined with setButtonLabel().
+ *
+ * @method removeButtonLabel
+ * @param buttonType {String} the buttontype which text was replaced, either: 'cancel', 'abort', 'retry', 'ok', 'ignore', 'yes', 'no', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
  * @since 0.3
  *
 */
@@ -841,6 +940,9 @@ ITSAViewModel.prototype.destructor = function() {
     model && model.removeTarget && model.removeTarget(instance);
 /*jshint expr:false */
     instance._clearEventhandlers();
+    instance._customBtns = {};
+    instance._customBtnLabels = {};
+
 /*jshint expr:true */
     container.hasPlugin('itsatabkeymanager') && container.unplug('itsatabkeymanager');
 /*jshint expr:false */
@@ -1276,106 +1378,119 @@ ITSAViewModel.prototype._createButtons = function() {
             propertykey: IMGBTN_ABORT,
             type: BUTTON,
             value: ABORT,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[ABORT] ? Lang.sub(customBtnLabels[ABORT], {label: instance._intl[ABORT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: ABORT})+instance._intl[ABORT])
         },
         {
             propertykey: IMGBTN_CANCEL,
             type: BUTTON,
             value: CANCEL,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[CANCEL] ? Lang.sub(customBtnLabels[CANCEL], {label: instance._intl[CANCEL]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CANCEL])
         },
         {
             propertykey: IMGBTN_DESTROY,
             type: DESTROY,
             value: DESTROY,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[DESTROY] ? Lang.sub(customBtnLabels[DESTROY], {label: instance._intl[DESTROY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: DESTROY})+instance._intl[DESTROY])
         },
         {
             propertykey: IMGBTN_IGNORE,
             type: BUTTON,
             value: IGNORE,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[IGNORE] ? Lang.sub(customBtnLabels[IGNORE], {label: instance._intl[IGNORE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: IGNORE})+instance._intl[IGNORE])
         },
         {
             propertykey: IMGBTN_LOAD,
             type: LOAD,
             value: LOAD,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD])
         },
         {
             propertykey: IMGBTN_NO,
             type: BUTTON,
             value: NO,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[NO] ? Lang.sub(customBtnLabels[NO], {label: instance._intl[NO]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: NO})+instance._intl[NO])
         },
         {
             propertykey: IMGBTN_OK,
             type: BUTTON,
             value: OK,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[OK] ? Lang.sub(customBtnLabels[OK], {label: instance._intl[OK]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: OK})+instance._intl[OK])
         },
         {
             propertykey: IMGBTN_REMOVE,
             type: REMOVE,
             value: REMOVE,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE])
         },
         {
             propertykey: IMGBTN_RESET,
             type: RESET,
             value: RESET,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[RESET] ? Lang.sub(customBtnLabels[RESET], {label: instance._intl[RESET]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RESET})+instance._intl[RESET])
         },
         {
             propertykey: IMGBTN_RETRY,
             type: BUTTON,
             value: RETRY,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[RETRY] ? Lang.sub(customBtnLabels[RETRY], {label: instance._intl[RETRY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RETRY})+instance._intl[RETRY])
         },
         {
             propertykey: IMGBTN_SAVE,
             type: SAVE,
             value: SAVE,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE])
         },
         {
             propertykey: IMGBTN_SUBMIT,
             type: SUBMIT,
             value: SUBMIT,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT])
         },
         {
             propertykey: IMGBTN_YES,
             type: BUTTON,
             value: YES,
+            config: {classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[YES] ? Lang.sub(customBtnLabels[YES], {label: instance._intl[YES]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: YES})+instance._intl[YES])
         },
         {
             propertykey: SPINBTN_LOAD,
             type: LOAD,
             value: LOAD,
-            config: {spinbusy: true},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD])
         },
         {
             propertykey: SPINBTN_REMOVE,
             type: REMOVE,
             value: REMOVE,
-            config: {spinbusy: true},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE])
         },
         {
             propertykey: SPINBTN_SAVE,
             type: SAVE,
             value: SAVE,
-            config: {spinbusy: true},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE])
         },
         {
             propertykey: SPINBTN_SUBMIT,
             type: SUBMIT,
             value: SUBMIT,
-            config: {spinbusy: true},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
             labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT])
         }
     ];
@@ -1459,6 +1574,16 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
                 labelHTML = buttonobject.labelHTML;
                 config = buttonobject.config;
             jsondata[propertykey] = Y.bind(model._renderBtnFns[type], model, labelHTML, config)();
+            }
+        );
+        // now add the custom buttons
+        YArray.each(
+            instance._customBtns,
+            function(buttonobject) {
+                propertykey = buttonobject.propertykey;
+                labelHTML = buttonobject.labelHTML;
+                config = buttonobject.config;
+            jsondata[propertykey] = Y.bind(model._renderBtnFns[BUTTON], model, labelHTML, config)();
             }
         );
     };
