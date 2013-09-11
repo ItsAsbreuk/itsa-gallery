@@ -1,10 +1,10 @@
-.itsaicon-edit-cut { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
-.itsaicon-edit-edit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-edit-remove { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
-.itsaicon-edit-duplicate { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
-.itsaicon-edit-copy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-edit-paste { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
-.itsaicon-edit-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }@font-face {
+i.itsaicon-edit-cut { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe803;&nbsp;'); }
+i.itsaicon-edit-edit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
+i.itsaicon-edit-remove { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe805;&nbsp;'); }
+i.itsaicon-edit-duplicate { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe806;&nbsp;'); }
+i.itsaicon-edit-copy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe801;&nbsp;'); }
+i.itsaicon-edit-paste { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe802;&nbsp;'); }
+i.itsaicon-edit-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe804;&nbsp;'); }@font-face {
   font-family: 'itsaedit';
   src: url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.eot?44076284');
   src: url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.eot?44076284#iefix') format('embedded-opentype'),
@@ -22,7 +22,7 @@
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'edit';
+    font-family: 'itsaedit';
     src: url('itsa-gallery/build/gallerycss-itsa-edit/assets/font/itsaedit.svg?44076284#edit') format('svg');
   }
 }
@@ -33,12 +33,12 @@ i[class*=" itsaicon-edit-"]:before {
   font-family: "itsaedit";
 }
 
-.itsaicon-edit-cut:before { content: '\e803'; } /* Font Awesome '' */
-.itsaicon-edit-edit:before { content: '\e800'; } /* Font Awesome '' */
-.itsaicon-edit-remove:before { content: '\e805'; } /* Modern Pictograms '' */
-.itsaicon-edit-duplicate:before { content: '\e806'; } /* Font Awesome '' */
-.itsaicon-edit-copy:before { content: '\e801'; } /* Font Awesome '' */
-.itsaicon-edit-paste:before { content: '\e802'; } /* Font Awesome '' */
-.itsaicon-edit-save:before { content: '\e804'; } /* Entypo '' */
+i.itsaicon-edit-cut:before { content: '\e803'; } /* Font Awesome '' */
+i.itsaicon-edit-edit:before { content: '\e800'; } /* Font Awesome '' */
+i.itsaicon-edit-remove:before { content: '\e805'; } /* Modern Pictograms '' */
+i.itsaicon-edit-duplicate:before { content: '\e806'; } /* Font Awesome '' */
+i.itsaicon-edit-copy:before { content: '\e801'; } /* Font Awesome '' */
+i.itsaicon-edit-paste:before { content: '\e802'; } /* Font Awesome '' */
+i.itsaicon-edit-save:before { content: '\e804'; } /* Entypo '' */
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-edit { display: none; }
