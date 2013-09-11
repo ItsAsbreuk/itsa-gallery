@@ -1,45 +1,45 @@
-.itsaicon-social-duckduckgo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-social-delicious { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe825;&nbsp;'); }
-.itsaicon-social-paypal { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-social-android { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe824;&nbsp;'); }
-.itsaicon-social-gplus { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
-.itsaicon-social-wikipedia { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
-.itsaicon-social-bitcoin { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
-.itsaicon-social-call { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
-.itsaicon-social-spotify { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
-.itsaicon-social-reddit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
-.itsaicon-social-guest { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
-.itsaicon-social-blogger { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
-.itsaicon-social-flickr { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
-.itsaicon-social-linkedin { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
-.itsaicon-social-rss { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80c;&nbsp;'); }
-.itsaicon-social-skype { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80d;&nbsp;'); }
-.itsaicon-social-twitter { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80e;&nbsp;'); }
-.itsaicon-social-youtube { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80f;&nbsp;'); }
-.itsaicon-social-vimeo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe810;&nbsp;'); }
-.itsaicon-social-email { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe811;&nbsp;'); }
-.itsaicon-social-macstore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe812;&nbsp;'); }
-.itsaicon-social-myspace { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe813;&nbsp;'); }
-.itsaicon-social-podcast { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe814;&nbsp;'); }
-.itsaicon-social-amazon { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe815;&nbsp;'); }
-.itsaicon-social-cloudapp { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe816;&nbsp;'); }
-.itsaicon-social-dropbox { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe817;&nbsp;'); }
-.itsaicon-social-ebay { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe818;&nbsp;'); }
-.itsaicon-social-facebook { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe819;&nbsp;'); }
-.itsaicon-social-git { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81a;&nbsp;'); }
-.itsaicon-social-openid { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81c;&nbsp;'); }
-.itsaicon-social-soundcloud { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81d;&nbsp;'); }
-.itsaicon-social-tumblr { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81e;&nbsp;'); }
-.itsaicon-social-wordpress { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81f;&nbsp;'); }
-.itsaicon-social-opentable { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe820;&nbsp;'); }
-.itsaicon-social-instagram { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe821;&nbsp;'); }
-.itsaicon-social-drupal { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe822;&nbsp;'); }
-.itsaicon-social-github { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81b;&nbsp;'); }
-.itsaicon-social-bitbucket { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe823;&nbsp;'); }
-.itsaicon-social-call2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe829;&nbsp;'); }
-.itsaicon-social-headphones { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe828;&nbsp;'); }
-.itsaicon-social-phone { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe826;&nbsp;'); }
-.itsaicon-social-mobile { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe827;&nbsp;'); }@font-face {
+i.itsaicon-social-duckduckgo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
+i.itsaicon-social-delicious { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe825;&nbsp;'); }
+i.itsaicon-social-paypal { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe801;&nbsp;'); }
+i.itsaicon-social-android { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe824;&nbsp;'); }
+i.itsaicon-social-gplus { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe802;&nbsp;'); }
+i.itsaicon-social-wikipedia { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe803;&nbsp;'); }
+i.itsaicon-social-bitcoin { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe804;&nbsp;'); }
+i.itsaicon-social-call { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe805;&nbsp;'); }
+i.itsaicon-social-spotify { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe806;&nbsp;'); }
+i.itsaicon-social-reddit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe807;&nbsp;'); }
+i.itsaicon-social-guest { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe808;&nbsp;'); }
+i.itsaicon-social-blogger { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe809;&nbsp;'); }
+i.itsaicon-social-flickr { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80a;&nbsp;'); }
+i.itsaicon-social-linkedin { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80b;&nbsp;'); }
+i.itsaicon-social-rss { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80c;&nbsp;'); }
+i.itsaicon-social-skype { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80d;&nbsp;'); }
+i.itsaicon-social-twitter { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80e;&nbsp;'); }
+i.itsaicon-social-youtube { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80f;&nbsp;'); }
+i.itsaicon-social-vimeo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe810;&nbsp;'); }
+i.itsaicon-social-email { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe811;&nbsp;'); }
+i.itsaicon-social-macstore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe812;&nbsp;'); }
+i.itsaicon-social-myspace { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe813;&nbsp;'); }
+i.itsaicon-social-podcast { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe814;&nbsp;'); }
+i.itsaicon-social-amazon { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe815;&nbsp;'); }
+i.itsaicon-social-cloudapp { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe816;&nbsp;'); }
+i.itsaicon-social-dropbox { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe817;&nbsp;'); }
+i.itsaicon-social-ebay { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe818;&nbsp;'); }
+i.itsaicon-social-facebook { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe819;&nbsp;'); }
+i.itsaicon-social-git { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe81a;&nbsp;'); }
+i.itsaicon-social-openid { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe81c;&nbsp;'); }
+i.itsaicon-social-soundcloud { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe81d;&nbsp;'); }
+i.itsaicon-social-tumblr { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe81e;&nbsp;'); }
+i.itsaicon-social-wordpress { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe81f;&nbsp;'); }
+i.itsaicon-social-opentable { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe820;&nbsp;'); }
+i.itsaicon-social-instagram { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe821;&nbsp;'); }
+i.itsaicon-social-drupal { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe822;&nbsp;'); }
+i.itsaicon-social-github { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe81b;&nbsp;'); }
+i.itsaicon-social-bitbucket { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe823;&nbsp;'); }
+i.itsaicon-social-call2 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe829;&nbsp;'); }
+i.itsaicon-social-headphones { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe828;&nbsp;'); }
+i.itsaicon-social-phone { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe826;&nbsp;'); }
+i.itsaicon-social-mobile { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe827;&nbsp;'); }@font-face {
   font-family: 'itsasocial';
   src: url('itsa-gallery/build/gallerycss-itsa-social/assets/font/itsasocial.eot?16600342');
   src: url('itsa-gallery/build/gallerycss-itsa-social/assets/font/itsasocial.eot?16600342#iefix') format('embedded-opentype'),
@@ -57,7 +57,7 @@
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'social';
+    font-family: 'itsasocial';
     src: url('itsa-gallery/build/gallerycss-itsa-social/assets/font/itsasocial.svg?2109691#itsasocial') format('svg');
   }
 }
@@ -68,46 +68,46 @@ i[class^="itsaicon-social-"]:before, i[class*=" itsaicon-social-"]:before {
 }
 
 i.itsaicon-social-amazon:before { content: '\e815'; margin-left: -0.1em; width: 1.1em; } /* '' */
-.itsaicon-social-android:before { content: '\e824'; } /* '' */
-.itsaicon-social-bitbucket:before { content: '\e823'; } /* '' */
-.itsaicon-social-bitcoin:before { content: '\e804'; } /* '' */
-.itsaicon-social-blogger:before { content: '\e809'; } /* '' */
-.itsaicon-social-call:before { content: '\e805'; } /* '' */
-.itsaicon-social-call2:before { content: '\e826'; } /* '' */
-.itsaicon-social-call3:before { content: '\e829'; } /* '' */
-.itsaicon-social-cloudapp:before { content: '\e816'; } /* '' */
-.itsaicon-social-duckduckgo:before { content: '\e800'; } /* '' */
-.itsaicon-social-delicious:before { content: '\e825'; } /* '' */
-.itsaicon-social-dropbox:before { content: '\e817'; } /* '' */
-.itsaicon-social-drupal:before { content: '\e822'; } /* '' */
+i.itsaicon-social-android:before { content: '\e824'; } /* '' */
+i.itsaicon-social-bitbucket:before { content: '\e823'; } /* '' */
+i.itsaicon-social-bitcoin:before { content: '\e804'; } /* '' */
+i.itsaicon-social-blogger:before { content: '\e809'; } /* '' */
+i.itsaicon-social-call:before { content: '\e805'; } /* '' */
+i.itsaicon-social-call2:before { content: '\e826'; } /* '' */
+i.itsaicon-social-call3:before { content: '\e829'; } /* '' */
+i.itsaicon-social-cloudapp:before { content: '\e816'; } /* '' */
+i.itsaicon-social-duckduckgo:before { content: '\e800'; } /* '' */
+i.itsaicon-social-delicious:before { content: '\e825'; } /* '' */
+i.itsaicon-social-dropbox:before { content: '\e817'; } /* '' */
+i.itsaicon-social-drupal:before { content: '\e822'; } /* '' */
 i.itsaicon-social-ebay:before { content: '\e818'; margin-left: -0.2em; width: 1.2em; } /* '' */
-.itsaicon-social-email:before { content: '\e811'; } /* '' */
+i.itsaicon-social-email:before { content: '\e811'; } /* '' */
 i.itsaicon-social-facebook:before { content: '\e819'; margin-left: -0.1em; width: 1.1em; } /* '' */
-.itsaicon-social-flickr:before { content: '\e80a'; } /* '' */
-.itsaicon-social-git:before { content: '\e81a'; } /* '' */
-.itsaicon-social-github:before { content: '\e81b'; } /* '' */
-.itsaicon-social-gplus:before { content: '\e802'; } /* '' */
-.itsaicon-social-guest:before { content: '\e808'; } /* '' */
-.itsaicon-social-headphones:before { content: '\e828'; } /* '' */
-.itsaicon-social-instagram:before { content: '\e821'; } /* '' */
-.itsaicon-social-linkedin:before { content: '\e80b'; } /* '' */
+i.itsaicon-social-flickr:before { content: '\e80a'; } /* '' */
+i.itsaicon-social-git:before { content: '\e81a'; } /* '' */
+i.itsaicon-social-github:before { content: '\e81b'; } /* '' */
+i.itsaicon-social-gplus:before { content: '\e802'; } /* '' */
+i.itsaicon-social-guest:before { content: '\e808'; } /* '' */
+i.itsaicon-social-headphones:before { content: '\e828'; } /* '' */
+i.itsaicon-social-instagram:before { content: '\e821'; } /* '' */
+i.itsaicon-social-linkedin:before { content: '\e80b'; } /* '' */
 i.itsaicon-social-macstore:before { content: '\e812'; margin-left: -0.1em; width: 1.1em; } /* '' */
-.itsaicon-social-mobile:before { content: '\e827'; } /* '' */
-.itsaicon-social-myspace:before { content: '\e813'; } /* '' */
-.itsaicon-social-openid:before { content: '\e81c'; } /* '' */
+i.itsaicon-social-mobile:before { content: '\e827'; } /* '' */
+i.itsaicon-social-myspace:before { content: '\e813'; } /* '' */
+i.itsaicon-social-openid:before { content: '\e81c'; } /* '' */
 i.itsaicon-social-opentable:before { content: '\e820'; margin-left: -0.1em; width: 1.1em; } /* '' */
-.itsaicon-social-paypal:before { content: '\e801'; } /* '' */
-.itsaicon-social-podcast:before { content: '\e814'; } /* '' */
+i.itsaicon-social-paypal:before { content: '\e801'; } /* '' */
+i.itsaicon-social-podcast:before { content: '\e814'; } /* '' */
 i.itsaicon-social-reddit:before { content: '\e807'; margin-left: -0.1em; width: 1.1em; } /* '' */
-.itsaicon-social-rss:before { content: '\e80c'; } /* '' */
-.itsaicon-social-skype:before { content: '\e80d'; } /* '' */
+i.itsaicon-social-rss:before { content: '\e80c'; } /* '' */
+i.itsaicon-social-skype:before { content: '\e80d'; } /* '' */
 i.itsaicon-social-soundcloud:before { content: '\e81d'; margin-left: -0.1em; width: 1.1em; } /* '' */
-.itsaicon-social-spotify:before { content: '\e806'; } /* '' */
+i.itsaicon-social-spotify:before { content: '\e806'; } /* '' */
 i.itsaicon-social-tumblr:before { content: '\e81e'; margin-left: -0.05em; width: 1.05em; } /* '' */
 i.itsaicon-social-twitter:before { content: '\e80e'; margin-left: -0.1em; width: 1.1em; } /* '' */
 i.itsaicon-social-vimeo:before { content: '\e810'; margin-left: -0.2em; width: 1.2em; } /* '' */
 i.itsaicon-social-wikipedia:before { content: '\e803'; margin-left: -0.05em; width: 1.05em; } /* '' */
-.itsaicon-social-wordpress:before { content: '\e81f'; } /* '' */
-.itsaicon-social-youtube:before { content: '\e80f'; } /* '' */
+i.itsaicon-social-wordpress:before { content: '\e81f'; } /* '' */
+i.itsaicon-social-youtube:before { content: '\e80f'; } /* '' */
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-social { display: none; }
