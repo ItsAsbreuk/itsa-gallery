@@ -1,6 +1,6 @@
-.itsaicon-datetime-date { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-datetime-time { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-datetime-datetime { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;&#xe801;&nbsp;'); }@font-face {
+i.itsaicon-datetime-date { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
+i.itsaicon-datetime-time { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe801;&nbsp;'); }
+i.itsaicon-datetime-datetime { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;&#xe801;&nbsp;'); }@font-face {
   font-family: 'itsadatetime';
   src: url('itsa-gallery/build/gallerycss-itsa-datetime/assets/font/itsadatetime.eot?85928483');
   src: url('itsa-gallery/build/gallerycss-itsa-datetime/assets/font/itsadatetime.eot?85928483#iefix') format('embedded-opentype'),
@@ -18,7 +18,7 @@
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'datetime';
+    font-family: 'itsadatetime';
     src: url('itsa-gallery/build/gallerycss-itsa-datetime/assets/font/itsadatetime.svg?85928483#datetime') format('svg');
   }
 }
@@ -29,13 +29,10 @@ i[class*=" itsaicon-datetime-"]:before {
   font-family: "itsadatetime";
 }
 
-.itsaicon-datetime-date:before { content: '\e800'; } /* Elusive '' */
-.itsaicon-datetime-time:before { content: '\e801'; } /* Elusive '' */
-.itsaicon-datetime-datetime:before {
-    content: '\e800\0000a0\e801'; /* Elusive '' */
-}
-
+i.itsaicon-datetime-date:before { content: '\e800'; } /* Elusive '' */
+i.itsaicon-datetime-time:before { content: '\e801'; } /* Elusive '' */
 i.itsaicon-datetime-datetime:before {
+    content: '\e800\0000a0\e801'; /* Elusive '' */
     width: 2.2em;
 }
 
