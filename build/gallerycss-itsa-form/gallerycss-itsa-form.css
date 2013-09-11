@@ -1,13 +1,13 @@
-.itsaicon-form-yes, .itsaicon-form-ok { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
-.itsaicon-form-abort, .itsaicon-form-no { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
-.itsaicon-form-reset { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
-.itsaicon-form-retry { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
-.itsaicon-form-cancel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
-.itsaicon-form-submit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
-.itsaicon-form-remove, .itsaicon-form-destroy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
-.itsaicon-form-load { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
-.itsaicon-form-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
-.itsaicon-form-ignore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }@font-face {
+i.itsaicon-form-yes, i.itsaicon-form-ok { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe805;&nbsp;'); }
+i.itsaicon-form-abort, i.itsaicon-form-no { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe806;&nbsp;'); }
+i.itsaicon-form-reset { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe809;&nbsp;'); }
+i.itsaicon-form-retry { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe80a;&nbsp;'); }
+i.itsaicon-form-cancel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe803;&nbsp;'); }
+i.itsaicon-form-submit { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe808;&nbsp;'); }
+i.itsaicon-form-remove, i.itsaicon-form-destroy { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe801;&nbsp;'); }
+i.itsaicon-form-load { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe802;&nbsp;'); }
+i.itsaicon-form-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
+i.itsaicon-form-ignore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe807;&nbsp;'); }@font-face {
   font-family: 'itsaform';
   src: url('itsa-gallery/build/gallerycss-itsa-form/assets/font/itsaform.eot?76603106');
   src: url('itsa-gallery/build/gallerycss-itsa-form/assets/font/itsaform.eot?76603106#iefix') format('embedded-opentype'),
@@ -25,26 +25,26 @@
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'form';
+    font-family: 'itsaform';
     src: url('itsa-gallery/build/gallerycss-itsa-form/assets/font/form.svg?76603106#form') format('svg');
   }
 }
 */
 
-[class^="itsaicon-form-"]:before, [class*=" itsaicon-form-"]:before {
+i[class^="itsaicon-form-"]:before, i[class*=" itsaicon-form-"]:before {
   font-family: "itsaform";
 }
 
-.itsaicon-form-yes:before, .itsaicon-form-ok:before { content: '\e805'; } /* Web Symbols '' */
-.itsaicon-form-abort:before, .itsaicon-form-no:before { content: '\e806'; font-size: 90%;} /* Web Symbols '' */
-.itsaicon-form-reset:before { content: '\e809'; } /* Entypo '' */
-.itsaicon-form-retry:before { content: '\e80a'; } /* Entypo '' */
-.itsaicon-form-cancel:before { content: '\e803'; } /* Typicons '' */
-.itsaicon-form-submit:before { content: '\e808'; }  /* MFG Labs '' */
-.itsaicon-form-remove:before, .itsaicon-form-destroy:before { content: '\e801'; } /* Modern Pictograms '' */
-.itsaicon-form-load:before { content: '\e802'; } /* Fontelico '' */
-.itsaicon-form-save:before { content: '\e800'; } /* Entypo '' */
-.itsaicon-form-ignore:before { content: '\e807'; } /* Web Symbols '' */
+i.itsaicon-form-yes:before, i.itsaicon-form-ok:before { content: '\e805'; } /* Web Symbols '' */
+i.itsaicon-form-abort:before, i.itsaicon-form-no:before { content: '\e806'; font-size: 90%;} /* Web Symbols '' */
+i.itsaicon-form-reset:before { content: '\e809'; } /* Entypo '' */
+i.itsaicon-form-retry:before { content: '\e80a'; } /* Entypo '' */
+i.itsaicon-form-cancel:before { content: '\e803'; } /* Typicons '' */
+i.itsaicon-form-submit:before { content: '\e808'; }  /* MFG Labs '' */
+i.itsaicon-form-remove:before, i.itsaicon-form-destroy:before { content: '\e801'; } /* Modern Pictograms '' */
+i.itsaicon-form-load:before { content: '\e802'; } /* Fontelico '' */
+i.itsaicon-form-save:before { content: '\e800'; } /* Entypo '' */
+i.itsaicon-form-ignore:before { content: '\e807'; } /* Web Symbols '' */
 
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.gallerycss-itsa-form { display: none; }
