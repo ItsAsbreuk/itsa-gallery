@@ -44,6 +44,7 @@ YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
 var ITSAViewModel,
     Lang = Y.Lang,
     YArray = Y.Array,
+    YObject = Y.Object,
     YIntl = Y.Intl,
     BUTTON_ICON_LEFT = 'itsabutton-iconleft',
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
@@ -65,7 +66,16 @@ var ITSAViewModel,
     FUNCTION = 'function',
     EDITABLE = 'editable',
     CONTAINER = 'container',
+    VALID_MODEL_EVENTS = {
+        destroy: true,
+        remove: true,
+        reset: true,
+        save: true,
+        submit: true,
+        load: true
+    },
     VALID_BUTTON_TYPES = {
+        button: true,
         destroy: true,
         remove: true,
         reset: true,
@@ -730,18 +740,19 @@ ITSAViewModel.prototype.initializer = function() {
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
  * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
- * @return {String} stringified version of the button which can be inserted in the dom.
  * @since 0.3
  *
  */
 ITSAViewModel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
-/*jshint expr:true */
-    PROTECTED_BUTTON_TYPES[buttonId] || (this._customBtns[buttonId]={
-        propertykey: buttonId,
-        config: config,
-        labelHTML: labelHTML || buttonId
-    });
-/*jshint expr:false */
+    var instance = this;
+
+    if (!PROTECTED_BUTTON_TYPES[buttonId]) {
+        instance._customBtns[buttonId] = {
+            config: config,
+            labelHTML: labelHTML || buttonId
+        };
+        instance._setTemplateRenderer(instance.get('template'));
+    }
 };
 
 /**
@@ -893,6 +904,7 @@ ITSAViewModel.prototype.render = function (clear) {
 */
 ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
     var instance = this;
+
 /*jshint expr:true */
     PROTECTED_BUTTON_TYPES[buttonType] && (typeof labelHTML === STRING) && (labelHTML.length>0) && (instance._customBtnLabels[buttonType]=labelHTML);
 /*jshint expr:false */
@@ -978,7 +990,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            '*:resetclick',
+            'resetclick',
             function() {
                 var itsatabkeymanager = container.itsatabkeymanager;
                 // need to re-render because the code might have made items visible/invisible based on their value
@@ -1047,21 +1059,33 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     YArray.each(
         [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD,
-         DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK,
+//         DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK,
+         CLICK,
          VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
             eventhandlers.push(
                 instance.on(
                     '*:'+event,
                     function(e) {
-                        var payload;
+                        var validEvent = true,
+                            newevent = event,
+                            payload, button;
                         // check if e.target===instance, because it checks by *: and will recurse
                         if (e.target!==instance) {
-                            if (VALID_BUTTON_TYPES[event]) {
-                                event = MODEL+event;
+                            if (VALID_MODEL_EVENTS[event]) {
+                                newevent = MODEL+event;
+                            }
+                            else if (event===CLICK) {
+                                button = e.type.split(':')[0];
+                                if (VALID_BUTTON_TYPES[button]) {
+                                    newevent = button+event; // refire without ':'
+                                }
+                                else {
+                                   validEvent = false;
+                                }
                             }
                             payload = {
-                                type: event,
+                                type: newevent,
                                 model: instance.get(MODEL),
                                 modelEventFacade: e,
                                 target: instance,
@@ -1070,7 +1094,9 @@ ITSAViewModel.prototype._bindUI = function() {
                                 nodeid: e.nodeid,
                                 formElement: e.formElement
                             };
-                            instance.fire(event, payload);
+/*jshint expr:true */
+                            validEvent && instance.fire(newevent, payload);
+/*jshint expr:false */
                         }
                     }
                 )
@@ -1537,7 +1563,6 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
     var instance = this,
         template = instance.get('template'),
         isMicroTemplate, ismicrotemplate, compiledModelEngine, buttonsToJSON;
-
     isMicroTemplate = function() {
         var microTemplateRegExp = /<%(.+)%>/;
         return microTemplateRegExp.test(template);
@@ -1549,19 +1574,18 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
             function(buttonobject) {
                 propertykey = buttonobject.propertykey;
                 type = buttonobject.type;
-                labelHTML = buttonobject.labelHTML();
+                labelHTML = buttonobject.labelHTML(); // is a function!
                 config = buttonobject.config;
-            jsondata[propertykey] = Y.bind(model._renderBtnFns[type], model, labelHTML, config)();
+                jsondata[propertykey] = Y.bind(model._renderBtnFns[type], model, labelHTML, config)();
             }
         );
         // now add the custom buttons
-        YArray.each(
+        YObject.each(
             instance._customBtns,
-            function(buttonobject) {
-                propertykey = buttonobject.propertykey;
-                labelHTML = buttonobject.labelHTML;
+            function(buttonobject, propertykey) {
+                labelHTML = buttonobject.labelHTML; // is a property
                 config = buttonobject.config;
-            jsondata[propertykey] = Y.bind(model._renderBtnFns[BUTTON], model, labelHTML, config)();
+                jsondata[propertykey] = Y.bind(model._renderBtnFns[BUTTON], model, labelHTML, config)();
             }
         );
     };

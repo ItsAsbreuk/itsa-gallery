@@ -4,6 +4,10 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
 
+    // asynchroniously loading the 'gallerycss-itsa-special' css fonticons
+    // which supplies the 'itsaicon-special-bell'-icon
+    Y.use('gallerycss-itsa-special');
+
     // create MyFormModelClass
     Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
         sync: function (action, options, callback) {
@@ -71,6 +75,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
+                    '<div class="pure-controls">{buttonAlert}</div>'+ // buttonAlert will be defined with view.addCustomBtn() later on
                     '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>';
                 '</fieldset>';
 
@@ -82,15 +87,16 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         styled: true
     });
 
+    // Now define 'buttonAlert' --> this will be available in the template with {buttonAlert}
+    view.addCustomBtn('buttonAlert', '<i class="itsaicon-special-bell"></i>ALERT', {
+        value: 'alert',
+        classname: 'itsabutton-iconleft itsabutton-oval bell'
+    });
+
     view.render();
 
     view.on('buttonclick', function(e) {
-        console.log('buttonclick');
-    });
-
-
-    view.after('modelsubmit', function(e) {
-     //   Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
+        Y.alert('Button is clicked with value: '+e.value);
     });
 
     view.on('validationerror', function(e) {

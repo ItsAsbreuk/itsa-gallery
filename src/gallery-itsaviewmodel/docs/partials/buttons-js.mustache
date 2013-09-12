@@ -4,7 +4,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
 
-    // asynchroniously loading the 'itsa-users' css fonticons
+    // asynchroniously loading the 'gallerycss-itsa-users' css fonticons
     // which supplies aonother 'upload'-icon
     Y.use('gallerycss-itsa-users');
 
@@ -92,11 +92,6 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
 
     view.on('buttonclick', function(e) {
         console.log('buttonclick');
-    });
-
-
-    view.after('modelsubmit', function(e) {
-     //   Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
     });
 
     view.on('validationerror', function(e) {
