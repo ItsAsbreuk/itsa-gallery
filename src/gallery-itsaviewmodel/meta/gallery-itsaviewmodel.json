@@ -8,8 +8,7 @@
             "model",
             "event-custom",
             "pluginhost-base",
-            "gallerycss-itsa-base",
-            "gallerycss-itsa-form"
+            "gallerycss-itsa-base"
         ],
         "lang" : [
             "ar",

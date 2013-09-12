@@ -2,7 +2,7 @@ YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
 
 'use strict';
 
-/*jshint maxlen:200 */
+/*jshint maxlen:235 */
 
 /**
  *
@@ -520,6 +520,9 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
     }
 );
 
+// prototype flag that tells whether 'gallerycss-itsa-form' has been loaded
+ITSAViewModel.prototype._formcss_loaded = false;
+
 /**
  * @method initializer
  * @protected
@@ -753,18 +756,6 @@ ITSAViewModel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
 */
 
 /**
- * Removes custom buttonlabels defined with setButtonLabel().
- *
- * @method removeButtonLabel
- * @param buttonType {String} the buttontype which text should be replaced, either: 'cancel', 'abort', 'retry', 'ok', 'ignore', 'yes', 'no', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
- * @since 0.3
- *
-*/
-ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
-    delete this._customBtnLabels[buttonType];
-};
-
-/**
  * Removes custom buttons defined with addCustomBtn().
  *
  * @method removeCustomBtn
@@ -903,7 +894,7 @@ ITSAViewModel.prototype.render = function (clear) {
 ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
     var instance = this;
 /*jshint expr:true */
-    VALID_BUTTON_TYPES[buttonType] && (typeof labelHTML === STRING) && (labelHTML.length>0) && (instance._customBtnLabel[buttonType]=labelHTML);
+    PROTECTED_BUTTON_TYPES[buttonType] && (typeof labelHTML === STRING) && (labelHTML.length>0) && (instance._customBtnLabels[buttonType]=labelHTML);
 /*jshint expr:false */
 };
 
@@ -1287,198 +1278,198 @@ ITSAViewModel.prototype._createButtons = function() {
             propertykey: BTN_ABORT,
             type: BUTTON,
             value: ABORT,
-            labelHTML: customBtnLabels[ABORT] ? Lang.sub(customBtnLabels[ABORT], {label: instance._intl[ABORT]}) : instance._intl[ABORT]
+            labelHTML: function() { return customBtnLabels[BTN_ABORT] ? Lang.sub(customBtnLabels[BTN_ABORT], {label: instance._intl[ABORT]}) : instance._intl[ABORT]; }
         },
         {
             propertykey: BTN_CANCEL,
             type: BUTTON,
             value: CANCEL,
-            labelHTML: customBtnLabels[CANCEL] ? Lang.sub(customBtnLabels[CANCEL], {label: instance._intl[CANCEL]}) : instance._intl[CANCEL]
+            labelHTML: function() { return customBtnLabels[BTN_CANCEL] ? Lang.sub(customBtnLabels[BTN_CANCEL], {label: instance._intl[CANCEL]}) : instance._intl[CANCEL]; }
         },
         {
             propertykey: BTN_DESTROY,
             type: DESTROY,
             value: DESTROY,
-            labelHTML: customBtnLabels[DESTROY] ? Lang.sub(customBtnLabels[DESTROY], {label: instance._intl[DESTROY]}) : instance._intl[DESTROY]
+            labelHTML: function() { return customBtnLabels[BTN_DESTROY] ? Lang.sub(customBtnLabels[BTN_DESTROY], {label: instance._intl[DESTROY]}) : instance._intl[DESTROY]; }
         },
         {
             propertykey: BTN_IGNORE,
             type: BUTTON,
             value: IGNORE,
-            labelHTML: customBtnLabels[IGNORE] ? Lang.sub(customBtnLabels[IGNORE], {label: instance._intl[IGNORE]}) : instance._intl[IGNORE]
+            labelHTML: function() { return customBtnLabels[BTN_IGNORE] ? Lang.sub(customBtnLabels[BTN_IGNORE], {label: instance._intl[IGNORE]}) : instance._intl[IGNORE]; }
         },
         {
             propertykey: BTN_LOAD,
             type: LOAD,
             value: LOAD,
-            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : instance._intl[LOAD]
+            labelHTML: function() { return customBtnLabels[BTN_LOAD] ? Lang.sub(customBtnLabels[BTN_LOAD], {label: instance._intl[LOAD]}) : instance._intl[LOAD]; }
         },
         {
             propertykey: BTN_NO,
             type: BUTTON,
             value: NO,
-            labelHTML: customBtnLabels[NO] ? Lang.sub(customBtnLabels[NO], {label: instance._intl[NO]}) : instance._intl[NO]
+            labelHTML: function() { return customBtnLabels[BTN_NO] ? Lang.sub(customBtnLabels[BTN_NO], {label: instance._intl[NO]}) : instance._intl[NO]; }
         },
         {
             propertykey: BTN_OK,
             type: BUTTON,
             value: OK,
-            labelHTML: customBtnLabels[OK] ? Lang.sub(customBtnLabels[OK], {label: instance._intl[OK]}) : instance._intl[OK]
+            labelHTML: function() { return customBtnLabels[BTN_OK] ? Lang.sub(customBtnLabels[BTN_OK], {label: instance._intl[OK]}) : instance._intl[OK]; }
         },
         {
             propertykey: BTN_REMOVE,
             type: REMOVE,
             value: REMOVE,
-            labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : instance._intl[REMOVE]
+            labelHTML: function() { return customBtnLabels[BTN_REMOVE] ? Lang.sub(customBtnLabels[BTN_REMOVE], {label: instance._intl[REMOVE]}) : instance._intl[REMOVE]; }
         },
         {
             propertykey: BTN_RESET,
             type: RESET,
             value: RESET,
-            labelHTML: customBtnLabels[RESET] ? Lang.sub(customBtnLabels[RESET], {label: instance._intl[RESET]}) : instance._intl[RESET]
+            labelHTML: function() { return customBtnLabels[BTN_RESET] ? Lang.sub(customBtnLabels[BTN_RESET], {label: instance._intl[RESET]}) : instance._intl[RESET]; }
         },
         {
             propertykey: BTN_RETRY,
             type: BUTTON,
             value: RETRY,
-            labelHTML: customBtnLabels[RETRY] ? Lang.sub(customBtnLabels[RETRY], {label: instance._intl[RETRY]}) : instance._intl[RETRY]
+            labelHTML: function() { return customBtnLabels[BTN_RETRY] ? Lang.sub(customBtnLabels[BTN_RETRY], {label: instance._intl[RETRY]}) : instance._intl[RETRY]; }
         },
         {
             propertykey: BTN_SAVE,
             type: SAVE,
             value: SAVE,
-            labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : instance._intl[SAVE]
+            labelHTML: function() { return customBtnLabels[BTN_SAVE] ? Lang.sub(customBtnLabels[BTN_SAVE], {label: instance._intl[SAVE]}) : instance._intl[SAVE]; }
         },
         {
             propertykey: BTN_SUBMIT,
             type: SUBMIT,
             value: SUBMIT,
-            labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : instance._intl[SUBMIT]
+            labelHTML: function() {return customBtnLabels[BTN_SUBMIT] ? Lang.sub(customBtnLabels[BTN_SUBMIT], {label: instance._intl[SUBMIT]}) : instance._intl[SUBMIT]; }
         },
         {
             propertykey: BTN_YES,
             type: BUTTON,
             value: YES,
-            labelHTML: customBtnLabels[YES] ? Lang.sub(customBtnLabels[YES], {label: instance._intl[YES]}) : instance._intl[YES]
+            labelHTML: function() { return customBtnLabels[BTN_YES] ? Lang.sub(customBtnLabels[BTN_YES], {label: instance._intl[YES]}) : instance._intl[YES]; }
         },
         {
             propertykey: IMGBTN_ABORT,
             type: BUTTON,
             value: ABORT,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[ABORT] ? Lang.sub(customBtnLabels[ABORT], {label: instance._intl[ABORT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: ABORT})+instance._intl[ABORT])
+            labelHTML: function() { return customBtnLabels[IMGBTN_ABORT] ? Lang.sub(customBtnLabels[IMGBTN_ABORT], {label: instance._intl[ABORT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: ABORT})+instance._intl[ABORT]); }
         },
         {
             propertykey: IMGBTN_CANCEL,
             type: BUTTON,
             value: CANCEL,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[CANCEL] ? Lang.sub(customBtnLabels[CANCEL], {label: instance._intl[CANCEL]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CANCEL])
+            labelHTML: function() { return customBtnLabels[IMGBTN_CANCEL] ? Lang.sub(customBtnLabels[IMGBTN_CANCEL], {label: instance._intl[CANCEL]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CANCEL]); }
         },
         {
             propertykey: IMGBTN_DESTROY,
             type: DESTROY,
             value: DESTROY,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[DESTROY] ? Lang.sub(customBtnLabels[DESTROY], {label: instance._intl[DESTROY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: DESTROY})+instance._intl[DESTROY])
+            labelHTML: function() { return customBtnLabels[IMGBTN_DESTROY] ? Lang.sub(customBtnLabels[IMGBTN_DESTROY], {label: instance._intl[DESTROY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: DESTROY})+instance._intl[DESTROY]); }
         },
         {
             propertykey: IMGBTN_IGNORE,
             type: BUTTON,
             value: IGNORE,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[IGNORE] ? Lang.sub(customBtnLabels[IGNORE], {label: instance._intl[IGNORE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: IGNORE})+instance._intl[IGNORE])
+            labelHTML: function() { return customBtnLabels[IMGBTN_IGNORE] ? Lang.sub(customBtnLabels[IMGBTN_IGNORE], {label: instance._intl[IGNORE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: IGNORE})+instance._intl[IGNORE]); }
         },
         {
             propertykey: IMGBTN_LOAD,
             type: LOAD,
             value: LOAD,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD])
+            labelHTML: function() { return customBtnLabels[IMGBTN_LOAD] ? Lang.sub(customBtnLabels[IMGBTN_LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD]); }
         },
         {
             propertykey: IMGBTN_NO,
             type: BUTTON,
             value: NO,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[NO] ? Lang.sub(customBtnLabels[NO], {label: instance._intl[NO]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: NO})+instance._intl[NO])
+            labelHTML: function() { return customBtnLabels[IMGBTN_NO] ? Lang.sub(customBtnLabels[IMGBTN_NO], {label: instance._intl[NO]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: NO})+instance._intl[NO]); }
         },
         {
             propertykey: IMGBTN_OK,
             type: BUTTON,
             value: OK,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[OK] ? Lang.sub(customBtnLabels[OK], {label: instance._intl[OK]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: OK})+instance._intl[OK])
+            labelHTML: function() { return customBtnLabels[IMGBTN_OK] ? Lang.sub(customBtnLabels[IMGBTN_OK], {label: instance._intl[OK]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: OK})+instance._intl[OK]); }
         },
         {
             propertykey: IMGBTN_REMOVE,
             type: REMOVE,
             value: REMOVE,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE])
+            labelHTML: function() { return customBtnLabels[IMGBTN_REMOVE] ? Lang.sub(customBtnLabels[IMGBTN_REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE]); }
         },
         {
             propertykey: IMGBTN_RESET,
             type: RESET,
             value: RESET,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[RESET] ? Lang.sub(customBtnLabels[RESET], {label: instance._intl[RESET]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RESET})+instance._intl[RESET])
+            labelHTML: function() { return customBtnLabels[IMGBTN_RESET] ? Lang.sub(customBtnLabels[IMGBTN_RESET], {label: instance._intl[RESET]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RESET})+instance._intl[RESET]); }
         },
         {
             propertykey: IMGBTN_RETRY,
             type: BUTTON,
             value: RETRY,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[RETRY] ? Lang.sub(customBtnLabels[RETRY], {label: instance._intl[RETRY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RETRY})+instance._intl[RETRY])
+            labelHTML: function() { return customBtnLabels[IMGBTN_RETRY] ? Lang.sub(customBtnLabels[IMGBTN_RETRY], {label: instance._intl[RETRY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RETRY})+instance._intl[RETRY]); }
         },
         {
             propertykey: IMGBTN_SAVE,
             type: SAVE,
             value: SAVE,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE])
+            labelHTML: function() { return customBtnLabels[IMGBTN_SAVE] ? Lang.sub(customBtnLabels[IMGBTN_SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE]); }
         },
         {
             propertykey: IMGBTN_SUBMIT,
             type: SUBMIT,
             value: SUBMIT,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT])
+            labelHTML: function() { return customBtnLabels[IMGBTN_SUBMIT] ? Lang.sub(customBtnLabels[IMGBTN_SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT]); }
         },
         {
             propertykey: IMGBTN_YES,
             type: BUTTON,
             value: YES,
             config: {classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[YES] ? Lang.sub(customBtnLabels[YES], {label: instance._intl[YES]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: YES})+instance._intl[YES])
+            labelHTML: function() { return customBtnLabels[IMGBTN_YES] ? Lang.sub(customBtnLabels[IMGBTN_YES], {label: instance._intl[YES]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: YES})+instance._intl[YES]); }
         },
         {
             propertykey: SPINBTN_LOAD,
             type: LOAD,
             value: LOAD,
             config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[LOAD] ? Lang.sub(customBtnLabels[LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD])
+            labelHTML: function() { return customBtnLabels[SPINBTN_LOAD] ? Lang.sub(customBtnLabels[SPINBTN_LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD]); }
         },
         {
             propertykey: SPINBTN_REMOVE,
             type: REMOVE,
             value: REMOVE,
             config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[REMOVE] ? Lang.sub(customBtnLabels[REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE])
+            labelHTML: function() { return customBtnLabels[SPINBTN_REMOVE] ? Lang.sub(customBtnLabels[SPINBTN_REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE]); }
         },
         {
             propertykey: SPINBTN_SAVE,
             type: SAVE,
             value: SAVE,
             config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[SAVE] ? Lang.sub(customBtnLabels[SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE])
+            labelHTML: function() { return customBtnLabels[SPINBTN_SAVE] ? Lang.sub(customBtnLabels[SPINBTN_SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE]); }
         },
         {
             propertykey: SPINBTN_SUBMIT,
             type: SUBMIT,
             value: SUBMIT,
             config: {spinbusy: true, classname: BUTTON_ICON_LEFT},
-            labelHTML: customBtnLabels[SUBMIT] ? Lang.sub(customBtnLabels[SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT])
+            labelHTML: function() { return customBtnLabels[SPINBTN_SUBMIT] ? Lang.sub(customBtnLabels[SPINBTN_SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT]); }
         }
     ];
 };
@@ -1522,6 +1513,10 @@ ITSAViewModel.prototype._setModel = function(v) {
     else {
         instance._textTemplate = null;
     }
+    if (!instance._formcss_loaded && (v.toJSONUI)) {
+        instance._formcss_loaded = true;
+        Y.use('gallerycss-itsa-form'); // asynchroniously load iconfonts
+    }
     return v;
 };
 
@@ -1554,7 +1549,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
             function(buttonobject) {
                 propertykey = buttonobject.propertykey;
                 type = buttonobject.type;
-                labelHTML = buttonobject.labelHTML;
+                labelHTML = buttonobject.labelHTML();
                 config = buttonobject.config;
             jsondata[propertykey] = Y.bind(model._renderBtnFns[type], model, labelHTML, config)();
             }
@@ -1602,8 +1597,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
         "model",
         "event-custom",
         "pluginhost-base",
-        "gallerycss-itsa-base",
-        "gallerycss-itsa-form"
+        "gallerycss-itsa-base"
     ],
     "lang": [
         "ar",

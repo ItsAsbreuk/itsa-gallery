@@ -46,7 +46,7 @@
         },
         {
             "name"       : "using-itsaformmodel",
-            "displayName": "Using UI-elements of Y.ITSAFormModel",
+            "displayName": "Templating with UI-elements",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
@@ -55,7 +55,7 @@
         },
         {
             "name"       : "changing-editability",
-            "displayName": "Alternate attributes v.s. UI-elements",
+            "displayName": "Switching attributes and UI-elements",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
@@ -65,6 +65,33 @@
         {
             "name"       : "forms",
             "displayName": "Creating a form",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "buttons",
+            "displayName": "Form with different buttonlabels",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "custom-buttons",
+            "displayName": "Form with custom buttons",
+            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "hotkeys",
+            "displayName": "Using hotkeys to activate formbuttons",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
