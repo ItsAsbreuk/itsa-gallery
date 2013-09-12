@@ -1,18 +1,19 @@
-YUI(yuiconfig).use('node-base', 'node-event-delegate', function(Y) {
+YUI(yuiconfig).use('node-base', 'node-screen', function(Y) {
     Y.use('gallerycss-itsa-base', 'gallerycss-itsa-special');
 
-    var votebuttons = Y.one('#votebuttons'),
-        votes = Y.one('#votes'),
+    var votes = Y.one('#votes'),
         currentvote = 0;
 
-    Y.one('#votebuttons').delegate(
+    votes.on(
         'click',
         function(e) {
-            var button = e.target;
+            var mousex = e.pageX,
+                votex = votes.getX(),
+                x = mousex - votex,
+                newvote = Math.floor(x/76) + 1;
             votes.removeClass('itsaicon-special-starrating-'+currentvote+'-5');
-            currentvote = button.get('id').substr(4,1);
+            currentvote = (currentvote!==newvote) ? newvote : 0;
             votes.addClass('itsaicon-special-starrating-'+currentvote+'-5');
-        },
-        'button'
+        }
     );
 });
