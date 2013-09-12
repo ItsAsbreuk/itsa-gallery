@@ -42,6 +42,7 @@ var YArray = Y.Array,
     ITSA_LOADIMG = 'itsaicon-form-loading',
     DATA_SPIN_BUSY = 'data-spinbusy',
     DISABLED = 'disabled',
+    WAS_DISABLED = 'was-'+DISABLED,
     BUTTON = 'button',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     DISABLED_BEFORE = '-before',
@@ -522,18 +523,15 @@ ITSAFormModel.prototype.disableUI = function() {
                 else {
                     isButton = (node.get('tagName')==='BUTTON') && (node.getAttribute(TYPE)===BUTTON);
                     isDateTime = (node.getAttribute('data-datetimepicker')===TRUE);
+                    wasDisabled = node.get(DISABLED);
                     if (isButton) {
-                        wasDisabled = node.hasClass(PURE_BUTTON_DISABLED);
+                        wasDisabled = wasDisabled || node.hasClass(PURE_BUTTON_DISABLED);
 /*jshint expr:true */
                         wasDisabled || node.addClass(PURE_BUTTON_DISABLED);
-/*jshint expr:false */
                     }
-                    else {
-                        wasDisabled = (node.getAttribute(DISABLED)!=='');
-/*jshint expr:true */
-                        wasDisabled || node.setAttribute(DISABLED, DISABLED);
+                    wasDisabled || node.setAttribute(DISABLED, DISABLED);
 /*jshint expr:false */
-                    }
+                    node.setData(WAS_DISABLED, wasDisabled);
                     if (isDateTime) {
                         labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
 /*jshint expr:true */
@@ -586,9 +584,13 @@ ITSAFormModel.prototype.enableUI = function() {
                     else {
                         isButton = (node.get('tagName')==='BUTTON') && (node.getAttribute(TYPE)===BUTTON);
                         isDateTime = (node.getAttribute('data-datetimepicker')===TRUE);
+                        if (!node.getData(WAS_DISABLED)) {
+                            node.removeAttribute(DISABLED);
 /*jshint expr:true */
-                        isButton ? node.removeClass(PURE_BUTTON_DISABLED) : node.removeAttribute(DISABLED);
+                            isButton && node.removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
+                        }
+                        node.clearData(WAS_DISABLED);
                         if (isDateTime) {
                             labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
 /*jshint expr:true */
