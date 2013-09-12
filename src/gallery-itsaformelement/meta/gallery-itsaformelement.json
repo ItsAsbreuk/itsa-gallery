@@ -11,7 +11,8 @@
             "promise",
             "event-tap",
             "event-custom",
-            "escape"
+            "escape",
+            "gallerycss-itsa-base"
         ],
         "skinnable": true
     }

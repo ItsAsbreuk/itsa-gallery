@@ -27,6 +27,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     PURE = 'pure',
     BUTTON = 'button',
     PUREBUTTON_CLASS = PURE+'-'+BUTTON,
+    PUREBUTTON_BORDERED_CLASS = ' itsa'+BUTTON+'-bordered',
     DATE = 'date',
     TIME = 'time',
     DATETIME = DATE+TIME,
@@ -483,7 +484,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++ specific datetime formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         else if (isdatetime) {
-            Y.use(GALLERY+'css'+ITSA+'-base', GALLERY+'css'+ITSA+'-'+DATETIME);
+            Y.use(GALLERY+'css'+ITSA+'-'+DATETIME);
 /*jshint expr:true */
             Lang.isDate(value) || (value = new Date());
 /*jshint expr:false */
@@ -510,7 +511,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         fullselect && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
-                                (purebutton ? (' '+PUREBUTTON_CLASS) : '')+
+                                (purebutton ? (' '+PUREBUTTON_CLASS+PUREBUTTON_BORDERED_CLASS) : '')+
                                 (isdatetime ? (ITSABUTTON_DATETIME_CLASS) : '')+
                                 (disabledbutton ? (' '+DISABLED_BUTTON_CLASS) : '')+
                                 (primarybutton ? (' '+PRIMARY_BUTTON_CLASS) : '')+
