@@ -8,3 +8,4 @@ i.itsaicon-form-remove, i.itsaicon-form-destroy { *zoom: expression( this.runtim
 i.itsaicon-form-load { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe802;&nbsp;'); }
 i.itsaicon-form-save { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe800;&nbsp;'); }
 i.itsaicon-form-ignore { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe807;&nbsp;'); }
+/* NO i.itsaicon-form-loading because we cannot revert previous content */

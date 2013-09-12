@@ -36,3 +36,4 @@ i.itsaicon-form-remove:before, i.itsaicon-form-destroy:before { content: '\e801'
 i.itsaicon-form-load:before { content: '\e802'; } /* Fontelico '' */
 i.itsaicon-form-save:before { content: '\e800'; } /* Entypo '' */
 i.itsaicon-form-ignore:before { content: '\e807'; } /* Web Symbols '' */
+i.itsaicon-form-loading:before { content: '\e802' !important; } /* Fontelico '' */
