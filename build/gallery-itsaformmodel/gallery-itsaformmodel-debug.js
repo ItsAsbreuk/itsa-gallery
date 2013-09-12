@@ -39,6 +39,7 @@ var YArray = Y.Array,
     TRUE = 'true',
     LI_ICON = 'i[class^="itsaicon-"], i[class*=" itsaicon-"]',
     ITSA_BUSY = 'itsa-busy',
+    ITSA_LOADIMG = 'itsaicon-form-loading',
     DATA_SPIN_BUSY = 'data-spinbusy',
     DISABLED = 'disabled',
     BUTTON = 'button',
@@ -554,7 +555,7 @@ ITSAFormModel.prototype.disableUI = function() {
 /**
  * Enables all UI-elements so that there is userinteraction possible again. For usage in conjunction with disableUI().
  *
- * @method disableUI
+ * @method enableUI
  * @since 0.1
  *
 */
@@ -804,7 +805,7 @@ ITSAFormModel.prototype[REMOVE] = function() {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
@@ -831,7 +832,7 @@ ITSAFormModel.prototype.renderBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
@@ -858,7 +859,7 @@ ITSAFormModel.prototype.renderDestroyBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
@@ -885,7 +886,7 @@ ITSAFormModel.prototype.renderLoadBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
@@ -939,7 +940,7 @@ ITSAFormModel.prototype.renderResetBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
@@ -966,7 +967,7 @@ ITSAFormModel.prototype.renderSaveBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
@@ -1667,7 +1668,7 @@ ITSAFormModel.prototype._defFn_load = function(e) {
     Y.log('_defFn_load', 'info', 'ITSAFormModel');
     instance.disableUI();
 /*jshint expr:true */
-    canSpin && iconNode.addClass(ITSA_BUSY);
+    canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
 /*jshint expr:false */
     instance.loadPromise({fromInternal: true}).then(
         function() {
@@ -1676,7 +1677,7 @@ ITSAFormModel.prototype._defFn_load = function(e) {
             buttonNode = Y.one('#'+buttonNode.get('id'));
             if (buttonNode) {
 /*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                 instance.enableUI();
             }
@@ -1686,7 +1687,7 @@ ITSAFormModel.prototype._defFn_load = function(e) {
             buttonNode = Y.one('#'+buttonNode.get('id'));
             if (buttonNode) {
 /*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                 instance.enableUI();
             }
@@ -1720,7 +1721,7 @@ ITSAFormModel.prototype._defFn_remove = function(e) {
     Y.log('_defFn_remove', 'info', 'ITSAFormModel');
     instance.disableUI();
 /*jshint expr:true */
-    canSpin && iconNode.addClass(ITSA_BUSY);
+    canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
 /*jshint expr:false */
     instance.destroyPromise({remove: true}).then(
         function() {
@@ -1728,7 +1729,7 @@ ITSAFormModel.prototype._defFn_remove = function(e) {
             buttonNode = Y.one('#'+buttonNode.get('id'));
             if (buttonNode) {
 /*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                 instance.enableUI();
             }
@@ -1738,7 +1739,7 @@ ITSAFormModel.prototype._defFn_remove = function(e) {
             buttonNode = Y.one('#'+buttonNode.get('id'));
             if (buttonNode) {
 /*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY);
+                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                 instance.enableUI();
             }
@@ -1795,7 +1796,7 @@ ITSAFormModel.prototype._defFn_save = function(e) {
     if (unvalidNodes.isEmpty()) {
         instance.disableUI();
 /*jshint expr:true */
-        canSpin && iconNode.addClass(ITSA_BUSY);
+        canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
 /*jshint expr:false */
         prevAttrs = instance.getAttrs();
         instance.UIToModel();
@@ -1807,7 +1808,7 @@ ITSAFormModel.prototype._defFn_save = function(e) {
                 buttonNode = Y.one('#'+buttonNode.get('id'));
                 if (buttonNode) {
 /*jshint expr:true */
-                     canSpin && iconNode.removeClass(ITSA_BUSY);
+                     canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                      instance.enableUI();
                 }
@@ -1820,7 +1821,7 @@ ITSAFormModel.prototype._defFn_save = function(e) {
                 if (buttonNode) {
                     instance._modelToUI();
 /*jshint expr:true */
-                    canSpin && iconNode.removeClass(ITSA_BUSY);
+                    canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                     instance.enableUI();
                 }
@@ -1860,7 +1861,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
     if (unvalidNodes.isEmpty()) {
         instance.disableUI();
 /*jshint expr:true */
-        canSpin && iconNode.addClass(ITSA_BUSY);
+        canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
 /*jshint expr:false */
         prevAttrs = instance.getAttrs();
         instance.UIToModel();
@@ -1870,7 +1871,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
                 buttonNode = Y.one('#'+buttonNode.get('id'));
                 if (buttonNode) {
 /*jshint expr:true */
-                     canSpin && iconNode.removeClass(ITSA_BUSY);
+                     canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                      instance.enableUI();
                 }
@@ -1883,7 +1884,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
                  if (buttonNode) {
                      instance._modelToUI();
 /*jshint expr:true */
-                     canSpin && iconNode.removeClass(ITSA_BUSY);
+                     canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
 /*jshint expr:false */
                      instance.enableUI();
                  }
@@ -2144,7 +2145,7 @@ ITSAFormModel.prototype._removeValidation  = function() {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.classname] for addeing extra classnames to the button
+ * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
  * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
