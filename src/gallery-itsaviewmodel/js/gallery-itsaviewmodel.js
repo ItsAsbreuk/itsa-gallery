@@ -282,7 +282,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_button}, {imgbtn_button} or {spinbtn_button} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event buttonclick
       * @param e {EventFacade} Event Facade including:
@@ -298,7 +298,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_destroy} or {imgbtn_destroy} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event destroyclick
       * @param e {EventFacade} Event Facade including:
@@ -314,7 +314,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_remove}, {imgbtn_remove} or {spinbtn_remove} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event removeclick
       * @param e {EventFacade} Event Facade including:
@@ -330,7 +330,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_load}, {imgbtn_load} or {spinbtn_load} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event loadclick
       * @param e {EventFacade} Event Facade including:
@@ -346,7 +346,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_submit}, {imgbtn_submit} or {spinbtn_submit} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event submitclick
       * @param e {EventFacade} Event Facade including:
@@ -362,7 +362,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_reset} or {imgbtn_reset} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event resetclick
       * @param e {EventFacade} Event Facade including:
@@ -378,7 +378,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_save}, {imgbtn_save} or {spinbtn_save} is clicked.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event saveclick
       * @param e {EventFacade} Event Facade including:

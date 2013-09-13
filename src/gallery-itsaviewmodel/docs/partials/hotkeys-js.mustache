@@ -4,6 +4,10 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
 
+    // asynchroniously loading the 'gallerycss-itsa-special' css fonticons
+    // which supplies the 'itsaicon-special-bell'-icon
+    Y.use('gallerycss-itsa-special');
+
     // create MyFormModelClass
     Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
         sync: function (action, options, callback) {
@@ -71,6 +75,8 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
+                    '<div class="pure-controls">{buttonAlert}</div>'+
+                    // {buttonAlert} will be defined with view.addCustomBtn() later on
                     '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>';
                 '</fieldset>';
 
@@ -82,18 +88,54 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         styled: true
     });
 
-    view.render();
-
-    view.on('buttonclick', function(e) {
-        console.log('buttonclick');
+    // Now define 'buttonAlert' --> this will be available in the template with {buttonAlert}
+    // itsaicon-special-bell is loaded asynchroniously at the start of this code
+    view.addCustomBtn('buttonAlert', '<i class="itsaicon-special-bell"></i>ALERT', {
+        value: 'alert',
+        classname: 'itsabutton-iconleft itsabutton-oval bell'
     });
 
+    view.render();
 
-    view.after('modelsubmit', function(e) {
-     //   Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
+    view.after('buttonclick', function(e) {
+        Y.alert('Button is clicked with value: '+e.value);
     });
 
     view.on('validationerror', function(e) {
         Y.alert('error', 'validation error');
     });
+
+
+
+var buttonnode = Y.one('button[value="alert"]');
+var submitnode = Y.one('button[value="submit"]');
+
+
+Y.later(2000, null, function() {
+    artist.fire('button:click', {buttonNode: buttonnode, value: 'alert'});
+});
+Y.later(4000, null, function() {
+    artist.fire('submit:click', {buttonNode: submitnode, value: 'submit'});
+});
+
+    artist.after('button:click', function(e) {
+        console.log('Button is MODEL-clicked with value: '+e.value);
+    });
+    artist.after('submit:click', function(e) {
+        console.log('Submit is MODEL-clicked');
+    });
+    artist.after('submit', function(e) {
+        console.log('Submitted by MODEL');
+    });
+
+    view.after('buttonclick', function(e) {
+        console.log('Button is VIEW-clicked with value '+e.value);
+    });
+    view.after('submitclick', function(e) {
+        console.log('Submit is VIEW-clicked');
+    });
+    view.after('modelsubmit', function(e) {
+        console.log('Submitted by VIEW');
+    });
+
 });

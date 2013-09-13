@@ -82,7 +82,7 @@
         },
         {
             "name"       : "custom-buttons",
-            "displayName": "Form with custom buttons",
+            "displayName": "Form with custom and styled buttons",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
