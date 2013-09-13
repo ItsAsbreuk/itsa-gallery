@@ -28,6 +28,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'Artist',
                     placeholder: 'artist',
+                    hotkey: 'a',
                     required: true
                 }
             },
@@ -36,6 +37,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'Country',
                     placeholder: 'country',
+                    hotkey: 'c',
                     required: true,
                     initialfocus: true
                 }
@@ -45,6 +47,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'First album',
                     placeholder: 'first album',
+                    hotkey: 'f',
                     required: true
                 }
             },
@@ -52,6 +55,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formtype: Y.Slider,
                 formconfig: {
                     label: 'Releasyear',
+                    hotkey: 'r',
                     widgetconfig: {
                         min: 1950,
                         max: 2010
@@ -75,6 +79,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
+                    '<div class="pure-controls">{imgbtn_yes}</div>'+
                     '<div class="pure-controls">{buttonAlert}</div>'+
                     // {buttonAlert} will be defined with view.addCustomBtn() later on
                     '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>';
@@ -94,6 +99,9 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         value: 'alert',
         classname: 'itsabutton-iconleft itsabutton-oval bell'
     });
+    view.setHotKey('s', 'spinbtn_submit');
+    view.setHotKey('r', 'btn_reset');
+    view.setHotKey('a', 'buttonAlert');
 
     view.render();
 
@@ -110,14 +118,14 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
 var buttonnode = Y.one('button[value="alert"]');
 var submitnode = Y.one('button[value="submit"]');
 
-
+/*
 Y.later(2000, null, function() {
     artist.fire('button:click', {buttonNode: buttonnode, value: 'alert'});
 });
 Y.later(4000, null, function() {
     artist.fire('submit:click', {buttonNode: submitnode, value: 'submit'});
 });
-
+*/
     artist.after('button:click', function(e) {
         console.log('Button is MODEL-clicked with value: '+e.value);
     });
