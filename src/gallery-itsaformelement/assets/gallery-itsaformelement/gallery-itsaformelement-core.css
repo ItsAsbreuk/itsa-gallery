@@ -10,6 +10,11 @@
 .itsa-invisible {
     visibility: hidden !important;
 }
+
+.itsa-hotkey {
+    text-decoration: underline;
+}
+
 /**
  * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
  * Modern browser will hide even without this css

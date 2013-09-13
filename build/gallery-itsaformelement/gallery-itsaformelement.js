@@ -25,10 +25,12 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     ACTION_FROMTAB = ACTION_FROMTAB,
     DISABLED    = 'disabled',
     WIDGET = 'widget',
+    STRING = 'string',
     WIDGET_PARENT_CLASS = 'itsa-'+WIDGET+'-parent',
     PURE = 'pure',
     BUTTON = 'button',
     PUREBUTTON_CLASS = PURE+'-'+BUTTON,
+    PURE_BUTTON_ACTIVE = PUREBUTTON_CLASS+'-active',
     PUREBUTTON_BORDERED_CLASS = ' itsa'+BUTTON+'-bordered',
     DATE = 'date',
     TIME = 'time',
@@ -55,6 +57,10 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     DATA_FORM_ELEMENT = ' data-formelement="true"',
     SPANCLASSISFORMAT = '<span class="format',
     ENDSPAN = '</span>',
+    HOTKEY = 'hotkey',
+    ITSA_HOTKEY = 'itsa-'+HOTKEY,
+    HOTKEY_TEMPLATE = '<span class="'+ITSA_HOTKEY+'" data-'+HOTKEY+'="{'+HOTKEY+'}">$1'+ENDSPAN,
+    ASK_TO_CLICK_EVENT = 'itsabutton-asktoclick',
 
     PATTERN_EMAIL = '^[\\w!#$%&\'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&\'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
     PATTERN_URLEND = '[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+(/[\\w-]+)*',
@@ -180,7 +186,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     GETFORMATTED_DATEVALUE = function(type, name, value, format, classname, hiddenstring, disabledstring, hideatstartup, buttonnodeid) {
         var className = classname ? (' '+classname) : '',
             invisibleStarup = (hideatstartup ? (' '+INVISIBLE_CLASS) : ''),
-            formattimename = ((typeof name === 'string') && (name.length>0)) ? (' formattime-'+name) : '';
+            formattimename = ((typeof name === STRING) && (name.length>0)) ? (' formattime-'+name) : '';
         if (!format) {
             if (type==='date') {
                 format = '%x';
@@ -271,6 +277,8 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.format] {String} Date-format: only valid for type==='date', 'time' or 'datetime'.
  *   @param [config.fullselect=false] {Boolean} selects all text when focussed --> only valid for input-elements and textarea.
  *   @param [config.hidden=false] {Boolean}
+ *   @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
+ *                                   The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  *   @param [config.initialfocus=false] {Boolean} makes this the first item that gets focus when the container gets focus.
  *   @param [config.label] {String} can by used for all elements (including Widgets and date-time), except for buttons.
  *   @param [config.labelClassname] {String} additional classname for the label. Can by used for all elements (including Widgets and date-time), except for buttons.
@@ -305,7 +313,7 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     nodeid = nodeid || Y.guid();
     config = config || {};
     iswidget = ((typeof type === 'function') && type.NAME);
-    if (typeof type==='string') {
+    if (typeof type===STRING) {
         type = type.toLowerCase();
     }
     element = {
@@ -367,8 +375,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
         isdatetime = DATETIME_TYPES[type],
+        hotkey = config[HOTKEY],
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
-        checked, purebutton, readonly, extralabel;
+        checked, purebutton, readonly, extralabel, hotkeyRegExp;
     // first setting up global data-attributes
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
@@ -378,7 +387,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         tooltip = tooltip.replace(/"/g, '\'\''),
         subtituteConfig[DATA] += ' data-content="'+tooltip+'" data-contentvalid="'+tooltip+'"';
     }
-    tooltipinvalid && (typeof tooltipinvalid === 'string') && (tooltipinvalid.length>0) && (subtituteConfig[DATA] += ' data-contentinvalid="'+tooltipinvalid.replace(/"/g, '\'\'')+'"');
+    tooltipinvalid && (typeof tooltipinvalid === STRING) && (tooltipinvalid.length>0) && (subtituteConfig[DATA] += ' data-contentinvalid="'+tooltipinvalid.replace(/"/g, '\'\'')+'"');
     config[INITIALFOCUS] && (subtituteConfig[DATA] += ' data-'+INITIALFOCUS+'="true"');
     config[NAMEDEF] && (subtituteConfig[NAMEDEF]=' '+NAMEDEF+'="'+subtituteConfig[NAMEDEF]+'"');
     hidden = (typeof config[HIDDEN]===BOOLEAN) ? config[HIDDEN] : false;
@@ -386,6 +395,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
     subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
 /*jshint expr:false */
+    hotkey = (hotkey && (typeof hotkey === STRING) && (hotkey.length===1)) ? hotkey.toLowerCase() : null;
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //++ specific widget formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -477,6 +487,13 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             config[LABELHTML] || (subtituteConfig[LABELHTML]=(value||type));
             subtituteConfig[VALUE] = ' '+VALUE+'="'+(config[VALUE] || Y.Escape.html(subtituteConfig[LABELHTML]))+'"';
 /*jshint expr:false */
+            // now we need to look for hotkey and surround it if appropriate
+            if (hotkey && (hotkeyRegExp=new RegExp('('+hotkey+')', 'i')) && hotkeyRegExp.test(subtituteConfig[LABELHTML])) {
+                subtituteConfig[LABELHTML] = subtituteConfig[LABELHTML].replace(hotkeyRegExp, Lang.sub(HOTKEY_TEMPLATE, {hotkey: hotkey}));
+/*jshint expr:true */
+                ITSAFormElement._HKList || ITSAFormElement._actHKList();
+/*jshint expr:false */
+            }
         }
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -528,6 +545,13 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     //++ creating label ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if (subtituteConfig[LABEL]) {
+        // now we need to look for hotkey and surround it if appropriate
+        if (hotkey && (hotkeyRegExp=new RegExp('('+hotkey+')', 'i')) && hotkeyRegExp.test(subtituteConfig[LABEL])) {
+            subtituteConfig[LABEL] = subtituteConfig[LABEL].replace(hotkeyRegExp, Lang.sub(HOTKEY_TEMPLATE, {hotkey: hotkey}));
+/*jshint expr:true */
+            ITSAFormElement._HKList || ITSAFormElement._actHKList();
+/*jshint expr:false */
+        }
         if (surroundlabelclass) {
             subtituteConfig[LABEL] = '<span class="formatlabel">' + subtituteConfig[LABEL] + ENDSPAN;
             labelclass = ' class="'+surroundlabelclass+(config[LABELCLASSNAME] ? (' '+config[LABELCLASSNAME]) : '') + '"';
@@ -601,6 +625,47 @@ ITSAFormElement.tooltipReadyPromise = function() {
         });
     }
     return ITSAFormElement._tooltipreadypromise;
+};
+
+ITSAFormElement._pressedBtn = null;
+
+ITSAFormElement._actHKList = function() {
+    ITSAFormElement._HKList = true;
+    BODY.on(
+        'keydown',
+        function(e) {
+            var charcode = e.charCode,
+                character, node;
+console.log(charcode);
+            if (e.altKey) {
+console.log('alt+key button down');
+                character = String.fromCharCode(charcode).toLowerCase();
+                node = Y.one('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]');
+                if (node) {
+console.log('hotkey '+character+ ' found');
+                    e.preventDefault();
+                    node.focus();
+                    if (node.get('tagName')==='BUTTON') {
+                        node.addClass(PURE_BUTTON_ACTIVE);
+console.log('hotkey was button --> fire clickevent');
+                        Y.fire(ASK_TO_CLICK_EVENT, {buttonNode: node});
+                        ITSAFormElement._pressedBtn = node;
+                    }
+                }
+            }
+        }
+    );
+    BODY.on(
+        'keyup',
+        function() {
+            var button = ITSAFormElement._pressedBtn;
+            if (button) {
+console.log('button up');
+                button.removeClass(PURE_BUTTON_ACTIVE);
+                ITSAFormElement._pressedBtn = null;
+            }
+        }
+    );
 };
 
 // force making promise ready after 0.5 seconds:
