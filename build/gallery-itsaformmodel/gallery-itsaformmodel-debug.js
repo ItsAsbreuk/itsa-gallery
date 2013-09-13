@@ -48,7 +48,16 @@ var YArray = Y.Array,
     DISABLED_BEFORE = '-before',
     SPAN_DATA_FOR_IS = 'span[data-for="',
     YUI3_SLIDER = 'yui3-slider',
-
+    ASK_TO_CLICK_EVENT = 'itsabutton-asktoclick',
+    VALID_BUTTON_TYPES = {
+        button: true,
+        destroy: true,
+        remove: true,
+        reset: true,
+        save: true,
+        submit: true,
+        load: true
+    },
     GALLERY_ITSA = 'gallery-itsa',
     FUNCTION = 'function',
     RENDERPROMISE = 'renderpromise',
@@ -807,6 +816,8 @@ ITSAFormModel.prototype[REMOVE] = function() {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -834,6 +845,8 @@ ITSAFormModel.prototype.renderBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -861,6 +874,8 @@ ITSAFormModel.prototype.renderDestroyBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -888,6 +903,8 @@ ITSAFormModel.prototype.renderLoadBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -915,6 +932,8 @@ ITSAFormModel.prototype.renderRemoveBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -942,6 +961,8 @@ ITSAFormModel.prototype.renderResetBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -969,6 +990,8 @@ ITSAFormModel.prototype.renderSaveBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -1517,7 +1540,6 @@ ITSAFormModel.prototype._bindUI = function() {
         body.delegate(
             'keypress',
             function(e) {
-//                e.halt();
                 var type = FOCUS_NEXT,
                     payload = {
                         target: e.target,
@@ -1530,6 +1552,21 @@ ITSAFormModel.prototype._bindUI = function() {
                 // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
                 var formelement = instance._FORM_elements[e.target.get(ID)];
                 return (formelement && (e.keyCode===13) && FOCUS_NEXT_ELEMENTS[formelement.type]);
+            }
+        )
+    );
+
+    // listening for 'asktoclick-event' which is fired by ITSAFormElement when a user presses a alt+key hotkey that belongs to a button-element
+    eventhandlers.push(
+        Y.on(
+            ASK_TO_CLICK_EVENT,
+            function(e) {
+                var buttonNode = e.buttonNode,
+                    type;
+                if (instance._FORM_elements[buttonNode.get('id')]) {
+                    type = buttonNode.get('value');
+                    instance.fire((VALID_BUTTON_TYPES[type] ? type : BUTTON)+':click', {buttonNode: buttonNode, value: type});
+                }
             }
         )
     );
@@ -2147,6 +2184,8 @@ ITSAFormModel.prototype._removeValidation  = function() {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
