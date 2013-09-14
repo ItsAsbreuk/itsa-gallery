@@ -20,9 +20,15 @@ YUI.add('gallery-itsaformelement', function (Y, NAME) {
 
 var ITSAFormElement, tipsyOK, tipsyInvalid,
     YArray = Y.Array,
+    YObject = Y.Object,
     Lang = Y.Lang,
+    INTL = Y.Intl,
     BODY = Y.one('body'),
     ACTION_FROMTAB = ACTION_FROMTAB,
+    DATA        = 'data',
+    HOTKEY = 'hotkey',
+    DATA_FOR    = DATA+'-for',
+    DATA_FORHOTKEY    = DATA_FOR+HOTKEY,
     DISABLED    = 'disabled',
     WIDGET = 'widget',
     STRING = 'string',
@@ -35,7 +41,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     DATE = 'date',
     TIME = 'time',
     DATETIME = DATE+TIME,
-    ITSABUTTON_DATETIME_CLASS = ' '+PUREBUTTON_CLASS+'-'+DATETIME+' '+PUREBUTTON_CLASS+'-notext',
+    ITSABUTTON_DATETIME_CLASS = ' '+PUREBUTTON_CLASS+'-'+DATETIME+' itsa'+BUTTON+'-onlyicon',
     DISABLED_BUTTON_CLASS = PUREBUTTON_CLASS+'-'+DISABLED,
     PRIMARY_BUTTON_CLASS = PUREBUTTON_CLASS+'-primary',
     MODELATTRIBUTE = 'modelattribute',
@@ -47,6 +53,17 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     EDITOR = 'editor',
     ERROR = 'error',
     BOOLEAN = 'boolean',
+    SELECTOR_TIPSY = '[data-formelement][data-content]',
+    DATA_VALID_FALSE = '[data-valid="false"]',
+    TIPSY_FORMELEMENT = 'tipsy-formelement',
+    BOUNDINGBOX = 'boundingBox',
+    TOUCHSTART = 'touchstart',
+    TOUCHEND = 'touchend',
+    FOCUS = 'focus',
+    BLUR = 'blur',
+    KEYPRESS = 'keypress',
+    RIGHT = 'right',
+
 
     PICKER = 'picker',
     CLICK = 'click',
@@ -57,9 +74,8 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     DATA_FORM_ELEMENT = ' data-formelement="true"',
     SPANCLASSISFORMAT = '<span class="format',
     ENDSPAN = '</span>',
-    HOTKEY = 'hotkey',
     ITSA_HOTKEY = 'itsa-'+HOTKEY,
-    HOTKEY_TEMPLATE = '<span class="'+ITSA_HOTKEY+'" data-'+HOTKEY+'="{'+HOTKEY+'}">$1'+ENDSPAN,
+    HOTKEY_TEMPLATE = '<span class="'+ITSA_HOTKEY+'" data-'+HOTKEY+'="{'+HOTKEY+'}" '+DATA_FORHOTKEY+'="{nodeid}">$1'+ENDSPAN,
     ASK_TO_CLICK_EVENT = 'itsabutton-asktoclick',
 
     PATTERN_EMAIL = '^[\\w!#$%&\'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&\'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
@@ -99,7 +115,6 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     VALUE       = 'value',
     PLACEHOLDER = 'placeholder',
     PATTERN     = 'pattern',
-    DATA        = 'data',
     CLASS       = 'class',
     LABELHTML  = 'labelHTML',
     SWITCH      = 'switch',
@@ -200,7 +215,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         }
         // asynchronious preloading the module
         Y.use(GALLERY+ITSA+'datetimepicker');
-        return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" data-for="'+buttonnodeid+'"'+className+hiddenstring+disabledstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
+        return SPANCLASSISFORMAT+'value'+formattimename+className+invisibleStarup+'" '+DATA_FOR+'="'+buttonnodeid+'"'+className+hiddenstring+disabledstring+'>'+Y.Date.format(value, {format: format})+ENDSPAN;
     },
     DATETIME_TYPES = { // proper date/time-formelement types
         date: true,
@@ -277,8 +292,10 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.format] {String} Date-format: only valid for type==='date', 'time' or 'datetime'.
  *   @param [config.fullselect=false] {Boolean} selects all text when focussed --> only valid for input-elements and textarea.
  *   @param [config.hidden=false] {Boolean}
- *   @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
- *                                   The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *   @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
+ *                                          The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                          If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                          F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  *   @param [config.initialfocus=false] {Boolean} makes this the first item that gets focus when the container gets focus.
  *   @param [config.label] {String} can by used for all elements (including Widgets and date-time), except for buttons.
  *   @param [config.labelClassname] {String} additional classname for the label. Can by used for all elements (including Widgets and date-time), except for buttons.
@@ -378,9 +395,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         configdata = config[DATA],
         data = DATA_FORM_ELEMENT, // always initialize
         isdatetime = DATETIME_TYPES[type],
-        hotkey = config[HOTKEY],
+        posiblehotkey = config[HOTKEY],
         labelclass, disabledbutton, primarybutton, template, surroundlabelclass, hidden, disabled, required,
-        checked, purebutton, readonly, extralabel, hotkeyRegExp;
+        checked, purebutton, readonly, extralabel, hotkeyRegExp, hotkey, currentlang, bestlanguage, bestlanguageLength, availableLanguages, currentlanguageLength;
     // first setting up global data-attributes
 /*jshint expr:true */
     configdata && (data+=' '+configdata);
@@ -398,7 +415,45 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     subtituteConfig[HIDDEN] = hidden ? (' '+HIDDEN+'="'+HIDDEN+'"') : '';
     subtituteConfig[DISABLED] = disabled ? (' '+DISABLED+'="'+DISABLED+'"') : '';
 /*jshint expr:false */
-    hotkey = (hotkey && (typeof hotkey === STRING) && (hotkey.length===1)) ? hotkey.toLowerCase() : null;
+    if (posiblehotkey) {
+        if (Lang.isObject(posiblehotkey)) {
+            currentlang = (INTL.getLang(GALLERY+'-itsaformelement') || Y.config.lang);
+            availableLanguages = [];
+            YObject.each(
+                posiblehotkey,
+                function(value, key) {
+/*jshint expr:true */
+                    (typeof key === STRING) && (typeof value === STRING) && availableLanguages.push(key);
+/*jshint expr:false */
+                }
+            );
+            // now search for the best avialable languagematch (which cannot be done with Y.intl.lookupBestLang):
+            bestlanguageLength = 0;
+            currentlanguageLength = currentlang.length;
+            YArray.some(
+                availableLanguages,
+                function(language) {
+                    var languagelength = language.length;
+                    if (
+                            (
+                                ((languagelength>bestlanguageLength) && ((bestlanguageLength===0) || (languagelength<=currentlanguageLength))) ||
+                                ((languagelength<bestlanguageLength) && (bestlanguageLength>currentlanguageLength))
+                            ) &&
+//                            (language.match(new RegExp('^'+currentlang)) || currentlang.match(new RegExp('^'+language)))
+                            currentlang.match(new RegExp('^'+language))
+                        ) {
+                        bestlanguage = language;
+                        bestlanguageLength = bestlanguage.length;
+                    }
+                    return (language===currentlang);
+                }
+            );
+            posiblehotkey = posiblehotkey[bestlanguage];
+        }
+/*jshint expr:true */
+        (typeof posiblehotkey === STRING) && (posiblehotkey.length===1) && (hotkey=posiblehotkey.toLowerCase());
+/*jshint expr:false */
+    }
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //++ specific widget formatting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -413,7 +468,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         if (type==='slider') {
             // we want the value visible inside a span
             subtituteConfig[switchvalue ? VALUESWITCHED : VALUENONSWITCHED] = SPANCLASSISFORMAT+'value formatslider-'+config.name+(config[CLASSNAME] ? (' '+config[CLASSNAME]) : '')+
-                                                                              '" data-for="'+nodeid+'"'+subtituteConfig[HIDDEN]+subtituteConfig[DISABLED]+'>'+value+ENDSPAN;
+                                                                              '" '+DATA_FOR+'="'+nodeid+'"'+subtituteConfig[HIDDEN]+subtituteConfig[DISABLED]+'>'+value+ENDSPAN;
         }
         // now make sure we get the right 'template', by re-defining 'type'
         type = WIDGET;
@@ -491,8 +546,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             subtituteConfig[VALUE] = ' '+VALUE+'="'+(config[VALUE] || Y.Escape.html(subtituteConfig[LABELHTML]))+'"';
 /*jshint expr:false */
             // now we need to look for hotkey and surround it if appropriate
-            if (hotkey && (hotkeyRegExp=new RegExp('('+hotkey+')', 'i')) && hotkeyRegExp.test(subtituteConfig[LABELHTML])) {
-                subtituteConfig[LABELHTML] = subtituteConfig[LABELHTML].replace(hotkeyRegExp, Lang.sub(HOTKEY_TEMPLATE, {hotkey: hotkey}));
+            if (hotkey && (hotkeyRegExp=new RegExp('(?![^<]*>)('+hotkey+')', 'i')) && hotkeyRegExp.test(subtituteConfig[LABELHTML])) {
+                subtituteConfig[LABELHTML] = subtituteConfig[LABELHTML].replace(hotkeyRegExp, Lang.sub(HOTKEY_TEMPLATE, {hotkey: hotkey, nodeid: nodeid}));
 /*jshint expr:true */
                 ITSAFormElement._HKList || ITSAFormElement._actHKList();
 /*jshint expr:false */
@@ -528,7 +583,9 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        FULLSELECT_TYPES[type] && (ITSAFormElement._TXTList || ITSAFormElement._actTXTList());
         fullselect && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
+
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS+PUREBUTTON_BORDERED_CLASS) : '')+
                                 (isdatetime ? (ITSABUTTON_DATETIME_CLASS) : '')+
@@ -549,8 +606,8 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if (subtituteConfig[LABEL]) {
         // now we need to look for hotkey and surround it if appropriate
-        if (hotkey && (hotkeyRegExp=new RegExp('('+hotkey+')', 'i')) && hotkeyRegExp.test(subtituteConfig[LABEL])) {
-            subtituteConfig[LABEL] = subtituteConfig[LABEL].replace(hotkeyRegExp, Lang.sub(HOTKEY_TEMPLATE, {hotkey: hotkey}));
+        if (hotkey && (hotkeyRegExp=new RegExp('(?![^<]*>)('+hotkey+')', 'i')) && hotkeyRegExp.test(subtituteConfig[LABEL])) {
+            subtituteConfig[LABEL] = subtituteConfig[LABEL].replace(hotkeyRegExp, Lang.sub(HOTKEY_TEMPLATE, {hotkey: hotkey, nodeid: nodeid}));
 /*jshint expr:true */
             ITSAFormElement._HKList || ITSAFormElement._actHKList();
 /*jshint expr:false */
@@ -603,19 +660,19 @@ ITSAFormElement.tooltipReadyPromise = function() {
         ITSAFormElement._tooltipreadypromise = new Y.Promise(function (resolve, reject) {
             Y.use(GALLERY+'-tipsy', GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
                 tipsyOK = new Y.Tipsy({
-                    placement: 'right',
-                    selector: '[data-formelement][data-content]:not([data-valid="false"])',
-                    showOn: ['touchstart', 'focus'],
-                    hideOn: ['touchend', 'blur', 'keypress']
+                    placement: RIGHT,
+                    selector: SELECTOR_TIPSY+':not('+DATA_VALID_FALSE+')',
+                    showOn: [TOUCHSTART, FOCUS],
+                    hideOn: [TOUCHEND, BLUR, KEYPRESS]
                 }).render();
                 tipsyInvalid = new Y.Tipsy({
-                    placement: 'right',
-                    selector: '[data-formelement][data-content][data-valid="false"]',
-                    showOn: ['touchstart', 'focus'],
-                    hideOn: ['touchend', 'blur', 'keypress']
+                    placement: RIGHT,
+                    selector: SELECTOR_TIPSY+DATA_VALID_FALSE,
+                    showOn: [TOUCHSTART, FOCUS],
+                    hideOn: [TOUCHEND, BLUR, KEYPRESS]
                 }).render();
-                tipsyOK.get('boundingBox').addClass('tipsy-formelement');
-                tipsyInvalid.get('boundingBox').addClass('tipsy-formelement-invalid');
+                tipsyOK.get(BOUNDINGBOX).addClass();
+                tipsyInvalid.get(BOUNDINGBOX).addClass(TIPSY_FORMELEMENT+'-invalid');
                 Y.batch(
                     tipsyOK.renderPromise(),
                     tipsyInvalid.renderPromise()
@@ -638,19 +695,19 @@ ITSAFormElement._actHKList = function() {
         'keydown',
         function(e) {
             var charcode = e.charCode,
-                character, node;
-console.log(charcode);
+                character, spannode, nodeid, node;
             if (e.altKey) {
-console.log('alt+key button down');
                 character = String.fromCharCode(charcode).toLowerCase();
-                node = Y.one('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]');
+                spannode = Y.one('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]');
+                if (spannode) {
+                    nodeid = spannode.getAttribute(DATA_FORHOTKEY);
+                    node = Y.one('#'+nodeid);
+                }
                 if (node) {
-console.log('hotkey '+character+ ' found');
                     e.preventDefault();
                     node.focus();
                     if (node.get('tagName')==='BUTTON') {
                         node.addClass(PURE_BUTTON_ACTIVE);
-console.log('hotkey was button --> fire clickevent');
                         Y.fire(ASK_TO_CLICK_EVENT, {buttonNode: node});
                         ITSAFormElement._pressedBtn = node;
                     }
@@ -663,7 +720,6 @@ console.log('hotkey was button --> fire clickevent');
         function() {
             var button = ITSAFormElement._pressedBtn;
             if (button) {
-console.log('button up');
                 button.removeClass(PURE_BUTTON_ACTIVE);
                 ITSAFormElement._pressedBtn = null;
             }
@@ -671,60 +727,63 @@ console.log('button up');
     );
 };
 
-// force making promise ready after 0.5 seconds:
-Y.later(500, null, ITSAFormElement.tooltipReadyPromise);
-
+ITSAFormElement._actTXTList = function() {
+    ITSAFormElement._TXTList = true;
 // listen to focus-events on input and textarea-items
-BODY.delegate(
-    'focus',
-    function(e) {
-        var node = e.target,
-            fullselection = (node.getAttribute(DATA+'-'+FULLSELECT)==='true'),
-            camefromtap;
-/*jshint expr:true */
-        // in case of 'input', default action would be that the content is fully selected. We suppress this:
-        !fullselection && node.test('input') && e.preventDefault();
-/*jshint expr:false */
-        // because the behavious or selecting/cursor-to-end MUST NOT happen on a mouseclick or tap,
-        // we need to make extra precautions. This is needed, because the tap-event occurs AFTER the focus-event.
-        // Thus, we delay to make sure we take action after a tap-event might have been occurred
+    BODY.delegate(
+        FOCUS,
+        function(e) {
+            var node = e.target,
+                fullselection = (node.getAttribute(DATA+'-'+FULLSELECT)==='true'),
+                camefromtap;
+    /*jshint expr:true */
+            // in case of 'input', default action would be that the content is fully selected. We suppress this:
+            !fullselection && node.test('input') && e.preventDefault();
+    /*jshint expr:false */
+            // because the behavious or selecting/cursor-to-end MUST NOT happen on a mouseclick or tap,
+            // we need to make extra precautions. This is needed, because the tap-event occurs AFTER the focus-event.
+            // Thus, we delay to make sure we take action after a tap-event might have been occurred
 
-        camefromtap = node.getData(ACTION_FROMTAB);
-        Y.ITSAFormElement._activeNode = node;
-        if (camefromtap) {
-            node.clearData(ACTION_FROMTAB);
-        }
-        else {
-            if (fullselection) {
-                node.select();
+            camefromtap = node.getData(ACTION_FROMTAB);
+            Y.ITSAFormElement._activeNode = node;
+            if (camefromtap) {
+                node.clearData(ACTION_FROMTAB);
             }
             else {
-                node.set('selectionStart', node.get('value').length);
-                // set 'scrollTop' high to make Chrome scroll the last character into view
-                node.set('scrollTop', 999999);
+                if (fullselection) {
+                    node.select();
+                }
+                else {
+                    node.set('selectionStart', node.get('value').length);
+                    // set 'scrollTop' high to make Chrome scroll the last character into view
+                    node.set('scrollTop', 999999);
+                }
             }
-        }
-    },
-    function(node, evt){
-        var targetnode = evt.target;
-        return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
-    }
-);
+        },
+        function(node, evt){
+            var targetnode = evt.target;
+            return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
+        }
+    );
 
-// listen to focus-events on input and textarea-items
-BODY.delegate(
-    'mousedown',
-    function(e) {
-        var node = e.target;
-/*jshint expr:true */
-        (Y.ITSAFormElement._activeNode !== node) && node.setData(ACTION_FROMTAB, true);
-/*jshint expr:false */
-    },
-    function(node, evt){
-        var targetnode = evt.target;
-        return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
-    }
-);
+    // listen to focus-events on input and textarea-items
+    BODY.delegate(
+        'mousedown',
+        function(e) {
+            var node = e.target;
+    /*jshint expr:true */
+            (Y.ITSAFormElement._activeNode !== node) && node.setData(ACTION_FROMTAB, true);
+    /*jshint expr:false */
+        },
+        function(node, evt){
+            var targetnode = evt.target;
+            return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
+        }
+    );
+};
+
+// force making promise ready after 0.5 seconds:
+Y.later(500, null, ITSAFormElement.tooltipReadyPromise);
 
 // Define synthetic events 'datepickerclick', 'timepickerclick' and 'datetimepickerclick':
 
@@ -862,6 +921,7 @@ YArray.each(
         "event-tap",
         "event-custom",
         "escape",
+        "intl",
         "gallerycss-itsa-base"
     ],
     "skinnable": true

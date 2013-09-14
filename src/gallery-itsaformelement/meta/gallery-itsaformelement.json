@@ -12,6 +12,7 @@
             "event-tap",
             "event-custom",
             "escape",
+            "intl",
             "gallerycss-itsa-base"
         ],
         "skinnable": true
