@@ -1537,12 +1537,14 @@ ITSAFormModel.prototype._bindUI = function() {
         body.delegate(
             'keypress',
             function(e) {
+              e.halt();
                 var type = FOCUS_NEXT,
                     payload = {
                         target: e.target,
                         type: type
                     };
                 // refireing, but now by the instance:
+console.log('fireing model.focusnext');
                 instance.fire(type, payload);
             },
             function(delegatedNode, e){ // node === e.target

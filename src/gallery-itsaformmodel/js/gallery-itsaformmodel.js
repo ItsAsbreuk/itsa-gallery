@@ -1565,6 +1565,7 @@ ITSAFormModel.prototype._bindUI = function() {
         body.delegate(
             'keypress',
             function(e) {
+                e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
                 var type = FOCUS_NEXT,
                     payload = {
                         target: e.target,
