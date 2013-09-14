@@ -62,7 +62,6 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     KEYPRESS = 'keypress',
     RIGHT = 'right',
 
-
     PICKER = 'picker',
     CLICK = 'click',
     PICKER_ICON = 'itsaicon-datetime-',
@@ -245,6 +244,17 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
         }) : s;
     };
 
+Y.Node.prototype.displayInDoc = function() {
+    var node = this,
+        displayed = node.inDoc();
+    while (node && displayed) {
+        displayed = (node.getStyle('display')!=='none');
+/*jshint expr:true */
+        displayed && (node = node.get('parentNode'));
+/*jshint expr:false */
+    }
+    return displayed;
+};
 
 ITSAFormElement = Y.ITSAFormElement = {};
 
@@ -693,13 +703,30 @@ ITSAFormElement._actHKList = function() {
         'keydown',
         function(e) {
             var charcode = e.charCode,
-                character, spannode, nodeid, node;
+                character, spannode, nodeid, possiblenode, node;
             if (e.altKey) {
                 character = String.fromCharCode(charcode).toLowerCase();
-                spannode = Y.one('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]');
+                spannode = Y.one('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]:not(['+DISABLED+']):not(['+READONLY+'])');
                 if (spannode) {
                     nodeid = spannode.getAttribute(DATA_FORHOTKEY);
-                    node = Y.one('#'+nodeid);
+                    possiblenode = Y.one('#'+nodeid);
+                }
+                if (possiblenode && ((possiblenode.getStyle("visibility")==='hidden') || !possiblenode.displayInDoc())) {
+                    // need to search for more nodes because this node is not reachable
+                    spannode = Y.all('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]:not(['+DISABLED+']):not(['+READONLY+'])');
+                    spannode.some(
+                        function(oneSpanNode, index) {
+                            if (index>0) {
+                                nodeid = oneSpanNode.getAttribute(DATA_FORHOTKEY);
+                                possiblenode = Y.one('#'+nodeid);
+                                node = possiblenode && (possiblenode.getStyle("visibility")!=='hidden') && possiblenode.displayInDoc() && possiblenode;
+                            }
+                            return node;
+                        }
+                    );
+                }
+                else {
+                    node = possiblenode;
                 }
                 if (node) {
                     e.preventDefault();
