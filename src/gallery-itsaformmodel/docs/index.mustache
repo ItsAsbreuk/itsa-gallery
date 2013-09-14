@@ -118,6 +118,10 @@
             <li><code>format</code> {String} Date-format: only valid for type==='date', 'time' or 'datetime'</li>
             <li><code>fullselect</code> {Boolean} selects all text when focussed --> only valid for input-elements and textarea</li>
             <li><code>hidden=false</code> {Boolean}</li>
+            <li><code>hotkey</code> {String|Object} character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
+                                          The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+                                          If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string
+                                          (character). F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.</li>
             <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
             <li><code>label</code> {String} The label belonging to the formelement.</li>
             <li><code>labelClassname</code> {String} additional classname for the label.</li>
@@ -154,6 +158,10 @@
             <li><code>classname</code> {String} additional classname set on widget's container (parentNode).</li>
             <li><code>data</code> {String} for extra data-attributes set on widget's container.</li>
             <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
+            <li><code>hotkey</code> {String|Object} --> character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
+                                          The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+                                          If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string
+                                          (character). F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.</li>
             <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
             <li><code>label</code> {String} The label next to the widget's container.</li>
             <li><code>labelClassname</code> {String} additional classname for the label.</li>
@@ -185,6 +193,10 @@
             <li><code>disabled=false</code> {Boolean}</li>
             <li><code>focusable=true</code> {Boolean} node-attribute 'focusable' which can be used as a selector by a FocusManager.</li>
             <li><code>hidden=false</code> {Boolean}</li>
+            <li><code>hotkey</code> {String|Object} --> character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
+                                          The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+                                          If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string
+                                          (character). F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.</li>
             <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
             <li><code>primary=false</code> {Boolean} making a button the primary button. Only applyable for buttons.</li>
             <li><code>spinbusy=false</code> {Boolean} making a buttonicon to spin if busy.</li>
