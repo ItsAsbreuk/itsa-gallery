@@ -47,6 +47,9 @@ var ITSAViewModel,
     BUTTON_ICON_LEFT = 'itsabutton-iconleft',
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
+    FORM_CAPITALIZED = 'FORM',
+    CHANGE = 'Change',
+    TAGNAME = 'tagName',
     GALLERY = 'gallery-',
     ITSAVIEWMODEL = 'itsaviewmodel',
     BUTTON = 'button',
@@ -415,7 +418,7 @@ Y.mix(ITSANodeCleanup.prototype, {
         var node = this,
             YWidget = Y.Widget;
 
-        Y.log('cleanup', 'info', 'Itsa-NodeCleanup');
+        Y.log('cleanupWidgets', 'info', 'Itsa-NodeCleanup');
         if (YWidget) {
             node.all('.yui3-widget').each(
                 function(widgetNode) {
@@ -687,6 +690,8 @@ ITSAViewModel.prototype.initializer = function() {
     */
     instance._textTemplate = null;
 
+    instance._contIsForm = (instance.get(CONTAINER).get(TAGNAME)===FORM_CAPITALIZED);
+
     instance._setTemplateRenderer(instance.get(EDITABLE));
 /*jshint expr:true */
     model && model.addTarget && model.addTarget(instance);
@@ -920,6 +925,9 @@ ITSAViewModel.prototype.render = function (clear) {
         instance._bindUI();
     }
     instance._rendered = true;
+/*jshint expr:true */
+    (html.length>0) && editMode && instance._viewNeedsForm && (html='<form>'+html+'</form>');
+/*jshint expr:false */
     container.setHTML(html);
     // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
     if (editMode) {
@@ -1113,7 +1121,7 @@ ITSAViewModel.prototype._bindUI = function() {
     Y.log('bindUI', 'info', 'ITSA-ViewModel');
     eventhandlers.push(
         instance.after(
-            'modelChange',
+            'model'+CHANGE,
             function(e) {
                 var prevVal = e.prevVal,
                     newVal = e.newVal,
@@ -1132,7 +1140,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'templateChange',
+            'template'+CHANGE,
             function() {
                 instance._setTemplateRenderer(instance.get(EDITABLE));
                 instance.render();
@@ -1154,7 +1162,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'editableChange',
+            'editable'+CHANGE,
             function(e) {
                 var newEditable = e.newVal,
                     model = instance.get(MODEL);
@@ -1201,8 +1209,16 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
     eventhandlers.push(
+        instance.after(
+            CONTAINER+CHANGE,
+            function(e) {
+                instance._contIsForm = (e.newVal.get(TAGNAME)===FORM_CAPITALIZED);
+            }
+        )
+    );
+    eventhandlers.push(
         Y.Intl.after(
-            'intl:langChange',
+            'intl:lang'+CHANGE,
             function() {
                 instance._intl = Y.Intl.get(GALLERY+ITSAVIEWMODEL);
             }
@@ -1754,4 +1770,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
             return Lang.sub(template, jsondata);
         };
     }
+    // now check whether there is a form-element inside the template.
+    // If not, then we need to generate one during render.
+    instance._viewNeedsForm = !instance._contIsForm && !(/<form([^>]*)>/.test(template));
 };

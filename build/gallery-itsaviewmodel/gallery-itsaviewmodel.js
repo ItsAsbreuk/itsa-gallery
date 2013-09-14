@@ -49,6 +49,9 @@ var ITSAViewModel,
     BUTTON_ICON_LEFT = 'itsabutton-iconleft',
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
+    FORM_CAPITALIZED = 'FORM',
+    CHANGE = 'Change',
+    TAGNAME = 'tagName',
     GALLERY = 'gallery-',
     ITSAVIEWMODEL = 'itsaviewmodel',
     BUTTON = 'button',
@@ -113,8 +116,7 @@ var ITSAViewModel,
         spinbtn_load: true,
         spinbtn_remove: true,
         spinbtn_save: true,
-        spinbtn_submit: true,
-        spinbtn_yes: true
+        spinbtn_submit: true
     },
 
     /**
@@ -686,6 +688,8 @@ ITSAViewModel.prototype.initializer = function() {
     */
     instance._textTemplate = null;
 
+    instance._contIsForm = (instance.get(CONTAINER).get(TAGNAME)===FORM_CAPITALIZED);
+
     instance._setTemplateRenderer(instance.get(EDITABLE));
 /*jshint expr:true */
     model && model.addTarget && model.addTarget(instance);
@@ -817,7 +821,6 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method removeButtonLabel
@@ -827,6 +830,55 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
 */
 ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
     delete this._customBtnLabels[buttonType];
+};
+
+/**
+ * Removes custom buttonlabels defined with setButtonHotKey().
+ * 'buttontype' should be one of the folowing buttonTypes:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ * </ul>
+ *
+ * @method removeHotKey
+ * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above.
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.removeHotKey = function(buttonType) {
+
+    var instance = this;
+/*jshint expr:true */
+    instance._hotkeys[buttonType] && (delete instance._hotkeys[buttonType]) && instance._createButtons();
+/*jshint expr:false */
 };
 
 /**
@@ -866,6 +918,9 @@ ITSAViewModel.prototype.render = function (clear) {
         instance._bindUI();
     }
     instance._rendered = true;
+/*jshint expr:true */
+    (html.length>0) && editMode && instance._viewNeedsForm && (html='<form>'+html+'</form>');
+/*jshint expr:false */
     container.setHTML(html);
     // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
     if (editMode) {
@@ -930,7 +985,6 @@ ITSAViewModel.prototype.render = function (clear) {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  * 'labelHTML' may consist <u>{label}</u> which will be replaced by the default internationalized labelHTML. This way you can create imagebuttons that still hold the default label.
  * <b>Note</b> The default buttonLabels are internationalized, this feature will be lost when using this method (unless you use <u>{label}</u> in the new labelHTML).
@@ -946,6 +1000,59 @@ ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
 
 /*jshint expr:true */
     PROTECTED_BUTTON_TYPES[buttonType] && (typeof labelHTML === STRING) && (labelHTML.length>0) && (instance._customBtnLabels[buttonType]=labelHTML);
+/*jshint expr:false */
+};
+
+/**
+ * Creates a listener to the specific hotkey (character). The hotkey will be bound to the specified buttonType, that should be one of types mentioned below.
+ * The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ * </ul>
+ *
+ * @method setHotKey
+ * @param buttonType {String} the buttontype which receives the hotkey, which should be one of the types mentioned above.
+ * @param hotkey {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                               The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                               If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                               F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.setHotKey = function(buttonType, hotkey) {
+    var instance = this;
+
+/*jshint expr:true */
+    PROTECTED_BUTTON_TYPES[buttonType] && ((typeof hotkey === STRING) || Lang.isObject(hotkey)) && (instance._hotkeys[buttonType]=hotkey) && instance._createButtons();
 /*jshint expr:false */
 };
 
@@ -1002,7 +1109,7 @@ ITSAViewModel.prototype._bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            'modelChange',
+            'model'+CHANGE,
             function(e) {
                 var prevVal = e.prevVal,
                     newVal = e.newVal,
@@ -1021,7 +1128,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'templateChange',
+            'template'+CHANGE,
             function() {
                 instance._setTemplateRenderer(instance.get(EDITABLE));
                 instance.render();
@@ -1043,7 +1150,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'editableChange',
+            'editable'+CHANGE,
             function(e) {
                 var newEditable = e.newVal,
                     model = instance.get(MODEL);
@@ -1090,8 +1197,16 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
     eventhandlers.push(
+        instance.after(
+            CONTAINER+CHANGE,
+            function(e) {
+                instance._contIsForm = (e.newVal.get(TAGNAME)===FORM_CAPITALIZED);
+            }
+        )
+    );
+    eventhandlers.push(
         Y.Intl.after(
-            'intl:langChange',
+            'intl:lang'+CHANGE,
             function() {
                 instance._intl = Y.Intl.get(GALLERY+ITSAVIEWMODEL);
             }
@@ -1144,108 +1259,6 @@ ITSAViewModel.prototype._bindUI = function() {
             );
         }
     );
-};
-
-/**
- * Creates a listener to the specific hotkey (character). The hotkey will be bound to the specified buttonType, that should be one of types mentioned below.
- * The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
- * <ul>
- *   <li>btn_abort</li>
- *   <li>btn_cancel</li>
- *   <li>btn_destroy</li>
- *   <li>btn_ignore</li>
- *   <li>btn_load</li>
- *   <li>btn_no</li>
- *   <li>btn_ok</li>
- *   <li>btn_remove</li>
- *   <li>btn_reset</li>
- *   <li>btn_retry</li>
- *   <li>btn_save</li>
- *   <li>btn_submit</li>
- *   <li>btn_yes</li>
- *   <li>imgbtn_abort</li>
- *   <li>imgbtn_cancel</li>
- *   <li>imgbtn_destroy</li>
- *   <li>imgbtn_ignore</li>
- *   <li>imgbtn_load</li>
- *   <li>imgbtn_no</li>
- *   <li>imgbtn_ok</li>
- *   <li>imgbtn_remove</li>
- *   <li>imgbtn_reset</li>
- *   <li>imgbtn_retry</li>
- *   <li>imgbtn_save</li>
- *   <li>imgbtn_submit</li>
- *   <li>imgbtn_yes</li>
- *   <li>spinbtn_load</li>
- *   <li>spinbtn_remove</li>
- *   <li>spinbtn_save</li>
- *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
- * </ul>
- *
- * @method setHotKey
- * @param buttonType {String} the buttontype which receives the hotkey, which should be one of the types mentioned above.
- * @param hotkey {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
- *                               The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
- *                               If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
- *                               F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
- * @since 0.3
- *
-*/
-ITSAViewModel.prototype.setHotKey = function(buttonType, hotkey) {
-    var instance = this;
-
-/*jshint expr:true */
-    PROTECTED_BUTTON_TYPES[buttonType] && ((typeof hotkey === STRING) || Lang.isObject(hotkey)) && (instance._hotkeys[buttonType]=hotkey) && instance._createButtons();
-/*jshint expr:false */
-};
-
-/**
- * Removes custom buttonlabels defined with setButtonHotKey().
- * 'buttontype' should be one of the folowing buttonTypes:
- * <ul>
- *   <li>btn_abort</li>
- *   <li>btn_cancel</li>
- *   <li>btn_destroy</li>
- *   <li>btn_ignore</li>
- *   <li>btn_load</li>
- *   <li>btn_no</li>
- *   <li>btn_ok</li>
- *   <li>btn_remove</li>
- *   <li>btn_reset</li>
- *   <li>btn_retry</li>
- *   <li>btn_save</li>
- *   <li>btn_submit</li>
- *   <li>btn_yes</li>
- *   <li>imgbtn_abort</li>
- *   <li>imgbtn_cancel</li>
- *   <li>imgbtn_destroy</li>
- *   <li>imgbtn_ignore</li>
- *   <li>imgbtn_load</li>
- *   <li>imgbtn_no</li>
- *   <li>imgbtn_ok</li>
- *   <li>imgbtn_remove</li>
- *   <li>imgbtn_reset</li>
- *   <li>imgbtn_retry</li>
- *   <li>imgbtn_save</li>
- *   <li>imgbtn_submit</li>
- *   <li>imgbtn_yes</li>
- *   <li>spinbtn_load</li>
- *   <li>spinbtn_remove</li>
- *   <li>spinbtn_save</li>
- *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
- * </ul>
- *
- * @method removeHotKey
- * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above.
- * @since 0.3
- *
-*/
-ITSAViewModel.prototype.removeHotKey = function(buttonType) {
-
-    var instance = this;
-    instance._hotkeys[buttonType] && (delete instance._hotkeys[buttonType]) && instance._createButtons();
 };
 
 /**
@@ -1429,7 +1442,6 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method _createButtons
@@ -1737,6 +1749,9 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
             return Lang.sub(template, jsondata);
         };
     }
+    // now check whether there is a form-element inside the template.
+    // If not, then we need to generate one during render.
+    instance._viewNeedsForm = !instance._contIsForm && !(/<form([^>]*)>/.test(template));
 };
 
 }, '@VERSION@', {
@@ -1752,6 +1767,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
     ],
     "lang": [
         "ar",
+        "cn",
         "de",
         "en",
         "es",

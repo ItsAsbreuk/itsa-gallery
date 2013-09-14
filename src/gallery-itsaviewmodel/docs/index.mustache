@@ -182,7 +182,7 @@ YUI().use('gallery-itsaviewmodel', function(Y) {
             <li>When redefine the labels, the Internationalization is gone. If you want to keep the labels Internationalized, you should apply an Internationlized label yourself.</li>
             <li>When defining hotkeys, the labels will differ for several languages. This means you might want to set the <code>s</code>-character as the hotkey for saving, while other languages have a different name. <code>Save</code> will appear as <code>Opslaan</code> in The Netherlands. To handle this issue, you can choose to supply an object as argument to the <code>setHotKey()</code> method instead of a character-hotkey. See the API.</li>
         </ul>
-    <p>At this moment the follwong languages are supported:</p>
+    <p>At this moment the following languages are supported:</p>
     <ul>
         <li><code>ar</code></li>
         <li><code>cn</code></li>
@@ -199,6 +199,11 @@ YUI().use('gallery-itsaviewmodel', function(Y) {
         <li><code>ru</code></li>
         <li><code>zh</code></li>
     </ul>
+
+<h2>Memory management</h2>
+    <p>
+        When re-render a view that holds UI-elements, widgets might be re-rendered. Y.ITSAViewModel automaticly takes care of destroying the widgets that are no longer needed, or refreshed.
+    </p>
 
 <h2>Licence</h2>
     Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
