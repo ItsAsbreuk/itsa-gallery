@@ -806,8 +806,10 @@ ITSAFormModel.prototype[REMOVE] = function() {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -834,8 +836,10 @@ ITSAFormModel.prototype.renderBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -862,8 +866,10 @@ ITSAFormModel.prototype.renderDestroyBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -890,8 +896,10 @@ ITSAFormModel.prototype.renderLoadBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -918,8 +926,10 @@ ITSAFormModel.prototype.renderRemoveBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -946,8 +956,10 @@ ITSAFormModel.prototype.renderResetBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -974,8 +986,10 @@ ITSAFormModel.prototype.renderSaveBtn = function(labelHTML, config) {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -2137,8 +2151,10 @@ ITSAFormModel.prototype._removeValidation  = function() {
  * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
  * @param [config.disabled=false] {Boolean}
  * @param [config.hidden=false] {Boolean}
- * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ * @param [config.hotkey] {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
