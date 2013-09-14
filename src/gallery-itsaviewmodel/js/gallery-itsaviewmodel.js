@@ -111,8 +111,7 @@ var ITSAViewModel,
         spinbtn_load: true,
         spinbtn_remove: true,
         spinbtn_save: true,
-        spinbtn_submit: true,
-        spinbtn_yes: true
+        spinbtn_submit: true
     },
 
     /**
@@ -821,7 +820,6 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method removeButtonLabel
@@ -868,7 +866,6 @@ ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method removeHotKey
@@ -987,7 +984,6 @@ ITSAViewModel.prototype.render = function (clear) {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  * 'labelHTML' may consist <u>{label}</u> which will be replaced by the default internationalized labelHTML. This way you can create imagebuttons that still hold the default label.
  * <b>Note</b> The default buttonLabels are internationalized, this feature will be lost when using this method (unless you use <u>{label}</u> in the new labelHTML).
@@ -1041,7 +1037,6 @@ ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method setHotKey
@@ -1447,7 +1442,6 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
  *   <li>spinbtn_remove</li>
  *   <li>spinbtn_save</li>
  *   <li>spinbtn_submit</li>
- *   <li>spinbtn_yes</li>
  * </ul>
  *
  * @method _createButtons

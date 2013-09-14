@@ -13,7 +13,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         sync: function (action, options, callback) {
             switch (action) {
               case 'submit':
-                Y.later(4000, null, function() {
+                Y.later(1500, null, function() {
                     callback();
                 });
                 return;
@@ -91,14 +91,16 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     // Now define 'buttonAlert' --> this will be available in the template with {buttonAlert}
     // itsaicon-special-bell is loaded asynchroniously at the start of this code
     view.addCustomBtn('buttonAlert', '<i class="itsaicon-special-bell"></i>ALERT', {
-        value: 'alert',
+        value: 'alertme',
         classname: 'itsabutton-iconleft itsabutton-oval bell'
     });
 
     view.render();
 
     view.on('buttonclick', function(e) {
-        Y.alert('Button is clicked with value: '+e.value);
+        if (e.value==='alertme') {
+            Y.alert('Button is clicked with value: '+e.value);
+        }
     });
 
     view.on('validationerror', function(e) {

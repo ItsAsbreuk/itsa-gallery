@@ -9,7 +9,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         sync: function (action, options, callback) {
             switch (action) {
               case 'submit':
-                Y.later(4000, null, function() {
+                Y.later(1500, null, function() {
                     callback();
                 });
                 return;

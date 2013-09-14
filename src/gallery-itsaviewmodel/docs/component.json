@@ -11,7 +11,7 @@
         {
             "name"       : "simple-view",
             "displayName": "Creating a simple view",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how use ITSAViewModel to render a model using a template.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -20,7 +20,7 @@
         {
             "name"       : "update-modelattributes",
             "displayName": "Update modelattributes",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows a view is updated automaticly, when a model changes its attributes.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -29,7 +29,7 @@
         {
             "name"       : "changing-models",
             "displayName": "Replacing models",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows a view is updated automaticly, when the view is bound to another model.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -37,8 +37,8 @@
         },
         {
             "name"       : "changing-template",
-            "displayName": "Replacing templates",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "displayName": "Switching templates - using micro-template",
+            "description": "This example shows a view is updated automaticly, when the view gets another template.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -47,7 +47,7 @@
         {
             "name"       : "using-itsaformmodel",
             "displayName": "Templating with UI-elements",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how to create an editable form by using Y.ITSAFormModel.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -55,8 +55,8 @@
         },
         {
             "name"       : "changing-editability",
-            "displayName": "Switching attributes and UI-elements",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "displayName": "Switching between attributes and UI-elements",
+            "description": "This example shows how one view can change its 'editable-state' when using Y.ITSAFormModel.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -65,7 +65,7 @@
         {
             "name"       : "forms",
             "displayName": "Creating a form",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how to create a form by using Y.ITSAFormModel as the 'model' and 'editable'=true.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -74,7 +74,7 @@
         {
             "name"       : "buttons",
             "displayName": "Form with different buttonlabels",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how change the buttonlabels on a form.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -83,7 +83,7 @@
         {
             "name"       : "custom-buttons",
             "displayName": "Form with custom and styled buttons",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how restyle the standard buttons and how to add a custombutton.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
@@ -92,7 +92,7 @@
         {
             "name"       : "hotkeys",
             "displayName": "Using hotkeys to activate formbuttons",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how the use hotkeys when creating a form.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
