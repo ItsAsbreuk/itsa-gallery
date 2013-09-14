@@ -26,10 +26,12 @@ var YArray = Y.Array,
     YObject = Y.Object,
     YNode = Y.Node,
     Lang = Y.Lang,
+    YIntl = Y.Intl,
     ITSAFormElement = Y.ITSAFormElement,
-    MSG_MODELCHANGED_TITLE = 'Notification:',
-    MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD = 'Data has been changed outside the form.<br />Load it into the form? (if not, then the data will be reset to the current form-values)',
-    MSG_MODELCHANGED_OUTSIDEFORM = 'Data has been changed outside the form.<br />Load it into the form?',
+    NOTIFICATION = 'notification',
+    DATACHANGED = 'datachanged',
+    WANTRELOAD = 'wantreload',
+    NORELOADMSG = 'noreloadmsg',
     UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
     INVISIBLE_CLASS = 'itsa-invisible',
     DUPLICATE_NODE = '<span style="background-color:F00; color:#FFF">DUPLICATED FORMELEMENT is not allowed</span>',
@@ -59,6 +61,7 @@ var YArray = Y.Array,
         load: true
     },
     GALLERY_ITSA = 'gallery-itsa',
+    GALLERYITSAFORMMODEL = GALLERY_ITSA + 'formmodel',
     FUNCTION = 'function',
     RENDERPROMISE = 'renderpromise',
     CLICK = 'click',
@@ -383,6 +386,15 @@ ITSAFormModel.prototype.initializer = function() {
     * @type Boolean
     */
     instance._lifeUpdate = false;
+
+    /**
+     * Internal objects with internationalized buttonlabels
+     *
+     * @property _intl
+     * @private
+     * @type Object
+    */
+    instance._intl = YIntl.get(GALLERYITSAFORMMODEL);
 
    /**
     * internal hash with references to the renderBtn-functions, referenced by type ('button', 'destroy', 'remove', 'reset', 'save', 'load', 'submit').
@@ -1527,16 +1539,17 @@ ITSAFormModel.prototype._bindUI = function() {
                 // if e.formelement, then the changes came from the UI
                 if (!instance._internalChange && !e.formelement && !e.fromInternal) {
                     Y.use(GALLERY_ITSA+'dialog', function() {
+                        var intl = instance._intl;
                         if (instance._lifeUpdate) {
                             // the first parameter in the response needs to be 'null' and not the promise result
-                            Y.confirm(MSG_MODELCHANGED_TITLE, MSG_MODELCHANGED_OUTSIDEFORM_RESETORLOAD).then(
+                            Y.confirm(intl[NOTIFICATION], intl[DATACHANGED]+'<br />'+intl[WANTRELOAD]+'? ('+intl[NORELOADMSG]+').').then(
                                 Y.bind(instance._modelToUI, instance, null),
                                 Y.bind(instance.UIToModel, instance, null)
                             );
                         }
                         else {
                             // the first parameter in the response needs to be 'null' and not the promise result
-                            Y.confirm(MSG_MODELCHANGED_TITLE, MSG_MODELCHANGED_OUTSIDEFORM).then(
+                            Y.confirm(intl[NOTIFICATION], intl[DATACHANGED]+'<br />'+intl[WANTRELOAD]+'?').then(
                                 Y.bind(instance._modelToUI, instance, null)
                             );
                         }
@@ -1567,6 +1580,15 @@ ITSAFormModel.prototype._bindUI = function() {
                 var formelement = instance._FORM_elements[e.target.get(ID)];
                 return (formelement && (e.keyCode===13) && FOCUS_NEXT_ELEMENTS[formelement.type]);
             }
+        )
+    );
+
+    eventhandlers.push(
+        Y.Intl.after(
+            'intl:langChange',
+            function() {
+                instance._intl = Y.Intl.get(GALLERYITSAFORMMODEL);
+            }
         )
     );
 
@@ -2512,6 +2534,7 @@ YArray.each(
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "intl",
         "base-base",
         "attribute-base",
         "base-build",
@@ -2531,5 +2554,20 @@ YArray.each(
         "gallery-itsanodepromise",
         "gallery-itsamodelsyncpromise",
         "gallery-itsaformelement"
+    ],
+    "lang": [
+        "ar",
+        "de",
+        "en",
+        "es",
+        "fr",
+        "hu",
+        "it",
+        "ja",
+        "nb",
+        "nl",
+        "pt",
+        "ru",
+        "zh"
     ]
 });

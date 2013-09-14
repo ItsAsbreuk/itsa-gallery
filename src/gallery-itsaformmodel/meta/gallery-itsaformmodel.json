@@ -2,6 +2,7 @@
     "gallery-itsaformmodel": {
         "requires": [
             "yui-base",
+            "intl",
             "base-base",
             "attribute-base",
             "base-build",
@@ -21,6 +22,21 @@
             "gallery-itsanodepromise",
             "gallery-itsamodelsyncpromise",
             "gallery-itsaformelement"
+        ],
+        "lang" : [
+            "ar",
+            "de",
+            "en",
+            "es",
+            "fr",
+            "hu",
+            "it",
+            "ja",
+            "nb",
+            "nl",
+            "pt",
+            "ru",
+            "zh"
         ]
     }
 }
