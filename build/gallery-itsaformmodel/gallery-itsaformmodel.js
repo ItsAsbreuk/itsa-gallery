@@ -2502,6 +2502,7 @@ YArray.each(
     ],
     "lang": [
         "ar",
+        "cn",
         "de",
         "en",
         "es",
