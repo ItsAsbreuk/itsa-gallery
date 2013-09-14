@@ -28,7 +28,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'Artist',
                     placeholder: 'artist',
-                    hotkey: 'a',
+                    hotkey: 't',
                     required: true
                 }
             },
@@ -51,11 +51,18 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     required: true
                 }
             },
+            born: {
+                value: new Date(),
+                formtype: 'date',
+                formconfig: {
+                    label: 'born'
+                }
+            },
             release: {
                 formtype: Y.Slider,
                 formconfig: {
-                    label: 'Releasyear',
-                    hotkey: 'r',
+                    label: 'Releaseyear',
+                    hotkey: 'y',
                     widgetconfig: {
                         min: 1950,
                         max: 2010
@@ -75,6 +82,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
 
     template = '<fieldset>'+
                     '<legend>Editable template</legend>'+
+                    '<div class="pure-control-group">{born}</div>'+
                     '<div class="pure-control-group">{name}</div>'+
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
@@ -87,26 +95,28 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
 
     view = new Y.ITSAViewModel({
         container: '#viewcont',
-        model: artist,
+        model: null,
         template: template,
         editable: true,
         styled: true
     });
 
+    view.render();
+
     // Now define 'buttonAlert' --> this will be available in the template with {buttonAlert}
     // itsaicon-special-bell is loaded asynchroniously at the start of this code
     view.addCustomBtn('buttonAlert', '<i class="itsaicon-special-bell"></i>ALERT', {
         value: 'alert',
+        hotkey: 'a',
         classname: 'itsabutton-iconleft itsabutton-oval bell'
     });
-    view.setHotKey('s', 'spinbtn_submit');
-    view.setHotKey('r', 'btn_reset');
-    view.setHotKey('a', 'buttonAlert');
+    view.setHotKey('spinbtn_submit', 's');
+    view.setHotKey('btn_reset', 'r');
 
-    view.render();
+view.set('model', artist);
 
     view.after('buttonclick', function(e) {
-        Y.alert('Button is clicked with value: '+e.value);
+  //      Y.alert('Button is clicked with value: '+e.value);
     });
 
     view.on('validationerror', function(e) {

@@ -739,6 +739,8 @@ ITSAViewModel.prototype.initializer = function() {
  * @param [config.hidden=false] {Boolean}
  * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
  *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @param [config.classname] for adding extra classnames to the button
  * @param [config.focusable=true] {Boolean}
  * @param [config.primary=false] {Boolean} making it the primary-button
@@ -755,7 +757,6 @@ ITSAViewModel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
             config: config,
             labelHTML: labelHTML || buttonId
         };
-        instance._setTemplateRenderer(instance.get('template'));
     }
 };
 
@@ -784,9 +785,43 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
 
 /**
  * Removes custom buttonlabels defined with setButtonLabel().
+ * Available buttontypes are:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ *   <li>spinbtn_yes</li>
+ * </ul>
  *
  * @method removeButtonLabel
- * @param buttonType {String} the buttontype which text was replaced, either: 'cancel', 'abort', 'retry', 'ok', 'ignore', 'yes', 'no', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'
+ * @param buttonType {String} the buttontype which text was replaced, one of those mentioned above.
  * @since 0.3
  *
 */
@@ -1149,29 +1184,68 @@ ITSAViewModel.prototype._bindUI = function() {
  * </ul>
  *
  * @method setHotKey
- * @param hotkey {String} new hotkey (Character)
  * @param buttonType {String} the buttontype which receives the hotkey, which should be one of the types mentioned above.
+ * @param hotkey {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                               The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                               If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                               F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
  * @since 0.3
  *
 */
-ITSAViewModel.prototype.setHotKey = function(hotkey, buttonType) {
+ITSAViewModel.prototype.setHotKey = function(buttonType, hotkey) {
     var instance = this;
 
 /*jshint expr:true */
-    PROTECTED_BUTTON_TYPES[buttonType] && (typeof hotkey === STRING) && (hotkey.length===1) && (instance._hotkeys[hotkey.toLowerCase()]=buttonType);
+    PROTECTED_BUTTON_TYPES[buttonType] && ((typeof hotkey === STRING) || Lang.isObject(hotkey)) && (instance._hotkeys[buttonType]=hotkey) && instance._createButtons();
 /*jshint expr:false */
 };
 
 /**
  * Removes custom buttonlabels defined with setButtonHotKey().
+ * 'buttontype' should be one of the folowing buttonTypes:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ *   <li>spinbtn_yes</li>
+ * </ul>
  *
  * @method removeHotKey
- * @param hotkey {String} hotkey (Character) that should be removed
+ * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above.
  * @since 0.3
  *
 */
-ITSAViewModel.prototype.removeHotKey = function(hotkey) {
-    delete this._hotkeys[hotkey];
+ITSAViewModel.prototype.removeHotKey = function(buttonType) {
+
+    var instance = this;
+    instance._hotkeys[buttonType] && (delete instance._hotkeys[buttonType]) && instance._createButtons();
 };
 
 /**
@@ -1366,187 +1440,188 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
 */
 ITSAViewModel.prototype._createButtons = function() {
     var instance = this,
-        customBtnLabels = instance._customBtnLabels;
+        customBtnLabels = instance._customBtnLabels,
+        hotkeys = instance._hotkeys;
 
     instance._buttons = [
         {
             propertykey: BTN_ABORT,
             type: BUTTON,
-            config: {value: ABORT},
+            config: {value: ABORT, hotkey: hotkeys[BTN_ABORT]},
             labelHTML: function() { return customBtnLabels[BTN_ABORT] ? Lang.sub(customBtnLabels[BTN_ABORT], {label: instance._intl[ABORT]}) : instance._intl[ABORT]; }
         },
         {
             propertykey: BTN_CANCEL,
             type: BUTTON,
-            config: {value: CANCEL},
+            config: {value: CANCEL, hotkey: hotkeys[BTN_CANCEL]},
             labelHTML: function() { return customBtnLabels[BTN_CANCEL] ? Lang.sub(customBtnLabels[BTN_CANCEL], {label: instance._intl[CANCEL]}) : instance._intl[CANCEL]; }
         },
         {
             propertykey: BTN_DESTROY,
             type: DESTROY,
-            config: {value: DESTROY},
+            config: {value: DESTROY, hotkey: hotkeys[BTN_DESTROY]},
             labelHTML: function() { return customBtnLabels[BTN_DESTROY] ? Lang.sub(customBtnLabels[BTN_DESTROY], {label: instance._intl[DESTROY]}) : instance._intl[DESTROY]; }
         },
         {
             propertykey: BTN_IGNORE,
             type: BUTTON,
-            config: {value: IGNORE},
+            config: {value: IGNORE, hotkey: hotkeys[BTN_IGNORE]},
             labelHTML: function() { return customBtnLabels[BTN_IGNORE] ? Lang.sub(customBtnLabels[BTN_IGNORE], {label: instance._intl[IGNORE]}) : instance._intl[IGNORE]; }
         },
         {
             propertykey: BTN_LOAD,
             type: LOAD,
-            config: {value: LOAD},
+            config: {value: LOAD, hotkey: hotkeys[BTN_LOAD]},
             labelHTML: function() { return customBtnLabels[BTN_LOAD] ? Lang.sub(customBtnLabels[BTN_LOAD], {label: instance._intl[LOAD]}) : instance._intl[LOAD]; }
         },
         {
             propertykey: BTN_NO,
             type: BUTTON,
-            config: {value: NO},
+            config: {value: NO, hotkey: hotkeys[BTN_NO]},
             labelHTML: function() { return customBtnLabels[BTN_NO] ? Lang.sub(customBtnLabels[BTN_NO], {label: instance._intl[NO]}) : instance._intl[NO]; }
         },
         {
             propertykey: BTN_OK,
             type: BUTTON,
-            config: {value: OK},
+            config: {value: OK, hotkey: hotkeys[BTN_OK]},
             labelHTML: function() { return customBtnLabels[BTN_OK] ? Lang.sub(customBtnLabels[BTN_OK], {label: instance._intl[OK]}) : instance._intl[OK]; }
         },
         {
             propertykey: BTN_REMOVE,
             type: REMOVE,
-            config: {value: REMOVE},
+            config: {value: REMOVE, hotkey: hotkeys[BTN_REMOVE]},
             labelHTML: function() { return customBtnLabels[BTN_REMOVE] ? Lang.sub(customBtnLabels[BTN_REMOVE], {label: instance._intl[REMOVE]}) : instance._intl[REMOVE]; }
         },
         {
             propertykey: BTN_RESET,
             type: RESET,
-            config: {value: RESET},
+            config: {value: RESET, hotkey: hotkeys[BTN_RESET]},
             labelHTML: function() { return customBtnLabels[BTN_RESET] ? Lang.sub(customBtnLabels[BTN_RESET], {label: instance._intl[RESET]}) : instance._intl[RESET]; }
         },
         {
             propertykey: BTN_RETRY,
             type: BUTTON,
-            config: {value: RETRY},
+            config: {value: RETRY, hotkey: hotkeys[BTN_RETRY]},
             labelHTML: function() { return customBtnLabels[BTN_RETRY] ? Lang.sub(customBtnLabels[BTN_RETRY], {label: instance._intl[RETRY]}) : instance._intl[RETRY]; }
         },
         {
             propertykey: BTN_SAVE,
             type: SAVE,
-            config: {value: SAVE},
+            config: {value: SAVE, hotkey: hotkeys[BTN_SAVE]},
             labelHTML: function() { return customBtnLabels[BTN_SAVE] ? Lang.sub(customBtnLabels[BTN_SAVE], {label: instance._intl[SAVE]}) : instance._intl[SAVE]; }
         },
         {
             propertykey: BTN_SUBMIT,
             type: SUBMIT,
-            config: {value: SUBMIT},
+            config: {value: SUBMIT, hotkey: hotkeys[BTN_SUBMIT]},
             labelHTML: function() {return customBtnLabels[BTN_SUBMIT] ? Lang.sub(customBtnLabels[BTN_SUBMIT], {label: instance._intl[SUBMIT]}) : instance._intl[SUBMIT]; }
         },
         {
             propertykey: BTN_YES,
             type: BUTTON,
-            config: {value: YES},
+            config: {value: YES, hotkey: hotkeys[BTN_YES]},
             labelHTML: function() { return customBtnLabels[BTN_YES] ? Lang.sub(customBtnLabels[BTN_YES], {label: instance._intl[YES]}) : instance._intl[YES]; }
         },
         {
             propertykey: IMGBTN_ABORT,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: ABORT},
+            config: {classname: BUTTON_ICON_LEFT, value: ABORT, hotkey: hotkeys[IMGBTN_ABORT]},
             labelHTML: function() { return customBtnLabels[IMGBTN_ABORT] ? Lang.sub(customBtnLabels[IMGBTN_ABORT], {label: instance._intl[ABORT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: ABORT})+instance._intl[ABORT]); }
         },
         {
             propertykey: IMGBTN_CANCEL,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: CANCEL},
+            config: {classname: BUTTON_ICON_LEFT, value: CANCEL, hotkey: hotkeys[IMGBTN_CANCEL]},
             labelHTML: function() { return customBtnLabels[IMGBTN_CANCEL] ? Lang.sub(customBtnLabels[IMGBTN_CANCEL], {label: instance._intl[CANCEL]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CANCEL]); }
         },
         {
             propertykey: IMGBTN_DESTROY,
             type: DESTROY,
-            config: {classname: BUTTON_ICON_LEFT, value: DESTROY},
+            config: {classname: BUTTON_ICON_LEFT, value: DESTROY, hotkey: hotkeys[IMGBTN_DESTROY]},
             labelHTML: function() { return customBtnLabels[IMGBTN_DESTROY] ? Lang.sub(customBtnLabels[IMGBTN_DESTROY], {label: instance._intl[DESTROY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: DESTROY})+instance._intl[DESTROY]); }
         },
         {
             propertykey: IMGBTN_IGNORE,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: IGNORE},
+            config: {classname: BUTTON_ICON_LEFT, value: IGNORE, hotkey: hotkeys[IMGBTN_IGNORE]},
             labelHTML: function() { return customBtnLabels[IMGBTN_IGNORE] ? Lang.sub(customBtnLabels[IMGBTN_IGNORE], {label: instance._intl[IGNORE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: IGNORE})+instance._intl[IGNORE]); }
         },
         {
             propertykey: IMGBTN_LOAD,
             type: LOAD,
-            config: {classname: BUTTON_ICON_LEFT, value: LOAD},
+            config: {classname: BUTTON_ICON_LEFT, value: LOAD, hotkey: hotkeys[IMGBTN_LOAD]},
             labelHTML: function() { return customBtnLabels[IMGBTN_LOAD] ? Lang.sub(customBtnLabels[IMGBTN_LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD]); }
         },
         {
             propertykey: IMGBTN_NO,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: NO},
+            config: {classname: BUTTON_ICON_LEFT, value: NO, hotkey: hotkeys[IMGBTN_NO]},
             labelHTML: function() { return customBtnLabels[IMGBTN_NO] ? Lang.sub(customBtnLabels[IMGBTN_NO], {label: instance._intl[NO]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: NO})+instance._intl[NO]); }
         },
         {
             propertykey: IMGBTN_OK,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: OK},
+            config: {classname: BUTTON_ICON_LEFT, value: OK, hotkey: hotkeys[IMGBTN_OK]},
             labelHTML: function() { return customBtnLabels[IMGBTN_OK] ? Lang.sub(customBtnLabels[IMGBTN_OK], {label: instance._intl[OK]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: OK})+instance._intl[OK]); }
         },
         {
             propertykey: IMGBTN_REMOVE,
             type: REMOVE,
-            config: {classname: BUTTON_ICON_LEFT, value: REMOVE},
+            config: {classname: BUTTON_ICON_LEFT, value: REMOVE, hotkey: hotkeys[IMGBTN_REMOVE]},
             labelHTML: function() { return customBtnLabels[IMGBTN_REMOVE] ? Lang.sub(customBtnLabels[IMGBTN_REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE]); }
         },
         {
             propertykey: IMGBTN_RESET,
             type: RESET,
-            config: {classname: BUTTON_ICON_LEFT, value: RESET},
+            config: {classname: BUTTON_ICON_LEFT, value: RESET, hotkey: hotkeys[IMGBTN_RESET]},
             labelHTML: function() { return customBtnLabels[IMGBTN_RESET] ? Lang.sub(customBtnLabels[IMGBTN_RESET], {label: instance._intl[RESET]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RESET})+instance._intl[RESET]); }
         },
         {
             propertykey: IMGBTN_RETRY,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: RETRY},
+            config: {classname: BUTTON_ICON_LEFT, value: RETRY, hotkey: hotkeys[IMGBTN_RETRY]},
             labelHTML: function() { return customBtnLabels[IMGBTN_RETRY] ? Lang.sub(customBtnLabels[IMGBTN_RETRY], {label: instance._intl[RETRY]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: RETRY})+instance._intl[RETRY]); }
         },
         {
             propertykey: IMGBTN_SAVE,
             type: SAVE,
-            config: {classname: BUTTON_ICON_LEFT, value: SAVE},
+            config: {classname: BUTTON_ICON_LEFT, value: SAVE, hotkey: hotkeys[IMGBTN_SAVE]},
             labelHTML: function() { return customBtnLabels[IMGBTN_SAVE] ? Lang.sub(customBtnLabels[IMGBTN_SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE]); }
         },
         {
             propertykey: IMGBTN_SUBMIT,
             type: SUBMIT,
-            config: {classname: BUTTON_ICON_LEFT, value: SUBMIT},
+            config: {classname: BUTTON_ICON_LEFT, value: SUBMIT, hotkey: hotkeys[IMGBTN_SUBMIT]},
             labelHTML: function() { return customBtnLabels[IMGBTN_SUBMIT] ? Lang.sub(customBtnLabels[IMGBTN_SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT]); }
         },
         {
             propertykey: IMGBTN_YES,
             type: BUTTON,
-            config: {classname: BUTTON_ICON_LEFT, value: YES},
+            config: {classname: BUTTON_ICON_LEFT, value: YES, hotkey: hotkeys[IMGBTN_YES]},
             labelHTML: function() { return customBtnLabels[IMGBTN_YES] ? Lang.sub(customBtnLabels[IMGBTN_YES], {label: instance._intl[YES]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: YES})+instance._intl[YES]); }
         },
         {
             propertykey: SPINBTN_LOAD,
             type: LOAD,
-            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: LOAD},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: LOAD, hotkey: hotkeys[SPINBTN_LOAD]},
             labelHTML: function() { return customBtnLabels[SPINBTN_LOAD] ? Lang.sub(customBtnLabels[SPINBTN_LOAD], {label: instance._intl[LOAD]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: LOAD})+instance._intl[LOAD]); }
         },
         {
             propertykey: SPINBTN_REMOVE,
             type: REMOVE,
-            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: REMOVE},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: REMOVE, hotkey: hotkeys[SPINBTN_REMOVE]},
             labelHTML: function() { return customBtnLabels[SPINBTN_REMOVE] ? Lang.sub(customBtnLabels[SPINBTN_REMOVE], {label: instance._intl[REMOVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: REMOVE})+instance._intl[REMOVE]); }
         },
         {
             propertykey: SPINBTN_SAVE,
             type: SAVE,
-            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: SAVE},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: SAVE, hotkey: hotkeys[SPINBTN_SAVE]},
             labelHTML: function() { return customBtnLabels[SPINBTN_SAVE] ? Lang.sub(customBtnLabels[SPINBTN_SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE]); }
         },
         {
             propertykey: SPINBTN_SUBMIT,
             type: SUBMIT,
-            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: SUBMIT},
+            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: SUBMIT, hotkey: hotkeys[SPINBTN_SUBMIT]},
             labelHTML: function() { return customBtnLabels[SPINBTN_SUBMIT] ? Lang.sub(customBtnLabels[SPINBTN_SUBMIT], {label: instance._intl[SUBMIT]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SUBMIT})+instance._intl[SUBMIT]); }
         }
     ];
@@ -1591,7 +1666,7 @@ ITSAViewModel.prototype._setModel = function(v) {
     else {
         instance._textTemplate = null;
     }
-    if (!instance._formcss_loaded && (v.toJSONUI)) {
+    if (!instance._formcss_loaded && v && v.toJSONUI) {
         instance._formcss_loaded = true;
         Y.use('gallerycss-itsa-form'); // asynchroniously load iconfonts
     }
