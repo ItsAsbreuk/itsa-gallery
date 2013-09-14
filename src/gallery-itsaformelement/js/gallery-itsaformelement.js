@@ -705,6 +705,7 @@ ITSAFormElement._actHKList = function() {
             var charcode = e.charCode,
                 character, spannode, nodeid, possiblenode, node;
             if (e.altKey) {
+                e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
                 character = String.fromCharCode(charcode).toLowerCase();
                 spannode = Y.one('.'+ITSA_HOTKEY+'[data-'+HOTKEY+'="'+character+'"]:not(['+DISABLED+']):not(['+READONLY+'])');
                 if (spannode) {
