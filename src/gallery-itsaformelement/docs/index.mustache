@@ -132,6 +132,10 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>format</code> {String} --> only valid for date/time</li>
       <li><code>fullselect</code> {Boolean} selects all text when focussed --> only valid for input-elements and textarea</li>
       <li><code>hidden</code> {Boolean} (defaults false)</li>
+      <li><code>hotkey</code> {String|Object} --> character that act as a hotkey: 'alt+char' will focus the element and -in case of a button- click the button.
+                                          The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+                                          If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string
+                                          (character). F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.</li>
       <li><code>initialfocus</code> {Boolean} makes this the first item that gets focus when the container gets focus.</li>
       <li><code>label</code> {String} --> used for all elements (including date-time), except buttons</li>
       <li><code>labelClassname</code> {String} --> used for all elements (including date-time), except buttons</li>

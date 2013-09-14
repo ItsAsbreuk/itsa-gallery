@@ -1023,7 +1023,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('true', this.node.getAttribute('data-formelement'), 'date - Wrong value for formelement created');
         },
         'check icon': function() {
-            Y.Assert.areEqual('<i class="itsa-icondate"></i>', this.node.getHTML(), 'date - Wrong icon created');
+            Y.Assert.areEqual('<i class="itsaicon-datetime-date"></i>', this.node.getHTML(), 'date - Wrong icon created');
         }
     }));
 
@@ -1138,7 +1138,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('true', this.node.getAttribute('data-formelement'), 'time - Wrong value for formelement created');
         },
         'check icon': function() {
-            Y.Assert.areEqual('<i class="itsa-icontime"></i>', this.node.getHTML(), 'time - Wrong icon created');
+            Y.Assert.areEqual('<i class="itsaicon-datetime-time"></i>', this.node.getHTML(), 'time - Wrong icon created');
         }
     }));
 
@@ -1253,7 +1253,7 @@ YUI.add('module-tests', function(Y) {
             Y.Assert.areEqual('true', this.node.getAttribute('data-formelement'), 'datetime - Wrong value for formelement created');
         },
         'check icon': function() {
-            Y.Assert.areEqual('<i class="itsa-icondatetime"></i>', this.node.getHTML(), 'datetime - Wrong icon created');
+            Y.Assert.areEqual('<i class="itsaicon-datetime-datetime"></i>', this.node.getHTML(), 'datetime - Wrong icon created');
         }
     }));
 
