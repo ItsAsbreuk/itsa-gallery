@@ -1227,7 +1227,8 @@ ITSAViewModel.prototype._bindUI = function() {
                             newevent = event,
                             payload, button;
                         // check if e.target===instance, because it checks by *: and will recurse
-                        if (e.target!==instance) {
+                  //      if (e.target!==instance) {
+                        if (!e.frominternal) {
                             if (VALID_MODEL_EVENTS[event]) {
                                 newevent = MODEL+event;
                             }
@@ -1240,7 +1241,9 @@ ITSAViewModel.prototype._bindUI = function() {
                                    validEvent = false;
                                 }
                             }
+console.log(e.target+' --> '+e.type + ' NEW EVENT: '+newevent);
                             payload = {
+                                frominternal: true,
                                 type: newevent,
                                 model: instance.get(MODEL),
                                 modelEventFacade: e,
@@ -1651,6 +1654,7 @@ ITSAViewModel.prototype[DEF_FN+FOCUS_NEXT] = function() {
         container = instance.get(CONTAINER),
         itsatabkeymanager = container && container.itsatabkeymanager;
     if (itsatabkeymanager) {
+console.log('tabkeymanager will focus next');
         itsatabkeymanager.next();
     }
     else {

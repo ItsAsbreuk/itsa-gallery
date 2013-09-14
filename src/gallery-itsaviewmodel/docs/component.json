@@ -91,7 +91,7 @@
         },
         {
             "name"       : "hotkeys",
-            "displayName": "Using hotkeys to activate formbuttons",
+            "displayName": "Using hotkeys",
             "description": "This example shows how the use hotkeys when creating a form.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],

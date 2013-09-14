@@ -60,11 +60,14 @@ YUI().use('gallery-itsaviewmodel', function(Y) {
 
 <h3>Attaching plain text</h3>
     <p>
-        Y.ITSAVieewModel makes it is posible to add plain text (string) to the model-attribute. This leads to 'just' rendering the text inside the view-container ignoring the template.
+        Y.ITSAViewModel makes it is posible to add plain text (string) to the model-attribute. This leads to 'just' rendering the text inside the view-container ignoring the template.
     </p>
 <h2>Creating forms</h2>
     <p>
         Forms can be created by using a Y.ITSAFormModel-instance as 'model' and setting 'editable' true. By doing this, you create UI-elements for all the models attributes, just by reffering to the attribute in the template.
+    </p>
+    <p>
+         The formelements have the focusmanager active out of the box which makes <code>tabbing</code> inside the container posible as soon the container has focus. The UI-elements even can get focus using hotkeys, when specified (see the examples). When creating a template with formelements, then the view-container ought to be a <code>form-tag</code>, no need to define this inside the template. If neither the container, nor the template has a form-tag, then Y.ITSAViewModel will create a formtag automaticly inside the container.
     </p>
 <h3>Standard available formbuttons</h3>
     <p>Because the model exists of its attributes (no buttons), this module comes with several button-definition 'out of the box'. These can be reffered to by templating, just as all attributes. All buttons have their own defaultfunction, so they work right away. Below is the list of all buttons that are available:
