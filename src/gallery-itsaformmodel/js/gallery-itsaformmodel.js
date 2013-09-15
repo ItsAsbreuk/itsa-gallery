@@ -293,6 +293,17 @@ var YArray = Y.Array,
     **/
     DATETIMEPICKER_CLICK = DATE+TIME+PICKER+CLICK,
 
+    /**
+      * Fired when a inputelement is configured with 'submitonenter=true' and receives an enter-key.
+      * The defaultfunction: _defFn_submitauto() will be executed, unless the event is preventDefaulted or halted.
+      *
+      * @event submit:auto
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+      *
+    **/
+    SUBMIT_AUTO = SUBMIT+':auto',
+
 ITSAFormModel = Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {}, {
     _ATTR_CFG: ['formtype', 'formconfig', 'validationerror']
 });
@@ -435,6 +446,13 @@ ITSAFormModel.prototype.initializer = function() {
         SUBMIT_CLICK,
         {
             defaultFn: Y.bind(instance._defFn_submit, instance),
+            emitFacade: true
+        }
+    );
+    instance.publish(
+        SUBMIT_AUTO,
+        {
+            defaultFn: Y.bind(instance._defFn_submitauto, instance),
             emitFacade: true
         }
     );
@@ -1303,15 +1321,15 @@ ITSAFormModel.prototype.setWidgetValueField = function(widgetClassname, valueFie
 };
 
 /**
- * Submits the UI by firing the 'submit'-event. If you need a promise, then use submitPromise().
- * model-promisses are provided by the module 'gallrey-itsamodelsyncpromise' which is loaded by this module.
+ * Submits the UI by calling the synclayer with action='submit'. If you need a promise, then use submitPromise().
+ * model-promisses are provided by the module 'gallery-itsamodelsyncpromise' which is loaded by this module.
  *
  * @method submit
  * @since 0.1
 */
 ITSAFormModel.prototype[SUBMIT] = function() {
     Y.log(SUBMIT, 'info', 'ITSAFormModel');
-    this.fire(SUBMIT);
+    this.sync(SUBMIT, null, function() {}); // callback with an empty function
 };
 
 /**
@@ -1566,13 +1584,29 @@ ITSAFormModel.prototype._bindUI = function() {
             'keypress',
             function(e) {
                 e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
-                var type = FOCUS_NEXT,
+                // now it depends: there will be a focus-next OR the model will submit.
+                // It depends on the value of 'data-submitonenter'
+                var node = e.target,
+                    submitonenter = (node.getAttribute('data-submitonenter')==='true'),
+                    type, payload;
+                if (submitonenter) {
+                    type = SUBMIT_AUTO;
+                    payload = {
+                        target: instance,
+                        type: type
+                    };
+                    // refireing, but now by the instance:
+                    instance.fire(type, payload);
+                }
+                else {
+                    type = FOCUS_NEXT;
                     payload = {
                         target: e.target,
                         type: type
                     };
-                // refireing, but now by the instance:
-                instance.fire(type, payload);
+                    // refireing, but now by the instance:
+                    instance.fire(type, payload);
+                }
             },
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
@@ -1627,7 +1661,7 @@ ITSAFormModel.prototype._clearEventhandlers = function() {
 
 /**
  *
- * Default function for the 'destroyclick'-event
+ * Default function for the 'destroy:click'-event
  *
  * @method _defFn_destroy
  * @param e {EventFacade} Event Facade including:
@@ -1720,7 +1754,7 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
 
 /**
  *
- * Default function for the 'loadclick'-event.
+ * Default function for the 'load:click'-event.
  *
  * @method _defFn_load
  * @param e {EventFacade} Event Facade including:
@@ -1771,7 +1805,7 @@ ITSAFormModel.prototype._defFn_load = function(e) {
 
 /**
  *
- * Default function for the 'destroyclick'-event
+ * Default function for the 'destroy:click'-event
  *
  * @method _defFn_remove
  * @param e {EventFacade} Event Facade including:
@@ -1823,7 +1857,7 @@ ITSAFormModel.prototype._defFn_remove = function(e) {
 
 /**
  *
- * Default function for the 'resetclick'-event
+ * Default function for the 'reset:click'-event
  *
  * @method _defFn_reset
  * @param e {EventFacade} Event Facade including:
@@ -1845,7 +1879,7 @@ ITSAFormModel.prototype._defFn_reset = function() {
 
 /**
  *
- * Default function for the 'saveclick'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
+ * Default function for the 'save:click'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
  *
  * @method _defFn_save
  * @param e {EventFacade} Event Facade including:
@@ -1904,12 +1938,44 @@ ITSAFormModel.prototype._defFn_save = function(e) {
     }
     else {
         instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
+        e.halt();
     }
 };
 
 /**
  *
- * Default function for the 'submitclick'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
+ * Default function for the 'submit:auto'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
+ *
+ * @method _defFn_submitauto
+ * @param e {EventFacade} Event Facade including:
+ * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+ * @private
+ * @protected
+ * @since 0.1
+ *
+*/
+
+ITSAFormModel.prototype._defFn_submitauto = function(e) {
+    var instance = this,
+        node;
+
+    Y.log('_defFn_submit', 'info', 'ITSAFormModel');
+    // if the model has a submitnode, then we would like to know, because it can be transfered into a waiting icon.
+    YObject.some(
+        instance._FORM_elements,
+        function(formelement, nodeid) {
+/*jshint expr:true */
+            (formelement.type===BUTTON) && (node=Y.one('#'+nodeid)) && (node.getAttribute(DATA_BUTTON_SUBTYPE)===SUBMIT) && (e.buttonNode=node);
+/*jshint expr:false */
+            return e.buttonNode;
+        }
+    );
+    instance._defFn_submit(e);
+};
+
+/**
+ *
+ * Default function for the 'submit:click'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
  *
  * @method _defFn_submit
  * @param e {EventFacade} Event Facade including:
@@ -1926,8 +1992,8 @@ ITSAFormModel.prototype._defFn_save = function(e) {
 ITSAFormModel.prototype._defFn_submit = function(e) {
     var instance = this,
         buttonNode = e.buttonNode,
-        iconNode = buttonNode.one(LI_ICON),
-        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE),
+        iconNode = buttonNode && buttonNode.one(LI_ICON),
+        canSpin = iconNode && (buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE),
         prevAttrs, unvalidNodes;
 
     Y.log('_defFn_submit', 'info', 'ITSAFormModel');
@@ -1942,7 +2008,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
         instance.submitPromise().then(
              function() {
                 // because the buttonnode could be gone away from the dom, first check is it's available
-                buttonNode = Y.one('#'+buttonNode.get('id'));
+                buttonNode = buttonNode && Y.one('#'+buttonNode.get('id'));
                 if (buttonNode) {
 /*jshint expr:true */
                      canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
@@ -1954,7 +2020,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
                   // reset to previous values
                  instance.setAttrs(prevAttrs);
                  // because the buttonnode could be gone away from the dom, first check is it's available
-                 buttonNode = Y.one('#'+buttonNode.get('id'));
+                 buttonNode = buttonNode && Y.one('#'+buttonNode.get('id'));
                  if (buttonNode) {
                      instance._modelToUI();
 /*jshint expr:true */
@@ -1967,6 +2033,7 @@ ITSAFormModel.prototype._defFn_submit = function(e) {
     }
     else {
         instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
+        e.halt();
     }
 };
 

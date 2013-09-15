@@ -1,0 +1,1 @@
+YUI.add("lang/gallery-itsaformmodel_fi",function(e){e.Intl.add("gallery-itsaformmodel","fi",{notification:"Ilmoitus",datachanged:"Tietoja on muutettu ulkopuolella muodossa",wantreload:"Lataa se muotoon",noreloadmsg:"jos ei, niin tiedot tulee palauttaa nykymuodossaan-arvot"})},"@VERSION@");

@@ -1,0 +1,1 @@
+YUI.add("lang/gallery-itsaformmodel_hr",function(e){e.Intl.add("gallery-itsaformmodel","hr",{notification:"Obavijest",datachanged:"Podaci su se promjenili izvan forme",wantreload:"Stavite ga u obliku",noreloadmsg:"ako ne, onda su podaci \u0107e se vratiti na trenutnu formu-vrijednosti"})},"@VERSION@");
