@@ -102,6 +102,7 @@ var ITSAFormElement, tipsyOK, tipsyInvalid,
     PLAIN = 'plain',
     INITIALFOCUS = 'initialfocus',
     FULLSELECT = 'fullselect',
+    SUBMITONENTER = 'submitonenter',
     NUMBER = 'number',
 
     PURERADIO    = PURE+'-'+RADIO,
@@ -319,6 +320,8 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.readonly=false] {Boolean} not applyable for buttons.
  *   @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy. (Actually only adds the data-attribute: data-spinbusy="true" --> which should be used by other js to make it spin).
  *                                            Only applyable for buttons.
+ *   @param [config.submitonenter=false] {Boolean} in case of text-fields: on enter-press submit. Will just add the data-attribute data-submitonenter="true" --> it is up to
+ *                                       other modules to handle the submission.
  *   @param [config.switchvalue=false] {Boolean} make the value go behind the element. Only applyable for type=='Y.Slider', 'date', 'time' or 'datetime'.
  *   @param [config.switchlabel=false] {Boolean} make the label go behind the element.
  *   @param [config.tooltip] {String} marks the data-attribute used by Y.Tipsy. Also applyable for Widgets.
@@ -393,6 +396,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         switchlabel = (typeof subtituteConfig[SWITCHLABEL]===BOOLEAN) ? subtituteConfig[SWITCHLABEL] : false,
         focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
         fullselect = (typeof subtituteConfig[FULLSELECT]===BOOLEAN) ? subtituteConfig[FULLSELECT] : false,
+        submitonenter = (typeof subtituteConfig[SUBMITONENTER]===BOOLEAN) ? subtituteConfig[SUBMITONENTER] : false,
         hideatstartup = (typeof subtituteConfig[HIDEATSTARTUP]===BOOLEAN) ? subtituteConfig[HIDEATSTARTUP] : false,
         tooltip = config.tooltip,
         tooltipinvalid = config.tooltipinvalid,
@@ -595,6 +599,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         FULLSELECT_TYPES[type] && (ITSAFormElement._TXTList || ITSAFormElement._actTXTList());
         fullselect && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
+        submitonenter && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+SUBMITONENTER+'="true"');
 
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS+PUREBUTTON_BORDERED_CLASS) : '')+

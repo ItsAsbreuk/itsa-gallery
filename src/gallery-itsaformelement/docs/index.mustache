@@ -148,6 +148,7 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>readonly</code> {Boolean} (defaults false) --> not applyable for buttons</li>
       <li><code>required</code> {Boolean} (defaults true for 'password', otherwise false)--> only valid for input-elements, textarea and date/time. defaults true when type===password</li>
       <li><code>spinbusy</code> {Boolean} (defaults false) making a buttonicon to spin if busy. (Actually only adds the data-attribute: data-spinbusy="true" --> which should be used by other js to make it spin). Only applyable for buttons.</li>
+      <li><code>submitonenter</code> {Boolean} (defaults false) in case of text-fields: on enter-press submit. Will just add the data-attribute data-submitonenter="true" --> it is up to other modules to handle the submission.</li>
       <li><code>switchlabel</code> {Boolean} (defaults false) --> switch the label behind the element</li>
       <li><code>switchdatetime</code> {Boolean} (defaults false) --> switch the datetime-value behind the element: only valid for date/time</li>
       <li><code>tooltip</code> {String}</li>
