@@ -1,6 +1,6 @@
 {
-    notification : 'Notification',
-    datachanged : 'Data has been changed outside the form',
-    wantreload : 'Load it into the form',
-    noreloadmsg : 'if not, then the data will be reset to the current form-values'
+    notification : 'Benachrichtigung',
+    datachanged : 'Daten wurden außerhalb der Form geändert',
+    wantreload : 'Es in die Form legen',
+    noreloadmsg : 'wenn nicht, dann werden die Daten in der aktuellen Form-Werte zurückgesetzt'
 }

@@ -1,6 +1,6 @@
 {
-    notification : 'Notification',
-    datachanged : 'Data has been changed outside the form',
-    wantreload : 'Load it into the form',
-    noreloadmsg : 'if not, then the data will be reset to the current form-values'
+    notification : 'Bejelentés',
+    datachanged : 'Adatok megváltozott kívüli formában',
+    wantreload : 'Töltse be az űrlapot',
+    noreloadmsg : 'ha nem, akkor az adatok visszaállítása a jelenlegi formájában-érték'
 }

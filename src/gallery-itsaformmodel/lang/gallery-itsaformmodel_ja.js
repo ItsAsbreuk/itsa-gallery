@@ -1,6 +1,6 @@
 {
-    notification : 'Notification',
-    datachanged : 'Data has been changed outside the form',
-    wantreload : 'Load it into the form',
-    noreloadmsg : 'if not, then the data will be reset to the current form-values'
+    notification : '通知',
+    datachanged : 'データは定形外に変更されました',
+    wantreload : 'フォームにロード',
+    noreloadmsg : 'されていない場合、データは、現在のフォームの値にリセットされます'
 }

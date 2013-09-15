@@ -1,6 +1,6 @@
 {
-    notification : 'Notification',
-    datachanged : 'Data has been changed outside the form',
-    wantreload : 'Load it into the form',
-    noreloadmsg : 'if not, then the data will be reset to the current form-values'
+    notification : '通知',
+    datachanged : '數據以外的形式已經改變',
+    wantreload : '它加載到形式',
+    noreloadmsg : '如果沒有，那麼數據將被重置當前表單的值'
 }
