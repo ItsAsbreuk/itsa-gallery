@@ -16,7 +16,7 @@
  *
 */
 
-var ITSAFormElement, tipsyOK, tipsyInvalid,
+var ITSAFormElement,
     YArray = Y.Array,
     YObject = Y.Object,
     Lang = Y.Lang,
@@ -661,6 +661,20 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
 // and need to be sure that tipsy pops up. For those cases, there is the promise tooltipReadyPromise()
 
 /**
+ * Reference to the Y.Tipsy instance that handles element-popups.
+ *
+ * @property tipsyOK
+ * @since 0.2
+*/
+
+/**
+ * Reference to the Y.Tipsy instance that handles invalid element-popups.
+ *
+ * @property tipsyInvalid
+ * @since 0.2
+*/
+
+/**
  * Promise that fulfills as soon as the Tipsy-tooltip is rendered. Because it is rendered asynchroniously. <br />
  * This might be neede if you focus an element with JS and need to be sure that the tooltip will pop up.
  *
@@ -672,13 +686,13 @@ ITSAFormElement.tooltipReadyPromise = function() {
     if (!ITSAFormElement._tooltipreadypromise) {
         ITSAFormElement._tooltipreadypromise = new Y.Promise(function (resolve, reject) {
             Y.use(GALLERY+'-tipsy', GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
-                tipsyOK = new Y.Tipsy({
+                var tipsyOK = ITSAFormElement.tipsyOK = new Y.Tipsy({
                     placement: RIGHT,
                     selector: SELECTOR_TIPSY+':not('+DATA_VALID_FALSE+')',
                     showOn: [TOUCHSTART, FOCUS],
                     hideOn: [TOUCHEND, BLUR, KEYPRESS]
-                }).render();
-                tipsyInvalid = new Y.Tipsy({
+                }).render(),
+                tipsyInvalid = ITSAFormElement.tipsyInvalid = new Y.Tipsy({
                     placement: RIGHT,
                     selector: SELECTOR_TIPSY+DATA_VALID_FALSE,
                     showOn: [TOUCHSTART, FOCUS],
@@ -701,6 +715,7 @@ ITSAFormElement.tooltipReadyPromise = function() {
 };
 
 ITSAFormElement._pressedBtn = null;
+
 
 ITSAFormElement._actHKList = function() {
     ITSAFormElement._HKList = true;
