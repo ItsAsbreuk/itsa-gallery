@@ -1,16 +1,16 @@
 {
-    cancel: 'cancel',
-    destroy: 'destroy',
-    remove: 'remove',
-    reset: 'reset',
-    save: 'save',
-    submit: 'submit',
-    load: 'load',
-    abort: 'abort',
-    ignore: 'ignore',
-    retry: 'retry',
+    cancel: 'avbryte',
+    destroy: 'ødelegge',
+    remove: 'fjerne',
+    reset: 'tilbakestille',
+    save: 'spare',
+    submit: 'sende inn',
+    load: 'last',
+    abort: 'abortere',
+    ignore: 'ignorere',
+    retry: 'nytt forsøk',
     ok: 'ok',
-    yes: 'yes',
+    yes: 'ja',
     no: 'no',
-    undefined_template: 'template is undefined'
+    undefined_template: 'Malen er udefinert'
 }

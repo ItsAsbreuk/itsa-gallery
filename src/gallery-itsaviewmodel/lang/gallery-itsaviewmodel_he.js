@@ -1,0 +1,16 @@
+{
+    cancel: 'לבטל',
+    destroy: 'להרוס',
+    remove: 'להסיר',
+    reset: 'לאתחל',
+    save: 'לחסוך',
+    submit: 'להגיש',
+    load: 'לטעון',
+    abort: 'להפיל',
+    ignore: 'להתעלם',
+    retry: 'נסה שוב',
+    ok: 'בסדר',
+    yes: 'כן',
+    no: 'לא',
+    undefined_template: 'התבנית היא לא מוגדרת'
+}

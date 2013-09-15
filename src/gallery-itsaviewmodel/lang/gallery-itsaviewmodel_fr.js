@@ -1,16 +1,16 @@
 {
-    cancel: 'cancel',
-    destroy: 'destroy',
-    remove: 'remove',
+    cancel: 'résilier',
+    destroy: 'détruire',
+    remove: 'supprimer',
     reset: 'reset',
-    save: 'save',
-    submit: 'submit',
-    load: 'load',
+    save: 'conserver',
+    submit: 'soumettre',
+    load: 'charger',
     abort: 'abort',
-    ignore: 'ignore',
+    ignore: 'ignorer',
     retry: 'retry',
     ok: 'ok',
-    yes: 'yes',
-    no: 'no',
-    undefined_template: 'template is undefined'
+    yes: 'oui',
+    no: 'non',
+    undefined_template: 'gabarit est indéfini'
 }

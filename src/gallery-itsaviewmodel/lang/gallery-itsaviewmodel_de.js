@@ -1,16 +1,16 @@
 {
-    cancel: 'cancel',
-    destroy: 'destroy',
-    remove: 'remove',
+    cancel: 'annullieren',
+    destroy: 'vernichten',
+    remove: 'entfernen',
     reset: 'reset',
-    save: 'save',
-    submit: 'submit',
-    load: 'load',
-    abort: 'abort',
-    ignore: 'ignore',
-    retry: 'retry',
+    save: 'speichern',
+    submit: 'senden',
+    load: 'laden',
+    abort: 'abbrechen',
+    ignore: 'ignorieren',
+    retry: 'wiederholen',
     ok: 'ok',
-    yes: 'yes',
-    no: 'no',
-    undefined_template: 'template is undefined'
+    yes: 'ja',
+    no: 'nein',
+    undefined_template: 'Template ist undefiniert'
 }

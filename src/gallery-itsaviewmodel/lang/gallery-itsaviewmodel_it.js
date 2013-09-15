@@ -1,16 +1,16 @@
 {
-    cancel: 'cancel',
-    destroy: 'destroy',
-    remove: 'remove',
-    reset: 'reset',
-    save: 'save',
-    submit: 'submit',
-    load: 'load',
+    cancel: 'törlése',
+    destroy: 'elpusztít',
+    remove: 'eltávolít',
+    reset: 'visszaállítása',
+    save: 'salva',
+    submit: 'presentare',
+    load: 'caricare',
     abort: 'abort',
-    ignore: 'ignore',
-    retry: 'retry',
+    ignore: 'ignorare',
+    retry: 'riprovare',
     ok: 'ok',
-    yes: 'yes',
+    yes: 'sì',
     no: 'no',
-    undefined_template: 'template is undefined'
+    undefined_template: 'template non è definito'
 }

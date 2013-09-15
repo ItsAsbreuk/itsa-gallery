@@ -5,11 +5,11 @@
     reset: 'herstel',
     save: 'opslaan',
     submit: 'verstuur',
-    abort: 'abort',
-    ignore: 'ignore',
-    retry: 'retry',
-    ok: 'ok',
-    yes: 'yes',
-    no: 'no',
+    abort: 'afbreken',
+    ignore: 'negeer',
+    retry: 'opnieuw',
+    ok: 'bevestig',
+    yes: 'ja',
+    no: 'nee',
     undefined_template: 'template is ongedefinieerd'
 }
