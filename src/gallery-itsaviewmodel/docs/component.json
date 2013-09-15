@@ -97,6 +97,15 @@
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "form-without-buttons",
+            "displayName": "Autosubmit a form when inputready",
+            "description": "This example shows how to submit a form without buttons when the input is ready.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "hideTableOfContents": true
         }
     ]
 }

@@ -52,6 +52,7 @@ var ITSAViewModel,
     TAGNAME = 'tagName',
     GALLERY = 'gallery-',
     ITSAVIEWMODEL = 'itsaviewmodel',
+    FOCUSED_CLASS = 'itsa-focused',
     BUTTON = 'button',
     MODEL = 'model',
     SAVE_FIRSTCAP = 'Save',
@@ -67,6 +68,7 @@ var ITSAViewModel,
     FUNCTION = 'function',
     EDITABLE = 'editable',
     CONTAINER = 'container',
+    DEF_PREV_FN = '_defPrevFn_',
     VALID_MODEL_EVENTS = {
         destroy: true,
         remove: true,
@@ -195,7 +197,21 @@ var ITSAViewModel,
     **/
     SUBMIT = 'submit',
 
+    /**
+      * Fired when view's model is submitted through the submit:auto event.
+      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
+      *
+      * @event modelsubmit:auto
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+      * @param e.model {Y.Model} modelinstance bound to the view
+      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
+      *
+    **/
+    AUTO = 'auto',
+
     CLICK = 'click',
+    CLICKOUTSIDE = CLICK+'outside',
     ABORT = 'abort',
     CANCEL = 'cancel',
     IGNORE = 'ignore',
@@ -393,7 +409,6 @@ var ITSAViewModel,
       *
     **/
     SAVE_CLICK = SAVE+CLICK;
-
 
 //===============================================================================================
 //
@@ -626,9 +641,9 @@ ITSAViewModel.prototype.initializer = function() {
      * @protected
     */
     YArray.each(
-        [DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK, VALIDATION_ERROR, UI_CHANGED],
+        [DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK, UI_CHANGED],
         function(event) {
-            instance['_defPrevFn_'+event] = function(e) {
+            instance[DEF_PREV_FN+event] = function(e) {
                 Y.log('preventDefaultFn of '+event, 'info', 'ITSA-ViewModel');
                 e.modelEventFacade.preventDefault();
             };
@@ -636,7 +651,7 @@ ITSAViewModel.prototype.initializer = function() {
             instance.publish(
                 event,
                 {
-                    preventedFn: Y.bind(instance['_defPrevFn_'+event], instance),
+                    preventedFn: Y.bind(instance[DEF_PREV_FN+event], instance),
                     emitFacade: true
                 }
             );
@@ -648,6 +663,16 @@ ITSAViewModel.prototype.initializer = function() {
         FOCUS_NEXT,
         {
             defaultFn: Y.bind(instance[DEF_FN+FOCUS_NEXT], instance),
+            emitFacade: true
+        }
+    );
+
+    // publishing event 'validationerror'
+    instance.publish(
+        VALIDATION_ERROR,
+        {
+            defaultFn: Y.bind(instance[DEF_FN+VALIDATION_ERROR], instance),
+            preventedFn: Y.bind(instance[DEF_PREV_FN+VALIDATION_ERROR], instance),
             emitFacade: true
         }
     );
@@ -765,6 +790,37 @@ ITSAViewModel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
             labelHTML: labelHTML || buttonId
         };
     }
+};
+
+/**
+ * Blur the focus of the view's container-node by removing the 'itsa-focused' class.
+ *
+ * @method blur
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.blur = function() {
+    Y.log('blur', 'info', 'ITSA-ViewModel');
+    this.get('container').removeClass(FOCUSED_CLASS);
+};
+
+/**
+ * Sets focus to the view's container-node by adding the 'itsa-focused' class. In case of focusable UI-elements, te right element regains the focus.
+ *
+ * @method focus
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.focus = function() {
+    Y.log('focus', 'info', 'ITSA-ViewModel');
+
+    var container = this.get('container'),
+        itsatabkeymanager = container.itsatabkeymanager;
+
+    container.addClass(FOCUSED_CLASS);
+/*jshint expr:true */
+    itsatabkeymanager && itsatabkeymanager._retreiveFocus();
+/*jshint expr:false */
 };
 
 /**
@@ -939,7 +995,7 @@ ITSAViewModel.prototype.render = function (clear) {
                 container.plug(Y.Plugin.ITSATabKeyManager);
                 itsatabkeymanager = container.itsatabkeymanager;
             }
-            if (instance.get('focused')) {
+            if (container.hasClass(FOCUSED_CLASS)) {
                 itsatabkeymanager.focusInitialItem();
             }
         });
@@ -1132,7 +1188,7 @@ ITSAViewModel.prototype._bindUI = function() {
                     prevVal.removeTarget && prevVal.removeTarget(instance);
                 }
                 newVal && newVal.addTarget && newVal.addTarget(instance);
-                (prevFormModel !== newFormModel) && instance._setTemplateRenderer(instance.get('template'), newFormModel && instance.get(EDITABLE));
+                (prevFormModel !== newFormModel) && instance._setTemplateRenderer(newFormModel && instance.get(EDITABLE));
 /*jshint expr:false */
                 instance.render();
             }
@@ -1217,25 +1273,41 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
     eventhandlers.push(
+        container.after(
+            CLICK,
+            function() {
+                container.addClass(FOCUSED_CLASS); // do not call focus(), because the tabkeymanager will set focus to UI itself: don't do this twice
+            }
+        )
+    );
+    eventhandlers.push(
+        container.after(
+            CLICKOUTSIDE,
+            function() {
+                container.removeClass(FOCUSED_CLASS);
+            }
+        )
+    );
+    eventhandlers.push(
         Y.Intl.after(
             'intl:lang'+CHANGE,
             function() {
                 instance._intl = Y.Intl.get(GALLERY+ITSAVIEWMODEL);
+                instance.render();
             }
         )
     );
 
     YArray.each(
-        [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD,
-//         DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK,
-         CLICK,
+        [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD, CLICK, AUTO,
          VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
             eventhandlers.push(
-                instance.on(
+                instance.after(
                     '*:'+event,
                     function(e) {
                         var validEvent = true,
+                            type = e.type,
                             newevent = event,
                             payload, button;
                         // check if e.target===instance, because it checks by *: and will recurse
@@ -1252,6 +1324,10 @@ ITSAViewModel.prototype._bindUI = function() {
                                    validEvent = false;
                                 }
                             }
+                            if (event===AUTO) {
+                                validEvent = (type===SUBMIT+':'+AUTO);
+                                newevent = MODEL+type;
+                            }
                             payload = {
                                 type: newevent,
                                 model: instance.get(MODEL),
@@ -1260,6 +1336,7 @@ ITSAViewModel.prototype._bindUI = function() {
                                 value: e.value,
                                 node: e.node,
                                 nodeid: e.nodeid,
+                                nodelist: e.nodelist, // in case of VALIDATION_ERROR
                                 formElement: e.formElement
                             };
                             Y.log('refiring model-event '+newevent+' by itsaviewmodel', 'info', 'ITSA-ViewModel');
@@ -1677,6 +1754,34 @@ ITSAViewModel.prototype[DEF_FN+FOCUS_NEXT] = function() {
     }
 };
 
+ITSAViewModel.prototype[DEF_PREV_FN+VALIDATION_ERROR] = function(e) {
+    Y.log('preventDefaultFn of '+VALIDATION_ERROR, 'info', 'ITSA-ViewModel');
+    e.modelEventFacade.preventDefault();
+};
+
+/**
+ * default function of focusnext-event.
+ * Will refocus to the next focusable UI-element.
+ *
+ * @method _defFn_validationerror
+ * @private
+*/
+ITSAViewModel.prototype[DEF_FN+VALIDATION_ERROR] = function(e) {
+    var node = e.nodelist.item(0);
+
+    Y.log('defaultFn of '+VALIDATION_ERROR, 'info', 'ITSA-ViewModel');
+    //focus first item that misses validation
+    if (node) {
+        // if the node does not have focus yet, setting the focus will lead to tipy-popup.
+        // when it already has the focus, no tipsy. Thus we need to popup ourselves
+        // because Y.Tipsy.showTooltip() does not respond to the 'hideon' events, we will call _handleDelegateStart manually:
+/*jshint expr:true */
+        (node.getDOMNode()===Y.config.doc.activeElement) ? Y.ITSAFormElement.tipsyInvalid._handleDelegateStart({currentTarget: node}) : node.focus();
+/*jshint expr:false */
+        node.scrollIntoView();
+    }
+};
+
 /**
  * Setter for attribute MODEL
  *
@@ -1712,7 +1817,7 @@ ITSAViewModel.prototype._setModel = function(v) {
  * is done either by Y.Lang.sub or by Y.Template.Micro, depending on the value of 'template'.
  *
  * @method _setTemplateRenderer
- * @param editTemplate {Boolean} whether or not the template should use UI-elements - from Y.ITSAFormElement
+ * @param editTemplate {Any} whether or not the template should use UI-elements - from Y.ITSAFormElement
  * @private
  * @chainable
  * @since 0.3

@@ -1,0 +1,1 @@
+YUI.add("lang/gallery-itsaviewmodel_da",function(e){e.Intl.add("gallery-itsaviewmodel","da",{cancel:"annullere",destroy:"destruere",remove:"fjern",reset:"nulstille",save:"gem",submit:"indsende",load:"indl\u00e6se",abort:"afbryde",ignore:"ignorere",retry:"pr\u00f8v igen",ok:"ok",yes:"ja",no:"nej",undefined_template:"skabelon er udefineret"})},"@VERSION@");

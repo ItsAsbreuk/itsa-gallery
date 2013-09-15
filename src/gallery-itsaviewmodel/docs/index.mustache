@@ -216,6 +216,11 @@ YUI().use('gallery-itsaviewmodel', function(Y) {
         <li><code>zh</code> (Chinese)</li>
     </ul>
 
+<h3>Validation</h3>
+    <p>
+        Validation is done through <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaformmodel/">Y.ITSAFormModel</a>, which supplies very nice and easy validationmethods. When validation fails, Y.ITSAViewModel will take care of refocussing to the first item whose validation failed.
+    </p>
+
 <h2>Memory management</h2>
     <p>
         When re-render a view that holds UI-elements, widgets might be re-rendered. Y.ITSAViewModel automaticly takes care of destroying the widgets that are no longer needed, or refreshed.
