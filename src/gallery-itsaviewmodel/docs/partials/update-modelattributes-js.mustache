@@ -14,8 +14,7 @@ YUI(yuiconfig).use('model', 'gallery-itsaviewmodel', function(Y) {
     view = new Y.ITSAViewModel({
         container: '#viewcont',
         model: artistobject,
-        template: artisttemplate,
-        styled: true
+        template: artisttemplate
     });
 
     view.render();

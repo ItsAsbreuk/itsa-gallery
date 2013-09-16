@@ -221,6 +221,11 @@ YUI().use('gallery-itsaviewmodel', function(Y) {
         Validation is done through <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaformmodel/">Y.ITSAFormModel</a>, which supplies very nice and easy validationmethods. When validation fails, Y.ITSAViewModel will take care of refocussing to the first item whose validation failed.
     </p>
 
+<h2>Styling</h2>
+    <p>
+        By default, the Y.ITSAViewModel comes with its own style. You can disable this by setting the attribute 'styled' to false, or better, overrule the css-class <code>.itsaviewmodel-styled</code>. To prevent flicker-effects, it is recomended to add the class <code>itsaviewmodel-styled</code> to the container manually.
+    </p>
+
 <h2>Memory management</h2>
     <p>
         When re-render a view that holds UI-elements, widgets might be re-rendered. Y.ITSAViewModel automaticly takes care of destroying the widgets that are no longer needed, or refreshed.

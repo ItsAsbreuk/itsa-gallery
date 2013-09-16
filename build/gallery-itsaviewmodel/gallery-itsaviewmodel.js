@@ -55,6 +55,7 @@ var ITSAViewModel,
     GALLERY = 'gallery-',
     ITSAVIEWMODEL = 'itsaviewmodel',
     FOCUSED_CLASS = 'itsa-focused',
+    STYLED = 'styled',
     BUTTON = 'button',
     MODEL = 'model',
     SAVE_FIRSTCAP = 'Save',
@@ -515,6 +516,21 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
             },
 
             /**
+             * Styles the view by adding the className 'itsaviewmodel-styled' to the container.
+             *
+             * @attribute styled
+             * @type {Boolean}
+             * @default true
+             * @since 0.3
+             */
+            styled: {
+                value: true,
+                validator: function(v){
+                    return (typeof v === BOOLEAN);
+                }
+            },
+
+            /**
              * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
              * where Y.Lang.sub is more lightweight.
              *
@@ -967,8 +983,9 @@ ITSAViewModel.prototype.render = function (clear) {
     if (!instance._rendered) {
 /*jshint expr:true */
         container.inDoc() || Y.one('body').append(container);
-        container.addClass(ITSAVIEWMODEL);
 /*jshint expr:false */
+        container.addClass(ITSAVIEWMODEL);
+        container.toggleClass(ITSAVIEWMODEL+'-'+STYLED, instance.get(STYLED));
         instance._bindUI();
     }
     instance._rendered = true;
@@ -1280,6 +1297,14 @@ ITSAViewModel.prototype._bindUI = function() {
             function() {
                 instance._intl = Y.Intl.get(GALLERY+ITSAVIEWMODEL);
                 instance.render();
+            }
+        )
+    );
+    eventhandlers.push(
+        instance.after(
+            STYLED+CHANGE,
+            function(e) {
+                container.toggleClass(ITSAVIEWMODEL+'-'+STYLED, e.newVal);
             }
         )
     );

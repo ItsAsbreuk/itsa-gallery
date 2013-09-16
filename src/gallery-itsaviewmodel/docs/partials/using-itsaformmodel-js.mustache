@@ -88,14 +88,12 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', f
         container: '#viewcontedit',
         model: artist,
         template: artisttemplateedit,
-        editable: true,
-        styled: true
+        editable: true
     });
     view = new Y.ITSAViewModel({
         container: '#viewcont',
         model: artist,
-        template: artisttemplate,
-        styled: true
+        template: artisttemplate
     });
 
     viewedit.render();
