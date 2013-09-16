@@ -1,0 +1,21 @@
+{
+    "name"       : "gallery-itsapanel",
+    "displayName": "Gallery: gallery-itsapanel",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsapanel" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "simple-panel",
+            "displayName": "Creating a simple panel",
+            "description": "This example shows how use ITSAPanel to render a panel.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaviewmodel", "model", "formelement", "form", "template"],
+            "hideTableOfContents": true
+        }
+    ]
+}

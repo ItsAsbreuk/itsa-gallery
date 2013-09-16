@@ -1,0 +1,18 @@
+{
+    "gallery-itsapanel": {
+        "requires": [
+            "dd-plugin",
+            "base-build",
+            "widget-autohide",
+            "widget-modality",
+            "widget-position",
+            "widget-position-align",
+            "widget-position-constrain",
+            "widget-stack",
+            "view",
+            "widget",
+            "gallery-itsawidgetrenderpromise"
+        ],
+        "skinnable": true
+    }
+}
