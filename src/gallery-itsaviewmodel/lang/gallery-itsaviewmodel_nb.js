@@ -1,5 +1,6 @@
 {
     cancel: 'avbryte',
+    close: 'lukke',
     destroy: 'ødelegge',
     remove: 'fjerne',
     reset: 'tilbakestille',

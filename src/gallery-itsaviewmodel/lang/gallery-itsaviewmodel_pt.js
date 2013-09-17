@@ -1,5 +1,6 @@
 {
     cancel: 'cancelar',
+    close: 'fechar',
     destroy: 'destruir',
     remove: 'remover',
     reset: 'restabelecer',

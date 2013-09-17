@@ -1,5 +1,6 @@
 {
     cancel: 'törlése',
+    close: 'közeli',
     destroy: 'elpusztít',
     remove: 'eltávolít',
     reset: 'visszaállítása',

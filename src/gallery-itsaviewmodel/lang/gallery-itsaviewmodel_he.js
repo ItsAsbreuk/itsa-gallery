@@ -1,5 +1,6 @@
 {
     cancel: 'לבטל',
+    close: 'לסגור',
     destroy: 'להרוס',
     remove: 'להסיר',
     reset: 'לאתחל',

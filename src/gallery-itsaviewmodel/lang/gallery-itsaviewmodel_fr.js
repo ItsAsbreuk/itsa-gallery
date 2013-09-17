@@ -1,5 +1,6 @@
 {
     cancel: 'résilier',
+    close: 'proche',
     destroy: 'détruire',
     remove: 'supprimer',
     reset: 'reset',

@@ -1,5 +1,6 @@
 {
     cancel: 'キャンセル',
+    close: '閉じる',
     destroy: '破壊する',
     remove: '削除する',
     reset: 'リセット',

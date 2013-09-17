@@ -1,5 +1,6 @@
 {
     cancel: 'zrušiť',
+    close: 'zavrieť',
     destroy: 'zničiť',
     remove: 'odstrániť',
     reset: 'obnoviť',

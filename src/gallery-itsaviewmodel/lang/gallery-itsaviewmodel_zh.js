@@ -1,5 +1,6 @@
 {
     cancel: '取消',
+    close: '關閉',
     destroy: '破壞',
     remove: '消除',
     reset: '復位',

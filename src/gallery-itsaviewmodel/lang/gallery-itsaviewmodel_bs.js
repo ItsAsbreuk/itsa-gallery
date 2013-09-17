@@ -1,5 +1,6 @@
 {
     cancel: 'otkazati',
+    close: 'zatvoriti',
     destroy: 'uništiti',
     remove: 'ukloniti',
     reset: 'resetovanje',

@@ -1,5 +1,6 @@
 {
     cancel: 'avbryta',
+    close: 'nära',
     destroy: 'förstöra',
     remove: 'avlägsna',
     reset: 'återställa',

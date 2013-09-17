@@ -1,5 +1,6 @@
 {
     cancel: 'peruuttaa',
+    close: 'lähellä',
     destroy: 'tuhota',
     remove: 'poistaa',
     reset: 'nollaa',

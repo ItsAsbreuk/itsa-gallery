@@ -90,6 +90,7 @@ var ITSAViewModel,
     PROTECTED_BUTTON_TYPES = {
         btn_abort: true,
         btn_cancel: true,
+        btn_close: true,
         btn_destroy: true,
         btn_ignore: true,
         btn_load: true,
@@ -103,6 +104,7 @@ var ITSAViewModel,
         btn_yes: true,
         imgbtn_abort: true,
         imgbtn_cancel: true,
+        imgbtn_close: true,
         imgbtn_destroy: true,
         imgbtn_ignore: true,
         imgbtn_load: true,
@@ -215,6 +217,7 @@ var ITSAViewModel,
     CLICKOUTSIDE = CLICK+'outside',
     ABORT = 'abort',
     CANCEL = 'cancel',
+    CLOSE = 'close',
     IGNORE = 'ignore',
     NO = 'no',
     OK = 'ok',
@@ -223,6 +226,7 @@ var ITSAViewModel,
     BTN = 'btn_',
     BTN_ABORT = BTN+ABORT,
     BTN_CANCEL = BTN+CANCEL,
+    BTN_CLOSE = BTN+CLOSE,
     BTN_DESTROY = BTN+DESTROY,
     BTN_IGNORE = BTN+IGNORE,
     BTN_LOAD = BTN+LOAD,
@@ -237,6 +241,7 @@ var ITSAViewModel,
     IMG = 'img',
     IMGBTN_ABORT = IMG+BTN_ABORT,
     IMGBTN_CANCEL = IMG+BTN_CANCEL,
+    IMGBTN_CLOSE = IMG+BTN_CLOSE,
     IMGBTN_DESTROY = IMG+BTN_DESTROY,
     IMGBTN_IGNORE = IMG+BTN_IGNORE,
     IMGBTN_LOAD = IMG+BTN_LOAD,
@@ -300,7 +305,7 @@ var ITSAViewModel,
     UI_CHANGED = 'uichanged',
 
     /**
-      * Fired when a template-button {btn_button}, {imgbtn_button} or {spinbtn_button} is clicked.
+      * Fired when a template-button {btn_button} or {imgbtn_button} is clicked.
       * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
       *
       * @event buttonclick
@@ -314,6 +319,22 @@ var ITSAViewModel,
       *
     **/
     BUTTON_CLICK = BUTTON+CLICK,
+
+    /**
+      * Fired when a template-button {btn_close} or {imgbtn_close} is clicked.
+      * Cannot be prevented or halted.
+      *
+      * @event buttonclose
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
+      * @param e.value {String} always === 'close'
+      * @param e.buttonNode {Y.Node} reference to the buttonnode
+      * @param e.formElement {Object} reference to the form-element
+      * @param e.model {Y.Model} modelinstance bound to the view
+      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
+      *
+    **/
+    BUTTON_CLOSE = BUTTON+CLOSE,
 
     /**
       * Fired when a template-button {btn_destroy} or {imgbtn_destroy} is clicked.
@@ -869,6 +890,7 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
  * <ul>
  *   <li>btn_abort</li>
  *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
  *   <li>btn_destroy</li>
  *   <li>btn_ignore</li>
  *   <li>btn_load</li>
@@ -882,6 +904,7 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
  *   <li>btn_yes</li>
  *   <li>imgbtn_abort</li>
  *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
  *   <li>imgbtn_destroy</li>
  *   <li>imgbtn_ignore</li>
  *   <li>imgbtn_load</li>
@@ -915,6 +938,7 @@ ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
  * <ul>
  *   <li>btn_abort</li>
  *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
  *   <li>btn_destroy</li>
  *   <li>btn_ignore</li>
  *   <li>btn_load</li>
@@ -928,6 +952,7 @@ ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
  *   <li>btn_yes</li>
  *   <li>imgbtn_abort</li>
  *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
  *   <li>imgbtn_destroy</li>
  *   <li>imgbtn_ignore</li>
  *   <li>imgbtn_load</li>
@@ -1037,6 +1062,7 @@ ITSAViewModel.prototype.render = function (clear) {
  * <ul>
  *   <li>btn_abort</li>
  *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
  *   <li>btn_destroy</li>
  *   <li>btn_ignore</li>
  *   <li>btn_load</li>
@@ -1050,6 +1076,7 @@ ITSAViewModel.prototype.render = function (clear) {
  *   <li>btn_yes</li>
  *   <li>imgbtn_abort</li>
  *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
  *   <li>imgbtn_destroy</li>
  *   <li>imgbtn_ignore</li>
  *   <li>imgbtn_load</li>
@@ -1090,6 +1117,7 @@ ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
  * <ul>
  *   <li>btn_abort</li>
  *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
  *   <li>btn_destroy</li>
  *   <li>btn_ignore</li>
  *   <li>btn_load</li>
@@ -1103,6 +1131,7 @@ ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
  *   <li>btn_yes</li>
  *   <li>imgbtn_abort</li>
  *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
  *   <li>imgbtn_destroy</li>
  *   <li>imgbtn_ignore</li>
  *   <li>imgbtn_load</li>
@@ -1365,9 +1394,14 @@ ITSAViewModel.prototype._bindUI = function() {
                                 formElement: e.formElement
                             };
                             Y.log('refiring model-event '+newevent+' by itsaviewmodel', 'info', 'ITSA-ViewModel');
-/*jshint expr:true */
-                            validEvent && instance.fire(newevent, payload);
-/*jshint expr:false */
+                            if (validEvent) {
+                                instance.fire(newevent, payload);
+                                if ((newevent===BUTTON_CLICK) && (e.value===CLOSE)) {
+                                    // also fire the buttonclose-event
+                                    payload.type = newevent = BUTTON_CLOSE;
+                                    instance.fire(newevent, payload);
+                                }
+                            }
                         }
                     }
                 )
@@ -1532,6 +1566,7 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
  * <ul>
  *   <li>btn_abort</li>
  *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
  *   <li>btn_destroy</li>
  *   <li>btn_ignore</li>
  *   <li>btn_load</li>
@@ -1545,6 +1580,7 @@ ITSAViewModel.prototype._clearEventhandlers = function() {
  *   <li>btn_yes</li>
  *   <li>imgbtn_abort</li>
  *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
  *   <li>imgbtn_destroy</li>
  *   <li>imgbtn_ignore</li>
  *   <li>imgbtn_load</li>
@@ -1586,6 +1622,12 @@ ITSAViewModel.prototype._createButtons = function() {
             type: BUTTON,
             config: {value: CANCEL, hotkey: hotkeys[BTN_CANCEL]},
             labelHTML: function() { return customBtnLabels[BTN_CANCEL] ? Lang.sub(customBtnLabels[BTN_CANCEL], {label: instance._intl[CANCEL]}) : instance._intl[CANCEL]; }
+        },
+        {
+            propertykey: BTN_CLOSE,
+            type: BUTTON,
+            config: {value: CLOSE, hotkey: hotkeys[BTN_CLOSE]},
+            labelHTML: function() { return customBtnLabels[BTN_CLOSE] ? Lang.sub(customBtnLabels[BTN_CLOSE], {label: instance._intl[CLOSE]}) : instance._intl[CLOSE]; }
         },
         {
             propertykey: BTN_DESTROY,
@@ -1664,6 +1706,12 @@ ITSAViewModel.prototype._createButtons = function() {
             type: BUTTON,
             config: {classname: BUTTON_ICON_LEFT, value: CANCEL, hotkey: hotkeys[IMGBTN_CANCEL]},
             labelHTML: function() { return customBtnLabels[IMGBTN_CANCEL] ? Lang.sub(customBtnLabels[IMGBTN_CANCEL], {label: instance._intl[CANCEL]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CANCEL]); }
+        },
+        {
+            propertykey: IMGBTN_CLOSE,
+            type: BUTTON,
+            config: {classname: BUTTON_ICON_LEFT, value: CLOSE, hotkey: hotkeys[IMGBTN_CLOSE]},
+            labelHTML: function() { return customBtnLabels[IMGBTN_CLOSE] ? Lang.sub(customBtnLabels[IMGBTN_CLOSE], {label: instance._intl[CLOSE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: CANCEL})+instance._intl[CLOSE]); }
         },
         {
             propertykey: IMGBTN_DESTROY,
