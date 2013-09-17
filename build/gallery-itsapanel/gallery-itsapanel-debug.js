@@ -39,6 +39,8 @@ YUI.add('gallery-itsapanel', function (Y, NAME) {
 var ITSAPanel,
     YArray = Y.Array,
     Lang = Y.Lang,
+    GALLERYCSS_ITSA = 'gallerycss-itsa-',
+    DESTROYED = 'destroyed',
     STRING = 'string',
     BOOLEAN = 'boolean',
     VISIBLE = 'visible',
@@ -116,7 +118,7 @@ var ITSAPanel,
     BUTTON_CLICK = BUTTON+CLICK;
 
 
-ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
+ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
     // Som other Widget extensions depend on Y.WidgetPosition, so set this one first.
     Y.WidgetPosition,
 
@@ -199,6 +201,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
          */
         height: {
             value: null,
+            lazyAdd: false,
             validator: function(val) {
                 return (val===null) || (typeof val===NUMBER);
             },
@@ -308,6 +311,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
          */
         width: {
             value: null,
+            lazyAdd: false,
             validator: function(val) {
                 return (val===null) || (typeof val===NUMBER);
             },
@@ -325,11 +329,10 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
 
 ITSAPanel.prototype.initializer = function() {
     var instance = this,
-        contentBox = instance.get(CONTENTBOX),
         boundingBox = instance.get(BOUNDINGBOX);
 
     // asynchroniously loading fonticons:
-    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-form');
+    Y.use(GALLERYCSS_ITSA+'base', GALLERYCSS_ITSA+'form');
 
     /**
      * Internal list of all eventhandlers bound by this widget.
@@ -348,11 +351,22 @@ ITSAPanel.prototype.initializer = function() {
 /*jshint expr:true */
     instance.renderPromise().then(
         function() {
-            contentBox.setStyle('height', contentBox.get(OFFSETHEIGHT)+PX);
-            contentBox.setStyle('width', contentBox.get(OFFSETWIDTH)+PX);
+            instance._setDimensions();
             instance.get(VISIBLE) && boundingBox.removeClass(HIDDENPANELCLASS);
         }
     );
+/*jshint expr:false */
+};
+
+ITSAPanel.prototype._setDimensions = function() {
+    var instance = this,
+        contentBox = instance.get(CONTENTBOX);
+// only if dimensions not set manually, we need to remove these first, then set the calculated values
+/*jshint expr:true */
+    instance._widthSet || contentBox.setStyle('width', '');
+    instance._heightSet || contentBox.setStyle('height', '');
+    instance._widthSet || contentBox.setStyle('width', contentBox.get(OFFSETWIDTH)+PX);
+    instance._heightSet || contentBox.setStyle('height', contentBox.get(OFFSETHEIGHT)+PX);
 /*jshint expr:false */
 };
 
@@ -371,12 +385,12 @@ ITSAPanel.prototype.bindUI = function() {
     (footerView instanceof Y.View) && footerView.addTarget(instance);
 
     instance.get(DRAGABLE) && instance.get(FLOATED) && Y.use(DD+PLUGIN, function() {
-        boundingBox.plug(Y.Plugin.Drag);
-        boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
+        instance.get(DESTROYED) || boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS);
     });
     instance.get(RESIZABLE) && Y.use(RESIZE+PLUGIN, function() {
-        contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']});
-        contentBox.resize.addTarget(instance);
+            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
+        instance.get(DESTROYED) || contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']}).resize.addTarget(instance);
     });
 /*jshint expr:false */
 
@@ -385,9 +399,9 @@ ITSAPanel.prototype.bindUI = function() {
             boundingBox.toggleClass(INLINECLASS, !e.newVal);
             if (instance.get(DRAGABLE)) {
 /*jshint expr:true */
+            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
                 e.newVal && !boundingBox.dd && Y.use(DD+PLUGIN, function() {
-                    boundingBox.plug(Y.Plugin.Drag);
-                    boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+                    instance.get(DESTROYED) || boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS);
                 });
                 !e.newVal && boundingBox.dd && boundingBox.unplug(DD);
 /*jshint expr:false */
@@ -398,9 +412,9 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(DRAGABLE+CHANGE, function(e) {
 /*jshint expr:true */
+            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
             e.newVal && instance.get(FLOATED) && !boundingBox.dd && Y.use(DD+PLUGIN, function() {
-                boundingBox.plug(Y.Plugin.Drag);
-                boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+                instance.get(DESTROYED) || boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS);
             });
             !e.newVal && boundingBox.dd && boundingBox.unplug(DD);
 /*jshint expr:false */
@@ -410,11 +424,11 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(RESIZABLE+CHANGE, function(e) {
 /*jshint expr:true */
+            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
             e.newVal && !contentBox[RESIZE] && Y.use(RESIZE+PLUGIN, function() {
-                contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']});
-                contentBox.resize.addTarget(instance);
+                instance.get(DESTROYED) || contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']}).resize.addTarget(instance);
             });
-            !e.newVal && contentBox[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox.unplug(RESIZE);
+            !e.newVal && contentBox[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox[RESIZE].unplug(RESIZE);
 /*jshint expr:false */
         })
     );
@@ -579,7 +593,7 @@ ITSAPanel.prototype._renderHeader = function() {
         instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {panel_title: (title || '')}));
     }
     else if (headerView instanceof Y.View) {
-        headerView.set('container', instance._header);
+        headerView._set('container', instance._header);
 /*jshint expr:true */
         headerView.render && headerView.render();
 /*jshint expr:false */
@@ -593,7 +607,7 @@ ITSAPanel.prototype._renderBody = function() {
         instance._body.setHTML(bodyView || DEFAULT_BODYVIEW);
     }
     else if (bodyView instanceof Y.View) {
-        bodyView.set('container', instance._body);
+        bodyView._set('container', instance._body);
 /*jshint expr:true */
         bodyView.render && bodyView.render();
 /*jshint expr:false */
@@ -613,7 +627,7 @@ ITSAPanel.prototype._renderFooter = function() {
             instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {panel_footer: (footer || '')}));
         }
         else if (footerView instanceof Y.View) {
-            footerView.set('container', instance._footer);
+            footerView._set('container', instance._footer);
 /*jshint expr:true */
             footerView.render && footerView.render();
 /*jshint expr:false */
@@ -647,6 +661,7 @@ ITSAPanel.prototype._setHeight = function(val) {
     val && (val-=GETSTYLE(boundingBox, BORDERTOPWIDTH)+GETSTYLE(boundingBox, BORDERBOTTOMWIDTH));
 /*jshint expr:false */
     instance.get(CONTENTBOX).setStyle('height', (val ? (val+PX) : ''));
+    instance._heightSet = (typeof val === NUMBER);
 };
 ITSAPanel.prototype._setMaxHeight = function(val) {
     this.get(CONTENTBOX).setStyle('maxHeight', (val ? (val+PX) : ''));
@@ -667,11 +682,13 @@ ITSAPanel.prototype._setWidth = function(val) {
     val && (val-=GETSTYLE(boundingBox, BORDERLEFTWIDTH)+GETSTYLE(boundingBox, BORDERRIGHTWIDTH));
 /*jshint expr:false */
     instance.get(CONTENTBOX).setStyle('width', (val ? (val+PX) : ''));
+    instance._widthSet = (typeof val === NUMBER);
 };
 
 }, '@VERSION@', {
     "requires": [
         "node-pluginhost",
+        "dd-ddm",
         "base-build",
         "widget-autohide",
         "widget-modality",

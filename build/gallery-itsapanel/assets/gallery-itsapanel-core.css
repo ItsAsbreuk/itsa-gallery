@@ -9,6 +9,7 @@
 .itsa-panel {
     position: absolute !important;
     z-index: 2 !important;
+    overflow: hidden;
     border: solid 1px #000;
     font-size: 100%;
     -webkit-box-shadow: 5px 5px 6px rgba(50, 50, 50, 0.45);
@@ -42,18 +43,24 @@
 .itsa-panel .itsa-panelheader {
     top: 0;
 }
+.itsa-panel .itsa-panelbody {
+    position: static;
+}
 .itsa-panel .itsa-panelfooter {
     bottom: 0;
+    text-align: right;
 }
-.itsa-panel .itsa-panelinnerheader,
+.itsa-panel .itsa-panelinnerheader {
+    padding: 0.7em;
+}
 .itsa-panel .itsa-panelinnerfooter {
-    padding: 0.7em 0 0.7em 0.7em;
+    padding: 0.7em 1.2em;
 }
 .itsa-panel .itsa-panelinnerbody {
-    padding: 1em 0.7em;
+    padding: 1em 1.2em;
 }
 .itsa-panel >div {
-    min-width: 200px;
+    min-width: 300px;
     min-height: 100px;
     position: relative;
 }

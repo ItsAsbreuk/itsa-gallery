@@ -1,0 +1,11 @@
+
+
+YUI(yuiconfig).use('dd-plugin', 'resize-plugin', function(Y) {
+
+    var dragnode = Y.one('#mynode');
+    dragnode.plug(Y.Plugin.Drag);
+    dragnode.dd.addHandle('h1');
+    dragnode.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']});
+
+
+});

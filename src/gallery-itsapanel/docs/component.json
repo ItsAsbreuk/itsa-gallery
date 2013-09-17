@@ -16,6 +16,15 @@
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaviewmodel", "model", "formelement", "form", "template"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "view-panel",
+            "displayName": "Creating a Panel with Y.View-content",
+            "description": "This example shows how use ITSAPanel to render a panel.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
+            "tags"    : ["gallery-itsaviewmodel", "model", "formelement", "form", "template"],
+            "hideTableOfContents": true
         }
     ]
 }
