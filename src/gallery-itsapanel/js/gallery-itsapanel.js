@@ -89,7 +89,7 @@ var ITSAPanel,
     BODYTEMPLATE = '<div class="'+PANELBODYCLASS+'"><div class="'+PANELBODYINNERCLASS+'"></div></div>',
     FOOTERTEMPLATE = '<div class="'+PANELFOOTERCLASS+'"><div class="'+PANELFOOTERINNERCLASS+'"></div></div>',
 
-    DEFAULT_HEADERVIEW = '{panel_title}<button class="pure-button itsabutton-onlyicon '+ITSA_PANELCLOSEBTN+'"><i class="itsaicon-form-abort"></i></button>',
+    DEFAULT_HEADERVIEW = '{panel_title}<button class="pure-button itsabutton-onlyicon '+ITSA_PANELCLOSEBTN+'" data-focusable="true"><i class="itsaicon-form-abort"></i></button>',
     DEFAULT_BODYVIEW = '',
     DEFAULT_FOOTERVIEW = '{panel_footer}',
 
