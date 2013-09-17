@@ -1,7 +1,7 @@
 {
     "gallery-itsapanel": {
         "requires": [
-            "dd-plugin",
+            "node-pluginhost",
             "base-build",
             "widget-autohide",
             "widget-modality",

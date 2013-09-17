@@ -5,8 +5,8 @@ YUI(yuiconfig).use('gallery-itsapanel', function(Y) {
         boundingBox: '#panel1',
         visible: true,
         centered: true,
-      //  modal: true,
-//        floated: false,
+//        modal: true,
+        floated: false,
         title: 'settings',
         footer: 'ready',
         bodyView: 'line1<br>line2<br>line3<br>line4<br>line5<br>line6<br>line7<br>line8<br>line9<br>line10<br>'
@@ -14,20 +14,26 @@ YUI(yuiconfig).use('gallery-itsapanel', function(Y) {
 
     panel1.render();
 */
+
     panel2 = new Y.ITSAPanel({
         boundingBox: '#panel2',
         visible: true,
         centered: true,
-        modal: true,
+ //       modal: true,
 //        floated: false,
         title: 'settings',
         footer: 'ready',
         dragable: true,
-        maxWidth: 200,
-        maxHeight: 200,
+        resizable: true,
+        minWidth: 400,
+        maxWidth: 800,
+        minHeight: 200,
+        maxHeight: 250,
+        height: 250,
+        width: 600,
         bodyView: 'line1<br>line2<br>line3<br>line4<br>line5<br>line6<br>line7<br>line8<br>line9<br>line10<br>line11<br>line12<br>'
     });
 
     panel2.render();
-
+Y.one('.itsabutton-onlyicon').focus();
 });

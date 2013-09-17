@@ -8,6 +8,7 @@
 }
 .itsa-panel {
     position: absolute !important;
+    z-index: 2 !important;
     border: solid 1px #000;
     font-size: 100%;
     -webkit-box-shadow: 5px 5px 6px rgba(50, 50, 50, 0.45);
@@ -62,15 +63,23 @@
 .itsa-panel .itsa-panelclosebtn {
     cursor: pointer;
     position: absolute;
-    font-size: 80%;
-    padding: 0.7em;
-    margin-right: -0.1em;
-    right: 0;
-    top: 0;
+    right: 0.15em;
+    top: 0.15em;
     opacity: 0.5;
     filter: alpha(opacity=50);
 }
-.itsa-panel .itsa-panelclosebtn:hover {
+.itsa-panel .itsa-panelheader .pure-button {
+    font-size: 80%;
+}
+.itsa-panel .itsa-panelclosebtn.pure-button {
+    background: none;
+    border: none;
+}
+.itsa-panel.itsa-styledpanel .itsa-panelclosebtn.pure-button {
+    color: #FFF;
+}
+.itsa-panel .itsa-panelclosebtn:hover,
+.itsa-panel .itsa-panelclosebtn:focus {
     opacity: 1;
     filter: alpha(opacity=100);
 }
@@ -81,18 +90,20 @@
     height: 100%;
     overflow-y: auto;
 }
-
-
+.yui3-widget-mask {
+    background-color: #000000;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+    z-index: 1 !important;
+}
 .itsa-panel.itsa-styledpanel {
     background-color: #FFF;
     color: #333;
 }
-
 .itsa-panel.itsa-styledpanel .itsa-panelfooter {
     background-color: #F5F4F1;
     border-top: 1px solid #EAE6DB;
 }
-
 .itsa-panel.itsa-styledpanel .itsa-panelheader {
     color: #FFF;
     border-bottom: 1px solid #2647A0;

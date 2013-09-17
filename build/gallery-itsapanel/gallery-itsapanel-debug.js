@@ -2,6 +2,8 @@ YUI.add('gallery-itsapanel', function (Y, NAME) {
 
 'use strict';
 
+/*jshint maxlen:200 */
+
 /**
  *
  * Widget ITSAPanel
@@ -56,9 +58,19 @@ var ITSAPanel,
     RENDERED = 'rendered',
     NUMBER = 'number',
     OFFSETHEIGHT = 'offsetHeight',
+    OFFSETWIDTH = 'offsetWidth',
+    BORDERTOPWIDTH = 'borderTopWidth',
+    BORDERBOTTOMWIDTH = 'borderBottomWidth',
+    BORDERLEFTWIDTH = 'borderLeftWidth',
+    BORDERRIGHTWIDTH = 'borderRightWidth',
+    MODAL = 'modal',
     PX = 'px',
+    CENTERED = 'centered',
     DRAGABLE = 'dragable',
+    RESIZE = 'resize',
+    RESIZABLE = 'resizable',
     DD = 'dd',
+    PLUGIN = '-plugin',
     STYLED = 'styled',
     PANELCLASS = ITSA+PANEL,
     STYLEDPANELCLASS = ITSA+STYLED+PANEL,
@@ -79,13 +91,30 @@ var ITSAPanel,
     BODYTEMPLATE = '<div class="'+PANELBODYCLASS+'"><div class="'+PANELBODYINNERCLASS+'"></div></div>',
     FOOTERTEMPLATE = '<div class="'+PANELFOOTERCLASS+'"><div class="'+PANELFOOTERINNERCLASS+'"></div></div>',
 
-    DEFAULT_HEADERVIEW = '{panel_title}<div class="'+ITSA_PANELCLOSEBTN+'"><i class="itsaicon-form-abort"></i></div>',
+    DEFAULT_HEADERVIEW = '{panel_title}<button class="pure-button itsabutton-onlyicon '+ITSA_PANELCLOSEBTN+'"><i class="itsaicon-form-abort"></i></button>',
     DEFAULT_BODYVIEW = '',
     DEFAULT_FOOTERVIEW = '{panel_footer}',
 
     GETSTYLE = function(node, prop) {
         return parseInt(node.getStyle(prop), 10);
-    };
+    },
+
+    BUTTON = 'button',
+    CLICK = 'click',
+    VALUE = 'value',
+    /**
+      * Fired when a button inside the panel is pressed.
+      * Convenience-event, cannot be prevented or halted --> use the button-node's click to do that.
+      *
+      * @event buttonclick
+      * @param e {EventFacade} Event Facade including:
+      * @param e.target {Y.ITSAPanel} The ITSAPanel-instance
+      * @param e.value {Any} Should be used to identify the button --> buttons value
+      * @param e.buttonNode {Y.Node} reference to the buttonnode
+      *
+    **/
+    BUTTON_CLICK = BUTTON+CLICK;
+
 
 ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
     // Som other Widget extensions depend on Y.WidgetPosition, so set this one first.
@@ -120,11 +149,11 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
          * @attribute dragable
          * @description Boolean indicating whether or not the Panel floats above the page.
          * When floated, then all floated attributes like: modal, x, y, centered are disregarded.
-         * @default tue
+         * @default false
          * @type boolean
          */
         dragable: {
-            value: true,
+            value: false,
             validator: function(val) {
                 return (typeof val===BOOLEAN);
             }
@@ -163,6 +192,20 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
             setter: '_setHeaderView'
         },
         /**
+         * @attribute height
+         * @description height of the Panel
+         * @default null
+         * @type number
+         */
+        height: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===NUMBER);
+            },
+            getter: '_getHeight',
+            setter: '_setHeight'
+        },
+        /**
          * @attribute maxHeight
          * @description Boolean indicating whether or not the Panel is visible.
          * @default false
@@ -191,6 +234,47 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
             setter: '_setMaxWidth'
         },
         /**
+         * @attribute minHeight
+         * @description Boolean indicating whether or not the Panel is visible.
+         * @default false
+         * @type boolean
+         */
+        minHeight: {
+            value: null,
+            lazyAdd: false,
+            validator: function(val) {
+                return (val===null) || (typeof val===NUMBER);
+            },
+            setter: '_setMinHeight'
+        },
+        /**
+         * @attribute minWidth
+         * @description Boolean indicating whether or not the Panel is visible.
+         * @default false
+         * @type boolean
+         */
+        minWidth: {
+            value: null,
+            lazyAdd: false,
+            validator: function(val) {
+                return (val===null) || (typeof val===NUMBER);
+            },
+            setter: '_setMinWidth'
+        },
+        /**
+         * @attribute resizable
+         * @description Boolean indicating whether or not the Panel is resizable.
+         * This will be constrained between minWidth/minHeight and maxWidth/MaxHeight (if set).
+         * @default false
+         * @type boolean
+         */
+        resizable: {
+            value: false,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
+            }
+        },
+        /**
          * Styles the Panel by adding the className 'itsa-styledpanel' to the container.
          *
          * @attribute styled
@@ -216,6 +300,20 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
                 return (typeof val===BOOLEAN);
             }
         },
+        /**
+         * @attribute width
+         * @description width of the Panel
+         * @default null
+         * @type number
+         */
+        width: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===NUMBER);
+            },
+            getter: '_getWidth',
+            setter: '_setWidth'
+        },
         title : {
             value: null,
             validator: function(val) {
@@ -227,6 +325,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('ITSAPanel', Y.Widget, [
 
 ITSAPanel.prototype.initializer = function() {
     var instance = this,
+        contentBox = instance.get(CONTENTBOX),
         boundingBox = instance.get(BOUNDINGBOX);
 
     // asynchroniously loading fonticons:
@@ -242,14 +341,25 @@ ITSAPanel.prototype.initializer = function() {
     instance._eventhandlers = [];
 
     boundingBox.addClass(PANELCLASS);
-    boundingBox.toggleClass(HIDDENPANELCLASS, !instance.get(VISIBLE));
     boundingBox.toggleClass(INLINECLASS, !instance.get(FLOATED));
     boundingBox.toggleClass(STYLEDPANELCLASS, instance.get(STYLED));
+    // hide boundingBox by default and maybe inhide when rendered --> otherwise there might be a flicker effect when resetting its height
+    boundingBox.addClass(HIDDENPANELCLASS);
+/*jshint expr:true */
+    instance.renderPromise().then(
+        function() {
+            contentBox.setStyle('height', contentBox.get(OFFSETHEIGHT)+PX);
+            contentBox.setStyle('width', contentBox.get(OFFSETWIDTH)+PX);
+            instance.get(VISIBLE) && boundingBox.removeClass(HIDDENPANELCLASS);
+        }
+    );
+/*jshint expr:false */
 };
 
 ITSAPanel.prototype.bindUI = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
+        contentBox = instance.get(CONTENTBOX),
         eventhandlers = instance._eventhandlers,
         headerView = instance.get(HEADERVIEW),
         bodyView = instance.get(BODYVIEW),
@@ -260,8 +370,14 @@ ITSAPanel.prototype.bindUI = function() {
     (bodyView instanceof Y.View) && bodyView.addTarget(instance);
     (footerView instanceof Y.View) && footerView.addTarget(instance);
 
-    // IMPORTANT NOTE: dd-plugin needs to be a first dependenced module, it CANNOT be loaded afterwards, that seems to lead to an error
-    instance.get(DRAGABLE) && instance.get(FLOATED) && boundingBox.plug(Y.Plugin.Drag) && boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+    instance.get(DRAGABLE) && instance.get(FLOATED) && Y.use(DD+PLUGIN, function() {
+        boundingBox.plug(Y.Plugin.Drag);
+        boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+    });
+    instance.get(RESIZABLE) && Y.use(RESIZE+PLUGIN, function() {
+        contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']});
+        contentBox.resize.addTarget(instance);
+    });
 /*jshint expr:false */
 
     eventhandlers.push(
@@ -269,8 +385,10 @@ ITSAPanel.prototype.bindUI = function() {
             boundingBox.toggleClass(INLINECLASS, !e.newVal);
             if (instance.get(DRAGABLE)) {
 /*jshint expr:true */
-                // IMPORTANT NOTE: dd-plugin needs to be a first dependenced module, it CANNOT be loaded afterwards, that seems to lead to an error
-                e.newVal && !boundingBox.dd && boundingBox.plug(Y.Plugin.Drag) && boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+                e.newVal && !boundingBox.dd && Y.use(DD+PLUGIN, function() {
+                    boundingBox.plug(Y.Plugin.Drag);
+                    boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+                });
                 !e.newVal && boundingBox.dd && boundingBox.unplug(DD);
 /*jshint expr:false */
             }
@@ -280,11 +398,36 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(DRAGABLE+CHANGE, function(e) {
 /*jshint expr:true */
-            // IMPORTANT NOTE: dd-plugin needs to be a first dependenced module, it CANNOT be loaded afterwards, that seems to lead to an error
-            e.newVal && instance.get(FLOATED) && !boundingBox.dd && boundingBox.plug(Y.Plugin.Drag) && boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+            e.newVal && instance.get(FLOATED) && !boundingBox.dd && Y.use(DD+PLUGIN, function() {
+                boundingBox.plug(Y.Plugin.Drag);
+                boundingBox.dd.addHandle('.'+PANELHEADERCLASS);
+            });
             !e.newVal && boundingBox.dd && boundingBox.unplug(DD);
 /*jshint expr:false */
         })
+    );
+
+    eventhandlers.push(
+        instance.after(RESIZABLE+CHANGE, function(e) {
+/*jshint expr:true */
+            e.newVal && !contentBox[RESIZE] && Y.use(RESIZE+PLUGIN, function() {
+                contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']});
+                contentBox.resize.addTarget(instance);
+            });
+            !e.newVal && contentBox[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox.unplug(RESIZE);
+/*jshint expr:false */
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(
+            [RESIZE+':end', 'height'+CHANGE, 'width'+CHANGE, 'minHeight'+CHANGE, 'minWidth'+CHANGE],
+            function() {
+/*jshint expr:true */
+                instance.get(CENTERED) && instance.centered();
+/*jshint expr:false */
+            }
+        )
     );
 
     eventhandlers.push(
@@ -316,11 +459,35 @@ ITSAPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
+        instance.on(
+            MODAL+CHANGE,
+            function(e) {
+/*jshint expr:true */
+                !instance.get(FLOATED) && e.preventDefault();
+/*jshint expr:false */
+            }
+        )
+    );
+
+    eventhandlers.push(
         instance._header.delegate(
-            'click',
+            CLICK,
             Y.bind(instance.hide, instance),
             '.'+ITSA_PANELCLOSEBTN
         )
+    );
+
+    eventhandlers.push(
+        contentBox.on(CLICK, function(e) {
+            var buttonNode = e.target,
+                payload = {
+                    type: BUTTON_CLICK,
+                    target: instance,
+                    value: buttonNode.get(VALUE),
+                    buttonNode: buttonNode
+                };
+            instance.fire(BUTTON_CLICK, payload);
+        })
     );
 
     eventhandlers.push(
@@ -352,6 +519,7 @@ ITSAPanel.prototype.renderUI = function() {
 ITSAPanel.prototype.destructor = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
+        contentBox = instance.get(CONTENTBOX),
         headerView = instance.get(HEADERVIEW),
         bodyView = instance.get(BODYVIEW),
         footerView = instance.get(FOOTERVIEW);
@@ -361,7 +529,8 @@ ITSAPanel.prototype.destructor = function() {
     (headerView instanceof Y.View) && headerView.removeTarget(instance);
     (bodyView instanceof Y.View) && bodyView.removeTarget(instance);
     (footerView instanceof Y.View) && footerView.removeTarget(instance);
-    boundingBox.hasPlugin('dd') && boundingBox.unplug(DD);
+    boundingBox.hasPlugin(DD) && boundingBox.unplug(DD);
+    contentBox.hasPlugin[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox.unplug(RESIZE);
 /*jshint expr:false */
     instance._clearEventhandlers();
 };
@@ -392,6 +561,14 @@ ITSAPanel.prototype._clearEventhandlers = function() {
             item.detach();
         }
     );
+};
+
+ITSAPanel.prototype._getHeight = function() {
+    this.get(BOUNDINGBOX).get(OFFSETHEIGHT);
+};
+
+ITSAPanel.prototype._getWidth = function() {
+    this.get(BOUNDINGBOX).get(OFFSETWIDTH);
 };
 
 ITSAPanel.prototype._renderHeader = function() {
@@ -463,22 +640,38 @@ ITSAPanel.prototype._setHeaderView = function() {
     instance.get(RENDERED) && instance._renderHeader();
 /*jshint expr:false */
 };
+ITSAPanel.prototype._setHeight = function(val) {
+    var instance = this,
+        boundingBox = instance.get(BOUNDINGBOX);
+/*jshint expr:true */
+    val && (val-=GETSTYLE(boundingBox, BORDERTOPWIDTH)+GETSTYLE(boundingBox, BORDERBOTTOMWIDTH));
+/*jshint expr:false */
+    instance.get(CONTENTBOX).setStyle('height', (val ? (val+PX) : ''));
+};
 ITSAPanel.prototype._setMaxHeight = function(val) {
-    var instance = this;
-    instance.renderPromise().then(
-        function() {
-            var contentBox = instance.get(CONTENTBOX);
-            instance._body.setStyle('maxHeight', (val ? ((val-GETSTYLE(contentBox, PADDINGTOP)-GETSTYLE(contentBox, PADDINGBOTTOM))+PX) : ''));
-        }
-    );
+    this.get(CONTENTBOX).setStyle('maxHeight', (val ? (val+PX) : ''));
 };
 ITSAPanel.prototype._setMaxWidth = function(val) {
     this.get(CONTENTBOX).setStyle('maxWidth', (val ? (val+PX) : ''));
 };
+ITSAPanel.prototype._setMinHeight = function(val) {
+    this.get(CONTENTBOX).setStyle('minHeight', (val ? (val+PX) : ''));
+};
+ITSAPanel.prototype._setMinWidth = function(val) {
+    this.get(CONTENTBOX).setStyle('minWidth', (val ? (val+PX) : ''));
+};
+ITSAPanel.prototype._setWidth = function(val) {
+    var instance = this,
+        boundingBox = instance.get(BOUNDINGBOX);
+/*jshint expr:true */
+    val && (val-=GETSTYLE(boundingBox, BORDERLEFTWIDTH)+GETSTYLE(boundingBox, BORDERRIGHTWIDTH));
+/*jshint expr:false */
+    instance.get(CONTENTBOX).setStyle('width', (val ? (val+PX) : ''));
+};
 
 }, '@VERSION@', {
     "requires": [
-        "dd-plugin",
+        "node-pluginhost",
         "base-build",
         "widget-autohide",
         "widget-modality",
