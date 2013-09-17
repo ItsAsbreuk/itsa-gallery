@@ -46,6 +46,8 @@ var ITSAViewModel,
     YArray = Y.Array,
     YObject = Y.Object,
     YIntl = Y.Intl,
+    PURE_FORM = 'pure-form',
+    DEF_FORM_CLASS = PURE_FORM+' '+PURE_FORM+'-aligned',
     BUTTON_ICON_LEFT = 'itsabutton-iconleft',
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
@@ -263,7 +265,7 @@ var ITSAViewModel,
     SPINBTN_SUBMIT = SPIN+BTN_SUBMIT,
 
     /**
-      * Fired when a UI-elemnt needs to ficuds to the next element (in case of editable view).
+      * Fired when a UI-elemnt needs to focus to the next element (in case of editable view).
       * The defaultFunc will refocus to the next field (when the view has focus).
       * Convenience-event which takes place together with the underlying models-event.
       *
@@ -1027,7 +1029,7 @@ ITSAViewModel.prototype.render = function (clear) {
     }
     instance._rendered = true;
 /*jshint expr:true */
-    (html.length>0) && editMode && instance._viewNeedsForm && (html='<form>'+html+'</form>');
+    (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
 /*jshint expr:false */
     container.setHTML(html);
     instance._setFocusManager(editMode && instance.get(FOCUSMANAGED));
@@ -1854,15 +1856,17 @@ ITSAViewModel.prototype._setFocusManager = function(activate) {
     if (activate) {
         // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
         Y.use(GALLERY+ITSATABKEYMANAGER, function() {
-            if (itsatabkeymanager) {
-                itsatabkeymanager.refresh(container);
-            }
-            else {
-                container.plug(Y.Plugin.ITSATabKeyManager);
-                itsatabkeymanager = container.itsatabkeymanager;
-            }
-            if (container.hasClass(FOCUSED_CLASS)) {
-                itsatabkeymanager.focusInitialItem();
+            if (!instance.get(DESTROYED)) {
+                if (itsatabkeymanager) {
+                    itsatabkeymanager.refresh(container);
+                }
+                else {
+                    container.plug(Y.Plugin.ITSATabKeyManager);
+                    itsatabkeymanager = container.itsatabkeymanager;
+                }
+                if (container.hasClass(FOCUSED_CLASS)) {
+                    itsatabkeymanager.focusInitialItem();
+                }
             }
         });
     }
