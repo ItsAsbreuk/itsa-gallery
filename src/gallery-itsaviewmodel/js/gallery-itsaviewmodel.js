@@ -66,10 +66,11 @@ var ITSAViewModel,
     DEF_FN = '_defFn_',
     BOOLEAN = 'boolean',
     STRING = 'string',
-    FUNCTION = 'function',
     EDITABLE = 'editable',
     CONTAINER = 'container',
     DEF_PREV_FN = '_defPrevFn_',
+    ITSATABKEYMANAGER = 'itsatabkeymanager',
+    FOCUSMANAGED = 'focusManaged',
     VALID_MODEL_EVENTS = {
         destroy: true,
         remove: true,
@@ -519,7 +520,20 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                     return (v && model && model.toJSONUI);
                 }
             },
-
+            /**
+             * Determines whether tabbing through the elements is managed by gallery-itsatabkeymanager.
+             *
+             * @attribute focusManaged
+             * @type {Boolean}
+             * @default true
+             * @since 0.3
+             */
+            focusManaged: {
+                value: true,
+                validator: function(v){
+                    return (typeof v === BOOLEAN);
+                }
+            },
             /**
              * The Y.Model that will be rendered in the view. May also be an Object, which is handy in case the source is an
              * item of a Y.LazyModelList. If you pass a String-value, then the text is rendered as it is, assuming no model-instance.
@@ -531,8 +545,7 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
              */
             model: {
                 value: {},
-                validator: function(v){ return ((v===null) || Lang.isObject(v) || (typeof v === STRING) ||
-                                                (v.get && (typeof v.get === FUNCTION) && v.get('clientId'))); },
+                validator: function(v){ return ((v===null) || Lang.isObject(v) || (typeof v === STRING) || (v instanceof Y.Model)); },
                 setter: '_setModel'
             },
 
@@ -998,7 +1011,6 @@ ITSAViewModel.prototype.removeHotKey = function(buttonType) {
 ITSAViewModel.prototype.render = function (clear) {
     var instance = this,
         container = instance.get(CONTAINER),
-        itsatabkeymanager = container.itsatabkeymanager,
         model = instance.get(MODEL),
         editMode = instance.get(EDITABLE),
         itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
@@ -1027,21 +1039,7 @@ ITSAViewModel.prototype.render = function (clear) {
     (html.length>0) && editMode && instance._viewNeedsForm && (html='<form>'+html+'</form>');
 /*jshint expr:false */
     container.setHTML(html);
-    // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
-    if (editMode) {
-        Y.use(GALLERY+'itsatabkeymanager', function() {
-            if (itsatabkeymanager) {
-                itsatabkeymanager.refresh(container);
-            }
-            else {
-                container.plug(Y.Plugin.ITSATabKeyManager);
-                itsatabkeymanager = container.itsatabkeymanager;
-            }
-            if (container.hasClass(FOCUSED_CLASS)) {
-                itsatabkeymanager.focusInitialItem();
-            }
-        });
-    }
+    instance._setFocusManager(editMode && instance.get(FOCUSMANAGED));
     if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
         itsaDateTimePicker.hide(true);
     }
@@ -1200,7 +1198,7 @@ ITSAViewModel.prototype.destructor = function() {
     instance._hotkeys = {};
 
 /*jshint expr:true */
-    container.hasPlugin('itsatabkeymanager') && container.unplug('itsatabkeymanager');
+    container.hasPlugin(ITSATABKEYMANAGER) && container.unplug(ITSATABKEYMANAGER);
 /*jshint expr:false */
 };
 
@@ -1348,6 +1346,14 @@ ITSAViewModel.prototype._bindUI = function() {
             STYLED+CHANGE,
             function(e) {
                 container.toggleClass(ITSAVIEWMODEL+'-'+STYLED, e.newVal);
+            }
+        )
+    );
+    eventhandlers.push(
+        instance.after(
+            FOCUSMANAGED+CHANGE,
+            function(e) {
+                instance._setFocusManager(e.newVal);
             }
         )
     );
@@ -1852,6 +1858,43 @@ ITSAViewModel.prototype[DEF_FN+VALIDATION_ERROR] = function(e) {
         (node.getDOMNode()===Y.config.doc.activeElement) ? Y.ITSAFormElement.tipsyInvalid._handleDelegateStart({currentTarget: node}) : node.focus();
 /*jshint expr:false */
         node.scrollIntoView();
+    }
+};
+
+/**
+ * Sets or unsets the focusManager (provided by gallery-itsatabkeymanager)
+ *
+ * @method _setFocusManager
+ * @private
+ * @param activate {Boolean}
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype._setFocusManager = function(activate) {
+    var instance = this,
+        container = instance.get(CONTAINER),
+        itsatabkeymanager = container.itsatabkeymanager;
+
+    Y.log('_setFocusManager to '+activate, 'info', 'ITSA-ViewModel');
+    if (activate) {
+        // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
+        Y.use(GALLERY+ITSATABKEYMANAGER, function() {
+            if (itsatabkeymanager) {
+                itsatabkeymanager.refresh(container);
+            }
+            else {
+                container.plug(Y.Plugin.ITSATabKeyManager);
+                itsatabkeymanager = container.itsatabkeymanager;
+            }
+            if (container.hasClass(FOCUSED_CLASS)) {
+                itsatabkeymanager.focusInitialItem();
+            }
+        });
+    }
+    else {
+/*jshint expr:true */
+        itsatabkeymanager && container.unplug(ITSATABKEYMANAGER);
+/*jshint expr:false */
     }
 };
 
