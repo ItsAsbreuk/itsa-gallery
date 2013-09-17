@@ -1,0 +1,76 @@
+YUI(yuiconfig).use('gallery-itsaviewmodelpanel', 'gallery-itsaformmodel', function(Y) {
+    var panel, artist, template, footerTemplate;
+
+    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {}, {
+        ATTRS: {
+            name: {
+                formtype: 'text',
+                formconfig: {
+                    label: 'Artist',
+                    placeholder: 'artist',
+                    required: true
+                }
+            },
+            country: {
+                formtype: 'text',
+                formconfig: {
+                    label: 'Country',
+                    placeholder: 'country',
+                    required: true,
+                    initialfocus: true
+                }
+            },
+            firstalbum: {
+                formtype: 'text',
+                formconfig: {
+                    label: 'First album',
+                    placeholder: 'first album',
+                    required: true
+                }
+            },
+            release: {
+                formtype: Y.Slider,
+                formconfig: {
+                    label: 'Releaseyear',
+                    widgetconfig: {
+                        min: 1950,
+                        max: 2010
+                    }
+                }
+            }
+        }
+    });
+
+    artist = new Y.ArtistModel({
+        name: 'U2',
+        country: 'Ireland',
+        firstalbum: 'Boy',
+        release: 1980
+    });
+
+    template = '<fieldset>'+
+                    '<legend>Editable template</legend>'+
+                    '<div class="pure-control-group">{name}</div>'+
+                    '<div class="pure-control-group">{country}</div>'+
+                    '<div class="pure-control-group">{firstalbum}</div>'+
+                    '<div class="pure-control-group">{release}</div>'+
+                '</fieldset>';
+
+    footerTemplate = '<div class="pure-control-group">{btn_reset} {spinbtn_submit}</div>';
+
+    panel = new Y.ITSAViewModelPanel({
+        boundingBox: '#panel1',
+        visible: true,
+        centered: true,
+        dragable: true,
+        modal: true,
+        editable: true,
+        title: 'settings',
+        model: artist,
+        template: template,
+        footerTemplate: footerTemplate
+    });
+
+    panel.render();
+
+});
