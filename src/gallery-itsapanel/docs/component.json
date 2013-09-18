@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsapanel",
     "displayName": "Gallery: gallery-itsapanel",
-    "description": "*Summary Goes Here*",
+    "description": "Y.ITSAPanel is very much alike Y.Panel. Major difference is that you can attach both View's and Strings.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsapanel" ],
 
@@ -13,17 +13,35 @@
             "displayName": "Creating a simple panel",
             "description": "This example shows how use ITSAPanel to render a panel.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaviewmodel", "model", "formelement", "form", "template"],
+            "modules"    : [ "gallery-itsapanel"],
+            "tags"    : ["gallery-itsapanel", "panel", "itsapanel"],
             "hideTableOfContents": true
         },
         {
             "name"       : "view-panel",
-            "displayName": "Creating a Panel with Y.View-content",
-            "description": "This example shows how use ITSAPanel to render a panel.",
+            "displayName": "Panel with Y.View-content",
+            "description": "This example shows how ITSAPanel can show a Y.View-instance.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaviewmodel", "model", "formelement", "form", "template"],
+            "modules"    : [ "gallery-itsapanel", "view"],
+            "tags"    : ["gallery-itsapanel", "panel", "view", "itsapanel"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "custom-buttons",
+            "displayName": "Panel with custom buttons",
+            "description": "This example shows how to create custom buttons.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : [ "gallery-itsapanel", "gallerycss-itsa-base", "gallerycss-itsa-form"],
+            "tags"    : ["gallery-itsapanel", "panel", "buttons", "itsapanel"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "inline-panel",
+            "displayName": "Inline panel",
+            "description": "This example shows ITSAPanel-instances can be used inline with the document.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : [ "gallery-itsapanel"],
+            "tags"    : ["gallery-itsapanel", "panel", "inline", "itsapanel"],
             "hideTableOfContents": true
         }
     ]

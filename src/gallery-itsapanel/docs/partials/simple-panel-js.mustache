@@ -1,39 +1,15 @@
 YUI(yuiconfig).use('gallery-itsapanel', function(Y) {
-    var panel1, panel2;
+    var panel, message;
 
-    panel1 = new Y.ITSAPanel({
-        boundingBox: '#panel1',
-        visible: true,
-//        centered: true,
-//        modal: true,
-        floated: false,
-        title: 'settings',
-        footer: 'ready',
-        bodyView: 'line1<br>line2<br>line3<br>line4<br>line5<br>line6<br>line7<br>line8<br>line9<br>line10<br>'
-    });
-
-    panel1.render();
-
-
-    panel2 = new Y.ITSAPanel({
-        boundingBox: '#panel2',
-        visible: true,
+    message = 'You are seeing a simple <b>Y.ITSAPanel</b>-instance.';
+    panel = new Y.ITSAPanel({
         centered: true,
- //       modal: true,
-//        floated: false,
-        title: 'settings',
-        footer: 'ready',
-        dragable: true,
-  //      resizable: true,
-        minWidth: 400,
-        maxWidth: 800,
-        minHeight: 200,
-        maxHeight: 250,
-//        height: 250,
-//        width: 600,
-        bodyView: 'line1<br>line2<br>line3<br>line4<br>line5<br>line6<br>line7<br>line8<br>line9<br>line10<br>line11<br>line12<br>'
-    });
+        modal: true,
+        title: 'Information',
+        footer: 'Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a>.',
+        bodyView: message,
+        dragable: true
+    }).render();
 
-    panel2.render();
-
+    panel.show();
 });

@@ -1,4 +1,4 @@
-/*csslint adjoining-classes: false, star-property-hack: false, important: false, outline-none: false; */
+/*csslint adjoining-classes: false, star-property-hack: false, important: false, outline-none: false, display-property-grouping: false */
 
 .itsa-panel.itsa-hiddenpanel {
     position: absolute !important;
@@ -12,9 +12,17 @@
     overflow: hidden;
     border: solid 1px #000;
     font-size: 100%;
+    text-align: left;
+}
+.itsa-panel.itsa-styledpanel:not(.itsa-inlinepanel) {
     -webkit-box-shadow: 5px 5px 6px rgba(50, 50, 50, 0.45);
     -moz-box-shadow:    5px 5px 6px rgba(50, 50, 50, 0.45);
     box-shadow:         5px 5px 6px rgba(50, 50, 50, 0.45);
+}
+.itsa-panel.itsa-styledpanel.itsa-focused:not(.itsa-inlinepanel) {
+    -webkit-box-shadow: 5px 5px 6px rgba(50, 50, 50, 0.6);
+    -moz-box-shadow:    5px 5px 6px rgba(50, 50, 50, 0.6);
+    box-shadow:         5px 5px 6px rgba(50, 50, 50, 0.6);
 }
 .itsa-panel .itsa-hiddensection {
     display: none;
@@ -35,7 +43,6 @@
 .itsa-panel .itsa-panelfooter {
     position: absolute;
     line-height: 1em;
-    text-align: left;
     white-space: nowrap;
     vertical-align: middle;
     overflow: hidden;
@@ -48,20 +55,30 @@
 }
 .itsa-panel .itsa-panelfooter {
     bottom: 0;
-    text-align: right;
 }
 .itsa-panel .itsa-panelinnerheader {
     padding: 0.7em;
 }
 .itsa-panel .itsa-panelinnerfooter {
-    padding: 0.7em 1.2em;
+    padding: 0.55em 1.2em 0.55em 0.7em;
+}
+.itsa-panel .itsa-panelinnerheader >div,
+.itsa-panel .itsa-panelinnerfooter >div {
+    vertical-align: middle;
+    display: inline-block;
+    *display: inline;
+    width: 50%;
+}
+.itsa-panel .itsa-rightalign {
+    text-align: right;
 }
 .itsa-panel .itsa-panelinnerbody {
-    padding: 1em 1.2em;
+    padding: 1.6em 1.2em;
+    line-height: 140%;
 }
 .itsa-panel >div {
-    min-width: 300px;
-    min-height: 100px;
+    min-width: 150px;
+    min-height: 75px;
     position: relative;
 }
 .itsa-panel:focus {
@@ -71,7 +88,7 @@
     cursor: pointer;
     position: absolute;
     right: 0.15em;
-    top: 0.15em;
+    top: 0.05em;
     opacity: 0.5;
     filter: alpha(opacity=50);
 }
@@ -84,9 +101,6 @@
 }
 .itsa-panel.itsa-styledpanel .itsa-panelclosebtn.pure-button {
     color: #FFF;
-}
-.itsa-panel.itsa-styledpanel.itsa-focused {
-    border-color: #129FEA;
 }
 .itsa-panel .itsa-panelclosebtn:hover,
 .itsa-panel .itsa-panelclosebtn:focus {
@@ -111,7 +125,7 @@
     color: #333;
 }
 .itsa-panel.itsa-styledpanel .itsa-panelfooter {
-    background-color: #F5F4F1;
+    background-color: #FFF;
     border-top: 1px solid #EAE6DB;
 }
 .itsa-panel.itsa-styledpanel .itsa-panelheader {

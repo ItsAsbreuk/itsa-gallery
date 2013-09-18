@@ -70,6 +70,9 @@ var ITSAPanel,
     BORDERRIGHTWIDTH = 'borderRightWidth',
     MODAL = 'modal',
     PX = 'px',
+    TITLE = 'title',
+    FOOTER = 'footer',
+    RIGHT = 'Right',
     CENTERED = 'centered',
     DRAG = 'drag',
     DRAGABLE = DRAG+'able',
@@ -83,6 +86,7 @@ var ITSAPanel,
     HIDDENPANELCLASS = ITSA+HIDDEN+PANEL,
     HIDDENSECTIONCLASS = ITSA+HIDDEN+'section',
     INLINECLASS = ITSA+'inline'+PANEL,
+    CLASSNAME = 'className',
 
     PANELHEADERCLASS = ITSA+'panelheader',
     PANELBODYCLASS = ITSA+'panelbody',
@@ -97,9 +101,11 @@ var ITSAPanel,
     BODYTEMPLATE = '<div class="'+PANELBODYCLASS+'"><div class="'+PANELBODYINNERCLASS+'"></div></div>',
     FOOTERTEMPLATE = '<div class="'+PANELFOOTERCLASS+'"><div class="'+PANELFOOTERINNERCLASS+'"></div></div>',
 
-    DEFAULT_HEADERVIEW = '{panel_title}<'+BUTTON+' class="pure-'+BUTTON+' itsa'+BUTTON+'-onlyicon '+ITSA_PANELCLOSEBTN+'" data-focusable="true"><i class="itsaicon-form-abort"></i></'+BUTTON+'>',
+    CLOSE_BUTTON = '<'+BUTTON+' class="pure-'+BUTTON+' itsa'+BUTTON+'-onlyicon '+ITSA_PANELCLOSEBTN+'" data-focusable="true"><i class="itsaicon-form-abort"></i></'+BUTTON+'>',
+
+    DEFAULT_HEADERVIEW = '<div>{panel_title}</div><div class="itsa-rightalign">{panel_title_right}</div>',
     DEFAULT_BODYVIEW = '',
-    DEFAULT_FOOTERVIEW = '{panel_footer}',
+    DEFAULT_FOOTERVIEW = '<div>{panel_footer}</div><div class="itsa-rightalign">{panel_footer_right}</div>',
 
     GETSTYLE = function(node, prop) {
         return parseInt(node.getStyle(prop), 10);
@@ -163,6 +169,12 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             },
             setter: '_setBodyView'
         },
+        className : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
+        },
         /**
          * @attribute dragable
          * @description Boolean indicating whether or not the Panel floats above the page.
@@ -177,6 +189,12 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             }
         },
         footer : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
+        },
+        footerRight : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
@@ -345,13 +363,20 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
+        },
+        titleRight : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
         }
     }
 });
 
 ITSAPanel.prototype.initializer = function() {
     var instance = this,
-        boundingBox = instance.get(BOUNDINGBOX);
+        boundingBox = instance.get(BOUNDINGBOX),
+        className = instance.get(CLASSNAME);
 
     // asynchroniously loading fonticons:
     Y.use(GALLERYCSS_ITSA+'base', GALLERYCSS_ITSA+'form');
@@ -381,6 +406,7 @@ ITSAPanel.prototype.initializer = function() {
     // hide boundingBox by default and maybe inhide when rendered --> otherwise there might be a flicker effect when resetting its height
     boundingBox.addClass(HIDDENPANELCLASS);
 /*jshint expr:true */
+    className && boundingBox.addClass(className);
     instance.renderPromise().then(
         function() {
             instance._setDimensions();
@@ -456,8 +482,8 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after([DRAG+':'+DRAG, DRAG+':end'], function() {
             var itsaformelement = Y.ITSAFormElement,
-                tipsyValid = itsaformelement.tipsyValid,
-                tipsyInvalid = itsaformelement.tipsyInvalid;
+                tipsyValid = itsaformelement && itsaformelement.tipsyValid,
+                tipsyInvalid = itsaformelement && itsaformelement.tipsyInvalid;
 /*jshint expr:true */
             tipsyValid && tipsyValid.get(VISIBLE) && tipsyValid._alignTooltip(tipsyValid._lastnode);
             tipsyInvalid && tipsyInvalid.get(VISIBLE) && tipsyInvalid._alignTooltip(tipsyInvalid._lastnode);
@@ -510,6 +536,18 @@ ITSAPanel.prototype.bindUI = function() {
             STYLED+CHANGE,
             function(e) {
                 boundingBox.toggleClass(STYLEDPANELCLASS, e.newVal);
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            CLASSNAME+CHANGE,
+            function(e) {
+/*jshint expr:true */
+                e.prevVal && boundingBox.removeClass(e.prevVal);
+                e.newVal && boundingBox.addClass(e.newVal);
+/*jshint expr:false */
             }
         )
     );
@@ -578,6 +616,7 @@ ITSAPanel.prototype.renderUI = function() {
     instance._header = contentBox.one('.'+PANELHEADERINNERCLASS);
     instance._body = contentBox.one('.'+PANELBODYINNERCLASS);
     instance._footer = contentBox.one('.'+PANELFOOTERINNERCLASS);
+    instance._footercont = contentBox.one('.'+PANELFOOTERCLASS);
     instance._renderHeader();
     instance._renderBody();
     instance._renderFooter();
@@ -643,10 +682,11 @@ ITSAPanel.prototype._getWidth = function() {
 
 ITSAPanel.prototype._renderHeader = function() {
     var instance = this,
-        title = instance.get('title'),
+        title = instance.get(TITLE),
+        titleRight = instance.get(TITLE+RIGHT),
         headerView = instance.get(HEADERVIEW);
     if (!headerView || (typeof headerView===STRING)) {
-        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {panel_title: (title || '')}));
+        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {panel_title: (title || ''), panel_title_right: (titleRight || CLOSE_BUTTON)}));
     }
     else if (headerView instanceof Y.View) {
         headerView._set('container', instance._header);
@@ -671,16 +711,14 @@ ITSAPanel.prototype._renderBody = function() {
 };
 ITSAPanel.prototype._renderFooter = function() {
     var instance = this,
-        footer = instance.get('footer'),
+        footer = instance.get(FOOTER),
+        footerRight = instance.get(FOOTER+RIGHT),
         footerView = instance.get(FOOTERVIEW),
         instanceFooter = instance._footer,
-        hideFooter = !footerView && !footer;
-    if (hideFooter) {
-        instanceFooter.addClass(HIDDENSECTIONCLASS);
-    }
-    else {
-        if (!footerView || (typeof headerView===STRING)) {
-            instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {panel_footer: (footer || '')}));
+        hideFooter = !footerView && !footer && !footerRight;
+    if (!hideFooter) {
+        if (!footerView || (typeof footerView===STRING)) {
+            instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {panel_footer: (footer || ''), panel_footer_right: (footerRight || '')}));
         }
         else if (footerView instanceof Y.View) {
             footerView._set('container', instance._footer);
@@ -690,6 +728,7 @@ ITSAPanel.prototype._renderFooter = function() {
         }
         instanceFooter.removeClass(HIDDENSECTIONCLASS);
     }
+    instance._footercont.toggleClass(HIDDENSECTIONCLASS, hideFooter);
     instance._adjustPaddingBottom();
 };
 ITSAPanel.prototype._setBodyView = function() {
@@ -705,8 +744,9 @@ ITSAPanel.prototype._setDimensions = function() {
 /*jshint expr:true */
     instance._widthSet || contentBox.setStyle('width', '');
     instance._heightSet || contentBox.setStyle('height', '');
-    instance._widthSet || contentBox.setStyle('width', contentBox.get(OFFSETWIDTH)+PX);
-    instance._heightSet || contentBox.setStyle('height', contentBox.get(OFFSETHEIGHT)+PX);
+    // unfortuanatly, we need to increase the final size with one, due to roundingerrors
+    instance._widthSet || contentBox.setStyle('width', 1+contentBox.get(OFFSETWIDTH)+PX);
+    instance._heightSet || contentBox.setStyle('height', 1+contentBox.get(OFFSETHEIGHT)+PX);
 /*jshint expr:false */
 };
 ITSAPanel.prototype._setFooterView = function() {
