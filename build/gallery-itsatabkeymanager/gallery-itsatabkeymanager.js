@@ -418,7 +418,7 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 
 var YArray = Y.Array,
     DEFAULT_ITEM_SELECTOR = '[data-focusable="true"]',
-    YUI_PRIMARYBUTTON_CLASS = 'yui3-button-primary',
+    PRIMARYBUTTON_CLASS = 'pure-button-primary',
     ITSAFORMELEMENT_FIRSTFOCUS = 'data-initialfocus="true"';
 
 
@@ -507,12 +507,13 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         focusInitialItem : function() {
             var instance = this,
-                focusitem, widgetbd, widgetft;
+                focusitem, panelheader, panelbody, panelfooter;
 
             focusitem = instance.first({selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
-                        instance.first({selector: '.'+YUI_PRIMARYBUTTON_CLASS}) ||
-                        ((widgetbd=instance.host.one('.yui3-widget-bd')) ? instance.first({container: widgetbd}) : null) ||
-                        ((widgetft=instance.host.one('.yui3-widget-ft')) ? instance.first({container: widgetft}) : null) ||
+                        ((panelbody=instance.host.one('.itsa-panelbody')) ? instance.first({container: panelbody}) : null) ||
+                        instance.first({selector: '.'+PRIMARYBUTTON_CLASS}) ||
+                        ((panelfooter=instance.host.one('.itsa-panelfooter')) ? instance.last({container: panelfooter}) : null) ||
+                        ((panelheader=instance.host.one('.itsa-panelheader')) ? instance.first({container: panelheader}) : null) ||
                         instance.first();
             if (focusitem) {
                 focusitem.focus();
