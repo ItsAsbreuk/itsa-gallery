@@ -1,6 +1,6 @@
 'use strict';
 
-/*jshint maxlen:200 */
+/*jshint maxlen:235 */
 
 /**
  *
@@ -40,15 +40,14 @@ var ITSAViewModelPanel,
     FOCUSED_CLASS = 'itsa-focused',
     EDITABLE = 'editable',
     MODEL = 'model',
-    MODAL = 'modal',
     FOCUSED = 'focused',
     VISIBLE = 'visible',
     CHANGE = 'Change',
     CLOSE = 'close',
     CLICK = 'click',
-    CLICK_OUTSIDE = CLICK+'outside',
     CLOSE_CLICK = CLOSE+CLICK,
     BUTTON = 'button',
+    BUTTON_HIDE_EVENT = BUTTON+':hide',
     BOOLEAN = 'boolean',
     STRING = 'string',
     LOAD = 'load',
@@ -70,8 +69,13 @@ var ITSAViewModelPanel,
       * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
       * @since 0.1
     **/
-    FOCUS_NEXT = 'focusnext';
-
+    FOCUS_NEXT = 'focusnext',
+    VALIDATED_BTN_TYPES = {
+        ok: true,
+        retry: true,
+        save: true,
+        submit: true
+    };
 
 ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAPanel, [], null, {
     ATTRS: {
@@ -281,46 +285,6 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        contentBox.on(
-            CLICK,
-            function() {
-                instance.focus();
-            }
-        )
-    );
-
-    eventhandlers.push(
-        contentBox.on(
-            VISIBLE+CHANGE,
-            function(e) {
-                instance.focus();
-            }
-        )
-    );
-
-    eventhandlers.push(
-        contentBox.on(
-            CLICK_OUTSIDE,
-            function() {
-                var hadFocus, itsatabkeymanager;
-                if (instance.get(MODAL)) {
-                    hadFocus = instance.get(FOCUSED);
-                    instance.focus();
-                    if (hadFocus) {
-                        itsatabkeymanager = contentBox.itsatabkeymanager;
-/*jshint expr:true */
-                        itsatabkeymanager && itsatabkeymanager._retreiveFocus();
-/*jshint expr:false */
-                    }
-                }
-                else {
-                    instance.blur();
-                }
-            }
-        )
-    );
-
-    eventhandlers.push(
         bodyView.on(
             FOCUS_NEXT,
             function(e) {
@@ -339,8 +303,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        instance.after('*:'+CLOSE_CLICK, function() {
-            instance.hide();
+        instance.after('*:'+CLOSE_CLICK, function(e) {
+            instance.fire(BUTTON_HIDE_EVENT, {buttonNode: e.target});
         })
     );
 
@@ -357,9 +321,11 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance._footer.delegate(
             CLICK,
             function(e) {
-                var value = e.target.get(VALUE);
+                var node = e.target,
+                    value = node.get(VALUE);
 /*jshint expr:true */
-                instance.get('hideOnBtnFooter') && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.hide();
+                // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
+                instance.get('hideOnBtnFooter') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
             },
             BUTTON
@@ -370,14 +336,30 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance._header.delegate(
             CLICK,
             function(e) {
-                var value = e.target.get(VALUE);
+                var node = e.target,
+                    value = node.get(VALUE);
 /*jshint expr:true */
-                instance.get('hideOnBtnHeader') && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.hide();
+                // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
+                instance.get('hideOnBtnHeader') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
             },
             BUTTON
         )
     );
+
+    eventhandlers.push(
+        instance.on(BUTTON_HIDE_EVENT, function(e) {
+            // in case of an ITSAFormElement that has editable fields --> you might need to preventDefault (=hide) hen not validated
+            var model = instance.get(MODEL),
+                editable = instance.get(EDITABLE),
+                btnNode = e.buttonNode,
+                buttonValue = btnNode.get(VALUE);
+/*jshint expr:true */
+            VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.toJSONUI && !model.validated() && e.preventDefault();
+/*jshint expr:false */
+        })
+    );
+
 };
 
 /**
