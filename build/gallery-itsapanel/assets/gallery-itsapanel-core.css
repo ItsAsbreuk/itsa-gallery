@@ -85,6 +85,9 @@
 .itsa-panel.itsa-styledpanel .itsa-panelclosebtn.pure-button {
     color: #FFF;
 }
+.itsa-panel.itsa-styledpanel.itsa-focused {
+    border-color: #129FEA;
+}
 .itsa-panel .itsa-panelclosebtn:hover,
 .itsa-panel .itsa-panelclosebtn:focus {
     opacity: 1;
