@@ -54,10 +54,11 @@
 ```
 
 ```js
-YUI(yuiconfig).use('gallerycss-itsa-form', function(Y) {
-    // by loading the module, the css will be available
-    // be aware of the load-delay: if you use progressive enhancement, you might want
-    // the nodes to be invisible until loading has finished.
+YUI(yuiconfig).use('yui-base', function(Y) {
+    Y.use('gallerycss-itsa-base', 'gallerycss-itsa-form'); // now the iconfonts will load asynchroniously
+
+    // code can be executed
+    ...
 
 });
 ```
