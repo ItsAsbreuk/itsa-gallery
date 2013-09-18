@@ -1,4 +1,5 @@
 {
+    inputrequired : 'L\'entrée est requise',
     notification : 'Déclaration',
     datachanged : 'Les données ont été modifiées en dehors de la forme',
     wantreload : 'Charger dans la forme',

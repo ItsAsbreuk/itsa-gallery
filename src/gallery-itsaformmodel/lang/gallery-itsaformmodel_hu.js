@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Input szükséges',
     notification : 'Bejelentés',
     datachanged : 'Adatok megváltozott kívüli formában',
     wantreload : 'Töltse be az űrlapot',

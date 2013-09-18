@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Требуется ввод',
     notification : 'уведомление',
     datachanged : 'Данные были изменены вне формы',
     wantreload : 'Загрузить его в виде',

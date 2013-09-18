@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Je nutné zadať',
     notification : 'Oznámenie',
     datachanged : 'Dáta bola zmenená mimo formulár',
     wantreload : 'Vložte ju do formulára',

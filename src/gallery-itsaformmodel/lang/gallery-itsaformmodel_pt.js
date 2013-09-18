@@ -1,4 +1,5 @@
 {
+    inputrequired : 'A entrada é necessário',
     notification : 'Notificação',
     datachanged : 'Dados foram alterados fora do formulário',
     wantreload : 'Carregá-lo na forma',

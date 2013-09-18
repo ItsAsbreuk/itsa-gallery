@@ -33,6 +33,7 @@ var YArray = Y.Array,
     WANTRELOAD = 'wantreload',
     NORELOADMSG = 'noreloadmsg',
     UNDEFINED_ELEMENT = 'UNDEFINED FORM-ELEMENT',
+    INPUT_REQUIRED = 'inputrequired',
     INVISIBLE_CLASS = 'itsa-invisible',
     DUPLICATE_NODE = '<span style="background-color:F00; color:#FFF">DUPLICATED FORMELEMENT is not allowed</span>',
     MS_TIME_TO_INSERT = 10000, // time to insert the nodes, we set this time to avoid unnecessary onavailable listeners.
@@ -1443,6 +1444,18 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
         );
     }
 };
+/**
+ * Returns wheter all visible UI-elements are right validated.
+ *
+ * @method getUnvalidatedUI
+ * @return {Boolean} whether all visible UI-elements are right validated.
+ * @since 0.1
+ */
+ITSAFormModel.prototype.validated  = function() {
+    Y.log('destructor', 'info', 'ITSAFormModel');
+    return (this.getUnvalidatedUI().size()===0);
+};
+
 
 /**
  * Cleans up bindings and removes plugin
@@ -2423,17 +2436,20 @@ ITSAFormModel.prototype._updateSimularUI = function(changedNode, attribute, newv
  *
  * @method _setNodeValidation
  * @param node {Y.Node} node which validation should be set
- * @param value {Boolean} validated or not
+ * @param validated {Boolean} validated or not
  * @param [tooltip] {String} to force a specific tooltip-message
  * @private
  * @since 0.1
 */
-ITSAFormModel.prototype._setNodeValidation  = function(node, value, tooltip) {
+ITSAFormModel.prototype._setNodeValidation  = function(node, validated, tooltip) {
     var newContent;
 
-    Y.log('_setNodeValidation node '+node.get("id")+' --> '+value, 'info', 'ITSAFormModel');
-    node.setAttribute(DATA+'-valid', value);
-    newContent = tooltip || node.getAttribute(DATA_CONTENT + (value ? 'valid' : 'invalid'));
+    Y.log('_setNodeValidation node '+node.get("id")+' --> '+validated, 'info', 'ITSAFormModel');
+    node.setAttribute(DATA+'-valid', validated);
+    newContent = tooltip || node.getAttribute(DATA_CONTENT + (validated ? 'valid' : 'invalid'));
+/*jshint expr:true */
+    !validated && !tooltip && (newContent==='') && (newContent=this._intl[INPUT_REQUIRED]);
+/*jshint expr:false */
     if (newContent) {
         node.setAttribute(DATA_CONTENT, newContent);
     }

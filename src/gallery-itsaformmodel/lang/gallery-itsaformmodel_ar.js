@@ -1,4 +1,5 @@
 {
+    inputrequired : 'مطلوب مدخلات',
     notification : 'إعلام',
     datachanged : 'تم تغيير البيانات خارج النموذج',
     wantreload : 'تحميله في شكل',

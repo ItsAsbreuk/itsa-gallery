@@ -1,4 +1,5 @@
 {
+    inputrequired : 'इनपुट की आवश्यकता है',
     notification : 'अधिसूचना',
     datachanged : 'डेटा प्रपत्र के बाहर बदल दिया गया है',
     wantreload : 'प्रपत्र में लोड',

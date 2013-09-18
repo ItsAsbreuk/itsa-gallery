@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Se requiere entrada',
     notification : 'Notificación',
     datachanged : 'Los datos han sido cambiado fuera de la forma',
     wantreload : 'Coloque la pila en la forma',

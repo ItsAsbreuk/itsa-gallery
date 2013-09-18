@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Input er nødvendig',
     notification : 'Varsling',
     datachanged : 'Data er blitt forandret utenfor skjemaet',
     wantreload : 'Legger det inn i skjemaet',

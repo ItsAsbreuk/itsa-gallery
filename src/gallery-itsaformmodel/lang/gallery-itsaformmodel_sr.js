@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Улаз је потребно',
     notification : 'обавештење',
     datachanged : 'Подаци су се променили ван форме',
     wantreload : 'Убаците га у форми',

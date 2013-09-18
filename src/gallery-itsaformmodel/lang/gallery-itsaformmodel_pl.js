@@ -1,4 +1,5 @@
 {
+    inputrequired : 'Wejście jest wymagane',
     notification : 'zgłoszenie',
     datachanged : 'Dane zostały zmienione poza formie',
     wantreload : 'Włóż go w formie',
