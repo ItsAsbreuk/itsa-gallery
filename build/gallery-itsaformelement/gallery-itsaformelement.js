@@ -23,6 +23,7 @@ var ITSAFormElement,
     YObject = Y.Object,
     Lang = Y.Lang,
     INTL = Y.Intl,
+    ZINDEX_TIPSY = 5,
     BODY = Y.one('body'),
     ACTION_FROMTAB = ACTION_FROMTAB,
     DATA        = 'data',
@@ -689,16 +690,29 @@ ITSAFormElement.tooltipReadyPromise = function() {
                     placement: RIGHT,
                     selector: SELECTOR_TIPSY+':not('+DATA_VALID_FALSE+')',
                     showOn: [TOUCHSTART, FOCUS],
-                    hideOn: [TOUCHEND, BLUR, KEYPRESS]
+                    hideOn: [TOUCHEND, BLUR, KEYPRESS],
+                    zIndex: ZINDEX_TIPSY
                 }).render(),
                 tipsyInvalid = ITSAFormElement.tipsyInvalid = new Y.Tipsy({
                     placement: RIGHT,
                     selector: SELECTOR_TIPSY+DATA_VALID_FALSE,
                     showOn: [TOUCHSTART, FOCUS],
-                    hideOn: [TOUCHEND, BLUR, KEYPRESS]
+                    hideOn: [TOUCHEND, BLUR, KEYPRESS],
+                    zIndex: ZINDEX_TIPSY
                 }).render();
                 tipsyOK.get(BOUNDINGBOX).addClass();
                 tipsyInvalid.get(BOUNDINGBOX).addClass(TIPSY_FORMELEMENT+'-invalid');
+                // now we modify _alignTooltip, because we need to keep reference of the aligned noe, in case we want to re-align
+                tipsyOK._alignTooltip = function(node) {
+                    var instance = this;
+                    Y.Tipsy.prototype._alignTooltip.apply(instance, arguments);
+                    instance._lastnode = node;
+                };
+                tipsyInvalid._alignTooltip = function(node) {
+                    var instance = this;
+                    Y.Tipsy.prototype._alignTooltip.apply(instance, arguments);
+                    instance._lastnode = node;
+                };
                 Y.batch(
                     tipsyOK.renderPromise(),
                     tipsyInvalid.renderPromise()
