@@ -64,6 +64,9 @@
 .itsa-panel .itsa-panelinnerfooter {
     padding: 0.55em 1.2em 0.55em 0.7em;
 }
+.itsa-panel .itsa-panelinnerfooter.itsaviewmodel {
+    text-align: right;
+}
 .itsa-panel .itsa-panelinnerheader >div,
 .itsa-panel .itsa-panelinnerfooter >div {
     vertical-align: middle;
