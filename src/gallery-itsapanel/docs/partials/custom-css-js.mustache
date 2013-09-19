@@ -1,6 +1,8 @@
 YUI(yuiconfig).use('gallery-itsapanel', function(Y) {
     var panel, message;
 
+    Y.one('body').addClass('red-style');
+
     message = 'You are seeing a simple <b>Y.ITSAPanel</b>-instance.';
     panel = new Y.ITSAPanel({
         centered: true,

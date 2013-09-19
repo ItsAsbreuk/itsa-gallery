@@ -3,6 +3,7 @@
         "requires": [
             "node-pluginhost",
             "dd-ddm",
+            "node-event-delegate",
             "base-build",
             "widget-autohide",
             "widget-modality",

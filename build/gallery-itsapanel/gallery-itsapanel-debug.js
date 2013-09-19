@@ -9,30 +9,18 @@ YUI.add('gallery-itsapanel', function (Y, NAME) {
  * Widget ITSAPanel
  *
  *
- * Has the same functionalities as ITSAViewModel, but will come inside a Panel (which floats by default).
- * Also has standard a 'close'-button. Using WidgetButtons functionalyties, more buttons can be added.
- *
- * These buttons are available by the module and will call Model's corresponding methods:
- *
- * close (visible by default)
- * add
- * destroy
- * reset
- * save
- * submit
+ * Y.ITSAPanel is very much like Y.Panel. Major difference is that you can attach both View's and Strings, but there are more differences. See the docs.
  *
  *
  * @class ITSAPanel
  * @constructor
- * @extends ITSAViewModel
+ * @extends Widget
  * @uses WidgetAutohide
- * @uses WidgetButtons
  * @uses WidgetModality
  * @uses WidgetPosition
  * @uses WidgetPositionAlign
  * @uses WidgetPositionConstrain
  * @uses WidgetStack
- * @uses WidgetStdMod
  * @since 0.1
  */
 
@@ -44,6 +32,8 @@ var ITSAPanel,
     STRING = 'string',
     BOOLEAN = 'boolean',
     VISIBLE = 'visible',
+    WIDTH = 'width',
+    HEIGHT = 'height',
     BOUNDINGBOX = 'boundingBox',
     CONTENTBOX = 'contentBox',
     PADDINGTOP = 'paddingTop',
@@ -57,21 +47,17 @@ var ITSAPanel,
     PANEL = 'panel',
     CHANGE = 'Change',
     FLOATED = 'floated',
+    BODY = 'body',
     HEADERVIEW = 'header'+VIEW,
-    BODYVIEW = 'body'+VIEW,
-    FOOTERVIEW = 'footer'+VIEW,
-    RENDERED = 'rendered',
+    BODYVIEW = BODY+VIEW,
+    FOOTER = 'footer',
+    FOOTERVIEW = FOOTER+VIEW,
     NUMBER = 'number',
     OFFSETHEIGHT = 'offsetHeight',
     OFFSETWIDTH = 'offsetWidth',
-    BORDERTOPWIDTH = 'borderTopWidth',
-    BORDERBOTTOMWIDTH = 'borderBottomWidth',
-    BORDERLEFTWIDTH = 'borderLeftWidth',
-    BORDERRIGHTWIDTH = 'borderRightWidth',
     MODAL = 'modal',
     PX = 'px',
     TITLE = 'title',
-    FOOTER = 'footer',
     RIGHT = 'Right',
     CENTERED = 'centered',
     DRAG = 'drag',
@@ -87,30 +73,20 @@ var ITSAPanel,
     HIDDENSECTIONCLASS = ITSA+HIDDEN+'section',
     INLINECLASS = ITSA+'inline'+PANEL,
     CLASSNAME = 'className',
-
     PANELHEADERCLASS = ITSA+'panelheader',
     PANELBODYCLASS = ITSA+'panelbody',
     PANELFOOTERCLASS = ITSA+'panelfooter',
-
     PANELHEADERINNERCLASS = ITSA+'panelinnerheader',
     PANELBODYINNERCLASS = ITSA+'panelinnerbody',
     PANELFOOTERINNERCLASS = ITSA+'panelinnerfooter',
     ITSA_PANELCLOSEBTN = ITSA+PANEL+'closebtn',
-
     HEADERTEMPLATE = '<div class="'+PANELHEADERCLASS+'"><div class="'+PANELHEADERINNERCLASS+'"></div></div>',
     BODYTEMPLATE = '<div class="'+PANELBODYCLASS+'"><div class="'+PANELBODYINNERCLASS+'"></div></div>',
     FOOTERTEMPLATE = '<div class="'+PANELFOOTERCLASS+'"><div class="'+PANELFOOTERINNERCLASS+'"></div></div>',
-
     CLOSE_BUTTON = '<'+BUTTON+' class="pure-'+BUTTON+' itsa'+BUTTON+'-onlyicon '+ITSA_PANELCLOSEBTN+'" data-focusable="true"><i class="itsaicon-form-abort"></i></'+BUTTON+'>',
-
-    DEFAULT_HEADERVIEW = '<div>{panel_title}</div><div class="itsa-rightalign">{panel_title_right}</div>',
-    DEFAULT_BODYVIEW = '',
-    DEFAULT_FOOTERVIEW = '<div>{panel_footer}</div><div class="itsa-rightalign">{panel_footer_right}</div>',
-
-    GETSTYLE = function(node, prop) {
-        return parseInt(node.getStyle(prop), 10);
-    },
-
+    DEFAULT_HEADERVIEW = '<div>{title}</div><div class="itsa-rightalign">{titleRight}</div>',
+    DEFAULT_BODYVIEW = '{body}',
+    DEFAULT_FOOTERVIEW = '<div>{footer}</div><div class="itsa-rightalign">{footerRight}</div>',
     CLICK = 'click',
     CLICK_OUTSIDE = CLICK+'outside',
     VALUE = 'value',
@@ -129,7 +105,7 @@ var ITSAPanel,
 
     /**
       * Fired when a button inside the panel asks for the panel to hide.
-      * Y.ITSAPanel only has the 'close'-button that can cause this, but you may force other buttons to fir this event.
+      * Y.ITSAPanel only has the 'close'-button that can cause this, but you may force other buttons to fire this event.
       * The defaultFunction will call Panel-instance.hide();
       *
       * @event button:hide
@@ -153,22 +129,43 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
 ], null, {
     ATTRS: {
         /**
-         * Change Panel-appearance after save is clicked.<br />
-         * 0 = no action<br />
-         * 1 = close panel<br />
-         * 2 = unplug Y.Plugin.ITSAEditModel, resulting in rendering the original template<br />
-         * @attribute actionAfterSave
-         * @type Int
-         * @default 0
+         * Bodycontent of the view. Is only used when 'bodyView' is not set: if so then bodyView takes care of the bodysection-content.
+         *
+         * @attribute body
+         * @type String
+         * @default null
+         * @since 0.1
+        */
+        body : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
+        },
+        /**
+         * Template of the bodysection. Can be either a Y.Lang.sub-template or a Y.View.<br />
+         * When a String-template is set, the template can make use of {body}, which will automaticly be replaced by the body-attribute under the hood.<br />
+         * When an Y.View instance is set, the View's 'container' will be bound to the bodysection-div automaticly and the View's render() method
+         * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
+         *
+         * @attribute bodyView
+         * @type {String|Y.View}
+         * @default null
          * @since 0.1
         */
         bodyView : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING) || (val instanceof Y.View);
-            },
-            setter: '_setBodyView'
+            }
         },
+        /**
+         * Extra classname that will be set to the boundingBox. You need to take care of the css yourself.
+         *
+         * @attribute className
+         * @default null
+         * @type String
+         */
         className : {
             value: null,
             validator: function(val) {
@@ -176,9 +173,9 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             }
         },
         /**
+         * Set true if you want the panel to be dragable. Unusable when floated=false.
+         *
          * @attribute dragable
-         * @description Boolean indicating whether or not the Panel floats above the page.
-         * When floated, then all floated attributes like: modal, x, y, centered are disregarded.
          * @default false
          * @type boolean
          */
@@ -188,30 +185,57 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
                 return (typeof val===BOOLEAN);
             }
         },
+        /**
+         * Footercontent of the view. Is only used when 'footerView' is not set: if so then footerView takes care of the footersection-content.
+         *
+         * @attribute footer
+         * @type String
+         * @default null
+         * @since 0.1
+        */
         footer : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
         },
+        /**
+         * Right side of the footer of the view. Is only used when 'footerView' is not set: if so then footerView takes care of the footersection-content.
+         *
+         * @attribute footerRight
+         * @type String
+         * @default null
+         * @since 0.1
+        */
         footerRight : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
         },
+        /**
+         * Template of the footersection. Can be either a Y.Lang.sub-template or a Y.View.<br />
+         * When a String-template is set, the template can make use of {footer} and {footerRight}, which will automaticly be replaced by the footer and footerRight-attributes under the hood.<br />
+         * When an Y.View instance is set, the View's 'container' will be bound to the footersection-div automaticly and the View's render() method
+         * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
+         *
+         * @attribute footerView
+         * @type {String|Y.View}
+         * @default null
+         * @since 0.1
+        */
         footerView : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING) || (val instanceof Y.View);
-            },
-            setter: '_setFooterView'
+            }
         },
         /**
+         * Flag indicating whether or not the Panel floats above the page.
+         * When not floated, then all floated attributes like: modal, x, y, centered are disregarded.
+         *
          * @attribute floated
-         * @description Boolean indicating whether or not the Panel floats above the page.
-         * When floated, then all floated attributes like: modal, x, y, centered are disregarded.
-         * @default tue
+         * @default true
          * @type boolean
          */
         floated: {
@@ -220,24 +244,43 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
                 return (typeof val===BOOLEAN);
             }
         },
+        /**
+         * Flag indicating whether the Panel should get focus as soon as it gets visible.
+         *
+         * @attribute focusOnShow
+         * @default true
+         * @type boolean
+         */
         focusOnShow: {
             value: true,
             validator: function(val) {
                 return (typeof val===BOOLEAN);
             }
         },
+        /**
+         * Template of the headersection. Can be either a Y.Lang.sub-template or a Y.View.<br />
+         * When a String-template is set, the template can make use of {title} and {titleRight}, which will automaticly be replaced by the title and titleRight-attributes
+         * under the hood. You need {titleRight} if you want the 'close-button' to render when the attribute 'titleRight' keeps undefined.<br />
+         * When an Y.View instance is set, the View's 'container' will be bound to the headersection-div automaticly and the View's render() method
+         * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
+         *
+         * @attribute headerView
+         * @type {String|Y.View}
+         * @default null
+         * @since 0.1
+        */
         headerView : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING) || (val instanceof Y.View);
-            },
-            setter: '_setHeaderView'
+            }
         },
         /**
+         * Height of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
+         *
          * @attribute height
-         * @description height of the Panel
          * @default null
-         * @type number
+         * @type {Number}
          */
         height: {
             value: null,
@@ -249,10 +292,11 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             setter: '_setHeight'
         },
         /**
+         * Maximum height of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
+         *
          * @attribute maxHeight
-         * @description Boolean indicating whether or not the Panel is visible.
-         * @default false
-         * @type boolean
+         * @default null
+         * @type {Number}
          */
         maxHeight: {
             value: null,
@@ -263,10 +307,11 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             setter: '_setMaxHeight'
         },
         /**
+         * Maximum width of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
+         *
          * @attribute maxWidth
-         * @description Boolean indicating whether or not the Panel is visible.
-         * @default false
-         * @type boolean
+         * @default null
+         * @type {Number}
          */
         maxWidth: {
             value: null,
@@ -277,10 +322,12 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             setter: '_setMaxWidth'
         },
         /**
+         * Minimum height of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
+         * Note: by css, a default minHeight of 75px is active.
+         *
          * @attribute minHeight
-         * @description Boolean indicating whether or not the Panel is visible.
-         * @default false
-         * @type boolean
+         * @default null
+         * @type {Number}
          */
         minHeight: {
             value: null,
@@ -291,10 +338,12 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             setter: '_setMinHeight'
         },
         /**
+         * Minimum width of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
+         * Note: by css, a default minWidth of 1505px is active.
+         *
          * @attribute minWidth
-         * @description Boolean indicating whether or not the Panel is visible.
-         * @default false
-         * @type boolean
+         * @default null
+         * @type {Number}
          */
         minWidth: {
             value: null,
@@ -319,6 +368,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
         },
         /**
          * Styles the Panel by adding the className 'itsa-styledpanel' to the container.
+         * The css-rules for the class 'itsa-styledpanel' are coming together with this module.
          *
          * @attribute styled
          * @type {Boolean}
@@ -332,8 +382,10 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             }
         },
         /**
+         * Boolean indicating whether or not the Panel is visible.
+         * Standard is set to false (on the contrary to Y.Widget)
+         *
          * @attribute visible
-         * @description Boolean indicating whether or not the Panel is visible.
          * @default false
          * @type boolean
          */
@@ -344,10 +396,11 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             }
         },
         /**
+         * Width of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
+         *
          * @attribute width
-         * @description width of the Panel
          * @default null
-         * @type number
+         * @type {Number}
          */
         width: {
             value: null,
@@ -358,12 +411,29 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             getter: '_getWidth',
             setter: '_setWidth'
         },
+        /**
+         * Title of the view (headercontent). Is only used when 'headerView' is not set: if so then headerView takes care of the headersection-content.
+         *
+         * @attribute title
+         * @type String
+         * @default null
+         * @since 0.1
+        */
         title : {
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
         },
+        /**
+         * Right side of the title of the view (headercontent). Is only used when 'headerView' is not set: if so then headerView takes care of the headersection-content.
+         * When not set, then Y.ITSAPanel will render a 'closebutton' in this area.
+         *
+         * @attribute titleRight
+         * @type String
+         * @default null
+         * @since 0.1
+        */
         titleRight : {
             value: null,
             validator: function(val) {
@@ -373,11 +443,17 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
     }
 });
 
+/**
+ * @method initializer
+ * @protected
+ * @since 0.1
+*/
 ITSAPanel.prototype.initializer = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
         className = instance.get(CLASSNAME);
 
+    Y.log('initializer ', 'info', 'ITSAPanel');
     // asynchroniously loading fonticons:
     Y.use(GALLERYCSS_ITSA+'base', GALLERYCSS_ITSA+'form');
 
@@ -416,6 +492,12 @@ ITSAPanel.prototype.initializer = function() {
 /*jshint expr:false */
 };
 
+/**
+ * ITSAPanel's bindUI-method. Binds events
+ *
+ * @method bindUI
+ * @since 0.1
+*/
 ITSAPanel.prototype.bindUI = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
@@ -425,6 +507,7 @@ ITSAPanel.prototype.bindUI = function() {
         bodyView = instance.get(BODYVIEW),
         footerView = instance.get(FOOTERVIEW);
 
+    Y.log('bindUI ', 'info', 'ITSAPanel');
 /*jshint expr:true */
     (headerView instanceof Y.View) && headerView.addTarget(instance);
     (bodyView instanceof Y.View) && bodyView.addTarget(instance);
@@ -493,7 +576,7 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            [RESIZE+':end', 'height'+CHANGE, 'width'+CHANGE, 'minHeight'+CHANGE, 'minWidth'+CHANGE],
+            [RESIZE+':end', HEIGHT+CHANGE, WIDTH+CHANGE, 'minHeight'+CHANGE, 'minWidth'+CHANGE],
             function(e) {
 /*jshint expr:true */
                 instance.get(CENTERED) && instance.centered();
@@ -564,6 +647,27 @@ ITSAPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
+        instance.on(
+            BODYVIEW+CHANGE,
+            Y.bind(instance._renderBody(), instance)
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
+            HEADERVIEW+CHANGE,
+            Y.bind(instance._renderHeader(), instance)
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
+            FOOTERVIEW+CHANGE,
+            Y.bind(instance._renderFooter(), instance)
+        )
+    );
+
+    eventhandlers.push(
         instance._header.delegate(
             CLICK,
             function(e) {
@@ -574,16 +678,30 @@ ITSAPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        boundingBox.on(CLICK, function(e) {
-            var buttonNode = e.target,
+        boundingBox.delegate(
+            CLICK,
+            function(e) {
+                var buttonNode = e.target,
+                    payload;
+                // because the click could be on an inner-node of the button, e.target doesn't always need to be a button-tag
+                while (buttonNode && (buttonNode.get('tagName')!=='BUTTON')) {
+                    buttonNode = buttonNode.get('parentNode');
+                }
                 payload = {
                     type: BUTTON_CLICK,
                     target: instance,
-                    value: buttonNode.get(VALUE),
+                    value: buttonNode && buttonNode.get(VALUE),
                     buttonNode: buttonNode
                 };
+                instance.fire(BUTTON_CLICK, payload);
+            },
+            BUTTON
+        )
+    );
+
+    eventhandlers.push(
+        boundingBox.on(CLICK, function() {
             instance.focus();
-            instance.fire(BUTTON_CLICK, payload);
         })
     );
 
@@ -608,10 +726,17 @@ ITSAPanel.prototype.bindUI = function() {
     );
 };
 
+/**
+ * ITSAPanel's renderUI-method. Creates the dom-elements.
+ *
+ * @method renderUI
+ * @since 0.1
+*/
 ITSAPanel.prototype.renderUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX);
 
+    Y.log('renderUI ', 'info', 'ITSAPanel');
     contentBox.setHTML(HEADERTEMPLATE+BODYTEMPLATE+FOOTERTEMPLATE);
     instance._header = contentBox.one('.'+PANELHEADERINNERCLASS);
     instance._body = contentBox.one('.'+PANELBODYINNERCLASS);
@@ -626,6 +751,7 @@ ITSAPanel.prototype.renderUI = function() {
  * Cleans up bindings
  * @method destructor
  * @protected
+ * @since 0.1
 */
 ITSAPanel.prototype.destructor = function() {
     var instance = this,
@@ -635,7 +761,7 @@ ITSAPanel.prototype.destructor = function() {
         bodyView = instance.get(BODYVIEW),
         footerView = instance.get(FOOTERVIEW);
 
-    Y.log('destructor', 'info', 'ITSA-ViewModel');
+    Y.log('destructor ', 'info', 'ITSAPanel');
 /*jshint expr:true */
     (headerView instanceof Y.View) && headerView.removeTarget(instance);
     (bodyView instanceof Y.View) && bodyView.removeTarget(instance);
@@ -646,13 +772,35 @@ ITSAPanel.prototype.destructor = function() {
     instance._clearEventhandlers();
 };
 
+/**
+ * Sets the paddingbottom-value of the contentBox to the height of the footer-section.
+ * This makes all section to fit inside the contentBox.
+ *
+ * @method _adjustPaddingBottom
+ * @private
+ * @protected
+ * @since 0.1
+*/
 ITSAPanel.prototype._adjustPaddingBottom = function() {
     var instance = this;
+
+    Y.log('_adjustPaddingBottom ', 'info', 'ITSAPanel');
     instance.get(CONTENTBOX).setStyle(PADDINGBOTTOM, instance._footer.get(OFFSETHEIGHT)+PX);
 };
 
+/**
+ * Sets the paddingtop-value of the contentBox to the height of the header-section.
+ * This makes all section to fit inside the contentBox.
+ *
+ * @method _adjustPaddingTop
+ * @private
+ * @protected
+ * @since 0.1
+*/
 ITSAPanel.prototype._adjustPaddingTop = function() {
     var instance = this;
+
+    Y.log('_adjustPaddingTop ', 'info', 'ITSAPanel');
     instance.get(CONTENTBOX).setStyle(PADDINGTOP, instance._header.get(OFFSETHEIGHT)+PX);
 };
 
@@ -661,11 +809,11 @@ ITSAPanel.prototype._adjustPaddingTop = function() {
  *
  * @method _clearEventhandlers
  * @private
- * @since 0.3
- *
+ * @protected
+ * @since 0.1
 */
 ITSAPanel.prototype._clearEventhandlers = function() {
-    Y.log('_clearEventhandlers', 'info', 'ITSA-ViewModel');
+    Y.log('_clearEventhandlers ', 'info', 'ITSAPanel');
     YArray.each(
         this._eventhandlers,
         function(item){
@@ -674,21 +822,48 @@ ITSAPanel.prototype._clearEventhandlers = function() {
     );
 };
 
+/**
+ * Getter of the 'height'-attribute
+ *
+ * @method _getHeight
+ * @private
+ * @return {Number} height in pixels
+ * @since 0.1
+*/
 ITSAPanel.prototype._getHeight = function() {
-    this.get(BOUNDINGBOX).get(OFFSETHEIGHT);
+    Y.log('_getHeight ', 'info', 'ITSAPanel');
+    return Math.round(this.get(BOUNDINGBOX).get(OFFSETHEIGHT));
 };
 
+/**
+ * Getter of the 'width'-attribute
+ *
+ * @method _getWidth
+ * @private
+ * @return {Number} height in pixels
+ * @since 0.1
+*/
 ITSAPanel.prototype._getWidth = function() {
-    this.get(BOUNDINGBOX).get(OFFSETWIDTH);
+    Y.log('_getWidth ', 'info', 'ITSAPanel');
+    return Math.round(this.get(BOUNDINGBOX).get(OFFSETWIDTH));
 };
 
+/**
+ * Renderes the header-content. Either by templating (if 'headerView' is a String), or by calling headerView.render() in case headerView is a Y.View-instance.
+ *
+ * @method _renderHeader
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._renderHeader = function() {
     var instance = this,
         title = instance.get(TITLE),
         titleRight = instance.get(TITLE+RIGHT),
         headerView = instance.get(HEADERVIEW);
+
+    Y.log('_renderHeader ', 'info', 'ITSAPanel');
     if (!headerView || (typeof headerView===STRING)) {
-        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {panel_title: (title || ''), panel_title_right: (titleRight || CLOSE_BUTTON)}));
+        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: (titleRight || CLOSE_BUTTON)}));
     }
     else if (headerView instanceof Y.View) {
         headerView._set('container', instance._header);
@@ -698,11 +873,22 @@ ITSAPanel.prototype._renderHeader = function() {
     }
     instance._adjustPaddingTop();
 };
+
+/**
+ * Renderes the BODY-content. Either by templating (if 'BODYView' is a String), or by calling BODYView.render() in case BODYView is a Y.View-instance.
+ *
+ * @method _renderBody
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._renderBody = function() {
     var instance = this,
+        body = instance.get(BODY),
         bodyView = instance.get(BODYVIEW);
+
+    Y.log('_renderBody ', 'info', 'ITSAPanel');
     if (!bodyView || (typeof bodyView===STRING)) {
-        instance._body.setHTML(bodyView || DEFAULT_BODYVIEW);
+        instance._body.setHTML(Lang.sub((bodyView || DEFAULT_BODYVIEW), {body: (body || '')}));
     }
     else if (bodyView instanceof Y.View) {
         bodyView._set('container', instance._body);
@@ -711,6 +897,14 @@ ITSAPanel.prototype._renderBody = function() {
 /*jshint expr:false */
     }
 };
+
+/**
+ * Renderes the footer-content. Either by templating (if 'footerView' is a String), or by calling footerView.render() in case footerView is a Y.View-instance.
+ *
+ * @method _renderFooter
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._renderFooter = function() {
     var instance = this,
         footer = instance.get(FOOTER),
@@ -718,9 +912,11 @@ ITSAPanel.prototype._renderFooter = function() {
         footerView = instance.get(FOOTERVIEW),
         instanceFooter = instance._footer,
         hideFooter = !footerView && !footer && !footerRight;
+
+    Y.log('_renderFooter ', 'info', 'ITSAPanel');
     if (!hideFooter) {
         if (!footerView || (typeof footerView===STRING)) {
-            instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {panel_footer: (footer || ''), panel_footer_right: (footerRight || '')}));
+            instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {footer: (footer || ''), footerRight: (footerRight || '')}));
         }
         else if (footerView instanceof Y.View) {
             footerView._set('container', instance._footer);
@@ -733,64 +929,110 @@ ITSAPanel.prototype._renderFooter = function() {
     instance._footercont.toggleClass(HIDDENSECTIONCLASS, hideFooter);
     instance._adjustPaddingBottom();
 };
-ITSAPanel.prototype._setBodyView = function() {
-    var instance = this;
-/*jshint expr:true */
-    instance.get(RENDERED) && instance._renderBody();
-/*jshint expr:false */
-};
+
+/**
+ * Renderes the footer-content. Either by templating (if 'footerView' is a String), or by calling footerView.render() in case footerView is a Y.View-instance.
+ *
+ * @method _setDimensions
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setDimensions = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX);
+
+    Y.log('_setDimensions ', 'info', 'ITSAPanel');
 // only if dimensions not set manually, we need to remove these first, then set the calculated values
 /*jshint expr:true */
-    instance._widthSet || contentBox.setStyle('width', '');
-    instance._heightSet || contentBox.setStyle('height', '');
+    instance._widthSet || contentBox.setStyle(WIDTH, '');
+    instance._heightSet || contentBox.setStyle(HEIGHT, '');
     // unfortuanatly, we need to increase the final size with one, due to roundingerrors
-    instance._widthSet || contentBox.setStyle('width', 1+contentBox.get(OFFSETWIDTH)+PX);
-    instance._heightSet || contentBox.setStyle('height', 1+contentBox.get(OFFSETHEIGHT)+PX);
+    instance._widthSet || contentBox.setStyle(WIDTH, 1+Math.round(contentBox.get(OFFSETWIDTH))+PX);
+    instance._heightSet || contentBox.setStyle(HEIGHT, 1+Math.round(contentBox.get(OFFSETHEIGHT))+PX);
 /*jshint expr:false */
 };
-ITSAPanel.prototype._setFooterView = function() {
-    var instance = this;
-/*jshint expr:true */
-    instance.get(RENDERED) && instance._renderFooter();
-/*jshint expr:false */
-};
-ITSAPanel.prototype._setHeaderView = function() {
-    var instance = this;
-/*jshint expr:true */
-    instance.get(RENDERED) && instance._renderHeader();
-/*jshint expr:false */
-};
+
+/**
+ * Setter for the 'height'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
+ *
+ * @method _setHeight
+ * @param val {Number} new value
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setHeight = function(val) {
-    var instance = this,
-        boundingBox = instance.get(BOUNDINGBOX);
-/*jshint expr:true */
-    val && (val-=GETSTYLE(boundingBox, BORDERTOPWIDTH)+GETSTYLE(boundingBox, BORDERBOTTOMWIDTH));
-/*jshint expr:false */
-    instance.get(CONTENTBOX).setStyle('height', (val ? (val+PX) : ''));
+    var instance = this;
+
+    Y.log('_setHeight ', 'info', 'ITSAPanel');
+    instance.get(CONTENTBOX).setStyle(HEIGHT, (val ? (val+PX) : ''));
     instance._heightSet = (typeof val === NUMBER);
 };
+
+/**
+ * Setter for the 'maxHeight'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
+ *
+ * @method _setMaxHeight
+ * @param val {Number} new value
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setMaxHeight = function(val) {
+    Y.log('_setMaxHeight ', 'info', 'ITSAPanel');
     this.get(CONTENTBOX).setStyle('maxHeight', (val ? (val+PX) : ''));
 };
+
+/**
+ * Setter for the 'maxWidth'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
+ *
+ * @method _setMaxWidth
+ * @param val {Number} new value
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setMaxWidth = function(val) {
+    Y.log('_setMaxWidth ', 'info', 'ITSAPanel');
     this.get(CONTENTBOX).setStyle('maxWidth', (val ? (val+PX) : ''));
 };
+
+/**
+ * Setter for the 'minHeight'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
+ *
+ * @method _setMinHeight
+ * @param val {Number} new value
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setMinHeight = function(val) {
+    Y.log('_setMinHeight ', 'info', 'ITSAPanel');
     this.get(CONTENTBOX).setStyle('minHeight', (val ? (val+PX) : ''));
 };
+
+/**
+ * Setter for the 'minWidth'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
+ *
+ * @method _setMinWidth
+ * @param val {Number} new value
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setMinWidth = function(val) {
+    Y.log('_setMinWidth ', 'info', 'ITSAPanel');
     this.get(CONTENTBOX).setStyle('minWidth', (val ? (val+PX) : ''));
 };
+
+/**
+ * Setter for the 'width'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
+ *
+ * @method _setWidth
+ * @param val {Number} new value
+ * @private
+ * @since 0.1
+*/
 ITSAPanel.prototype._setWidth = function(val) {
-    var instance = this,
-        boundingBox = instance.get(BOUNDINGBOX);
-/*jshint expr:true */
-    val && (val-=GETSTYLE(boundingBox, BORDERLEFTWIDTH)+GETSTYLE(boundingBox, BORDERRIGHTWIDTH));
-/*jshint expr:false */
-    instance.get(CONTENTBOX).setStyle('width', (val ? (val+PX) : ''));
+    var instance = this;
+
+    Y.log('_setWidth ', 'info', 'ITSAPanel');
+    instance.get(CONTENTBOX).setStyle(WIDTH, (val ? (val+PX) : ''));
     instance._widthSet = (typeof val === NUMBER);
 };
 
@@ -798,6 +1040,7 @@ ITSAPanel.prototype._setWidth = function(val) {
     "requires": [
         "node-pluginhost",
         "dd-ddm",
+        "node-event-delegate",
         "base-build",
         "widget-autohide",
         "widget-modality",

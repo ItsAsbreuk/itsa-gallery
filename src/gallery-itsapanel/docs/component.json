@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsapanel",
     "displayName": "Gallery: gallery-itsapanel",
-    "description": "Y.ITSAPanel is very much alike Y.Panel. Major difference is that you can attach both View's and Strings.",
+    "description": "Y.ITSAPanel is very much like Y.Panel. Major difference is that you can attach both View's and Strings, but there are more...",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsapanel" ],
 
@@ -42,6 +42,15 @@
             "author"     : [ "itsasbreuk" ],
             "modules"    : [ "gallery-itsapanel"],
             "tags"    : ["gallery-itsapanel", "panel", "inline", "itsapanel"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "custom-css",
+            "displayName": "Customize style",
+            "description": "This example shows how to create your own stylescheme for ITSAPanel-instances.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : [ "gallery-itsapanel"],
+            "tags"    : ["gallery-itsapanel", "panel", "style", "css", "stylescheme", "itsapanel"],
             "hideTableOfContents": true
         }
     ]
