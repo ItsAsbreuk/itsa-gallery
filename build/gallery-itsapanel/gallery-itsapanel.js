@@ -679,12 +679,8 @@ ITSAPanel.prototype.bindUI = function() {
         boundingBox.delegate(
             CLICK,
             function(e) {
-                var buttonNode = e.target,
+                var buttonNode = e.currentTarget,
                     payload;
-                // because the click could be on an inner-node of the button, e.target doesn't always need to be a button-tag
-                while (buttonNode && (buttonNode.get('tagName')!=='BUTTON')) {
-                    buttonNode = buttonNode.get('parentNode');
-                }
                 payload = {
                     type: BUTTON_CLICK,
                     target: instance,
