@@ -918,7 +918,6 @@ ITSAPanel.prototype._renderFooter = function() {
             footerView.render && footerView.render();
 /*jshint expr:false */
         }
-        instanceFooter.removeClass(HIDDENSECTIONCLASS);
     }
     instance._footercont.toggleClass(HIDDENSECTIONCLASS, hideFooter);
     instance._adjustPaddingBottom();
