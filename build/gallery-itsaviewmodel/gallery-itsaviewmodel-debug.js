@@ -593,10 +593,9 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 getter: function(v) {
                     var instance = this;
                     // Because _textTemplate might exists in case of clear text instead of a model, we need to return the right template.
-                    return instance._textTemplate || v || instance._intl.undefined_template;
+                    return instance._textTemplate || ((v===null) ? (instance.warnNoTemplate ? instance._intl.undefined_template : '') : v);
                 }
             }
-
         }
     }
 );
@@ -613,6 +612,24 @@ ITSAViewModel.prototype.initializer = function() {
         model = instance.get(MODEL);
 
     Y.log('initializer', 'info', 'ITSA-ViewModel');
+
+    /**
+     * Internal objects with internationalized buttonlabels
+     *
+     * @property _intl
+     * @private
+     * @type Object
+    */
+    instance._intl = YIntl.get(GALLERY+ITSAVIEWMODEL);
+
+    /**
+     * Warns when a user forgets to add a template
+     *
+     * @property warnNoTemplate
+     * @type Boolean
+     * @default true
+    */
+    instance.warnNoTemplate = true;
 
     /**
      * PreventDefault function of destroyclick-event.
@@ -775,15 +792,6 @@ ITSAViewModel.prototype.initializer = function() {
 /*jshint expr:true */
     model && model.addTarget && model.addTarget(instance);
 /*jshint expr:false */
-
-    /**
-     * Internal objects with internationalized buttonlabels
-     *
-     * @property _intl
-     * @private
-     * @type Object
-    */
-    instance._intl = YIntl.get(GALLERY+ITSAVIEWMODEL);
 
     /**
      * Internal hash with custom buttons
