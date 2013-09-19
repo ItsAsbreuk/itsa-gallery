@@ -566,8 +566,8 @@ ITSAPanel.prototype.bindUI = function() {
                 tipsyValid = itsaformelement && itsaformelement.tipsyValid,
                 tipsyInvalid = itsaformelement && itsaformelement.tipsyInvalid;
 /*jshint expr:true */
-            tipsyValid && tipsyValid.get(VISIBLE) && tipsyValid._alignTooltip(tipsyValid._lastnode);
-            tipsyInvalid && tipsyInvalid.get(VISIBLE) && tipsyInvalid._alignTooltip(tipsyInvalid._lastnode);
+            tipsyValid && tipsyValid.get(VISIBLE) && tipsyValid._lastnode && tipsyValid._alignTooltip(tipsyValid._lastnode);
+            tipsyInvalid && tipsyInvalid.get(VISIBLE) && tipsyInvalid._lastnode && tipsyInvalid._alignTooltip(tipsyInvalid._lastnode);
 /*jshint expr:false */
         })
     );
