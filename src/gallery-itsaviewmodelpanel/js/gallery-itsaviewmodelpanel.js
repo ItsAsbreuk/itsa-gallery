@@ -287,7 +287,7 @@ ITSAViewModelPanel.prototype.initializer = function() {
         }
     );
 /*jshint expr:true */
-    instance.get(VISIBLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS);
+    instance.get(VISIBLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
 /*jshint expr:false */
 };
 
@@ -365,15 +365,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(FOCUSED+CHANGE, function(e) {
             var itsatabkeymanager = contentBox.itsatabkeymanager;
-        /*jshint expr:true */
-            e.newVal && itsatabkeymanager && itsatabkeymanager._retreiveFocus();
-        /*jshint expr:false */
-        })
-    );
-
-    eventhandlers.push(
-        instance.after(FOCUSED+CHANGE, function(e) {
-            var itsatabkeymanager = contentBox.itsatabkeymanager;
+            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, e.newVal);
         /*jshint expr:true */
             e.newVal && itsatabkeymanager && itsatabkeymanager._retreiveFocus();
         /*jshint expr:false */

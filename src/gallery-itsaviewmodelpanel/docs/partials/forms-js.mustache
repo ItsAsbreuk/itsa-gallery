@@ -1,23 +1,11 @@
-YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', 'json-stringify', 'gallery-itsadialog', function(Y) {
-    var view, artist, template;
+YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slider', 'gallerycss-itsa-base', 'gallerycss-itsa-form', function(Y) {
+    var view, artist, template, footertemplate;
 
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
 
     // create MyFormModelClass
-    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
-        sync: function (action, options, callback) {
-            switch (action) {
-              case 'submit':
-                Y.later(1500, null, function() {
-                    callback();
-                });
-                return;
-              default:
-                callback('Invalid action');
-            }
-        }
-    }, {
+    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], null, {
         ATTRS: {
             name: {
                 formtype: 'text',
@@ -70,18 +58,24 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                     '<div class="pure-control-group">{name}</div>'+
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
-                    '<div class="pure-control-group">{release}</div>'+
-                    '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>';
+                    '<div class="pure-control-group">{release}</div>';
                 '</fieldset>';
 
-    view = new Y.ITSAViewModel({
+    footertemplate = '{btn_reset} {spinbtn_submit}';
+
+    view = new Y.ITSAViewModelPanel({
         container: '#viewcont',
         model: artist,
         template: template,
-        editable: true
+        footerTemplate: footertemplate,
+        centered: true,
+        dragable: true,
+        editable: true,
+        width: 375
     });
 
     view.render();
+    view.show();
 
     view.on('buttonclick', function(e) {
         console.log('buttonclick');
