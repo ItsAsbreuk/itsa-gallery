@@ -1,7 +1,23 @@
-YUI(yuiconfig).use('gallery-itsaviewmodelpanel', 'gallery-itsaformmodel', function(Y) {
-    var panel, artist, template, footerTemplate;
+YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', 'json-stringify', 'gallery-itsadialog', function(Y) {
+    var view, artist, template;
 
-    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {}, {
+    // adding skin sam to body for getting the right skin for the widgets
+    Y.one('body').addClass('yui3-skin-sam');
+
+    // create MyFormModelClass
+    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
+        sync: function (action, options, callback) {
+            switch (action) {
+              case 'submit':
+                Y.later(1500, null, function() {
+                    callback();
+                });
+                return;
+              default:
+                callback('Invalid action');
+            }
+        }
+    }, {
         ATTRS: {
             name: {
                 formtype: 'text',
@@ -16,7 +32,8 @@ YUI(yuiconfig).use('gallery-itsaviewmodelpanel', 'gallery-itsaformmodel', functi
                 formconfig: {
                     label: 'Country',
                     placeholder: 'country',
-                    required: true
+                    required: true,
+                    initialfocus: true
                 }
             },
             firstalbum: {
@@ -46,6 +63,7 @@ YUI(yuiconfig).use('gallery-itsaviewmodelpanel', 'gallery-itsaformmodel', functi
         firstalbum: 'Boy',
         release: 1980
     });
+    artist.setLifeUpdate(true);
 
     template = '<fieldset>'+
                     '<legend>Editable template</legend>'+
@@ -53,23 +71,28 @@ YUI(yuiconfig).use('gallery-itsaviewmodelpanel', 'gallery-itsaformmodel', functi
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
+                    '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>';
                 '</fieldset>';
 
-    footerTemplate = '<div class="pure-control-group">{btn_reset} {spinbtn_submit}</div>';
-
-    panel = new Y.ITSAViewModelPanel({
-        boundingBox: '#panel1',
-        visible: true,
-        centered: true,
-        dragable: true,
-     //   modal: true,
-        editable: true,
-        title: 'settings',
+    view = new Y.ITSAViewModel({
+        container: '#viewcont',
         model: artist,
         template: template,
-        footerTemplate: footerTemplate
+        editable: true
     });
 
-    panel.render();
+    view.render();
 
+    view.on('buttonclick', function(e) {
+        console.log('buttonclick');
+    });
+
+
+    view.after('modelsubmit', function(e) {
+     //   Y.alert('Values are submitted', 'Here are all the attribute-values: '+Y.JSON.stringify(e.target.toJSON()).replace(/\,/g, '</br>'));
+    });
+
+    view.on('validationerror', function(e) {
+        Y.alert('error', 'validation error');
+    });
 });

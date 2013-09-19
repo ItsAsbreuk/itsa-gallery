@@ -1,35 +1,38 @@
 <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
 
 <style type="text/css">
-{{>simple-panel-css}}
+{{>form-without-buttons-css}}
 </style>
 
 <div class="intro">
     <p>
         {{description}}
     </p>
+    <p>
+        Just fill in a username and passport and press 'enter'. By specifying the 'formconfig.submitonenter=true' (of the password-attribute), we manage to auto-submit the model.
+    </p>
 </div>
 
-{{>simple-panel-html}}
+{{>form-without-buttons-html}}
 
 <h2>Code</h2>
 ```
-{{>simple-panel-js}}
+{{>form-without-buttons-js}}
 ```
 
 <h2>Complete Example Source</h2>
 ```
 <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
 <style type="text/css">
-{{>simple-panel-css}}
+{{>form-without-buttons-css}}
 </style>
 
 <body>
 
-{{>simple-panel-html}}
+{{>form-without-buttons-html}}
 
 <script>
-{{>simple-panel-js}}
+{{>form-without-buttons-js}}
 </script>
 
 </body>
@@ -38,5 +41,5 @@
 <script>
 {{>init-loaderconfig-js}}
 {{>loaderconfig-js}}
-{{>simple-panel-js}}
+{{>form-without-buttons-js}}
 </script>

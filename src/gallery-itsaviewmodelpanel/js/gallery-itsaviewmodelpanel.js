@@ -80,6 +80,22 @@ var ITSAViewModelPanel,
 ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', Y.ITSAPanel, [], null, {
     ATTRS: {
         /**
+         * Overruled from Y.ITSAPanel by making writeOnce=true.<br />
+         * Template of the bodysection. Can be either a Y.Lang.sub-template or a Y.View.<br />
+         * When a String-template is set, the template can make use of {body}, which will automaticly be replaced by the body-attribute under the hood.<br />
+         * When an Y.View instance is set, the View's 'container' will be bound to the bodysection-div automaticly and the View's render() method
+         * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
+         *
+         * @attribute bodyView
+         * @type {String|Y.View}
+         * @default null
+         * @since 0.1
+        */
+        bodyView : {
+            value: null,
+            writeOnce: true
+        },
+        /**
          * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
          *
          * @attribute editable
@@ -129,6 +145,41 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             validator: function(v) {
                 return (typeof v === STRING);
             }
+        },
+
+        /**
+         * Overruled from Y.ITSAPanel by making writeOnce=true.<br />
+         * Template of the footersection. Can be either a Y.Lang.sub-template or a Y.View.<br />
+         * When a String-template is set, the template can make use of {footer} and {footerRight}, which will automaticly be replaced by the footer and footerRight-attributes under the hood.<br />
+         * When an Y.View instance is set, the View's 'container' will be bound to the footersection-div automaticly and the View's render() method
+         * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
+         *
+         * @attribute footerView
+         * @type {String|Y.View}
+         * @default null
+         * @since 0.1
+        */
+        footerView : {
+            value: null,
+            writeOnce: true
+        },
+
+        /**
+         * Overruled from Y.ITSAPanel by making readOnly=true.<br />
+         * Template of the headersection. Can be either a Y.Lang.sub-template or a Y.View.<br />
+         * When a String-template is set, the template can make use of {title} and {titleRight}, which will automaticly be replaced by the title and titleRight-attributes
+         * under the hood. You need {titleRight} if you want the 'close-button' to render when the attribute 'titleRight' keeps undefined.<br />
+         * When an Y.View instance is set, the View's 'container' will be bound to the headersection-div automaticly and the View's render() method
+         * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
+         *
+         * @attribute headerView
+         * @type {String|Y.View}
+         * @default null
+         * @since 0.1
+        */
+        headerView : {
+            value: null,
+            readOnly: true
         },
 
         hideOnBtnFooter: {
@@ -198,7 +249,8 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
 
 ITSAViewModelPanel.prototype.initializer = function() {
     var instance = this,
-        model = instance.get(MODEL);
+        model = instance.get(MODEL),
+        footertemplate = instance.get(FOOTERTEMPLATE);
 
     /**
      * Internal list of all eventhandlers bound by this widget.
@@ -209,20 +261,22 @@ ITSAViewModelPanel.prototype.initializer = function() {
     */
     instance._eventhandlers = [];
 
-    instance.set(BODYVIEW, new Y.ITSAViewModel({
+    instance._set(BODYVIEW, new Y.ITSAViewModel({
         model: model,
         template: instance.get(TEMPLATE),
         editable: instance.get(EDITABLE),
         styled: false,
         focusManaged: false // will be done at the Panel-level
     }));
-    instance.set(FOOTERVIEW, new Y.ITSAViewModel({
+/*jshint expr:true */
+    footertemplate && instance._set(FOOTERVIEW, new Y.ITSAViewModel({
         model: model,
-        template: instance.get(FOOTERTEMPLATE),
+        template: footertemplate,
         editable: false,
         styled: false,
         focusManaged: false // will be done at the Panel-level
     }));
+/*jshint expr:false */
 
     // publishing event 'focusnext'
     instance.publish(
@@ -318,6 +372,32 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
+        instance.after(FOCUSED+CHANGE, function(e) {
+            var itsatabkeymanager = contentBox.itsatabkeymanager;
+        /*jshint expr:true */
+            e.newVal && itsatabkeymanager && itsatabkeymanager._retreiveFocus();
+        /*jshint expr:false */
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(FOOTERTEMPLATE+CHANGE, function(e) {
+        /*jshint expr:true */
+            var newTemplate = e.newVal,
+                prevTemplate = e.prevVal;
+            newTemplate && !prevTemplate && instance._set(FOOTERVIEW, new Y.ITSAViewModel({
+                model: instance.get(MODEL),
+                template: newTemplate,
+                editable: false,
+                styled: false,
+                focusManaged: false // will be done at the Panel-level
+            }));
+            prevTemplate && !newTemplate && prevTemplate.destroy() && instance._set(FOOTERVIEW, null);
+        /*jshint expr:false */
+        })
+    );
+
+    eventhandlers.push(
         instance._footer.delegate(
             CLICK,
             function(e) {
@@ -369,12 +449,16 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 */
 ITSAViewModelPanel.prototype.destructor = function() {
     var instance = this,
-        contentBox = instance.get(CONTENTBOX);
+        contentBox = instance.get(CONTENTBOX),
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
 
     Y.log('destructor', 'info', 'ITSA-ViewModel');
     instance._clearEventhandlers();
 /*jshint expr:true */
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
+    bodyview && bodyview.destroy();
+    footerview && footerview.destroy();
 /*jshint expr:false */
 };
 
@@ -399,9 +483,6 @@ ITSAViewModelPanel.prototype._defFn_focusnext = function() {
     }
 };
 
-ITSAViewModelPanel.prototype._setBodyView = function() {
-    // making empty --> do not redefine new views
-};
 /**
  * Sets or unsets the focusManager (provided by gallery-itsatabkeymanager)
  *
@@ -439,10 +520,4 @@ ITSAViewModelPanel.prototype._setFocusManager = function(activate) {
         itsatabkeymanager && contentBox.unplug(ITSATABKEYMANAGER);
 /*jshint expr:false */
     }
-};
-ITSAViewModelPanel.prototype._setFooterView = function() {
-    // making empty --> do not redefine new views
-};
-ITSAViewModelPanel.prototype._setHeaderView = function() {
-    // making empty --> do not redefine new views
 };
