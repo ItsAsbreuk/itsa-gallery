@@ -4,10 +4,6 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
 
-    // asynchroniously loading the 'gallerycss-itsa-special' css fonticons
-    // which supplies the 'itsaicon-special-bell'-icon
-    Y.use('gallerycss-itsa-special');
-
     // create MyFormModelClass
     Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
         sync: function (action, options, callback) {
