@@ -91,6 +91,25 @@ label[data-labeldatetime][data-changed] {
     -webkit-font-smoothing: antialiased;
 }
 
+.pure-form input[type="text"][disabled]:focus,
+.pure-form input[type="password"][disabled]:focus,
+.pure-form input[type="email"][disabled]:focus,
+.pure-form input[type="url"][disabled]:focus,
+.pure-form input[type="date"][disabled]:focus,
+.pure-form input[type="month"][disabled]:focus,
+.pure-form input[type="time"][disabled]:focus,
+.pure-form input[type="datetime"][disabled]:focus,
+.pure-form input[type="datetime-local"][disabled]:focus,
+.pure-form input[type="week"][disabled]:focus,
+.pure-form input[type="number"][disabled]:focus,
+.pure-form input[type="search"][disabled]:focus,
+.pure-form input[type="tel"][disabled]:focus,
+.pure-form input[type="color"][disabled]:focus,
+.pure-form select[disabled]:focus,
+.pure-form textarea[disabled]:focus {
+    border-color: #CCC;
+}
+
 span.formatvalue[disabled] {
     color: #CAD2D3;
     background-color: #EAEDED;

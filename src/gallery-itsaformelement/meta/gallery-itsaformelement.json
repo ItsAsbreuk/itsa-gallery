@@ -13,7 +13,9 @@
             "event-custom",
             "escape",
             "intl",
-            "gallerycss-itsa-base"
+            "gallerycss-itsa-base",
+            "gallery-tipsy",
+            "gallery-itsawidgetrenderpromise"
         ],
         "skinnable": true
     }
