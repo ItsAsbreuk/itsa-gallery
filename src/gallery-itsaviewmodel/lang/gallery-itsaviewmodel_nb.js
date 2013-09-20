@@ -7,6 +7,7 @@
     save: 'spare',
     submit: 'sende inn',
     load: 'last',
+    reload: 'lesse',
     abort: 'abortere',
     ignore: 'ignorere',
     retry: 'nytt forsøk',

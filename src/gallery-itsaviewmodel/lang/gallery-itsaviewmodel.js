@@ -7,6 +7,7 @@
     save: 'save',
     submit: 'submit',
     load: 'load',
+    reload: 'reload',
     abort: 'abort',
     ignore: 'ignore',
     retry: 'retry',

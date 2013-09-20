@@ -7,6 +7,7 @@
     save: 'spasiti',
     submit: 'podnijeti',
     load: 'opterećenje',
+    reload: 'pretovariti',
     abort: 'pobaciti',
     ignore: 'ignorirati',
     retry: 'ponovni pokušaj',

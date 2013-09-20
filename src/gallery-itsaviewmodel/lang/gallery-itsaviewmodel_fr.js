@@ -7,6 +7,7 @@
     save: 'conserver',
     submit: 'soumettre',
     load: 'charger',
+    reload: 'recharger',
     abort: 'abort',
     ignore: 'ignorer',
     retry: 'retry',

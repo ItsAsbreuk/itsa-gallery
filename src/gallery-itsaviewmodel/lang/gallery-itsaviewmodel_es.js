@@ -7,6 +7,7 @@
     save: 'guardar',
     submit: 'presentar',
     load: 'cargar',
+    reload: 'recargar',
     abort: 'anular',
     ignore: 'ignorar',
     retry: 'reintento',

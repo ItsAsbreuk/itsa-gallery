@@ -7,6 +7,7 @@
     save: 'gem',
     submit: 'indsende',
     load: 'indlæse',
+    reload: 'genindlæse',
     abort: 'afbryde',
     ignore: 'ignorere',
     retry: 'prøv igen',

@@ -7,6 +7,7 @@
     save: 'salva',
     submit: 'presentare',
     load: 'caricare',
+    reload: 'ricaricare',
     abort: 'abort',
     ignore: 'ignorare',
     retry: 'riprovare',

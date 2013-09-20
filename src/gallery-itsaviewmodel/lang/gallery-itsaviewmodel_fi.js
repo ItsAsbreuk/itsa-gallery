@@ -8,6 +8,7 @@
     submit: 'esittää',
     load: 'kuormitus',
     abort: 'keskeyttää',
+    reload: 'ladata',
     ignore: 'sivuuttaa',
     retry: 'uudelleen',
     ok: 'kunnossa',

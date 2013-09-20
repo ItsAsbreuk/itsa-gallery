@@ -7,6 +7,7 @@
     save: 'spara',
     submit: 'lämna',
     load: 'ladda',
+    reload: 'ladda om',
     abort: 'avbryta',
     ignore: 'ignorera',
     retry: 'försöka igen',

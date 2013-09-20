@@ -7,6 +7,8 @@
     save: 'opslaan',
     submit: 'verstuur',
     abort: 'afbreken',
+    load: 'laden',
+    reload: 'herladen',
     ignore: 'negeer',
     retry: 'opnieuw',
     ok: 'bevestig',

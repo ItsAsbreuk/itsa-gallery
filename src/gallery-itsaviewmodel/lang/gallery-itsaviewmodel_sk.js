@@ -7,6 +7,7 @@
     save: 'uložiť',
     submit: 'predložiť',
     load: 'zaťaženie',
+    reload: 'znova',
     abort: 'prerušiť',
     ignore: 'ignorovať',
     retry: 'opakovanie',

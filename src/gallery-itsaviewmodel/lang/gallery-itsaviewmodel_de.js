@@ -7,6 +7,7 @@
     save: 'speichern',
     submit: 'senden',
     load: 'laden',
+    reload: 'neu laden',
     abort: 'abbrechen',
     ignore: 'ignorieren',
     retry: 'wiederholen',

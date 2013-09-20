@@ -7,6 +7,7 @@
     save: 'oszczędzać',
     submit: 'przedkładać',
     load: 'załadować',
+    reload: 'przeładować',
     abort: 'poronić',
     ignore: 'ignorować',
     retry: 'spróbować ponownie',

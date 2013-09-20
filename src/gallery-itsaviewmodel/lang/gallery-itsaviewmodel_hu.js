@@ -7,6 +7,7 @@
     save: 'kivéve',
     submit: 'submit',
     load: 'terhelés',
+    reload: 'böngésződben',
     abort: 'megszakítja',
     ignore: 'figyelmen kívül hagy',
     retry: 'újra',

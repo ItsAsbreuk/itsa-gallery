@@ -7,6 +7,7 @@
     save: 'לחסוך',
     submit: 'להגיש',
     load: 'לטעון',
+    reload: 'לטעון מחדש',
     abort: 'להפיל',
     ignore: 'להתעלם',
     retry: 'נסה שוב',
