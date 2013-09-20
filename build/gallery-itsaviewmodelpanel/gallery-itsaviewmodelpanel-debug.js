@@ -293,6 +293,43 @@ ITSAViewModelPanel.prototype.initializer = function() {
 /*jshint expr:false */
 };
 
+/**
+ * Passes through to the underlying bodyView and footerView.<br />
+ * Defines a custom property that can be refered to using templating, f.i. {btn_button_1}
+ * <br />Imagebuttons can be set through 'labelHTML', f.i.: '<i class="icon-press"></i> press me' --> see module 'gallerycss-itsa-base' for more info.
+ *
+ * @method addCustomBtn
+ * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @param labelHTML {String} Text on the button (equals buttonId when not specified). You can use imagebuttons: see module 'gallerycss-itsa-base' how to create.
+ * @param [config] {Object} config (which that is passed through to Y.ITSAFormElement)
+ * @param [config.value] {String} returnvalue which is available inside the eventlistener through e.value
+ * @param [config.data] {String} when wanting to add extra data to the button, f.i. 'data-someinfo="somedata"'
+ * @param [config.disabled=false] {Boolean}
+ * @param [config.hidden=false] {Boolean}
+ * @param [config.hotkey] {String} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                                 The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                                 If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                                 F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
+ * @param [config.classname] for adding extra classnames to the button
+ * @param [config.focusable=true] {Boolean}
+ * @param [config.primary=false] {Boolean} making it the primary-button
+ * @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy
+ * @param [config.tooltip] {String} tooltip when Y.Tipsy or Y.Tipsy is used
+ * @since 0.3
+ *
+ */
+ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.addCustomBtn(buttonId, labelHTML, config);
+/*jshint expr:true */
+    footerview && footerview.addCustomBtn(buttonId, labelHTML, config);
+/*jshint expr:false */
+};
+
 ITSAViewModelPanel.prototype.bindUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX),
@@ -375,6 +412,21 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
+        instance.after(
+            ['*:modelload', '*:modelreset'],
+            function(e) {
+            var itsatabkeymanager = contentBox.itsatabkeymanager;
+                if (itsatabkeymanager && instance.get(VISIBLE)) {
+                    // first enable the UI again, this is done within the submit-defaultfunc of the model as well, but that code comes LATER.
+                    // and we need enabled element to set the focus
+                    e.model.enableUI();
+                    itsatabkeymanager.focusInitialItem();
+                }
+            }
+        )
+    );
+
+    eventhandlers.push(
         instance.after(FOOTERTEMPLATE+CHANGE, function(e) {
         /*jshint expr:true */
             var newTemplate = e.newVal,
@@ -434,6 +486,285 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         })
     );
 
+};
+
+/**
+ * Passes through to the underlying bodyView and footerView.<br />
+ * Removes custom buttonlabels defined with setButtonLabel().
+ * Available buttontypes are:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ * </ul>
+ *
+ * @method removeButtonLabel
+ * @param buttonType {String} the buttontype which text was replaced, one of those mentioned above.
+ * @since 0.3
+ *
+*/
+ITSAViewModelPanel.prototype.removeButtonLabel = function(buttonType) {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.removeButtonLabel(buttonType);
+/*jshint expr:true */
+    footerview && footerview.removeButtonLabel(buttonType);
+/*jshint expr:false */
+};
+
+/**
+ * Passes through to the underlying bodyView and footerView.<br />
+ * Removes custom buttons defined with addCustomBtn().
+ *
+ * @method removeCustomBtn
+ * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @since 0.3
+ *
+*/
+ITSAViewModelPanel.prototype.removeCustomBtn = function(buttonId) {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.removeCustomBtn(buttonId);
+/*jshint expr:true */
+    footerview && footerview.removeCustomBtn(buttonId);
+/*jshint expr:false */
+};
+
+/**
+ * Passes through to the underlying bodyView and footerView.<br />
+ * Removes custom buttonlabels defined with setButtonHotKey().
+ * 'buttontype' should be one of the folowing buttonTypes:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ * </ul>
+ *
+ * @method removeHotKey
+ * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above.
+ * @since 0.3
+ *
+*/
+ITSAViewModelPanel.prototype.removeHotKey = function(buttonType) {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.removeHotKey(buttonType);
+/*jshint expr:true */
+    footerview && footerview.removeHotKey(buttonType);
+/*jshint expr:false */
+};
+
+/**
+ * Passes through to the underlying bodyView and footerView.<br />
+ * Creates a custom label for the buttons that are referenced by one of the folowing buttonTypes:
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ * </ul>
+ * 'labelHTML' may consist <u>{label}</u> which will be replaced by the default internationalized labelHTML. This way you can create imagebuttons that still hold the default label.
+ * <b>Note</b> The default buttonLabels are internationalized, this feature will be lost when using this method (unless you use <u>{label}</u> in the new labelHTML).
+ *
+ * @method setButtonLabel
+ * @param buttonType {String} the buttontype which text should be replaced, which should be one of the types mentioned above.
+ * @param labelHTML {String} new button-label
+ * @since 0.3
+ *
+*/
+ITSAViewModelPanel.prototype.setButtonLabel = function(buttonType, labelHTML) {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.setButtonLabel(buttonType, labelHTML);
+/*jshint expr:true */
+    footerview && footerview.setButtonLabel(buttonType, labelHTML);
+/*jshint expr:false */
+};
+
+/**
+ * Passes through to the underlying bodyView and footerView.<br />
+ * Creates a listener to the specific hotkey (character). The hotkey will be bound to the specified buttonType, that should be one of types mentioned below.
+ * The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ * <ul>
+ *   <li>btn_abort</li>
+ *   <li>btn_cancel</li>
+ *   <li>btn_close</li>
+ *   <li>btn_destroy</li>
+ *   <li>btn_ignore</li>
+ *   <li>btn_load</li>
+ *   <li>btn_no</li>
+ *   <li>btn_ok</li>
+ *   <li>btn_remove</li>
+ *   <li>btn_reset</li>
+ *   <li>btn_retry</li>
+ *   <li>btn_save</li>
+ *   <li>btn_submit</li>
+ *   <li>btn_yes</li>
+ *   <li>imgbtn_abort</li>
+ *   <li>imgbtn_cancel</li>
+ *   <li>imgbtn_close</li>
+ *   <li>imgbtn_destroy</li>
+ *   <li>imgbtn_ignore</li>
+ *   <li>imgbtn_load</li>
+ *   <li>imgbtn_no</li>
+ *   <li>imgbtn_ok</li>
+ *   <li>imgbtn_remove</li>
+ *   <li>imgbtn_reset</li>
+ *   <li>imgbtn_retry</li>
+ *   <li>imgbtn_save</li>
+ *   <li>imgbtn_submit</li>
+ *   <li>imgbtn_yes</li>
+ *   <li>spinbtn_load</li>
+ *   <li>spinbtn_remove</li>
+ *   <li>spinbtn_save</li>
+ *   <li>spinbtn_submit</li>
+ * </ul>
+ *
+ * @method setHotKey
+ * @param buttonType {String} the buttontype which receives the hotkey, which should be one of the types mentioned above.
+ * @param hotkey {String|Object} character that act as a hotkey: 'alt+char' will focus and click the button.
+ *                               The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
+ *                               If you want to Internationize, the you need to supply an object where the properties are the language-tag and the values a string (character).
+ *                               F.i. {us: 'a', nl: 'o'}. When Internationize, there will be no hotkey when the used language is not found in the hotkey-object.
+ * @since 0.3
+ *
+*/
+ITSAViewModelPanel.prototype.setHotKey = function(buttonType, hotkey) {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.setHotKey(buttonType, hotkey);
+/*jshint expr:true */
+    footerview && footerview.setHotKey(buttonType, hotkey);
+/*jshint expr:false */
+};
+
+/**
+  * Passes through to the underlying bodyView and footerView.<br />
+  * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
+  * <ul>
+  *   <li>abort</li>
+  *   <li>cancel</li>
+  *   <li>close</li>
+  *   <li>destroy</li>
+  *   <li>ignore</li>
+  *   <li>load</li>
+  *   <li>reload</li>
+  *   <li>no</li>
+  *   <li>ok</li>
+  *   <li>remove</li>
+  *   <li>reset</li>
+  *   <li>retry</li>
+  *   <li>save</li>
+  *   <li>submit</li>
+  *   <li>yes</li>
+  * </ul>
+  *
+  * @method translate
+  * @return {String} Translated text or the original text (if no translattion was posible)
+ **/
+ITSAViewModelPanel.prototype.translate = function(text) {
+    return this.get(BODYVIEW).translate(text);
 };
 
 /**

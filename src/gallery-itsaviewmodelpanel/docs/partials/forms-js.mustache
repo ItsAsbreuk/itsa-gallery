@@ -5,7 +5,27 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
     Y.one('body').addClass('yui3-skin-sam');
 
     // create MyFormModelClass
-    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], null, {
+    Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
+        sync: function (action, options, callback) {
+            var instance = this;
+            switch (action) {
+              case 'read':
+                Y.later(1500, null, function() {
+                    // in this example just reset the data after 1,5 seconds
+                    instance.reset();
+                    callback();
+                });
+                return;
+              case 'submit':
+                Y.later(1500, null, function() {
+                    callback();
+                });
+                return;
+              default:
+                callback('Invalid action');
+            }
+        }
+    }, {
         ATTRS: {
             name: {
                 formtype: 'text',
@@ -20,8 +40,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
                 formconfig: {
                     label: 'Country',
                     placeholder: 'country',
-                    required: true,
-                    initialfocus: true
+                    required: true
                 }
             },
             firstalbum: {
@@ -54,26 +73,28 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
     artist.setLifeUpdate(true);
 
     template = '<fieldset>'+
-                    '<legend>Editable template</legend>'+
+                    '<legend>Musician</legend>'+
                     '<div class="pure-control-group">{name}</div>'+
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>';
                 '</fieldset>';
 
-    footertemplate = '{btn_reset} {spinbtn_submit}';
+    footertemplate = '{btn_reset}{spinbtn_load}{spinbtn_submit}';
 
     view = new Y.ITSAViewModelPanel({
         container: '#viewcont',
+        title: 'Enter data',
+//        titleRight: '', // <-- suppress default button close
         model: artist,
         template: template,
         footerTemplate: footertemplate,
         centered: true,
         dragable: true,
         editable: true,
-        width: 375
+        width: 420
     });
-
+    view.setButtonLabel('spinbtn_load', '<i class="itsaicon-form-load"></i>'+view.translate('reload'));
     view.render();
     view.show();
 
