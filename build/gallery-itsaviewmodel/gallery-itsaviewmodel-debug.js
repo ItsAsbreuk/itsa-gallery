@@ -897,19 +897,6 @@ ITSAViewModel.prototype.focus = function() {
 */
 
 /**
- * Removes custom buttons defined with addCustomBtn().
- *
- * @method removeCustomBtn
- * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
- * @since 0.3
- *
-*/
-ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
-    Y.log('removeCustomBtn', 'info', 'ITSA-ViewModel');
-    delete this._customBtns[buttonId];
-};
-
-/**
  * Removes custom buttonlabels defined with setButtonLabel().
  * Available buttontypes are:
  * <ul>
@@ -955,6 +942,19 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
 ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
     Y.log('removeButtonLabel', 'info', 'ITSA-ViewModel');
     delete this._customBtnLabels[buttonType];
+};
+
+/**
+ * Removes custom buttons defined with addCustomBtn().
+ *
+ * @method removeCustomBtn
+ * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
+    Y.log('removeCustomBtn', 'info', 'ITSA-ViewModel');
+    delete this._customBtns[buttonId];
 };
 
 /**
@@ -1191,6 +1191,34 @@ ITSAViewModel.prototype.toJSON = function() {
 };
 
 /**
+  * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
+  * <ul>
+  *   <li>abort</li>
+  *   <li>cancel</li>
+  *   <li>close</li>
+  *   <li>destroy</li>
+  *   <li>ignore</li>
+  *   <li>load</li>
+  *   <li>reload</li>
+  *   <li>no</li>
+  *   <li>ok</li>
+  *   <li>remove</li>
+  *   <li>reset</li>
+  *   <li>retry</li>
+  *   <li>save</li>
+  *   <li>submit</li>
+  *   <li>yes</li>
+  * </ul>
+  *
+  * @method translate
+  * @return {String} Translated text or the original text (if no translattion was posible)
+ **/
+ITSAViewModel.prototype.translate = function(text) {
+    Y.log('translate', 'info', 'ITSA-ViewModel');
+    return this._intl[text] || text;
+};
+
+/**
  * Cleans up bindings
  * @method destructor
  * @protected
@@ -1263,11 +1291,9 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             'resetclick',
             function() {
-                var itsatabkeymanager = container.itsatabkeymanager;
                 // need to re-render because the code might have made items visible/invisible based on their value
 /*jshint expr:true */
                 instance._isMicroTemplate && instance.render();
-                itsatabkeymanager && itsatabkeymanager.focusInitialItem();
 /*jshint expr:false */
             }
         )
