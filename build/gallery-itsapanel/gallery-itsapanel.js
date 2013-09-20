@@ -484,7 +484,6 @@ ITSAPanel.prototype.initializer = function() {
     className && boundingBox.addClass(className);
     instance.renderPromise().then(
         function() {
-            instance._setDimensions();
             instance.get(VISIBLE) && boundingBox.removeClass(HIDDENPANELCLASS);
         }
     );
@@ -575,10 +574,9 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(
             [RESIZE+':end', HEIGHT+CHANGE, WIDTH+CHANGE, 'minHeight'+CHANGE, 'minWidth'+CHANGE],
-            function(e) {
+            function() {
 /*jshint expr:true */
                 instance.get(CENTERED) && instance.centered();
-                (e.type===RESIZE+':end') && (instance._widthSet=true) && (instance._heightSet=true);
 /*jshint expr:false */
             }
         )
@@ -715,7 +713,6 @@ ITSAPanel.prototype.bindUI = function() {
         instance.after('*:viewrendered', function() {
             instance._adjustPaddingTop();
             instance._adjustPaddingBottom();
-            instance._setDimensions();
         })
     );
 };
@@ -914,27 +911,6 @@ ITSAPanel.prototype._renderFooter = function() {
 };
 
 /**
- * Renderes the footer-content. Either by templating (if 'footerView' is a String), or by calling footerView.render() in case footerView is a Y.View-instance.
- *
- * @method _setDimensions
- * @private
- * @since 0.1
-*/
-ITSAPanel.prototype._setDimensions = function() {
-    var instance = this,
-        contentBox = instance.get(CONTENTBOX);
-
-// only if dimensions not set manually, we need to remove these first, then set the calculated values
-/*jshint expr:true */
-    instance._widthSet || contentBox.setStyle(WIDTH, '');
-    instance._heightSet || contentBox.setStyle(HEIGHT, '');
-    // unfortuanatly, we need to increase the final size with one, due to roundingerrors
-    instance._widthSet || contentBox.setStyle(WIDTH, 1+Math.round(contentBox.get(OFFSETWIDTH))+PX);
-    instance._heightSet || contentBox.setStyle(HEIGHT, 1+Math.round(contentBox.get(OFFSETHEIGHT))+PX);
-/*jshint expr:false */
-};
-
-/**
  * Setter for the 'height'-attribute. For architecture reasons, the value will be set on the contentBox instead of the boundingBox.
  *
  * @method _setHeight
@@ -944,9 +920,7 @@ ITSAPanel.prototype._setDimensions = function() {
 */
 ITSAPanel.prototype._setHeight = function(val) {
     var instance = this;
-
     instance.get(CONTENTBOX).setStyle(HEIGHT, (val ? (val+PX) : ''));
-    instance._heightSet = (typeof val === NUMBER);
 };
 
 /**
@@ -1009,7 +983,6 @@ ITSAPanel.prototype._setWidth = function(val) {
     var instance = this;
 
     instance.get(CONTENTBOX).setStyle(WIDTH, (val ? (val+PX) : ''));
-    instance._widthSet = (typeof val === NUMBER);
 };
 
 }, '@VERSION@', {

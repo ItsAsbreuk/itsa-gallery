@@ -64,6 +64,9 @@
 .itsa-panel .itsa-panelinnerfooter {
     padding: 0.55em 1.2em 0.55em 0.7em;
 }
+.itsa-panel .itsaviewmodel {
+    overflow: hidden;
+}
 .itsa-panel .itsa-panelinnerfooter.itsaviewmodel {
     text-align: right;
 }
