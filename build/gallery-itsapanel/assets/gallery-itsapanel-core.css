@@ -67,6 +67,10 @@
 .itsa-panel .itsa-panelinnerfooter.itsaviewmodel {
     text-align: right;
 }
+.itsa-panel .itsa-panelinnerfooter button + button,
+.itsa-panel .itsa-panelinnerfooter button + button {
+    margin-left: 0.5em;
+}
 .itsa-panel .itsa-panelinnerheader >div,
 .itsa-panel .itsa-panelinnerfooter >div {
     vertical-align: middle;

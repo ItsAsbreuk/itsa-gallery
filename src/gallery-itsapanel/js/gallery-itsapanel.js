@@ -857,7 +857,7 @@ ITSAPanel.prototype._renderHeader = function() {
 
     Y.log('_renderHeader ', 'info', 'ITSAPanel');
     if (!headerView || (typeof headerView===STRING)) {
-        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: (titleRight || CLOSE_BUTTON)}));
+        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? CLOSE_BUTTON : titleRight)}));
     }
     else if (headerView instanceof Y.View) {
         headerView._set('container', instance._header);
