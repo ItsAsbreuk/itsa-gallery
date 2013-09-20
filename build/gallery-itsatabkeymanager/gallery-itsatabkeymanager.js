@@ -1,6 +1,10 @@
 YUI.add('gallery-itsatabkeymanager', function (Y, NAME) {
 
+
 'use strict';
+
+/*jshint maxlen:200 */
+
 //==============================================================================
 //==============================================================================
  //
@@ -394,6 +398,18 @@ Y.namespace('Plugin').FocusManager = FocusManager;
 //==============================================================================
 //==============================================================================
 
+Y.Node.prototype.displayInDoc = function() {
+    var node = this,
+        displayed = node.inDoc();
+    while (node && displayed) {
+        displayed = (node.getStyle('display')!=='none');
+/*jshint expr:true */
+        displayed && (node = node.get('parentNode'));
+/*jshint expr:false */
+    }
+    return displayed;
+};
+
 /**
  * ITSAScrollViewKeyNav Plugin
  *
@@ -487,7 +503,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 i                = 0,
                 allItems;
 
-            while (item && disabledSelector && item.test(disabledSelector)) {
+            while (item && ((disabledSelector && item.test(disabledSelector)) || (item.getStyle('visibility')==='hidden') || !item.displayInDoc())) {
                 allItems = allItems || (container && container.all(itemSelector));
                 item = (++i<allItems.size()) ? allItems.item(i) : null;
             }
@@ -540,7 +556,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 item             = allItems.pop();
 
             options = options || {};
-            while (item && disabledSelector && item.test(disabledSelector)) {
+            while (item && ((disabledSelector && item.test(disabledSelector)) || (item.getStyle('visibility')==='hidden') || !item.displayInDoc())) {
                 item = (--i>=0) ? allItems.item(i) : null;
             }
 
@@ -580,7 +596,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             nextItem = (++index<itemSize) ? allItems.item(index) : null;
             // Get the next item that matches the itemSelector and isn't
             // disabled.
-            while (nextItem && disabledSelector && nextItem.test(disabledSelector)) {
+            while (nextItem && ((disabledSelector && nextItem.test(disabledSelector)) || (nextItem.getStyle('visibility')==='hidden') || !nextItem.displayInDoc())) {
                 nextItem = (++index<itemSize) ? allItems.item(index) : null;
             }
             if (nextItem) {
@@ -626,7 +642,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             prevItem = (--index>=0) ? allItems.item(index) : null;
             // Get the next item that matches the itemSelector and isn't
             // disabled.
-            while (prevItem && disabledSelector && prevItem.test(disabledSelector)) {
+            while (prevItem && ((disabledSelector && prevItem.test(disabledSelector)) || (prevItem.getStyle('visibility')==='hidden') || !prevItem.displayInDoc())) {
                 prevItem = (--index>=0) ? allItems.item(index) : null;
             }
             if (prevItem) {
@@ -749,7 +765,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 nodeInsideContainer = node && container && container.contains(node),
                 isFocusable;
 
-            isFocusable = (nodeInsideContainer && node.test(itemSelector) && (!disabledSelector || !node.test(disabledSelector)));
+            isFocusable = (nodeInsideContainer && node.test(itemSelector) && (node.getStyle('visibility')!=='hidden') && node.displayInDoc() && (!disabledSelector || !node.test(disabledSelector)));
             return isFocusable;
         },
 
@@ -802,6 +818,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         "base-build",
         "event-custom",
         "plugin",
+        "node-style",
         "node-pluginhost",
         "event-focus",
         "selector-css3"
