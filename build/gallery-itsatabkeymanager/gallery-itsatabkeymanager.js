@@ -818,6 +818,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         "base-build",
         "event-custom",
         "plugin",
+        "node-core",
         "node-style",
         "node-pluginhost",
         "event-focus",
