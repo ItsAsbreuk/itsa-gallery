@@ -11,8 +11,10 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
             switch (action) {
               case 'submit':
                 Y.later(1500, null, function() {
-                    // normally you need to invest the response on the server, but now we do this here:
-                    var loginok = ((instance.get('username')==='marco') && (instance.get('password')==='panel'));
+                    // normally you need to invest the response on the server,
+                    // but now we do this here:
+                    var loginok = ((instance.get('username')==='marco') &&
+                                   (instance.get('password')==='asbreuk'));
                     if (loginok) {
                         callback();
                     }
@@ -59,13 +61,17 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
 
     user = new Y.LoginModel();
 
-    template = '<div id="spinner" class="hiddenicon"><i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i></div>'+
-                '<fieldset>'+
-                    '<div class="pure-control-group">{username}</div>'+
-                    '<div class="pure-control-group">{password}</div>'+
-                '</fieldset>';
+    template = '<div id="spinner" class="hiddenicon">'+
+                   '<i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i>'+
+               '</div>'+
+               '<fieldset>'+
+                   '<div class="pure-control-group">{username}</div>'+
+                   '<div class="pure-control-group">{password}</div>'+
+               '</fieldset>';
 
-    templateretry = '<div id="spinner" class="hiddenicon"><i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i></div>'+
+    templateretry = '<div id="spinner" class="hiddenicon">'+
+                        '<i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i>'+
+                    '</div>'+
                     '<legend id="retrylegend">{response}</legend>'+
                     '<fieldset>'+
                         '<div class="pure-control-group">{username}</div>'+
@@ -75,7 +81,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
     view = new Y.ITSAViewModelPanel({
         model: user,
         template: template,
-        title: 'Login with \'marco\' + \'panel\'',
+        title: 'Login with username=\'marco\', password=\'asbreuk\'',
         titleRight: '', // <-- hide closebutton
         hideOnBtn: false, // <-- make not to close when submitted ('submitonenter' acts like a button)
         centered: true,
