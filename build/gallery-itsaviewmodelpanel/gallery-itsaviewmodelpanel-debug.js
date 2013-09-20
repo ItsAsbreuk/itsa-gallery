@@ -365,7 +365,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance.after(
             '*:viewrendered',
             function() {
-                // BECAUSE we do not have a rpomise yet that tells when all formelements are definitely rendered on the screen,
+                // BECAUSE we do not have a promise yet that tells when all formelements are definitely rendered on the screen,
                 // we need to timeout
                 Y.later(250, null, function() {
                 var itsatabkeymanager = contentBox.itsatabkeymanager;
