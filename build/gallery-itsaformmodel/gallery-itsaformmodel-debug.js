@@ -1287,6 +1287,7 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
  * @since 0.1
 */
 ITSAFormModel.prototype.setResetAttrs = function() {
+console.log('setResetAttrs');
     var instance = this,
         allAttrs = instance.getAttrs();
 
@@ -1364,7 +1365,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
         UIattrs = {},
         allAttrs = instance.getAttrs(),
         renderBtnFns = instance._renderBtnFns,
-        propertykey, type, labelHTML, config;
+        propertykey, type, labelHTML, config, originalJSON;
 
     Y.log('toJSONUI', 'info', 'ITSAFormModel');
     delete allAttrs.clientId;
@@ -1402,6 +1403,15 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
             }
         );
     }
+    // now, we might need the original values, f.i. when using js with microtemplates. So we create references to the 'real' values by defining
+    // all original properties with an extra underscore
+    originalJSON = instance.toJSON();
+    YObject.each(
+        originalJSON,
+        function(value, key) {
+            UIattrs['_'+key] = value;
+        }
+    );
     return UIattrs;
 };
 
@@ -1712,59 +1722,57 @@ ITSAFormModel.prototype._defFn_destroy = function() {
 ITSAFormModel.prototype._defFn_changedate = function(e) {
     Y.log('_defFn_changedate', 'info', 'ITSAFormModel');
 
-    Y.use(GALLERY_ITSA+'datetimepicker', function() {
-        var instance = e.target,
-            type = e.type,
-            node = e.buttonNode,
-            picker = Y.ItsaDateTimePicker,
-            formElement = e.formElement,
-            date = Lang.isDate(e.value) ? e.value : (new Date()),
-            promise, dateformat, tipsycontent;
-        if (type===DATEPICKER_CLICK) {
-            promise = Y.bind(picker.getDate, picker);
+    var instance = e.target,
+        type = e.type,
+        node = e.buttonNode,
+        picker = Y.ItsaDateTimePicker,
+        formElement = e.formElement,
+        date = Lang.isDate(e.value) ? e.value : (new Date()),
+        promise, dateformat, tipsycontent;
+    if (type===DATEPICKER_CLICK) {
+        promise = Y.bind(picker.getDate, picker);
+    }
+    else if (type===TIMEPICKER_CLICK) {
+        promise = Y.bind(picker.getTime, picker);
+    }
+    else if (type===DATETIMEPICKER_CLICK) {
+        promise = Y.bind(picker.getDateTime, picker);
+    }
+    promise(new Date(date), {alignToNode: node, modal: true, forceSelectdate: false})
+    .then(
+        function(newdate) {
+          // first we need to use the new datevalue and reflect it (update) to the UI-element
+          dateformat = formElement.config.format;
+          instance._updateDateTimeUI(formElement.name, newdate, type, dateformat);
+          if (instance._lifeUpdate) {
+              instance.UIToModel(node.get(ID));
+          }
+        },
+        function() {
+            return true; // switch rejectstatus to fulfilled by returning a value
         }
-        else if (type===TIMEPICKER_CLICK) {
-            promise = Y.bind(picker.getTime, picker);
-        }
-        else if (type===DATETIMEPICKER_CLICK) {
-            promise = Y.bind(picker.getDateTime, picker);
-        }
-        promise(new Date(date), {alignToNode: node, modal: true, forceSelectdate: false})
-        .then(
-            function(newdate) {
-              // first we need to use the new datevalue and reflect it (update) to the UI-element
-              dateformat = formElement.config.format;
-              instance._updateDateTimeUI(formElement.name, newdate, type, dateformat);
-              if (instance._lifeUpdate) {
-                  instance.UIToModel(node.get(ID));
-              }
-            },
-            function() {
-                return true; // switch rejectstatus to fulfilled by returning a value
-            }
-        )
-        .then(
-            function() {
-                // should always be called
-                var type = FOCUS_NEXT,
-                    payload = {
-                        target: node,
-                        type: type
-                    };
-                // be carefull: button might not exist anymore, when the view is rerendered
-                if (node) {
-                    node.removeAttribute(DATA_CONTENT);
-                    node.focus();
-                    tipsycontent = node.getAttribute(DATA+'-contentvalid');
+    )
+    .then(
+        function() {
+            // should always be called
+            var type = FOCUS_NEXT,
+                payload = {
+                    target: node,
+                    type: type
+                };
+            // be carefull: button might not exist anymore, when the view is rerendered
+            if (node) {
+                node.removeAttribute(DATA_CONTENT);
+                node.focus();
+                tipsycontent = node.getAttribute(DATA+'-contentvalid');
 /*jshint expr:true */
-                    tipsycontent && node.setAttribute(DATA_CONTENT, tipsycontent);
+                tipsycontent && node.setAttribute(DATA_CONTENT, tipsycontent);
 /*jshint expr:false */
-                }
-                // refireing, but now by the instance:
-                instance.fire(type, payload);
             }
-        );
-    });
+            // refireing, but now by the instance:
+            instance.fire(type, payload);
+        }
+    );
 };
 
 /**
@@ -2636,6 +2644,7 @@ YArray.each(
         "event-base",
         "event-custom",
         "gallery-itsanodepromise",
+        "gallery-itsadatetimepicker",
         "gallery-itsamodelsyncpromise",
         "gallery-itsaformelement"
     ],
