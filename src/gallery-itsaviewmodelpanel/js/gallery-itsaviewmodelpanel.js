@@ -182,15 +182,8 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             readOnly: true
         },
 
-        hideOnBtnFooter: {
+        hideOnBtn: {
             value: true,
-            validator: function(v) {
-                return (typeof v === BOOLEAN);
-            }
-        },
-
-        hideOnBtnHeader: {
-            value: false,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
@@ -368,6 +361,27 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(
+            '*:viewrendered',
+            function() {
+                // BECAUSE we do not have a promise yet that tells when all formelements are definitely rendered on the screen,
+                // we need to timeout
+                Y.later(250, null, function() {
+                var itsatabkeymanager = contentBox.itsatabkeymanager;
+                if (itsatabkeymanager) {
+                    itsatabkeymanager.refresh(contentBox);
+                    if (instance.get(VISIBLE)) {
+                        // first enable the UI againbecause we need enabled element to set the focus
+                        instance.unlockPanel();
+                        itsatabkeymanager.focusInitialItem();
+                    }
+                }
+                });
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
             FOCUSMANAGED+CHANGE,
             function(e) {
                 instance._setFocusManager(e.newVal);
@@ -442,17 +456,16 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        instance._footer.delegate(
-            CLICK,
+        instance.after(
+            '*:'+CLICK,
             function(e) {
-                var node = e.target,
-                    value = node.get(VALUE);
+                var node = e.buttonNode,
+                    value = node && node.get(VALUE);
 /*jshint expr:true */
                 // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
-                instance.get('hideOnBtnFooter') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
+                node && instance.get('hideOnBtn') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
-            },
-            BUTTON
+            }
         )
     );
 
@@ -464,7 +477,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     value = node.get(VALUE);
 /*jshint expr:true */
                 // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
-                instance.get('hideOnBtnHeader') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
+                instance.get('hideOnBtn') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
             },
             BUTTON
@@ -473,7 +486,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.on(BUTTON_HIDE_EVENT, function(e) {
-            // in case of an ITSAFormElement that has editable fields --> you might need to preventDefault (=hide) hen not validated
+            // in case of an ITSAFormElement that has editable fields --> you might need to preventDefault (=hide) when not validated
             var model = instance.get(MODEL),
                 editable = instance.get(EDITABLE),
                 btnNode = e.buttonNode,
@@ -484,6 +497,39 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         })
     );
 
+};
+/**
+ * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
+ * Passes through to the underlying bodyView and footerView.
+ * @method lockPanel
+*/
+ITSAViewModelPanel.prototype.lockPanel = function() {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.lockView();
+/*jshint expr:true */
+    footerview && footerview.lockView();
+/*jshint expr:false */
+};
+
+/**
+ * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
+ * Passes through to the underlying bodyView and footerView.
+ * @method unlockPanel
+*/
+ITSAViewModelPanel.prototype.unlockPanel = function() {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // bodyview always exists, footerview, we need to check first:
+    bodyview.unlockView();
+/*jshint expr:true */
+    footerview && footerview.unlockView();
+/*jshint expr:false */
 };
 
 /**

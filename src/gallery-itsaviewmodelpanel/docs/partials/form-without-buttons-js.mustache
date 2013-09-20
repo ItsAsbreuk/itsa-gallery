@@ -1,5 +1,5 @@
-YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', 'json-stringify', 'gallery-itsadialog', function(Y) {
-    var view, user, template;
+YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slider', 'gallery-itsadialog', function(Y) {
+    var view, user, template, spinnericon, firsterror = true;
 
     // loading asynchroniously the animated fonticon:
     Y.use('gallerycss-itsa-base', 'gallerycss-itsa-animatespin', 'gallerycss-itsa-controll');
@@ -7,10 +7,18 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
     // create MyFormModelClass
     Y.LoginModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
         sync: function (action, options, callback) {
+            var instance = this;
             switch (action) {
               case 'submit':
                 Y.later(1500, null, function() {
-                    callback();
+                    // normally you need to invest the response on the server, but now we do this here:
+                    var loginok = ((instance.get('username')==='marco') && (instance.get('password')==='panel'));
+                    if (loginok) {
+                        callback();
+                    }
+                    else {
+                        callback('Wrong username/password: try again');
+                    }
                 });
                 return;
               default:
@@ -53,28 +61,52 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
 
     template = '<div id="spinner" class="hiddenicon"><i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i></div>'+
                 '<fieldset>'+
-                    '<legend>Login</legend>'+
                     '<div class="pure-control-group">{username}</div>'+
                     '<div class="pure-control-group">{password}</div>'+
                 '</fieldset>';
 
-    view = new Y.ITSAViewModel({
-        container: '#viewcont',
+    templateretry = '<div id="spinner" class="hiddenicon"><i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i></div>'+
+                    '<legend id="retrylegend">{response}</legend>'+
+                    '<fieldset>'+
+                        '<div class="pure-control-group">{username}</div>'+
+                        '<div class="pure-control-group">{password}</div>'+
+                    '</fieldset>';
+
+    view = new Y.ITSAViewModelPanel({
         model: user,
         template: template,
-        editable: true
-    });
+        title: 'Login with \'marco\' + \'panel\'',
+        titleRight: '', // <-- hide closebutton
+        hideOnBtn: false, // <-- make not to close when submitted ('submitonenter' acts like a button)
+        centered: true,
+        visible: true,
+        modal: true,
+        dragable: true,
+        editable: true,
+        width: 320
+    }).render();
 
-    view.render();
+    spinnericon = Y.one('#spinner');
 
     view.after('modelsubmit:auto', function(e) {
-        Y.one('#spinner').removeClass('hiddenicon');
+        spinnericon.removeClass('hiddenicon');
     });
 
-    view.after('modelsubmit', function(e) {
-        view.set('model', '<div class="loggedin">Succesfully logged in</div>');
+    user.after('submit', function(e) {
+        view.hide();
     });
 
-    view.focus();
+    user.after('error', function(e) {
+        user.reset();
+        if (firsterror) {
+            view.set('template', Y.Lang.sub(templateretry, {response: e.error}));
+            firsterror = false;
+        }
+        else {
+            view.get('contentBox').one('#retrylegend').set('text', e.error);
+            view.unlockPanel();
+        }
+        spinnericon.addClass('hiddenicon');
+    });
 
 });

@@ -45,7 +45,7 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "advanced-forms",
+            "name"       : "advanced-form",
             "displayName": "Panel with an advanced form",
             "description": "This example shows how to create a form by using Y.ITSAFormModel as the 'model' and 'editable'=true.",
             "author"     : [ "itsasbreuk" ],
