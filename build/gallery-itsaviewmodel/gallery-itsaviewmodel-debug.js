@@ -897,6 +897,20 @@ ITSAViewModel.prototype.focus = function() {
 */
 
 /**
+ * Locks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
+ * @method lockView
+*/
+ITSAViewModel.prototype.lockView = function() {
+    var instance = this,
+        model = instance.get(MODEL);
+
+    Y.log('lockView', 'info', 'ITSA-ViewModel');
+/*jshint expr:true */
+    instance.get(EDITABLE) && model && model.toJSONUI && model.disableUI();
+/*jshint expr:false */
+};
+
+/**
  * Removes custom buttonlabels defined with setButtonLabel().
  * Available buttontypes are:
  * <ul>
@@ -1216,6 +1230,20 @@ ITSAViewModel.prototype.toJSON = function() {
 ITSAViewModel.prototype.translate = function(text) {
     Y.log('translate', 'info', 'ITSA-ViewModel');
     return this._intl[text] || text;
+};
+
+/**
+ * Locks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
+ * @method unlockView
+*/
+ITSAViewModel.prototype.unlockView = function() {
+    var instance = this,
+        model = instance.get(MODEL);
+
+    Y.log('unlockView', 'info', 'ITSA-ViewModel');
+/*jshint expr:true */
+    instance.get(EDITABLE) && model && model.toJSONUI && model.enableUI();
+/*jshint expr:false */
 };
 
 /**
