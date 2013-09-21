@@ -106,6 +106,15 @@
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaviewmodel", "model", "formelement", "form", "template"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "promised-syncing",
+            "displayName": "Formsyncing through Promise-layer",
+            "description": "This example shows how to set up a view that syncs through a Promise-synclayer.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["node-base", "gallery-itsaformmodel", "gallery-itsaviewmodel", "gallery-itsaslider", "gallery-itsadialog", "gallery-io-utils"],
+            "tags"    : ["gallery-itsaviewmodelp", "model", "formelement", "form", "template", "itsaformmodel", "io-utils", "promise", "sync"],
+            "hideTableOfContents": true
         }
     ]
 }

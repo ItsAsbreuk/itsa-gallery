@@ -1,25 +1,22 @@
-YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', 'json-stringify', 'gallery-itsadialog', function(Y) {
-    var view, artist, template;
+YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', 'gallerycss-itsa-base',
+'gallerycss-itsa-form', 'json-stringify', 'gallery-io-utils', 'gallery-itsadialog', function(Y) {
+    var view, artist, template, footertemplate;
 
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
 
-    // asynchroniously loading the 'gallerycss-itsa-special' css fonticons
-    // which supplies the 'itsaicon-special-bell'-icon
-    Y.use('gallerycss-itsa-special');
-
     // create MyFormModelClass
     Y.ArtistModel = Y.Base.create('formmodel', Y.ITSAFormModel, [], {
-        sync: function (action, options, callback) {
-            switch (action) {
-              case 'submit':
-                Y.later(1500, null, function() {
-                    callback();
-                });
-                return;
-              default:
-                callback('Invalid action');
+        // define 'syncPromise' instead of 'sync'.
+        // when 'syncPromise' is defined, Y.ITSAFormModel will use this method instead of 'sync'
+        syncPromise: function (action, options) {
+            if (action==='submit') {
+                return Y.io.post('http://mydomain.com/senddata.php?model='+Y.JSON.stringify(this.toJSON()));
             }
+            // do not forget to reject the promise in case an invalid 'action' is defined
+            return new Y.Promise(function (resolve, reject) {
+                reject(new Error('The syncPromise()-method was is called with undefined action: '+action));
+            });
         }
     }, {
         ATTRS: {
@@ -28,7 +25,6 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'Artist',
                     placeholder: 'artist',
-                    hotkey: 'a',
                     required: true
                 }
             },
@@ -37,9 +33,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'Country',
                     placeholder: 'country',
-                    hotkey: 'c',
-                    required: true,
-                    initialfocus: true
+                    required: true
                 }
             },
             firstalbum: {
@@ -47,7 +41,6 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formconfig: {
                     label: 'First album',
                     placeholder: 'first album',
-                    hotkey: 'f',
                     required: true
                 }
             },
@@ -55,7 +48,6 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
                 formtype: Y.Slider,
                 formconfig: {
                     label: 'Releaseyear',
-                    hotkey: 'y',
                     widgetconfig: {
                         min: 1950,
                         max: 2010
@@ -71,16 +63,17 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         firstalbum: 'Boy',
         release: 1980
     });
-    artist.setLifeUpdate(true);
 
     template = '<fieldset>'+
-                    '<legend>Formelements accessable with ALT+key</legend>'+
+                    '<legend>Musician</legend>'+
                     '<div class="pure-control-group">{name}</div>'+
                     '<div class="pure-control-group">{country}</div>'+
                     '<div class="pure-control-group">{firstalbum}</div>'+
                     '<div class="pure-control-group">{release}</div>'+
-                    '<div class="pure-controls">{btn_reset} {spinbtn_submit}</div>'+
+                    '<div class="pure-controls">{spinbtn_submit}</div>'+
                 '</fieldset>';
+
+    footertemplate = '{btn_close}{spinbtn_submit}';
 
     view = new Y.ITSAViewModel({
         container: '#viewcont',
@@ -89,13 +82,17 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodel', 'slider', '
         editable: true
     });
 
-    view.setHotKey('spinbtn_submit', 's');
-    view.setHotKey('btn_reset', 'r');
-
     view.render();
 
-    view.on('validationerror', function(e) {
-        Y.alert('error', 'validation error');
+    artist.after('submit', function() {
+        Y.alert('succesfully submitted');
+    });
+
+    artist.after('error', function(e) {
+        var errorsource = e.src;
+        if (errorsource==='Model.submitPromise()') {
+            Y.alert('Error submitting', e.src+' failed --> '+e.error, {type: 'error'});
+        }
     });
 
 });

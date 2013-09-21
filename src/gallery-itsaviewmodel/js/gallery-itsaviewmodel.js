@@ -566,23 +566,18 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 }
             },
 
-            /**
-             * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-             * where Y.Lang.sub is more lightweight.
-             *
-             * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-             * <b>Example with Y.Template.Micro:</b>
-             * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
-             * <b>Example 2 with Y.Template.Micro:</b>
-             * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
-             *
-             * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
-             *
-             * @attribute template
-             * @type {String}
-             * @default null
-             * @since 0.3
-             */
+          /**
+           * Template for the bodysection to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+           * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
+           * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
+           *
+           * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+           *
+           * @attribute template
+           * @type {String}
+           * @default null
+           * @since 0.3
+           */
             template: {
                 value: null,
                 validator: function(v) {
@@ -604,6 +599,7 @@ ITSAViewModel.prototype._formcss_loaded = false;
 /**
  * @method initializer
  * @protected
+ * @since 0.3
 */
 ITSAViewModel.prototype.initializer = function() {
     var instance = this,
@@ -1191,6 +1187,7 @@ ITSAViewModel.prototype.setHotKey = function(buttonType, hotkey) {
   * then the object will return as it is.
   * @method toJSON
   * @return {Object} Copy of this model's attributes.
+  * @since 0.3
  **/
 ITSAViewModel.prototype.toJSON = function() {
     var model = this.get(MODEL);
@@ -1220,16 +1217,20 @@ ITSAViewModel.prototype.toJSON = function() {
   * </ul>
   *
   * @method translate
+  * @param text {String} the text to be translated
   * @return {String} Translated text or the original text (if no translattion was posible)
- **/
+  * @since 0.3
+**/
 ITSAViewModel.prototype.translate = function(text) {
     Y.log('translate', 'info', 'ITSA-ViewModel');
     return this._intl[text] || text;
 };
 
 /**
- * Locks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
+ * Unlocks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
+ *
  * @method unlockView
+ * @since 0.3
 */
 ITSAViewModel.prototype.unlockView = function() {
     var instance = this,
@@ -1245,6 +1246,7 @@ ITSAViewModel.prototype.unlockView = function() {
  * Cleans up bindings
  * @method destructor
  * @protected
+ * @since 0.3
 */
 ITSAViewModel.prototype.destructor = function() {
     var instance = this,
@@ -1275,7 +1277,8 @@ ITSAViewModel.prototype.destructor = function() {
  * @method _bindUI
  * @private
  * @protected
- */
+  * @since 0.3
+*/
 ITSAViewModel.prototype._bindUI = function() {
     var instance = this,
         container = instance.get(CONTAINER),
