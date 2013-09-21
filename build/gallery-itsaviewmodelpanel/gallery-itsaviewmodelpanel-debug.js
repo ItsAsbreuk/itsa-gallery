@@ -282,7 +282,7 @@ ITSAViewModelPanel.prototype.initializer = function() {
         }
     );
 /*jshint expr:true */
-    instance.get(VISIBLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
+    instance.get(VISIBLE) && instance.get(EDITABLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
 /*jshint expr:false */
 };
 
@@ -339,6 +339,17 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(EDITABLE+CHANGE, function(e) {
             bodyView.set(EDITABLE, e.newVal);
+/*jshint expr:true */
+            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, (e.newVal && instance.get(VISIBLE))); // to make tabkeymanager work
+/*jshint expr:false */
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(VISIBLE+CHANGE, function(e) {
+/*jshint expr:true */
+            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, (e.newVal && instance.get(EDITABLE))); // to make tabkeymanager work
+/*jshint expr:false */
         })
     );
 
@@ -417,10 +428,11 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(FOCUSED+CHANGE, function(e) {
-            var itsatabkeymanager = contentBox.itsatabkeymanager;
-            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, e.newVal);
+            var itsatabkeymanager = contentBox.itsatabkeymanager,
+                focusclassed = e.newVal && instance.get(VISIBLE) && instance.get(EDITABLE);
+            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, focusclassed);
         /*jshint expr:true */
-            e.newVal && itsatabkeymanager && itsatabkeymanager._retreiveFocus();
+            focusclassed && itsatabkeymanager && itsatabkeymanager._retreiveFocus();
         /*jshint expr:false */
         })
     );
