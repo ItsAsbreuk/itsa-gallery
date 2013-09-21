@@ -125,7 +125,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
     }).render();
 
     user.after('mariedChange', function(e) {
-        var partnerdata = view.get('contentBox').one('#partnerdata');
+        var partnerdata = panel.get('contentBox').one('#partnerdata');
         e.newVal ? partnerdata.show('ease-in', {height: '145px', duration: 0.5}) : partnerdata.hide('ease-out', {height: 0, duration: 0.5});
     });
 

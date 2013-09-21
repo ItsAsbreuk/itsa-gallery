@@ -125,18 +125,14 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             }
         },
         /**
-         * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-         * where Y.Lang.sub is more lightweight.
-         *
-         * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-         * <b>Example with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
-         * <b>Example 2 with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
+         * Template for the footersection to render the Model. If its value is null or undefined, then you can make use of the String attributes 'footer' and 'footerRight'.<br />
+         * The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+         * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
+         * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
          *
          * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
          *
-         * @attribute template
+         * @attribute footerTemplate
          * @type {String}
          * @default null
          * @since 0.3
@@ -183,26 +179,54 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             readOnly: true
         },
 
+        /**
+         * When set true, makes the Panel hide once a button is pressed. There are 2 buttons however that can make the panel not to hide: 'load' and 'reset',
+         * which behaviour can be set through the attributes 'noHideOnLoad' and 'noHideOnReset'.
+         *
+         * @attribute hideOnBtn
+         * @type {Boolean}
+         * @default true
+         * @since 0.1
+        */
         hideOnBtn: {
             value: true,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
         },
+
+        /**
+         * When set true, the Panel won't hide when the user clicks on the 'load'-button, even if 'hideOnBtn' is set true.
+         *
+         * @attribute noHideOnLoad
+         * @type {Boolean}
+         * @default true
+         * @since 0.1
+        */
         noHideOnLoad: {
             value: true,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
         },
+
+        /**
+         * When set true, the Panel won't hide when the user clicks on the 'reset'-button, even if 'hideOnBtn' is set true.
+         *
+         * @attribute noHideOnReset
+         * @type {Boolean}
+         * @default true
+         * @since 0.1
+        */
         noHideOnReset: {
             value: true,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
         },
+
         /**
-         * The Y.Model that will be rendered in the view. May also be an Object, which is handy in case the source is an
+         * The Y.Model that will be rendered in the panel. May also be an Object, which is handy in case the source is an
          * item of a Y.LazyModelList. If you pass a String-value, then the text is rendered as it is, assuming no model-instance.
          *
          * @attribute model
@@ -216,14 +240,9 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
         },
 
         /**
-         * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-         * where Y.Lang.sub is more lightweight.
-         *
-         * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-         * <b>Example with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
-         * <b>Example 2 with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
+         * Template for the bodysection to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+         * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
+         * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
          *
          * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
          *
@@ -241,6 +260,11 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
     }
 });
 
+/**
+ * @method initializer
+ * @protected
+ * @since 0.3
+*/
 ITSAViewModelPanel.prototype.initializer = function() {
     var instance = this,
         model = instance.get(MODEL),
@@ -323,6 +347,12 @@ ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config
 /*jshint expr:false */
 };
 
+/**
+ * ITSAViewModelPanel's bindUI-method. Binds events
+ *
+ * @method bindUI
+ * @since 0.1
+*/
 ITSAViewModelPanel.prototype.bindUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX),
@@ -518,7 +548,9 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 /**
  * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
  * Passes through to the underlying bodyView and footerView.
+ *
  * @method lockPanel
+ * @since 0.3
 */
 ITSAViewModelPanel.prototype.lockPanel = function() {
     var instance = this,
@@ -533,9 +565,11 @@ ITSAViewModelPanel.prototype.lockPanel = function() {
 };
 
 /**
- * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
+ * Unlocks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
  * Passes through to the underlying bodyView and footerView.
+ *
  * @method unlockPanel
+ * @since 0.3
 */
 ITSAViewModelPanel.prototype.unlockPanel = function() {
     var instance = this,
@@ -843,7 +877,9 @@ ITSAViewModelPanel.prototype.syncUI = function() {
   * </ul>
   *
   * @method translate
+  * @param text {String} the text to be translated
   * @return {String} Translated text or the original text (if no translattion was posible)
+  * @since 0.3
  **/
 ITSAViewModelPanel.prototype.translate = function(text) {
     return this.get(BODYVIEW).translate(text);
@@ -853,6 +889,7 @@ ITSAViewModelPanel.prototype.translate = function(text) {
  * Cleans up bindings
  * @method destructor
  * @protected
+  * @since 0.3
 */
 ITSAViewModelPanel.prototype.destructor = function() {
     var instance = this,
@@ -875,6 +912,7 @@ ITSAViewModelPanel.prototype.destructor = function() {
  *
  * @method _defFn_focusnext
  * @private
+  * @since 0.3
 */
 ITSAViewModelPanel.prototype._defFn_focusnext = function() {
     var instance = this,
@@ -897,7 +935,6 @@ ITSAViewModelPanel.prototype._defFn_focusnext = function() {
  * @private
  * @param activate {Boolean}
  * @since 0.3
- *
 */
 ITSAViewModelPanel.prototype._setFocusManager = function(activate) {
     var instance = this,
