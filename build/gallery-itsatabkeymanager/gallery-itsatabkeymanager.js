@@ -433,6 +433,7 @@ Y.Node.prototype.displayInDoc = function() {
 // -- Public Static Properties -------------------------------------------------
 
 var YArray = Y.Array,
+    FOCUSED_CLASS = 'itsa-focused',
     DEFAULT_ITEM_SELECTOR = '[data-focusable="true"]',
     PRIMARYBUTTON_CLASS = 'pure-button-primary',
     ITSAFORMELEMENT_FIRSTFOCUS = 'data-initialfocus="true"';
@@ -494,7 +495,6 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
 
         first: function (options) {
             options = options || {};
-
             var instance         = this,
                 container        = (options && options.container) || instance.host,
                 disabledSelector = instance.get('disabledSelector'),
@@ -525,14 +525,16 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             var instance = this,
                 focusitem, panelheader, panelbody, panelfooter;
 
-            focusitem = instance.first({selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
-                        ((panelbody=instance.host.one('.itsa-panelbody')) ? instance.first({container: panelbody}) : null) ||
-                        instance.first({selector: '.'+PRIMARYBUTTON_CLASS}) ||
-                        ((panelfooter=instance.host.one('.itsa-panelfooter')) ? instance.last({container: panelfooter}) : null) ||
-                        ((panelheader=instance.host.one('.itsa-panelheader')) ? instance.first({container: panelheader}) : null) ||
-                        instance.first();
-            if (focusitem) {
-                focusitem.focus();
+            if (instance.host.hasClass(FOCUSED_CLASS)) {
+                focusitem = instance.first({selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
+                            ((panelbody=instance.host.one('.itsa-panelbody')) ? instance.first({container: panelbody}) : null) ||
+                            instance.first({selector: '.'+PRIMARYBUTTON_CLASS}) ||
+                            ((panelfooter=instance.host.one('.itsa-panelfooter')) ? instance.last({container: panelfooter}) : null) ||
+                            ((panelheader=instance.host.one('.itsa-panelheader')) ? instance.first({container: panelheader}) : null) ||
+                            instance.first();
+                if (focusitem) {
+                    focusitem.focus();
+                }
             }
         },
 
@@ -720,11 +722,13 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                     'click',
                     function(e) {
                         var node = e.target;
-                        if ((node.get('tagName')==='BUTTON') && instance._nodeIsFocusable(node)) {
-                            node.focus();
-                        }
-                        else {
-                            instance._retreiveFocus();
+                        if (host.hasClass(FOCUSED_CLASS)) {
+                            if ((node.get('tagName')==='BUTTON') && instance._nodeIsFocusable(node)) {
+                                node.focus();
+                            }
+                            else {
+                                instance._retreiveFocus();
+                            }
                         }
                     }
                 )
@@ -780,12 +784,13 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         _retreiveFocus : function() {
             var instance   = this,
                 activeItem = instance.get('activeItem');
-
-            if (activeItem) {
-                activeItem.focus();
-            }
-            else {
-                instance.focusInitialItem();
+            if (instance.host.hasClass(FOCUSED_CLASS)) {
+                if (activeItem) {
+                    activeItem.focus();
+                }
+                else {
+                    instance.focusInitialItem();
+                }
             }
         }
 
