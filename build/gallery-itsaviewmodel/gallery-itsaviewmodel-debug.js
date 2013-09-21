@@ -755,7 +755,6 @@ ITSAViewModel.prototype.initializer = function() {
      * @default null
      * @type Boolean
     */
-    instance._isMicroTemplate = null;
 
     /**
      * Internal Function that is generated to automaticly make use of the template.
@@ -765,7 +764,6 @@ ITSAViewModel.prototype.initializer = function() {
      * @default function(model) {return ''};
      * @type Function
     */
-    instance._modelRenderer = null;
 
     /**
      * Internal list of all eventhandlers bound by this widget.
@@ -784,7 +782,6 @@ ITSAViewModel.prototype.initializer = function() {
      * @default null
      * @type String
     */
-    instance._textTemplate = null;
 
     instance._contIsForm = (instance.get(CONTAINER).get(TAGNAME)===FORM_CAPITALIZED);
 
