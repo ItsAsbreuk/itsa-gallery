@@ -1315,12 +1315,15 @@ console.log('setResetAttrs');
  * @method setWidgetValueField
  * @param widgetClassname {String} the widgets classname
  * @param valueField {String|Array} the widgets valuefield. In case the Widget can have more than one valuefield (Y.ToggleButton does), you can supply an array of Strings
+ * @static
  * @since 0.1
  */
-ITSAFormModel.prototype.setWidgetValueField = function(widgetClassname, valueField) {
+ITSAFormModel.setWidgetValueField = function(widgetClassname, valueField) {
     Y.log('_getWidgetValueField', 'info', 'ITSAFormModel');
     this._widgetValueFields[widgetClassname] = valueField;
 };
+
+ITSAFormModel.prototype.setWidgetValueField = ITSAFormModel.setWidgetValueField;
 
 /**
  * Submits the UI by calling the synclayer with action='submit'. If you need a promise, then use submitPromise().
