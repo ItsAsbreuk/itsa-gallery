@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'gallery-itsacheckbox', 'transition', function(Y) {
-    var view, user, template, spinnericon, firsterror = true;
+    var panel, user, template, spinnericon, firsterror = true;
 
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
@@ -95,7 +95,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
     user = new Y.UserModel();
 
     // Reflect all changes directly to the model-instance, so we know when 'maried' changes by UI
-    // We also could left this false and listen to view.after('*:uichanged')
+    // We also could left this false and listen to panel.after('*:uichanged')
     user.setLifeUpdate(true);
 
     template =  '<legend>User</legend>'+
@@ -113,7 +113,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                         '</fieldset>'+
                 '</div>';
 
-    view = new Y.ITSAViewModelPanel({
+    panel = new Y.ITSAViewModelPanel({
         model: user,
         template: template,
         title: 'Userdata',

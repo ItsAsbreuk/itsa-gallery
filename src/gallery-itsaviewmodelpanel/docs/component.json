@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsaviewmodelpanel",
     "displayName": "Gallery: gallery-itsaviewmodelpanel",
-    "description": "ITSAViewModel is a extention of Y.View and renderes Y.Model-instances -or just plain objects- full automaticly, based on templates.",
+    "description": "ITSAViewModelPanel is a extention of Y.Panel and made to render Y.Model instances through templates inside the panel.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaviewmodelpanel" ],
 

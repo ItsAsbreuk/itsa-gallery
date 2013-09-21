@@ -30,6 +30,7 @@ var ITSAViewModelPanel,
     Lang = Y.Lang,
     DESTROYED = 'destroyed',
     CONTENTBOX = 'contentBox',
+    RENDERED = 'rendered',
     GALLERY = 'gallery-',
     VIEW = 'View',
     BODYVIEW = 'body'+VIEW,
@@ -261,6 +262,7 @@ ITSAViewModelPanel.prototype.initializer = function() {
         styled: false,
         focusManaged: false // will be done at the Panel-level
     }));
+
 /*jshint expr:true */
     footertemplate && instance._set(FOOTERVIEW, new Y.ITSAViewModel({
         model: model,
@@ -419,9 +421,12 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        instance.after('*:'+CLOSE_CLICK, function(e) {
-            instance.fire(BUTTON_HIDE_EVENT, {buttonNode: e.target});
-        })
+        instance.after(
+            ['*:'+CLOSE_CLICK, '*:'+BUTTON+CLOSE],
+            function(e) {
+                instance.fire(BUTTON_HIDE_EVENT, {buttonNode: e.target});
+            }
+        )
     );
 
     eventhandlers.push(
@@ -469,7 +474,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            '*:'+CLICK,
+            ['*:'+CLICK],
             function(e) {
                 var node = e.buttonNode,
                     value = node && node.get(VALUE);
@@ -793,6 +798,27 @@ ITSAViewModelPanel.prototype.setHotKey = function(buttonType, hotkey) {
 /*jshint expr:true */
     footerview && footerview.setHotKey(buttonType, hotkey);
 /*jshint expr:false */
+};
+
+/**
+ * Updates Panels view by calling all view's render() methods.
+ * You only need to call this when the attribute 'model' is an object and no Y.Model-instance and the properties are changed.
+ *
+ * @method syncUI
+ * @since 0.3
+*/
+ITSAViewModelPanel.prototype.syncUI = function() {
+    var instance = this,
+        bodyview = instance.get(BODYVIEW),
+        footerview = instance.get(FOOTERVIEW);
+
+    // no need to sync when not rendered: first time will be done internally
+    if (instance.get(RENDERED)) {
+        bodyview.render();
+/*jshint expr:true */
+        footerview && footerview.render();
+/*jshint expr:false */
+    }
 };
 
 /**

@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slider', 'gallerycss-itsa-base', 'gallerycss-itsa-form', function(Y) {
-    var view, artist, template, footertemplate;
+    var panel, artist, template, footertemplate;
 
     // adding skin sam to body for getting the right skin for the widgets
     Y.one('body').addClass('yui3-skin-sam');
@@ -81,7 +81,7 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
 
     footertemplate = '{btn_reset}{spinbtn_load}{spinbtn_submit}';
 
-    view = new Y.ITSAViewModelPanel({
+    panel = new Y.ITSAViewModelPanel({
         title: 'Enter data',
         titleRight: '', // <-- suppress default button close
         model: artist,
@@ -92,8 +92,8 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
         editable: true,
         width: 420
     });
-    view.setButtonLabel('spinbtn_load', '<i class="itsaicon-form-load"></i>'+view.translate('reload'));
-    view.render();
-    view.show();
+    panel.setButtonLabel('spinbtn_load', '<i class="itsaicon-form-load"></i>'+panel.translate('reload'));
+    panel.render();
+    panel.show();
 
 });

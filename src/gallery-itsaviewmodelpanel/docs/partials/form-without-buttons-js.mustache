@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', function(Y) {
-    var view, user, template, spinnericon, firsterror = true;
+    var panel, user, template, spinnericon, firsterror = true;
 
     // loading asynchroniously the animated fonticon:
     Y.use('gallerycss-itsa-base', 'gallerycss-itsa-animatespin', 'gallerycss-itsa-controll');
@@ -78,7 +78,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                         '<div class="pure-control-group">{password}</div>'+
                     '</fieldset>';
 
-    view = new Y.ITSAViewModelPanel({
+    panel = new Y.ITSAViewModelPanel({
         model: user,
         template: template,
         title: 'Login with username=\'marco\', password=\'asbreuk\'',
@@ -94,23 +94,23 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
 
     spinnericon = Y.one('#spinner');
 
-    view.after('modelsubmit:auto', function(e) {
+    panel.after('modelsubmit:auto', function(e) {
         spinnericon.removeClass('hiddenicon');
     });
 
     user.after('submit', function(e) {
-        view.hide();
+        panel.hide();
     });
 
     user.after('error', function(e) {
         user.reset();
         if (firsterror) {
-            view.set('template', Y.Lang.sub(templateretry, {response: e.error}));
+            panel.set('template', Y.Lang.sub(templateretry, {response: e.error}));
             firsterror = false;
         }
         else {
-            view.get('contentBox').one('#retrylegend').set('text', e.error);
-            view.unlockPanel();
+            panel.get('contentBox').one('#retrylegend').set('text', e.error);
+            panel.unlockPanel();
         }
         spinnericon.addClass('hiddenicon');
     });
