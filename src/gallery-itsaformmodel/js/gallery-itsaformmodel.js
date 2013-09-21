@@ -1339,6 +1339,9 @@ ITSAFormModel.prototype[SUBMIT] = function() {
 
 /**
  * Returns a this model's attributes rendered as UI-elements, that can be passed to Y.JSON.stringify() or used for other nefarious purposes.
+ * Be aware that all property-values are html-strings: when templating with micro-template, use '<%==' instead of '<%=' to access the properties.
+ * <br />
+ * All original attribute-<u>values</u> are available with underscore-properties like: <b>_attributename</b>.
  * <br /><br />
  * By specifying 'buttons', you can render extra buttons. 'buttons' needs to be an object or an array that holds objects, with the next properties:
  *
