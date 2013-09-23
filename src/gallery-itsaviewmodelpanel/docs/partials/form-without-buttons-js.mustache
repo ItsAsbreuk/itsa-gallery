@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', function(Y) {
-    var panel, user, template, spinnericon, firsterror = true;
+    var panel, user, template, footertemplate, spinnericon, retrylegend, firsterror = true;
 
     // loading asynchroniously the animated fonticon:
     Y.use('gallerycss-itsa-base', 'gallerycss-itsa-animatespin', 'gallerycss-itsa-controll');
@@ -10,7 +10,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
             var instance = this;
             switch (action) {
               case 'submit':
-                Y.later(1500, null, function() {
+                Y.later(15000, null, function() {
                     // normally you need to invest the response on the server,
                     // but now we do this here:
                     var loginok = ((instance.get('username')==='marco') &&
@@ -69,7 +69,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                    '<div class="pure-control-group">{password}</div>'+
                '</fieldset>';
 
-    templateretry = '<div id="spinner" class="hiddenicon">'+
+    templateretry = '<div id="spinner" class="hiddenicon extratop">'+
                         '<i class="itsaicon-controll-spin7 animate-spin itsa-iconstandalone"></i>'+
                     '</div>'+
                     '<legend id="retrylegend">{response}</legend>'+
@@ -78,9 +78,12 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                         '<div class="pure-control-group">{password}</div>'+
                     '</fieldset>';
 
+    footertemplate = '{spinbtn_submit}';
+
     panel = new Y.ITSAViewModelPanel({
         model: user,
         template: template,
+        footerTemplate: footertemplate,
         title: 'Login with username=\'marco\', password=\'asbreuk\'',
         titleRight: '', // <-- hide closebutton
         hideOnBtn: false, // <-- make not to close when submitted ('submitonenter' acts like a button)
@@ -94,25 +97,28 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
 
     spinnericon = Y.one('#spinner');
 
-    panel.after('modelsubmit:auto', function(e) {
+    user.on('submitstart', function(e) {
+        var submitpromise = e.promise;
         spinnericon.removeClass('hiddenicon');
+        retrylegend && retrylegend.set('text', '');
+        submitpromise.then(
+            Y.bind(panel.hide, panel),
+            function(reason) {
+                user.reset();
+                if (firsterror) {
+                    panel.set('template', Y.Lang.sub(templateretry, {response: reason.message}));
+                    retrylegend = panel.get('contentBox').one('#retrylegend');
+                    spinnericon = Y.one('#spinner'); // <-- redefine, became a new node
+                    firsterror = false;
+                }
+                else {
+                    retrylegend.set('text', reason.message);
+                    panel.unlockPanel();
+                }
+                spinnericon.addClass('hiddenicon');
+            }
+        );
     });
 
-    user.after('submit', function(e) {
-        panel.hide();
-    });
-
-    user.after('error', function(e) {
-        user.reset();
-        if (firsterror) {
-            panel.set('template', Y.Lang.sub(templateretry, {response: e.error}));
-            firsterror = false;
-        }
-        else {
-            panel.get('contentBox').one('#retrylegend').set('text', e.error);
-            panel.unlockPanel();
-        }
-        spinnericon.addClass('hiddenicon');
-    });
 
 });

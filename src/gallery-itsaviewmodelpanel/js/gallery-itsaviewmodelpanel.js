@@ -270,6 +270,8 @@ ITSAViewModelPanel.prototype.initializer = function() {
         model = instance.get(MODEL),
         footertemplate = instance.get(FOOTERTEMPLATE);
 
+    Y.log('initializer', 'info', 'ITSA-ViewModelPanel');
+
     /**
      * Internal list of all eventhandlers bound by this widget.
      * @property _eventhandlers
@@ -340,6 +342,7 @@ ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('addCustomBtn', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.addCustomBtn(buttonId, labelHTML, config);
 /*jshint expr:true */
@@ -358,7 +361,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         contentBox = instance.get(CONTENTBOX),
         eventhandlers, bodyView, footerView;
 
-    instance.constructor.superclass.bindUI.apply(instance);
+    ITSAViewModelPanel.superclass.bindUI.apply(instance);
+    Y.log('bindUI', 'info', 'ITSA-ViewModelPanel');
 
     eventhandlers = instance._eventhandlers;
     bodyView = instance.get(BODYVIEW);
@@ -557,6 +561,7 @@ ITSAViewModelPanel.prototype.lockPanel = function() {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('lockPanel', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.lockView();
 /*jshint expr:true */
@@ -576,6 +581,7 @@ ITSAViewModelPanel.prototype.unlockPanel = function() {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('unlockPanel', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.unlockView();
 /*jshint expr:true */
@@ -632,6 +638,7 @@ ITSAViewModelPanel.prototype.removeButtonLabel = function(buttonType) {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('removeButtonLabel', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.removeButtonLabel(buttonType);
 /*jshint expr:true */
@@ -653,6 +660,7 @@ ITSAViewModelPanel.prototype.removeCustomBtn = function(buttonId) {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('removeCustomBtn', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.removeCustomBtn(buttonId);
 /*jshint expr:true */
@@ -709,6 +717,7 @@ ITSAViewModelPanel.prototype.removeHotKey = function(buttonType) {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('removeHotKey', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.removeHotKey(buttonType);
 /*jshint expr:true */
@@ -767,6 +776,7 @@ ITSAViewModelPanel.prototype.setButtonLabel = function(buttonType, labelHTML) {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('setButtonLabel', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.setButtonLabel(buttonType, labelHTML);
 /*jshint expr:true */
@@ -827,6 +837,7 @@ ITSAViewModelPanel.prototype.setHotKey = function(buttonType, hotkey) {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('setHotKey', 'info', 'ITSA-ViewModelPanel');
     // bodyview always exists, footerview, we need to check first:
     bodyview.setHotKey(buttonType, hotkey);
 /*jshint expr:true */
@@ -846,6 +857,7 @@ ITSAViewModelPanel.prototype.syncUI = function() {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
+    Y.log('syncUI', 'info', 'ITSA-ViewModelPanel');
     // no need to sync when not rendered: first time will be done internally
     if (instance.get(RENDERED)) {
         bodyview.render();
@@ -882,6 +894,7 @@ ITSAViewModelPanel.prototype.syncUI = function() {
   * @since 0.3
  **/
 ITSAViewModelPanel.prototype.translate = function(text) {
+    Y.log('translate', 'info', 'ITSA-ViewModelPanel');
     return this.get(BODYVIEW).translate(text);
 };
 
@@ -897,7 +910,7 @@ ITSAViewModelPanel.prototype.destructor = function() {
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
-    Y.log('destructor', 'info', 'ITSA-ViewModel');
+    Y.log('destructor', 'info', 'ITSA-ViewModelPanel');
     instance._clearEventhandlers();
 /*jshint expr:true */
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
@@ -918,13 +931,13 @@ ITSAViewModelPanel.prototype._defFn_focusnext = function() {
     var instance = this,
         itsatabkeymanager = instance.get(CONTENTBOX).itsatabkeymanager;
 
-    Y.log('defaultFn of focusnext', 'info', 'ITSA-ViewModel');
+    Y.log('_defFn_focusnext', 'info', 'ITSA-ViewModelPanel');
     if (itsatabkeymanager) {
-        Y.log('focus to next field', 'info', 'ITSA-ViewModel');
+        Y.log('focus to next field', 'info', 'ITSA-ViewModelPanel');
         itsatabkeymanager.next();
     }
     else {
-        Y.log('No focus to next field: Y.Plugin.ITSATabKeyManager not plugged in', 'info', 'ITSA-ViewModel');
+        Y.log('No focus to next field: Y.Plugin.ITSATabKeyManager not plugged in', 'info', 'ITSA-ViewModelPanel');
     }
 };
 
@@ -941,7 +954,7 @@ ITSAViewModelPanel.prototype._setFocusManager = function(activate) {
         contentBox = instance.get(CONTENTBOX),
         itsatabkeymanager = contentBox.itsatabkeymanager;
 
-    Y.log('_setFocusManager to '+activate, 'info', 'ITSA-ViewModel');
+    Y.log('_setFocusManager to '+activate, 'info', 'ITSA-ViewModelPanel');
     if (activate) {
         // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
         Y.use(GALLERY+ITSATABKEYMANAGER, function() {

@@ -1350,18 +1350,51 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            [MODEL+SUBMIT, MODEL+SAVE, MODEL+LOAD, MODEL+RESET],
+            MODEL+RESET,
             function(e) {
                 var itsatabkeymanager = container.itsatabkeymanager;
-                if (itsatabkeymanager) {
-                    // first enable the UI again, this is done within the submit-defaultfunc of the model as well, but that code comes LATER.
-                    // and we need enabled element to set the focus
-                    e.model.enableUI();
-                    itsatabkeymanager.focusInitialItem();
-                }
+/*jshint expr:true */
+                itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+/*jshint expr:false */
             }
         )
     );
+
+    eventhandlers.push(
+        instance.after(
+            [SUBMIT+START, SAVE+START, LOAD+START, REMOVE+START],
+            function(e) {
+                var promise = e.promise,
+                    model = e.target,
+                    eventType = e.type,
+                    eventSubType = eventType.substr(0, eventType.length-5),
+                    prevAttrs;
+                instance.lockView();
+                if ((eventSubType===SUBMIT) || (eventSubType===SAVE)) {
+                    prevAttrs = model.getAttrs();
+                    model.UIToModel();
+                }
+                instance._setSpin(eventSubType, true);
+                promise.then(
+                    function() {
+/*jshint expr:true */
+                        ((eventSubType===LOAD) || (eventSubType===SUBMIT) || (eventSubType===SAVE)) && model.setResetAttrs();
+/*jshint expr:false */
+                        instance._setSpin(eventSubType, false);
+                        instance.unlockView();
+                    },
+                    function() {
+/*jshint expr:true */
+                        ((eventSubType===SUBMIT) || (eventSubType===SAVE)) && model.setAttrs(prevAttrs);
+/*jshint expr:false */
+                        instance._setSpin(eventSubType, false);
+                        instance.unlockView();
+                    }
+                );
+            }
+        )
+    );
+
     eventhandlers.push(
         instance.after(
             '*:destroy',
@@ -1990,6 +2023,21 @@ ITSAViewModel.prototype._setModel = function(v) {
         Y.use('gallerycss-itsa-form'); // asynchroniously load iconfonts
     }
     return v;
+};
+
+/**
+ * Transforms the buttonicon into a 'spinner'-icon or reset to original icon.
+ * In case there are multiple of the same buttontypes rendered, all are affected.
+ *
+ * @method _setSpin
+ * @private
+ * @param buttonType {String} buttontype which is to be affected.
+ * @param spin {Boolean} whether to spin or not (=return to default).
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
+
 };
 
 /**
