@@ -40,10 +40,10 @@ var YArray = Y.Array,
     MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
     MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
     TRUE = 'true',
-    LI_ICON = 'i[class^="itsaicon-"], i[class*=" itsaicon-"]',
-    ITSA_BUSY = 'itsa-busy',
-    ITSA_LOADIMG = 'itsaicon-form-loading',
-    DATA_SPIN_BUSY = 'data-spinbusy',
+//    LI_ICON = 'i[class^="itsaicon-"], i[class*=" itsaicon-"]',
+//    ITSA_BUSY = 'itsa-busy',
+//    ITSA_LOADIMG = 'itsaicon-form-loading',
+//    DATA_SPIN_BUSY = 'data-spinbusy',
     DISABLED = 'disabled',
     WAS_DISABLED = 'was-'+DISABLED,
     BUTTON = 'button',
@@ -70,6 +70,7 @@ var YArray = Y.Array,
     LOAD = 'load',
     DESTROY = 'destroy',
     REMOVE = 'remove',
+    PROMISE = 'Promise',
    /**
      * Fired after model is submitted from the sync layer.
      * @event submit
@@ -80,7 +81,18 @@ var YArray = Y.Array,
      * @since 0.1
     **/
     SUBMIT = 'submit',
-
+  /**
+   * Fired before the model is submitted through the sync layer, right after a user calls 'submit' or 'submitPromise'.
+   * If you want to keep track when saving is finished, you should examine e.promise. This is the prefered way above listening to the 'submit'-event,
+   * because subscribing to the save-event doesn't hold reference to this particular save-call.
+   *
+   * @event submitstart
+   * @param e {EventFacade} Event Facade including:
+   * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+   * @param [e.promise] {Y.Promise} returned response --> resolve(response) OR reject(reason). (examine reason.message).
+   * @since 0.1
+  **/
+    SUBMIT_START = SUBMIT+'start',
     DATE = 'date',
     TIME = 'time',
     DATETIME = DATE+TIME,
@@ -172,7 +184,7 @@ var YArray = Y.Array,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderDestroyBtn()- is clicked.
-      * The defaultfunction: _defFn_destroy() always will be executed, unless the event is preventDefaulted or halted.
+      * The defaultfunction: destroy() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event destroy:click
       * @param e {EventFacade} Event Facade including:
@@ -186,7 +198,7 @@ var YArray = Y.Array,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderRemoveBtn()- is clicked.
-      * The defaultfunction: _defFn_remove() always will be executed, unless the event is preventDefaulted or halted.
+      * The defaultfunction: destroy({remove: true}) always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event remove:click
       * @param e {EventFacade} Event Facade including:
@@ -200,7 +212,7 @@ var YArray = Y.Array,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderSubmitBtn()- is clicked.
-      * The defaultfunction: _defFn_submit() always will be executed, unless the event is preventDefaulted or halted.
+      * The defaultfunction: submit() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event submit:click
       * @param e {EventFacade} Event Facade including:
@@ -214,7 +226,7 @@ var YArray = Y.Array,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderResetBtn()- is clicked.
-      * The defaultfunction: _defFn_reset() always will be executed, unless the event is preventDefaulted or halted.
+      * The defaultfunction: reset() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event reset:click
       * @param e {EventFacade} Event Facade including:
@@ -228,7 +240,7 @@ var YArray = Y.Array,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderSaveBtn()- is clicked.
-      * The defaultfunction: _defFn_save() always will be executed, unless the event is preventDefaulted or halted.
+      * The defaultfunction: save() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event save:click
       * @param e {EventFacade} Event Facade including:
@@ -242,7 +254,7 @@ var YArray = Y.Array,
 
     /**
       * Fired when a button -rendered by this modelinstance using renderLoadBtn()- is clicked.
-      * The defaultfunction: _defFn_load() always will be executed, unless the event is preventDefaulted or halted.
+      * The defaultfunction: load() always will be executed, unless the event is preventDefaulted or halted.
       *
       * @event load:click
       * @param e {EventFacade} Event Facade including:
@@ -295,17 +307,6 @@ var YArray = Y.Array,
       *
     **/
     DATETIMEPICKER_CLICK = DATE+TIME+PICKER+CLICK,
-
-    /**
-      * Fired when a inputelement is configured with 'submitonenter=true' and receives an enter-key.
-      * The defaultfunction: _defFn_submitauto() will be executed, unless the event is preventDefaulted or halted.
-      *
-      * @event submit:auto
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      *
-    **/
-    SUBMIT_AUTO = SUBMIT+':auto',
 
 ITSAFormModel = Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {}, {
     _ATTR_CFG: ['formtype', 'formconfig', 'validationerror']
@@ -434,49 +435,42 @@ ITSAFormModel.prototype.initializer = function() {
     instance.publish(
         DESTROY_CLICK,
         {
-            defaultFn: Y.bind(instance._defFn_destroy, instance),
+            defaultFn: Y.bind(instance.destroy, instance),
             emitFacade: true
         }
     );
     instance.publish(
         REMOVE_CLICK,
         {
-            defaultFn: Y.bind(instance._defFn_remove, instance),
+            defaultFn: Y.bind(instance.destroy, instance, {remove: true}),
             emitFacade: true
         }
     );
     instance.publish(
         SUBMIT_CLICK,
         {
-            defaultFn: Y.bind(instance._defFn_submit, instance),
-            emitFacade: true
-        }
-    );
-    instance.publish(
-        SUBMIT_AUTO,
-        {
-            defaultFn: Y.bind(instance._defFn_submitauto, instance),
+            defaultFn: Y.bind(instance.submit, instance),
             emitFacade: true
         }
     );
     instance.publish(
         RESET_CLICK,
         {
-            defaultFn: Y.bind(instance._defFn_reset, instance),
+            defaultFn: Y.bind(instance.reset, instance),
             emitFacade: true
         }
     );
     instance.publish(
         SAVE_CLICK,
         {
-            defaultFn: Y.bind(instance._defFn_save, instance),
+            defaultFn: Y.bind(instance.save, instance),
             emitFacade: true
         }
     );
     instance.publish(
         LOAD_CLICK,
         {
-            defaultFn: Y.bind(instance._defFn_load, instance),
+            defaultFn: Y.bind(instance.load, instance),
             emitFacade: true
         }
     );
@@ -1328,19 +1322,120 @@ ITSAFormModel.setWidgetValueField = function(widgetClassname, valueField) {
 ITSAFormModel.prototype.setWidgetValueField = ITSAFormModel.setWidgetValueField;
 
 /**
- * Submits the UI by calling the synclayer with action='submit'. If you need a promise, then use submitPromise().
- * model-promisses are provided by the module 'gallery-itsamodelsyncpromise' which is loaded by this module.
+ * Submits this model to the server.
+ *
+ * This method delegates to the `sync()` method to perform the actual submit operation, which is an asynchronous action.
+ * Specify a 'callback' function to be notified of success or failure.
+ * <br /><br />
+ * A successful submit operation will fire a `submit` event, while an unsuccessful save operation will fire an `error` event with the `src` value "submit".
+ * <br /><br />
+ * To keep track of the proccess, it is preferable to use <b>submitPromise()</b>.<br />
+ * This method will fire 2 events: 'submitstart' before syncing and 'submit' or 'error' after syncing.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'submit' <b>must call its callback-function</b> in order to work as espected!
  *
  * @method submit
- * @since 0.1
+ * @param {Object} [options] Options to be passed to `sync()`.
+ *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ * @param {Function} [callback] Called when the sync operation finishes.
+ *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
+ *                                    If the sync operation succeeded, 'err' will be null.
+ *   @param {Any} callback.response The server's response, if any. This value will be passed to the `parse()` method,
+ *                                  which is expected to parse it and return an attribute hash.
+ * @chainable
 */
-ITSAFormModel.prototype[SUBMIT] = function() {
+ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
+    var instance = this;
+
     Y.log(SUBMIT, 'info', 'ITSAFormModel');
-    this.sync(SUBMIT, null, function() {}); // callback with an empty function
+    instance.submitPromise(options).then(
+        function(response) {
+/*jshint expr:true */
+            callback && callback.apply(null, response);
+/*jshint expr:false */
+        },
+        function(err) {
+/*jshint expr:true */
+            callback && callback.apply(null, err);
+/*jshint expr:false */
+        }
+    );
+    return instance;
+};
+
+/**
+ * Submits this model to the server.
+ * <br /><br />
+ * This method delegates to the `sync()` method to perform the actual submit
+ * operation, which is Y.Promise. Read the Promise.then() and look for resolve(response) OR reject(reason).
+ * <br /><br />
+ * This method will also fire 2 events: 'submitstart' before syncing and 'submit' or 'error' after syncing.<br />
+ * A successful submit-operation will also fire a `submit` event, while an unsuccessful
+ * submit operation will fire an `error` event with the `src` value "submit".
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'submit' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method submitPromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
+**/
+ITSAFormModel.prototype[SUBMIT+PROMISE] = function(options) {
+    var instance = this,
+        promise;
+
+    Y.log('submitPromise', 'info', 'Itsa-ModelSyncPromise');
+    options = options || {};
+    promise = new Y.Promise(function (resolve, reject) {
+        var errFunc, successFunc,
+              facade = {
+                  options : options
+              };
+        errFunc = function(err) {
+            facade.error = err;
+            facade.src   = 'Model.submitPromise()';
+            instance._lazyFireErrorEvent(facade);
+            reject(new Error(err));
+        };
+        successFunc = function(response) {
+            // Lazy publish.
+            if (!instance._submitEvent) {
+                instance._submitEvent = instance.publish(SUBMIT, {
+                    preventable: false
+                });
+            }
+            facade.response = response;
+            instance.fire(SUBMIT, facade);
+            resolve(response);
+        };
+        if (instance.syncPromise) {
+            // use the syncPromise-layer
+            instance._syncTimeoutPromise(SUBMIT, options).then(
+                successFunc,
+                errFunc
+            );
+        }
+        else {
+            // use the sync-layer
+            instance.sync(SUBMIT, options, function (err, response) {
+                if (err) {
+                    errFunc(err);
+                }
+                else {
+                    successFunc(response);
+                }
+            });
+        }
+    });
+    instance.fire(SUBMIT_START, {promise: promise, options: options});
+    return promise;
 };
 
 /**
  * Returns a this model's attributes rendered as UI-elements, that can be passed to Y.JSON.stringify() or used for other nefarious purposes.
+ * Be aware that all property-values are html-strings: when templating with micro-template, use '<%==' instead of '<%=' to access the properties.
+ * <br />
+ * All original attribute-<u>values</u> are available with underscore-properties like: <b>_attributename</b>.
  * <br /><br />
  * By specifying 'buttons', you can render extra buttons. 'buttons' needs to be an object or an array that holds objects, with the next properties:
  *
@@ -1618,13 +1713,7 @@ ITSAFormModel.prototype._bindUI = function() {
                     submitonenter = (node.getAttribute('data-submitonenter')==='true'),
                     type, payload;
                 if (submitonenter) {
-                    type = SUBMIT_AUTO;
-                    payload = {
-                        target: instance,
-                        type: type
-                    };
-                    // refireing, but now by the instance:
-                    instance.fire(type, payload);
+                    instance.submit();
                 }
                 else {
                     type = FOCUS_NEXT;
@@ -1667,6 +1756,7 @@ ITSAFormModel.prototype._bindUI = function() {
             }
         )
     );
+
 };
 
 /**
@@ -1685,26 +1775,6 @@ ITSAFormModel.prototype._clearEventhandlers = function() {
             item.detach();
         }
     );
-};
-
-/**
- *
- * Default function for the 'destroy:click'-event
- *
- * @method _defFn_destroy
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-ITSAFormModel.prototype._defFn_destroy = function() {
-    Y.log('_defFn_destroy', 'info', 'ITSAFormModel');
-    this.destroyPromise();
 };
 
 /**
@@ -1776,291 +1846,6 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
             instance.fire(type, payload);
         }
     );
-};
-
-/**
- *
- * Default function for the 'load:click'-event.
- *
- * @method _defFn_load
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-ITSAFormModel.prototype._defFn_load = function(e) {
-    var instance = this,
-        buttonNode = e.buttonNode,
-        iconNode = buttonNode.one(LI_ICON),
-        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE);
-
-    Y.log('_defFn_load', 'info', 'ITSAFormModel');
-    instance.disableUI();
-/*jshint expr:true */
-    canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
-/*jshint expr:false */
-    instance.loadPromise({fromInternal: true}).then(
-        function() {
-            instance.setResetAttrs();
-            // because the buttonnode could be gone away from the dom, first check is it's available
-            buttonNode = Y.one('#'+buttonNode.get('id'));
-            if (buttonNode) {
-/*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                instance.enableUI();
-            }
-        },
-        function() {
-            // because the buttonnode could be gone away from the dom, first check is it's available
-            buttonNode = Y.one('#'+buttonNode.get('id'));
-            if (buttonNode) {
-/*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                instance.enableUI();
-            }
-        }
-    );
-};
-
-/**
- *
- * Default function for the 'destroy:click'-event
- *
- * @method _defFn_remove
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-
-ITSAFormModel.prototype._defFn_remove = function(e) {
-    var instance = this,
-        buttonNode = e.buttonNode,
-        iconNode = buttonNode.one(LI_ICON),
-        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE);
-
-
-    Y.log('_defFn_remove', 'info', 'ITSAFormModel');
-    instance.disableUI();
-/*jshint expr:true */
-    canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
-/*jshint expr:false */
-    instance.destroyPromise({remove: true}).then(
-        function() {
-            // because the buttonnode could be gone away from the dom, first check is it's available
-            buttonNode = Y.one('#'+buttonNode.get('id'));
-            if (buttonNode) {
-/*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                instance.enableUI();
-            }
-        },
-        function() {
-            // because the buttonnode could be gone away from the dom, first check is it's available
-            buttonNode = Y.one('#'+buttonNode.get('id'));
-            if (buttonNode) {
-/*jshint expr:true */
-                canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                instance.enableUI();
-            }
-        }
-    );
-};
-
-/**
- *
- * Default function for the 'reset:click'-event
- *
- * @method _defFn_reset
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-ITSAFormModel.prototype._defFn_reset = function() {
-    var instance = this;
-
-    Y.log('_defFn_reset', 'info', 'ITSAFormModel');
-    instance.reset();
-};
-
-/**
- *
- * Default function for the 'save:click'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
- *
- * @method _defFn_save
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-
-ITSAFormModel.prototype._defFn_save = function(e) {
-    var instance = this,
-        buttonNode = e.buttonNode,
-        iconNode = buttonNode.one(LI_ICON),
-        canSpin = iconNode && (e.buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE),
-        prevAttrs, unvalidNodes;
-    Y.log('_defFn_save', 'info', 'ITSAFormModel');
-    unvalidNodes = instance.getUnvalidatedUI();
-    if (unvalidNodes.isEmpty()) {
-        instance.disableUI();
-/*jshint expr:true */
-        canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
-/*jshint expr:false */
-        prevAttrs = instance.getAttrs();
-        instance.UIToModel();
-        instance.savePromise().then(
-             function() {
-                 // set the new values as the standard reset
-                instance.setResetAttrs();
-                // because the buttonnode could be gone away from the dom, first check is it's available
-                buttonNode = Y.one('#'+buttonNode.get('id'));
-                if (buttonNode) {
-/*jshint expr:true */
-                     canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                     instance.enableUI();
-                }
-             },
-             function() {
-                  // reset to previous values
-                instance.setAttrs(prevAttrs);
-                // because the buttonnode could be gone away from the dom, first check is it's available
-                buttonNode = Y.one('#'+buttonNode.get('id'));
-                if (buttonNode) {
-                    instance._modelToUI();
-/*jshint expr:true */
-                    canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                    instance.enableUI();
-                }
-             }
-        );
-    }
-    else {
-        instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
-        e.halt();
-    }
-};
-
-/**
- *
- * Default function for the 'submit:auto'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
- *
- * @method _defFn_submitauto
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @private
- * @protected
- * @since 0.1
- *
-*/
-
-ITSAFormModel.prototype._defFn_submitauto = function(e) {
-    var instance = this,
-        node;
-
-    Y.log('_defFn_submit', 'info', 'ITSAFormModel');
-    // if the model has a submitnode, then we would like to know, because it can be transfered into a waiting icon.
-    YObject.some(
-        instance._FORM_elements,
-        function(formelement, nodeid) {
-/*jshint expr:true */
-            (formelement.type===BUTTON) && (node=Y.one('#'+nodeid)) && (node.getAttribute(DATA_BUTTON_SUBTYPE)===SUBMIT) && (e.buttonNode=node);
-/*jshint expr:false */
-            return e.buttonNode;
-        }
-    );
-    instance._defFn_submit(e);
-};
-
-/**
- *
- * Default function for the 'submit:click'-event. When there is a validate-error, no submit will be done, but a 'validationerror'-event will be fired.
- *
- * @method _defFn_submit
- * @param e {EventFacade} Event Facade including:
- * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
- * @param e.value {Any} Should be used to identify the button --> defined during rendering: is either config.value or labelHTML
- * @param e.buttonNode {Y.Node} reference to the buttonnode
- * @param e.formElement {Object} reference to the form-element
- * @private
- * @protected
- * @since 0.1
- *
-*/
-
-ITSAFormModel.prototype._defFn_submit = function(e) {
-    var instance = this,
-        buttonNode = e.buttonNode,
-        iconNode = buttonNode && buttonNode.one(LI_ICON),
-        canSpin = iconNode && (buttonNode.getAttribute(DATA_SPIN_BUSY)===TRUE),
-        prevAttrs, unvalidNodes;
-
-    Y.log('_defFn_submit', 'info', 'ITSAFormModel');
-    unvalidNodes = instance.getUnvalidatedUI();
-    if (unvalidNodes.isEmpty()) {
-        instance.disableUI();
-/*jshint expr:true */
-        canSpin && iconNode.addClass(ITSA_BUSY).addClass(ITSA_LOADIMG);
-/*jshint expr:false */
-        prevAttrs = instance.getAttrs();
-        instance.UIToModel();
-        instance.submitPromise().then(
-             function() {
-                // because the buttonnode could be gone away from the dom, first check is it's available
-                buttonNode = buttonNode && Y.one('#'+buttonNode.get('id'));
-                if (buttonNode) {
-/*jshint expr:true */
-                     canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                     instance.enableUI();
-                }
-             },
-             function() {
-                  // reset to previous values
-                 instance.setAttrs(prevAttrs);
-                 // because the buttonnode could be gone away from the dom, first check is it's available
-                 buttonNode = buttonNode && Y.one('#'+buttonNode.get('id'));
-                 if (buttonNode) {
-                     instance._modelToUI();
-/*jshint expr:true */
-                     canSpin && iconNode.removeClass(ITSA_BUSY).removeClass(ITSA_LOADIMG);
-/*jshint expr:false */
-                     instance.enableUI();
-                 }
-             }
-        );
-    }
-    else {
-        instance.fire(VALIDATION_ERROR, {nodelist: unvalidNodes});
-        e.halt();
-    }
 };
 
 /**
