@@ -86,7 +86,7 @@ var YArray = Y.Array,
     STRING = 'string',
     BOOLEAN = 'boolean',
     PICKER = 'picker',
-
+    ERROR = 'error',
     DATA = 'data',
     VALUE = 'value',
     TYPE = 'type',
@@ -295,6 +295,22 @@ var YArray = Y.Array,
     **/
     DATETIMEPICKER_CLICK = DATE+TIME+PICKER+CLICK,
 
+    PARSED = function (response) {
+        if (typeof response === 'string') {
+            try {
+                return Y.JSON.parse(response);
+            } catch (ex) {
+                this.fire(ERROR, {
+                    error   : ex,
+                    response: response,
+                    src     : 'parse'
+                });
+                return {};
+            }
+        }
+        return response || {};
+    },
+
 ITSAFormModel = Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {}, {
     _ATTR_CFG: ['formtype', 'formconfig', 'validationerror']
 });
@@ -443,7 +459,9 @@ ITSAFormModel.prototype.initializer = function() {
     instance.publish(
         RESET_CLICK,
         {
-            defaultFn: Y.bind(instance.reset, instance),
+            defaultFn: function() {
+                instance.reset(); // without argument
+            },
             emitFacade: true
         }
     );
@@ -1693,12 +1711,15 @@ ITSAFormModel.prototype._bindUI = function() {
 
     eventhandlers.push(
         instance.on(
-            ['submit', 'save'],
+            [SAVE_CLICK, SUBMIT_CLICK],
             function(e) {
                 var unvalidNodes = instance.getUnvalidatedUI();
-                if (unvalidNodes.isEmpty()) {
+                if (!unvalidNodes.isEmpty()) {
                     e.preventDefault();
                     instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
+                }
+                else {
+                    instance.UIToModel();
                 }
             }
         )
@@ -1838,8 +1859,8 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
         facade = {
             options : options
         };
-
-    Y.log('_defFnSave', 'info', 'ITSA-ModelSyncPromise');
+console.log('defaultfunc submit');
+    Y.log('_defFn_submit', 'info', 'ITSA-ModelSyncPromise');
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
                 facade.error = validateErr;
@@ -1855,7 +1876,18 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
                     promiseReject(new Error(err));
                 };
                 successFunc = function(response) {
+                    var parsed;
                     e.response = response;
+                    parsed = PARSED(response);
+                    if (parsed.responseText) {
+                        // XMLHttpRequest
+                        parsed = parsed.responseText;
+                    }
+                    if (YObject.keys(parsed).length>0) {
+                        e.parsed = parsed;
+                        instance.setAttrs(parsed, options);
+                    }
+                    instance.changed = {};
                     e.promiseResolve(response);
                 };
                 if (instance.syncPromise) {
