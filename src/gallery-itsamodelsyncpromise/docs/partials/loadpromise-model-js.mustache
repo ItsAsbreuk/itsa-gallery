@@ -27,10 +27,6 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model'
 
     countrymodel = new Y.CountryModel();
 
-    countrymodel.on('load', function(){
-        container.append('Start loading<br />');
-    });
-
     loadbutton.on(
         'click',
         function(e) {
@@ -39,7 +35,7 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model'
             container.append('Start loading<br />');
             countrymodel.loadPromise().then(
                 function(response, options) {
-                    container.append('Loadpromise resolved: Model is loaded.<br />');
+                    container.append('Loadpromise resolved: Model is loaded. --> Country='+countrymodel.get('Country')+'<br />');
                 },
                 function(reason) {
                     container.append('Loadpromise rejected: '+reason.message+' (this message should not appear in this example).<br />');

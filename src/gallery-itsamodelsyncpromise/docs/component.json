@@ -9,15 +9,6 @@
 
     "examples": [
         {
-            "name"       : "destroy-model",
-            "displayName": "Destroy a model - should remove",
-            "description": "This example shows how to style a node that will be present in the future, by coloring it red.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsanodepromise", "node"],
-            "tags"    : ["gallery-itsanodepromise", "availablePromise"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "load-model",
             "displayName": "Examine events when loading model",
             "description": "Load the model by clicking the button. The on- and after-event will appear at the start of loading and at the end.",
@@ -29,7 +20,7 @@
         {
             "name"       : "loadpromise-model",
             "displayName": "Loading model using loadPromise()",
-            "description": "This example shows how to style a node that will be present in the future, by coloring it red.",
+            "description": "Load the model by clicking the button. The promise will inform when things get ready.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsanodepromise", "node"],
             "tags"    : ["gallery-itsanodepromise", "availablePromise"],
@@ -38,7 +29,7 @@
         {
             "name"       : "preventload-model",
             "displayName": "Prevent-default loading model",
-            "description": "This example shows how to style a node that will be present in the future, by coloring it red.",
+            "description": "Load the model by clicking the button. The defaultaction (load) will not execute.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsanodepromise", "node"],
             "tags"    : ["gallery-itsanodepromise", "availablePromise"],
@@ -47,7 +38,7 @@
         {
             "name"       : "error",
             "displayName": "Errors during loading",
-            "description": "This example shows how to style a node that will be present in the future, by coloring it red.",
+            "description": "Load the model by clicking the button. A servererror is simulated which will be shown both in the promiseresult as by an throwing error-event.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsanodepromise", "node"],
             "tags"    : ["gallery-itsanodepromise", "availablePromise"],

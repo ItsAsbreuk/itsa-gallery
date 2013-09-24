@@ -29,7 +29,7 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model'
         container.append('Model is loaded succesfully (this message should NOT appear in this example)<br />');
     });
     countrymodel.on('error', function(e){
-        container.append('Models error event occurred: '+e.error+'<br />');
+        container.append('Error event occurred by model: '+e.error+'<br />');
     });
 
     loadbutton.on(
