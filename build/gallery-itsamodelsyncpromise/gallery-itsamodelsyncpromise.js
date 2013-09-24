@@ -6,18 +6,8 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
 
 /**
  *
- * Extention ITSAModelSyncPromise
- *
- *
- * Extends Y.Model with Promised sync-methods. The synclayer can be made just as usual. But instead of calling
- * Model.load and Model.save and Model.destroy, you can use:
- *
- * <b>Model.loadPromise</b>
- * <b>Model.savePromise</b>
- * <b>Model.submitPromise</b>
- * <b>Model.destroyPromise</b>
- *
- * <b>The sync-layer MUST call the callback-function of its related promise-method, otherwise the promises are not resolved.</b>
+ * This module extends Y.Model by introducing Promised sync-methods. It also transforms Y.Model's sync-events into true events with a defaultFunc which can be prevented.
+ * This means the 'on'-events will be fired before syncing and the 'after'-events after syncing.
  *
  * @module gallery-itsamodelsyncpromise
  * @class Y.Model
@@ -36,6 +26,8 @@ var YModel = Y.Model,
     LOAD = 'load',
     SAVE = 'save',
     ERROR = 'error',
+    DELETE = 'delete',
+    READ = 'read',
     DESTROYED = DESTROY+'ed',
     PUBLISHED = '_published',
 /**
@@ -162,7 +154,7 @@ YModel.prototype.destroyPromise = function (options) {
   * differ from this model's current attributes, a `change` event will be fired.
   * <br /><br />
   * To keep track of the proccess, it is preferable to use <b>loadPromise()</b>.<br />
-  * This method will fire 2 events: 'loadstart' before syncing and 'load' or 'error' after syncing.
+  * This method will fire 2 events: 'loadstart' before syncing and 'load' or ERROR after syncing.
   * <br /><br />
   * <b>CAUTION</b> The sync-method with action 'load' <b>must call its callback-function</b> in order to work as espected!
   *
@@ -358,7 +350,7 @@ YModel.prototype.publishAsync = function(type, opts) {
  * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
  * <br /><br />
  * To keep track of the process, it is preferable to use <b>savePromise()</b>.<br />
- * This method will fire 2 events: 'savestart' before syncing and 'save' or 'error' after syncing.
+ * This method will fire 2 events: 'savestart' before syncing and 'save' or ERROR after syncing.
  * <br /><br />
  * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
  *
@@ -494,7 +486,7 @@ YModel.prototype._defFn_destroy = function(e) {
         promiseResolve = e.promiseResolve,
         promiseReject = e.promiseReject,
         options = e.options,
-        remove = e.remove || e['delete'],
+        remove = e.remove || e[DELETE],
         errFunc, successFunc, finish;
 
     if (instance.get(DESTROYED)) {
@@ -525,13 +517,13 @@ YModel.prototype._defFn_destroy = function(e) {
             };
             if (instance.syncPromise) {
                 // use the syncPromise-layer
-                instance._syncTimeoutPromise('delete', options).then(
+                instance._syncTimeoutPromise(DELETE, options).then(
                     successFunc,
                     errFunc
                 );
             }
             else {
-                instance.sync('delete', options, function (err, response) {
+                instance.sync(DELETE, options, function (err, response) {
                     if (err) {
                         errFunc(err);
                     }
@@ -588,13 +580,13 @@ YModel.prototype._defFn_load = function(e) {
     };
     if (instance.syncPromise) {
         // use the syncPromise-layer
-        instance._syncTimeoutPromise('read', options).then(
+        instance._syncTimeoutPromise(READ, options).then(
             successFunc,
             errFunc
         );
     }
     else {
-        instance.sync('read', options, function (err, response) {
+        instance.sync(READ, options, function (err, response) {
             if (err) {
                 errFunc(err);
             }
@@ -698,7 +690,7 @@ YModel.prototype._prevDefFn = function(e) {
 };
 
 /**
-* Fires the 'error'-event and -if not published yet- publish it broadcasted to Y.
+* Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
 * Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
 *
 * @method _lazyFireErrorEvent
