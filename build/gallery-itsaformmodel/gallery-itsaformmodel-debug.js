@@ -81,18 +81,6 @@ var YArray = Y.Array,
      * @since 0.1
     **/
     SUBMIT = 'submit',
-  /**
-   * Fired before the model is submitted through the sync layer, right after a user calls 'submit' or 'submitPromise'.
-   * If you want to keep track when saving is finished, you should examine e.promise. This is the prefered way above listening to the 'submit'-event,
-   * because subscribing to the save-event doesn't hold reference to this particular save-call.
-   *
-   * @event submitstart
-   * @param e {EventFacade} Event Facade including:
-   * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-   * @param [e.promise] {Y.Promise} returned response --> resolve(response) OR reject(reason). (examine reason.message).
-   * @since 0.1
-  **/
-    SUBMIT_START = SUBMIT+'start',
     DATE = 'date',
     TIME = 'time',
     DATETIME = DATE+TIME,
@@ -149,6 +137,7 @@ var YArray = Y.Array,
       * @param e {EventFacade} Event Facade including:
       * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
       * @param e.nodelist {Y.NodeList} reference to the element-nodes that are validated wrongly
+      * @param e.src {String|null} the source that cause validation to be checked
       * @since 0.1
     **/
     VALIDATION_ERROR = 'validationerror',
@@ -442,14 +431,14 @@ ITSAFormModel.prototype.initializer = function() {
     instance.publish(
         REMOVE_CLICK,
         {
-            defaultFn: Y.bind(instance.destroy, instance, {remove: true}),
+            defaultFn: Y.bind(instance.destroy, instance, {remove: true, fromInternal: true}),
             emitFacade: true
         }
     );
     instance.publish(
         SUBMIT_CLICK,
         {
-            defaultFn: Y.bind(instance.submit, instance),
+            defaultFn: Y.bind(instance.submit, instance, {fromInternal: true}),
             emitFacade: true
         }
     );
@@ -463,14 +452,14 @@ ITSAFormModel.prototype.initializer = function() {
     instance.publish(
         SAVE_CLICK,
         {
-            defaultFn: Y.bind(instance.save, instance),
+            defaultFn: Y.bind(instance.save, instance, {fromInternal: true}),
             emitFacade: true
         }
     );
     instance.publish(
         LOAD_CLICK,
         {
-            defaultFn: Y.bind(instance.load, instance),
+            defaultFn: Y.bind(instance.load, instance, {fromInternal: true}),
             emitFacade: true
         }
     );
@@ -501,6 +490,7 @@ ITSAFormModel.prototype.initializer = function() {
 };
 
 /**
+ * This is a variant to 'validate()', but meant for UI-emenents.<br />
  * Validates accross attributevalues interactive. F.i: you might have 2 password-fields, one for confirmation.
  * In that case both need to be the same.
  * <br />
@@ -513,6 +503,23 @@ ITSAFormModel.prototype.initializer = function() {
  * <br />
  * <b>Caution</b> don't read attribute-values with formmodel.get(), but read UI-values with formmodel.getUI() because you need to compare the values
  * as they exist in the UI-elements.
+ *
+ * @example
+ *        model.crossValidation = function() {
+ *            var instance = this,
+ *                errorattrs = [];
+ *            if (instance.getUI('password') !== instance.getUI('passwordcheck')) {
+ *                errorattrs.push({
+ *                    attribute: 'password',
+ *                    validationerror: 'password and password-check are not the same'
+ *                });
+ *                errorattrs.push({
+ *                    attribute: 'passwordcheck',
+ *                    validationerror: 'password and password-check are not the same'
+ *                });
+ *            }
+ *            return errorattrs;
+ *        }
  *
  * @method crossValidation
  * @return {Array|null} array with objects that failed crossValidation. The objects have the properties 'attribute' and 'validationerror'
@@ -1241,7 +1248,7 @@ ITSAFormModel.prototype.reset = function() {
 
     Y.log('reset', 'info', 'ITSAFormModel');
     instance._internalChange = true;
-    instance.constructor.superclass.constructor.superclass.reset.apply(instance, arguments);
+    ITSAFormModel.superclass.reset.apply(instance, arguments);
     if (arguments.length===0) {
         // only original call --> when arguments===1 then the superclass is calling this method from one of its attributes
         instance._internalChange = null;
@@ -1330,7 +1337,7 @@ ITSAFormModel.prototype.setWidgetValueField = ITSAFormModel.setWidgetValueField;
  * A successful submit operation will fire a `submit` event, while an unsuccessful save operation will fire an `error` event with the `src` value "submit".
  * <br /><br />
  * To keep track of the proccess, it is preferable to use <b>submitPromise()</b>.<br />
- * This method will fire 2 events: 'submitstart' before syncing and 'submit' or 'error' after syncing.
+ * An unsuccessful submit operation will fire an `error` event with the `src` value "submit".
  * <br /><br />
  * <b>CAUTION</b> The sync-method with action 'submit' <b>must call its callback-function</b> in order to work as espected!
  *
@@ -1369,9 +1376,7 @@ ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
  * This method delegates to the `sync()` method to perform the actual submit
  * operation, which is Y.Promise. Read the Promise.then() and look for resolve(response) OR reject(reason).
  * <br /><br />
- * This method will also fire 2 events: 'submitstart' before syncing and 'submit' or 'error' after syncing.<br />
- * A successful submit-operation will also fire a `submit` event, while an unsuccessful
- * submit operation will fire an `error` event with the `src` value "submit".
+ * An unsuccessful submit operation will fire an `error` event with the `src` value "submit".
  * <br /><br />
  * <b>CAUTION</b> The sync-method with action 'submit' <b>must call its callback-function</b> in order to work as espected!
  *
@@ -1381,54 +1386,10 @@ ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 ITSAFormModel.prototype[SUBMIT+PROMISE] = function(options) {
-    var instance = this,
-        promise;
-
-    Y.log('submitPromise', 'info', 'Itsa-ModelSyncPromise');
-    options = options || {};
-    promise = new Y.Promise(function (resolve, reject) {
-        var errFunc, successFunc,
-              facade = {
-                  options : options
-              };
-        errFunc = function(err) {
-            facade.error = err;
-            facade.src   = 'Model.submitPromise()';
-            instance._lazyFireErrorEvent(facade);
-            reject(new Error(err));
-        };
-        successFunc = function(response) {
-            // Lazy publish.
-            if (!instance._submitEvent) {
-                instance._submitEvent = instance.publish(SUBMIT, {
-                    preventable: false
-                });
-            }
-            facade.response = response;
-            instance.fire(SUBMIT, facade);
-            resolve(response);
-        };
-        if (instance.syncPromise) {
-            // use the syncPromise-layer
-            instance._syncTimeoutPromise(SUBMIT, options).then(
-                successFunc,
-                errFunc
-            );
-        }
-        else {
-            // use the sync-layer
-            instance.sync(SUBMIT, options, function (err, response) {
-                if (err) {
-                    errFunc(err);
-                }
-                else {
-                    successFunc(response);
-                }
-            });
-        }
-    });
-    instance.fire(SUBMIT_START, {promise: promise, options: options});
-    return promise;
+    Y.log('savePromise', 'info', 'ITSA-ModelSyncPromise');
+    return this._createPromise(SUBMIT, options);
+    // method _createPromise is supplied by gallery-itsamodelsyncpromise
+    // it will publish the submit-event with defaultfn _defFn_submit, which is defined in this module
 };
 
 /**
@@ -1555,7 +1516,7 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
 /**
  * Returns wheter all visible UI-elements are right validated.
  *
- * @method getUnvalidatedUI
+ * @method validated
  * @return {Boolean} whether all visible UI-elements are right validated.
  * @since 0.1
  */
@@ -1734,6 +1695,19 @@ ITSAFormModel.prototype._bindUI = function() {
     );
 
     eventhandlers.push(
+        instance.on(
+            ['submit', 'save'],
+            function(e) {
+                var unvalidNodes = instance.getUnvalidatedUI();
+                if (unvalidNodes.isEmpty()) {
+                    e.preventDefault();
+                    instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
+                }
+            }
+        )
+    );
+
+    eventhandlers.push(
         Y.Intl.after(
             'intl:langChange',
             function() {
@@ -1846,6 +1820,68 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
             instance.fire(type, payload);
         }
     );
+};
+
+/**
+ * DefaultFn for the 'submit'-event
+ *
+ * @method _defFn_submit
+ * @param e {EventTarget}
+ * @param e.promise {Y.Promise} promise passed by with the eventobject
+ * @param e.promiseReject {Function} handle to the reject-method
+ * @param e.promiseResolve {Function} handle to the resolve-method
+ * @private
+ * @since 0.1
+*/
+ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
+    var instance = this,
+        options = e.options,
+        promiseReject = e.promiseReject,
+        errFunc, successFunc,
+        facade = {
+            options : options
+        };
+
+    Y.log('_defFnSave', 'info', 'ITSA-ModelSyncPromise');
+        instance._validate(instance.toJSON(), function (validateErr) {
+            if (validateErr) {
+                facade.error = validateErr;
+                facade.src = 'Model.submitPromise() - validate';
+                instance._lazyFireErrorEvent(facade);
+                promiseReject(new Error(validateErr));
+            }
+            else {
+                errFunc = function(err) {
+                    facade.error = err;
+                    facade.src   = 'Model.submitPromise()';
+                    instance._lazyFireErrorEvent(facade);
+                    promiseReject(new Error(err));
+                };
+                successFunc = function(response) {
+                    e.response = response;
+                    e.promiseResolve(response);
+                };
+                if (instance.syncPromise) {
+                    // use the syncPromise-layer
+                    instance._syncTimeoutPromise(SUBMIT, options).then(
+                        successFunc,
+                        errFunc
+                    );
+                }
+                else {
+                    // use the sync-layer
+                    instance.sync(SUBMIT, options, function (err, response) {
+                        if (err) {
+                            errFunc(err);
+                        }
+                        else {
+                            successFunc(response);
+                        }
+                    });
+                }
+            }
+        });
+    return e.promise;
 };
 
 /**

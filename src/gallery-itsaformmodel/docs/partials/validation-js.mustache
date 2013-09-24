@@ -11,11 +11,11 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsaformmodel', 'gallery-itsad
             if (instance.getUI('password') !== instance.getUI('passwordcheck')) {
                 errorattrs.push({
                     attribute: 'password',
-                    validationerror: 'password and password-chack are not the same'
+                    validationerror: 'password and password-check are not the same'
                 });
                 errorattrs.push({
                     attribute: 'passwordcheck',
-                    validationerror: 'password and password-chack are not the same'
+                    validationerror: 'password and password-check are not the same'
                 });
             }
             return errorattrs;
