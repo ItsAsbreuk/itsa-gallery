@@ -4,18 +4,8 @@
 
 /**
  *
- * Extention ITSAModelSyncPromise
- *
- *
- * Extends Y.Model with Promised sync-methods. The synclayer can be made just as usual. But instead of calling
- * Model.load and Model.save and Model.destroy, you can use:
- *
- * <b>Model.loadPromise</b>
- * <b>Model.savePromise</b>
- * <b>Model.submitPromise</b>
- * <b>Model.destroyPromise</b>
- *
- * <b>The sync-layer MUST call the callback-function of its related promise-method, otherwise the promises are not resolved.</b>
+ * This module extends Y.Model by introducing Promised sync-methods. It also transforms Y.Model's sync-events into true events with a defaultFunc which can be prevented.
+ * This means the 'on'-events will be fired before syncing and the 'after'-events after syncing.
  *
  * @module gallery-itsamodelsyncpromise
  * @class Y.Model
