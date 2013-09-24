@@ -566,23 +566,18 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 }
             },
 
-            /**
-             * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-             * where Y.Lang.sub is more lightweight.
-             *
-             * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-             * <b>Example with Y.Template.Micro:</b>
-             * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
-             * <b>Example 2 with Y.Template.Micro:</b>
-             * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
-             *
-             * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
-             *
-             * @attribute template
-             * @type {String}
-             * @default null
-             * @since 0.3
-             */
+          /**
+           * Template for the bodysection to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+           * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
+           * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
+           *
+           * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+           *
+           * @attribute template
+           * @type {String}
+           * @default null
+           * @since 0.3
+           */
             template: {
                 value: null,
                 validator: function(v) {
@@ -604,6 +599,7 @@ ITSAViewModel.prototype._formcss_loaded = false;
 /**
  * @method initializer
  * @protected
+ * @since 0.3
 */
 ITSAViewModel.prototype.initializer = function() {
     var instance = this,
@@ -1179,6 +1175,7 @@ ITSAViewModel.prototype.setHotKey = function(buttonType, hotkey) {
   * then the object will return as it is.
   * @method toJSON
   * @return {Object} Copy of this model's attributes.
+  * @since 0.3
  **/
 ITSAViewModel.prototype.toJSON = function() {
     var model = this.get(MODEL);
@@ -1207,15 +1204,19 @@ ITSAViewModel.prototype.toJSON = function() {
   * </ul>
   *
   * @method translate
+  * @param text {String} the text to be translated
   * @return {String} Translated text or the original text (if no translattion was posible)
- **/
+  * @since 0.3
+**/
 ITSAViewModel.prototype.translate = function(text) {
     return this._intl[text] || text;
 };
 
 /**
- * Locks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
+ * Unlocks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
+ *
  * @method unlockView
+ * @since 0.3
 */
 ITSAViewModel.prototype.unlockView = function() {
     var instance = this,
@@ -1230,6 +1231,7 @@ ITSAViewModel.prototype.unlockView = function() {
  * Cleans up bindings
  * @method destructor
  * @protected
+ * @since 0.3
 */
 ITSAViewModel.prototype.destructor = function() {
     var instance = this,
@@ -1259,7 +1261,8 @@ ITSAViewModel.prototype.destructor = function() {
  * @method _bindUI
  * @private
  * @protected
- */
+  * @since 0.3
+*/
 ITSAViewModel.prototype._bindUI = function() {
     var instance = this,
         container = instance.get(CONTAINER),
@@ -1330,18 +1333,50 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            [MODEL+SUBMIT, MODEL+SAVE, MODEL+LOAD, MODEL+RESET],
-            function(e) {
+            MODEL+RESET,
+            function() {
                 var itsatabkeymanager = container.itsatabkeymanager;
-                if (itsatabkeymanager) {
-                    // first enable the UI again, this is done within the submit-defaultfunc of the model as well, but that code comes LATER.
-                    // and we need enabled element to set the focus
-                    e.model.enableUI();
-                    itsatabkeymanager.focusInitialItem();
-                }
+/*jshint expr:true */
+                itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+/*jshint expr:false */
             }
         )
     );
+
+    eventhandlers.push(
+        instance.after(
+            [SUBMIT, SAVE, LOAD, DESTROY],
+            function(e) {
+                var promise = e.promise,
+                    model = e.target,
+                    eventType = e.type,
+                    prevAttrs;
+                instance.lockView();
+                if ((eventType===SUBMIT) || (eventType===SAVE)) {
+                    prevAttrs = model.getAttrs();
+                    model.UIToModel();
+                }
+                instance._setSpin(eventType, true);
+                promise.then(
+                    function() {
+/*jshint expr:true */
+                        ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
+/*jshint expr:false */
+                        instance._setSpin(eventType, false);
+                        instance.unlockView();
+                    },
+                    function() {
+/*jshint expr:true */
+                        ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
+/*jshint expr:false */
+                        instance._setSpin(eventType, false);
+                        instance.unlockView();
+                    }
+                );
+            }
+        )
+    );
+
     eventhandlers.push(
         instance.after(
             '*:destroy',
@@ -1959,6 +1994,23 @@ ITSAViewModel.prototype._setModel = function(v) {
         Y.use('gallerycss-itsa-form'); // asynchroniously load iconfonts
     }
     return v;
+};
+
+/**
+ * Transforms the buttonicon into a 'spinner'-icon or reset to original icon.
+ * In case there are multiple of the same buttontypes rendered, all are affected.
+ *
+ * @method _setSpin
+ * @private
+ * @param buttonType {String} buttontype which is to be affected.
+ * @param spin {Boolean} whether to spin or not (=return to default).
+ * @since 0.3
+ *
+*/
+ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
+    var instance = this,
+        buttonicons = instance.get('container').all('[data-buttonsubtype="'+buttonType+'"] i');
+    buttonicons.toggleClass('itsa-busy', spin);
 };
 
 /**

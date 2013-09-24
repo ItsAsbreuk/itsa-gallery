@@ -1351,7 +1351,7 @@ ITSAViewModel.prototype._bindUI = function() {
     eventhandlers.push(
         instance.after(
             MODEL+RESET,
-            function(e) {
+            function() {
                 var itsatabkeymanager = container.itsatabkeymanager;
 /*jshint expr:true */
                 itsatabkeymanager && itsatabkeymanager.focusInitialItem();
@@ -1362,32 +1362,31 @@ ITSAViewModel.prototype._bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            [SUBMIT+START, SAVE+START, LOAD+START, REMOVE+START],
+            [SUBMIT, SAVE, LOAD, DESTROY],
             function(e) {
                 var promise = e.promise,
                     model = e.target,
                     eventType = e.type,
-                    eventSubType = eventType.substr(0, eventType.length-5),
                     prevAttrs;
                 instance.lockView();
-                if ((eventSubType===SUBMIT) || (eventSubType===SAVE)) {
+                if ((eventType===SUBMIT) || (eventType===SAVE)) {
                     prevAttrs = model.getAttrs();
                     model.UIToModel();
                 }
-                instance._setSpin(eventSubType, true);
+                instance._setSpin(eventType, true);
                 promise.then(
                     function() {
 /*jshint expr:true */
-                        ((eventSubType===LOAD) || (eventSubType===SUBMIT) || (eventSubType===SAVE)) && model.setResetAttrs();
+                        ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
 /*jshint expr:false */
-                        instance._setSpin(eventSubType, false);
+                        instance._setSpin(eventType, false);
                         instance.unlockView();
                     },
                     function() {
 /*jshint expr:true */
-                        ((eventSubType===SUBMIT) || (eventSubType===SAVE)) && model.setAttrs(prevAttrs);
+                        ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
 /*jshint expr:false */
-                        instance._setSpin(eventSubType, false);
+                        instance._setSpin(eventType, false);
                         instance.unlockView();
                     }
                 );
@@ -2037,7 +2036,9 @@ ITSAViewModel.prototype._setModel = function(v) {
  *
 */
 ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
-
+    var instance = this,
+        buttonicons = instance.get('container').all('[data-buttonsubtype="'+buttonType+'"] i');
+    buttonicons.toggleClass('itsa-busy', spin);
 };
 
 /**
