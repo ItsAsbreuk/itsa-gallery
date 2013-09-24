@@ -205,18 +205,6 @@ var ITSAViewModel,
     **/
     SUBMIT = 'submit',
 
-    /**
-      * Fired when view's model is submitted through the submit:auto event.
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelsubmit:auto
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
-    AUTO = 'auto',
 
     CLICK = 'click',
     CLICKOUTSIDE = CLICK+'outside',
@@ -1364,8 +1352,9 @@ ITSAViewModel.prototype._bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            [SUBMIT, SAVE, LOAD, DESTROY],
+            [SUBMIT, 'modelsubmit', SAVE, LOAD, DESTROY],
             function(e) {
+alert(1);
                 var promise = e.promise,
                     model = e.target,
                     eventType = e.type,
@@ -1457,23 +1446,25 @@ ITSAViewModel.prototype._bindUI = function() {
     );
 
     YArray.each(
-        [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD, CLICK, AUTO,
+        [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD, CLICK,
          VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
             eventhandlers.push(
                 instance.after(
                     '*:'+event,
                     function(e) {
+console.log('check 1');
                         var validEvent = true,
-                            type = e.type,
                             newevent = event,
                             payload, button;
                         // check if e.target===instance, because it checks by *: and will recurse
                         if (e.target!==instance) {
+console.log('check 2 '+event);
                             if (VALID_MODEL_EVENTS[event]) {
                                 newevent = MODEL+event;
                             }
                             else if (event===CLICK) {
+console.log('check 3');
                                 button = e.type.split(':')[0];
                                 if (VALID_BUTTON_TYPES[button]) {
                                     newevent = button+event; // refire without ':'
@@ -1481,10 +1472,6 @@ ITSAViewModel.prototype._bindUI = function() {
                                 else {
                                    validEvent = false;
                                 }
-                            }
-                            if (event===AUTO) {
-                                validEvent = (type===SUBMIT+':'+AUTO);
-                                newevent = MODEL+type;
                             }
                             payload = {
                                 type: newevent,
@@ -1497,10 +1484,13 @@ ITSAViewModel.prototype._bindUI = function() {
                                 nodelist: e.nodelist, // in case of VALIDATION_ERROR
                                 formElement: e.formElement
                             };
+console.log('check 4');
                             Y.log('refiring model-event '+newevent+' by itsaviewmodel', 'info', 'ITSA-ViewModel');
                             if (validEvent) {
+console.log('check 5 --> '+newevent);
                                 instance.fire(newevent, payload);
                                 if ((newevent===BUTTON_CLICK) && (e.value===CLOSE)) {
+console.log('check 6');
                                     // also fire the buttonclose-event
                                     payload.type = newevent = BUTTON_CLOSE;
                                     instance.fire(newevent, payload);
