@@ -1350,21 +1350,20 @@ ITSAFormModel.prototype.setWidgetValueField = ITSAFormModel.setWidgetValueField;
  * @chainable
 */
 ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
-    var instance = this;
+    var instance = this,
+        promise;
 
     Y.log(SUBMIT, 'info', 'ITSAFormModel');
-    instance.submitPromise(options).then(
-        function(response) {
 /*jshint expr:true */
-            callback && callback.apply(null, response);
-/*jshint expr:false */
+    (promise=instance.submitPromise(options)) && callback && promise.then(
+        function(response) {
+            callback(null, response);
         },
         function(err) {
-/*jshint expr:true */
-            callback && callback.apply(null, err);
-/*jshint expr:false */
+            callback(err);
         }
     );
+/*jshint expr:false */
     return instance;
 };
 

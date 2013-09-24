@@ -25,8 +25,9 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model'
     countrymodel.on('load', function(){
         container.append('Start loading<br />');
     });
-    countrymodel.after('load', function(){
-        container.append('Model is loaded: Country='+countrymodel.get('Country')+'<br />');
+    countrymodel.after('load', function(e){
+//        container.append('Model is loaded: Country='+countrymodel.get('Country')+'<br />');
+        container.append('Model is loaded: Country='+countrymodel.get('Country')+' e.response: '+e.response+' e.parsed: '+e.parsed.Country+'<br />');
     });
 
     loadbutton.on(

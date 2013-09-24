@@ -111,21 +111,21 @@ PARSED = function (response) {
   * @chainable
 */
 YModel.prototype.destroy = function(options, callback) {
-    var instance = this;
+    var instance = this,
+        promise;
+
     Y.log('destroy', 'info', 'ITSA-ModelSyncPromise');
     // by overwriting the default 'save'-method we manage to fire 'destroystart'-event.
-    instance.destroyPromise(options).then(
-        function(response) {
 /*jshint expr:true */
-            callback && callback.apply(null, response);
-/*jshint expr:false */
+    (promise=instance.destroyPromise(options)) && callback && promise.then(
+        function(response) {
+            callback(null, response);
         },
         function(err) {
-/*jshint expr:true */
-            callback && callback.apply(null, err);
-/*jshint expr:false */
+            callback(err);
         }
     );
+/*jshint expr:false */
     return instance;
 };
 
@@ -174,22 +174,21 @@ YModel.prototype.destroyPromise = function (options) {
   * @chainable
  */
 YModel.prototype.load = function(options, callback) {
-    var instance = this;
+    var instance = this,
+        promise;
 
     Y.log('load', 'info', 'ITSA-ModelSyncPromise');
     // by overwriting the default 'save'-method we manage to fire 'loadstart'-event.
-    instance.loadPromise(options).then(
-        function(response) {
 /*jshint expr:true */
-            callback && callback.apply(null, response);
-/*jshint expr:false */
+    (promise=instance.loadPromise(options)) && callback && promise.then(
+        function(response) {
+            callback(null, response);
         },
         function(err) {
-/*jshint expr:true */
-            callback && callback.apply(null, err);
-/*jshint expr:false */
+            callback(err);
         }
     );
+/*jshint expr:false */
     return instance;
 };
 
@@ -316,15 +315,14 @@ YModel.prototype.publishAsync = function(type, opts) {
             // Resolve the _firing promise with either false if it was prevented, or with a promise for
             // the result of the defaultFn followed by the execution of the after subs.
             return e.prevented ?
-                Y.bind(asyncEvent.preventedFn, instance, e)().then(null, function (reason) {
+                asyncEvent.preventedFn.call(instance, e).then(null, function (reason) {
                     Y.log("Error in preventedFn: " + (reason && (reason.message || reason)), 'error');
                     return false;
-                })
-                :
-                Y.bind(asyncEvent.defaultFn, instance, e)().then(function (e) {
+                }) :
+                asyncEvent.defaultFn.call(instance, e).then(function () {
+                    // no need to handle 'response' it is merged into 'e' within the defaultfunction
                     // Execute after() subscribers
                     subs = asyncEvent._afters;
-
                     for (i = 0, len = subs.length; i < len; ++i) {
                         subs[i].fn.call(subs[i].context, e);
                     }
@@ -379,22 +377,21 @@ YModel.prototype.publishAsync = function(type, opts) {
  * @chainable
 */
 YModel.prototype.save = function(options, callback) {
-    var instance = this;
+    var instance = this,
+        promise;
 
     Y.log('save', 'info', 'ITSA-ModelSyncPromise');
     // by overwriting the default 'save'-method we manage to fire 'savestart'-event.
-    instance.savePromise(options).then(
-        function(response) {
 /*jshint expr:true */
-            callback && callback.apply(null, response);
-/*jshint expr:false */
+    (promise=instance.savePromise(options)) && callback && promise.then(
+        function(response) {
+            callback(null, response);
         },
         function(err) {
-/*jshint expr:true */
-            callback && callback.apply(null, err);
-/*jshint expr:false */
+            callback(err);
         }
     );
+/*jshint expr:false */
     return instance;
 };
 
