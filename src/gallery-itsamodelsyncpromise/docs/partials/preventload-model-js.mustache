@@ -32,7 +32,10 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model'
         e.preventDefault();
     });
     countrymodel.after('load', function(){
-        container.append('Model is loaded --> this meddage should never appear in this example!<br />');
+        container.append('Model is loaded --> this message should never appear in this example!<br />');
+    });
+    countrymodel.after('error', function(e){
+        container.append('Error event occurred by model: '+e.error+' --> this message should never appear in this example!<br />');
     });
 
     loadbutton.on(
