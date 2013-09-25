@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model', 'json-stringify', function(Y) {
+YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model', 'json-stringify', 'base', function(Y) {
 
    var countrymodel,
         loadbutton = Y.one('#loaddata'),
@@ -37,10 +37,24 @@ YUI(yuiconfig).use('node', 'base-build', 'gallery-itsamodelsyncpromise', 'model'
             countrymodel.loadPromise().then(
                 function(response, options) {
                     button.setHTML('load modeldata');
+                },
+                function(response, options) {
+                    button.setHTML('load modeldata ehh');
                 }
             );
         }
     );
+
+      var myTarget = new Y.Base();
+      countrymodel.addTarget(myTarget);
+
+      myTarget.on('*:load', function(e) {
+        console.log('ON LOAD EVENT BY TARGET ! '+e.promise);
+e.preventDefault();
+      });
+      myTarget.after('*:load', function(e) {
+        console.log('AFTER LOAD EVENT BY TARGET ! '+e.promise);
+      });
 
     loadbutton.removeClass('pure-button-disabled');
 

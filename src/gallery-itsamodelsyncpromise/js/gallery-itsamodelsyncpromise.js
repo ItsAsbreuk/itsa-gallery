@@ -1,6 +1,6 @@
 'use strict';
 
-/*jshint maxlen:170 */
+/*jshint maxlen:175 */
 
 /**
  *
@@ -305,8 +305,7 @@ YModel.prototype.publishAsync = function(type, opts) {
             // Execute on() subscribers
             var subs = asyncEvent._subscribers,
                 args2 = [],
-                e,
-                i, len;
+                e, i, len, stack;
 
                 args2.push.apply(args2, data);
                 e = asyncEvent._createFacade(args2);
@@ -317,8 +316,15 @@ YModel.prototype.publishAsync = function(type, opts) {
                     subs[i].fn.call(subs[i].context, e);
                 }
             }
-            // Doesn't support preventedFn
-            // Resolve the _firing promise with either false if it was prevented, or with a promise for
+
+            // Execute on() subscribers for each bubble target and their respective targets:
+            if (asyncEvent.bubbles && !asyncEvent.stopped) {
+                stack = asyncEvent.stack || asyncEvent;
+                instance.bubble(asyncEvent, args, null, stack);
+                e.prevented = Math.max(e.prevented, stack.prevented);
+            }
+
+            // Resolve the _firing promise with either prefentedFn promise if it was prevented, or with a promise for
             // the result of the defaultFn followed by the execution of the after subs.
             return e.prevented ?
                 asyncEvent.preventedFn.call(instance, e).then(null, function (reason) {
@@ -332,6 +338,10 @@ YModel.prototype.publishAsync = function(type, opts) {
                     for (i = 0, len = subs.length; i < len; ++i) {
                         subs[i].fn.call(subs[i].context, e);
                     }
+
+                    // Execute after() subscribers for each bubble target and their respective targets:
+//                    instance.bubble(asyncEvent, args, null, stack);
+
                 // Catch errors/preventions and reset the promise state to fulfilled for
                 // the next call to fire();
                 }).then(null, function (reason) {
@@ -507,7 +517,7 @@ YModel.prototype._defFn_destroy = function(e) {
         promiseResolve = e.promiseResolve,
         promiseReject = e.promiseReject,
         options = e.options,
-        remove = e.remove || e[DELETE],
+        remove = options.remove || options[DELETE],
         errFunc, successFunc, finish;
 
     Y.log('_defFn_destroy', 'info', 'ITSA-ModelSyncPromise');

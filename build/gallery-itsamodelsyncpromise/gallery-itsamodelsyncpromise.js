@@ -2,7 +2,7 @@ YUI.add('gallery-itsamodelsyncpromise', function (Y, NAME) {
 
 'use strict';
 
-/*jshint maxlen:170 */
+/*jshint maxlen:175 */
 
 /**
  *
@@ -49,21 +49,35 @@ var YModel = Y.Model,
 **/
 
 /**
- * Fired after model is read from the sync layer.
- * @event load
+ * Fired when model is destroyed. In case {remove: true} is udes, the after-event occurs after the synlayer is finished.
+ * @event destroy
  * @param e {EventFacade} Event Facade including:
+ * @param e.promise {Promise} The promise that is automaticly created during the event. You could examine this instead of listening to both the `after`- and `error`-event.
  * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
- * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
  * @since 0.1
 **/
 
 /**
- * Fired after model is saved through the sync layer.
+ * Fired when model needs to be read from the sync layer. The after-event occurs after the synlayer is finished.
+ * @event load
+ * @param e {EventFacade} Event Facade including:
+ * @param e.promise {Promise} The promise that is automaticly created during the event. You could examine this instead of listening to both the `after`- and `error`-event.
+ * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+ * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+ *                            This value is only available in the after-event.
+ * @since 0.1
+**/
+
+/**
+ * Fired when model needs to be saved through the sync layer. The after-event occurs after the synlayer is finished.
  * @event save
  * @param e {EventFacade} Event Facade including:
+ * @param e.promise {Promise} The promise that is automaticly created during the event. You could examine this instead of listening to both the `after`- and `error`-event.
  * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
  * @param [e.parsed] {Object} The parsed version of the sync layer's response to the save-request, if there was a response.
+ *                            This value is only available in the after-event.
  * @param [e.response] {any} The sync layer's raw, unparsed response to the save-request, if there was one.
+ *                            This value is only available in the after-event.
  * @since 0.1
 **/
 
@@ -290,8 +304,7 @@ YModel.prototype.publishAsync = function(type, opts) {
             // Execute on() subscribers
             var subs = asyncEvent._subscribers,
                 args2 = [],
-                e,
-                i, len;
+                e, i, len, stack;
 
                 args2.push.apply(args2, data);
                 e = asyncEvent._createFacade(args2);
@@ -302,8 +315,15 @@ YModel.prototype.publishAsync = function(type, opts) {
                     subs[i].fn.call(subs[i].context, e);
                 }
             }
-            // Doesn't support preventedFn
-            // Resolve the _firing promise with either false if it was prevented, or with a promise for
+
+            // Execute on() subscribers for each bubble target and their respective targets:
+            if (asyncEvent.bubbles && !asyncEvent.stopped) {
+                stack = asyncEvent.stack || asyncEvent;
+                instance.bubble(asyncEvent, args, null, stack);
+                e.prevented = Math.max(e.prevented, stack.prevented);
+            }
+
+            // Resolve the _firing promise with either prefentedFn promise if it was prevented, or with a promise for
             // the result of the defaultFn followed by the execution of the after subs.
             return e.prevented ?
                 asyncEvent.preventedFn.call(instance, e).then(null, function (reason) {
@@ -316,6 +336,10 @@ YModel.prototype.publishAsync = function(type, opts) {
                     for (i = 0, len = subs.length; i < len; ++i) {
                         subs[i].fn.call(subs[i].context, e);
                     }
+
+                    // Execute after() subscribers for each bubble target and their respective targets:
+//                    instance.bubble(asyncEvent, args, null, stack);
+
                 // Catch errors/preventions and reset the promise state to fulfilled for
                 // the next call to fire();
                 }).then(null, function (reason) {
