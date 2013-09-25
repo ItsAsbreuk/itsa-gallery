@@ -65,6 +65,7 @@ var ITSAViewModel,
     RESET_FIRSTCAP = 'Reset',
     PROMISE = 'Promise',
     DESTROYED = 'destroyed',
+    DELETE = 'delete',
     DEF_FN = '_defFn_',
     BOOLEAN = 'boolean',
     STRING = 'string',
@@ -73,14 +74,6 @@ var ITSAViewModel,
     DEF_PREV_FN = '_defPrevFn_',
     ITSATABKEYMANAGER = 'itsatabkeymanager',
     FOCUSMANAGED = 'focusManaged',
-    VALID_MODEL_EVENTS = {
-        destroy: true,
-        remove: true,
-        reset: true,
-        save: true,
-        submit: true,
-        load: true
-    },
     VALID_BUTTON_TYPES = {
         button: true,
         destroy: true,
@@ -125,84 +118,12 @@ var ITSAViewModel,
         spinbtn_submit: true
     },
 
-    /**
-      * Fired when view's model is destroyed.
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modeldestroy
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
     DESTROY = 'destroy',
-
-    /**
-      * Fired when view's model is removed, that is destroyed and removed thfought the synclayer.
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelremove
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
     REMOVE = 'remove',
-
-    /**
-      * Fired when view's model is loaded.
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelload
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
     LOAD = 'load',
-
-    /**
-      * Fired when view's model is reset.
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelreset
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
     RESET = 'reset',
-
-    /**
-      * Fired when view's model is saved.
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelsave
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
     SAVE = 'save',
-
-    /**
-      * Fired when view's model is submitted, either by clicking on a submit-button or by calling formmodel.submit();
-      * No defaultFunction, so listen to the 'on' and 'after' event are the same.
-      *
-      * @event modelsubmit
-      * @param e {EventFacade} Event Facade including:
-      * @param e.target {Y.ITSAFormModel} The ITSAFormModel-instance
-      * @param e.model {Y.Model} modelinstance bound to the view
-      * @param e.modelEventFacade {EventFacade} eventfacade that was passed through by the model that activated this event
-      *
-    **/
     SUBMIT = 'submit',
-
 
     CLICK = 'click',
     CLICKOUTSIDE = CLICK+'outside',
@@ -251,9 +172,9 @@ var ITSAViewModel,
     SPINBTN_SUBMIT = SPIN+BTN_SUBMIT,
 
     /**
-      * Fired when a UI-elemnt needs to focus to the next element (in case of editable view).
+      * Fired when a UI-element needs to focus to the next element (in case of editable view).
       * The defaultFunc will refocus to the next field (when the view has focus).
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event focusnext
       * @param e {EventFacade} Event Facade including:
@@ -266,7 +187,7 @@ var ITSAViewModel,
 
     /**
       * Fired when validation fails.
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event alias for the underlying model-event. Can NOT be prevented or halted.
       *
       * @event validationerror
       * @param e {EventFacade} Event Facade including:
@@ -280,7 +201,7 @@ var ITSAViewModel,
 
     /**
       * Fired after a UI-formelement changes its value from a userinput (not when updated internally).
-      * Convenience-event which takes place together with the underlying models-event.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event uichanged
       * @param e {EventFacade} Event Facade including:
@@ -297,7 +218,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_button} or {imgbtn_button} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event buttonclick
       * @param e {EventFacade} Event Facade including:
@@ -313,7 +234,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_close} or {imgbtn_close} is clicked.
-      * Cannot be prevented or halted.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event buttonclose
       * @param e {EventFacade} Event Facade including:
@@ -329,7 +250,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_destroy} or {imgbtn_destroy} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event destroyclick
       * @param e {EventFacade} Event Facade including:
@@ -345,7 +266,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_remove}, {imgbtn_remove} or {spinbtn_remove} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event removeclick
       * @param e {EventFacade} Event Facade including:
@@ -361,7 +282,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_load}, {imgbtn_load} or {spinbtn_load} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event loadclick
       * @param e {EventFacade} Event Facade including:
@@ -377,7 +298,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_submit}, {imgbtn_submit} or {spinbtn_submit} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event submitclick
       * @param e {EventFacade} Event Facade including:
@@ -393,7 +314,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_reset} or {imgbtn_reset} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event resetclick
       * @param e {EventFacade} Event Facade including:
@@ -409,7 +330,7 @@ var ITSAViewModel,
 
     /**
       * Fired when a template-button {btn_save}, {imgbtn_save} or {spinbtn_save} is clicked.
-      * Convenience-event which takes place together with the underlying models-event. Cannot be prevented or halted --> use model's button:click to do that.
+      * Convenience-event alias for the underlying model-event. Can be prevented or halted.
       *
       * @event saveclick
       * @param e {EventFacade} Event Facade including:
@@ -693,8 +614,8 @@ ITSAViewModel.prototype.initializer = function() {
      * @private
      * @protected
     */
+
     YArray.each(
-        [MODELDESTROY],
         [DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK, UI_CHANGED],
         function(event) {
             instance[DEF_PREV_FN+event] = function(e) {
@@ -1312,7 +1233,7 @@ ITSAViewModel.prototype._bindUI = function() {
                     instance.render();
                 }
                 else {
-                    var itsatabkeymanager = container.itsatabkeymanager;
+                    itsatabkeymanager = container.itsatabkeymanager;
 /*jshint expr:true */
                     itsatabkeymanager && itsatabkeymanager.focusInitialItem();
 /*jshint expr:false */
@@ -1359,36 +1280,42 @@ ITSAViewModel.prototype._bindUI = function() {
 
     eventhandlers.push(
         instance.on(
-            [MODEL+SUBMIT, MODEL+SAVE, MODEL+LOAD, MODEL+DESTROY],
+            ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
-                var promise = e.modelEventFacade.promise,
+                var promise = e.promise,
                     model = e.target,
-                    eventType = e.type,
+                    eventType = e.type.split(':')[1],
+                    options = e.options,
+                    destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
-alert(promise);
-alert(promise.getStatus());
-                instance.lockView();
-                if ((eventType===SUBMIT) || (eventType===SAVE)) {
-                    prevAttrs = model.getAttrs();
-                    model.UIToModel();
-                }
-                instance._setSpin(eventType, true);
-                promise.then(
-                    function() {
-/*jshint expr:true */
-                        ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
-/*jshint expr:false */
-                        instance._setSpin(eventType, false);
-                        instance.unlockView();
-                    },
-                    function() {
-/*jshint expr:true */
-                        ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
-/*jshint expr:false */
-                        instance._setSpin(eventType, false);
-                        instance.unlockView();
+                if (!destroyWithoutRemove && (model instanceof Y.Model)) {
+                    instance.lockView();
+                    if ((eventType===SUBMIT) || (eventType===SAVE)) {
+                        prevAttrs = model.getAttrs();
+                        model.UIToModel();
                     }
-                );
+                    instance._setSpin(eventType, true);
+    /*jshint expr:true */
+                    (eventType===DESTROY) || promise.then(
+                        function() {
+                            ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
+                        },
+                        function() {
+                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
+                            return true; // make promise fulfilled
+                        }
+                    ).then(
+                        function() {
+                            var itsatabkeymanager = container.itsatabkeymanager;
+                            instance._setSpin(eventType, false);
+                            instance.unlockView();
+        /*jshint expr:true */
+                            itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+        /*jshint expr:false */
+                        }
+                    );
+    /*jshint expr:false */
+                }
             }
         )
     );
@@ -1454,8 +1381,7 @@ alert(promise.getStatus());
     );
 
     YArray.each(
-        [DESTROY, REMOVE, RESET, SAVE, SUBMIT, LOAD, CLICK,
-         VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
+        [CLICK, VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
             eventhandlers.push(
                 instance.on(
@@ -1465,11 +1391,9 @@ alert(promise.getStatus());
                             newevent = event,
                             payload, button;
                         // check if e.target===instance, because it checks by *: and will recurse
+
                         if (e.target!==instance) {
-                            if (VALID_MODEL_EVENTS[event]) {
-                                newevent = MODEL+event;
-                            }
-                            else if (event===CLICK) {
+                            if (event===CLICK) {
                                 button = e.type.split(':')[0];
                                 if (VALID_BUTTON_TYPES[button]) {
                                     newevent = button+event; // refire without ':'
@@ -2032,6 +1956,7 @@ ITSAViewModel.prototype._setModel = function(v) {
 ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
     var instance = this,
         buttonicons = instance.get('container').all('[data-buttonsubtype="'+buttonType+'"] i');
+    buttonicons.toggleClass('itsaicon-form-loading', spin);
     buttonicons.toggleClass('itsa-busy', spin);
 };
 
