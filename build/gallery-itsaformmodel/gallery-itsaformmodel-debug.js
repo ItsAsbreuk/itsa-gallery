@@ -1306,7 +1306,6 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
  * @since 0.1
 */
 ITSAFormModel.prototype.setResetAttrs = function() {
-console.log('setResetAttrs');
     var instance = this,
         allAttrs = instance.getAttrs();
 
@@ -1861,7 +1860,6 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
         facade = {
             options : options
         };
-console.log('defaultfunc submit');
     Y.log('_defFn_submit', 'info', 'ITSA-ModelSyncPromise');
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
