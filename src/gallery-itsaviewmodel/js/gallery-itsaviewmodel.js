@@ -694,6 +694,7 @@ ITSAViewModel.prototype.initializer = function() {
      * @protected
     */
     YArray.each(
+        [MODELDESTROY],
         [DESTROY_CLICK, REMOVE_CLICK, RESET_CLICK, SAVE_CLICK, SUBMIT_CLICK, BUTTON_CLICK, LOAD_CLICK, UI_CHANGED],
         function(event) {
             instance[DEF_PREV_FN+event] = function(e) {
@@ -1305,10 +1306,17 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             'resetclick',
             function() {
-                // need to re-render because the code might have made items visible/invisible based on their value
+                var itsatabkeymanager;
+                if (instance._isMicroTemplate) {
+                    // need to re-render because the code might have made items visible/invisible based on their value
+                    instance.render();
+                }
+                else {
+                    var itsatabkeymanager = container.itsatabkeymanager;
 /*jshint expr:true */
-                instance._isMicroTemplate && instance.render();
+                    itsatabkeymanager && itsatabkeymanager.focusInitialItem();
 /*jshint expr:false */
+                }
             }
         )
     );
@@ -1336,27 +1344,29 @@ ITSAViewModel.prototype._bindUI = function() {
             }
         )
     );
+
+/*
     eventhandlers.push(
         instance.after(
             MODEL+RESET,
             function() {
                 var itsatabkeymanager = container.itsatabkeymanager;
-/*jshint expr:true */
                 itsatabkeymanager && itsatabkeymanager.focusInitialItem();
-/*jshint expr:false */
             }
         )
     );
+*/
 
     eventhandlers.push(
-        instance.after(
-            [SUBMIT, 'modelsubmit', SAVE, LOAD, DESTROY],
+        instance.on(
+            [MODEL+SUBMIT, MODEL+SAVE, MODEL+LOAD, MODEL+DESTROY],
             function(e) {
-alert(1);
-                var promise = e.promise,
+                var promise = e.modelEventFacade.promise,
                     model = e.target,
                     eventType = e.type,
                     prevAttrs;
+alert(promise);
+alert(promise.getStatus());
                 instance.lockView();
                 if ((eventType===SUBMIT) || (eventType===SAVE)) {
                     prevAttrs = model.getAttrs();
@@ -1448,21 +1458,18 @@ alert(1);
          VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
             eventhandlers.push(
-                instance.after(
+                instance.on(
                     '*:'+event,
                     function(e) {
-console.log('check 1');
                         var validEvent = true,
                             newevent = event,
                             payload, button;
                         // check if e.target===instance, because it checks by *: and will recurse
                         if (e.target!==instance) {
-console.log('check 2 '+event);
                             if (VALID_MODEL_EVENTS[event]) {
                                 newevent = MODEL+event;
                             }
                             else if (event===CLICK) {
-console.log('check 3');
                                 button = e.type.split(':')[0];
                                 if (VALID_BUTTON_TYPES[button]) {
                                     newevent = button+event; // refire without ':'
@@ -1482,13 +1489,10 @@ console.log('check 3');
                                 nodelist: e.nodelist, // in case of VALIDATION_ERROR
                                 formElement: e.formElement
                             };
-console.log('check 4');
                             Y.log('refiring model-event '+newevent+' by itsaviewmodel', 'info', 'ITSA-ViewModel');
                             if (validEvent) {
-console.log('check 5 --> '+newevent);
                                 instance.fire(newevent, payload);
                                 if ((newevent===BUTTON_CLICK) && (e.value===CLOSE)) {
-console.log('check 6');
                                     // also fire the buttonclose-event
                                     payload.type = newevent = BUTTON_CLOSE;
                                     instance.fire(newevent, payload);
