@@ -1433,7 +1433,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
         labelHTML = buttons.labelHTML;
         config = buttons.config;
 /*jshint expr:true */
-        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, labelHTML, config)());
+        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=renderBtnFns[type].call(instance, labelHTML, config));
 /*jshint expr:false */
     }
     else if (Lang.isArray(buttons)) {
@@ -1445,7 +1445,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
                 labelHTML = buttonobject.labelHTML;
                 config = buttonobject.config;
 /*jshint expr:true */
-                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, labelHTML, config)());
+                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=renderBtnFns[type].call(instance, labelHTML, config));
 /*jshint expr:false */
             }
         );
@@ -1548,9 +1548,8 @@ ITSAFormModel.prototype._bindUI = function() {
 
 
     // listening for a click on any 'datetimepicker'-button or a click on any 'form-element'-button in the dom
-    // DO NOT KNOW WHY, but the firth argument never gets called. that is why inside is the first if-statement
     eventhandlers.push(
-        body.delegate(
+        body.on(
             [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK, LOAD_CLICK,
              SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, SUBMIT_CLICK, RESET_CLICK],
             function(e) {
@@ -1580,15 +1579,16 @@ ITSAFormModel.prototype._bindUI = function() {
     );
 
     // listening for a click on any widget-element's parentnode and prevent the buttonclick form sending forms
-    eventhandlers.push(
-        body.delegate(
-            'click',
-            function(e) {
-                e.preventDefault(); // prevent the form to be submitted
-            },
-            '.itsa-widget-parent'
-        )
-    );
+//    eventhandlers.push(
+//        body.delegate(
+//            'click',
+//            function(e) {
+//                e.preventDefault(); // prevent the form to be submitted
+//            },
+//            '.itsa-widget-parent, .itsa-panel'
+//            '.itsa-panel'
+//        )
+//    );
 
     // listening life for valuechanges
     eventhandlers.push(
@@ -1826,6 +1826,7 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
         facade = {
             options : options
         };
+
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
                 facade.error = validateErr;

@@ -1459,7 +1459,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
         labelHTML = buttons.labelHTML;
         config = buttons.config;
 /*jshint expr:true */
-        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, labelHTML, config)());
+        propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=renderBtnFns[type].call(instance, labelHTML, config));
 /*jshint expr:false */
     }
     else if (Lang.isArray(buttons)) {
@@ -1471,7 +1471,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
                 labelHTML = buttonobject.labelHTML;
                 config = buttonobject.config;
 /*jshint expr:true */
-                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=Y.bind(renderBtnFns[type], instance, labelHTML, config)());
+                propertykey && type && renderBtnFns[type] && (UIattrs[propertykey]=renderBtnFns[type].call(instance, labelHTML, config));
 /*jshint expr:false */
             }
         );
@@ -1578,12 +1578,12 @@ ITSAFormModel.prototype._bindUI = function() {
     Y.log('_bindUI', 'info', 'ITSAFormModel');
 
     // listening for a click on any 'datetimepicker'-button or a click on any 'form-element'-button in the dom
-    // DO NOT KNOW WHY, but the firth argument never gets called. that is why inside is the first if-statement
     eventhandlers.push(
-        body.delegate(
+        body.on(
             [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK, LOAD_CLICK,
              SAVE_CLICK, DESTROY_CLICK, REMOVE_CLICK, SUBMIT_CLICK, RESET_CLICK],
             function(e) {
+               Y.log('onsubscriptor '+e.type+' caucht on BODY-element', 'info', 'ITSAFormModel');
                var type = e.type,
                    node = e.target,
                    payload, value, datevalue;
@@ -1610,21 +1610,23 @@ ITSAFormModel.prototype._bindUI = function() {
     );
 
     // listening for a click on any widget-element's parentnode and prevent the buttonclick form sending forms
-    eventhandlers.push(
-        body.delegate(
-            'click',
-            function(e) {
-                e.preventDefault(); // prevent the form to be submitted
-            },
-            '.itsa-widget-parent'
-        )
-    );
+//    eventhandlers.push(
+//        body.delegate(
+//            'click',
+//            function(e) {
+//                e.preventDefault(); // prevent the form to be submitted
+//            },
+//            '.itsa-widget-parent, .itsa-panel'
+//            '.itsa-panel'
+//        )
+//    );
 
     // listening life for valuechanges
     eventhandlers.push(
         body.delegate(
             'valuechange',
             function(e) {
+                Y.log('delegatesubscriptor valuechange delegated to body.someformelement', 'info', 'ITSAFormModel');
                 var node = e.target,
                     type = UI_CHANGED,
                     payload = {
@@ -1650,6 +1652,7 @@ ITSAFormModel.prototype._bindUI = function() {
         instance.after(
             '*:change',
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSAFormModel');
                 // if e.formelement, then the changes came from the UI
                 if (!instance._internalChange && !e.formelement && !e.fromInternal) {
                     Y.use(GALLERY_ITSA+'dialog', function() {
@@ -1681,6 +1684,7 @@ ITSAFormModel.prototype._bindUI = function() {
         body.delegate(
             'keypress',
             function(e) {
+                Y.log('delegatedsubscriptor keypress delegated to bode.someformelement with e.keyCode===13', 'info', 'ITSAFormModel');
                 e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
                 // now it depends: there will be a focus-next OR the model will submit.
                 // It depends on the value of 'data-submitonenter'
@@ -1712,6 +1716,7 @@ ITSAFormModel.prototype._bindUI = function() {
         instance.on(
             [SAVE_CLICK, SUBMIT_CLICK],
             function(e) {
+                Y.log('onsubscriptor '+SUBMIT_CLICK, 'info', 'ITSAFormModel');
                 var unvalidNodes = instance.getUnvalidatedUI();
                 if (!unvalidNodes.isEmpty()) {
                     e.preventDefault();
@@ -1728,6 +1733,7 @@ ITSAFormModel.prototype._bindUI = function() {
         Y.Intl.after(
             'intl:langChange',
             function() {
+                Y.log('aftersubscriptor intl:langChange', 'info', 'ITSAFormModel');
                 instance._intl = Y.Intl.get(GALLERYITSAFORMMODEL);
             }
         )
@@ -1738,6 +1744,7 @@ ITSAFormModel.prototype._bindUI = function() {
         Y.on(
             ASK_TO_CLICK_EVENT,
             function(e) {
+                Y.log('onsubscriptor '+ASK_TO_CLICK_EVENT, 'info', 'ITSAFormModel');
                 var buttonNode = e.buttonNode,
                     type;
                 if (instance._FORM_elements[buttonNode.get('id')]) {
@@ -1858,6 +1865,7 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
         facade = {
             options : options
         };
+
     Y.log('_defFn_submit', 'info', 'ITSA-ModelSyncPromise');
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
