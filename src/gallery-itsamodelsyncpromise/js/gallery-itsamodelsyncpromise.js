@@ -559,7 +559,7 @@ YModel.prototype._defFn_destroy = function(e) {
             errFunc = function(err) {
                 var facade = {
                     error   : err,
-                    src     : 'Model.destroyPromise()',
+                    src     : DESTROY,
                     options : options
                 };
                 instance._lazyFireErrorEvent(facade);
@@ -616,7 +616,7 @@ YModel.prototype._defFn_load = function(e) {
     Y.log('_defFn_load', 'info', 'ITSA-ModelSyncPromise');
     errFunc = function(err) {
         facade.error = err;
-        facade.src   = 'Model.loadPromise()';
+        facade.src   = LOAD;
         instance._lazyFireErrorEvent(facade);
         e.promiseReject(new Error(err));
     };
@@ -669,7 +669,7 @@ YModel.prototype._defFn_save = function(e) {
         usedmethod = instance.isNew() ? 'create' : 'update',
         options = e.options,
         promiseReject = e.promiseReject,
-        errFunc, successFunc,
+        errFunc, successFunc, unvalidNodes,
         facade = {
             options : options,
             method: usedmethod
@@ -679,14 +679,14 @@ YModel.prototype._defFn_save = function(e) {
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
                 facade.error = validateErr;
-                facade.src = 'Model.savePromise() - validate';
+                facade.src = SAVE;
                 instance._lazyFireErrorEvent(facade);
                 promiseReject(new Error(validateErr));
             }
             else {
                 errFunc = function(err) {
                     facade.error = err;
-                    facade.src   = 'Model.savePromise()';
+                    facade.src   = SAVE;
                     instance._lazyFireErrorEvent(facade);
                     promiseReject(new Error(err));
                 };
@@ -702,28 +702,37 @@ YModel.prototype._defFn_save = function(e) {
                         e.parsed = parsed;
                         // if removed then fire destroy-event (not through synclayer), else update data
 /*jshint expr:true */
-                        (parsed.id===-1) ? instance.destroy() : instance.setAttrs(parsed, options);
+                        // fromInternal is used to suppress Y.ITSAFormModel to notificate changes
+                        (parsed.id===-1) ? instance.destroy() : instance.setAttrs(parsed, (options.fromInternal=true) && options);
 /*jshint expr:false */
                     }
                     instance.changed = {};
                     e.promiseResolve(response);
                 };
-                if (instance.syncPromise) {
-                    // use the syncPromise-layer
-                    instance._syncTimeoutPromise(usedmethod, options).then(
-                        successFunc,
-                        errFunc
-                    );
+                // in case of Y.ITSAFormModel, we first check whether all fields are validated
+                if (!instance.toJSONUI || ((unvalidNodes=instance.getUnvalidatedUI()) && unvalidNodes.isEmpty())) {
+                    if (instance.syncPromise) {
+                        // use the syncPromise-layer
+                        instance._syncTimeoutPromise(usedmethod, options).then(
+                            successFunc,
+                            errFunc
+                        );
+                    }
+                    else {
+                        instance.sync(usedmethod, options, function (err, response) {
+                            if (err) {
+                                errFunc(err);
+                            }
+                            else {
+                                successFunc(response);
+                            }
+                        });
+                    }
                 }
                 else {
-                    instance.sync(usedmethod, options, function (err, response) {
-                        if (err) {
-                            errFunc(err);
-                        }
-                        else {
-                            successFunc(response);
-                        }
-                    });
+                    // because we have an Y.ITSAFormModel instance, ._intl.unvalidated is available
+                    errFunc(instance._intl.unvalidated);
+                    instance.fire('validationerror', {target: instance, nodelist: unvalidNodes, src: SAVE});
                 }
             }
         });
