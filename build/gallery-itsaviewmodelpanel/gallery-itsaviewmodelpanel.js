@@ -29,7 +29,9 @@ YUI.add('gallery-itsaviewmodelpanel', function (Y, NAME) {
  */
 
 var ITSAViewModelPanel,
+    ITSAFORMELEMENT = Y.ITSAFormElement,
     Lang = Y.Lang,
+    ID = 'id',
     DESTROYED = 'destroyed',
     CONTENTBOX = 'contentBox',
     RENDERED = 'rendered',
@@ -280,6 +282,14 @@ ITSAViewModelPanel.prototype.initializer = function() {
 
 
     /**
+     * Internal flag to state whether a datetimepicker is poped-up by this instance.
+     * @property _pickerVis
+     * @private
+     * @default null
+     * @type Boolean
+    */
+
+    /**
      * Internal list of all eventhandlers bound by this widget.
      * @property _eventhandlers
      * @private
@@ -389,8 +399,18 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(VISIBLE+CHANGE, function(e) {
+            var visible = e.newVal,
+                model;
 /*jshint expr:true */
-            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, (e.newVal && instance.get(EDITABLE))); // to make tabkeymanager work
+            if (!visible) {
+                instance._pickerVis && Y.ItsaDateTimePicker.hide(true);
+                model = instance.get(MODEL);
+                if (model.toJSONUI) {
+                    ITSAFORMELEMENT.tipsyOK._lastnode && model._FORM_elements[ITSAFORMELEMENT.tipsyOK._lastnode.get(ID)] && ITSAFORMELEMENT.tipsyOK.hideTooltip();
+                    ITSAFORMELEMENT.tipsyInvalid._lastnode && model._FORM_elements[ITSAFORMELEMENT.tipsyInvalid._lastnode.get(ID)] && ITSAFORMELEMENT.tipsyInvalid.hideTooltip();
+                }
+            }
+            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, (visible && instance.get(EDITABLE))); // to make tabkeymanager work
 /*jshint expr:false */
         })
     );
@@ -568,24 +588,21 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     options = e.options,
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
-console.log(e.type);
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
-console.log('about to lock');
-                    instance.lockPanel();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
                         model.UIToModel();
                     }
+                    // Caution: need to lockPanel AFTER UIToModel, because the changeevent would unlock again
+                    instance.lockPanel();
                     instance._setSpin(eventType, true);
     /*jshint expr:true */
                     (eventType===DESTROY) || promise.then(
                         function() {
-console.log('lock back from promise resolved');
                             ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
                         },
                         function() {
-console.log('lock back from promise rejected');
-                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
+                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs, {fromInternal: true});
                             return true; // make promise fulfilled
                         }
                     ).then(
@@ -600,6 +617,20 @@ console.log('lock back from promise rejected');
                     );
     /*jshint expr:false */
                 }
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
+            '*:datepickerclick',
+            function() {
+                instance.lockPanel();
+                instance._pickerVis = true;
+                instance.once('*:'+FOCUS_NEXT, function() {
+                    instance._pickerVis = false;
+                    instance.unlockPanel();
+                });
             }
         )
     );

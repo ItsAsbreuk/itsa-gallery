@@ -10,7 +10,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
             var instance = this;
             switch (action) {
               case 'submit':
-                Y.later(15000, null, function() {
+                Y.later(1500, null, function() {
                     // normally you need to invest the response on the server,
                     // but now we do this here:
                     var loginok = ((instance.get('username')==='marco') &&
@@ -38,7 +38,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                     initialfocus: true
                 },
                 validator: function(v) {
-                    return v && (typeof v==='string') && (v.length>=3) && (v.indexOf(' ')===-1);
+                    return (typeof v==='string') && (v.length>=3) && (v.indexOf(' ')===-1);
                 },
                 validationerror: 'Enter at least 3 characters without a whitespace'
             },
@@ -52,7 +52,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                     submitonenter: true
                 },
                 validator: function(v) {
-                    return v && (typeof v==='string') && (v.length>=5) && (v.indexOf(' ')===-1);
+                    return (typeof v==='string') && (v.length>=5) && (v.indexOf(' ')===-1);
                 },
                 validationerror: 'Enter at least 5 characters without a whitespace'
             }
@@ -67,7 +67,6 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                '<fieldset>'+
                    '<div class="pure-control-group">{username}</div>'+
                    '<div class="pure-control-group">{password}</div>'+
-                   '<div class="pure-control-group">{spinbtn_submit}</div>'+
                '</fieldset>';
 
     templateretry = '<div id="spinner" class="hiddenicon extratop">'+
@@ -79,7 +78,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                         '<div class="pure-control-group">{password}</div>'+
                     '</fieldset>';
 
-    footertemplate = 'test{spinbtn_submit}sdfgdfs';
+    footertemplate = '{spinbtn_submit}';
 
     panel = new Y.ITSAViewModelPanel({
         model: user,
@@ -98,7 +97,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
 
     spinnericon = Y.one('#spinner');
 
-    user.on('xsubmit', function(e) {
+    user.on('submit', function(e) {
         var submitpromise = e.promise;
         spinnericon.removeClass('hiddenicon');
         retrylegend && retrylegend.set('text', 'Retry login');
@@ -122,5 +121,5 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
             }
         );
     });
-Y.later(5000, null, function() {user.submit();});
+
 });
