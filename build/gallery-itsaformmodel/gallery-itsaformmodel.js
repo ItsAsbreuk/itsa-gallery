@@ -46,6 +46,7 @@ var YArray = Y.Array,
 //    DATA_SPIN_BUSY = 'data-spinbusy',
     DISABLED = 'disabled',
     WAS_DISABLED = 'was-'+DISABLED,
+    DISABLED_CHECK = DISABLED+'-checked',
     BUTTON = 'button',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     DISABLED_BEFORE = '-before',
@@ -567,7 +568,7 @@ ITSAFormModel.prototype.disableUI = function() {
                 isButton, wasDisabled, labelnode, isDateTime;
             if (node) {
                 if (widget) {
-                    wasDisabled = widget.get(DISABLED);
+                    wasDisabled = widget.get(DISABLED) && !node.getData(DISABLED_CHECK);
                     if (!wasDisabled) {
                         widget.disable();
                         // if the widget is slider, then also disable the valuespan
@@ -582,9 +583,9 @@ ITSAFormModel.prototype.disableUI = function() {
                 else {
                     isButton = (node.get('tagName')==='BUTTON') && (node.getAttribute(TYPE)===BUTTON);
                     isDateTime = (node.getAttribute('data-datetimepicker')===TRUE);
-                    wasDisabled = node.get(DISABLED);
+                    wasDisabled = node.get(DISABLED) && !node.getData(DISABLED_CHECK);
                     if (isButton) {
-                        wasDisabled = wasDisabled || node.hasClass(PURE_BUTTON_DISABLED);
+                        wasDisabled = wasDisabled || (node.hasClass(PURE_BUTTON_DISABLED) && !node.getData(DISABLED_CHECK));
 /*jshint expr:true */
                         wasDisabled || node.addClass(PURE_BUTTON_DISABLED);
                     }
@@ -598,6 +599,7 @@ ITSAFormModel.prototype.disableUI = function() {
 /*jshint expr:false */
                     }
                 }
+                node.setData(DISABLED_CHECK, true);
 /*jshint expr:true */
                 wasDisabled && node.setData(DISABLED_BEFORE, true);
 /*jshint expr:false */
@@ -658,6 +660,7 @@ ITSAFormModel.prototype.enableUI = function() {
                         }
                     }
                 }
+                node.clearData(DISABLED_CHECK);
             }
         }
     );
@@ -792,7 +795,7 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
         function(formelement) {
             if (!formelement.widget) {
                 node = Y.one('#'+formelement.nodeid);
-                if (node) {
+                if (node && (node.get('tagName')!=='BUTTON')) {
                     valid = instance._validValue(node, formelement, formelement.name, node.get(VALUE));
                     instance._setNodeValidation(node, valid);
 /*jshint expr:true */
@@ -1658,7 +1661,7 @@ ITSAFormModel.prototype._bindUI = function() {
                     submitonenter = (node.getAttribute('data-submitonenter')==='true'),
                     type, payload;
                 if (submitonenter) {
-                    instance.submit();
+                    instance.submit({fromInternal: true});
                 }
                 else {
                     type = FOCUS_NEXT;
@@ -1801,7 +1804,6 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
                 tipsycontent && node.setAttribute(DATA_CONTENT, tipsycontent);
 /*jshint expr:false */
             }
-            // refireing, but now by the instance:
             instance.fire(type, payload);
         }
     );
@@ -1822,7 +1824,7 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
     var instance = this,
         options = e.options,
         promiseReject = e.promiseReject,
-        errFunc, successFunc,
+        errFunc, successFunc, unvalidNodes,
         facade = {
             options : options
         };
@@ -1830,14 +1832,14 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
                 facade.error = validateErr;
-                facade.src = 'Model.submitPromise() - validate';
+                facade.src = SUBMIT;
                 instance._lazyFireErrorEvent(facade);
                 promiseReject(new Error(validateErr));
             }
             else {
                 errFunc = function(err) {
                     facade.error = err;
-                    facade.src   = 'Model.submitPromise()';
+                    facade.src   = SUBMIT;
                     instance._lazyFireErrorEvent(facade);
                     promiseReject(new Error(err));
                 };
@@ -1851,28 +1853,38 @@ ITSAFormModel.prototype['_defFn_'+SUBMIT] = function(e) {
                     }
                     if (YObject.keys(parsed).length>0) {
                         e.parsed = parsed;
-                        instance.setAttrs(parsed, options);
+/*jshint expr:true */
+                        // fromInternal is used to suppress Y.ITSAFormModel to notificate changes
+                        instance.setAttrs(parsed, (options.fromInternal=true) && options);
+/*jshint expr:false */
                     }
                     instance.changed = {};
                     e.promiseResolve(response);
                 };
-                if (instance.syncPromise) {
-                    // use the syncPromise-layer
-                    instance._syncTimeoutPromise(SUBMIT, options).then(
-                        successFunc,
-                        errFunc
-                    );
+                if ((unvalidNodes=instance.getUnvalidatedUI()) && unvalidNodes.isEmpty()) {
+                    if (instance.syncPromise) {
+                        // use the syncPromise-layer
+                        instance._syncTimeoutPromise(SUBMIT, options).then(
+                            successFunc,
+                            errFunc
+                        );
+                    }
+                    else {
+                        // use the sync-layer
+                        instance.sync(SUBMIT, options, function (err, response) {
+                            if (err) {
+                                errFunc(err);
+                            }
+                            else {
+                                successFunc(response);
+                            }
+                        });
+                    }
                 }
                 else {
-                    // use the sync-layer
-                    instance.sync(SUBMIT, options, function (err, response) {
-                        if (err) {
-                            errFunc(err);
-                        }
-                        else {
-                            successFunc(response);
-                        }
-                    });
+                    // because we have an Y.ITSAFormModel instance, ._intl.unvalidated is available
+                    errFunc(instance._intl.unvalidated);
+                    instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: SUBMIT});
                 }
             }
         });
@@ -2346,6 +2358,9 @@ ITSAFormModel.prototype._validValue = function(node, formelement, attribute, val
             attrValidationFunc = attrconfig.validator;
             nodePattern = node.getAttribute(DATA+'-pattern');
             validByAttrFunc = !attrValidationFunc || attrValidationFunc((type===NUMBER ? (formelement.config.digits ? parseFloat(value) : parseInt(value, 10)) : value));
+/*jshint expr:true */
+            (typeof validByAttrFunc === BOOLEAN) || (validByAttrFunc=false);
+/*jshint expr:false */
             validByPattern = !nodePattern || new RegExp(nodePattern, "i").test(value);
             validByRequired = ((value!=='') || !nodeRequired);
         }
