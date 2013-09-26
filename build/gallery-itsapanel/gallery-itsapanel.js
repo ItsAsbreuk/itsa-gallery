@@ -506,19 +506,34 @@ ITSAPanel.prototype.bindUI = function() {
         footerView = instance.get(FOOTERVIEW);
 
 /*jshint expr:true */
-    (headerView instanceof Y.View) && headerView.addTarget(instance);
-    (bodyView instanceof Y.View) && bodyView.addTarget(instance);
-    (footerView instanceof Y.View) && footerView.addTarget(instance);
+//    (headerView instanceof Y.View) && headerView.addTarget(instance);
+//    (bodyView instanceof Y.View) && bodyView.addTarget(instance);
+//    (footerView instanceof Y.View) && footerView.addTarget(instance);
 
-    instance.get(DRAGABLE) && instance.get(FLOATED) && Y.use(DD+PLUGIN, function() {
+//    instance.get(DRAGABLE) && instance.get(FLOATED) && Y.use(DD+PLUGIN, function() {
             // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
-        instance.get(DESTROYED) || (boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS) && boundingBox.dd.addTarget(instance));
-    });
-    instance.get(RESIZABLE) && Y.use(RESIZE+PLUGIN, function() {
+//        instance.get(DESTROYED) || (boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS) && boundingBox.dd.addTarget(instance));
+//    });
+//    instance.get(RESIZABLE) && Y.use(RESIZE+PLUGIN, function() {
             // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
-        instance.get(DESTROYED) || contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']}).resize.addTarget(instance);
-    });
+//        instance.get(DESTROYED) || contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']}).resize.addTarget(instance);
+//    });
 /*jshint expr:false */
+
+    eventhandlers.push(
+        instance.after(VISIBLE+CHANGE, function(e) {
+            var visible = e.newVal;
+            boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
+            if (visible) {
+/*jshint expr:true */
+                (instance.get(MODAL) || instance.get('focusOnShow')) && instance.focus();
+/*jshint expr:true */
+            }
+            else {
+                instance.blur();
+            }
+        })
+    );
 
     eventhandlers.push(
         instance.after(FLOATED+CHANGE, function(e) {
@@ -582,21 +597,6 @@ ITSAPanel.prototype.bindUI = function() {
         )
     );
 
-    eventhandlers.push(
-        instance.after(VISIBLE+CHANGE, function(e) {
-            var visible = e.newVal;
-            boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
-            if (visible) {
-/*jshint expr:true */
-                (instance.get(MODAL) || instance.get('focusOnShow')) && instance.focus();
-/*jshint expr:true */
-            }
-            else {
-                instance.blur();
-            }
-        })
-    );
-
     // If the model gets swapped out, reset targets accordingly.
     eventhandlers.push(
         instance.after(
@@ -645,21 +645,21 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.on(
             BODYVIEW+CHANGE,
-            Y.bind(instance._renderBody(), instance)
+            Y.bind(instance._renderBody, instance)
         )
     );
 
     eventhandlers.push(
         instance.on(
             HEADERVIEW+CHANGE,
-            Y.bind(instance._renderHeader(), instance)
+            Y.bind(instance._renderHeader, instance)
         )
     );
 
     eventhandlers.push(
         instance.on(
             FOOTERVIEW+CHANGE,
-            Y.bind(instance._renderFooter(), instance)
+            Y.bind(instance._renderFooter, instance)
         )
     );
 
