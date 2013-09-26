@@ -463,7 +463,16 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 validator: function(v){ return ((v===null) || Lang.isObject(v) || (typeof v === STRING) || (v instanceof Y.Model)); },
                 setter: '_setModel'
             },
-
+            /**
+             * Flag that indicates whether this instance is part of multiple views. Should normally left true.
+             * ITSAViewModelPanel sets this to 'false' because it has instances inside the body and footer.
+             * When set false, the functionality of locking the view (when needed) is set of and should be done by the parentwidget.
+             *
+             * @attribute partOfMultiView
+             * @type {Boolean}
+             * @default true
+             * @since 0.4
+             */
             partOfMultiView: {
                 value: false,
                 initOnly: true,
@@ -1158,11 +1167,11 @@ ITSAViewModel.prototype.translate = function(text) {
 ITSAViewModel.prototype.unlockView = function() {
     var instance = this,
         model = instance.get(MODEL),
-        canDisableModel = (instance.get(EDITABLE) && model && model.toJSONUI);
+        canEnableModel = (instance.get(EDITABLE) && model && model.toJSONUI);
 
     Y.log('unlockView', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
-    canDisableModel ? model.enableUI() : instance.get('container').all('button').removeClass(PURE_BUTTON_DISABLED);
+    canEnableModel ? model.enableUI() : instance.get('container').all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
 };
 
@@ -1280,19 +1289,19 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
 
-/*
-    eventhandlers.push(
-        instance.after(
-            MODEL+RESET,
+/*jshint expr:true */
+    instance.get('partOfMultiView') || eventhandlers.push(
+        instance.on(
+            '*:datepickerclick',
             function() {
-                var itsatabkeymanager = container.itsatabkeymanager;
-                itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+                instance.lockView();
+                instance.once('*:'+FOCUS_NEXT, function() {
+                    instance.unlockView();
+                });
             }
         )
     );
-*/
 
-/*jshint expr:true */
     instance.get('partOfMultiView') || eventhandlers.push(
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
@@ -1304,7 +1313,6 @@ ITSAViewModel.prototype._bindUI = function() {
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
-alert(1);
                     instance.lockView();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
@@ -1316,7 +1324,7 @@ alert(1);
                             ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
                         },
                         function() {
-                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
+                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs, {fromInternal: true});
                             return true; // make promise fulfilled
                         }
                     ).then(
