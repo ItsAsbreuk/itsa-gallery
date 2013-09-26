@@ -4,9 +4,19 @@ var itsagallerydir = (itsagalleryversion ? itsagalleryversion+'/' : ''),
         base     : loaderdomain+'/combo?yui3/'+yui3version+'/build/',
         comboBase: loaderdomain+'/combo?',
         root     : 'yui3/'+yui3version+'/build/',
+        logExclude: {
+//            event: true,
+            Selector: true,
+            attribute: true
+        },
+        logInclude: {
+            ITSAFormModel: true,
+            'ITSA-ViewModelPanel': true,
+            ITSAPanel: true
+        },
         combine  : combine,
-//        filter   : 'raw',
-        filter   : filter,
+        filter   : 'debug',
+//        filter   : filter,
         coverage : coverage,
         groups   : {
           itsagallery : {

@@ -54,12 +54,18 @@ var ITSAViewModelPanel,
     BOOLEAN = 'boolean',
     STRING = 'string',
     LOAD = 'load',
+    SUBMIT = 'submit',
+    DELETE = 'delete',
+    SAVE = 'save',
+    DESTROY = 'destroy',
     VALUE = 'value',
     RESET = 'reset',
     FOCUSMANAGED = 'focusManaged',
     ITSATABKEYMANAGER = 'itsatabkeymanager',
     NO_HIDE_ON_LOAD = 'noHideOnLoad',
     NO_HIDE_ON_RESET = 'noHideOnReset',
+    DISABLED = 'disabled',
+    PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     /**
       * Fired when a UI-elemnt needs to focus to the next element (in case of editable view).
       * The defaultFunc will refocus to the next field (when the Panel has focus).
@@ -127,18 +133,14 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             }
         },
         /**
-         * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-         * where Y.Lang.sub is more lightweight.
-         *
-         * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-         * <b>Example with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
-         * <b>Example 2 with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
+         * Template for the footersection to render the Model. If its value is null or undefined, then you can make use of the String attributes 'footer' and 'footerRight'.<br />
+         * The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+         * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
+         * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
          *
          * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
          *
-         * @attribute template
+         * @attribute footerTemplate
          * @type {String}
          * @default null
          * @since 0.3
@@ -185,26 +187,54 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             readOnly: true
         },
 
+        /**
+         * When set true, makes the Panel hide once a button is pressed. There are 2 buttons however that can make the panel not to hide: 'load' and 'reset',
+         * which behaviour can be set through the attributes 'noHideOnLoad' and 'noHideOnReset'.
+         *
+         * @attribute hideOnBtn
+         * @type {Boolean}
+         * @default true
+         * @since 0.1
+        */
         hideOnBtn: {
             value: true,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
         },
+
+        /**
+         * When set true, the Panel won't hide when the user clicks on the 'load'-button, even if 'hideOnBtn' is set true.
+         *
+         * @attribute noHideOnLoad
+         * @type {Boolean}
+         * @default true
+         * @since 0.1
+        */
         noHideOnLoad: {
             value: true,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
         },
+
+        /**
+         * When set true, the Panel won't hide when the user clicks on the 'reset'-button, even if 'hideOnBtn' is set true.
+         *
+         * @attribute noHideOnReset
+         * @type {Boolean}
+         * @default true
+         * @since 0.1
+        */
         noHideOnReset: {
             value: true,
             validator: function(v) {
                 return (typeof v === BOOLEAN);
             }
         },
+
         /**
-         * The Y.Model that will be rendered in the view. May also be an Object, which is handy in case the source is an
+         * The Y.Model that will be rendered in the panel. May also be an Object, which is handy in case the source is an
          * item of a Y.LazyModelList. If you pass a String-value, then the text is rendered as it is, assuming no model-instance.
          *
          * @attribute model
@@ -218,14 +248,9 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
         },
 
         /**
-         * Template to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-         * where Y.Lang.sub is more lightweight.
-         *
-         * <b>Example with Y.Lang.sub:</b> '{slices} slice(s) of {type} pie remaining. <button class="eat">Eat a Slice!</button>'
-         * <b>Example with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining <button class="eat">Eat a Slice!</button>'
-         * <b>Example 2 with Y.Template.Micro:</b>
-         * '<%= data.slices %> slice(s) of <%= data.type %> pie remaining<% if (data.slices>0) {%> <button class="eat">Eat a Slice!</button><% } %>'
+         * Template for the bodysection to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
+         * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
+         * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
          *
          * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
          *
@@ -243,10 +268,16 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
     }
 });
 
+/**
+ * @method initializer
+ * @protected
+ * @since 0.3
+*/
 ITSAViewModelPanel.prototype.initializer = function() {
     var instance = this,
         model = instance.get(MODEL),
         footertemplate = instance.get(FOOTERTEMPLATE);
+
 
     /**
      * Internal list of all eventhandlers bound by this widget.
@@ -262,7 +293,8 @@ ITSAViewModelPanel.prototype.initializer = function() {
         template: instance.get(TEMPLATE),
         editable: instance.get(EDITABLE),
         styled: false,
-        focusManaged: false // will be done at the Panel-level
+        focusManaged: false, // will be done at the Panel-level
+        partOfMultiView: true
     }));
 
 /*jshint expr:true */
@@ -271,7 +303,8 @@ ITSAViewModelPanel.prototype.initializer = function() {
         template: footertemplate,
         editable: false,
         styled: false,
-        focusManaged: false // will be done at the Panel-level
+        focusManaged: false, // will be done at the Panel-level
+        partOfMultiView: true
     }));
 /*jshint expr:false */
 
@@ -325,16 +358,23 @@ ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config
 /*jshint expr:false */
 };
 
+/**
+ * ITSAViewModelPanel's bindUI-method. Binds events
+ *
+ * @method bindUI
+ * @since 0.1
+*/
 ITSAViewModelPanel.prototype.bindUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX),
         eventhandlers, bodyView, footerView;
-
-    instance.constructor.superclass.bindUI.apply(instance);
+    ITSAViewModelPanel.superclass.bindUI.apply(instance);
 
     eventhandlers = instance._eventhandlers;
     bodyView = instance.get(BODYVIEW);
     footerView = instance.get(FOOTERVIEW);
+
+    bodyView.addTarget(instance);
 
     instance._setFocusManager(instance.get(FOCUSMANAGED));
 
@@ -444,13 +484,14 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            ['*:modelload', '*:modelreset'],
+            ['*:'+LOAD, '*:'+RESET],
             function(e) {
-            var itsatabkeymanager = contentBox.itsatabkeymanager;
-                if (itsatabkeymanager && instance.get(VISIBLE)) {
+                var itsatabkeymanager = contentBox.itsatabkeymanager,
+                model = e.target;
+                if ((model instanceof Y.Model) && itsatabkeymanager && instance.get(VISIBLE)) {
                     // first enable the UI again, this is done within the submit-defaultfunc of the model as well, but that code comes LATER.
                     // and we need enabled element to set the focus
-                    e.model.enableUI();
+                    model.enableUI();
                     itsatabkeymanager.focusInitialItem();
                 }
             }
@@ -467,7 +508,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 template: newTemplate,
                 editable: false,
                 styled: false,
-                focusManaged: false // will be done at the Panel-level
+                focusManaged: false, // will be done at the Panel-level
+                partOfMultiView: true
             }));
             prevTemplate && !newTemplate && prevTemplate.destroy() && instance._set(FOOTERVIEW, null);
         /*jshint expr:false */
@@ -516,11 +558,59 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         })
     );
 
+    eventhandlers.push(
+        instance.on(
+            ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
+            function(e) {
+                var promise = e.promise,
+                    model = e.target,
+                    eventType = e.type.split(':')[1],
+                    options = e.options,
+                    destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
+                    prevAttrs;
+console.log(e.type);
+                if (!destroyWithoutRemove && (model instanceof Y.Model)) {
+console.log('about to lock');
+                    instance.lockPanel();
+                    if ((eventType===SUBMIT) || (eventType===SAVE)) {
+                        prevAttrs = model.getAttrs();
+                        model.UIToModel();
+                    }
+                    instance._setSpin(eventType, true);
+    /*jshint expr:true */
+                    (eventType===DESTROY) || promise.then(
+                        function() {
+console.log('lock back from promise resolved');
+                            ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
+                        },
+                        function() {
+console.log('lock back from promise rejected');
+                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs);
+                            return true; // make promise fulfilled
+                        }
+                    ).then(
+                        function() {
+                            var itsatabkeymanager = contentBox.itsatabkeymanager;
+                            instance._setSpin(eventType, false);
+                            instance.unlockPanel();
+        /*jshint expr:true */
+                            itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+        /*jshint expr:false */
+                        }
+                    );
+    /*jshint expr:false */
+                }
+            }
+        )
+    );
+
 };
 /**
  * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
  * Passes through to the underlying bodyView and footerView.
+ *
  * @method lockPanel
+ * @since 0.3
 */
 ITSAViewModelPanel.prototype.lockPanel = function() {
     var instance = this,
@@ -530,14 +620,16 @@ ITSAViewModelPanel.prototype.lockPanel = function() {
     // bodyview always exists, footerview, we need to check first:
     bodyview.lockView();
 /*jshint expr:true */
-    footerview && footerview.lockView();
+    footerview ? footerview.lockView() : instance._footercont.all('button').addClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
 };
 
 /**
- * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
+ * Unlocks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
  * Passes through to the underlying bodyView and footerView.
+ *
  * @method unlockPanel
+ * @since 0.3
 */
 ITSAViewModelPanel.prototype.unlockPanel = function() {
     var instance = this,
@@ -547,7 +639,7 @@ ITSAViewModelPanel.prototype.unlockPanel = function() {
     // bodyview always exists, footerview, we need to check first:
     bodyview.unlockView();
 /*jshint expr:true */
-    footerview && footerview.unlockView();
+    footerview ? footerview.unlockView() : instance._footercont.all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
 };
 
@@ -845,7 +937,9 @@ ITSAViewModelPanel.prototype.syncUI = function() {
   * </ul>
   *
   * @method translate
+  * @param text {String} the text to be translated
   * @return {String} Translated text or the original text (if no translattion was posible)
+  * @since 0.3
  **/
 ITSAViewModelPanel.prototype.translate = function(text) {
     return this.get(BODYVIEW).translate(text);
@@ -855,6 +949,7 @@ ITSAViewModelPanel.prototype.translate = function(text) {
  * Cleans up bindings
  * @method destructor
  * @protected
+  * @since 0.3
 */
 ITSAViewModelPanel.prototype.destructor = function() {
     var instance = this,
@@ -863,6 +958,7 @@ ITSAViewModelPanel.prototype.destructor = function() {
         footerview = instance.get(FOOTERVIEW);
 
     instance._clearEventhandlers();
+    bodyview.removeTarget(instance);
 /*jshint expr:true */
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
     bodyview && bodyview.destroy();
@@ -876,6 +972,7 @@ ITSAViewModelPanel.prototype.destructor = function() {
  *
  * @method _defFn_focusnext
  * @private
+  * @since 0.3
 */
 ITSAViewModelPanel.prototype._defFn_focusnext = function() {
     var instance = this,
@@ -895,7 +992,6 @@ ITSAViewModelPanel.prototype._defFn_focusnext = function() {
  * @private
  * @param activate {Boolean}
  * @since 0.3
- *
 */
 ITSAViewModelPanel.prototype._setFocusManager = function(activate) {
     var instance = this,
@@ -924,6 +1020,24 @@ ITSAViewModelPanel.prototype._setFocusManager = function(activate) {
         itsatabkeymanager && contentBox.unplug(ITSATABKEYMANAGER);
 /*jshint expr:false */
     }
+};
+
+/**
+ * Transforms the buttonicon into a 'spinner'-icon or reset to original icon.
+ * In case there are multiple of the same buttontypes rendered, all are affected.
+ *
+ * @method _setSpin
+ * @private
+ * @param buttonType {String} buttontype which is to be affected.
+ * @param spin {Boolean} whether to spin or not (=return to default).
+ * @since 0.3
+ *
+*/
+ITSAViewModelPanel.prototype._setSpin = function(buttonType, spin) {
+    var instance = this,
+        buttonicons = instance.get(CONTENTBOX).all('[data-buttonsubtype="'+buttonType+'"] i');
+    buttonicons.toggleClass('itsaicon-form-loading', spin);
+    buttonicons.toggleClass('itsa-busy', spin);
 };
 
 }, '@VERSION@', {

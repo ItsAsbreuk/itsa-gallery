@@ -67,6 +67,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                '<fieldset>'+
                    '<div class="pure-control-group">{username}</div>'+
                    '<div class="pure-control-group">{password}</div>'+
+                   '<div class="pure-control-group">{spinbtn_submit}</div>'+
                '</fieldset>';
 
     templateretry = '<div id="spinner" class="hiddenicon extratop">'+
@@ -78,7 +79,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                         '<div class="pure-control-group">{password}</div>'+
                     '</fieldset>';
 
-    footertemplate = '{spinbtn_submit}';
+    footertemplate = 'test{spinbtn_submit}sdfgdfs';
 
     panel = new Y.ITSAViewModelPanel({
         model: user,
@@ -97,12 +98,14 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
 
     spinnericon = Y.one('#spinner');
 
-    user.on('submitstart', function(e) {
+    user.on('xsubmit', function(e) {
         var submitpromise = e.promise;
         spinnericon.removeClass('hiddenicon');
-        retrylegend && retrylegend.set('text', '');
+        retrylegend && retrylegend.set('text', 'Retry login');
         submitpromise.then(
-            Y.bind(panel.hide, panel),
+            function() {
+                panel.hide();
+            },
             function(reason) {
                 user.reset();
                 if (firsterror) {
@@ -119,6 +122,5 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
             }
         );
     });
-
-
+Y.later(5000, null, function() {user.submit();});
 });
