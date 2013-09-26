@@ -76,6 +76,8 @@ var ITSAViewModel,
     DEF_PREV_FN = '_defPrevFn_',
     ITSATABKEYMANAGER = 'itsatabkeymanager',
     FOCUSMANAGED = 'focusManaged',
+    DISABLED = 'disabled',
+    PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     VALID_BUTTON_TYPES = {
         button: true,
         destroy: true,
@@ -462,6 +464,14 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 setter: '_setModel'
             },
 
+            partOfMultiView: {
+                value: false,
+                initOnly: true,
+                validator: function(v){
+                    return (typeof v === BOOLEAN);
+                }
+            },
+
             /**
              * Styles the view by adding the className 'itsaviewmodel-styled' to the container.
              *
@@ -805,11 +815,12 @@ ITSAViewModel.prototype.focus = function() {
 */
 ITSAViewModel.prototype.lockView = function() {
     var instance = this,
-        model = instance.get(MODEL);
+        model = instance.get(MODEL),
+        canDisableModel = (instance.get(EDITABLE) && model && model.toJSONUI);
 
     Y.log('lockView', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
-    instance.get(EDITABLE) && model && model.toJSONUI && model.disableUI();
+    canDisableModel ? model.disableUI() : instance.get('container').all('button').addClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
 };
 
@@ -1146,11 +1157,12 @@ ITSAViewModel.prototype.translate = function(text) {
 */
 ITSAViewModel.prototype.unlockView = function() {
     var instance = this,
-        model = instance.get(MODEL);
+        model = instance.get(MODEL),
+        canDisableModel = (instance.get(EDITABLE) && model && model.toJSONUI);
 
     Y.log('unlockView', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
-    instance.get(EDITABLE) && model && model.toJSONUI && model.enableUI();
+    canDisableModel ? model.enableUI() : instance.get('container').all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
 };
 
@@ -1227,7 +1239,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'resetclick',
+            RESET,
             function() {
                 var itsatabkeymanager;
                 if (instance._isMicroTemplate) {
@@ -1280,7 +1292,8 @@ ITSAViewModel.prototype._bindUI = function() {
     );
 */
 
-    eventhandlers.push(
+/*jshint expr:true */
+    instance.get('partOfMultiView') || eventhandlers.push(
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
@@ -1291,13 +1304,13 @@ ITSAViewModel.prototype._bindUI = function() {
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
+alert(1);
                     instance.lockView();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
                         model.UIToModel();
                     }
                     instance._setSpin(eventType, true);
-    /*jshint expr:true */
                     (eventType===DESTROY) || promise.then(
                         function() {
                             ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
@@ -1311,16 +1324,14 @@ ITSAViewModel.prototype._bindUI = function() {
                             var itsatabkeymanager = container.itsatabkeymanager;
                             instance._setSpin(eventType, false);
                             instance.unlockView();
-        /*jshint expr:true */
                             itsatabkeymanager && itsatabkeymanager.focusInitialItem();
-        /*jshint expr:false */
                         }
                     );
-    /*jshint expr:false */
                 }
             }
         )
     );
+/*jshint expr:false */
 
     eventhandlers.push(
         instance.after(
@@ -1993,7 +2004,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
                 type = buttonobject.type;
                 labelHTML = buttonobject.labelHTML(); // is a function!
                 config = buttonobject.config;
-                jsondata[propertykey] = Y.bind(model._renderBtnFns[type], model, labelHTML, config)();
+                jsondata[propertykey] = model._renderBtnFns[type].call(model, labelHTML, config);
             }
         );
         // now add the custom buttons
@@ -2002,7 +2013,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
             function(buttonobject, propertykey) {
                 labelHTML = buttonobject.labelHTML; // is a property
                 config = buttonobject.config;
-                jsondata[propertykey] = Y.bind(model._renderBtnFns[BUTTON], model, labelHTML, config)();
+                jsondata[propertykey] = model._renderBtnFns[BUTTON].call(model, labelHTML, config);
             }
         );
     };
