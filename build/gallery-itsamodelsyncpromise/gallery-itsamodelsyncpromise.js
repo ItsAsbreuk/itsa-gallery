@@ -297,28 +297,41 @@ YModel.prototype.publishAsync = function(type, opts) {
     asyncEvent._firing = new Y.Promise(function (resolve) { resolve(); });
 
     asyncEvent.fire = function (data) {
-        var args  = Y.Array(arguments, 0, true);
+        var args  = Y.Array(arguments, 0, true),
+            stack = {
+                id: asyncEvent.id,
+                next: asyncEvent,
+                silent: asyncEvent.silent,
+                stopped: 0,
+                prevented: 0,
+                bubbling: null,
+                type: asyncEvent.type,
+                defaultTargetOnly: asyncEvent.defaultTargetOnly
+            }, next;
 
         asyncEvent._firing = asyncEvent._firing.then(function () {
             asyncEvent.details = args;
             // Execute on() subscribers
             var subs = asyncEvent._subscribers,
                 args2 = [],
-                e, i, len, stack;
+                e, i, len;
 
                 args2.push.apply(args2, data);
                 e = asyncEvent._createFacade(args2);
 
+            e.target = e.target || instance;
             if (subs) {
                 for (i = 0, len = subs.length; i < len; ++i) {
-                    // TODO: try/catch?
-                    subs[i].fn.call(subs[i].context, e);
+                    try {
+                        subs[i].fn.call(subs[i].context, e);
+                    }
+                    catch (catchErr) {
+                    }
                 }
             }
 
             // Execute on() subscribers for each bubble target and their respective targets:
             if (asyncEvent.bubbles && !asyncEvent.stopped) {
-                stack = asyncEvent.stack || asyncEvent;
                 instance.bubble(asyncEvent, args, null, stack);
                 e.prevented = Math.max(e.prevented, stack.prevented);
             }
@@ -334,11 +347,18 @@ YModel.prototype.publishAsync = function(type, opts) {
                     // Execute after() subscribers
                     subs = asyncEvent._afters;
                     for (i = 0, len = subs.length; i < len; ++i) {
-                        subs[i].fn.call(subs[i].context, e);
+                        try {
+                            subs[i].fn.call(subs[i].context, e);
+                        }
+                        catch (catchErr) {
+                        }
                     }
-
                     // Execute after() subscribers for each bubble target and their respective targets:
-//                    instance.bubble(asyncEvent, args, null, stack);
+                    if (stack.afterQueue) {
+                        while ((next = stack.afterQueue.last())) {
+                            next();
+                        }
+                    }
 
                 // Catch errors/preventions and reset the promise state to fulfilled for
                 // the next call to fire();
@@ -510,7 +530,7 @@ YModel.prototype._defFn_destroy = function(e) {
         promiseResolve = e.promiseResolve,
         promiseReject = e.promiseReject,
         options = e.options,
-        remove = e.remove || e[DELETE],
+        remove = options.remove || options[DELETE],
         errFunc, successFunc, finish;
 
     if (instance.get(DESTROYED)) {
