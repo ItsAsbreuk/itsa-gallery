@@ -1488,14 +1488,6 @@ ITSAViewModel.prototype._bindUI = function() {
  * @since 0.3
  *
 */
-
-/**
- * Destroys the view's model-instance.
- *
- * @method modelDestroy
- * @since 0.3
- *
-*/
 YArray.each(
     [SAVE_FIRSTCAP, SUBMIT_FIRSTCAP, LOAD_FIRSTCAP, DESTROY_FIRSTCAP, RESET_FIRSTCAP],
     function(fn) {
@@ -1552,18 +1544,6 @@ YArray.each(
  *                 implementation to determine what options it supports or requires, if any.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
  * @since 0.3
- *
-*/
-
-/**
- * Destroys the view's model-instance. using model.destroyPromise().
- *
- * @method modelDestroyPromise
- * @since 0.3
- * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
- *                 implementation to determine what options it supports or requires, if any.
- * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
- * @return
  *
 */
 YArray.each(
