@@ -329,7 +329,6 @@ YModel.prototype.publishAsync = function(type, opts) {
                     }
                 }
             }
-
             // Execute on() subscribers for each bubble target and their respective targets:
             if (asyncEvent.bubbles && !asyncEvent.stopped) {
                 instance.bubble(asyncEvent, args, null, stack);
@@ -345,12 +344,15 @@ YModel.prototype.publishAsync = function(type, opts) {
                 asyncEvent.defaultFn.call(instance, e).then(function () {
                     // no need to handle 'response' it is merged into 'e' within the defaultfunction
                     // Execute after() subscribers
+
                     subs = asyncEvent._afters;
-                    for (i = 0, len = subs.length; i < len; ++i) {
-                        try {
-                            subs[i].fn.call(subs[i].context, e);
-                        }
-                        catch (catchErr) {
+                    if (subs) {
+                        for (i = 0, len = subs.length; i < len; ++i) {
+                            try {
+                                subs[i].fn.call(subs[i].context, e);
+                            }
+                            catch (catchErr) {
+                            }
                         }
                     }
                     // Execute after() subscribers for each bubble target and their respective targets:
@@ -491,7 +493,8 @@ YModel.prototype._createPromise = function(type, options) {
         promiseResolve: promiseResolve,
         promiseReject: promiseReject,
         response: '', // making available at the after listener
-        parsed: {} // making available at the after listener
+        parsed: {}, // making available at the after listener
+        options: Y.merge(options) // making passing only optins to other events possible
     };
 /*jshint expr:true */
     (typeof options==='object') && YObject.each(
