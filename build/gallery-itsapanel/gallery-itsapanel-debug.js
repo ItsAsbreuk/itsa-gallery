@@ -508,18 +508,18 @@ ITSAPanel.prototype.bindUI = function() {
 
     Y.log('bindUI ', 'info', 'ITSAPanel');
 /*jshint expr:true */
-//    (headerView instanceof Y.View) && headerView.addTarget(instance);
-//    (bodyView instanceof Y.View) && bodyView.addTarget(instance);
-//    (footerView instanceof Y.View) && footerView.addTarget(instance);
+    (headerView instanceof Y.View) && headerView.addTarget(instance);
+    (bodyView instanceof Y.View) && bodyView.addTarget(instance);
+    (footerView instanceof Y.View) && footerView.addTarget(instance);
 
-//    instance.get(DRAGABLE) && instance.get(FLOATED) && Y.use(DD+PLUGIN, function() {
-            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
-//        instance.get(DESTROYED) || (boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS) && boundingBox.dd.addTarget(instance));
-//    });
-//    instance.get(RESIZABLE) && Y.use(RESIZE+PLUGIN, function() {
-            // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
-//        instance.get(DESTROYED) || contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']}).resize.addTarget(instance);
-//    });
+    instance.get(DRAGABLE) && instance.get(FLOATED) && Y.use(DD+PLUGIN, function() {
+        // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
+        instance.get(DESTROYED) || (boundingBox.plug(Y.Plugin.Drag).dd.addHandle('.'+PANELHEADERCLASS) && boundingBox.dd.addTarget(instance));
+    });
+    instance.get(RESIZABLE) && Y.use(RESIZE+PLUGIN, function() {
+        // NOTE: node-pluginhist and dd-ddm MUST be loaded first, otherwise you can get errors !!!
+        instance.get(DESTROYED) || contentBox.plug(Y.Plugin.Resize, {handles: ['r', 'b', 'br']}).resize.addTarget(instance);
+    });
 /*jshint expr:false */
 
     eventhandlers.push(
