@@ -10,6 +10,7 @@
  * Y.ITSAPanel is very much like Y.Panel. Major difference is that you can attach both View's and Strings, but there are more differences. See the docs.
  *
  *
+ * @module gallery-itsapanel
  * @class ITSAPanel
  * @constructor
  * @extends Widget
