@@ -122,6 +122,59 @@
         return response || {};
     };
 
+YArray.each(
+    [LOAD, LOADAPPEND, SAVE, SUBMIT, DESTROYMODELS],
+    function(Fn) {
+        YModelList.prototype[Fn] = function(options, callback) {
+            var instance = this,
+                promise;
+
+            Y.log(Fn, 'info', 'ITSA-ModelSyncPromise');
+            // by overwriting the default 'save'-method we manage to fire 'destroystart'-event.
+        /*jshint expr:true */
+            (promise=instance[Fn+PROMISE](options)) && callback && promise.then(
+                function(response) {
+                    callback(null, response);
+                },
+                function(err) {
+                    callback(err);
+                }
+            );
+        /*jshint expr:false */
+            return instance;
+        };
+    }
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // -- Mixing extra Methods to Y.ModelList -----------------------------------
 
     function ITSAModellistSyncPromise() {}
