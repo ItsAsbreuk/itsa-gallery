@@ -20,6 +20,7 @@
  * submit
  *
  *
+ * @module gallery-itsaviewmodelpanel
  * @class ITSAViewModelPanel
  * @constructor
  * @extends ITSAPanel
