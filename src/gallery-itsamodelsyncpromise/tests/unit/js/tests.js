@@ -6,24 +6,24 @@ YUI.add('module-tests', function(Y) {
             var data;
             switch (action) {
               case 'create':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     data = {id: 1, Country: "The Netherlands", extrafield: "Its Asbreuk"};
                     callback(null, Y.JSON.stringify(data));
                 });
                 return;
               case 'update':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     data = {Country: "The Netherlands", extrafield: "Its Asbreuk"};
                     callback(null, Y.JSON.stringify(data));
                 });
                 return;
               case 'delete':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     callback();
                 });
                 return;
               case 'read':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     data = {Country: "The Netherlands"};
                     callback(null, Y.JSON.stringify(data));
                 });
@@ -40,23 +40,23 @@ YUI.add('module-tests', function(Y) {
                 data;
             switch (action) {
               case 'create':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     instance._afterload = true;
                     callback('Error during create');
                 });
                 return;
               case 'update':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     callback('Error during update');
                 });
                 return;
               case 'delete':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     callback('Error during delete');
                 });
                 return;
               case 'read':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     callback('Error during loading');
                 });
                 return;
@@ -71,13 +71,13 @@ YUI.add('module-tests', function(Y) {
             var data;
             switch (action) {
               case 'create':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     data = {id: -1};
                     callback(null, Y.JSON.stringify(data));
                 });
                 return;
               case 'update':
-                Y.later(750, null, function() {
+                Y.later(600, null, function() {
                     data = {id: -1};
                     callback(null, Y.JSON.stringify(data));
                 });
@@ -99,13 +99,13 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             mycountrymodel.destroy();
-            this.wait(250);
+            this.wait(200);
         },
         '2. After-event not too early': function() {
             var test = this,
                 delayed = false,
                 mycountrymodel = new Y.CountryModel({id: 1});
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             mycountrymodel.after('destroy', function() {
@@ -114,7 +114,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             mycountrymodel.destroy({remove: true});
-            this.wait(1000);
+            this.wait(800);
         },
         '3. After-event after syncing': function() {
             var test = this,
@@ -125,7 +125,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             mycountrymodel.destroy({remove: true});
-            this.wait(1000);
+            this.wait(800);
         },
         '4. DefaultFn not executed when prevented': function() {
             var test = this,
@@ -136,7 +136,7 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.destroy({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(mycountrymodel.get('destroyed'), 'Model\'s defaultFn is not prevented: model is still destroyed');
-            }, 500);
+            }, 400);
         },
         '5. After-event not executed when prevented': function() {
             var test = this,
@@ -151,13 +151,13 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.destroy({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-destroy is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '6. check promise': function() {
             var startdelayed = false,
                 test = this,
                 mycountrymodel = new Y.CountryModel({id: 1});
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             mycountrymodel.destroyPromise({remove: true}).then(
@@ -172,7 +172,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '7. check error-event': function() {
             var test = this,
@@ -184,7 +184,7 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.destroy({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(errorevent, 'error event occured while the sync should be ok');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -199,13 +199,13 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             mycountrymodel.destroy();
-            this.wait(250);
+            this.wait(200);
         },
         '9. After-event not too early': function() {
             var test = this,
                 delayed = false,
                 mycountrymodel = new Y.CountryModelError({id: 1});
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             mycountrymodel.after('error', function() {
@@ -214,7 +214,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             mycountrymodel.destroy({remove: true});
-            this.wait(1000);
+            this.wait(800);
         },
         '10. After syncing with failure instance should not be destroyed': function() {
             var test = this,
@@ -225,7 +225,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             mycountrymodel.destroy({remove: true});
-            this.wait(1000);
+            this.wait(800);
         },
         '11. DefaultFn not executed when prevented': function() {
             var test = this,
@@ -236,7 +236,7 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.destroy({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(mycountrymodel.get('destroyed'), 'Model\'s defaultFn is not prevented: model is still destroyed');
-            }, 500);
+            }, 400);
         },
         '12. After-event not executed when prevented': function() {
             var test = this,
@@ -251,13 +251,13 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.destroy({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-destroy is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '13. check promise': function() {
             var startdelayed = false,
                 test = this,
                 mycountrymodel = new Y.CountryModelError({id: 1});
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             mycountrymodel.destroyPromise({remove: true}).then(
@@ -279,7 +279,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '14. check error-event': function() {
             var test = this,
@@ -291,7 +291,7 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.destroy({remove: true});
             this.wait(function(){
                 Y.Assert.isTrue(errorevent, 'error event did not occur while the sync returned an error');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -312,12 +312,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(250);
+            this.wait(200);
         },
         '16. After-event not too early': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.mycountrymodel.after('load', function() {
@@ -326,7 +326,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '17. value after load': function() {
             var test = this;
@@ -336,7 +336,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '18. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -346,7 +346,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '19. After-event not executed when prevented': function() {
             var test = this,
@@ -360,12 +360,12 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-load is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '20. check promise': function() {
             var startdelayed = false,
                 test = this;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             test.mycountrymodel.loadPromise().then(
@@ -380,7 +380,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '21. check error-event': function() {
             var test = this,
@@ -391,7 +391,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(errorevent, 'error event occured while the sync should be ok');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -411,12 +411,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(250);
+            this.wait(200);
         },
         '23. After-event not too early': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.mycountrymodel.after('error', function() {
@@ -425,7 +425,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '24. After syncing with failure instance should not get value': function() {
             var test = this,
@@ -436,7 +436,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '25. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -446,7 +446,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded wrong value');
-            }, 1000);
+            }, 800);
         },
         '26. After-event not executed when prevented': function() {
             var test = this,
@@ -460,12 +460,12 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-dload is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '27. check promise': function() {
             var startdelayed = false,
                 test = this;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             test.mycountrymodel.loadPromise().then(
@@ -487,7 +487,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '28. check error-event': function() {
             var test = this,
@@ -498,7 +498,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isTrue(errorevent, 'error event did not occur while the sync returned an error');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -519,12 +519,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(250);
+            this.wait(200);
         },
         '30. After-event not too early': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.mycountrymodel.after('save', function() {
@@ -533,7 +533,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '31. value after save': function() {
             var test = this;
@@ -543,7 +543,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '32. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -553,7 +553,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.areNotSame('Its Asbreuk', test.mycountrymodel.get('extrafield'), 'Model saved but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '33. After-event not executed when prevented': function() {
             var test = this,
@@ -567,12 +567,12 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-save is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '34. check promise': function() {
             var startdelayed = false,
                 test = this;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             test.mycountrymodel.savePromise().then(
@@ -587,7 +587,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '35. check error-event': function() {
             var test = this,
@@ -598,7 +598,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isFalse(errorevent, 'error event occured while the sync should be ok');
-            }, 1000);
+            }, 800);
         },
         '36. check non destruction with positive id': function() {
             var test = this;
@@ -608,7 +608,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '37. check destuction with id-1': function() {
             var test = this,
@@ -620,7 +620,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             deletedModel.save();
-            this.wait(1000);
+            this.wait(800);
         }
     }));
 
@@ -640,12 +640,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(250);
+            this.wait(200);
         },
         '39. After-event not too early': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.mycountrymodel.after('error', function() {
@@ -654,7 +654,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '40. After syncing with failure instance should not get value': function() {
             var test = this;
@@ -664,7 +664,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '41. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -674,7 +674,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.areNotSame('Its Asbreuk', test.mycountrymodel.get('extrafield'), 'Model saved wrong value');
-            }, 1000);
+            }, 800);
         },
         '42. After-event not executed when prevented': function() {
             var test = this,
@@ -688,12 +688,12 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-save is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '43. check promise': function() {
             var startdelayed = false,
                 test = this;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             test.mycountrymodel.savePromise().then(
@@ -715,7 +715,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '44. check error-event': function() {
             var test = this,
@@ -726,7 +726,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isTrue(errorevent, 'error event did not occur while the sync returned an error');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -747,12 +747,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(250);
+            this.wait(200);
         },
         '46. After-event not too early': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.mycountrymodel.after('save', function() {
@@ -761,7 +761,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '47. value after save': function() {
             var test = this;
@@ -771,7 +771,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '48. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -781,7 +781,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.areNotSame('Its Asbreuk', test.mycountrymodel.get('extrafield'), 'Model saved but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '49. After-event not executed when prevented': function() {
             var test = this,
@@ -795,12 +795,12 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-save is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '50. check promise': function() {
             var startdelayed = false,
                 test = this;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             test.mycountrymodel.savePromise().then(
@@ -815,7 +815,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '51. check error-event': function() {
             var test = this,
@@ -826,7 +826,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isFalse(errorevent, 'error event occured while the sync should be ok');
-            }, 1000);
+            }, 800);
         },
         '52. check non destruction with positive id': function() {
             var test = this;
@@ -836,7 +836,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '53. check destuction with id-1': function() {
             var test = this,
@@ -848,7 +848,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             deletedModel.save();
-            this.wait(1000);
+            this.wait(800);
         }
     }));
 
@@ -868,12 +868,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(250);
+            this.wait(200);
         },
         '55. After-event not too early': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.mycountrymodel.after('error', function() {
@@ -882,7 +882,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '56. After syncing with failure instance should not get value': function() {
             var test = this;
@@ -892,7 +892,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.save();
-            this.wait(1000);
+            this.wait(800);
         },
         '57. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -902,7 +902,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.areNotSame('Its Asbreuk', test.mycountrymodel.get('extrafield'), 'Model saved wrong value');
-            }, 1000);
+            }, 800);
         },
         '58. After-event not executed when prevented': function() {
             var test = this,
@@ -916,12 +916,12 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-save is executed even if event was prevented');
-            }, 1000);
+            }, 800);
         },
         '59. check promise': function() {
             var startdelayed = false,
                 test = this;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 startdelayed = true;
             });
             test.mycountrymodel.savePromise().then(
@@ -943,7 +943,7 @@ YUI.add('module-tests', function(Y) {
                     });
                 }
             );
-            this.wait(1000);
+            this.wait(800);
         },
         '60. check error-event': function() {
             var test = this,
@@ -954,7 +954,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.save();
             this.wait(function(){
                 Y.Assert.isTrue(errorevent, 'error event did not occur while the sync returned an error');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -980,12 +980,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(250);
+            this.wait(200);
         },
         '62. After-event not too early at parent': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.parentTarget.after('*:load', function() {
@@ -994,7 +994,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '63. value after load at parent': function() {
             var test = this;
@@ -1004,7 +1004,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '64. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -1014,7 +1014,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '65. After-event at parent not executed when prevented': function() {
             var test = this,
@@ -1028,7 +1028,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-load is executed even if event was prevented at parenttarget');
-            }, 1000);
+            }, 800);
         },
         '66. On-event in time at grantparent': function() {
             var test = this;
@@ -1038,12 +1038,12 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(250);
+            this.wait(200);
         },
         '67. After-event not too early at grantparent': function() {
             var test = this,
                 delayed = false;
-            Y.later(500, null, function() {
+            Y.later(400, null, function() {
                 delayed = true;
             });
             test.grantparentTarget.after('*:load', function() {
@@ -1052,7 +1052,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '68. value after load at grantparent': function() {
             var test = this;
@@ -1062,7 +1062,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(1000);
+            this.wait(800);
         },
         '69. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -1072,7 +1072,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '70. After-event at grantparent not executed when prevented': function() {
             var test = this,
@@ -1086,7 +1086,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-load is executed even if event was prevented at grantparenttarget');
-            }, 1000);
+            }, 800);
         }
     }));
 
@@ -1112,7 +1112,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(250);
+            this.wait(200);
         },
         '72. value after load at parent': function() {
             var test = this,
@@ -1123,7 +1123,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function() {
                 Y.Assert.isFalse(after, 'Model\'s parenttarget\'s after-load is executed before the synclayer started');
-            }, 1000);
+            }, 800);
         },
         '73. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -1133,7 +1133,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '74. DefaultFn not executed when prevented test 2': function() {
             var test = this;
@@ -1143,7 +1143,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function() {
                 Y.Assert.areNotSame(true, test.mycountrymodel._afterload, 'Model loaded wrong value');
-            }, 1000);
+            }, 800);
         },
         '75. After-event at parent not executed when prevented': function() {
             var test = this,
@@ -1157,7 +1157,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-load is executed even if event was prevented at parenttarget');
-            }, 1000);
+            }, 800);
         },
         '76. On-event in time at grantparent': function() {
             var test = this;
@@ -1167,7 +1167,7 @@ YUI.add('module-tests', function(Y) {
                 });
             });
             test.mycountrymodel.load();
-            this.wait(250);
+            this.wait(200);
         },
         '77. value after load at grantparent': function() {
             var test = this,
@@ -1178,7 +1178,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function() {
                 Y.Assert.isFalse(after, 'Model\'s parenttarget\'s after-load is executed before the synclayer started');
-            }, 1000);
+            }, 800);
         },
         '78. DefaultFn not executed when prevented': function() {
             var test = this;
@@ -1188,7 +1188,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded but shouldn\'t have');
-            }, 1000);
+            }, 800);
         },
         '79. DefaultFn not executed when prevented test 2': function() {
             var test = this;
@@ -1198,7 +1198,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function() {
                 Y.Assert.areNotSame(true, test.mycountrymodel._afterload, 'Model loaded wrong value');
-            }, 1000);
+            }, 800);
         },
         '80. After-event at grantparent not executed when prevented': function() {
             var test = this,
@@ -1212,7 +1212,7 @@ YUI.add('module-tests', function(Y) {
             test.mycountrymodel.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-load is executed even if event was prevented at grantparenttarget');
-            }, 1000);
+            }, 800);
         }
     }));
 
