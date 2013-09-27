@@ -30,6 +30,7 @@ var YModel = Y.Model,
     READ = 'read',
     DESTROYED = DESTROY+'ed',
     PUBLISHED = '_published',
+    PROMISE = 'Promise',
 /**
  * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
  * the sync layer submit-function returns an error.
@@ -118,24 +119,6 @@ PARSED = function (response) {
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
   * @chainable
 */
-YModel.prototype.destroy = function(options, callback) {
-    var instance = this,
-        promise;
-
-    Y.log('destroy', 'info', 'ITSA-ModelSyncPromise');
-    // by overwriting the default 'save'-method we manage to fire 'destroystart'-event.
-/*jshint expr:true */
-    (promise=instance.destroyPromise(options)) && callback && promise.then(
-        function(response) {
-            callback(null, response);
-        },
-        function(err) {
-            callback(err);
-        }
-    );
-/*jshint expr:false */
-    return instance;
-};
 
 /**
  * Destroys this model instance and removes it from its containing lists, if any.
@@ -153,9 +136,6 @@ YModel.prototype.destroy = function(options, callback) {
  *                 implementation to determine what options it supports or requires, if any.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
-YModel.prototype.destroyPromise = function (options) {
-    return this._createPromise(DESTROY, options);
-};
 
 /**
   * Loads this model from the server.<br />
@@ -181,24 +161,6 @@ YModel.prototype.destroyPromise = function (options) {
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
   * @chainable
  */
-YModel.prototype.load = function(options, callback) {
-    var instance = this,
-        promise;
-
-    Y.log('load', 'info', 'ITSA-ModelSyncPromise');
-    // by overwriting the default 'save'-method we manage to fire 'loadstart'-event.
-/*jshint expr:true */
-    (promise=instance.loadPromise(options)) && callback && promise.then(
-        function(response) {
-            callback(null, response);
-        },
-        function(err) {
-            callback(err);
-        }
-    );
-/*jshint expr:false */
-    return instance;
-};
 
 /**
  * Loads this model from the server.
@@ -218,11 +180,85 @@ YModel.prototype.load = function(options, callback) {
  *                 implementation to determine what options it supports or requires, if any.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
 **/
-YModel.prototype.loadPromise = function (options) {
-    Y.log('loadPromise', 'info', 'ITSA-ModelSyncPromise');
-    return this._createPromise(LOAD, options);
-};
 
+/**
+ * Saves this model to the server.
+ *
+ * This method delegates to the `sync()` method to perform the actual save operation, which is an asynchronous action.
+ * Specify a 'callback' function to be notified of success or failure, or better: use savePromise().
+ * <br /><br />
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ * <br /><br />
+ * If the save operation succeeds and one or more of the attributes returned in the server's response differ from this model's current attributes,
+ * a `change` event will be fired.
+ * <br /><br />
+ * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
+ * <br /><br />
+ * To keep track of the process, it is preferable to use <b>savePromise()</b>.<br />
+ * This method will fire 2 events: 'savestart' before syncing and 'save' or ERROR after syncing.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method save
+ * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
+ *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ * @param {Function} [callback] Called when the sync operation finishes.
+ *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
+ *                                    If the sync operation succeeded, 'err' will be null.
+ *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method,
+ *                                  which is expected to parse it and return an attribute hash.
+ * @chainable
+*/
+
+/**
+ * Saves this model to the server.
+ * <br /><br />
+ * This method delegates to the `sync()` method to perform the actual save
+ * operation, which is an asynchronous action.
+ * <br /><br />
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ * <br /><br />
+ * If the save operation succeeds and one or more of the attributes returned in
+ * the server's response differ from this model's current attributes, a
+ * `change` event will be fired.
+ * <br /><br />
+ * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method savePromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
+**/
+
+YArray.each(
+    [LOAD, DESTROY, SAVE],
+    function(Fn) {
+        YModel.prototype[Fn] = function(options, callback) {
+            var instance = this,
+                promise;
+
+            Y.log(Fn, 'info', 'ITSA-ModelSyncPromise');
+            // by overwriting the default 'save'-method we manage to fire 'destroystart'-event.
+        /*jshint expr:true */
+            (promise=instance[Fn+PROMISE](options)) && callback && promise.then(
+                function(response) {
+                    callback(null, response);
+                },
+                function(err) {
+                    callback(err);
+                }
+            );
+        /*jshint expr:false */
+            return instance;
+        };
+        YModel.prototype[Fn+PROMISE] = function (options) {
+            Y.log(Fn+PROMISE, 'info', 'ITSA-ModelSyncPromise');
+            return this._createPromise(Fn, options);
+        };
+    }
+);
 
  /**
    * Hack with the help of Luke Smith: https://gist.github.com/lsmith/6664382/d688740bb91f9ecfc3c89456a82f30d35c5095cb
@@ -388,79 +424,6 @@ YModel.prototype.publishAsync = function(type, opts) {
     asyncEvent._fire = function (args) {
         return asyncEvent.fire(args[0]);
     };
-};
-
-/**
- * Saves this model to the server.
- *
- * This method delegates to the `sync()` method to perform the actual save operation, which is an asynchronous action.
- * Specify a 'callback' function to be notified of success or failure, or better: use savePromise().
- * <br /><br />
- * An unsuccessful save operation will fire an `error` event with the `src` value "save".
- * <br /><br />
- * If the save operation succeeds and one or more of the attributes returned in the server's response differ from this model's current attributes,
- * a `change` event will be fired.
- * <br /><br />
- * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
- * <br /><br />
- * To keep track of the process, it is preferable to use <b>savePromise()</b>.<br />
- * This method will fire 2 events: 'savestart' before syncing and 'save' or ERROR after syncing.
- * <br /><br />
- * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
- *
- * @method save
- * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
- *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
- * @param {Function} [callback] Called when the sync operation finishes.
- *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
- *                                    If the sync operation succeeded, 'err' will be null.
- *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method,
- *                                  which is expected to parse it and return an attribute hash.
- * @chainable
-*/
-YModel.prototype.save = function(options, callback) {
-    var instance = this,
-        promise;
-
-    Y.log('save', 'info', 'ITSA-ModelSyncPromise');
-    // by overwriting the default 'save'-method we manage to fire 'savestart'-event.
-/*jshint expr:true */
-    (promise=instance.savePromise(options)) && callback && promise.then(
-        function(response) {
-            callback(null, response);
-        },
-        function(err) {
-            callback(err);
-        }
-    );
-/*jshint expr:false */
-    return instance;
-};
-
-/**
- * Saves this model to the server.
- * <br /><br />
- * This method delegates to the `sync()` method to perform the actual save
- * operation, which is an asynchronous action.
- * <br /><br />
- * An unsuccessful save operation will fire an `error` event with the `src` value "save".
- * <br /><br />
- * If the save operation succeeds and one or more of the attributes returned in
- * the server's response differ from this model's current attributes, a
- * `change` event will be fired.
- * <br /><br />
- * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
- * <br /><br />
- * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
- *
- * @method savePromise
- * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
- *                 implementation to determine what options it supports or requires, if any.
- * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
-**/
-YModel.prototype.savePromise = function (options) {
-    Y.log('savePromise', 'info', 'ITSA-ModelSyncPromise');
-    return this._createPromise(SAVE, options);
 };
 
 //===============================================================================================
