@@ -48,7 +48,7 @@ var YModel = Y.Model,
 **/
 
 /**
- * Fired when model is destroyed. In case {remove: true} is udes, the after-event occurs after the synlayer is finished.
+ * Fired when model is destroyed. In case {remove: true} is used, the after-event occurs after the synlayer is finished.
  * @event destroy
  * @param e {EventFacade} Event Facade including:
  * @param e.promise {Promise} The promise that is automaticly created during the event. You could examine this instead of listening to both the `after`- and `error`-event.

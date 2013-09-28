@@ -376,6 +376,15 @@ YModelList.prototype._createPromise = function(type, options) {
 };
 
 /**
+ * Fired when all models are destroyed. In case {remove: true} is used, the after-event occurs after the synlayer is finished.
+ * @event destroymodels
+ * @param e {EventFacade} Event Facade including:
+ * @param e.promise {Promise} The promise that is automaticly created during the event. You could examine this instead of listening to both the `after`- and `error`-event.
+ * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
+ * @since 0.1
+**/
+
+/**
 * Destroys all models within this modellist.
 * <b>Caution:</b> The current version uses the Model's synclayer, NOT ModelList's synclayer.
 *
@@ -391,9 +400,10 @@ YModelList.prototype._createPromise = function(type, options) {
  *                 implementation to determine what options it supports or requires, if any.
  * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
 **/
-YModelList.prototype._defFn_destroy = function(options) {
+YModelList.prototype._defFn_destroy = function(e) {
     var instance = this,
-          destroylist = [];
+        destroylist = [],
+        options = e.options;
 
     Y.log('_defFn_destroy', 'info', 'Itsa-ModellistSyncPromise');
     instance.each(
