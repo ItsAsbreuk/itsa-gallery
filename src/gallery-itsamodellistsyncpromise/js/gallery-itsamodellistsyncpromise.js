@@ -460,6 +460,65 @@ YModelList.prototype._defFn_destroy = function(e) {
  * @param {Boolean} [options.append] Set true if you want to append items.
  * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
 **/
+YArray.each(
+    [LOAD, LOADAPPEND],
+    function(eventType) {
+        YModelList.prototype['_defFn_'+eventType] = function (e) {
+            var instance = this,
+                readsync = (eventType===LOADAPPEND) ? READAPPEND : READ,
+                options = e.options,
+                errFunc, successFunc,
+                facade = {
+                    options : options
+                };
+
+            Y.log('_defFn_'+eventType, 'info', 'ITSA-ModelSyncPromise');
+            errFunc = function(err) {
+                facade.error = err;
+                facade.src   = LOAD;
+                instance._lazyFireErrorEvent(facade);
+                e.promiseReject(new Error(err));
+            };
+            successFunc = function(response) {
+                var parsed;
+                e.response = response;
+                parsed = PARSED(response);
+                if (parsed.responseText) {
+                    // XMLHttpRequest
+                    parsed = parsed.responseText;
+                }
+                e.parsed = parsed;
+                facade.parsed = parsed;
+                if (eventType===LOADAPPEND) {
+                    instance.add(parsed, options);
+                }
+                else {
+                    instance.reset(parsed, options);
+                }
+                e.promiseResolve(response);
+            };
+            if (instance.syncPromise) {
+                // use the syncPromise-layer
+                instance._syncTimeoutPromise(readsync, options).then(
+                    successFunc,
+                    errFunc
+                );
+            }
+            else {
+                instance.sync(readsync, options, function (err, response) {
+                    if (err) {
+                        errFunc(err);
+                    }
+                    else {
+                        successFunc(response);
+                    }
+                });
+            }
+            return e.promise;
+        }
+    }
+);
+
 YModelList.prototype._defFn_load = function (options) {
     var instance = this,
          optionsappend, append, eventname;
