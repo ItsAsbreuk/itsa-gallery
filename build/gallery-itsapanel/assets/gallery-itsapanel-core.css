@@ -40,7 +40,7 @@
     position: static !important;
     display: inline-block;
     *display: inline;
-    zoom: 1;
+    *zoom: 1;
     vertical-align: top;
 }
 .itsa-panel .itsa-panelheader,
@@ -87,7 +87,7 @@
     vertical-align: middle;
     display: inline-block;
     *display: inline;
-    zoom: 1;
+    *zoom: 1;
     width: 50%;
 }
 .itsa-panel .itsa-rightalign {
