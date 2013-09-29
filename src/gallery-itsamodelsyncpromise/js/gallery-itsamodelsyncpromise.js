@@ -574,15 +574,15 @@ YModel.prototype._defFn_destroy = function(e) {
 YModel.prototype._defFn_load = function(e) {
     var instance = this,
         options = e.options,
-        errFunc, successFunc,
-        facade = {
-            options : options
-        };
+        errFunc, successFunc;
 
     Y.log('_defFn_load', 'info', 'ITSA-ModelSyncPromise');
     errFunc = function(err) {
-        facade.error = err;
-        facade.src   = LOAD;
+        var facade = {
+            options: options,
+            error: err,
+            src: LOAD
+        };
         instance._lazyFireErrorEvent(facade);
         e.promiseReject(new Error(err));
     };
