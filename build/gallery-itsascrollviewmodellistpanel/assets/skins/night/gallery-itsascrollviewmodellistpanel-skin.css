@@ -110,7 +110,7 @@ http://nicolasgallagher.com/css-image-replacement-with-pseudo-elements/
     *line-height: 0;
     *letter-spacing: -1000px;
     *color: #86A5EC;
-    *background: url(sprite_icons.png) no-repeat center 3px;
+    *background: url(itsa-gallery/build/gallery-itsascrollviewmodellistpanel/assets/skins/night/sprite_icons.png) no-repeat center 3px;
 }
 .yui3-skin-night .yui3-itsascrollviewmodellistpanel .yui3-widget-hd .yui3-button-close:hover {
     background-color: #333;
@@ -120,9 +120,10 @@ http://nicolasgallagher.com/css-image-replacement-with-pseudo-elements/
     Displays the [x] icon in place of the "Close" text.
     Note: The `width` of this pseudo element is the same as its "host" element.
     */
-    content: url(sprite_icons.png);
+    content: url(itsa-gallery/build/gallery-itsascrollviewmodellistpanel/assets/skins/night/sprite_icons.png);
     display: inline-block;
     *display: inline;
+    *zoom: 1;
     text-align: center;
     font-size: 0;
     line-height: 0;

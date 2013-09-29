@@ -5,6 +5,7 @@
     position: static;
     display: inline-block;
     *display: inline;
+    *zoom: 1;
 }
 .yui3-itsascrollviewmodellistpanel-hidden {
     visibility: hidden;
@@ -40,7 +41,7 @@
 .yui3-itsascrollviewmodellistpanel .yui3-widget-ft .yui3-widget-buttons {
     display: inline-block;
     *display: inline;
-    zoom: 1;
+    *zoom: 1;
 }
 
 .yui3-skin-sam .yui3-itsascrollviewmodellistpanel .yui3-widget-hd,
