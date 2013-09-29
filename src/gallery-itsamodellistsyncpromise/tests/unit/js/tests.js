@@ -1,6 +1,6 @@
 YUI.add('module-tests', function(Y) {
 
-    var suite = new Y.Test.Suite('gallery-itsamodelsyncpromise');
+    var suite = new Y.Test.Suite('gallery-itsamodellistsyncpromise');
     Y.CountryModel = Y.Base.create('countryModel', Y.Model, [], {
         sync: function (action, options, callback) {
             var data;
@@ -88,17 +88,76 @@ YUI.add('module-tests', function(Y) {
         }
     });
 
+    Y.Countries = Y.Base.create('countries', Y.ModelList, [], {
+        model: Y.CountryModel,
+        sync: function (action, options, callback) {
+            var instance = this,
+                data;
+            switch (action) {
+              case 'read':
+                Y.later(600, null, function() {
+                    data = [
+                        {Country: "The Netherlands"},
+                        {Country: "USA"},
+                        {Country: "United Kingdom"}
+                    ]
+                    callback(null, Y.JSON.stringify(data));
+                });
+              case 'readappend':
+                Y.later(600, null, function() {
+                    data = [
+                        {Country: "The Netherlands"},
+                        {Country: "USA"},
+                        {Country: "United Kingdom"}
+                    ]
+                    callback(null, Y.JSON.stringify(data));
+                });
+                return;
+              default:
+                callback('Invalid action');
+            }
+        }
+    });
+
+    Y.CountriesError = Y.Base.create('countries', Y.ModelList, [], {
+        model: Y.CountryModel,
+        sync: function (action, options, callback) {
+            var instance = this,
+                data;
+            switch (action) {
+              case 'read':
+                Y.later(600, null, function() {
+                     callback('Server time-out (simulated)');
+                });
+              case 'readappend':
+                Y.later(600, null, function() {
+                     callback('Server time-out (simulated)');
+                });
+                return;
+              default:
+                callback('Invalid action');
+            }
+        }
+    });
+
     suite.add(new Y.Test.Case({
         name: 'Check destroy when sync goes well',
+        setUp : function () {
+            this.countries = new Y.Countries();
+        },
+        tearDown : function () {
+            this.countries.destroy();
+        },
         '1. On-event in time': function() {
             var test = this,
                 mycountrymodel = new Y.CountryModel({id: 1});
-            mycountrymodel.on('destroy', function() {
+            this.countries.on('destroymodels', function() {
                 test.resume(function(){
                     Y.Assert.pass();
                 });
             });
-            mycountrymodel.destroy();
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels();
             this.wait(200);
         },
         '2. After-event not too early': function() {
@@ -108,32 +167,35 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 delayed = true;
             });
-            mycountrymodel.after('destroy', function() {
+            this.countries.after('destroymodels', function() {
                 test.resume(function(){
                     Y.Assert.isTrue(delayed, 'Model\'s after-destroy is executed before the synclayer started');
                 });
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(800);
         },
         '3. After-event after syncing': function() {
             var test = this,
                 mycountrymodel = new Y.CountryModel({id: 1});
-            mycountrymodel.after('destroy', function() {
+            this.countries.after('destroymodels', function() {
                 test.resume(function(){
                     Y.Assert.isTrue(mycountrymodel.get('destroyed'), 'Model\'s after-destroy is executed before the synclayer started');
                 });
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(800);
         },
         '4. DefaultFn not executed when prevented': function() {
             var test = this,
                 mycountrymodel = new Y.CountryModel({id: 1});
-            mycountrymodel.on('destroy', function(e) {
+            this.countries.on('destroymodels', function(e) {
                 e.preventDefault();
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(mycountrymodel.get('destroyed'), 'Model\'s defaultFn is not prevented: model is still destroyed');
             }, 400);
@@ -142,13 +204,14 @@ YUI.add('module-tests', function(Y) {
             var test = this,
                 afterevent = false,
                 mycountrymodel = new Y.CountryModel({id: 1});
-            mycountrymodel.on('destroy', function(e) {
+            this.countries.on('destroymodels', function(e) {
                 e.preventDefault();
             });
-            mycountrymodel.after('destroy', function() {
+            this.countries.after('destroymodels', function() {
                 afterevent = true;
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-destroy is executed even if event was prevented');
             }, 800);
@@ -160,7 +223,8 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 startdelayed = true;
             });
-            mycountrymodel.destroyPromise({remove: true}).then(
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodelsPromise({remove: true}).then(
                 function() {
                     test.resume(function(){
                         Y.Assert.isTrue(startdelayed, 'Destroypromise is fulfilled before the synclayer is finished');
@@ -181,24 +245,44 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.on('error', function() {
                 errorevent = true;
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(errorevent, 'error event occured while the sync should be ok');
             }, 800);
+        },
+        '7b. After delete should be zero items': function() {
+            var test = this,
+                mycountrymodel = new Y.CountryModel({id: 1});
+            this.countries.after('destroymodels', function() {
+                test.resume(function(){
+                    Y.Assert.areSame(0, this.countries.size(), 'Number of items is not right after Model is destroyed from modellist');
+                });
+            });
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
+            this.wait(800);
         }
     }));
 
     suite.add(new Y.Test.Case({
         name: 'Check destroy when sync has error',
+        setUp : function () {
+            this.countries = new Y.CountriesError();
+        },
+        tearDown : function () {
+            this.countries.destroy();
+        },
         '8. On-event in time': function() {
             var test = this,
                 mycountrymodel = new Y.CountryModelError({id: 1});
-            mycountrymodel.on('destroy', function() {
+            this.countries.on('destroymodels', function() {
                 test.resume(function(){
                     Y.Assert.pass();
                 });
             });
-            mycountrymodel.destroy();
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels();
             this.wait(200);
         },
         '9. After-event not too early': function() {
@@ -213,7 +297,8 @@ YUI.add('module-tests', function(Y) {
                     Y.Assert.isTrue(delayed, 'Model\'s after-destroy is executed before the synclayer started');
                 });
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(800);
         },
         '10. After syncing with failure instance should not be destroyed': function() {
@@ -224,16 +309,18 @@ YUI.add('module-tests', function(Y) {
                     Y.Assert.isFalse(mycountrymodel.get('destroyed'), 'Model\'s is destroyed even when synclayer errored');
                 });
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(800);
         },
         '11. DefaultFn not executed when prevented': function() {
             var test = this,
                 mycountrymodel = new Y.CountryModelError({id: 1});
-            mycountrymodel.on('destroy', function(e) {
+            this.countries.on('destroymodels', function(e) {
                 e.preventDefault();
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(mycountrymodel.get('destroyed'), 'Model\'s defaultFn is not prevented: model is still destroyed');
             }, 400);
@@ -242,13 +329,14 @@ YUI.add('module-tests', function(Y) {
             var test = this,
                 afterevent = false,
                 mycountrymodel = new Y.CountryModelError({id: 1});
-            mycountrymodel.on('destroy', function(e) {
+            this.countries.on('destroymodels', function(e) {
                 e.preventDefault();
             });
             mycountrymodel.after('error', function() {
                 afterevent = true;
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-destroy is executed even if event was prevented');
             }, 800);
@@ -260,7 +348,8 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 startdelayed = true;
             });
-            mycountrymodel.destroyPromise({remove: true}).then(
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodelsPromise({remove: true}).then(
                 function() {
                     if (startdelayed) {
                         test.resume(function(){
@@ -275,7 +364,7 @@ YUI.add('module-tests', function(Y) {
                 },
                 function(reason) {
                     test.resume(function(){
-                       Y.Assert.areSame('Error during delete', reason.message, 'syncing with error: Destroypromise is rejected as should be, but the error is different');
+                       Y.Assert.areSame('Error: Error during delete', reason.message, 'syncing with error: Destroypromise is rejected as should be, but the error is different');
                     });
                 }
             );
@@ -288,10 +377,25 @@ YUI.add('module-tests', function(Y) {
             mycountrymodel.on('error', function() {
                 errorevent = true;
             });
-            mycountrymodel.destroy({remove: true});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodels({remove: true});
             this.wait(function(){
                 Y.Assert.isTrue(errorevent, 'error event did not occur while the sync returned an error');
             }, 800);
+        },
+        '14b. After delete should be one item': function() {
+            var test = this,
+                mycountrymodel = new Y.CountryModelError({id: 1});
+            this.countries.add(mycountrymodel);
+            this.countries.destroymodelsPromise({remove: true}).then(
+                null,
+                function() {
+                    test.resume(function(){
+                        Y.Assert.areSame(1, this.countries.size(), 'Number of items is not right after Model is destroyed from modellist');
+                    });
+                }
+            );
+            this.wait(800);
         }
     }));
 
@@ -299,19 +403,20 @@ YUI.add('module-tests', function(Y) {
     suite.add(new Y.Test.Case({
         name: 'Check load when sync goes well',
         setUp : function () {
-            this.mycountrymodel = new Y.CountryModel({id: 1});
+            this.countries = new Y.Countries();
         },
         tearDown : function () {
-            this.mycountrymodel.destroy({remove: false});
+            this.countries.destroymodels({remove: false});
+            this.countries.destroy();
         },
         '15. On-event in time': function() {
             var test = this;
-            test.mycountrymodel.on('load', function() {
+            test.countries.on('load', function() {
                 test.resume(function(){
                     Y.Assert.pass();
                 });
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(200);
         },
         '16. After-event not too early': function() {
@@ -320,44 +425,44 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 delayed = true;
             });
-            test.mycountrymodel.after('load', function() {
+            test.countries.after('load', function() {
                 test.resume(function(){
                     Y.Assert.isTrue(delayed, 'Model\'s after-load is executed before the synclayer started');
                 });
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(800);
         },
         '17. value after load': function() {
             var test = this;
-            test.mycountrymodel.after('load', function() {
+            test.countries.after('load', function() {
                 test.resume(function(){
-                    Y.Assert.areSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded wrong value');
+                    Y.Assert.areSame('The Netherlands', test.countries.item(0).get('Country'), 'Model loaded wrong value');
                 });
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(800);
         },
         '18. DefaultFn not executed when prevented': function() {
             var test = this;
-            test.mycountrymodel.on('load', function(e) {
+            test.countries.on('load', function(e) {
                 e.preventDefault();
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(function(){
-                Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded but shouldn\'t have');
+                Y.Assert.areSame(0, test.countries.size(), 'Model loaded but shouldn\'t have');
             }, 800);
         },
         '19. After-event not executed when prevented': function() {
             var test = this,
                 afterevent = false;
-            test.mycountrymodel.on('load', function(e) {
+            test.countries.on('load', function(e) {
                 e.preventDefault();
             });
-            test.mycountrymodel.after('load', function() {
+            test.countries.after('load', function() {
                 afterevent = true;
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-load is executed even if event was prevented');
             }, 800);
@@ -368,7 +473,7 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 startdelayed = true;
             });
-            test.mycountrymodel.loadPromise().then(
+            test.countries.loadPromise().then(
                 function() {
                     test.resume(function(){
                         Y.Assert.isTrue(startdelayed, 'loadPromise is fulfilled before the synclayer is finished');
@@ -385,32 +490,47 @@ YUI.add('module-tests', function(Y) {
         '21. check error-event': function() {
             var test = this,
                 errorevent = false;
-            test.mycountrymodel.on('error', function() {
+            test.countries.on('error', function() {
                 errorevent = true;
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(function(){
                 Y.Assert.isFalse(errorevent, 'error event occured while the sync should be ok');
             }, 800);
+        },
+        '21b. size modellist': function() {
+            var test = this,
+                delayed = false;
+            Y.later(400, null, function() {
+                delayed = true;
+            });
+            test.countries.after('load', function() {
+                test.resume(function(){
+                    Y.Assert.areEqual(3, test.countries.size(), 'ModelList does not have the right number of items');
+                });
+            });
+            test.countries.load();
+            this.wait(800);
         }
     }));
 
     suite.add(new Y.Test.Case({
         name: 'Check load when sync has error',
         setUp : function () {
-            this.mycountrymodel = new Y.CountryModelError({id: 1});
+            this.countries = new Y.CountriesError();
         },
         tearDown : function () {
-            this.mycountrymodel.destroy();
+            this.countries.destroymodels({remove: false});
+            this.countries.destroy();
         },
         '22. On-event in time': function() {
             var test = this;
-            test.mycountrymodel.on('load', function() {
+            test.countries.on('load', function() {
                 test.resume(function(){
                     Y.Assert.pass();
                 });
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(200);
         },
         '23. After-event not too early': function() {
@@ -419,45 +539,45 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 delayed = true;
             });
-            test.mycountrymodel.after('error', function() {
+            test.countries.after('error', function() {
                 test.resume(function(){
                     Y.Assert.isTrue(delayed, 'Model\'s after-load is executed before the synclayer started');
                 });
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(800);
         },
         '24. After syncing with failure instance should not get value': function() {
             var test = this,
                 delayed = false;
-            test.mycountrymodel.after('error', function() {
+            test.countries.after('error', function() {
                 test.resume(function(){
-                    Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded wrong value');
+                    Y.Assert.areSame(0, test.countries.size(), 'Model loaded wrong value');
                 });
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(800);
         },
         '25. DefaultFn not executed when prevented': function() {
             var test = this;
-            test.mycountrymodel.on('load', function(e) {
+            test.countries.on('load', function(e) {
                 e.preventDefault();
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(function(){
-                Y.Assert.areNotSame('The Netherlands', test.mycountrymodel.get('Country'), 'Model loaded wrong value');
+                Y.Assert.areSame(0, test.countries.size(), 'Model loaded wrong value');
             }, 800);
         },
         '26. After-event not executed when prevented': function() {
             var test = this,
                 afterevent = false;
-            test.mycountrymodel.on('load', function(e) {
+            test.countries.on('load', function(e) {
                 e.preventDefault();
             });
-            test.mycountrymodel.after('error', function() {
+            test.countries.after('error', function() {
                 afterevent = true;
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(function(){
                 Y.Assert.isFalse(afterevent, 'Model\'s after-dload is executed even if event was prevented');
             }, 800);
@@ -468,7 +588,7 @@ YUI.add('module-tests', function(Y) {
             Y.later(400, null, function() {
                 startdelayed = true;
             });
-            test.mycountrymodel.loadPromise().then(
+            test.countries.loadPromise().then(
                 function() {
                     if (startdelayed) {
                         test.resume(function(){
@@ -483,7 +603,7 @@ YUI.add('module-tests', function(Y) {
                 },
                 function(reason) {
                     test.resume(function(){
-                       Y.Assert.areSame('Error during loading', reason.message, 'syncing with error: loadPromise is rejected as should be, but the error is different');
+                       Y.Assert.areSame('Server time-out (simulated)', reason.message, 'syncing with error: loadPromise is rejected as should be, but the error is different');
                     });
                 }
             );
@@ -492,16 +612,28 @@ YUI.add('module-tests', function(Y) {
         '28. check error-event': function() {
             var test = this,
                 errorevent = false;
-            test.mycountrymodel.on('error', function() {
+            test.countries.on('error', function() {
                 errorevent = true;
             });
-            test.mycountrymodel.load();
+            test.countries.load();
             this.wait(function(){
                 Y.Assert.isTrue(errorevent, 'error event did not occur while the sync returned an error');
             }, 800);
+        },
+        '28b. size modellist when error': function() {
+            var test = this;
+            test.countries.loadPromise().then(
+                null,
+                function(reason) {
+                    test.resume(function(){
+                       Y.Assert.areSame(0, test.countries.size(), 'Modellist does not have the right number of items');
+                    });
+                }
+            );
+            this.wait(800);
         }
     }));
-
+/*
     //=== testing save NEW model
     suite.add(new Y.Test.Case({
         name: 'Check save new model when sync goes well',
@@ -1215,7 +1347,7 @@ YUI.add('module-tests', function(Y) {
             }, 800);
         }
     }));
-
+*/
     Y.Test.Runner.add(suite);
 
-},'', { requires: [ 'test', 'event-custom-base', 'model', 'gallery-itsamodelsyncpromise' ] });
+},'', { requires: [ 'test', 'event-custom-base', 'model', 'model-list', 'gallery-itsaformmodel', 'gallery-itsamodellistsyncpromise' ] });

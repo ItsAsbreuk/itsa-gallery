@@ -37,7 +37,8 @@
             <li><code>savePromise()</code></li>
             <li><code>submitPromise()</code> (only with Y.ITSAFormModel instances)</li>
         </ul>
-        All these methods return Promises.
+        All these methods return Promises.<br>
+        <b>Note:</b> Be aware that -if one or more models fail- the promise will be rejected. It only will be fulfilled if <u>all</u> models succeed syncing.
     </p>
 
 <h3>Promised synclayer</h3>
