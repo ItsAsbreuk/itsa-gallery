@@ -290,6 +290,22 @@ ITSAViewModelPanel.prototype.initializer = function() {
     */
 
     /**
+     * Internal flag that indicates wheter the panel is set locked just before another lockPanel command is about to execute
+     * @property _lockedBefore
+     * @private
+     * @default null
+     * @type Boolean
+    */
+
+    /**
+     * Internal flag that indicates wheter the panel is set locked
+     * @property _locked
+     * @private
+     * @default null
+     * @type Boolean
+    */
+
+    /**
      * Internal list of all eventhandlers bound by this widget.
      * @property _eventhandlers
      * @private
@@ -452,9 +468,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 var itsatabkeymanager = contentBox.itsatabkeymanager;
                 if (itsatabkeymanager) {
                     itsatabkeymanager.refresh(contentBox);
-                    if (instance.get(VISIBLE)) {
+                    if (instance.get(VISIBLE) && !instance._locked) {
                         // first enable the UI againbecause we need enabled element to set the focus
-                        instance.unlockPanel();
                         itsatabkeymanager.focusInitialItem();
                     }
                 }
@@ -611,7 +626,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                         model.UIToModel();
                     }
                     // Caution: need to lockPanel AFTER UIToModel, because the changeevent would unlock again
-                    instance.lockPanel();
+                    instance._lockedBefore = instance._locked;
+                    instance.lockPanel(true);
                     instance._setSpin(eventType, true);
     /*jshint expr:true */
                     (eventType===DESTROY) || promise.then(
@@ -626,8 +642,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                         function() {
                             var itsatabkeymanager = contentBox.itsatabkeymanager;
                             instance._setSpin(eventType, false);
-                            instance.unlockPanel();
         /*jshint expr:true */
+                            instance._lockedBefore || instance.unlockPanel();
                             itsatabkeymanager && itsatabkeymanager.focusInitialItem();
         /*jshint expr:false */
                         }
@@ -670,6 +686,7 @@ ITSAViewModelPanel.prototype.lockPanel = function() {
     bodyview.lockView();
 /*jshint expr:true */
     footerview ? footerview.lockView() : instance._footercont.all('button').addClass(PURE_BUTTON_DISABLED);
+    arguments[0] || (instance._locked=true);
 /*jshint expr:false */
 };
 
@@ -691,6 +708,7 @@ ITSAViewModelPanel.prototype.unlockPanel = function() {
 /*jshint expr:true */
     footerview ? footerview.unlockView() : instance._footercont.all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
+    instance._locked = false;
 };
 
 /**
