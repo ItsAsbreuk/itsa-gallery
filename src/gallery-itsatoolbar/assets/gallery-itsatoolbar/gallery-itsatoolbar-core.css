@@ -16,7 +16,7 @@
     display: -moz-inline-stack;
     display: inline-block;
     *display: inline;
-
+    *zoom: 1;
     height: 19px;
     vertical-align: middle;
     width: 20px;
@@ -48,7 +48,7 @@
     display: -moz-inline-stack;
     display: inline-block;
     *display: inline;
-
+    *zoom: 1;
     padding: 2px;
     border: solid 1px #FFF;
 }
@@ -149,7 +149,7 @@
     display: -moz-inline-stack;
     display: inline-block;
     *display: inline;
-
+    *zoom: 1;
     background-color:#E6E6E6;
 
     -webkit-touch-callout: none;
