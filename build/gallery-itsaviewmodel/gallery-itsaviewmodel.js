@@ -687,6 +687,22 @@ ITSAViewModel.prototype.initializer = function() {
     */
 
     /**
+     * Internal flag that indicates wheter the view is set locked just before another lockView command is about to execute
+     * @property _lockedBefore
+     * @private
+     * @default null
+     * @type Boolean
+    */
+
+    /**
+     * Internal flag that indicates wheter the view is set locked
+     * @property _locked
+     * @private
+     * @default null
+     * @type Boolean
+    */
+
+    /**
      * Internal list of all eventhandlers bound by this widget.
      * @property _eventhandlers
      * @private
@@ -823,6 +839,7 @@ ITSAViewModel.prototype.lockView = function() {
 /*jshint expr:true */
     canDisableModel ? model.disableUI() : instance.get('container').all('button').addClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
+    instance._locked = true;
 };
 
 /**
@@ -1156,6 +1173,7 @@ ITSAViewModel.prototype.unlockView = function() {
 /*jshint expr:true */
     canEnableModel ? model.enableUI() : instance.get('container').all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
+    instance._locked = false;
 };
 
 /**
@@ -1294,6 +1312,7 @@ ITSAViewModel.prototype._bindUI = function() {
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
+                    instance._lockedBefore = instance._locked;
                     instance.lockView();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
@@ -1312,7 +1331,7 @@ ITSAViewModel.prototype._bindUI = function() {
                         function() {
                             var itsatabkeymanager = container.itsatabkeymanager;
                             instance._setSpin(eventType, false);
-                            instance.unlockView();
+                            instance._lockedBefore || instance.unlockView();
                             itsatabkeymanager && itsatabkeymanager.focusInitialItem();
                         }
                     );
@@ -1470,14 +1489,6 @@ ITSAViewModel.prototype._bindUI = function() {
  * @since 0.3
  *
 */
-
-/**
- * Destroys the view's model-instance.
- *
- * @method modelDestroy
- * @since 0.3
- *
-*/
 YArray.each(
     [SAVE_FIRSTCAP, SUBMIT_FIRSTCAP, LOAD_FIRSTCAP, DESTROY_FIRSTCAP, RESET_FIRSTCAP],
     function(fn) {
@@ -1533,18 +1544,6 @@ YArray.each(
  *                 implementation to determine what options it supports or requires, if any.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
  * @since 0.3
- *
-*/
-
-/**
- * Destroys the view's model-instance. using model.destroyPromise().
- *
- * @method modelDestroyPromise
- * @since 0.3
- * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
- *                 implementation to determine what options it supports or requires, if any.
- * @return {Y.Promise} promised response --> resolve(response) OR reject(reason).
- * @return
  *
 */
 YArray.each(
