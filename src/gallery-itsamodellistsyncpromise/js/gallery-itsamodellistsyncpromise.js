@@ -1,31 +1,13 @@
 'use strict';
 
+/*jshint maxlen:175 */
+
 /**
  *
- * Extention ITSAModellistSyncPromise
+ * This module extends Y.ModelList by introducing Promised sync-methods. It also transforms Y.ModelList's sync-events into true events
+ * with a defaultFunc which can be prevented. This means the 'on'-events will be fired before syncing and the 'after'-events after syncing.
  *
- *
- * Extends Y.ModelList with Promised sync-methods. The ModelList's synclayer can be made just as usual, defining these actions:
- * <br /><br />
- * 'create'
- * 'destroy'
- * 'read'
- * 'readappend'
- * 'save'
- * 'submit'
- * 'update'
- * <br /><br />
- * Instead of calling ModelList.load() you should use:
- * <br />
- * <b>ModelList.loadPromise(options)</b> --> to append the read-models --> options = {append: true};
- * <br /><br />
- * Also, there are 3 extra Promises, which -in this current version- <b>all depends</b> on the Model's synclayer, not ModelLists synclayer:
- * <br />
- * <b>ModelList.destroyPromise()</b><br />
- * <b>ModelList.savePromise()</b><br />
- * <b>ModelList.submitPromise()</b>
- *
- * @module gallery-itsamodelsyncpromise
+ * @module gallery-itsamodellistsyncpromise
  * @class Y.ModelList
  * @constructor
  * @since 0.1
@@ -41,6 +23,7 @@
        READ = 'read',
        APPEND = 'append',
        READAPPEND = READ+APPEND,
+       DEFFN = '_defFn_',
    /**
      * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
      * the sync layer submit-function returns an error.
@@ -61,53 +44,56 @@
     ERROR = 'error',
 
     /**
-     * Fired after all changed models of the modellist is saved through the Model-sync layer.
+     * Fired when all changed models of the modellist are saved through the Model-sync layer.
      * @event save
      * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param e.promise {Y.Promise} promise passed by with the eventobject
+     * @param e.promiseReject {Function} handle to the reject-method
+     * @param e.promiseResolve {Function} handle to the resolve-method
      * @since 0.1
     **/
     SAVE = 'save',
 
    /**
-     * Fired after models are submitted through the Model-sync layer.
+     * Fired when models are submitted through the Model-sync layer.
      * @event submit
      * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.parsed] {Object} The parsed version of the sync layer's response to the submit-request, if there was a response.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param e.promise {Y.Promise} promise passed by with the eventobject
+     * @param e.promiseReject {Function} handle to the reject-method
+     * @param e.promiseResolve {Function} handle to the resolve-method
      * @since 0.1
     **/
     SUBMIT = 'submit',
 
    /**
-     * Fired after models are appended to the ModelList by the ModelList-sync layer.
-     * @event loadappend
-     * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
-     * @since 0.1
-    **/
-    LOADAPPEND = 'loadappend',
-
-   /**
-     * Fired after models are read from the ModelList-sync layer.
+     * Fired when models are read from the ModelList-sync layer.
      * @event load
      * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param e.promise {Y.Promise} promise passed by with the eventobject
+     * @param e.promiseReject {Function} handle to the reject-method
+     * @param e.promiseResolve {Function} handle to the resolve-method
      * @since 0.1
     **/
     LOAD = 'load',
 
    /**
-     * Fired after models are destroyed from the ModelList-sync layer.
-     * @event destroy
+     * Fired when models are appended to the ModelList by the ModelList-sync layer.
+     * @event loadappend
      * @param e {EventFacade} Event Facade including:
-     * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
-     * @param [e.response] {any} The sync layer's raw, unparsed response to the submit-request, if there was one.
+     * @param e.promise {Y.Promise} promise passed by with the eventobject
+     * @param e.promiseReject {Function} handle to the reject-method
+     * @param e.promiseResolve {Function} handle to the resolve-method
+     * @since 0.1
+    **/
+    LOADAPPEND = LOAD+APPEND,
+
+   /**
+     * Fired when models are destroyed from the ModelList-sync layer.
+     * @event destroymodels
+     * @param e {EventFacade} Event Facade including:
+     * @param e.promise {Y.Promise} promise passed by with the eventobject
+     * @param e.promiseReject {Function} handle to the reject-method
+     * @param e.promiseResolve {Function} handle to the resolve-method
      * @since 0.1
     **/
     DESTROY = 'destroy',
@@ -129,6 +115,249 @@
         }
         return response || {};
     };
+
+/**
+  * Destroys this model instance and removes it from its containing lists, if any. The 'callback', if one is provided,
+  * will be called after the model is destroyed.<br /><br />
+  * If `options.remove` is `true`, then this method delegates to the `sync()` method to delete the model from the persistence layer, which is an
+  * asynchronous action. In this case, the 'callback' (if provided) will be called after the sync layer indicates success or failure of the delete operation.
+  * <br /><br />
+  * To keep track of the proccess, it is preferable to use <b>destroyPromise()</b>.<br />
+  * This method will fire an `error` event when syncing (using options.remove=true) should fail.
+  * <br /><br />
+  * <b>CAUTION</b> The sync-method with action 'destroy' <b>must call its callback-function</b> in order to work as espected!
+  *
+  * @method destroymodels
+  * @param {Object} [options] Sync options. It's up to the custom sync implementation to determine what options it supports or requires, if any.
+  *   @param {Boolean} [options.remove=false] If `true`, the model will be deleted via the sync layer in addition to the instance being destroyed.
+  * @param {callback} [callback] Called after the model has been destroyed (and deleted via the sync layer if `options.remove` is `true`).
+  *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. Otherwise 'err' will be null.
+  *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
+  * @chainable
+*/
+
+/**
+ * Destroys this model instance and removes it from its containing lists, if any.
+ * <br /><br />
+ * If `options.remove` is `true`, then this method delegates to the `sync()`
+ * method to delete the model from the persistence layer, which is an
+ * asynchronous action.
+ * <br /><br />
+  * This method will fire an `error` event when syncing (using options.remove=true) should fail.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'destroy' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method destroymodelsPromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
+**/
+
+/**
+ * Destroys this model instance and removes it from its containing lists, if any.
+ * <br /><br />
+ * Deprecated, use destroyModelsPromise instead (as long as available both methods ect the same).
+ * <br /><br />
+  * This method will fire an `error` event when syncing (using options.remove=true) should fail.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'destroy' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method destroyPromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
+ * @deprecated
+**/
+
+/**
+  * Loads this model from the server.<br />
+  * This method delegates to the `sync()` method to perform the actual load
+  * operation, which is an asynchronous action. Specify a 'callback' function to
+  * be notified of success or failure.
+  * <br /><br />
+  * An unsuccessful load operation will fire an `error` event with the `src` value "load".
+  * <br /><br />
+  * If the load operation succeeds and one or more of the loaded attributes
+  * differ from this model's current attributes, a `change` event will be fired.
+  * <br /><br />
+  * To keep track of the proccess, it is preferable to use <b>loadPromise()</b>.<br />
+  * This method will fire 2 events: 'loadstart' before syncing and 'load' or ERROR after syncing.
+  * <br /><br />
+  * <b>CAUTION</b> The sync-method with action 'load' <b>must call its callback-function</b> in order to work as espected!
+  *
+  * @method load
+  * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
+  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+  * @param {callback} [callback] Called when the sync operation finishes.
+  *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. If the sync operation succeeded, 'err' will be null.
+  *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
+  * @chainable
+ */
+
+/**
+ * Loads this model from the server.
+ * <br /><br />
+ * This method delegates to the `sync()` method to perform the actual load
+ * operation, which is an asynchronous action.
+ * <br /><br />
+ * An unsuccessful load operation will fire an `error` event with the `src` value "load".
+ * <br /><br />
+ * If the load operation succeeds and one or more of the loaded attributes
+ * differ from this model's current attributes, a `change` event will be fired.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'load' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method loadPromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
+**/
+
+/**
+  * Loads this model from the server.<br />
+  * This method delegates to the `sync()` method to perform the actual load
+  * operation, which is an asynchronous action. Specify a 'callback' function to
+  * be notified of success or failure.
+  * <br /><br />
+  * An unsuccessful load operation will fire an `error` event with the `src` value "load".
+  * <br /><br />
+  * If the load operation succeeds and one or more of the loaded attributes
+  * differ from this model's current attributes, a `change` event will be fired.
+  * <br /><br />
+  * To keep track of the proccess, it is preferable to use <b>loadPromise()</b>.<br />
+  * This method will fire 2 events: 'loadstart' before syncing and 'load' or ERROR after syncing.
+  * <br /><br />
+  * <b>CAUTION</b> The sync-method with action 'load' <b>must call its callback-function</b> in order to work as espected!
+  *
+  * @method loadappend
+  * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
+  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+  * @param {callback} [callback] Called when the sync operation finishes.
+  *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. If the sync operation succeeded, 'err' will be null.
+  *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
+  * @chainable
+ */
+
+/**
+ * Loads this model from the server.
+ * <br /><br />
+ * This method delegates to the `sync()` method to perform the actual load
+ * operation, which is an asynchronous action.
+ * <br /><br />
+ * An unsuccessful load operation will fire an `error` event with the `src` value "load".
+ * <br /><br />
+ * If the load operation succeeds and one or more of the loaded attributes
+ * differ from this model's current attributes, a `change` event will be fired.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'load' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method loadappendPromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
+**/
+
+/**
+ * Saves this model to the server.
+ *
+ * This method delegates to the `sync()` method to perform the actual save operation, which is an asynchronous action.
+ * Specify a 'callback' function to be notified of success or failure.
+ * <br /><br />
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ * <br /><br />
+ * If the save operation succeeds and one or more of the attributes returned in the server's response differ from this model's current attributes,
+ * a `change` event will be fired.
+ * <br /><br />
+ * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
+ * <br /><br />
+ * To keep track of the process, it is preferable to use <b>savePromise()</b>.<br />
+ * This method will fire 2 events: 'savestart' before syncing and 'save' or ERROR after syncing.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method save
+ * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
+ *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ * @param {Function} [callback] Called when the sync operation finishes.
+ *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
+ *                                    If the sync operation succeeded, 'err' will be null.
+ *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method,
+ *                                  which is expected to parse it and return an attribute hash.
+ * @chainable
+*/
+
+/**
+ * Saves this model to the server.
+ * <br /><br />
+ * This method delegates to the `sync()` method to perform the actual save
+ * operation, which is an asynchronous action.
+ * <br /><br />
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ * <br /><br />
+ * If the save operation succeeds and one or more of the attributes returned in
+ * the server's response differ from this model's current attributes, a
+ * `change` event will be fired.
+ * <br /><br />
+ * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method savePromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
+**/
+
+/**
+ * Saves this model to the server.
+ *
+ * This method delegates to the `sync()` method to perform the actual save operation, which is an asynchronous action.
+ * Specify a 'callback' function to be notified of success or failure.
+ * <br /><br />
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ * <br /><br />
+ * If the save operation succeeds and one or more of the attributes returned in the server's response differ from this model's current attributes,
+ * a `change` event will be fired.
+ * <br /><br />
+ * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
+ * <br /><br />
+ * To keep track of the process, it is preferable to use <b>savePromise()</b>.<br />
+ * This method will fire 2 events: 'savestart' before syncing and 'save' or ERROR after syncing.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method submit
+ * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
+ *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ * @param {Function} [callback] Called when the sync operation finishes.
+ *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
+ *                                    If the sync operation succeeded, 'err' will be null.
+ *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method,
+ *                                  which is expected to parse it and return an attribute hash.
+ * @chainable
+*/
+
+/**
+ * Saves this model to the server.
+ * <br /><br />
+ * This method delegates to the `sync()` method to perform the actual save
+ * operation, which is an asynchronous action.
+ * <br /><br />
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ * <br /><br />
+ * If the save operation succeeds and one or more of the attributes returned in
+ * the server's response differ from this model's current attributes, a
+ * `change` event will be fired.
+ * <br /><br />
+ * If the operation succeeds, but you let the server return an <b>id=-1</b> then the model is assumed to be destroyed. This will lead to fireing the `destroy` event.
+ * <br /><br />
+ * <b>CAUTION</b> The sync-method with action 'save' <b>must call its callback-function</b> in order to work as espected!
+ *
+ * @method submitPromise
+ * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
+**/
 
 YArray.each(
     [LOAD, LOADAPPEND, SAVE, SUBMIT, DESTROYMODELS],
@@ -159,6 +388,302 @@ YArray.each(
 );
 
 /**
+ * Private function that creates the promises for all promise-events
+ *
+ * @method _createPromise
+ * @param type {String} Method to create a promise for
+ * @param options {Object} options to be send with the event
+ * @private
+ * @since 0.3
+*/
+YModelList.prototype._createPromise = function(type, options) {
+    var instance = this,
+        promise, promiseResolve, promiseReject, extraOptions;
+
+    Y.log('_createPromise', 'info', 'ITSA-ModelSyncPromise');
+    promise = new Y.Promise(function (resolve, reject) {
+        promiseResolve = resolve;
+        promiseReject = reject;
+    });
+    // we pass the promise, together with the resolve and reject handlers as an option to the event.
+    // this way we can fullfill the promise in the defaultFn or prevDefaultFn.
+    extraOptions = {
+        promise: promise,
+        promiseResolve: promiseResolve,
+        promiseReject: promiseReject,
+        response: '', // making available at the after listener
+        parsed: {}, // making available at the after listener
+        options: Y.merge(options) // making passing only optins to other events possible
+    };
+/*jshint expr:true */
+    (typeof options==='object') && YObject.each(
+        options,
+        function(value, key) {
+            extraOptions[key] = value;
+        }
+    );
+    // lazy publish the event
+    instance[PUBLISHED+type] || (instance[PUBLISHED+type]=instance._publishAsync(type,
+                                                                                {
+                                                                                  defaultTargetOnly: true,
+                                                                                  emitFacade: true,
+                                                                                  defaultFn: instance[DEFFN+type],
+                                                                                  preventedFn: instance._prevDefFn
+                                                                                }
+                                                                               ));
+/*jshint expr:false */
+    instance.fire(type, extraOptions);
+    return promise;
+};
+
+/**
+ * Destroys all models within this modellist.
+ * <b>Caution:</b> The current version uses the Model's synclayer, NOT ModelList's synclayer.
+ *
+ * This method delegates to the Model's`sync()` method to perform the actual destroy
+ * operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
+ * make the promise work.
+ *
+ * An unsuccessful destroy operation will fire an `error` event with the `src` value "destroy".
+ *
+ * @method _defFn_destroymodels
+ * @private
+ * @param {Object} [options] Options to be passed to all Model's`sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+**/
+YModelList.prototype[DEFFN+DESTROYMODELS] = function(e) {
+    var instance = this,
+        destroylist = [],
+        options = e.options;
+
+    Y.log('_defFn_destroymodels', 'info', 'Itsa-ModellistSyncPromise');
+    instance.each(
+        function(model) {
+            destroylist.push(model.destroyPromise(options));
+        }
+    );
+    Y.batch.apply(Y, destroylist).then(
+//            Y.Promise.every(destroylist).then(
+        function(response) {
+            e.promiseResolve(response);
+        },
+        function(err) {
+            e.promiseReject(new Error(err));
+        }
+    );
+    return e.promise;
+};
+
+/**
+ * Loads models from the server and adds them into the ModelList.<br />
+ * Previous items will be retained: new will be added.<br /><br />
+ *
+ * This method delegates to the `sync()` method, by using the 'readappend' action.
+ * This is an asynchronous action. You <b>must</b> specify a _callback_ function to
+ * make the promise work.
+ *
+ * An unsuccessful load operation will fire an `error` event with the `src` value "loadappend".
+ *
+ * If the load operation succeeds and one or more of the loaded attributes
+ * differ from this model's current attributes, a `change` event will be fired for every Model.
+ *
+ * @method _defFn_loadappend
+ * @param {Object} [options] Options to be passed to `sync()`. The custom sync
+ *                 implementation can determine what options it supports or requires, if any.
+ * @private
+ * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+**/
+
+/**
+ * Loads models from the server and adds them into the ModelList.<br />
+ * Previous items will be replaced. Use loadappendPromise to append the items.<br /><br />
+ *
+ * This method delegates to the `sync()` method, by using the 'read' action.
+ * This is an asynchronous action. You <b>must</b> specify a _callback_ function to
+ * make the promise work.
+ *
+ * An unsuccessful load operation will fire an `error` event with the `src` value "load".
+ *
+ * If the load operation succeeds and one or more of the loaded attributes
+ * differ from this model's current attributes, a `change` event will be fired for every Model.
+ *
+ * @method _defFn_load
+ * @param {Object} [options] Options to be passed to `sync()`. The custom sync
+ *                 implementation can determine what options it supports or requires, if any.
+ * @private
+ * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+**/
+YArray.each(
+    [LOAD, LOADAPPEND],
+    function(eventType) {
+        YModelList.prototype[DEFFN+eventType] = function (e) {
+            var instance = this,
+                readsync = (eventType===LOADAPPEND) ? READAPPEND : READ,
+                options = e.options,
+                errFunc, successFunc;
+
+            Y.log(DEFFN+eventType, 'info', 'ITSA-ModelListSyncPromise');
+            errFunc = function(err) {
+                var facade = {
+                    options: options,
+                    error: err,
+                    src: eventType
+                };
+                instance._lazyFireErrorEvent(facade);
+                e.promiseReject(new Error(err));
+            };
+            successFunc = function(response) {
+                var parsed;
+                e.response = response;
+                parsed = PARSED(response);
+                if (parsed.responseText) {
+                    // XMLHttpRequest
+                    parsed = parsed.responseText;
+                }
+                e.parsed = parsed;
+                //options.append is for compatiblility with previous versions
+                // where you could call: loadPromise({append: true});
+                if ((eventType===LOADAPPEND) || options.append) {
+                    instance.add(parsed, options);
+                }
+                else {
+                    instance.reset(parsed, options);
+                }
+                e.promiseResolve(response);
+            };
+            if (instance.syncPromise) {
+                // use the syncPromise-layer
+                instance._syncTimeoutPromise(readsync, options).then(
+                    successFunc,
+                    errFunc
+                );
+            }
+            else {
+                instance.sync(readsync, options, function (err, response) {
+                    if (err) {
+                        errFunc(err);
+                    }
+                    else {
+                        successFunc(response);
+                    }
+                });
+            }
+            return e.promise;
+        };
+    }
+);
+
+/**
+ * Saves all modified models within this modellist to the server.
+ * <b>Caution:</b> within the current version the Model's synclayer is used, NOT ModelList's synclayer.
+ * Therefore, you get multiple requests for all modified Models.
+ *
+ * This method delegates to the Model's`sync()` method to perform the actual save
+ * operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
+ * make the promise work.
+ *
+ * An unsuccessful save operation will fire an `error` event with the `src` value "save".
+ *
+ * If the save operation succeeds and one or more of the attributes returned in
+ * the server's response differ from this model's current attributes, a
+ * `change` event will be fired.
+ *
+ * @method _defFn_save
+ * @param {Object} [options] Options to be passed to all Model's`sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @private
+ * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+**/
+YModelList.prototype[DEFFN+SAVE] = function(e) {
+    var instance = this,
+        savelist = [],
+        options = e.options;
+
+    Y.log('_defFn_save', 'info', 'Itsa-ModellistSyncPromise');
+    instance.each(
+        function(model) {
+            if (model.isModified()) {
+                savelist.push(model.savePromise(options));
+            }
+        }
+    );
+    Y.batch.apply(Y, savelist).then(
+//            Y.Promise.every(savelist).then(
+        function(response) {
+            e.promiseResolve(response);
+        },
+        function(err) {
+            e.promiseReject(new Error(err));
+        }
+    );
+    return e.promise;
+};
+
+/**
+ * Submits all models within this modellist to the server.
+ * <b>Caution:</b> within the current version the Model's synclayer is used, NOT ModelList's synclayer.
+ * Therefore, you get multiple requests for all Models.
+ *
+ * This method delegates to the Model's`sync()` method to perform the actual submit
+ * operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
+ * make the promise work.
+ *
+ * An unsuccessful submit operation will fire an `error` event with the `src` value "submit".
+ *
+ * @method _defFn_submit
+ * @param {Object} [options] Options to be passed to all Model's`sync()`. It's up to the custom sync
+ *                 implementation to determine what options it supports or requires, if any.
+ * @private
+ * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
+**/
+YModelList.prototype[DEFFN+SUBMIT] = function(e) {
+    var instance = this,
+        submitlist = [],
+        options = e.options;
+
+    Y.log('_defFn_submit', 'info', 'Itsa-ModellistSyncPromise');
+    instance.each(
+        function(model) {
+/*jshint expr:true */
+            model.submitPromise && submitlist.push(model.submitPromise(options));
+/*jshint expr:false */
+        }
+    );
+    Y.batch.apply(Y, submitlist).then(
+//            Y.Promise.every(submitlist).then(
+        function(response) {
+            e.promiseResolve(response);
+        },
+        function(err) {
+            e.promiseReject(new Error(err));
+        }
+    );
+    return e.promise;
+};
+
+/**
+ * Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
+ * Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
+ *
+ * @method _lazyFireErrorEvent
+ * @param {Object} [facade] eventfacade.
+ * @private
+**/
+YModelList.prototype._lazyFireErrorEvent = function(facade) {
+    var instance = this;
+
+    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
+    // lazy publish
+    if (!instance._errorEvent) {
+        instance._errorEvent = instance.publish(ERROR, {
+            broadcast: 1
+        });
+    }
+    instance.fire(ERROR, facade);
+};
+
+/**
    * Hack with the help of Luke Smith: https://gist.github.com/lsmith/6664382/d688740bb91f9ecfc3c89456a82f30d35c5095cb
    * Variant of publish(), but works with asynchronious defaultFn and preventedFn.
    *
@@ -166,7 +691,7 @@ YArray.each(
    * by that name already exists, it will not be re-created.  In either
    * case the custom event is returned.
    *
-   * @method publishAsync
+   * @method _publishAsync
    *
    * @param type {String} the type, or name of the event
    * @param opts {object} optional config params.  Valid properties are:
@@ -224,13 +749,15 @@ YArray.each(
    *    </li>
    *  </ul>
    *
+   *  @private
    *  @return {CustomEvent} the custom event
    *
   **/
-YModelList.prototype.publishAsync = function(type, opts) {
+YModelList.prototype._publishAsync = function(type, opts) {
     var instance = this,
         asyncEvent = this.publish(type, opts);
 
+    Y.log('_publishAsync', 'info', 'ITSA-ModelSyncPromise');
     asyncEvent._firing = new Y.Promise(function (resolve) { resolve(); });
 
     asyncEvent.fire = function (data) {
@@ -311,10 +838,10 @@ YModelList.prototype.publishAsync = function(type, opts) {
         },
         function(reason) {
             var facade = {
-                error   : reason,
-                src     : 'ModelList.publishAsync()'
+                error   : (reason && (reason.message || reason)),
+                src     : 'ModelList._publishAsync()'
             };
-            Y.log("Error in publishAsync: " + (reason && (reason.message || reason)), ERROR);
+            Y.log("Error in _publishAsync: " + (reason && (reason.message || reason)), ERROR);
             instance._lazyFireErrorEvent(facade);
         });
     };
@@ -322,403 +849,6 @@ YModelList.prototype.publishAsync = function(type, opts) {
     asyncEvent._fire = function (args) {
         return asyncEvent.fire(args[0]);
     };
-};
-
-/**
- * DefaultFn for the 'save'-event
- *
- * @method _createPromise
- * @param e {EventTarget}
- * @param e.promise {Y.Promise} promise passed by with the eventobject
- * @param e.promiseReject {Function} handle to the reject-method
- * @param e.promiseResolve {Function} handle to the resolve-method
- * @private
- * @since 0.3
-*/
-YModelList.prototype._createPromise = function(type, options) {
-    var instance = this,
-        promise, promiseResolve, promiseReject, extraOptions;
-
-    Y.log('_createPromise', 'info', 'ITSA-ModelSyncPromise');
-    promise = new Y.Promise(function (resolve, reject) {
-        promiseResolve = resolve;
-        promiseReject = reject;
-    });
-    // we pass the promise, together with the resolve and reject handlers as an option to the event.
-    // this way we can fullfill the promise in the defaultFn or prevDefaultFn.
-    extraOptions = {
-        promise: promise,
-        promiseResolve: promiseResolve,
-        promiseReject: promiseReject,
-        response: '', // making available at the after listener
-        parsed: {}, // making available at the after listener
-        options: Y.merge(options) // making passing only optins to other events possible
-    };
-/*jshint expr:true */
-    (typeof options==='object') && YObject.each(
-        options,
-        function(value, key) {
-            extraOptions[key] = value;
-        }
-    );
-    // lazy publish the event
-    instance[PUBLISHED+type] || (instance[PUBLISHED+type]=instance.publishAsync(type,
-                                                                                {
-                                                                                  defaultTargetOnly: true,
-                                                                                  emitFacade: true,
-                                                                                  defaultFn: instance['_defFn_'+type],
-                                                                                  preventedFn: instance._prevDefFn
-                                                                                }
-                                                                               ));
-/*jshint expr:false */
-    instance.fire(type, extraOptions);
-    return promise;
-};
-
-/**
- * Fired when all models are destroyed. In case {remove: true} is used, the after-event occurs after the synlayer is finished.
- * @event destroymodels
- * @param e {EventFacade} Event Facade including:
- * @param e.promise {Promise} The promise that is automaticly created during the event. You could examine this instead of listening to both the `after`- and `error`-event.
- * @param [e.options] {Object} The options=object that was passed to the sync-layer, if there was one.
- * @since 0.1
-**/
-
-/**
-* Destroys all models within this modellist.
-* <b>Caution:</b> The current version uses the Model's synclayer, NOT ModelList's synclayer.
-*
-* This method delegates to the Model's`sync()` method to perform the actual destroy
-* operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
- * make the promise work.
-*
-* A successful destroy operation will fire a `destroy` event, while an unsuccessful
-* save operation will fire an `error` event with the `src` value "destroy".
-*
-* @method _defFn_destroy
- * @param {Object} [options] Options to be passed to all Model's`sync()`. It's up to the custom sync
- *                 implementation to determine what options it supports or requires, if any.
- * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
-**/
-YModelList.prototype._defFn_destroy = function(e) {
-    var instance = this,
-        destroylist = [],
-        options = e.options;
-
-    Y.log('_defFn_destroy', 'info', 'Itsa-ModellistSyncPromise');
-    instance.each(
-        function(model) {
-            destroylist.push(model.destroyPromise(options));
-        }
-    );
-    return Y.batch.apply(Y, destroylist).then(
-//            return Y.Promise.every(destroylist).then(
-        function(data) {
-            var facade = {
-                options : options,
-                src : DESTROY
-            };
-            // Lazy publish.
-            if (!instance._destroyEvent) {
-                instance._destroyEvent = instance.publish(DESTROY, {
-                    preventable: false
-                });
-            }
-            instance.fire(DESTROY, facade);
-            return data;
-        },
-        function(err) {
-            var facade = {
-                options : options,
-                src : DESTROY,
-                error: err
-            };
-            instance._lazyFireErrorEvent(facade);
-            return err;
-        }
-    );
-};
-
-/**
- * Loads models from the server and adds them into the ModelList. <br />
- * Without options, previous items will be replaced. Use loadPromise({append: true}) to append the items.<br /><br />
- *
- * This method delegates to the `sync()` method, by either using the 'read' or 'readappend' action, depending
- * on the value of parameter options.append.
- * This is an asynchronous action. You <b>must</b> specify a _callback_ function to
- * make the promise work.
- *
- * A successful load operation will fire a `load` event, while an unsuccessful
- * load operation will fire an `error` event with the `src` value "load".
- *
- * If the load operation succeeds and one or more of the loaded attributes
- * differ from this model's current attributes, a `change` event will be fired for every Model.
- *
- * @method _defFn_load
- * @param {Object} [options] Options to be passed to `sync()`. The custom sync
- *                 implementation can determine what options it supports or requires, if any.
- * @param {Boolean} [options.append] Set true if you want to append items.
- * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
-**/
-YArray.each(
-    [LOAD, LOADAPPEND],
-    function(eventType) {
-        YModelList.prototype['_defFn_'+eventType] = function (e) {
-            var instance = this,
-                readsync = (eventType===LOADAPPEND) ? READAPPEND : READ,
-                options = e.options,
-                errFunc, successFunc,
-                facade = {
-                    options : options
-                };
-
-            Y.log('_defFn_'+eventType, 'info', 'ITSA-ModelSyncPromise');
-            errFunc = function(err) {
-                facade.error = err;
-                facade.src   = LOAD;
-                instance._lazyFireErrorEvent(facade);
-                e.promiseReject(new Error(err));
-            };
-            successFunc = function(response) {
-                var parsed;
-                e.response = response;
-                parsed = PARSED(response);
-                if (parsed.responseText) {
-                    // XMLHttpRequest
-                    parsed = parsed.responseText;
-                }
-                e.parsed = parsed;
-                facade.parsed = parsed;
-                if (eventType===LOADAPPEND) {
-                    instance.add(parsed, options);
-                }
-                else {
-                    instance.reset(parsed, options);
-                }
-                e.promiseResolve(response);
-            };
-            if (instance.syncPromise) {
-                // use the syncPromise-layer
-                instance._syncTimeoutPromise(readsync, options).then(
-                    successFunc,
-                    errFunc
-                );
-            }
-            else {
-                instance.sync(readsync, options, function (err, response) {
-                    if (err) {
-                        errFunc(err);
-                    }
-                    else {
-                        successFunc(response);
-                    }
-                });
-            }
-            return e.promise;
-        }
-    }
-);
-
-YModelList.prototype._defFn_load = function (options) {
-    var instance = this,
-         optionsappend, append, eventname;
-
-    Y.log('_defFn_load', 'info', 'Itsa-ModellistSyncPromise');
-    options = options || {};
-    optionsappend = options.append;
-    append = ((typeof optionsappend === 'boolean') && optionsappend);
-    eventname = append ? LOADAPPEND : LOAD;
-    return new Y.Promise(function (resolve, reject) {
-        var errFunc, successFunc,
-            syncmethod = append ? READAPPEND : READ,
-              facade = {
-                  options : options
-              };
-        errFunc = function(err) {
-            facade.error = err;
-            facade.src   = append ? LOADAPPEND : LOAD;
-            instance._lazyFireErrorEvent(facade);
-            reject(new Error(err));
-        };
-        successFunc = function(response) {
-            var parsed;
-            // Lazy publish.
-            if (!instance['_'+eventname]) {
-                instance['_'+eventname] = instance.publish(eventname, {
-                    preventable: false
-                });
-            }
-            facade.response = response;
-            parsed = PARSED(response);
-            if (parsed.responseText) {
-                // XMLHttpRequest
-                parsed = parsed.responseText;
-            }
-            facade.parsed = parsed;
-            if (append) {
-                instance.add(parsed, options);
-            }
-            else {
-                instance.reset(parsed, options);
-            }
-            instance.fire(eventname, facade);
-            resolve(response);
-        };
-        if (instance.syncPromise) {
-            // use the syncPromise-layer
-            instance._syncTimeoutPromise(syncmethod, options).then(
-                successFunc,
-                errFunc
-            );
-        }
-        else {
-            instance.sync(syncmethod, options, function (err, response) {
-                if (err) {
-                    errFunc(err);
-                }
-                else {
-                    successFunc(response);
-                }
-            });
-        }
-    });
-};
-
-/**
-* Saves all modified models within this modellist to the server.
-* <b>Caution:</b> within the current version the Model's synclayer is used, NOT ModelList's synclayer.
-* Therefore, you get multiple requests for all modified Models.
-*
-* This method delegates to the Model's`sync()` method to perform the actual save
-* operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
- * make the promise work.
-*
-* A successful save operation will fire a `save` event, while an unsuccessful
-* save operation will fire an `error` event with the `src` value "save".
-*
-* If the save operation succeeds and one or more of the attributes returned in
-* the server's response differ from this model's current attributes, a
-* `change` event will be fired.
-*
-* @method _defFn_save
- * @param {Object} [options] Options to be passed to all Model's`sync()`. It's up to the custom sync
- *                 implementation to determine what options it supports or requires, if any.
- * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
-**/
-YModelList.prototype._defFn_save = function(options) {
-    var instance = this,
-          savelist = [];
-
-    Y.log('_defFn_save', 'info', 'Itsa-ModellistSyncPromise');
-    instance.each(
-        function(model) {
-            if (model.isModified()) {
-                savelist.push(model.savePromise(options));
-            }
-        }
-    );
-    return Y.batch.apply(Y, savelist).then(
-//            return Y.Promise.every(savelist).then(
-        function(data) {
-            var facade = {
-                options : options,
-                src : SAVE
-            };
-            // Lazy publish.
-            if (!instance._saveEvent) {
-                instance._saveEvent = instance.publish(SAVE, {
-                    preventable: false
-                });
-            }
-            instance.fire(SAVE, facade);
-            return data;
-        },
-        function(err) {
-            var facade = {
-                options : options,
-                src : SAVE,
-                error: err
-            };
-            instance._lazyFireErrorEvent(facade);
-            return err;
-        }
-    );
-};
-
-/**
-* Submits all models within this modellist to the server.
-* <b>Caution:</b> within the current version the Model's synclayer is used, NOT ModelList's synclayer.
-* Therefore, you get multiple requests for all Models.
-*
-* This method delegates to the Model's`sync()` method to perform the actual submit
-* operation, which is an asynchronous action. Within the Y.Model-class, you <b>must</b> specify a _callback_ function to
- * make the promise work.
-*
-* A successful save operation will fire a `submit` event, while an unsuccessful
-* save operation will fire an `error` event with the `src` value "submit".
-*
-* @method _defFn_submit
- * @param {Object} [options] Options to be passed to all Model's`sync()`. It's up to the custom sync
- *                 implementation to determine what options it supports or requires, if any.
- * @return {Y.Promise} promised response --> resolve(response, options) OR reject(reason).
-**/
-YModelList.prototype._defFn_submit = function(options) {
-    var instance = this,
-          submitlist = [];
-
-    Y.log('_defFn_submit', 'info', 'Itsa-ModellistSyncPromise');
-    instance.each(
-        function(model) {
-            submitlist.push(model.submitPromise(options));
-        }
-    );
-    return Y.batch.apply(Y, submitlist).then(
-//            return Y.Promise.every(submitlist).then(
-        function(data) {
-            var facade = {
-                options : options,
-                src : SUBMIT
-            };
-            // Lazy publish.
-            if (!instance._submitEvent) {
-                instance._submitEvent = instance.publish(SUBMIT, {
-                    preventable: false
-                });
-            }
-            instance.fire(SUBMIT, facade);
-            return data;
-        },
-        function(err) {
-            var facade = {
-                options : options,
-                src : SUBMIT,
-                error: err
-            };
-            instance._lazyFireErrorEvent(facade);
-            return err;
-        }
-    );
-};
-
-/**
-* Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
-* Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
-*
-* @method _lazyFireErrorEvent
- * @param {Object} [facade] eventfacade.
- * @private
-**/
-YModelList.prototype._lazyFireErrorEvent = function(facade) {
-    var instance = this;
-
-    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
-    // lazy publish
-    if (!instance._errorEvent) {
-        instance._errorEvent = instance.publish(ERROR, {
-            broadcast: 1
-        });
-    }
-    instance.fire(ERROR, facade);
 };
 
 /**
@@ -764,3 +894,6 @@ YModelList.prototype._syncTimeoutPromise = function(action, options) {
     }
     return syncpromise;
 };
+
+// for backwards compatibility:
+YModelList.prototype.destroyPromise = YModelList.prototype.destroyModelPromise;
