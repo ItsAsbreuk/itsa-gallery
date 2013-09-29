@@ -1,4 +1,4 @@
-/*csslint unqualified-attributes:false, outline-none:false*/
+/*csslint unqualified-attributes:false, outline-none:false, adjoining-classes: false, star-property-hack: false */
 
 .yui3-skin-sam .yui3-panel.yui3-itsafilemanager .yui3-widget-hd {
     padding: 0;
@@ -101,6 +101,7 @@ background: none;
 .yui3-itsafilemanager-items li {
     display: inline-block;
    *display: inline;
+    *zoom: 1;
     list-type: none;
     margin: 8px;
     height: 75px;
@@ -142,6 +143,7 @@ background: none;
     background-color: #FFF;
     display: inline-block;
     *display: inline;
+    *zoom: 1;
     float: left;
     overflow-y: auto;
 }
@@ -151,6 +153,7 @@ background: none;
     height: 100%;
     display: inline-block;
     *display: inline;
+    *zoom: 1;
 }
 .yui3-itsafilemanager-flow {
     border-bottom: ridge 2px #999;
@@ -232,6 +235,7 @@ background: none;
     position: fixed;
     display: inline-block;
     *display: inline;
+    *zoom: 1;
     z-index: 100;
     width: 82px;
     height: 27px;
@@ -305,9 +309,10 @@ background: none;
     height: 75px;
     width: 75px;
     display: inline-block;
-   *display: inline;
-   overflow: hidden;
-   text-overflow: ellipsis;
+    *display: inline;
+    *zoom: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .yui3-itsafilemanager-items li.itsa-model-selected .itsa-thumbnail {
