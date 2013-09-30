@@ -1657,10 +1657,21 @@ ITSAFormModel.prototype._bindUI = function() {
         instance.after(
             '*:change',
             function(e) {
+                var attributeNamesObjects = e.changed,
+                    atributeIsUI = false;
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSAFormModel');
                 // if e.formelement, then the changes came from the UI
                 if (!instance._internalChange && !e.formelement && !e.fromInternal) {
-                    Y.use(GALLERY_ITSA+'dialog', function() {
+                    // first check whether the attribute that changed was transformed to an UI-element
+                    YObject.some(
+                        attributeNamesObjects,
+                        function(value, key) {
+                            atributeIsUI = instance._ATTRS_nodes[key];
+                            return atributeIsUI;
+                        }
+                    );
+/*jshint expr:true */
+                    atributeIsUI && Y.use(GALLERY_ITSA+'dialog', function() {
                         var intl = instance._intl;
                         if (instance._lifeUpdate) {
                             // the first parameter in the response needs to be 'null' and not the promise result
@@ -1676,6 +1687,7 @@ ITSAFormModel.prototype._bindUI = function() {
                             );
                         }
                     });
+/*jshint expr:false */
                 }
                 else if (e.fromInternal) {
                     instance._modelToUI();
