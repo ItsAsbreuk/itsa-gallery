@@ -57,6 +57,20 @@
         So, you need to setup the synclayer for both Model and ModelList. Whether you use sync() or syncPromise() as the synclayer, is up to the developer. However syncPromise() is far more easier.
     </p>
 
+<h2>Be aware of usage error-event</h2>
+    <p>Only <code>load</code> and </code>loadappend</code> use the ModelList's synclayer. The other methods are batching Model's sync methods. Therefore, ModelList will only fire the <code>error</code>-event itself when an error occurs during these syncmethods. This means, you need to listen for errors in this way:
+        <ul>
+            <li><code>load</code> --> listen to modellist.on('error')</li>
+            <li><code>loadappend</code> --> listen to modellist.on('error')</li>
+            <li><code>destroy</code> --> listen to modellist.on('*:error')</li>
+            <li><code>save</code> --> listen to modellist.on('*:error')</li>
+            <li><code>submit</code> --> listen to modellist.on('*:error')</li>
+        </ul>
+    </p>
+    <p>
+        Or, you could use the Promise-handle to be rejected. This is the prefered way and works for all the syncmethods. In case multiple Models fail syncing, you won't find yourself catching multiple errors, but can handle them all in the promise-reject handler.
+    </p>
+
 <h2>Usages</h2>
 <h3>Loading Model-data with ModelList.load()</h3>
 ```js

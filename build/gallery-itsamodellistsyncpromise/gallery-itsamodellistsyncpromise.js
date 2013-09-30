@@ -596,7 +596,6 @@ YModelList.prototype[DEFFN+SAVE] = function(e) {
     var instance = this,
         savelist = [],
         options = e.options;
-
     instance.each(
         function(model) {
             if (model.isModified()) {

@@ -599,7 +599,6 @@ YModelList.prototype[DEFFN+SAVE] = function(e) {
     var instance = this,
         savelist = [],
         options = e.options;
-
     Y.log('_defFn_save', 'info', 'Itsa-ModellistSyncPromise');
     instance.each(
         function(model) {
