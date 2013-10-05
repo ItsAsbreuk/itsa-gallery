@@ -817,7 +817,7 @@ ITSAFormElement._actTXTList = function() {
                 }
             }
         },
-        function(node, evt){
+        function(node, evt){
             var targetnode = evt.target;
             return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
         }
