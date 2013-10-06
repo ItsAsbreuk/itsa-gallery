@@ -22,15 +22,35 @@
 
     var APP = 'application',
         WARNING = 'warning',
+        getInput,
+        getConfirmation,
+        getMessage,
         ITSAMessageController;
 
-ITSAMessageController = Y.ITSAMessageController = Y.Base.create('itsamessagecontroller', Y.LazyModelList, [], {}, {
+ITSAMessageController = Y.ITSAMessageController = Y.Base.create('itsamessagecontroller', Y.Base, [], {}, {
     ATTRS: {
 
     }
 });
 
-ITSAMessageController.prototype.alert = function(title, message, options) {
+ITSAMessageController.prototype.initializer = function() {
+    var instance = thisl
+    Y.later(LOADDELAY, instance, instance.readyPromise);
+};
+
+ITSAMessageController.prototype.readyPromise = function() {
+    var instance = this;
+    return instance._readyPromise || (instance._readyPromise=Y.usePromise(LAZYMODELLIST, GALLERY_ITSAMESSAGE).then(
+        Y.bind(instance._initQueue, instance)
+    ));
+};
+
+ITSAMessageController.prototype._initQueue = function() {
+    var instance = this;
+    instance.queue = new Y.ModelList();
+};
+
+getMessage = ITSAMessageController.prototype.getMessage = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_ok}' : '{btn_ok}',
@@ -40,10 +60,10 @@ ITSAMessageController.prototype.alert = function(title, message, options) {
         message = title;
         title = null;
     }
-    instance._addMessage(title, message, footer, APP, WARNING, options);
+    instance.addMessage(title, message, footer, APP, WARNING, options);
 };
 
-ITSAMessageController.prototype.confirm = function(title, message, options) {
+getConfirmation = ITSAMessageController.prototype.getConfirmation = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_no}{imgbtn_yes}' : '{btn_no}{btn_yes}',
@@ -53,10 +73,10 @@ ITSAMessageController.prototype.confirm = function(title, message, options) {
         message = title;
         title = null;
     }
-    instance._addMessage(title, message, footer, APP, DIALOG, options);
+    instance.addMessage(title, message, footer, APP, DIALOG, options);
 };
 
-ITSAMessageController.prototype.prompt = function(title, message, options) {
+getInput = ITSAMessageController.prototype.getInput = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_cancel}{imgbtn_ok}' : '{btn_cancel}{btn_ok}',
@@ -66,10 +86,10 @@ ITSAMessageController.prototype.prompt = function(title, message, options) {
         message = title;
         title = null;
     }
-    instance._addMessage(title, message, footer, APP, INPUT, options);
+    instance.addMessage(title, message, footer, APP, INPUT, options);
 };
 
-ITSAMessageController.prototype.inform = function(title, message, options) {
+ITSAMessageController.prototype.showMessage = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_ok}' : '{btn_ok}',
@@ -79,19 +99,30 @@ ITSAMessageController.prototype.inform = function(title, message, options) {
         message = title;
         title = null;
     }
-    instance._addMessage(title, message, footer, APP, MESSAGE, options);
+    instance.addMessage(title, message, footer, APP, MESSAGE, options);
 };
 
-ITSAMessageController.prototype._addMessage = function(title, message, footer, source, type, options) {
-    var message = new Y.ITSAMessage({
-            title: title,
-            message: message,
-            footer: footer,
-            source: source,
-            type: type,
-            options: options
-        });
-    this.add(message);
+ITSAMessageController.prototype.confirm = getConfirmation;
+ITSAMessageController.prototype.prompt = getInput;
+ITSAMessageController.prototype.alert = getMessage;
+
+ITSAMessageController.prototype.addMessage = function(title, message, footer, source, type, options, messageClass) {
+    var config;
+    options || (options = {});
+    config {
+        title: title,
+        message: message,
+        footer: footer,
+        source: source,
+        type: type,
+        options: options
+    };
+    instance.readyPromise().then(
+        function() {
+            var message = (messageClass instanceof Y.ITSAMessage) ? new messageClass(config) : new Y.ITSAMessage(config);
+            instance.queue.add(message);
+        }
+    );
 };
 
 Y.MessageController = new ITSAMessageController();
