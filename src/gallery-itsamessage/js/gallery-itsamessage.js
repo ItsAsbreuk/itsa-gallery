@@ -67,6 +67,12 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.FormModel, [], {}, 
                 return (typeof v==='string');
             }
         },
+        target: {
+            writeOnce: 'initOnly',
+            validator: function(v) {
+                return (typeof v==='string');
+            }
+        },
         type: {
             writeOnce: 'initOnly',
             validator: function(v) {

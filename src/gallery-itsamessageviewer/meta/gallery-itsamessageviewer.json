@@ -1,0 +1,7 @@
+{
+    "gallery-itsamessageviewer": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}

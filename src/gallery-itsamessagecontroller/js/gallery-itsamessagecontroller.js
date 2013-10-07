@@ -22,25 +22,27 @@
 
     var APP = 'application',
         WARNING = 'warning',
-        getInput,
-        getConfirmation,
-        getMessage,
-        ITSAMessageController;
+        DIALOG = 'dialog',
+        INPUT = 'input',
+        MESSAGE = 'message',
+        LOADDELAY = 5000,
+        MODELLIST = 'Y.ModelList',
+        GALLERY_ITSAMESSAGE = 'gallery-itsamessage';
 
-ITSAMessageController = Y.ITSAMessageController = Y.Base.create('itsamessagecontroller', Y.Base, [], {}, {
-    ATTRS: {
+function ITSAMessageController() {
+    this.init.apply(this, arguments);
+}
 
-    }
-});
+Y.extend(ITSAMessageController, Y.Base);
 
 ITSAMessageController.prototype.initializer = function() {
-    var instance = thisl
+    var instance = this;
     Y.later(LOADDELAY, instance, instance.readyPromise);
 };
 
 ITSAMessageController.prototype.readyPromise = function() {
     var instance = this;
-    return instance._readyPromise || (instance._readyPromise=Y.usePromise(LAZYMODELLIST, GALLERY_ITSAMESSAGE).then(
+    return instance._readyPromise || (instance._readyPromise=Y.usePromise(MODELLIST, GALLERY_ITSAMESSAGE).then(
         Y.bind(instance._initQueue, instance)
     ));
 };
@@ -50,7 +52,7 @@ ITSAMessageController.prototype._initQueue = function() {
     instance.queue = new Y.ModelList();
 };
 
-getMessage = ITSAMessageController.prototype.getMessage = function(title, message, options) {
+ITSAMessageController.prototype.getMessage = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_ok}' : '{btn_ok}',
@@ -63,7 +65,7 @@ getMessage = ITSAMessageController.prototype.getMessage = function(title, messag
     instance.addMessage(title, message, footer, APP, WARNING, options);
 };
 
-getConfirmation = ITSAMessageController.prototype.getConfirmation = function(title, message, options) {
+ITSAMessageController.prototype.getConfirmation = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_no}{imgbtn_yes}' : '{btn_no}{btn_yes}',
@@ -76,7 +78,7 @@ getConfirmation = ITSAMessageController.prototype.getConfirmation = function(tit
     instance.addMessage(title, message, footer, APP, DIALOG, options);
 };
 
-getInput = ITSAMessageController.prototype.getInput = function(title, message, options) {
+ITSAMessageController.prototype.getInput = function(title, message, options) {
     var instance = this,
         imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons,
         footer = imagebuttons ? '{imgbtn_cancel}{imgbtn_ok}' : '{btn_cancel}{btn_ok}',
@@ -102,14 +104,13 @@ ITSAMessageController.prototype.showMessage = function(title, message, options) 
     instance.addMessage(title, message, footer, APP, MESSAGE, options);
 };
 
-ITSAMessageController.prototype.confirm = getConfirmation;
-ITSAMessageController.prototype.prompt = getInput;
-ITSAMessageController.prototype.alert = getMessage;
-
-ITSAMessageController.prototype.addMessage = function(title, message, footer, source, type, options, messageClass) {
-    var config;
+ITSAMessageController.prototype.addMessage = function(title, message, footer, source, type, options, MessageClass) {
+    var instance = this,
+        config;
+/*jshint expr:true */
     options || (options = {});
-    config {
+/*jshint expr:false */
+    config = {
         title: title,
         message: message,
         footer: footer,
@@ -119,7 +120,7 @@ ITSAMessageController.prototype.addMessage = function(title, message, footer, so
     };
     instance.readyPromise().then(
         function() {
-            var message = (messageClass instanceof Y.ITSAMessage) ? new messageClass(config) : new Y.ITSAMessage(config);
+            var message = (MessageClass instanceof Y.ITSAMessage) ? new MessageClass(config) : new Y.ITSAMessage(config);
             instance.queue.add(message);
         }
     );

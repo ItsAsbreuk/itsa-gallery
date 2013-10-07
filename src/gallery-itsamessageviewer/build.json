@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsamessageviewer",
+    "builds": {
+        "gallery-itsamessageviewer": {
+            "jsfiles": [
+                "js/gallery-itsamessageviewer.js"
+            ]
+        }
+    }
+}
