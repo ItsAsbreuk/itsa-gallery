@@ -185,6 +185,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                 itemText,
                 isDefaultItem,
                 defaultItemFound,
+                nodeclass,
                 newNode;
             ullist.setHTML(''); // clear content
             if (items.length>0) {
@@ -199,7 +200,9 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                         }
                         instance.set('index', i, {silent: true});
                     }
-                    newNode = Y.Node.create('<li' + (isDefaultItem ? ' class="' + instance._selectedItemClass + '"' : '') + '>' + itemText +'</li>');
+                    nodeclass = item.className || '';
+                    newNode = Y.Node.create('<li' + (isDefaultItem ? ' class="'+instance._selectedItemClass+' '+nodeclass+'"' :
+                                            ((nodeclass!=='') ? ' class="'+nodeclass+'"' : ''))+'>' + itemText +'</li>');
                     if (item.returnValue) {newNode.setData('returnValue', item.returnValue);}
                     ullist.append(newNode);
                 }
@@ -691,6 +694,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                         allItems.push(
                             {
                                 text: node.getHTML(),
+                                className: node.getAttribute('class'),
                                 returnValue: node.getAttribute('value') || node.getHTML()
                             }
                         );
