@@ -7,7 +7,8 @@
             "yui-later",
             "oop",
             "gallery-itsamodulesloadedpromise",
-            "gallery-itsamessageviewer"
+            "gallery-itsamessageviewer",
+            "gallery-itsaviewmodelpanel"
         ]
     }
 }

@@ -50,12 +50,23 @@ ITSADialog.prototype.renderPromise = function() {
 };
 
 ITSADialog.prototype._renderPanels = function() {
+var artistobject = {
+        artist: 'U2',
+        country: 'Ireland'
+    };
+
+    var artisttemplate = 'name: {artist}<br />'+
+                     'country: {country}';
+
     var instance = this,
         config = {
             visible: false,
             centered: true,
             modal: true,
-            dragable: true
+            dragable: true,
+            title: 'sometitle',
+            model: artistobject,
+            template: artisttemplate
         },
         eventhandlers = instance._eventhandlers,
         panels;
@@ -87,6 +98,7 @@ ITSADialog.prototype._renderPanels = function() {
     panels[INFO].render();
     panels[WARN].render();
     panels[ERROR].render();
+panels[INFO].set('title', 'newtitle');
 };
 
 ITSADialog.prototype.viewMessage = function(itsamessage) {
@@ -100,12 +112,18 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
             panels[INFO].hide();
             panels[WARN].hide();
             panels[ERROR].hide();
+
             panel = panels[level];
-            panel.set(TITLE, itsamessage.get(TITLE));
             panel.set('template', itsamessage.get('message'));
             panel.set(FOOTER+'Template', itsamessage.get(FOOTER));
-            panel.set(MODEL, itsamessage);
+//            panel.set(MODEL, itsamessage);
+console.log('checking 1 --> '+panel.get(TITLE));
+//            panel.set(TITLE, itsamessage.get(TITLE));
+console.log('checking 2 --> '+panel.get(TITLE));
+//            panel.set(TITLE, 'test');
+console.log('checking 1 --> '+panel.get(TITLE));
             panel.show();
+            panel.set('title', 'test2');
         }
     );
 };
@@ -151,6 +169,7 @@ YUI.Env.ITSADialog = new ITSADialog({handleAnonymous: true});
         "yui-later",
         "oop",
         "gallery-itsamodulesloadedpromise",
-        "gallery-itsamessageviewer"
+        "gallery-itsamessageviewer",
+        "gallery-itsaviewmodelpanel"
     ]
 });
