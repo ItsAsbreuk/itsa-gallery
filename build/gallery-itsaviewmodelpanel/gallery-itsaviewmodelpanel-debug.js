@@ -31,6 +31,7 @@ YUI.add('gallery-itsaviewmodelpanel', function (Y, NAME) {
 
 var ITSAViewModelPanel,
     ITSAFORMELEMENT = Y.ITSAFormElement,
+    YArray = Y.Array,
     Lang = Y.Lang,
     ID = 'id',
     DESTROYED = 'destroyed',
@@ -396,13 +397,12 @@ ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config
 ITSAViewModelPanel.prototype.bindUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX),
-        eventhandlers, bodyView, footerView;
+        eventhandlers, bodyView;
     ITSAViewModelPanel.superclass.bindUI.apply(instance);
     Y.log('bindUI', 'info', 'ITSA-ViewModelPanel');
 
     eventhandlers = instance._eventhandlers;
     bodyView = instance.get(BODYVIEW);
-    footerView = instance.get(FOOTERVIEW);
 
     bodyView.addTarget(instance);
 
@@ -411,7 +411,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(EDITABLE+CHANGE, function(e) {
             Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
-            bodyView.set(EDITABLE, e.newVal);
+            instance.get(BODYVIEW).set(EDITABLE, e.newVal);
 /*jshint expr:true */
             instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, (e.newVal && instance.get(VISIBLE))); // to make tabkeymanager work
 /*jshint expr:false */
@@ -439,23 +439,29 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(FOOTERTEMPLATE+CHANGE, function(e) {
+            var footerView = instance.get(FOOTERVIEW);
             Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
-            footerView.set(TEMPLATE, e.newVal);
+/*jshint expr:true */
+            footerView && footerView.set(TEMPLATE, e.newVal);
+/*jshint expr:false */
         })
     );
 
     eventhandlers.push(
         instance.after(MODEL+CHANGE, function(e) {
+            var footerView = instance.get(FOOTERVIEW);
             Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
-            bodyView.set(MODEL, e.newVal);
-            footerView.set(MODEL, e.newVal);
+            instance.get(BODYVIEW).set(MODEL, e.newVal);
+/*jshint expr:true */
+            footerView && footerView.set(MODEL, e.newVal);
+/*jshint expr:false */
         })
     );
 
     eventhandlers.push(
         instance.after(TEMPLATE+CHANGE, function(e) {
             Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
-            bodyView.set(TEMPLATE, e.newVal);
+            instance.get(BODYVIEW).set(TEMPLATE, e.newVal);
         })
     );
 
@@ -1042,6 +1048,26 @@ ITSAViewModelPanel.prototype.destructor = function() {
     bodyview && bodyview.destroy();
     footerview && footerview.destroy();
 /*jshint expr:false */
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _clearEventhandlers
+ * @private
+ * @since 0.4
+ *
+*/
+ITSAViewModelPanel.prototype._clearEventhandlers = function() {
+    Y.log('_clearEventhandlers', 'info', 'ITSA-ViewModelPanel');
+
+    var instance = this;
+    YArray.each(
+        instance._eventhandlers,
+        function(item){
+            item.detach();
+        }
+    );
 };
 
 /**
