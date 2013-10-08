@@ -101,7 +101,7 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
             panel = panels[level];
             panel.set(TITLE, itsamessage.get(TITLE));
             panel.set('template', itsamessage.get('message'));
-            panel.set(FOOTER+'Right', itsamessage.get(FOOTER));
+            panel.set(FOOTER+'Template', itsamessage.get(FOOTER));
             panel.set(MODEL, itsamessage);
             panel.show();
         }
