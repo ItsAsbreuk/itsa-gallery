@@ -60,6 +60,7 @@ var ITSAPanel,
     PX = 'px',
     TITLE = 'title',
     RIGHT = 'Right',
+    TITLERIGHT = TITLE+RIGHT,
     CENTERED = 'centered',
     DRAG = 'drag',
     DRAGABLE = DRAG+'able',
@@ -645,6 +646,34 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.on(
+            TITLE+CHANGE,
+            function(e) {
+                var title = e.newVal,
+                    titleRight = instance.get(TITLERIGHT),
+                    headerView = instance.get(HEADERVIEW);
+                if (!headerView || (typeof headerView===STRING)) {
+                    instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? CLOSE_BUTTON : titleRight)}));
+                }
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
+            TITLERIGHT+CHANGE,
+            function(e) {
+                var titleRight = e.newVal,
+                    title = instance.get(TITLE),
+                    headerView = instance.get(HEADERVIEW);
+                if (!headerView || (typeof headerView===STRING)) {
+                    instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? CLOSE_BUTTON : titleRight)}));
+                }
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
             MODAL+CHANGE,
             function(e) {
                 Y.log('onsubscriptor '+e.type, 'info', 'ITSAPanel');
@@ -868,7 +897,7 @@ ITSAPanel.prototype._getWidth = function() {
 ITSAPanel.prototype._renderHeader = function() {
     var instance = this,
         title = instance.get(TITLE),
-        titleRight = instance.get(TITLE+RIGHT),
+        titleRight = instance.get(TITLERIGHT),
         headerView = instance.get(HEADERVIEW);
 
     Y.log('_renderHeader ', 'info', 'ITSAPanel');
