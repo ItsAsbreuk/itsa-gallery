@@ -47,10 +47,8 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
             }
         },
         level: {
+            value: INFO,
             writeOnce: 'initOnly',
-            setter: function(v) {
-                return v || INFO;
-            },
             validator: function(v) {
                 return (typeof v==='string') && MESSAGELEVELS[v];
             }

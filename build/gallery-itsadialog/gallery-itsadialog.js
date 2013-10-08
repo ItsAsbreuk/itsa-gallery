@@ -105,8 +105,7 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     var instance = this;
     instance.renderPromise().then(
         function() {
-           // var level = itsamessage.get('level'),
-            var level = INFO,
+            var level = itsamessage.get('level'),
                 panels = instance.panels,
                 panel = panels[level];
             panels[INFO].hide();
@@ -116,14 +115,9 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
             panel = panels[level];
             panel.set('template', itsamessage.get('message'));
             panel.set(FOOTER+'Template', itsamessage.get(FOOTER));
-//            panel.set(MODEL, itsamessage);
-console.log('checking 1 --> '+panel.get(TITLE));
-//            panel.set(TITLE, itsamessage.get(TITLE));
-console.log('checking 2 --> '+panel.get(TITLE));
-//            panel.set(TITLE, 'test');
-console.log('checking 1 --> '+panel.get(TITLE));
+            panel.set(MODEL, itsamessage);
+            panel.set(TITLE, itsamessage.get(TITLE));
             panel.show();
-            panel.set('title', 'test2');
         }
     );
 };
