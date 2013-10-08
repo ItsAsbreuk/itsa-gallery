@@ -1151,6 +1151,7 @@ ITSAViewModelPanel.prototype._setSpin = function(buttonType, spin) {
         "event-outside",
         "model",
         "gallery-itsapanel",
-        "gallery-itsaviewmodel"
+        "gallery-itsaviewmodel",
+        "gallery-itsaformelement"
     ]
 });
