@@ -1,7 +1,8 @@
 {
     "gallery-itsamessageviewer": {
         "requires": [
-            "yui-base"
+            "yui-base",
+            "gallery-itsamessagecontroller"
         ]
     }
 }

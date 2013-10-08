@@ -1,7 +1,11 @@
 {
     "gallery-itsamessagecontroller": {
         "requires": [
-            "yui-base"
+            "yui-base",
+            "oop",
+            "base-base",
+            "promise",
+            "gallery-itsamodulesloadedpromise"
         ]
     }
 }

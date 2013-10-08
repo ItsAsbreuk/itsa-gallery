@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -134,7 +136,6 @@ ITSAMessageController.prototype.destructor = function() {
  * @since 0.3
 */
 ITSAMessageController.prototype._prevDefFn = function(e) {
-    Y.log('_prevDefFn', 'info', 'ITSA-ModelSyncPromise');
     e.message.promiseReject(new Error('preventDefaulted'));
 };
 
@@ -279,7 +280,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
     var instance = this,
         asyncEvent = this.publish(type, opts);
 
-    Y.log('_publishAsync', 'info', 'ITSA-ModelSyncPromise');
     asyncEvent._firing = new Y.Promise(function (resolve) { resolve(); });
 
     asyncEvent.fire = function (data) {
@@ -312,7 +312,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
                         subs[i].fn.call(subs[i].context, e);
                     }
                     catch (catchErr) {
-                        Y.log("Error in defaultFn or after subscriber: " + (catchErr && (catchErr.message || catchErr)), ERROR);
                     }
                 }
             }
@@ -326,7 +325,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
             // the result of the defaultFn followed by the execution of the after subs.
             return e.prevented ?
                 asyncEvent.preventedFn.call(instance, e).then(null, function (reason) {
-                    Y.log("Error in preventedFn: " + (reason && (reason.message || reason)), ERROR);
                     return false;
                 }) :
                 asyncEvent.defaultFn.call(instance, e).then(function () {
@@ -340,7 +338,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
                                 subs[i].fn.call(subs[i].context, e);
                             }
                             catch (catchErr) {
-                                Y.log("Error in defaultFn or after subscriber: " + (catchErr && (catchErr.message || catchErr)), ERROR);
                             }
                         }
                     }
@@ -354,7 +351,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
                 // Catch errors/preventions and reset the promise state to fulfilled for
                 // the next call to fire();
                 }).then(null, function (reason) {
-                    Y.log("Error in defaultFn or after subscriber: " + (reason && (reason.message || reason)), ERROR);
                     return false;
                 });
         });
@@ -368,3 +364,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
 // define 1 global messagecontroller
 YUI.Env.ITSAMessageController = new ITSAMessageController();
 
+
+
+}, '@VERSION@', {"requires": ["yui-base", "oop", "base-base", "promise", "gallery-itsamodulesloadedpromise"]});

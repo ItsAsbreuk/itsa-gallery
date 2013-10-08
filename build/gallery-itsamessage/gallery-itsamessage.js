@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamessage', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -99,3 +101,6 @@ ITSAMessage.prototype.erase = function() {
     resolve && resolve();
 /*jshint expr:false */
 };
+
+
+}, '@VERSION@', {"requires": ["yui-base", "gallery-itsaformmodel"]});

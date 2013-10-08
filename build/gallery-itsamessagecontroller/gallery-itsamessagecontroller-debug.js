@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -368,3 +370,6 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
 // define 1 global messagecontroller
 YUI.Env.ITSAMessageController = new ITSAMessageController();
 
+
+
+}, '@VERSION@', {"requires": ["yui-base", "oop", "base-base", "promise", "gallery-itsamodulesloadedpromise"]});

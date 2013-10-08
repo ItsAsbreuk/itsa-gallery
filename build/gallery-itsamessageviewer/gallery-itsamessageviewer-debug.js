@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamessageviewer', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -153,3 +155,5 @@ ITSAMessageViewer.prototype.destructor = function() {
 
 
 Y.ITSAMessageViewer = ITSAMessageViewer;
+
+}, '@VERSION@', {"requires": ["yui-base", "gallery-itsamessagecontroller"]});

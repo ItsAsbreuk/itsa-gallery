@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamessageviewer', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -104,7 +106,6 @@ console.log('handlePromise');
 ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
 console.log('viewMessage itsamessageviewer');
-    Y.log('viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
 ITSAMessageViewer.prototype._nextMessagePromise = function() {
@@ -153,3 +154,5 @@ ITSAMessageViewer.prototype.destructor = function() {
 
 
 Y.ITSAMessageViewer = ITSAMessageViewer;
+
+}, '@VERSION@', {"requires": ["yui-base", "gallery-itsamessagecontroller"]});
