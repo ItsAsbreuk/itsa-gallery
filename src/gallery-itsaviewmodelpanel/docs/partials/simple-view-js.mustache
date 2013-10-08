@@ -18,14 +18,4 @@ YUI(yuiconfig).use('gallery-itsaviewmodelpanel', function(Y) {
         template: artisttemplate
     }).render();
 
-Y.later(5000, null, function() {
-    var artistobject2 = {
-        artist: 'madonna',
-        country: 'USA'
-    };
-    panel.set('model', artistobject2);
-
-});
-
-
 });

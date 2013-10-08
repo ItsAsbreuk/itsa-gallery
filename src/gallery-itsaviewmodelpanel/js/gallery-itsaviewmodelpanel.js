@@ -436,16 +436,6 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        instance.after(FOOTERTEMPLATE+CHANGE, function(e) {
-            var footerView = instance.get(FOOTERVIEW);
-            Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
-/*jshint expr:true */
-            footerView && footerView.set(TEMPLATE, e.newVal);
-/*jshint expr:false */
-        })
-    );
-
-    eventhandlers.push(
         instance.after(MODEL+CHANGE, function(e) {
             var footerView = instance.get(FOOTERVIEW);
             Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
@@ -557,15 +547,20 @@ ITSAViewModelPanel.prototype.bindUI = function() {
             Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
         /*jshint expr:true */
             var newTemplate = e.newVal,
-                prevTemplate = e.prevVal;
-            newTemplate && !prevTemplate && instance._set(FOOTERVIEW, new Y.ITSAViewModel({
-                model: instance.get(MODEL),
-                template: newTemplate,
-                editable: false,
-                styled: false,
-                focusManaged: false, // will be done at the Panel-level
-                partOfMultiView: true
-            }));
+                prevTemplate = e.prevVal,
+                newFooterView;
+            if (newTemplate && !prevTemplate) {
+                newFooterView = new Y.ITSAViewModel({
+                    model: instance.get(MODEL),
+                    template: newTemplate,
+                    editable: false,
+                    styled: false,
+                    focusManaged: false, // will be done at the Panel-level
+                    partOfMultiView: true
+                });
+                instance._set(FOOTERVIEW, newFooterView);
+                instance._renderFooter();
+            }
             prevTemplate && !newTemplate && prevTemplate.destroy() && instance._set(FOOTERVIEW, null);
         /*jshint expr:false */
         })
