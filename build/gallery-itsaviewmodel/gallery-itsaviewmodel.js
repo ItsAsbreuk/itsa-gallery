@@ -42,6 +42,7 @@ YUI.add('gallery-itsaviewmodel', function (Y, NAME) {
 */
 
 var ITSAViewModel,
+    PLUGIN_TIMEOUT = 4000, // timeout within the plugin of itsatabkeymanager should be loaded
     Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
@@ -807,13 +808,14 @@ ITSAViewModel.prototype.blur = function() {
 */
 ITSAViewModel.prototype.focus = function() {
 
-    var container = this.get('container'),
-        itsatabkeymanager = container.itsatabkeymanager;
+    var container = this.get('container');
 
     container.addClass(FOCUSED_CLASS);
-/*jshint expr:true */
-    itsatabkeymanager && itsatabkeymanager._retreiveFocus();
-/*jshint expr:false */
+    container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+        function(itsatabkeymanager) {
+            itsatabkeymanager._retreiveFocus();
+        }
+    );
 };
 
 /**
@@ -1249,16 +1251,16 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             RESET,
             function() {
-                var itsatabkeymanager;
                 if (instance._isMicroTemplate) {
                     // need to re-render because the code might have made items visible/invisible based on their value
                     instance.render();
                 }
                 else {
-                    itsatabkeymanager = container.itsatabkeymanager;
-/*jshint expr:true */
-                    itsatabkeymanager && itsatabkeymanager.focusInitialItem();
-/*jshint expr:false */
+                    container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+                        function(itsatabkeymanager) {
+                            itsatabkeymanager.focusInitialItem();
+                        }
+                    );
                 }
             }
         )
@@ -1329,10 +1331,13 @@ ITSAViewModel.prototype._bindUI = function() {
                         }
                     ).then(
                         function() {
-                            var itsatabkeymanager = container.itsatabkeymanager;
                             instance._setSpin(eventType, false);
                             instance._lockedBefore || instance.unlockView();
-                            itsatabkeymanager && itsatabkeymanager.focusInitialItem();
+                            container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+                                function(itsatabkeymanager) {
+                                    itsatabkeymanager.focusInitialItem();
+                                }
+                            );
                         }
                     );
                 }
@@ -1831,13 +1836,17 @@ ITSAViewModel.prototype._createButtons = function() {
 */
 ITSAViewModel.prototype[DEF_FN+FOCUS_NEXT] = function() {
     var instance = this,
-        container = instance.get(CONTAINER),
-        itsatabkeymanager = container && container.itsatabkeymanager;
-    if (itsatabkeymanager) {
-        itsatabkeymanager.next();
-    }
-    else {
-    }
+        container = instance.get(CONTAINER);
+
+/*jshint expr:true */
+    container.hasClass(FOCUSED_CLASS) && container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+        function(itsatabkeymanager) {
+            itsatabkeymanager.next();
+        },
+        function() {
+        }
+    );
+/*jshint expr:false */
 };
 
 ITSAViewModel.prototype[DEF_PREV_FN+VALIDATION_ERROR] = function(e) {
