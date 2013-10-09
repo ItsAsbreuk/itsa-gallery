@@ -96,12 +96,14 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
         function() {
             var level = itsamessage.get('level'),
                 panels = instance.panels,
-                panel = panels[level];
+                panel = panels[level],
+                footer = itsamessage.get(FOOTER),
+                footerHasButtons = /btn_/.test(footer);
             panels[INFO].hide();
             panels[WARN].hide();
             panels[ERROR].hide();
-
             panel = panels[level];
+            panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
             panel.set('template', itsamessage.get('message'));
             panel.set(FOOTER+'Template', itsamessage.get(FOOTER));
             panel.set(MODEL, itsamessage);
