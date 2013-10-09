@@ -62,6 +62,21 @@ Y.extend(ITSAMessageViewer, Y.Base, {}, {
             validator: function(v) {
                 return (typeof v==='boolean');
             }
+        },
+
+        /**
+         * Axis upon which the Slider's thumb moves.  &quot;x&quot; for
+         * horizontal, &quot;y&quot; for vertical.
+         *
+         * @attribute interrupt
+         * @type {Boolean}
+         * @default false
+         */
+        interrupt : {
+            value     : true,
+            validator: function(v) {
+                return (typeof v==='boolean');
+            }
         }
     }
 });
@@ -71,7 +86,8 @@ console.log('initializer itsamessageviewer');
     var instance = this;
     YUI.Env.ITSAMessageController.addTarget(instance);
     Y.soon(Y.bind(instance._processQueue, instance));
-    instance.interruptHandler = instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
+/*jshint expr:true */
+    instance.get('interrupt') && instance.interruptHandler = instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
         var itsamessage = e.model,
             lastLevel = instance._lastLevel,
             level = itsamessage.get(LEVEL);
@@ -82,6 +98,7 @@ console.log('initializer itsamessageviewer');
             instance._processQueue();
         }
     });
+/*jshint expr:false */
 };
 
 ITSAMessageViewer.prototype._processQueue = function() {
@@ -149,6 +166,9 @@ console.log('event HANDLED!');
 ITSAMessageViewer.prototype.destructor = function() {
     var instance = this;
     YUI.Env.ITSAMessageController.removeTarget(instance);
+/*jshint expr:true */
+    instance.interruptHandler && instance.interruptHandler.detach();
+/*jshint expr:false */
 };
 
 

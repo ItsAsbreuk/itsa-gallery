@@ -22,7 +22,8 @@
 
     var APP = 'application',
         ERROR = 'error',
-        MESSAGE = 'message',
+        ESSAGE = 'essage',
+        MESSAGE = 'm'+ESSAGE,
         LOADDELAY = 5000,
         PUBLISHED = '_pub_',
         NEWMESSAGE = 'new' + MESSAGE,
@@ -30,7 +31,29 @@
         NEWMESSAGE_ADDED = NEWMESSAGE+'_added',
         PUBLISHED_NEWMESSAGE_ADDED = PUBLISHED+NEWMESSAGE_ADDED,
         MODELLIST = 'model-list',
-        GALLERY_ITSAMESSAGE = 'gallery-itsamessage';
+        GALLERY_ITSAMESSAGE = 'gallery-itsamessage',
+        GET = 'get',
+        SHOW = 'show',
+        DATE = 'Date',
+        TIME = 'Time',
+        CONFIRMATION = 'Confirmation',
+        GET_RETRY_CONFIRMATION = GET+'Retry'+CONFIRMATION,
+        GET_CONFIRMATION = GET+CONFIRMATION,
+        GET_INPUT = GET+'Input',
+        GET_NUMBER = GET+'Number',
+        GET_DATE = GET+DATE,
+        GET_TIME = GET+TIME,
+        GET_DATE_TIME = GET_DATE+TIME,
+        SHOW_MESSAGE = SHOW+'M'+ESSAGE,
+        SHOW_WARNING = SHOW+'Warning',
+        SHOW_ERROR = SHOW+'Error',
+        GET_LOGIN = GET+'Login',
+        levelValue = {
+            error: 0,
+            warn: 1,
+            info: 2
+        };
+
 
 function ITSAMessageController() {
     ITSAMessageController.superclass.constructor.apply(this, arguments);
@@ -53,53 +76,61 @@ ITSAMessageController.prototype.readyPromise = function() {
 };
 
 ITSAMessageController.prototype._initQueue = function() {
-    var instance = this;
-    instance.queue = new Y.ModelList();
-    Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
+    var instance = this,
+        queue;
+    queue = instance.queue = new Y.ModelList();
+    queue.comparator = function (model) {
+      return levelValue[model.get('level')];
+    };
+
+
+Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
+
+
 };
 
-ITSAMessageController.prototype.getRetryConfirmation = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}');
+ITSAMessageController.prototype[GET_RETRY_CONFIRMATION] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', GET_RETRY_CONFIRMATION);
 };
 
-ITSAMessageController.prototype.getConfirmation = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}');
+ITSAMessageController.prototype[GET_CONFIRMATION] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', GET_CONFIRMATION);
 };
 
-ITSAMessageController.prototype.getInput = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype[GET_INPUT] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_INPUT);
 };
 
-ITSAMessageController.prototype.getNumber = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype[GET_NUMBER] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_NUMBER);
 };
 
-ITSAMessageController.prototype.getDate = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype[GET_DATE] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE);
 };
 
-ITSAMessageController.prototype.getTime = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype[GET_TIME] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_TIME);
 };
 
-ITSAMessageController.prototype.getDateTime = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype[GET_DATE_TIME] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE_TIME);
 };
 
-ITSAMessageController.prototype.showMessage = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}');
+ITSAMessageController.prototype[SHOW_MESSAGE] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_MESSAGE);
 };
 
-ITSAMessageController.prototype.showWarning = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}');
+ITSAMessageController.prototype[SHOW_WARNING] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_WARNING);
 };
 
-ITSAMessageController.prototype.showError = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}');
+ITSAMessageController.prototype[SHOW_ERROR] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_ERROR);
 };
 
-ITSAMessageController.prototype.getLogin = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype[GET_LOGIN] = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_LOGIN);
 };
 
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
@@ -206,7 +237,7 @@ console.log('fireing '+NEWMESSAGE_ADDED);
             );
 };
 
-ITSAMessageController.prototype._queueMessage = function(title, message, config, footer) {
+ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, messageType) {
 console.log('_queueMessage '+title);
     var instance = this,
         withTitle = (typeof message === 'string'),
@@ -224,10 +255,11 @@ console.log('_queueMessage '+title);
         title: title,
         message: message,
         footer: footer,
-        source: APP
+        source: APP,
+        type: messageType
     });
 /*jshint expr:true */
-    newconfig.level || (newconfig.level=newconfig.type); // config.type is for backwards compatibility
+    newconfig.level || (newconfig.level=config.type); // config.type is for backwards compatibility
 /*jshint expr:false */
     return instance.readyPromise().then(
         function() {

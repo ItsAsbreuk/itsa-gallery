@@ -92,31 +92,38 @@ ITSADialog.prototype._renderPanels = function() {
 
 ITSADialog.prototype.viewMessage = function(itsamessage) {
     var instance = this;
-    instance.renderPromise().then(
+    return instance.renderPromise().then(
         function() {
-            var level = itsamessage.get('level'),
-                primarybutton = itsamessage.get('primarybutton'),
-                panels = instance.panels,
-                panel = panels[level],
-                footer = itsamessage.get(FOOTER),
-                footerHasButtons = /btn_/.test(footer),
-                footerview;
-            panels[INFO].hide();
-            panels[WARN].hide();
-            panels[ERROR].hide();
-            panel = panels[level];
-            panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
-            panel.set('template', itsamessage.get('message'));
-            panel.set(FOOTER+'Template', footer);
-            if (footer && primarybutton) {
-                footerview = panel.get('footerView');
-alert(footerview);
-                footerview.setPrimaryButton(primarybutton);
-                footerview.render(); // rerender because we have a new primary button
-            }
-            panel.set(MODEL, itsamessage);
-            panel.set(TITLE, itsamessage.get(TITLE));
-            panel.show();
+            return new Y.Promise(function (resolve, reject) {
+                var level = itsamessage.get('level'),
+                    primarybutton = itsamessage.get('primarybutton'),
+                    panels = instance.panels,
+                    panel = panels[level],
+                    footer = itsamessage.get(FOOTER),
+                    footerHasButtons = /btn_/.test(footer),
+                    footerview;
+                panels[INFO].hide();
+                panels[WARN].hide();
+                panels[ERROR].hide();
+                panel = panels[level];
+                panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
+                panel.set('template', itsamessage.get('message'));
+                panel.set(FOOTER+'Template', footer);
+                if (footer && primarybutton) {
+                    footerview = panel.get('footerView');
+                    footerview.setPrimaryButton(primarybutton);
+    //                footerview.render(); // rerender because we have a new primary button
+                }
+                panel.set(MODEL, itsamessage);
+                panel.set(TITLE, itsamessage.get(TITLE));
+                panel.once(
+                    '*:hide',
+                    function() {
+                        resolve();
+                    }
+                );
+                panel.show();
+            });
         }
     );
 };
@@ -150,7 +157,7 @@ ITSADialog.prototype._clearEventhandlers = function() {
 };
 
 // define 1 global messagecontroller
-YUI.Env.ITSADialog = new ITSADialog({handleAnonymous: true});
+YUI.Env.ITSADialog = new ITSADialog({handleAnonymous: true, interrupt: false});
 
 
 
