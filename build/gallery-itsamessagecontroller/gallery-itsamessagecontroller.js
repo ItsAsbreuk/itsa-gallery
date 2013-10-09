@@ -60,48 +60,48 @@ ITSAMessageController.prototype._initQueue = function() {
     Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
 };
 
-ITSAMessageController.prototype.getRetryConfirmation = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_abort}{btn_ignore}{btn_retry}');
+ITSAMessageController.prototype.getRetryConfirmation = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}');
 };
 
-ITSAMessageController.prototype.getConfirmation = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_no}{btn_yes}');
+ITSAMessageController.prototype.getConfirmation = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}');
 };
 
-ITSAMessageController.prototype.getInput = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype.getInput = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
 };
 
-ITSAMessageController.prototype.getNumber = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype.getNumber = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
 };
 
-ITSAMessageController.prototype.getDate = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype.getDate = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
 };
 
-ITSAMessageController.prototype.getTime = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype.getTime = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
 };
 
-ITSAMessageController.prototype.getDateTime = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype.getDateTime = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
 };
 
-ITSAMessageController.prototype.showMessage = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_ok}');
+ITSAMessageController.prototype.showMessage = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_ok}');
 };
 
-ITSAMessageController.prototype.showWarning = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_ok}');
+ITSAMessageController.prototype.showWarning = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_ok}');
 };
 
-ITSAMessageController.prototype.showError = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_ok}');
+ITSAMessageController.prototype.showError = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_ok}');
 };
 
-ITSAMessageController.prototype.getLogin = function(title, message, options) {
-    return this._queueMessage(title, message, options, '{btn_cancel}{btn_ok}');
+ITSAMessageController.prototype.getLogin = function(title, message, config) {
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}');
 };
 
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
@@ -207,35 +207,32 @@ console.log('fireing '+NEWMESSAGE_ADDED);
             );
 };
 
-ITSAMessageController.prototype._queueMessage = function(title, message, options, footer) {
+ITSAMessageController.prototype._queueMessage = function(title, message, config, footer) {
 console.log('_queueMessage '+title);
     var instance = this,
         withTitle = (typeof message === 'string'),
-        config, imagebuttons;
+        newconfig, imagebuttons;
     if (!withTitle) {
-        options = message;
+        config = message;
         message = title;
         title = null;
     }
-    imagebuttons = options && (typeof options.imagebuttons === 'boolean') && options.imagebuttons;
-console.log('imagebuttons '+imagebuttons);
-console.log('BEFORE '+footer);
+    imagebuttons = config && (typeof config.imagebuttons === 'boolean') && config.imagebuttons;
 /*jshint expr:true */
     imagebuttons && (footer=footer.replace(/\{btn_/g,'{imgbtn_'));
 /*jshint expr:false */
-console.log('AFTER '+footer);
-    config = {
+    newconfig = Y.merge(config, {
         title: title,
         message: message,
         footer: footer,
-        source: APP,
-        level: options && options.level && options.type, // options.type is for backwards compatibility
-        options: options,
-        target: options && options.target
-    };
+        source: APP
+    });
+/*jshint expr:true */
+    newconfig.level || (newconfig.level=newconfig.type); // config.type is for backwards compatibility
+/*jshint expr:false */
     return instance.readyPromise().then(
         function() {
-            return instance.queueMessage(new Y.ITSAMessage(config));
+            return instance.queueMessage(new Y.ITSAMessage(newconfig));
         }
     );
 };

@@ -93,17 +93,24 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     instance.renderPromise().then(
         function() {
             var level = itsamessage.get('level'),
+                primarybutton = itsamessage.get('primarybutton'),
                 panels = instance.panels,
                 panel = panels[level],
                 footer = itsamessage.get(FOOTER),
-                footerHasButtons = /btn_/.test(footer);
+                footerHasButtons = /btn_/.test(footer),
+                footerview;
             panels[INFO].hide();
             panels[WARN].hide();
             panels[ERROR].hide();
             panel = panels[level];
             panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
             panel.set('template', itsamessage.get('message'));
-            panel.set(FOOTER+'Template', itsamessage.get(FOOTER));
+            panel.set(FOOTER+'Template', footer);
+            if (footer && primarybutton) {
+                footerview = panel.get('footerView');
+                footerview.setPrimaryButton(primarybutton);
+                footerview.render(); // rerender because we have a new primary button
+            }
             panel.set(MODEL, itsamessage);
             panel.set(TITLE, itsamessage.get(TITLE));
             panel.show();

@@ -1,6 +1,9 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
-    YUI.Env.ITSAMessageController.getConfirmation('nieuwe titel', 'hoi', {imagebuttons: true});
+    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel', 'hoi', {
+        imagebuttons: true,
+        primarybutton: 'imgbtn_ignore'
+    });
 /*
     Y.later(5000, null, function() {mycontroller.showMessage('hoi2');});
     Y.later(8000, null, function() {
