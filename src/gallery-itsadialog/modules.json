@@ -1,0 +1,6 @@
+{
+    "js/gallery-itsadialog.js": {
+        "classes": "Array, YUI",
+        "requires": ["yui-base", "oop", "yui-later", "yui-log"]
+    }
+}

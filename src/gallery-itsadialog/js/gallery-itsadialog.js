@@ -48,23 +48,13 @@ ITSADialog.prototype.renderPromise = function() {
 };
 
 ITSADialog.prototype._renderPanels = function() {
-var artistobject = {
-        artist: 'U2',
-        country: 'Ireland'
-    };
-
-    var artisttemplate = 'name: {artist}<br />'+
-                     'country: {country}';
-
     var instance = this,
         config = {
             visible: false,
             centered: true,
             modal: true,
-            dragable: true,
-            title: 'sometitle',
-            model: artistobject,
-            template: artisttemplate
+            minWidth: 200,
+            dragable: true
         },
         eventhandlers = instance._eventhandlers,
         panels;
@@ -96,7 +86,6 @@ var artistobject = {
     panels[INFO].render();
     panels[WARN].render();
     panels[ERROR].render();
-panels[INFO].set('title', 'newtitle');
 };
 
 ITSADialog.prototype.viewMessage = function(itsamessage) {
