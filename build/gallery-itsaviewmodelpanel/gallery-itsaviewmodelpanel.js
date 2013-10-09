@@ -396,13 +396,17 @@ ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config
 ITSAViewModelPanel.prototype.bindUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX),
-        eventhandlers, bodyView;
+        eventhandlers, bodyView, footerView;
     ITSAViewModelPanel.superclass.bindUI.apply(instance);
 
     eventhandlers = instance._eventhandlers;
     bodyView = instance.get(BODYVIEW);
-
     bodyView.addTarget(instance);
+
+    footerView = instance.get(FOOTERVIEW);
+/*jshint expr:true */
+    footerView && footerView.addTarget(instance);
+/*jshint expr:false */
 
     instance._setFocusManager(instance.get(FOCUSMANAGED));
 
@@ -457,9 +461,17 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(
             '*:viewrendered',
-            function() {
+            function(e) {
+                var viewinstance = e.target,
+                    isFooterView = (viewinstance===instance.get(FOOTERVIEW));
                 // BECAUSE we do not have a promise yet that tells when all formelements are definitely rendered on the screen,
                 // we need to timeout
+                if (isFooterView) {
+                    instance._footercont.toggleClass('itsa-inlinefooter', true);
+                    viewinstance.get('container').get('parentNode').setStyle('overflow', 'visible');
+                    instance._body.setStyle('minWidth', instance._footer.get('offsetWidth')+'px');
+                    instance._footercont.toggleClass('itsa-inlinefooter', false);
+                }
                 Y.later(250, null, function() {
                     contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                         function(itsatabkeymanager) {
@@ -561,6 +573,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     partOfMultiView: true
                 });
                 instance._set(FOOTERVIEW, newFooterView);
+                newFooterView.addTarget(instance);
                 instance._renderFooter();
             }
             prevTemplate && !newTemplate && prevTemplate.destroy() && instance._set(FOOTERVIEW, null);
