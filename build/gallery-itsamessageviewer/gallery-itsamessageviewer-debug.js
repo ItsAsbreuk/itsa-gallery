@@ -85,7 +85,6 @@ Y.extend(ITSAMessageViewer, Y.Base, {}, {
 });
 
 ITSAMessageViewer.prototype.initializer = function() {
-console.log('initializer itsamessageviewer');
     var instance = this;
     YUI.Env.ITSAMessageController.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
@@ -98,6 +97,7 @@ console.log('initializer itsamessageviewer');
             level = itsamessage.get(LEVEL);
         if (lastLevel && (lastLevel!==level) && ((level===ERROR) || (lastLevel===INFO))) {
             // need to interrupt with new message
+console.log('going to interupt');
             instance._rejectQueuePromise();
             // restart queue which will make the interupt-message the next message
             instance._processQueue();
@@ -109,16 +109,27 @@ console.log('initializer itsamessageviewer');
 ITSAMessageViewer.prototype._processQueue = function() {
     var instance = this,
         handlePromise, handlePromiseLoop;
-
+console.log('_processQueue started');
     handlePromise = function() {
 console.log('handlePromise');
         return instance._nextMessagePromise().then(
-            Y.rbind(instance.viewMessage, instance)
+            Y.rbind(instance.viewMessage, instance),
+function() {
+    console.log('_nextMessagePromise rejected');
+}
         );
     };
     handlePromiseLoop = function() {
         // will loop until rejected, which is at destruction of the class
-        return handlePromise().then(handlePromiseLoop);
+        return handlePromise().then(handlePromiseLoop)
+.then(
+    function() {
+        console.log('HANDLELOOP ENDED');
+    },
+    function() {
+        console.log('HANDLELOOP INTERUPTED');
+    }
+);
     };
     handlePromiseLoop();
 };

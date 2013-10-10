@@ -83,7 +83,6 @@ Y.extend(ITSAMessageViewer, Y.Base, {}, {
 });
 
 ITSAMessageViewer.prototype.initializer = function() {
-console.log('initializer itsamessageviewer');
     var instance = this;
     YUI.Env.ITSAMessageController.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
@@ -96,8 +95,9 @@ console.log('initializer itsamessageviewer');
             level = itsamessage.get(LEVEL);
         if (lastLevel && (lastLevel!==level) && ((level===ERROR) || (lastLevel===INFO))) {
             // need to interrupt with new message
-            instance._rejectQueuePromise();
-            // restart queue which will make the interupt-message the next message
+console.log('going to interupt');
+            instance.suspend();
+            // restart new queue which will make the interupt-message the next message
             instance._processQueue();
         }
     }));
@@ -107,11 +107,18 @@ console.log('initializer itsamessageviewer');
 ITSAMessageViewer.prototype._processQueue = function() {
     var instance = this,
         handlePromise, handlePromiseLoop;
-
+console.log('_processQueue started');
     handlePromise = function() {
 console.log('handlePromise');
         return instance._nextMessagePromise().then(
-            Y.rbind(instance.viewMessage, instance)
+            function(itsamessage) {
+                if (itsamessage.get('suspended')) {
+                    instance.resurrect();
+                    throw new Exception("promiseloop ended because of resurrection");
+                else {
+                    instance.viewMessage();
+                }
+            }
         );
     };
     handlePromiseLoop = function() {
@@ -128,13 +135,22 @@ console.log('viewMessage itsamessageviewer');
     Y.log('viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
+ITSAMessageViewer.prototype.suspend = function() {
+    // should be overridden --> method that renderes the message in the dom
+    Y.log('suspend() is not overridden', 'warn', 'ITSAMessageViewer');
+};
+
+ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
+    // should be overridden --> method that renderes the message in the dom
+    Y.log('resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
+};
+
 ITSAMessageViewer.prototype._nextMessagePromise = function() {
     var instance = this,
         messageController = YUI.Env.ITSAMessageController;
     return messageController.readyPromise().then(
         function() {
             return new Y.Promise(function (resolve, reject) {
-                instance._rejectQueuePromise = reject;
 /*jshint expr:true */
                 instance.get('destroyed') && reject();
 /*jshint expr:false */

@@ -46,6 +46,13 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
                 return (typeof v==='string');
             }
         },
+        imageButtons: {
+            value: false,
+            writeOnce: 'initOnly',
+            validator: function(v) {
+                return (typeof v==='boolean');
+            }
+        },
         level: {
             value: INFO,
             writeOnce: 'initOnly',
@@ -70,6 +77,18 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
             value: false,
             validator: function(v) {
                 return (typeof v==='boolean');
+            }
+        },
+        primaryButton: {
+            writeOnce: 'initOnly',
+            validator: function(v) {
+                return (typeof v==='boolean') || (typeof v==='string');
+            }
+        },
+        rejectButton: {
+            writeOnce: 'initOnly',
+            validator: function(v) {
+                return (typeof v==='boolean') || (typeof v==='string');
             }
         },
         source: {

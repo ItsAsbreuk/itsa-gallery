@@ -51,7 +51,6 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         SHOW_MESSAGE = SHOW+'M'+ESSAGE,
         SHOW_WARNING = SHOW+'Warning',
         SHOW_ERROR = SHOW+'Error',
-        GET_LOGIN = GET+'Login',
         levelValue = {
             error: 0,
             warn: 1,
@@ -94,47 +93,43 @@ Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true)
 };
 
 ITSAMessageController.prototype[GET_RETRY_CONFIRMATION] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', GET_RETRY_CONFIRMATION, INFO);
+    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, INFO);
 };
 
 ITSAMessageController.prototype[GET_CONFIRMATION] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', GET_CONFIRMATION, INFO);
+    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', 'btn_yes', 'btn_no', GET_CONFIRMATION, INFO);
 };
 
 ITSAMessageController.prototype[GET_INPUT] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_INPUT, INFO);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO);
 };
 
 ITSAMessageController.prototype[GET_NUMBER] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_NUMBER, INFO);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO);
 };
 
 ITSAMessageController.prototype[GET_DATE] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE, INFO);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_DATE, INFO);
 };
 
 ITSAMessageController.prototype[GET_TIME] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_TIME, INFO);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_TIME, INFO);
 };
 
 ITSAMessageController.prototype[GET_DATE_TIME] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE_TIME, INFO);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_DATE_TIME, INFO);
 };
 
 ITSAMessageController.prototype[SHOW_MESSAGE] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_MESSAGE, INFO);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO);
 };
 
 ITSAMessageController.prototype[SHOW_WARNING] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_WARNING, WARN);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN);
 };
 
 ITSAMessageController.prototype[SHOW_ERROR] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_ERROR, ERROR);
-};
-
-ITSAMessageController.prototype[GET_LOGIN] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_LOGIN, INFO);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR);
 };
 
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
@@ -240,7 +235,7 @@ console.log('fireing '+NEWMESSAGE_ADDED);
             );
 };
 
-ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, messageType, level) {
+ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level) {
 console.log('_queueMessage '+title);
     var instance = this,
         withTitle = (typeof message === 'string'),
@@ -250,20 +245,26 @@ console.log('_queueMessage '+title);
         message = title;
         title = null;
     }
-    imagebuttons = config && (typeof config.imagebuttons === 'boolean') && config.imagebuttons;
+    imagebuttons = config && (typeof config.imageButtons === 'boolean') && config.imageButtons;
+    if (imagebuttons) {
+        footer = footer.replace(/\{btn_/g,'{imgbtn_');
 /*jshint expr:true */
-    imagebuttons && (footer=footer.replace(/\{btn_/g,'{imgbtn_'));
+        primaryButton && (primaryButton=primaryButton.replace(/btn_/g,'imgbtn_'));
 /*jshint expr:false */
+    }
     newconfig = Y.merge(config, {
         title: title,
         message: message,
         footer: footer,
         source: APP,
+        primaryButton: primaryButton,
+        rejectButton: rejectButton,
         type: messageType,
         level: level
     });
 /*jshint expr:true */
     config.level && (newconfig.level=config.level); // config.level should overrule the param level
+    config.primaryButton && (newconfig.primaryButton=config.primaryButton); // config.primaryButton should overrule the param level
     newconfig.level || (newconfig.level=config.type); // config.type is for backwards compatibility
 /*jshint expr:false */
     return instance.readyPromise().then(

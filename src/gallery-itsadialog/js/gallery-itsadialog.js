@@ -18,6 +18,7 @@
 */
 
 var YArray = Y.Array,
+    Lang = Y.Lang,
     RENDERDELAY = 5000,
     MODEL = 'model',
     TITLE = 'title',
@@ -68,8 +69,12 @@ ITSADialog.prototype._renderPanels = function() {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
-                buttonValue = buttonNode && buttonNode.get(VALUE);
-            itsamessage.resolvePromise(buttonValue);
+                buttonValue = buttonNode && buttonNode.get(VALUE),
+                rejectButton = itsamessage.get('rejectButton'),
+                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+/*jshint expr:true */
+            rejected ? itsamessage.rejectPromise(buttonValue) : itsamessage.resolvePromise(buttonValue);
+/*jshint expr:false */
         })
     );
     eventhandlers.push(
@@ -77,8 +82,12 @@ ITSADialog.prototype._renderPanels = function() {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
-                buttonValue = buttonNode && buttonNode.get(VALUE);
-            itsamessage.resolvePromise(buttonValue);
+                buttonValue = buttonNode && buttonNode.get(VALUE),
+                rejectButton = itsamessage.get('rejectButton'),
+                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+/*jshint expr:true */
+            rejected ? itsamessage.rejectPromise(buttonValue) : itsamessage.resolvePromise(buttonValue);
+/*jshint expr:false */
         })
     );
     eventhandlers.push(
@@ -86,8 +95,12 @@ ITSADialog.prototype._renderPanels = function() {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
-                buttonValue = buttonNode && buttonNode.get(VALUE);
-            itsamessage.resolvePromise(buttonValue);
+                buttonValue = buttonNode && buttonNode.get(VALUE),
+                rejectButton = itsamessage.get('rejectButton'),
+                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+/*jshint expr:true */
+            rejected ? itsamessage.rejectPromise(buttonValue) : itsamessage.resolvePromise(buttonValue);
+/*jshint expr:false */
         })
     );
     panels[INFO].render();
@@ -101,12 +114,12 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
         function() {
             return new Y.Promise(function (resolve, reject) {
                 var level = itsamessage.get('level'),
-                    primarybutton = itsamessage.get('primarybutton'),
+                    primarybutton = itsamessage.get('primaryButton'),
                     panels = instance.panels,
                     panel = panels[level],
                     footer = itsamessage.get(FOOTER),
                     footerHasButtons = /btn_/.test(footer),
-                    footerview;
+                    footerview, removePrimaryButton;
                 panels[INFO].hide();
                 panels[WARN].hide();
                 panels[ERROR].hide();
@@ -114,10 +127,12 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                 panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
                 panel.set('template', itsamessage.get('message'));
                 panel.set(FOOTER+'Template', footer);
-                if (footer && primarybutton) {
+                if (footer && Lang.isValue(primarybutton)) {
                     footerview = panel.get('footerView');
-                    footerview.setPrimaryButton(primarybutton);
-    //                footerview.render(); // rerender because we have a new primary button
+                    removePrimaryButton = (typeof primarybutton === 'boolean') && !primarybutton;
+/*jshint expr:true */
+                    removePrimaryButton ? footerview.removePrimaryButton() : footerview.setPrimaryButton(primarybutton);
+/*jshint expr:false */
                 }
                 panel.set(MODEL, itsamessage);
                 panel.set(TITLE, itsamessage.get(TITLE));
