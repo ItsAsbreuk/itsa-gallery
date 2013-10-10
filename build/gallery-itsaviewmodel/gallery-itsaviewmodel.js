@@ -955,6 +955,24 @@ ITSAViewModel.prototype.removeHotKey = function(buttonType) {
 };
 
 /**
+ * Removes the primarybutton (if set).
+ *
+ * @method removePrimaryButton
+ * @since 0.5
+**/
+ITSAViewModel.prototype.removePrimaryButton = function() {
+    var instance = this,
+        buttons = instance._buttons;
+
+    YArray.each(
+        buttons,
+        function(button) {
+            button.config.primary = false;
+        }
+    );
+};
+
+/**
  * Method that is responsible for rendering the Model into the view.
  *
  * @method render
