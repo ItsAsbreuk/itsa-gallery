@@ -24,7 +24,8 @@ var YArray = Y.Array,
     FOOTER = 'footer',
     INFO = 'info',
     WARN = 'warn',
-    ERROR = 'error';
+    ERROR = 'error',
+    VALUE = 'value';
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -65,22 +66,28 @@ ITSADialog.prototype._renderPanels = function() {
     eventhandlers.push(
         panels[INFO].on('*:hide', function(e) {
             var panel = e.target,
-                itsamessage = panel.get(MODEL);
-            itsamessage.resolvePromise();
+                itsamessage = panel.get(MODEL),
+                buttonNode = e.buttonNode,
+                buttonValue = buttonNode && buttonNode.get(VALUE);
+            itsamessage.resolvePromise(buttonValue);
         })
     );
     eventhandlers.push(
         panels[WARN].on('*:hide', function(e) {
             var panel = e.target,
-                itsamessage = panel.get(MODEL);
-            itsamessage.resolvePromise();
+                itsamessage = panel.get(MODEL),
+                buttonNode = e.buttonNode,
+                buttonValue = buttonNode && buttonNode.get(VALUE);
+            itsamessage.resolvePromise(buttonValue);
         })
     );
     eventhandlers.push(
         panels[ERROR].on('*:hide', function(e) {
             var panel = e.target,
-                itsamessage = panel.get(MODEL);
-            itsamessage.resolvePromise();
+                itsamessage = panel.get(MODEL),
+                buttonNode = e.buttonNode,
+                buttonValue = buttonNode && buttonNode.get(VALUE);
+            itsamessage.resolvePromise(buttonValue);
         })
     );
     panels[INFO].render();
@@ -155,5 +162,5 @@ ITSADialog.prototype._clearEventhandlers = function() {
 };
 
 // define 1 global messagecontroller
-YUI.Env.ITSADialog = new ITSADialog({handleAnonymous: true, interrupt: false});
+YUI.Env.ITSADialog = new ITSADialog({handleAnonymous: true});
 

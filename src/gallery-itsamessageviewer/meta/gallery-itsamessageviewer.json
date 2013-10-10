@@ -2,6 +2,9 @@
     "gallery-itsamessageviewer": {
         "requires": [
             "yui-base",
+            "yui-later",
+            "timers",
+            "gallery-itsamodulesloadedpromise",
             "gallery-itsamessagecontroller"
         ]
     }

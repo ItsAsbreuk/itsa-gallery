@@ -24,6 +24,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
 
     var APP = 'application',
         ERROR = 'error',
+        INFO = 'info',
+        WARN = 'warn',
         ESSAGE = 'essage',
         MESSAGE = 'm'+ESSAGE,
         LOADDELAY = 5000,
@@ -92,47 +94,47 @@ Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true)
 };
 
 ITSAMessageController.prototype[GET_RETRY_CONFIRMATION] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', GET_RETRY_CONFIRMATION);
+    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', GET_RETRY_CONFIRMATION, INFO);
 };
 
 ITSAMessageController.prototype[GET_CONFIRMATION] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', GET_CONFIRMATION);
+    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', GET_CONFIRMATION, INFO);
 };
 
 ITSAMessageController.prototype[GET_INPUT] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_INPUT);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_INPUT, INFO);
 };
 
 ITSAMessageController.prototype[GET_NUMBER] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_NUMBER);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_NUMBER, INFO);
 };
 
 ITSAMessageController.prototype[GET_DATE] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE, INFO);
 };
 
 ITSAMessageController.prototype[GET_TIME] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_TIME);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_TIME, INFO);
 };
 
 ITSAMessageController.prototype[GET_DATE_TIME] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE_TIME);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_DATE_TIME, INFO);
 };
 
 ITSAMessageController.prototype[SHOW_MESSAGE] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_MESSAGE);
+    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_MESSAGE, INFO);
 };
 
 ITSAMessageController.prototype[SHOW_WARNING] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_WARNING);
+    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_WARNING, WARN);
 };
 
 ITSAMessageController.prototype[SHOW_ERROR] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_ERROR);
+    return this._queueMessage(title, message, config, '{btn_ok}', SHOW_ERROR, ERROR);
 };
 
 ITSAMessageController.prototype[GET_LOGIN] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_LOGIN);
+    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', GET_LOGIN, INFO);
 };
 
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
@@ -239,7 +241,7 @@ console.log('fireing '+NEWMESSAGE_ADDED);
             );
 };
 
-ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, messageType) {
+ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, messageType, level) {
 console.log('_queueMessage '+title);
     var instance = this,
         withTitle = (typeof message === 'string'),
@@ -258,9 +260,11 @@ console.log('_queueMessage '+title);
         message: message,
         footer: footer,
         source: APP,
-        type: messageType
+        type: messageType,
+        level: level
     });
 /*jshint expr:true */
+    config.level && (newconfig.level=config.level); // config.level should overrule the param level
     newconfig.level || (newconfig.level=config.type); // config.type is for backwards compatibility
 /*jshint expr:false */
     return instance.readyPromise().then(

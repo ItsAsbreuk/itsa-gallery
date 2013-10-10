@@ -1,20 +1,41 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
 
-    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 1', 'Errste bericht', {
+    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 1', 'Eerste bericht', {
         imagebuttons: true,
         primarybutton: 'imgbtn_ignore'
-    });
+    }).then(
+        function(result) {
+            console.log('Eerste bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Eerste bericht rejected '+reason);
+        }
+    );
 
     YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 2', 'Tweede bericht', {
         imagebuttons: true,
         primarybutton: 'imgbtn_retry'
-    });
+    }).then(
+        function(result) {
+            console.log('Tweede bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Tweede bericht rejected '+reason);
+        }
+    );
 
     Y.later(7000, null, function() {
         YUI.Env.ITSAMessageController.showError('nieuwe titel error', 'Error bericht', {
             imagebuttons: true
-        });
+        }).then(
+            function(result) {
+                console.log('Error bericht fulfilled '+result);
+            },
+            function(reason) {
+                console.log('Error bericht rejected '+reason);
+            }
+        );
     });
 
     Y.later(5000, null, function() {

@@ -20,6 +20,7 @@
  *
 */
 var MESSAGE = 'message',
+    LOADICONSDELAY = 5000, // for gallerycss-itsa-form
     NEWMESSAGE = 'new' + MESSAGE,
     PROCESSING = 'processing',
     ERROR = 'error',
@@ -85,9 +86,11 @@ ITSAMessageViewer.prototype.initializer = function() {
 console.log('initializer itsamessageviewer');
     var instance = this;
     YUI.Env.ITSAMessageController.addTarget(instance);
+    // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
+    Y.later(LOADICONSDELAY, Y, Y.usePromise, 'gallerycss-itsa-form');
     Y.soon(Y.bind(instance._processQueue, instance));
 /*jshint expr:true */
-    instance.get('interrupt') && instance.interruptHandler = instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
+    instance.get('interrupt') && (instance.interruptHandler=instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
         var itsamessage = e.model,
             lastLevel = instance._lastLevel,
             level = itsamessage.get(LEVEL);
@@ -97,7 +100,7 @@ console.log('initializer itsamessageviewer');
             // restart queue which will make the interupt-message the next message
             instance._processQueue();
         }
-    });
+    }));
 /*jshint expr:false */
 };
 
@@ -118,6 +121,7 @@ console.log('handlePromise');
     handlePromiseLoop();
 };
 
+// be sure to return a promise, otherwise all messsages are eaten up at once!
 ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
 console.log('viewMessage itsamessageviewer');
