@@ -2,7 +2,7 @@ YUI.add('gallery-itsapanel', function (Y, NAME) {
 
 'use strict';
 
-/*jshint maxlen:200 */
+/*jshint maxlen:215 */
 
 /**
  *
@@ -618,6 +618,13 @@ ITSAPanel.prototype.bindUI = function() {
                 (ev.newVal instanceof Y.View) && ev.newVal.addTarget(instance);
     /*jshint expr:false */
             }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            [FOOTER+CHANGE, FOOTER+RIGHT+CHANGE],
+            Y.bind(instance._renderFooter, instance)
         )
     );
 
