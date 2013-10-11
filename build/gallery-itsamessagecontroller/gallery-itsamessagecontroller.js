@@ -22,7 +22,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
  *
 */
 
-    var APP = 'application',
+    var YArray = Y.Array,
+        APP = 'application',
         ERROR = 'error',
         INFO = 'info',
         WARN = 'warn',
@@ -34,7 +35,6 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         PUBLISHED_NEWMESSAGE = PUBLISHED+NEWMESSAGE,
         NEWMESSAGE_ADDED = NEWMESSAGE+'_added',
         PUBLISHED_NEWMESSAGE_ADDED = PUBLISHED+NEWMESSAGE_ADDED,
-        MODELLIST = 'model-list',
         GALLERY_ITSAMESSAGE = 'gallery-itsamessage',
         GET = 'get',
         SHOW = 'show',
@@ -50,13 +50,7 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         GET_DATE_TIME = GET_DATE+TIME,
         SHOW_MESSAGE = SHOW+'M'+ESSAGE,
         SHOW_WARNING = SHOW+'Warning',
-        SHOW_ERROR = SHOW+'Error',
-        levelValue = {
-            error: 0,
-            warn: 1,
-            info: 2
-        };
-
+        SHOW_ERROR = SHOW+'Error';
 
 function ITSAMessageController() {
     ITSAMessageController.superclass.constructor.apply(this, arguments);
@@ -68,28 +62,16 @@ Y.extend(ITSAMessageController, Y.Base);
 
 ITSAMessageController.prototype.initializer = function() {
     var instance = this;
+    instance.addTarget(Y);
+    instance.queue = [];
     Y.later(LOADDELAY, instance, instance.readyPromise);
+//Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
+//Y.later(5000, null, function(){console.log(instance.queue.item(0).get('title'));}, null, true);
 };
 
 ITSAMessageController.prototype.readyPromise = function() {
     var instance = this;
-    return instance._readyPromise || (instance._readyPromise=Y.usePromise(MODELLIST, GALLERY_ITSAMESSAGE).then(
-        Y.bind(instance._initQueue, instance)
-    ));
-};
-
-ITSAMessageController.prototype._initQueue = function() {
-    var instance = this,
-        queue;
-    queue = instance.queue = new Y.ModelList();
-    queue.comparator = function (model) {
-      return levelValue[model.get('level')];
-    };
-
-
-Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
-
-
+    return instance._readyPromise || (instance._readyPromise=Y.usePromise(GALLERY_ITSAMESSAGE));
 };
 
 ITSAMessageController.prototype[GET_RETRY_CONFIRMATION] = function(title, message, config) {
@@ -135,6 +117,7 @@ ITSAMessageController.prototype[SHOW_ERROR] = function(title, message, config) {
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
 console.log('queueMessage '+itsamessage.get('message'));
     var instance = this,
+        autoDestroyDelay = itsamessage.get('autoDestroy'),
         promise, promiseResolve, promiseReject;
     promise = new Y.Promise(function (resolve, reject) {
         promiseResolve = resolve;
@@ -165,22 +148,35 @@ console.log('queueMessage '+itsamessage.get('message'));
                                                                                   preventedFn: instance._prevDefFn
                                                                                 }
                                                                                ));
-    instance.readyPromise().then(
-        function() {
-console.log('fireing '+NEWMESSAGE);
-            instance.fire(NEWMESSAGE, {model: itsamessage});
-            (itsamessage instanceof Y.ITSAMessage) || itsamessage.rejectPromise(new Error('Param added to queueMessage is no instance of Y.ITSAMessage'));
-        }
-    );
+    (autoDestroyDelay > 0) && itsamessage.promise.then(
+                                  Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay),
+                                  Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay)
+                              );
+    instance.fire(NEWMESSAGE, {model: itsamessage});
+    console.log('fireing '+NEWMESSAGE);
 /*jshint expr:false */
     return promise;
 };
 
 ITSAMessageController.prototype.destructor = function() {
-    var queue = this.queue;
-/*jshint expr:true */
-    queue && queue.destroy();
-/*jshint expr:false */
+    var instance = this,
+        queue = instance.queue;
+    instance.removeTarget(Y);
+    YArray.each(
+        queue,
+        function(itsamessage) {
+            itsamessage.destroy();
+        }
+    );
+    queue.length = 0;
+};
+
+ITSAMessageController.prototype._autoDestroyMsg = function(itsamessage, delay) {
+    Y.later(delay, null, function() {
+console.log('DESTROYING '+itsamessage.get('title'));
+        itsamessage.destroy();
+        itsamessage = null;
+    });
 };
 
 /**
@@ -204,7 +200,7 @@ console.log('_defQueueFn '+e.model.get('message'));
     var instance = this,
         itsamessage = e.model,
         queue = instance.queue;
-    queue.add(itsamessage);
+    queue.push(itsamessage);
     // lazy publish event PUBLISHED_NEWMESSAGE_ADDED
     /**
       * Event fired when the add-button is clicked.
@@ -226,11 +222,14 @@ console.log('_defQueueFn '+e.model.get('message'));
 console.log('fireing '+NEWMESSAGE_ADDED);
     instance.fire(NEWMESSAGE_ADDED, {model: itsamessage});
     return itsamessage.promise.then(
+                null,
+                function() {return true;} // fullfil promise
+            ).then(
                 function() {
-                    queue.remove(itsamessage);
-                },
-                function() {
-                    queue.remove(itsamessage);
+                    var index = queue.indexOf(itsamessage);
+/*jshint expr:true */
+                    (index>-1) && queue.splice(index, 1);
+/*jshint expr:false */
                 }
             );
 };
@@ -262,6 +261,7 @@ console.log('_queueMessage '+title);
         type: messageType,
         level: level
     });
+console.log('CHECk CHECK '+title+' -- '+primaryButton);
 /*jshint expr:true */
     config.level && (newconfig.level=config.level); // config.level should overrule the param level
     config.primaryButton && (newconfig.primaryButton=config.primaryButton); // config.primaryButton should overrule the param level

@@ -38,6 +38,13 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @type {Boolean}
          * @default false
          */
+        autoDestroy: {
+            value: 1000,
+            writeOnce: 'initOnly',
+            validator: function(v) {
+                return (typeof v==='number');
+            }
+        },
         footer: {
             writeOnce: 'initOnly',
             validator: function(v) {
@@ -101,7 +108,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
             validator: function(v) {
                 return (typeof v==='boolean');
             }
-        }
+        },
         title: {
             writeOnce: 'initOnly',
             validator: function(v) {

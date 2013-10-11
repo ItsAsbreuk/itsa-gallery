@@ -1,6 +1,6 @@
 'use strict';
 
-/*jshint maxlen:200 */
+/*jshint maxlen:210 */
 
 /**
  *
@@ -19,13 +19,16 @@
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
-var MESSAGE = 'message',
+var YArray = Y.Array,
+    MESSAGE = 'message',
     LOADICONSDELAY = 5000, // for gallerycss-itsa-form
     NEWMESSAGE = 'new' + MESSAGE,
     PROCESSING = 'processing',
     ERROR = 'error',
+    WARN = 'warn',
     INFO = 'info',
     LEVEL = 'level',
+    SUSPENDED = 'suspended',
     NEWMESSAGE_ADDED = NEWMESSAGE+'_added';
 
 
@@ -91,12 +94,23 @@ ITSAMessageViewer.prototype.initializer = function() {
 /*jshint expr:true */
     instance.get('interrupt') && (instance.interruptHandler=instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
         var itsamessage = e.model,
-            lastLevel = instance._lastLevel,
-            level = itsamessage.get(LEVEL);
+            lastMessage = instance._lastMessage,
+            level = itsamessage.get(LEVEL),
+            lastLevel = lastMessage && lastMessage.get(LEVEL);
         if (lastLevel && (lastLevel!==level) && ((level===ERROR) || (lastLevel===INFO))) {
             // need to interrupt with new message
-console.log('going to interupt');
-            instance.suspend();
+console.log('going to interupt '+lastLevel);
+            lastMessage._set(SUSPENDED, true);
+
+
+
+            // OOK (eerst) de loop paezeren igd promise automatisch resolved!
+            instance.suspend(lastLevel);
+
+
+
+            // need to reset _lastMessage here: cannot wait for _nextMessagePromise because this leads to a timing issue.
+            instance._lastMessage = itsamessage;
             // restart new queue which will make the interupt-message the next message
             instance._processQueue();
         }
@@ -104,19 +118,23 @@ console.log('going to interupt');
 /*jshint expr:false */
 };
 
-ITSAMessageViewer.prototype._processQueue = function() {
+ITSAMessageViewer.prototype._processQueue = function(startMessage) {
     var instance = this,
-        handlePromise, handlePromiseLoop;
+        handlePromise, handlePromiseLoop, handlePromiseLoopStartMessage;
 console.log('_processQueue started');
     handlePromise = function() {
 console.log('handlePromise');
         return instance._nextMessagePromise().then(
             function(itsamessage) {
-                if (itsamessage.get('suspended')) {
-                    instance.resurrect();
-                    throw new Exception("promiseloop ended because of resurrection");
+console.log('handlePromise of message '+itsamessage.get('title'));
+                if (itsamessage.get(SUSPENDED)) {
+                    itsamessage._set(SUSPENDED, false);
+                    instance.resurrect(itsamessage.get(LEVEL));
+                    throw new Error("promiseloop ended because of resurrection");
+                }
                 else {
-                    instance.viewMessage();
+                    itsamessage._set(PROCESSING, true);
+                    return instance.viewMessage(itsamessage);
                 }
             }
         );
@@ -125,7 +143,14 @@ console.log('handlePromise');
         // will loop until rejected, which is at destruction of the class
         return handlePromise().then(handlePromiseLoop);
     };
-    handlePromiseLoop();
+    handlePromiseLoopStartMessage = function(itsamessage) {
+        // will loop until rejected, which is at destruction of the class
+        var startMessagePromise = new Y.Promise(function (resolve) { resolve(itsamessage); });
+        return startMessagePromise.then(handlePromiseLoop);
+    };
+/*jshint expr:true */
+    startMessage ? handlePromiseLoopStartMessage(startMessage) : handlePromiseLoop(startMessage);
+/*jshint expr:false */
 };
 
 // be sure to return a promise, otherwise all messsages are eaten up at once!
@@ -135,12 +160,11 @@ console.log('viewMessage itsamessageviewer');
     Y.log('viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
-ITSAMessageViewer.prototype.suspend = function() {
-    // should be overridden --> method that renderes the message in the dom
-    Y.log('suspend() is not overridden', 'warn', 'ITSAMessageViewer');
+ITSAMessageViewer.prototype.suspend = function(/* level */) {
+    // could be overridden --> method that renderes the message in the dom
 };
 
-ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
+ITSAMessageViewer.prototype.resurrect = function(/* level */) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
 };
@@ -159,23 +183,41 @@ ITSAMessageViewer.prototype._nextMessagePromise = function() {
                     handleAnonymous = instance.get('handleAnonymous'),
                     name = instance.constructor.NAME,
                     nextMessage, listener;
-                queue.some(
+                // first find messages with level=error
+                YArray.some(
+                    queue,
                     function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && !itsamessage.get(PROCESSING) && itsamessage;
+                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && (itsamessage.get(LEVEL)===ERROR) && (!itsamessage.get(PROCESSING) || itsamessage.get(SUSPENDED)) && itsamessage;
                         return nextMessage;
                     }
                 );
+                // next find messages with level=warn
 /*jshint expr:true */
-                nextMessage ? resolve(instance._lastLevel=nextMessage.get(LEVEL) && nextMessage._set(PROCESSING, true) && nextMessage) : (listener=instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
+                nextMessage || YArray.some(
+                    queue,
+                    function(itsamessage) {
+                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && (itsamessage.get(LEVEL)===WARN) && (!itsamessage.get(PROCESSING) || itsamessage.get(SUSPENDED)) && itsamessage;
+                        return nextMessage;
+                    }
+                );
+                // next find other messages
+                nextMessage || YArray.some(
+                    queue,
+                    function(itsamessage) {
+                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && (!itsamessage.get(PROCESSING) || itsamessage.get(SUSPENDED)) && itsamessage;
+                        return nextMessage;
+                    }
+                );
+                nextMessage ? ((instance._lastMessage=nextMessage) && resolve(nextMessage)) : (listener=instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
 console.log('event caught: '+e.type);
-                                                                                var itsamessage = e.model;
-                                                                                if (handleAnonymous || (itsamessage.target===name)) {
+                                                            var itsamessage = e.model;
+                                                            if (handleAnonymous || (itsamessage.target===name)) {
 console.log('event HANDLED!');
-                                                                                    instance._lastLevel = itsamessage.get(LEVEL);
-                                                                                    resolve(itsamessage._set(PROCESSING, true) && itsamessage);
-                                                                                    listener.detach();
-                                                                                }
-                                                                           })
+                                                                instance._lastMessage = itsamessage;
+                                                                resolve(itsamessage);
+                                                                listener.detach();
+                                                            }
+                                                       })
                 );
 /*jshint expr:false */
             });

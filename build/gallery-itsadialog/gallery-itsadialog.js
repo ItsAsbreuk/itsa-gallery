@@ -114,7 +114,7 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     var instance = this;
     return instance.renderPromise().then(
         function() {
-            return new Y.Promise(function (resolve, reject) {
+            return new Y.Promise(function (resolve) {
                 var level = itsamessage.get('level'),
                     primarybutton = itsamessage.get('primaryButton'),
                     panels = instance.panels,
@@ -124,6 +124,7 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                     footerview, removePrimaryButton;
                 panels[INFO].hide();
                 panels[WARN].hide();
+console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show');
                 panels[ERROR].hide();
                 panel = panels[level];
                 panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
@@ -141,11 +142,28 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                 panel.once(
                     '*:hide',
                     function() {
-                        resolve();
+                        resolve(itsamessage);
                     }
                 );
+console.log('SHOWING PANEL '+level);
                 panel.show();
+console.log('PANEL '+level+' is shown '+panel.get('visible'));
+Y.later(5000, null, function() {
+console.log('RETRY PANEL '+level+' is shown '+panel.get('visible'));
+});
             });
+        }
+    );
+};
+
+ITSADialog.prototype.resurrect = function(level) {
+    var instance = this;
+    instance.renderPromise().then(
+        function() {
+            var panel = instance.panels[level];
+        /*jshint expr:true */
+            panel && panel.show();
+        /*jshint expr:false */
         }
     );
 };

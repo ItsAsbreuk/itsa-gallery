@@ -1,8 +1,8 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
-
-    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 1', 'Eerste bericht', {
-        primaryButton: 'imgbtn_ignore',
+    YUI.Env.ITSAMessageController.showMessage('nieuwe titel 1', 'Eerste bericht', {
+  //      primaryButton: 'imgbtn_ignore',
+        noButtons: true,
         imageButtons: true
     }).then(
         function(result) {
@@ -13,7 +13,6 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         }
     );
 
-    Y.later(1000, null, function() {
     YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 2', 'Tweede bericht', {
 //        primaryButton: 'imgbtn_retry',
         imageButtons: true
@@ -25,9 +24,32 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
             console.log('Tweede bericht rejected '+reason);
         }
     );
-    });
 
-    Y.later(2000, null, function() {
+    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 3', 'Derde bericht', {
+//        primaryButton: 'imgbtn_retry',
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('Derde bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Derde bericht rejected '+reason);
+        }
+    );
+
+    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 4', 'Vierde bericht', {
+//        primaryButton: 'imgbtn_retry',
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('Vierde bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Vierde bericht rejected '+reason);
+        }
+    );
+
+
         YUI.Env.ITSAMessageController.showError('nieuwe titel error', 'Error bericht', {
             imageButtons: true
         }).then(
@@ -38,12 +60,52 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
                 console.log('Error bericht rejected '+reason);
             }
         );
-    });
 
-    Y.later(5000, null, function() {
-       // YUI.Env.ITSAMessageController.showWarning('nieuwe titel', 'Warning bericht', {
-       //     imageButtons: true
-       // });
-    });
+        YUI.Env.ITSAMessageController.showError('TWEEDE titel error', 'Error bericht', {
+            imageButtons: true
+        }).then(
+            function(result) {
+                console.log('TWEEDE Error bericht fulfilled '+result);
+            },
+            function(reason) {
+                console.log('TWEEDE Error bericht rejected '+reason);
+            }
+        );
+
+        YUI.Env.ITSAMessageController.showWarning('nieuwe titel warning', 'Warning bericht', {
+            imageButtons: true
+        }).then(
+            function(result) {
+                console.log('warning bericht fulfilled '+result);
+            },
+            function(reason) {
+                console.log('warning bericht rejected '+reason);
+            }
+        );
+
+    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 5', 'Vijfde bericht', {
+//        primaryButton: 'imgbtn_retry',
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('Vijfde bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Vijfde bericht rejected '+reason);
+        }
+    );
+
+    YUI.Env.ITSAMessageController.showMessage('nieuwe titel 6', 'Zesde bericht', {
+  //      primaryButton: 'imgbtn_ignore',
+        noButtons: true,
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('Zesde bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Zesde bericht rejected '+reason);
+        }
+    );
 
 });

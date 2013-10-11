@@ -4,6 +4,7 @@
             "yui-base",
             "yui-later",
             "timers",
+            "promise",
             "gallery-itsamodulesloadedpromise",
             "gallery-itsamessagecontroller"
         ]

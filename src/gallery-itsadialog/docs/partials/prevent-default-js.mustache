@@ -1,0 +1,20 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+
+    Y.on('newmessage', function(e) {
+    alert('event caught');
+        e.preventDefault();
+    });
+
+    YUI.Env.ITSAMessageController.showMessage('nieuwe titel 1', 'Eerste bericht', {
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('Eerste bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Eerste bericht rejected '+reason);
+        }
+    );
+
+
+});

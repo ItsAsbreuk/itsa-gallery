@@ -40,6 +40,13 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @type {Boolean}
          * @default false
          */
+        autoDestroy: {
+            value: 1000,
+            writeOnce: 'initOnly',
+            validator: function(v) {
+                return (typeof v==='number');
+            }
+        },
         footer: {
             writeOnce: 'initOnly',
             validator: function(v) {
@@ -88,13 +95,20 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         rejectButton: {
             writeOnce: 'initOnly',
             validator: function(v) {
-                return (typeof v==='boolean') || (typeof v==='string');
+                return (typeof v==='string');
             }
         },
         source: {
             writeOnce: 'initOnly',
             validator: function(v) {
                 return (typeof v==='string');
+            }
+        },
+        suspended: {
+            value: false,
+            readOnly: true,
+            validator: function(v) {
+                return (typeof v==='boolean');
             }
         },
         title: {
@@ -118,6 +132,5 @@ ITSAMessage.prototype.erase = function() {
     resolve && resolve();
 /*jshint expr:false */
 };
-
 
 }, '@VERSION@', {"requires": ["yui-base", "gallery-itsaformmodel"]});
