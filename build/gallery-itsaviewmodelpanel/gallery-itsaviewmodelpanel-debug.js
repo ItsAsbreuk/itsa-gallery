@@ -577,18 +577,23 @@ ITSAViewModelPanel.prototype.bindUI = function() {
             var newTemplate = e.newVal,
                 prevTemplate = e.prevVal,
                 newFooterView;
-            if (newTemplate && !prevTemplate) {
-                newFooterView = new Y.ITSAViewModel({
-                    model: instance.get(MODEL),
-                    template: newTemplate,
-                    editable: false,
-                    styled: false,
-                    focusManaged: false, // will be done at the Panel-level
-                    partOfMultiView: true
-                });
-                instance._set(FOOTERVIEW, newFooterView);
-                newFooterView.addTarget(instance);
-                instance._renderFooter();
+            if (newTemplate) {
+                if (!prevTemplate) {
+                    newFooterView = new Y.ITSAViewModel({
+                        model: instance.get(MODEL),
+                        template: newTemplate,
+                        editable: false,
+                        styled: false,
+                        focusManaged: false, // will be done at the Panel-level
+                        partOfMultiView: true
+                    });
+                    instance._set(FOOTERVIEW, newFooterView);
+                    newFooterView.addTarget(instance);
+                    instance._renderFooter();
+                }
+                else {
+                    instance.get(FOOTERVIEW).set('template', newTemplate);
+                }
             }
             prevTemplate && !newTemplate && prevTemplate.destroy() && instance._set(FOOTERVIEW, null);
             contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
