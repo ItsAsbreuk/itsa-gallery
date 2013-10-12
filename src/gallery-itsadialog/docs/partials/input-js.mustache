@@ -1,7 +1,19 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
     Y.getInput('De titel', 'Geef hier uw waarde tussen 2 en 10:', {
-        imageButtons: true
+        imageButtons: true,
+        label: 'waarde: ',
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)}
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.itsamessage.get('input'));
+        }
+    );
+
+    Y.getInput('De titel', 'Geef hier uw waarde tussen 200 en 3000:', {
+        imageButtons: true,
+        label: 'tweede waarde: ',
+        validator: function(val) {return (typeof val === 'number') && (val>=200) && (val<=300)}
     }).then(
         function(result) {
             console.log('resultaat '+result.itsamessage.get('input'));

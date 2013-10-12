@@ -23,7 +23,6 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
 */
 
     var ITSAMessageControllerInstance,
-        MyITSAMessageInput,
         YArray = Y.Array,
         APP = 'application',
         ERROR = 'error',
@@ -89,7 +88,8 @@ ITSAMessageController.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, m
 ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
 console.log('_getInput');
     var instance = this,
-        withTitle = (typeof message === 'string');
+        withTitle = (typeof message === 'string'),
+        MyITSAMessageInput;
     if (!withTitle) {
         config = message;
         message = title;
@@ -102,24 +102,23 @@ console.log('_getInput');
     ).then(
         function() {
 console.log('_getInput continue');
-/*jshint expr:true */
-            MyITSAMessageInput || (MyITSAMessageInput=Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
-                                                          ATTRS: {
-                                                              input: {
-                                                                  formtype: 'number',
-                                                                  formconfig: Y.merge(config.formconfig, {
-                                                                      fullselect: true,
-                                                                      primarybtnonenter: true
-                                                                  })
-                                                              }
-                                                          }
-                                                      }));
-/*jshint expr:false */
-            message +=  '<form class="pure-form">'+
-                           '<fieldset>'+
-                               '<div class="pure-control-group">{input}</div>'+
-                           '</fieldset>'+
-                        '</form>';
+            MyITSAMessageInput = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
+                                      ATTRS: {
+                                          input: {
+                                              formtype: 'number',
+                                              formconfig: Y.merge(config.formconfig, {
+                                                  fullselect: true,
+                                                  required: true,
+                                                  label: config.label,
+                                                  primarybtnonenter: true
+                                              }),
+                                              validator: config.validator
+                                          }
+                                      }
+                                  });
+            message += '<fieldset>'+
+                           '<div class="pure-control-group">{input}</div>'+
+                       '</fieldset>';
             return instance._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessageInput);
         }
     );
