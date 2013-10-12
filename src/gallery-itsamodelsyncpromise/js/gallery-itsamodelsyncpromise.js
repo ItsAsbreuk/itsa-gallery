@@ -330,6 +330,7 @@ YModel.prototype._createPromise = function(type, options) {
  * @param e.promiseReject {Function} handle to the reject-method
  * @param e.promiseResolve {Function} handle to the resolve-method
  * @private
+ * @return {Y.Promise} do not handle yourself: is handled by internal eventsystem.
  * @since 0.3
 */
 YModel.prototype._defFn_destroy = function(e) {
@@ -401,6 +402,7 @@ YModel.prototype._defFn_destroy = function(e) {
  * @param e.promiseReject {Function} handle to the reject-method
  * @param e.promiseResolve {Function} handle to the resolve-method
  * @private
+ * @return {Y.Promise} do not handle yourself: is handled by internal eventsystem.
  * @since 0.3
 */
 YModel.prototype._defFn_load = function(e) {
@@ -460,6 +462,7 @@ YModel.prototype._defFn_load = function(e) {
  * @param e.promiseReject {Function} handle to the reject-method
  * @param e.promiseResolve {Function} handle to the resolve-method
  * @private
+ * @return {Y.Promise} do not handle yourself: is handled by internal eventsystem.
  * @since 0.3
 */
 YModel.prototype._defFn_save = function(e) {

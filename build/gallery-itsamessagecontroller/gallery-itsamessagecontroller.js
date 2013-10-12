@@ -103,11 +103,14 @@ console.log('_getInput');
         function() {
 console.log('_getInput continue');
 /*jshint expr:true */
-            MyITSAMessageInput || (MyITSAMessageInput=Y.Base.create('itsamessageinput', Y.ITSAMessage, [], {}, {
+            MyITSAMessageInput || (MyITSAMessageInput=Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
                                                           ATTRS: {
                                                               input: {
                                                                   formtype: 'number',
-                                                                  formconfig: config.formconfig
+                                                                  formconfig: Y.merge(config.formconfig, {
+                                                                      fullselect: true,
+                                                                      primarybtnonenter: true
+                                                                  })
                                                               }
                                                           }
                                                       }));
@@ -197,6 +200,12 @@ console.log('queueMessage '+itsamessage.get('message'));
     itsamessage.rejectPromise = promiseReject;
     // always keep itsamessageinstance life synced:
     itsamessage.setLifeUpdate(true);
+    itsamessage.after(
+        'submit',
+        function() {
+            itsamessage.resolve();
+        }
+    );
     // lazy publish the event
     /**
       * Event fired when the add-button is clicked.
@@ -233,7 +242,9 @@ ITSAMessageController.prototype.destructor = function() {
     YArray.each(
         queue,
         function(itsamessage) {
+            itsamessage.detachAll();
             itsamessage.destroy();
+            itsamessage = null;
         }
     );
     queue.length = 0;
@@ -242,6 +253,7 @@ ITSAMessageController.prototype.destructor = function() {
 ITSAMessageController.prototype._autoDestroyMsg = function(itsamessage, delay) {
     Y.later(delay, null, function() {
 console.log('DESTROYING '+itsamessage.get('title'));
+        itsamessage.detachAll();
         itsamessage.destroy();
         itsamessage = null;
     });
