@@ -475,6 +475,9 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 if (isFooterView) {
                     instance._footercont.toggleClass('itsa-inlinefooter', true);
                     viewinstance.get('container').get('parentNode').setStyle('overflow', 'visible');
+                    // reset previous width, otherwise the width keeps expanding
+                    instance._body.setStyle('minWidth', '');
+                    // now we can calculate instance._footer.get('offsetWidth')
                     instance._body.setStyle('minWidth', instance._footer.get('offsetWidth')+'px');
                     instance._footercont.toggleClass('itsa-inlinefooter', false);
                 }
