@@ -1,0 +1,11 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+
+    Y.getInput('De titel', 'Geef hier uw waarde tussen 2 en 10:', {
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.itsamessage.get('input'));
+        }
+    );
+
+});

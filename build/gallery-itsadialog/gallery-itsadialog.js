@@ -59,6 +59,7 @@ ITSADialog.prototype._renderPanels = function() {
             visible: false,
             centered: true,
             modal: true,
+            editable: true,
             minWidth: 200,
             dragable: true
         },
@@ -75,9 +76,13 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.get('rejectButton'),
-                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton),
+                returnObject = {
+                    itsamessage: itsamessage,
+                    button: buttonValue
+                };
 /*jshint expr:true */
-            rejected ? itsamessage.rejectPromise(buttonValue) : itsamessage.resolvePromise(buttonValue);
+            rejected ? itsamessage.rejectPromise(returnObject) : itsamessage.resolvePromise(returnObject);
 /*jshint expr:false */
         })
     );
@@ -88,9 +93,13 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.get('rejectButton'),
-                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton),
+                returnObject = {
+                    itsamessage: itsamessage,
+                    button: buttonValue
+                };
 /*jshint expr:true */
-            rejected ? itsamessage.rejectPromise(buttonValue) : itsamessage.resolvePromise(buttonValue);
+            rejected ? itsamessage.rejectPromise(returnObject) : itsamessage.resolvePromise(returnObject);
 /*jshint expr:false */
         })
     );
@@ -101,9 +110,13 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.get('rejectButton'),
-                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton),
+                returnObject = {
+                    itsamessage: itsamessage,
+                    button: buttonValue
+                };
 /*jshint expr:true */
-            rejected ? itsamessage.rejectPromise(buttonValue) : itsamessage.resolvePromise(buttonValue);
+            rejected ? itsamessage.rejectPromise(returnObject) : itsamessage.resolvePromise(returnObject);
 /*jshint expr:false */
         })
     );
@@ -151,9 +164,6 @@ console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show
 console.log('SHOWING PANEL '+level);
                 panel.show();
 console.log('PANEL '+level+' is shown '+panel.get('visible'));
-Y.later(5000, null, function() {
-console.log('RETRY PANEL '+level+' is shown '+panel.get('visible'));
-});
             });
         }
     );

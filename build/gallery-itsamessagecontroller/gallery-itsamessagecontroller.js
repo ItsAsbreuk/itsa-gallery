@@ -22,7 +22,9 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
  *
 */
 
-    var YArray = Y.Array,
+    var ITSAMessageControllerInstance,
+        MyITSAMessageInput,
+        YArray = Y.Array,
         APP = 'application',
         ERROR = 'error',
         INFO = 'info',
@@ -51,7 +53,9 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         SHOW_MESSAGE = SHOW+'M'+ESSAGE,
         SHOW_WARNING = SHOW+'Warning',
         SHOW_ERROR = SHOW+'Error',
-        SHOW_STATUS = SHOW+'Status';
+        SHOW_STATUS = SHOW+'Status',
+        UNDERSCORE = '_',
+        BASE_BUILD = 'base-build';
 
 function ITSAMessageController() {
     ITSAMessageController.superclass.constructor.apply(this, arguments);
@@ -74,49 +78,81 @@ ITSAMessageController.prototype.readyPromise = function() {
     return instance._readyPromise || (instance._readyPromise=Y.usePromise(GALLERY_ITSAMESSAGE));
 };
 
-ITSAMessageController.prototype[GET_RETRY_CONFIRMATION] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, INFO);
 };
 
-ITSAMessageController.prototype[GET_CONFIRMATION] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', 'btn_yes', 'btn_no', GET_CONFIRMATION, INFO);
 };
 
-ITSAMessageController.prototype[GET_INPUT] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO);
+ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
+console.log('_getInput');
+    var instance = this,
+        withTitle = (typeof message === 'string');
+    if (!withTitle) {
+        config = message;
+        message = title;
+        title = null;
+    }
+    return instance.readyPromise().then(
+        function() {
+            return Y.usePromise(BASE_BUILD);
+        }
+    ).then(
+        function() {
+console.log('_getInput continue');
+/*jshint expr:true */
+            MyITSAMessageInput || (MyITSAMessageInput=Y.Base.create('itsamessageinput', Y.ITSAMessage, [], {}, {
+                                                          ATTRS: {
+                                                              input: {
+                                                                  formtype: 'number',
+                                                                  formconfig: config.formconfig
+                                                              }
+                                                          }
+                                                      }));
+/*jshint expr:false */
+            message +=  '<form class="pure-form">'+
+                           '<fieldset>'+
+                               '<div class="pure-control-group">{input}</div>'+
+                           '</fieldset>'+
+                        '</form>';
+            return instance._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessageInput);
+        }
+    );
 };
 
-ITSAMessageController.prototype[GET_NUMBER] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO);
 };
 
-ITSAMessageController.prototype[GET_DATE] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+GET_DATE] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_DATE, INFO);
 };
 
-ITSAMessageController.prototype[GET_TIME] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+GET_TIME] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_TIME, INFO);
 };
 
-ITSAMessageController.prototype[GET_DATE_TIME] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+GET_DATE_TIME] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_DATE_TIME, INFO);
 };
 
-ITSAMessageController.prototype[SHOW_MESSAGE] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO);
 };
 
-ITSAMessageController.prototype[SHOW_WARNING] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+SHOW_WARNING] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN);
 };
 
-ITSAMessageController.prototype[SHOW_ERROR] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+SHOW_ERROR] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR);
 };
 
 // returns a promise whith reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!
 // Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()
-ITSAMessageController.prototype[SHOW_STATUS] = function(title, message, config) {
+ITSAMessageController.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
     var instance = this,
         withTitle = (typeof message === 'string'),
         newconfig;
@@ -159,6 +195,8 @@ console.log('queueMessage '+itsamessage.get('message'));
     itsamessage.promise = promise;
     itsamessage.resolvePromise = promiseResolve;
     itsamessage.rejectPromise = promiseReject;
+    // always keep itsamessageinstance life synced:
+    itsamessage.setLifeUpdate(true);
     // lazy publish the event
     /**
       * Event fired when the add-button is clicked.
@@ -265,7 +303,7 @@ console.log('fireing '+NEWMESSAGE_ADDED);
             );
 };
 
-ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level) {
+ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, ITSAMessageClass) {
 console.log('_queueMessage '+title);
     var instance = this,
         withTitle = (typeof message === 'string'),
@@ -299,7 +337,7 @@ console.log('_queueMessage '+title);
 /*jshint expr:false */
     return instance.readyPromise().then(
         function() {
-            return instance.queueMessage(new Y.ITSAMessage(newconfig));
+            return instance.queueMessage(ITSAMessageClass ? (new ITSAMessageClass(newconfig)) : (new Y.ITSAMessage(newconfig)));
         }
     );
 };
@@ -463,8 +501,19 @@ Y._publishAsync = function(type, opts) {
 /*jshint expr:true */
 Y.Global.ITSAMessageController || (Y.Global.ITSAMessageController=new ITSAMessageController());
 /*jshint expr:false */
-Y.ITSAMessageController = Y.Global.ITSAMessageController;
+ITSAMessageControllerInstance = Y.ITSAMessageController = Y.Global.ITSAMessageController;
 
+// now generate public methods:
+Y[GET_RETRY_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_RETRY_CONFIRMATION], ITSAMessageControllerInstance);
+Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_INPUT], ITSAMessageControllerInstance);
+Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITSAMessageControllerInstance);
+Y[GET_DATE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE], ITSAMessageControllerInstance);
+Y[GET_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_TIME], ITSAMessageControllerInstance);
+Y[GET_DATE_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE_TIME], ITSAMessageControllerInstance);
+Y[SHOW_MESSAGE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE], ITSAMessageControllerInstance);
+Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_WARNING], ITSAMessageControllerInstance);
+Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITSAMessageControllerInstance);
+Y[SHOW_STATUS] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS], ITSAMessageControllerInstance);
 
 }, '@VERSION@', {
     "requires": [
