@@ -104,6 +104,7 @@ var ITSAFormElement,
     INITIALFOCUS = 'initialfocus',
     FULLSELECT = 'fullselect',
     SUBMITONENTER = 'submitonenter',
+    PRIMARYBTNONENTER = 'primarybtnonenter',
     NUMBER = 'number',
 
     PURERADIO    = PURE+'-'+RADIO,
@@ -317,6 +318,8 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *   @param [config.pattern] {String} regexp pattern that should be matched. Only applyable for type==='text' or 'password'.
  *   @param [config.placeholder] {String} only applyable for input-elements and textarea.
  *   @param [config.primary=false] {Boolean} making a button the primary button. Only applyable for buttons.
+ *   @param [config.primarybtnonenter=false] {Boolean} in case of text-fields: on enter-press click on the primary button. Will just add the data-attribute data-primarybtnonenter="true"
+                                                       --> it is up to other modules to handle the buttonclick.
  *   @param [config.required=false] {Boolean} (defaults true for 'type===password') when data is required. Only applyable for input-elements, textarea and date/time.
  *   @param [config.readonly=false] {Boolean} not applyable for buttons.
  *   @param [config.spinbusy=false] {Boolean} making a buttonicon to spin if busy. (Actually only adds the data-attribute: data-spinbusy="true" --> which should be used by other js to make it spin).
@@ -399,6 +402,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         focusable = (typeof subtituteConfig[FOCUSABLE]===BOOLEAN) ? subtituteConfig[FOCUSABLE] : true,
         fullselect = (typeof subtituteConfig[FULLSELECT]===BOOLEAN) ? subtituteConfig[FULLSELECT] : false,
         submitonenter = (typeof subtituteConfig[SUBMITONENTER]===BOOLEAN) ? subtituteConfig[SUBMITONENTER] : false,
+        primarybtnonenter = (typeof subtituteConfig[PRIMARYBTNONENTER]===BOOLEAN) ? subtituteConfig[PRIMARYBTNONENTER] : false,
         hideatstartup = (typeof subtituteConfig[HIDEATSTARTUP]===BOOLEAN) ? subtituteConfig[HIDEATSTARTUP] : false,
         tooltip = !isdatetime && config.tooltip,
         tooltipinvalid = !isdatetime && config.tooltipinvalid,
@@ -601,6 +605,7 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
         FULLSELECT_TYPES[type] && (ITSAFormElement._TXTList || ITSAFormElement._actTXTList());
         fullselect && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+FULLSELECT+'="true"');
         submitonenter && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+SUBMITONENTER+'="true"');
+        primarybtnonenter && FULLSELECT_TYPES[type] && (subtituteConfig[DATA] += ' data-'+PRIMARYBTNONENTER+'="true"');
 
         (config[CLASSNAME] || purebutton || hideatstartup || isdatetime) && (subtituteConfig[CLASS]=' class="'+(isdatetime ? '' : (config[CLASSNAME] || ''))+
                                 (purebutton ? (' '+PUREBUTTON_CLASS+PUREBUTTON_BORDERED_CLASS) : '')+
@@ -819,7 +824,7 @@ ITSAFormElement._actTXTList = function() {
                 }
             }
         },
-        function(node, evt){
+        function(node, evt){
             var targetnode = evt.target;
             return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
         }
