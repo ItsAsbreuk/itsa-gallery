@@ -1,0 +1,26 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+
+    Y.ITSAMessageController.showStatus('Status', 'Busy', {
+        imageButtons: true
+    }).then(
+        function(itsamessage) {
+            console.log('STATUS IS SET');
+            Y.later(5000, null, function() {
+                itsamessage.resolvePromise();
+            });
+        }
+    );
+
+    Y.ITSAMessageController.showMessage('nieuwe titel 2', 'Volgend bericht', {
+  //      primaryButton: 'imgbtn_ignore',
+        imageButtons: true
+    }).then(
+        function(result) {
+            console.log('Volgend bericht fulfilled '+result);
+        },
+        function(reason) {
+            console.log('Volgend bericht rejected '+reason);
+        }
+    );
+
+});

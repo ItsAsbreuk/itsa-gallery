@@ -1,8 +1,7 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
-    YUI.Env.ITSAMessageController.showMessage('nieuwe titel 1', 'Eerste bericht', {
+    Y.ITSAMessageController.showMessage('nieuwe titel 1', 'Eerste bericht', {
   //      primaryButton: 'imgbtn_ignore',
-        noButtons: true,
         imageButtons: true
     }).then(
         function(result) {
@@ -13,7 +12,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         }
     );
 
-    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 2', 'Tweede bericht', {
+    Y.ITSAMessageController.getRetryConfirmation('nieuwe titel 2', 'Tweede bericht', {
 //        primaryButton: 'imgbtn_retry',
         imageButtons: true
     }).then(
@@ -25,7 +24,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         }
     );
 
-    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 3', 'Derde bericht', {
+    Y.ITSAMessageController.getRetryConfirmation('nieuwe titel 3', 'Derde bericht', {
 //        primaryButton: 'imgbtn_retry',
         imageButtons: true
     }).then(
@@ -37,7 +36,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         }
     );
 
-    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 4', 'Vierde bericht', {
+    Y.ITSAMessageController.getRetryConfirmation('nieuwe titel 4', 'Vierde bericht', {
 //        primaryButton: 'imgbtn_retry',
         imageButtons: true
     }).then(
@@ -50,7 +49,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
     );
 
 
-        YUI.Env.ITSAMessageController.showError('nieuwe titel error', 'Error bericht', {
+        Y.ITSAMessageController.showError('nieuwe titel error', 'Error bericht', {
             imageButtons: true
         }).then(
             function(result) {
@@ -61,7 +60,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
             }
         );
 
-        YUI.Env.ITSAMessageController.showError('TWEEDE titel error', 'Error bericht', {
+        Y.ITSAMessageController.showError('TWEEDE titel error', 'Error bericht', {
             imageButtons: true
         }).then(
             function(result) {
@@ -72,7 +71,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
             }
         );
 
-        YUI.Env.ITSAMessageController.showWarning('nieuwe titel warning', 'Warning bericht', {
+        Y.ITSAMessageController.showWarning('nieuwe titel warning', 'Warning bericht', {
             imageButtons: true
         }).then(
             function(result) {
@@ -83,7 +82,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
             }
         );
 
-    YUI.Env.ITSAMessageController.getRetryConfirmation('nieuwe titel 5', 'Vijfde bericht', {
+    Y.ITSAMessageController.getRetryConfirmation('nieuwe titel 5', 'Vijfde bericht', {
 //        primaryButton: 'imgbtn_retry',
         imageButtons: true
     }).then(
@@ -95,9 +94,8 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         }
     );
 
-    YUI.Env.ITSAMessageController.showMessage('nieuwe titel 6', 'Zesde bericht', {
+    Y.ITSAMessageController.showMessage('nieuwe titel 6', 'Zesde bericht', {
   //      primaryButton: 'imgbtn_ignore',
-        noButtons: true,
         imageButtons: true
     }).then(
         function(result) {

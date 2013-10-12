@@ -1,11 +1,16 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
     Y.on('newmessage', function(e) {
-    alert('event caught');
-        e.preventDefault();
+        console.log('BEFORE');
     });
 
-    YUI.Env.ITSAMessageController.showMessage('nieuwe titel 1', 'Eerste bericht', {
+    Y.after('newmessage', function(e) {
+        console.log('AFTER');
+    });
+
+
+
+    Y.ITSAMessageController.showMessage('Trying to prevent', 'Eerste bericht', {
         imageButtons: true
     }).then(
         function(result) {

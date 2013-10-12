@@ -4,6 +4,7 @@
             "yui-base",
             "oop",
             "base-base",
+            "event-custom-complex",
             "promise",
             "gallery-itsamodulesloadedpromise"
         ]

@@ -89,12 +89,12 @@ Y.extend(ITSAMessageViewer, Y.Base, {}, {
 
 ITSAMessageViewer.prototype.initializer = function() {
     var instance = this;
-    YUI.Env.ITSAMessageController.addTarget(instance);
+    Y.ITSAMessageController.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
     Y.later(LOADICONSDELAY, Y, Y.usePromise, 'gallerycss-itsa-form');
     Y.soon(Y.bind(instance._processQueue, instance));
 /*jshint expr:true */
-    instance.get('interrupt') && (instance.interruptHandler=instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
+    instance.get('interrupt') && (instance.interruptHandler=Y.on(NEWMESSAGE_ADDED, function(e) {
         var itsamessage = e.model,
             lastMessage = instance._lastMessage,
             level = itsamessage.get(LEVEL),
@@ -171,7 +171,7 @@ ITSAMessageViewer.prototype.resurrect = function(/* level */) {
 
 ITSAMessageViewer.prototype._nextMessagePromise = function() {
     var instance = this,
-        messageController = YUI.Env.ITSAMessageController;
+        messageController = Y.ITSAMessageController;
     return messageController.readyPromise().then(
         function() {
             return new Y.Promise(function (resolve, reject) {
@@ -208,7 +208,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function() {
                         return nextMessage;
                     }
                 );
-                nextMessage ? ((instance._lastMessage=nextMessage) && resolve(nextMessage)) : (listener=instance.on('*:'+NEWMESSAGE_ADDED, function(e) {
+                nextMessage ? ((instance._lastMessage=nextMessage) && resolve(nextMessage)) : (listener=Y.on(NEWMESSAGE_ADDED, function(e) {
 console.log('event caught: '+e.type);
                                                             var itsamessage = e.model;
                                                             if (handleAnonymous || (itsamessage.target===name)) {
@@ -227,7 +227,7 @@ console.log('event HANDLED!');
 
 ITSAMessageViewer.prototype.destructor = function() {
     var instance = this;
-    YUI.Env.ITSAMessageController.removeTarget(instance);
+    Y.ITSAMessageController.removeTarget(instance);
 /*jshint expr:true */
     instance.interruptHandler && instance.interruptHandler.detach();
 /*jshint expr:false */

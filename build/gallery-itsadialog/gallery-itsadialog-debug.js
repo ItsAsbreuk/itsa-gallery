@@ -2,6 +2,8 @@ YUI.add('gallery-itsadialog', function (Y, NAME) {
 
 'use strict';
 
+/*jshint maxlen:200 */
+
 /**
  * This module adds three dialog-promises to YUI:
  *
@@ -119,18 +121,20 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                     primarybutton = itsamessage.get('primaryButton'),
                     panels = instance.panels,
                     panel = panels[level],
+                    noButtons = itsamessage.get('noButtons'),
                     footer = itsamessage.get(FOOTER),
                     footerHasButtons = /btn_/.test(footer),
                     footerview, removePrimaryButton;
                 panels[INFO].hide();
                 panels[WARN].hide();
+console.log('check noButtons '+noButtons);
 console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show');
                 panels[ERROR].hide();
                 panel = panels[level];
-                panel.set(TITLE+'Right', footerHasButtons ? '' : null); // remove closebutton by setting '', or retreive by setting null
+                panel.set(TITLE+'Right', (footerHasButtons || noButtons) ? '' : null); // remove closebutton by setting '', or retreive by setting null
                 panel.set('template', itsamessage.get('message'));
-                panel.set(FOOTER+'Template', footer);
-                if (footer && Lang.isValue(primarybutton)) {
+                panel.set(FOOTER+'Template', (noButtons ? null : footer));
+                if (!noButtons && footer && Lang.isValue(primarybutton)) {
                     footerview = panel.get('footerView');
                     removePrimaryButton = (typeof primarybutton === 'boolean') && !primarybutton;
 /*jshint expr:true */
@@ -139,11 +143,10 @@ console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show
                 }
                 panel.set(MODEL, itsamessage);
                 panel.set(TITLE, itsamessage.get(TITLE));
-                panel.once(
-                    '*:hide',
-                    function() {
-                        resolve(itsamessage);
-                    }
+                // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
+                itsamessage.promise.then(
+                    Y.bind(resolve, null, itsamessage),
+                    Y.bind(resolve, null, itsamessage)
                 );
 console.log('SHOWING PANEL '+level);
                 panel.show();
@@ -197,9 +200,10 @@ ITSADialog.prototype._clearEventhandlers = function() {
 };
 
 // define 1 global messagecontroller
-YUI.Env.ITSADialog = new ITSADialog({handleAnonymous: true});
-
-
+/*jshint expr:true */
+Y.Global.ITSADialog || (Y.Global.ITSADialog=new ITSADialog({handleAnonymous: true}));
+/*jshint expr:false */
+Y.ITSADialog = Y.Global.ITSADialog;
 
 }, '@VERSION@', {
     "requires": [

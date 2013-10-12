@@ -50,7 +50,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         GET_DATE_TIME = GET_DATE+TIME,
         SHOW_MESSAGE = SHOW+'M'+ESSAGE,
         SHOW_WARNING = SHOW+'Warning',
-        SHOW_ERROR = SHOW+'Error';
+        SHOW_ERROR = SHOW+'Error',
+        SHOW_STATUS = SHOW+'Status';
 
 function ITSAMessageController() {
     ITSAMessageController.superclass.constructor.apply(this, arguments);
@@ -62,7 +63,6 @@ Y.extend(ITSAMessageController, Y.Base);
 
 ITSAMessageController.prototype.initializer = function() {
     var instance = this;
-    instance.addTarget(Y);
     instance.queue = [];
     Y.later(LOADDELAY, instance, instance.readyPromise);
 //Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
@@ -114,6 +114,35 @@ ITSAMessageController.prototype[SHOW_ERROR] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR);
 };
 
+// returns a promise whith reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!
+// Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()
+ITSAMessageController.prototype[SHOW_STATUS] = function(title, message, config) {
+    var instance = this,
+        withTitle = (typeof message === 'string'),
+        newconfig;
+    if (!withTitle) {
+        config = message;
+        message = title;
+        title = null;
+    }
+    newconfig = Y.merge(config, {
+        title: title,
+        message: message,
+        footer: null,
+        noButtons: true,
+        source: APP,
+        type: SHOW_STATUS,
+        level: INFO
+    });
+    return instance.readyPromise().then(
+        function() {
+          var itsamessage = new Y.ITSAMessage(newconfig);
+          instance.queueMessage(itsamessage);
+          return itsamessage;
+        }
+    );
+};
+
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
 console.log('queueMessage '+itsamessage.get('message'));
     var instance = this,
@@ -140,19 +169,20 @@ console.log('queueMessage '+itsamessage.get('message'));
       * @param e.currentTarget {Y.Node} The Button-Node that was clicked
       * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
     **/
-    instance[PUBLISHED_NEWMESSAGE] || (instance[PUBLISHED_NEWMESSAGE]=instance._publishAsync(NEWMESSAGE,
-                                                                                {
-                                                                                  defaultTargetOnly: true,
-                                                                                  emitFacade: true,
-                                                                                  defaultFn: Y.rbind(instance._defQueueFn, instance),
-                                                                                  preventedFn: instance._prevDefFn
-                                                                                }
-                                                                               ));
+    instance[PUBLISHED_NEWMESSAGE] || (instance[PUBLISHED_NEWMESSAGE]=Y._publishAsync(NEWMESSAGE,
+                                                                        {
+                                                                          defaultTargetOnly: true,
+                                                                          emitFacade: true,
+                                                                          broadcast: 2,
+                                                                          defaultFn: Y.rbind(instance._defQueueFn, instance),
+                                                                          preventedFn: instance._prevDefFn
+                                                                        }
+                                                                       ));
     (autoDestroyDelay > 0) && itsamessage.promise.then(
                                   Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay),
                                   Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay)
                               );
-    instance.fire(NEWMESSAGE, {model: itsamessage});
+    Y.fire(NEWMESSAGE, {model: itsamessage});
     console.log('fireing '+NEWMESSAGE);
 /*jshint expr:false */
     return promise;
@@ -212,15 +242,16 @@ console.log('_defQueueFn '+e.model.get('message'));
       * @param e.property {String} The property-name of the Object (or the Model's attribute-name)
     **/
 /*jshint expr:true */
-    instance[PUBLISHED_NEWMESSAGE_ADDED] || (instance[PUBLISHED_NEWMESSAGE_ADDED]=instance.publish(NEWMESSAGE_ADDED,
+    instance[PUBLISHED_NEWMESSAGE_ADDED] || (instance[PUBLISHED_NEWMESSAGE_ADDED]=Y.publish(NEWMESSAGE_ADDED,
                                                                                 {
                                                                                   defaultTargetOnly: true,
+                                                                                  broadcast: 2,
                                                                                   emitFacade: true
                                                                                 }
                                                                                ));
 /*jshint expr:false */
 console.log('fireing '+NEWMESSAGE_ADDED);
-    instance.fire(NEWMESSAGE_ADDED, {model: itsamessage});
+    Y.fire(NEWMESSAGE_ADDED, {model: itsamessage});
     return itsamessage.promise.then(
                 null,
                 function() {return true;} // fullfil promise
@@ -261,7 +292,6 @@ console.log('_queueMessage '+title);
         type: messageType,
         level: level
     });
-console.log('CHECk CHECK '+title+' -- '+primaryButton);
 /*jshint expr:true */
     config.level && (newconfig.level=config.level); // config.level should overrule the param level
     config.primaryButton && (newconfig.primaryButton=config.primaryButton); // config.primaryButton should overrule the param level
@@ -344,7 +374,7 @@ console.log('CHECk CHECK '+title+' -- '+primaryButton);
    *  @private
    *
   **/
-ITSAMessageController.prototype._publishAsync = function(type, opts) {
+Y._publishAsync = function(type, opts) {
     var instance = this,
         asyncEvent = this.publish(type, opts);
 
@@ -430,8 +460,19 @@ ITSAMessageController.prototype._publishAsync = function(type, opts) {
 };
 
 // define 1 global messagecontroller
-YUI.Env.ITSAMessageController = new ITSAMessageController();
+/*jshint expr:true */
+Y.Global.ITSAMessageController || (Y.Global.ITSAMessageController=new ITSAMessageController());
+/*jshint expr:false */
+Y.ITSAMessageController = Y.Global.ITSAMessageController;
 
 
-
-}, '@VERSION@', {"requires": ["yui-base", "oop", "base-base", "promise", "gallery-itsamodulesloadedpromise"]});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "oop",
+        "base-base",
+        "event-custom-complex",
+        "promise",
+        "gallery-itsamodulesloadedpromise"
+    ]
+});
