@@ -69,6 +69,7 @@ var ITSAViewModelPanel,
     NO_HIDE_ON_RESET = 'noHideOnReset',
     DISABLED = 'disabled',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
+    VALIDATION_ERROR = 'validationerror',
     /**
       * Fired when a UI-elemnt needs to focus to the next element (in case of editable view).
       * The defaultFunc will refocus to the next field (when the Panel has focus).
@@ -647,9 +648,15 @@ ITSAViewModelPanel.prototype.bindUI = function() {
             var model = instance.get(MODEL),
                 editable = instance.get(EDITABLE),
                 btnNode = e.buttonNode,
-                buttonValue = btnNode.get(VALUE);
+                buttonValue = btnNode.get(VALUE),
+                unvalidNodes = model.getUnvalidatedUI(),
+                payload = {
+                              target: model,
+                              nodelist: unvalidNodes,
+                              src: e.type
+                          };
 /*jshint expr:true */
-            VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.toJSONUI && !model.validated() && e.preventDefault();
+            VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.toJSONUI && !unvalidNodes.isEmpty() && e.preventDefault() && model.fire(VALIDATION_ERROR, payload);
 /*jshint expr:false */
         })
     );
