@@ -104,12 +104,13 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
         title = null;
     }
 /*jshint expr:true */
+    config || (config={});
     config.formconfig || (config.formconfig={});
     config.formconfig.classname || (config.formconfig.classname='');
 /*jshint expr:false */
     config.formconfig.fullselect = true;
-    config.formconfig.primarybtnonenter = true;
-    config.formconfig.classname += ' itsa-input';
+    config.formconfig.primarybtnonenter = !config[TEXTAREA];
+    config.formconfig.classname += ' '+'itsa-input';
     required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
     return instance.readyPromise().then(
         function() {
@@ -128,7 +129,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
                                       }
                                   }
                               });
-            message += '<fieldset>'+
+            message += '<fieldset class="'+'itsa-input'+'">'+
                            '<div class="pure-control-group">{input}</div>'+
                        '</fieldset>';
             return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO, MyITSAMessage);
@@ -152,12 +153,13 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
         title = null;
     }
 /*jshint expr:true */
+    config || (config={});
     config.formconfig || (config.formconfig={});
     config.formconfig.classname || (config.formconfig.classname='');
 /*jshint expr:false */
     config.formconfig.fullselect = true;
     config.formconfig.primarybtnonenter = true;
-    config.formconfig.classname += ' itsa-number';
+    config.formconfig.classname += ' '+'itsa-number';
     required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
     return instance.readyPromise().then(
         function() {
@@ -176,7 +178,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
                                       }
                                   }
                               });
-            message += '<fieldset>'+
+            message += '<fieldset class="'+'itsa-number'+'">'+
                            '<div class="pure-control-group">{number}</div>'+
                        '</fieldset>';
             return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessage);
@@ -254,7 +256,6 @@ console.log('queueMessage '+itsamessage.get('message'));
     itsamessage.resolvePromise = promiseResolve;
     itsamessage.rejectPromise = promiseReject;
     // always keep itsamessageinstance life synced:
-    itsamessage.setLifeUpdate(true);
     itsamessage.after(
         'submit',
         function() {
@@ -381,12 +382,13 @@ console.log('_queueMessage '+title);
         title = null;
     }
     imagebuttons = config && (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+/*jshint expr:true */
     if (imagebuttons) {
         footer = footer.replace(/\{btn_/g,'{imgbtn_');
-/*jshint expr:true */
         primaryButton && (primaryButton=primaryButton.replace(/btn_/g,'imgbtn_'));
-/*jshint expr:false */
     }
+    config || (config={});
+/*jshint expr:false */
     newconfig = Y.merge(config, {
         title: title,
         message: message,
@@ -572,13 +574,14 @@ ITSAMessageControllerInstance = Y.ITSAMessageController = Y.Global.ITSAMessageCo
 
 // now generate public methods:
 Y[GET_RETRY_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_RETRY_CONFIRMATION], ITSAMessageControllerInstance);
-Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_INPUT], ITSAMessageControllerInstance);
+Y.confirm = Y[GET_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_CONFIRMATION], ITSAMessageControllerInstance);
+Y.prompt = Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_INPUT], ITSAMessageControllerInstance);
 Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITSAMessageControllerInstance);
 Y[GET_DATE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE], ITSAMessageControllerInstance);
 Y[GET_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_TIME], ITSAMessageControllerInstance);
 Y[GET_DATE_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE_TIME], ITSAMessageControllerInstance);
 Y[SHOW_MESSAGE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE], ITSAMessageControllerInstance);
-Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_WARNING], ITSAMessageControllerInstance);
+Y.alert = Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_WARNING], ITSAMessageControllerInstance);
 Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITSAMessageControllerInstance);
 Y[SHOW_STATUS] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS], ITSAMessageControllerInstance);
 

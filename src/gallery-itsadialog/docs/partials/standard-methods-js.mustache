@@ -1,0 +1,24 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+
+    Y.alert('This is Y.alert()');
+
+    Y.confirm('This is Y.confirm: do you agree?').then(
+        function() {
+            console.log('agreed');
+        },
+        function() {
+            console.log('disagreed');
+        }
+    );
+
+    Y.prompt('This is Y.promt(): enter some input').then(
+        function(response) {
+            console.log(response.itsamessage.get('input'));
+        },
+        function() {
+            console.log('canceled');
+        }
+    );
+
+});

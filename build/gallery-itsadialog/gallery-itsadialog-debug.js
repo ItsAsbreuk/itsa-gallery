@@ -63,7 +63,7 @@ ITSADialog.prototype._renderPanels = function() {
             editable: true,
             minWidth: 200,
             dragable: true,
-            maxWidth: 400,
+            maxWidth: 550,
             className: ITSADIALOG
         },
         eventhandlers = instance._eventhandlers,
@@ -161,8 +161,15 @@ console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show
                 panel.set(TITLE, itsamessage.get(TITLE));
                 // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
                 itsamessage.promise.then(
-                    Y.bind(resolve, null, itsamessage),
-                    Y.bind(resolve, null, itsamessage)
+                    null,
+                    function() {
+                        return true; // making viewMessage fullfil
+                    }
+                ).then(
+                    function() {
+                        itsamessage.UIToModel();
+                        resolve(itsamessage);
+                    }
                 );
 console.log('SHOWING PANEL '+level);
                 panel.show();

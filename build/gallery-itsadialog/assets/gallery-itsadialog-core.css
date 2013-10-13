@@ -4,6 +4,12 @@
     margin-top: 0.8em;
 }
 
+.itsa-dialog fieldset.itsa-input,
+.itsa-dialog fieldset.itsa-number {
+    text-align: right;
+    padding-right: 0.1em;
+}
+
 .itsa-dialog textarea.itsa-input {
     width: 250px;
     height: 100px;
