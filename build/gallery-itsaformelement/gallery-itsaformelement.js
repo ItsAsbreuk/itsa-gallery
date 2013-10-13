@@ -333,7 +333,7 @@ ITSAFormElement = Y.ITSAFormElement = {};
  *           set this data (available as 'data-contentinvalid') into 'data-content' once invalid and replace it with 'data-contentvalid' once valid again.
  *   @param [config.value] {String} the value of the element.
  * @param [nodeid] {String} The unique id of the node (without the '#'). When not supplied, Y.guid() will generate a random one.
- * @return {object} with the folowwing proprties:<ul>
+ * @return {object} with the following proprties:<ul>
  *                  <li>config --> {object} reference to the original configobject</li>
  *                  <li>html   --> {String} rendered Node which is NOT part of the DOM! Must be inserted manually, or using Y.ITSAFormModel</li>
  *                  <li>name   --> {String} convenience-property===config.name</li>
