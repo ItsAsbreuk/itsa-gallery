@@ -1,0 +1,55 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+
+    Y.getNumber('De titel', 'Geef hier uw waarde tussen 2 en 10 (alleen gehele getallen): Geef hier uw waarde tussen 2 en 10 (alleen gehele getallen): Geef hier uw waarde tussen 2 en 10 (alleen gehele getallen): Geef hier uw waarde tussen 2 en 10 (alleen gehele getallen):', {
+        imageButtons: true,
+        value: 8,
+        formconfig: {
+            label: 'waarde: ',
+            tooltip: 'enter value',
+            required: true
+        },
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
+        validationerror: 'Please enter value between 1 and 11'
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.itsamessage.get('number'));
+        }
+    );
+
+    Y.getNumber('De titel', 'Geef hier uw waarde tussen 2 en 10 (decimale toegestaan):', {
+        imageButtons: true,
+        value: 8,
+        formconfig: {
+            label: 'waarde: ',
+            tooltip: 'enter value',
+            required: true,
+            digits: true
+        },
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
+        validationerror: 'Please enter value between 1 and 11'
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.itsamessage.get('number'));
+        }
+    );
+
+    Y.getNumber('De titel', 'Geef hier uw waarde tussen 200 en 300:', {
+        imageButtons: true,
+        value: 5,
+        slider: true,
+        formconfig: {
+            label: 'waarde slider: ',
+            widgetconfig: {
+                min: 5,
+                max: 20,
+                thumbUrl: 'http://yui.yahooapis.com/3.13.0/build/slider-base/assets/skins/sam/thumb-x.png'
+            }
+        }
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.itsamessage.get('number'));
+        }
+    );
+
+});

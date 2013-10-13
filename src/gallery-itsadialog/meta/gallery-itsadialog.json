@@ -13,6 +13,7 @@
 
             "gallery-itsamodulesloadedpromise",
             "gallery-itsamessageviewer"
-        ]
+        ],
+        "skinnable": true
     }
 }

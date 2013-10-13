@@ -56,6 +56,7 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         SHOW_STATUS = SHOW+'Status',
         UNDERSCORE = '_',
         BASE_BUILD = 'base-build',
+        TEXTAREA = 'textarea',
         SLIDER = 'slider';
 
 function ITSAMessageController() {
@@ -88,20 +89,75 @@ ITSAMessageController.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, m
 };
 
 ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
-console.log('_getInput');
     var instance = this,
         withTitle = (typeof message === 'string'),
-        required, MyITSAMessageInput;
+        withMessage, required, MyITSAMessage;
     if (!withTitle) {
         config = message;
         message = title;
         title = null;
     }
+    withMessage = (typeof message === 'string');
+    if (!withMessage) {
+        config = message;
+        message = '';
+        title = null;
+    }
 /*jshint expr:true */
     config.formconfig || (config.formconfig={});
+    config.formconfig.classname || (config.formconfig.classname='');
 /*jshint expr:false */
     config.formconfig.fullselect = true;
     config.formconfig.primarybtnonenter = true;
+    config.formconfig.classname += ' itsa-input';
+    required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
+    return instance.readyPromise().then(
+        function() {
+            return Y.usePromise(BASE_BUILD);
+        }
+    ).then(
+        function() {
+            MyITSAMessage = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
+                                  ATTRS: {
+                                      input: {
+                                          value: config.value,
+                                          formtype: config[TEXTAREA] ? TEXTAREA : 'text',
+                                          formconfig: config.formconfig,
+                                          validator: config.validator,
+                                          validationerror: config.validationerror
+                                      }
+                                  }
+                              });
+            message += '<fieldset>'+
+                           '<div class="pure-control-group">{input}</div>'+
+                       '</fieldset>';
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO, MyITSAMessage);
+        }
+    );
+};
+
+ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message, config) {
+    var instance = this,
+        withTitle = (typeof message === 'string'),
+        withMessage, required, MyITSAMessage;
+    if (!withTitle) {
+        config = message;
+        message = title;
+        title = null;
+    }
+    withMessage = (typeof message === 'string');
+    if (!withMessage) {
+        config = message;
+        message = '';
+        title = null;
+    }
+/*jshint expr:true */
+    config.formconfig || (config.formconfig={});
+    config.formconfig.classname || (config.formconfig.classname='');
+/*jshint expr:false */
+    config.formconfig.fullselect = true;
+    config.formconfig.primarybtnonenter = true;
+    config.formconfig.classname += ' itsa-number';
     required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
     return instance.readyPromise().then(
         function() {
@@ -109,27 +165,23 @@ console.log('_getInput');
         }
     ).then(
         function() {
-            MyITSAMessageInput = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
-                                      ATTRS: {
-                                          input: {
-                                              value: config.value,
-                                              formtype: config.slider ? Y.Slider : 'number',
-                                              formconfig: config.formconfig,
-                                              validator: config.validator,
-                                              validationerror: config.validationerror
-                                          }
+            MyITSAMessage = Y.Base.create('itsamessagenumber', Y.ITSAMessage, [], null, {
+                                  ATTRS: {
+                                      number: {
+                                          value: config.value,
+                                          formtype: config.slider ? Y.Slider : 'number',
+                                          formconfig: config.formconfig,
+                                          validator: config.validator,
+                                          validationerror: config.validationerror
                                       }
-                                  });
+                                  }
+                              });
             message += '<fieldset>'+
-                           '<div class="pure-control-group">{input}</div>'+
+                           '<div class="pure-control-group">{number}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessageInput);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessage);
         }
     );
-};
-
-ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO);
 };
 
 ITSAMessageController.prototype[UNDERSCORE+GET_DATE] = function(title, message, config) {

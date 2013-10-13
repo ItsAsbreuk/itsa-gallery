@@ -30,7 +30,8 @@ var YArray = Y.Array,
     INFO = 'info',
     WARN = 'warn',
     ERROR = 'error',
-    VALUE = 'value';
+    VALUE = 'value',
+    ITSADIALOG = 'itsa-dialog';
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -61,7 +62,9 @@ ITSADialog.prototype._renderPanels = function() {
             modal: true,
             editable: true,
             minWidth: 200,
-            dragable: true
+            dragable: true,
+            maxWidth: 400,
+            className: ITSADIALOG
         },
         eventhandlers = instance._eventhandlers,
         panels;
@@ -225,5 +228,6 @@ Y.ITSADialog = Y.Global.ITSADialog;
         "gallery-itsaviewmodelpanel",
         "gallery-itsamodulesloadedpromise",
         "gallery-itsamessageviewer"
-    ]
+    ],
+    "skinnable": true
 });
