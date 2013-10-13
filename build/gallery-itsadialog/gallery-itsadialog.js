@@ -70,7 +70,7 @@ ITSADialog.prototype._renderPanels = function() {
     panels[WARN] = new Y.ITSAViewModelPanel(config);
     panels[ERROR] = new Y.ITSAViewModelPanel(config);
     eventhandlers.push(
-        panels[INFO].on('*:hide', function(e) {
+        panels[INFO].after('*:hide', function(e) {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
@@ -87,7 +87,7 @@ ITSADialog.prototype._renderPanels = function() {
         })
     );
     eventhandlers.push(
-        panels[WARN].on('*:hide', function(e) {
+        panels[WARN].after('*:hide', function(e) {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
@@ -104,7 +104,7 @@ ITSADialog.prototype._renderPanels = function() {
         })
     );
     eventhandlers.push(
-        panels[ERROR].on('*:hide', function(e) {
+        panels[ERROR].after('*:hide', function(e) {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,

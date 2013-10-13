@@ -110,7 +110,8 @@ console.log('_getInput continue');
                                                   label: config.label,
                                                   primarybtnonenter: true
                                               }),
-                                              validator: config.validator
+                                              validator: config.validator,
+                                              validationerror: config.validationerror
                                           }
                                       }
                                   });
