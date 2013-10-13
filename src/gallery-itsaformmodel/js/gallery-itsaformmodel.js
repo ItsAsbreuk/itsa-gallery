@@ -102,7 +102,6 @@ var YArray = Y.Array,
         text: true,
         number: true,
         password: true,
-        textarea: true,
         email: true,
         url: true
     },
