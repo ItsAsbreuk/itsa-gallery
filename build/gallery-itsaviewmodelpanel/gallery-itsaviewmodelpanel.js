@@ -640,9 +640,10 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                               nodelist: unvalidNodes,
                               src: e.type
                           };
-/*jshint expr:true */
-            VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.toJSONUI && !unvalidNodes.isEmpty() && e.preventDefault() && model.fire(VALIDATION_ERROR, payload);
-/*jshint expr:false */
+            if (VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.toJSONUI && !unvalidNodes.isEmpty()) {
+                e.preventDefault();
+                model.fire(VALIDATION_ERROR, payload);
+            }
         })
     );
 
