@@ -579,10 +579,10 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after([DRAG+':'+DRAG, DRAG+':end'], function() {
             var itsaformelement = Y.ITSAFormElement,
-                tipsyValid = itsaformelement && itsaformelement.tipsyValid,
+                tipsyOK = itsaformelement && itsaformelement.tipsyOK,
                 tipsyInvalid = itsaformelement && itsaformelement.tipsyInvalid;
 /*jshint expr:true */
-            tipsyValid && tipsyValid.get(VISIBLE) && tipsyValid._lastnode && tipsyValid._alignTooltip(tipsyValid._lastnode);
+            tipsyOK && tipsyOK.get(VISIBLE) && tipsyOK._lastnode && tipsyOK._alignTooltip(tipsyOK._lastnode);
             tipsyInvalid && tipsyInvalid.get(VISIBLE) && tipsyInvalid._lastnode && tipsyInvalid._alignTooltip(tipsyInvalid._lastnode);
 /*jshint expr:false */
         })
