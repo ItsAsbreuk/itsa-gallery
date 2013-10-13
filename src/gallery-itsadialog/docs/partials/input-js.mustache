@@ -1,4 +1,5 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
 
     Y.getInput('De titel', 'Geef hier uw waarde tussen 2 en 10:', {
         imageButtons: true,
@@ -23,10 +24,10 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         slider: true,
         formconfig: {
             label: 'waarde slider: ',
-            tooltip: 'slide to set value',
             widgetconfig: {
                 min: 5,
-                max: 20
+                max: 20,
+                thumbUrl: 'http://yui.yahooapis.com/3.13.0/build/slider-base/assets/skins/sam/thumb-x.png'
             }
         }
     }).then(
