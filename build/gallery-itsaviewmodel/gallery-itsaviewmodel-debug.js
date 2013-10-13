@@ -1959,7 +1959,7 @@ ITSAViewModel.prototype[DEF_PREV_FN+VALIDATION_ERROR] = function(e) {
 };
 
 /**
- * default function of focusnext-event.
+ * default function of validation-error.
  * Will refocus to the next focusable UI-element.
  *
  * @method _defFn_validationerror
@@ -2138,6 +2138,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
 
 }, '@VERSION@', {
     "requires": [
+        "gallery-itsapluginpromise",
         "intl",
         "base-build",
         "view",
