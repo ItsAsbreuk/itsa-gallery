@@ -25,6 +25,7 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
     var ITSAMessageControllerInstance,
         YArray = Y.Array,
         APP = 'application',
+        BOOLEAN = 'boolean',
         ERROR = 'error',
         INFO = 'info',
         WARN = 'warn',
@@ -54,7 +55,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         SHOW_ERROR = SHOW+'Error',
         SHOW_STATUS = SHOW+'Status',
         UNDERSCORE = '_',
-        BASE_BUILD = 'base-build';
+        BASE_BUILD = 'base-build',
+        SLIDER = 'slider';
 
 function ITSAMessageController() {
     ITSAMessageController.superclass.constructor.apply(this, arguments);
@@ -89,37 +91,39 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
 console.log('_getInput');
     var instance = this,
         withTitle = (typeof message === 'string'),
-        MyITSAMessageInput;
+        required, MyITSAMessageInput;
     if (!withTitle) {
         config = message;
         message = title;
         title = null;
     }
+/*jshint expr:true */
+    config.formconfig || (config.formconfig={});
+/*jshint expr:false */
+    config.formconfig.fullselect = true;
+    config.formconfig.primarybtnonenter = true;
+    required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
     return instance.readyPromise().then(
         function() {
-            return Y.usePromise(BASE_BUILD);
+            return config.slider ? Y.usePromise(BASE_BUILD, SLIDER) : Y.usePromise(BASE_BUILD);
         }
     ).then(
         function() {
-console.log('_getInput continue');
             MyITSAMessageInput = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
                                       ATTRS: {
                                           input: {
-                                              formtype: 'number',
-                                              formconfig: Y.merge(config.formconfig, {
-                                                  fullselect: true,
-                                                  required: true,
-                                                  label: config.label,
-                                                  primarybtnonenter: true
-                                              }),
-                                              validator: config.validator
+                                              value: config.value,
+                                              formtype: config.slider ? Y.Slider : 'number',
+                                              formconfig: config.formconfig,
+                                              validator: config.validator,
+                                              validationerror: config.validationerror
                                           }
                                       }
                                   });
             message += '<fieldset>'+
                            '<div class="pure-control-group">{input}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessageInput);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessageInput);
         }
     );
 };
@@ -324,7 +328,7 @@ console.log('_queueMessage '+title);
         message = title;
         title = null;
     }
-    imagebuttons = config && (typeof config.imageButtons === 'boolean') && config.imageButtons;
+    imagebuttons = config && (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
     if (imagebuttons) {
         footer = footer.replace(/\{btn_/g,'{imgbtn_');
 /*jshint expr:true */
