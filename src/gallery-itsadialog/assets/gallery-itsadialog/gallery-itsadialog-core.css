@@ -10,16 +10,24 @@
     padding-right: 0.1em;
 }
 
-.itsa-dialog textarea.itsa-input {
-    width: 250px;
-    height: 100px;
+.itsa-dialog .itsa-textarea {
+    width: 24em;
+    height: 10em;
 }
 
-.itsa-dialog input.itsa-input {
-    width: 200px;
+.itsa-dialog .itsa-text {
+    width: 19em;
 }
 
-.itsa-dialog input.itsa-number {
+.itsa-dialog .itsa-email {
+    width: 17em;
+}
+
+.itsa-dialog .itsa-url {
+    width: 25em;
+}
+
+.itsa-dialog .itsa-number {
     width: 6em;
     text-align: right;
 }

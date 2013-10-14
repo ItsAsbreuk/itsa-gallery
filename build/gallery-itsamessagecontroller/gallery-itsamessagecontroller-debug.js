@@ -31,6 +31,9 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         WARN = 'warn',
         ESSAGE = 'essage',
         MESSAGE = 'm'+ESSAGE,
+        MAIL = 'mail',
+        EMAIL = 'e'+MAIL,
+        URL = 'url',
         LOADDELAY = 5000,
         PUBLISHED = '_pub_',
         NEWMESSAGE = 'new' + MESSAGE,
@@ -47,6 +50,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         GET_CONFIRMATION = GET+CONFIRMATION,
         GET_INPUT = GET+'Input',
         GET_NUMBER = GET+'Number',
+        GET_EMAIL = GET+'E'+MAIL,
+        GET_URL = GET+'URL',
         GET_DATE = GET+DATE,
         GET_TIME = GET+TIME,
         GET_DATE_TIME = GET_DATE+TIME,
@@ -75,6 +80,30 @@ ITSAMessageController.prototype.initializer = function() {
 //Y.later(5000, null, function(){console.log(instance.queue.item(0).get('title'));}, null, true);
 };
 
+ITSAMessageController.prototype._retreiveParams = function(title, message, config) {
+    var withTitle = (typeof message === 'string'),
+        withMessage;
+    if (!withTitle) {
+        config = message;
+        message = title;
+        title = null;
+    }
+    withMessage = (typeof message === 'string');
+    if (!withMessage) {
+        config = message;
+        message = '';
+        title = null;
+    }
+/*jshint expr:true */
+    config || (config={});
+/*jshint expr:false */
+    return {
+        title: title,
+        message: message,
+        config: config
+    };
+};
+
 ITSAMessageController.prototype.readyPromise = function() {
     var instance = this;
     return instance._readyPromise || (instance._readyPromise=Y.usePromise(GALLERY_ITSAMESSAGE));
@@ -88,29 +117,37 @@ ITSAMessageController.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, m
     return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', 'btn_yes', 'btn_no', GET_CONFIRMATION, INFO);
 };
 
+ITSAMessageController.prototype[UNDERSCORE+GET_URL] = function(title, message, config) {
+    var instance = this,
+        params = instance._retreiveParams(title, message, config);
+    params.config.url = true;
+    return this[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
+};
+
+ITSAMessageController.prototype[UNDERSCORE+GET_EMAIL] = function(title, message, config) {
+    var instance = this,
+        params = instance._retreiveParams(title, message, config);
+    params.config.email = true;
+    return this[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
+};
+
 ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
     var instance = this,
-        withTitle = (typeof message === 'string'),
-        withMessage, required, MyITSAMessage;
-    if (!withTitle) {
-        config = message;
-        message = title;
-        title = null;
-    }
-    withMessage = (typeof message === 'string');
-    if (!withMessage) {
-        config = message;
-        message = '';
-        title = null;
-    }
+        params = instance._retreiveParams(title, message, config),
+        required, MyITSAMessage, email, url, formtype;
+    title = params.title;
+    message = params.message;
+    config = params.config;
 /*jshint expr:true */
-    config || (config={});
     config.formconfig || (config.formconfig={});
     config.formconfig.classname || (config.formconfig.classname='');
 /*jshint expr:false */
     config.formconfig.fullselect = true;
     config.formconfig.primarybtnonenter = !config[TEXTAREA];
-    config.formconfig.classname += ' '+'itsa-input';
+    email = (typeof config.email === BOOLEAN) && config.email;
+    url = (typeof config.url === BOOLEAN) && config.url;
+    formtype = email ? EMAIL : (url ?  URL : (config[TEXTAREA] ? TEXTAREA : 'text'));
+    config.formconfig.classname += ' ' + 'itsa-' + formtype;
     required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
     return instance.readyPromise().then(
         function() {
@@ -122,7 +159,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
                                   ATTRS: {
                                       input: {
                                           value: config.value,
-                                          formtype: config[TEXTAREA] ? TEXTAREA : 'text',
+                                          formtype: formtype,
                                           formconfig: config.formconfig,
                                           validator: config.validator,
                                           validationerror: config.validationerror
@@ -132,28 +169,19 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
             message += '<fieldset class="'+'itsa-input'+'">'+
                            '<div class="pure-control-group">{input}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessage);
         }
     );
 };
 
 ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message, config) {
     var instance = this,
-        withTitle = (typeof message === 'string'),
-        withMessage, required, MyITSAMessage;
-    if (!withTitle) {
-        config = message;
-        message = title;
-        title = null;
-    }
-    withMessage = (typeof message === 'string');
-    if (!withMessage) {
-        config = message;
-        message = '';
-        title = null;
-    }
+        params = instance._retreiveParams(title, message, config),
+        required, MyITSAMessage;
+    title = params.title;
+    message = params.message;
+    config = params.config;
 /*jshint expr:true */
-    config || (config={});
     config.formconfig || (config.formconfig={});
     config.formconfig.classname || (config.formconfig.classname='');
 /*jshint expr:false */
@@ -181,7 +209,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
             message += '<fieldset class="'+'itsa-number'+'">'+
                            '<div class="pure-control-group">{number}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO, MyITSAMessage);
         }
     );
 };
@@ -214,13 +242,11 @@ ITSAMessageController.prototype[UNDERSCORE+SHOW_ERROR] = function(title, message
 // Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()
 ITSAMessageController.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
     var instance = this,
-        withTitle = (typeof message === 'string'),
+        params = instance._retreiveParams(title, message, config),
         newconfig;
-    if (!withTitle) {
-        config = message;
-        message = title;
-        title = null;
-    }
+    title = params.title;
+    message = params.message;
+    config = params.config;
     newconfig = Y.merge(config, {
         title: title,
         message: message,
@@ -375,20 +401,17 @@ console.log('fireing '+NEWMESSAGE_ADDED);
 ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, ITSAMessageClass) {
 console.log('_queueMessage '+title);
     var instance = this,
-        withTitle = (typeof message === 'string'),
+        params = instance._retreiveParams(title, message, config),
         newconfig, imagebuttons;
-    if (!withTitle) {
-        config = message;
-        message = title;
-        title = null;
-    }
-    imagebuttons = config && (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+    title = params.title;
+    message = params.message;
+    config = params.config;
+    imagebuttons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
 /*jshint expr:true */
     if (imagebuttons) {
         footer = footer.replace(/\{btn_/g,'{imgbtn_');
         primaryButton && (primaryButton=primaryButton.replace(/btn_/g,'imgbtn_'));
     }
-    config || (config={});
 /*jshint expr:false */
     newconfig = Y.merge(config, {
         title: title,
@@ -583,6 +606,8 @@ Y[GET_RETRY_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_
 Y.confirm = Y[GET_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_CONFIRMATION], ITSAMessageControllerInstance);
 Y.prompt = Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_INPUT], ITSAMessageControllerInstance);
 Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITSAMessageControllerInstance);
+Y[GET_EMAIL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_EMAIL], ITSAMessageControllerInstance);
+Y[GET_URL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_URL], ITSAMessageControllerInstance);
 Y[GET_DATE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE], ITSAMessageControllerInstance);
 Y[GET_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_TIME], ITSAMessageControllerInstance);
 Y[GET_DATE_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE_TIME], ITSAMessageControllerInstance);
