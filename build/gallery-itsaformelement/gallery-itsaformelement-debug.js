@@ -81,7 +81,7 @@ var ITSAFormElement,
     PATTERN_EMAIL = '^[\\w!#$%&\'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&\'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$',
     PATTERN_URLEND = '[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+(/[\\w-]+)*',
     PATTERN_URLHTTP =  '^(http://)?'+PATTERN_URLEND,
-    PATTERN_URLHTTPS =  '^(https://)?'+PATTERN_URLEND,
+    PATTERN_URLHTTPS =  '^https://'+PATTERN_URLEND,
     PATTERN_URL = '^(https?://)?'+PATTERN_URLEND,
     PATTERN_INTEGER = '^(([-]?[1-9][0-9]*)|0)$',
     PATTERN_FLOAT = '^[-]?(([1-9][0-9]*)|0)(\\.[0-9]+)?$',
@@ -164,6 +164,7 @@ var ITSAFormElement,
     ELEMENT_PLAIN = '<'+SPAN+' '+ID_SUB+NAME_SUB+DATA_SUB+HIDDEN_SUB+CLASS_SUB+'>'+VALUE_SUB+'</'+SPAN+'>',
     ELEMENT_TEXT = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
     ELEMENT_PASSWORD = INPUT_TYPE_IS+PASSWORD+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+PATTERN_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+' />',
+    // keep the type of URL and EMAIL to 'text' --> otherwise browsers will apply their own build-in pattern which is not as precize
     ELEMENT_EMAIL = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+PATTERN_SUB+' />',
     ELEMENT_URL      = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+HIDDEN_SUB+CLASS_SUB+PATTERN_SUB+' />',
     ELEMENT_NUMBER = INPUT_TYPE_IS+TEXT+'" '+ID_SUB+NAME_SUB+VALUE_SUB+PLACEHOLDER_SUB+DISABLED_SUB+REQUIRED_SUB+READONLY_SUB+DATA_SUB+FOCUSABLE_SUB+
@@ -828,7 +829,7 @@ ITSAFormElement._actTXTList = function() {
         },
         function(node, evt){
             var targetnode = evt.target;
-            return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
+            return (node===targetnode) && targetnode.test('input[type=text],input[type=password],textarea');
         }
     );
 
@@ -843,7 +844,7 @@ ITSAFormElement._actTXTList = function() {
         },
         function(node, evt){
             var targetnode = evt.target;
-            return (node===targetnode) && targetnode.test('input[type=text],input[type=password],input[type=url],input[type=email],textarea');
+            return (node===targetnode) && targetnode.test('input[type=text],input[type=password],textarea');
         }
     );
 };
