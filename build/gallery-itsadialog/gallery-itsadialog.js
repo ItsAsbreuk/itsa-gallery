@@ -72,6 +72,7 @@ ITSADialog.prototype._renderPanels = function() {
     panels[INFO] = new Y.ITSAViewModelPanel(config);
     panels[WARN] = new Y.ITSAViewModelPanel(config);
     panels[ERROR] = new Y.ITSAViewModelPanel(config);
+
     eventhandlers.push(
         panels[INFO].after('*:hide', function(e) {
             var panel = e.target,
@@ -79,7 +80,7 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.get('rejectButton'),
-                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton),
+                rejected = (e.type==='escape:hide') || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton)),
                 returnObject = {
                     itsamessage: itsamessage,
                     button: buttonValue
@@ -133,6 +134,7 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     return instance.renderPromise().then(
         function() {
             return new Y.Promise(function (resolve) {
+console.log('******* INSIDE THE viewMessage PROMISE *******');
                 var level = itsamessage.get('level'),
                     primarybutton = itsamessage.get('primaryButton'),
                     panels = instance.panels,
@@ -141,12 +143,12 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                     footer = itsamessage.get(FOOTER),
                     footerHasButtons = /btn_/.test(footer),
                     footerview, removePrimaryButton;
+console.log('******* PASSED TROUBLESOME CODE viewMessage PROMISE *******');
                 panels[INFO].hide();
                 panels[WARN].hide();
-console.log('check noButtons '+noButtons);
-console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show');
                 panels[ERROR].hide();
                 panel = panels[level];
+//                panel.set('closable', !footerHasButtons || !noButtons);
                 panel.set(TITLE+'Right', (footerHasButtons || noButtons) ? '' : null); // remove closebutton by setting '', or retreive by setting null
                 panel.set('template', itsamessage.get('message'));
                 panel.set(FOOTER+'Template', (noButtons ? null : footer));
@@ -171,9 +173,7 @@ console.log('GOING TO HIDE ALL PANELS '+itsamessage.get('title')+' needs to show
                         resolve(itsamessage);
                     }
                 );
-console.log('SHOWING PANEL '+level);
                 panel.show();
-console.log('PANEL '+level+' is shown '+panel.get('visible'));
             });
         }
     );

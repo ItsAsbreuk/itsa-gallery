@@ -128,7 +128,7 @@ console.log('_processQueue started');
 console.log('handlePromise');
         return instance._nextMessagePromise().then(
             function(itsamessage) {
-console.log('handlePromise of message '+itsamessage.get('title'));
+console.log('handlePromise of message '+itsamessage.get('message'));
                 if (itsamessage.get(SUSPENDED)) {
                     itsamessage._set(SUSPENDED, false);
                     instance.resurrect(itsamessage.get(LEVEL));

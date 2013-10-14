@@ -397,13 +397,13 @@ console.log('fireing '+NEWMESSAGE_ADDED);
 };
 
 ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, ITSAMessageClass) {
-console.log('_queueMessage '+title);
     var instance = this,
         params = instance._retreiveParams(title, message, config),
         newconfig, imagebuttons;
     title = params.title;
     message = params.message;
     config = params.config;
+console.log('_queueMessage '+message);
     imagebuttons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
 /*jshint expr:true */
     if (imagebuttons) {
