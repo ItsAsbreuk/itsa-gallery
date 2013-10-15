@@ -96,6 +96,20 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
             writeOnce: true
         },
         /**
+         * Boolean indicating whether or not the Panel can be closed by pressing the escape-key.<br>
+         * Overruled from Y.ITSAPanel by setting default value false.
+         *
+         * @attribute closableByEscape
+         * @default false
+         * @type boolean
+         */
+        closableByEscape: {
+            value: false,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
+            }
+        },
+        /**
          * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
          *
          * @attribute editable
@@ -290,7 +304,7 @@ ITSAViewModelPanel.prototype.initializer = function() {
     instance._eventhandlers = [];
 
     // now set a flag so that ITSAPanel does not target all the views, but only the bodyview
-    // we need this, because all sources are the same and we do not want multiple the same events caughtd
+    // we need this, because all sources are the same and we do not want multiple the same events caught
     instance._partOfMultiView = true;
 
     instance._set(BODYVIEW, new Y.ITSAViewModel({
@@ -926,7 +940,6 @@ ITSAViewModelPanel.prototype.syncUI = function() {
 };
 
 /**
-  * Passes through to the underlying bodyView and footerView.<br />
   * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
   * <ul>
   *   <li>abort</li>
@@ -952,8 +965,39 @@ ITSAViewModelPanel.prototype.syncUI = function() {
   * @since 0.3
  **/
 ITSAViewModelPanel.prototype.translate = function(text) {
-    return this.get(BODYVIEW).translate(text);
+    return Y.ITSAViewModel.translate(text);
 };
+
+/**
+  * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
+  * <ul>
+  *   <li>abort</li>
+  *   <li>cancel</li>
+  *   <li>close</li>
+  *   <li>destroy</li>
+  *   <li>ignore</li>
+  *   <li>load</li>
+  *   <li>reload</li>
+  *   <li>no</li>
+  *   <li>ok</li>
+  *   <li>remove</li>
+  *   <li>reset</li>
+  *   <li>retry</li>
+  *   <li>save</li>
+  *   <li>submit</li>
+  *   <li>yes</li>
+  * </ul>
+  *
+  * @method translatePromise
+  * @static
+  * @param text {String} the text to be translated
+  * @return {String} Translated text or the original text (if no translattion was posible)
+  * @since 0.3
+ **/
+ITSAViewModelPanel.translatePromise = function(text) {
+    return Y.ITSAViewModel.translatePromise(text);
+};
+ITSAViewModelPanel.prototype.translatePromise = ITSAViewModelPanel.translatePromise;
 
 /**
  * Cleans up bindings
