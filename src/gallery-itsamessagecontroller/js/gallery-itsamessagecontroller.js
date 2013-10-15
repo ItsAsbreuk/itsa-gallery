@@ -74,8 +74,6 @@ ITSAMessageController.prototype.initializer = function() {
     var instance = this;
     instance.queue = [];
     Y.later(LOADDELAY, instance, instance.readyPromise);
-//Y.later(2000, null, function(){console.log(instance.queue.size());}, null, true);
-//Y.later(5000, null, function(){console.log(instance.queue.item(0).get('title'));}, null, true);
 };
 
 ITSAMessageController.prototype._retreiveParams = function(title, message, config) {
@@ -104,7 +102,18 @@ ITSAMessageController.prototype._retreiveParams = function(title, message, confi
 
 ITSAMessageController.prototype.readyPromise = function() {
     var instance = this;
-    return instance._readyPromise || (instance._readyPromise=Y.usePromise(GALLERY_ITSAMESSAGE));
+    return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, SLIDER, GALLERY_ITSAMESSAGE).then(
+                                                                 function() {
+                                                                     instance._intlMessageObj = new Y.ITSAMessage(); // used for synchronous translations
+                                                                 },
+                                                                 function(reason) {
+                                                                    var facade = {
+                                                                        error   : reason && (reason.message || reason),
+                                                                        src     : 'ITSAMessageViewer._processQueue'
+                                                                    };
+                                                                    instance._lazyFireErrorEvent(facade);
+                                                                 }
+                                                             ));
 };
 
 ITSAMessageController.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = function(title, message, config) {
@@ -119,14 +128,14 @@ ITSAMessageController.prototype[UNDERSCORE+GET_URL] = function(title, message, c
     var instance = this,
         params = instance._retreiveParams(title, message, config);
     params.config.url = true;
-    return this[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
+    return instance[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
 };
 
 ITSAMessageController.prototype[UNDERSCORE+GET_EMAIL] = function(title, message, config) {
     var instance = this,
         params = instance._retreiveParams(title, message, config);
     params.config.email = true;
-    return this[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
+    return instance[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
 };
 
 ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
@@ -146,13 +155,13 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
     url = (typeof config.url === BOOLEAN) && config.url;
     formtype = email ? EMAIL : (url ?  URL : (config[TEXTAREA] ? TEXTAREA : 'text'));
     config.formconfig.classname += ' ' + 'itsa-' + formtype;
-    required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
+    config.formconfig.required = true;
+    required = (typeof config.required === BOOLEAN) && config.required;
     return instance.readyPromise().then(
         function() {
-            return Y.usePromise(BASE_BUILD);
-        }
-    ).then(
-        function() {
+/*jshint expr:true */
+            (config.email || config.url) && (config.validationerror || (config.validationerror=instance._intlMessageObj.translate('enterrightformat')));
+/*jshint expr:false */
             MyITSAMessage = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
                                   ATTRS: {
                                       input: {
@@ -167,7 +176,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
             message += '<fieldset class="'+'itsa-input'+'">'+
                            '<div class="pure-control-group">{input}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_INPUT, INFO, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_INPUT, INFO, MyITSAMessage);
         }
     );
 };
@@ -186,13 +195,13 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
     config.formconfig.fullselect = true;
     config.formconfig.primarybtnonenter = true;
     config.formconfig.classname += ' '+'itsa-number';
-    required = (typeof config.formconfig.required === BOOLEAN) && config.formconfig.required;
+    config.formconfig.required = true;
+    required = (typeof config.required === BOOLEAN) && config.required;
     return instance.readyPromise().then(
         function() {
-            return config.slider ? Y.usePromise(BASE_BUILD, SLIDER) : Y.usePromise(BASE_BUILD);
-        }
-    ).then(
-        function() {
+/*jshint expr:true */
+            config.validationerror || (config.validationerror=instance._intlMessageObj.translate('entervalidnumber'));
+/*jshint expr:false */
             MyITSAMessage = Y.Base.create('itsamessagenumber', Y.ITSAMessage, [], null, {
                                   ATTRS: {
                                       number: {
@@ -207,7 +216,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
             message += '<fieldset class="'+'itsa-number'+'">'+
                            '<div class="pure-control-group">{number}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', 'btn_cancel', GET_NUMBER, INFO, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_NUMBER, INFO, MyITSAMessage);
         }
     );
 };
@@ -264,7 +273,6 @@ ITSAMessageController.prototype[UNDERSCORE+SHOW_STATUS] = function(title, messag
 };
 
 ITSAMessageController.prototype.queueMessage = function(itsamessage) {
-console.log('queueMessage '+itsamessage.get('message'));
     var instance = this,
         autoDestroyDelay = itsamessage.get('autoDestroy'),
         promise, promiseResolve, promiseReject;
@@ -310,14 +318,14 @@ console.log('queueMessage '+itsamessage.get('message'));
                                   Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay)
                               );
     Y.fire(NEWMESSAGE, {model: itsamessage});
-    console.log('fireing '+NEWMESSAGE);
 /*jshint expr:false */
     return promise;
 };
 
 ITSAMessageController.prototype.destructor = function() {
     var instance = this,
-        queue = instance.queue;
+        queue = instance.queue,
+        intlMessageObj = instance._intlMessageObj;
     instance.removeTarget(Y);
     YArray.each(
         queue,
@@ -328,15 +336,38 @@ ITSAMessageController.prototype.destructor = function() {
         }
     );
     queue.length = 0;
+/*jshint expr:true */
+    intlMessageObj && intlMessageObj.destroy() && (instance._intlMessageObj=null);
+/*jshint expr:false */
 };
 
 ITSAMessageController.prototype._autoDestroyMsg = function(itsamessage, delay) {
     Y.later(delay, null, function() {
-console.log('DESTROYING '+itsamessage.get('title'));
         itsamessage.detachAll();
         itsamessage.destroy();
         itsamessage = null;
     });
+};
+
+/**
+* Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
+* Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
+*
+* @method _lazyFireErrorEvent
+ * @param {Object} [facade] eventfacade.
+ * @private
+**/
+ITSAMessageController.prototype._lazyFireErrorEvent = function(facade) {
+    var instance = this;
+
+    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
+    // lazy publish
+    if (!instance._errorEvent) {
+        instance._errorEvent = instance.publish(ERROR, {
+            broadcast: 1
+        });
+    }
+    instance.fire(ERROR, facade);
 };
 
 /**
@@ -357,7 +388,6 @@ ITSAMessageController.prototype._prevDefFn = function(e) {
 
 
 ITSAMessageController.prototype._defQueueFn = function(e) {
-console.log('_defQueueFn '+e.model.get('message'));
     var instance = this,
         itsamessage = e.model,
         queue = instance.queue;
@@ -381,7 +411,6 @@ console.log('_defQueueFn '+e.model.get('message'));
                                                                                 }
                                                                                ));
 /*jshint expr:false */
-console.log('fireing '+NEWMESSAGE_ADDED);
     Y.fire(NEWMESSAGE_ADDED, {model: itsamessage});
     return itsamessage.promise.then(
                 null,
@@ -403,7 +432,6 @@ ITSAMessageController.prototype._queueMessage = function(title, message, config,
     title = params.title;
     message = params.message;
     config = params.config;
-console.log('_queueMessage '+message);
     imagebuttons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
 /*jshint expr:true */
     if (imagebuttons) {
@@ -582,7 +610,11 @@ Y._publishAsync = function(type, opts) {
                 // Catch errors/preventions and reset the promise state to fulfilled for
                 // the next call to fire();
                 }).then(null, function (reason) {
-                    Y.log("Error in defaultFn or after subscriber: " + (reason && (reason.message || reason)), ERROR);
+                    var facade = {
+                        error   : reason && (reason.message || reason),
+                        src     : 'ITSAMessageViewer._processQueue'
+                    };
+                    instance._lazyFireErrorEvent(facade);
                     return false;
                 });
         });

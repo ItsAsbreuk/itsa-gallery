@@ -101,7 +101,6 @@ ITSAMessageViewer.prototype.initializer = function() {
             lastLevel = lastMessage && lastMessage.get(LEVEL);
         if (lastLevel && (lastLevel!==level) && ((level===ERROR) || (lastLevel===INFO))) {
             // need to interrupt with new message
-console.log('going to interupt '+lastLevel);
             lastMessage._set(SUSPENDED, true);
 
 
@@ -123,12 +122,9 @@ console.log('going to interupt '+lastLevel);
 ITSAMessageViewer.prototype._processQueue = function(startMessage) {
     var instance = this,
         handlePromise, handlePromiseLoop, handlePromiseLoopStartMessage;
-console.log('_processQueue started');
     handlePromise = function() {
-console.log('handlePromise');
         return instance._nextMessagePromise().then(
             function(itsamessage) {
-console.log('handlePromise of message '+itsamessage.get('message'));
                 if (itsamessage.get(SUSPENDED)) {
                     itsamessage._set(SUSPENDED, false);
                     instance.resurrect(itsamessage.get(LEVEL));
@@ -138,6 +134,14 @@ console.log('handlePromise of message '+itsamessage.get('message'));
                     itsamessage._set(PROCESSING, true);
                     return instance.viewMessage(itsamessage);
                 }
+            },
+            function(reason) {
+                var facade = {
+                    error   : reason && (reason.message || reason),
+                    src     : 'ITSAMessageViewer._processQueue'
+                };
+                instance._lazyFireErrorEvent(facade);
+                return false;
             }
         );
     };
@@ -158,7 +162,6 @@ console.log('handlePromise of message '+itsamessage.get('message'));
 // be sure to return a promise, otherwise all messsages are eaten up at once!
 ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
-console.log('viewMessage itsamessageviewer');
     Y.log('viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
@@ -169,6 +172,27 @@ ITSAMessageViewer.prototype.suspend = function(/* level */) {
 ITSAMessageViewer.prototype.resurrect = function(/* level */) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
+};
+
+/**
+* Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
+* Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
+*
+* @method _lazyFireErrorEvent
+ * @param {Object} [facade] eventfacade.
+ * @private
+**/
+ITSAMessageViewer.prototype._lazyFireErrorEvent = function(facade) {
+    var instance = this;
+
+    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
+    // lazy publish
+    if (!instance._errorEvent) {
+        instance._errorEvent = instance.publish(ERROR, {
+            broadcast: 1
+        });
+    }
+    instance.fire(ERROR, facade);
 };
 
 ITSAMessageViewer.prototype._nextMessagePromise = function() {
@@ -211,10 +235,8 @@ ITSAMessageViewer.prototype._nextMessagePromise = function() {
                     }
                 );
                 nextMessage ? ((instance._lastMessage=nextMessage) && resolve(nextMessage)) : (listener=Y.on(NEWMESSAGE_ADDED, function(e) {
-console.log('event caught: '+e.type);
                                                             var itsamessage = e.model;
                                                             if (handleAnonymous || (itsamessage.target===name)) {
-console.log('event HANDLED!');
                                                                 instance._lastMessage = itsamessage;
                                                                 resolve(itsamessage);
                                                                 listener.detach();

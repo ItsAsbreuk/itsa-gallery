@@ -1,10 +1,10 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 Y.one('body').addClass('yui3-skin-sam');
 
-    Y.getEmail('Please enter your emailname:', {
+    Y.getEmail('Y.getEmail', 'Please enter your emailname:', {
         imageButtons: true,
+        required: true,
         formconfig: {
-            required: false,
             label: 'Email',
             placeholder: 'example@example.com'
         }
@@ -17,7 +17,7 @@ Y.one('body').addClass('yui3-skin-sam');
         }
     );
 
-    Y.getURL('Please enter an url:', {
+    Y.getURL('Y.getURL', 'Please enter an url:', {
         imageButtons: true,
         formconfig: {
             label: 'url',

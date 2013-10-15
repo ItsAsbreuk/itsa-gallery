@@ -3,11 +3,11 @@
 .itsa-dialog fieldset:first-child {
     margin-top: 0.8em;
 }
-
 .itsa-dialog .itsa-input,
 .itsa-dialog fieldset.itsa-number {
     text-align: right;
     padding-right: 0.1em;
+    width: 100%;
 }
 
 .itsa-dialog .itsa-textarea {

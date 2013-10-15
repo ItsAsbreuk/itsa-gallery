@@ -31,7 +31,8 @@ var YArray = Y.Array,
     WARN = 'warn',
     ERROR = 'error',
     VALUE = 'value',
-    ITSADIALOG = 'itsa-dialog';
+    ITSADIALOG = 'itsa-dialog',
+    ESCAPE_HIDE_EVENT = 'escape:hide';
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -80,7 +81,7 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.get('rejectButton'),
-                rejected = (e.type==='escape:hide') || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton)),
+                rejected = (e.type===ESCAPE_HIDE_EVENT) || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton)),
                 returnObject = {
                     itsamessage: itsamessage,
                     button: buttonValue
@@ -134,23 +135,21 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     return instance.renderPromise().then(
         function() {
             return new Y.Promise(function (resolve) {
-console.log('******* INSIDE THE viewMessage PROMISE *******');
                 var level = itsamessage.get('level'),
                     primarybutton = itsamessage.get('primaryButton'),
+                    rejectbutton = itsamessage.get('rejectButton'),
                     panels = instance.panels,
                     panel = panels[level],
                     noButtons = itsamessage.get('noButtons'),
                     footer = itsamessage.get(FOOTER),
                     footerHasButtons = /btn_/.test(footer),
                     footerview, removePrimaryButton;
-console.log('******* PASSED TROUBLESOME CODE viewMessage PROMISE *******');
                 panels[INFO].hide();
                 panels[WARN].hide();
                 panels[ERROR].hide();
                 panel = panels[level];
-//                panel.set('closable', !footerHasButtons || !noButtons);
-                panel.set(TITLE+'Right', (footerHasButtons || noButtons) ? '' : null); // remove closebutton by setting '', or retreive by setting null
-                panel.set('template', itsamessage.get('message'));
+                panel.set('closeButton', !footerHasButtons && !noButtons);
+                panel.set('closableByEscape', (typeof rejectbutton === 'string'));
                 panel.set(FOOTER+'Template', (noButtons ? null : footer));
                 if (!noButtons && footer && Lang.isValue(primarybutton)) {
                     footerview = panel.get('footerView');
@@ -159,8 +158,10 @@ console.log('******* PASSED TROUBLESOME CODE viewMessage PROMISE *******');
                     removePrimaryButton ? footerview.removePrimaryButton() : footerview.setPrimaryButton(primarybutton);
 /*jshint expr:false */
                 }
-                panel.set(MODEL, itsamessage);
                 panel.set(TITLE, itsamessage.get(TITLE));
+                // set the model BEFORE setting the template --> Y.Slider would go wrong otherwise
+                panel.set(MODEL, itsamessage);
+                panel.set('template', itsamessage.get('message'));
                 // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
                 itsamessage.promise.then(
                     null,
