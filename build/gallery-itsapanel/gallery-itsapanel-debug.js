@@ -35,7 +35,8 @@ var ITSAPanel,
     STRING = 'string',
     BOOLEAN = 'boolean',
     VISIBLE = 'visible',
-    CLOSABLE = 'closable',
+    CLOSEBUTTON = 'closeButton',
+    CLOSABLEBYESCAPE = 'closableByEscape',
     WIDTH = 'width',
     HEIGHT = 'height',
     BOUNDINGBOX = 'boundingBox',
@@ -45,6 +46,7 @@ var ITSAPanel,
     BUTTON = 'button',
     FOCUSED = 'focused',
     FOCUSED_CLASS = ITSA+FOCUSED,
+    KEYDOWN = 'keydown',
     HIDDEN = 'hidden',
     VIEW = 'View',
     PANEL = 'panel',
@@ -135,7 +137,7 @@ var ITSAPanel,
 
     /**
       * Fired when a escape-press asks for the panel to hide.
-      * The defaultFunction will call Panel-instance.hide(), but only is the attribute 'closable' is set true
+      * The defaultFunction will call Panel-instance.hide(), but only if the attribute 'closableByEscape' is set true
       *
       * @event escape:hide
       *
@@ -195,6 +197,33 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
+            }
+        },
+        /**
+         * Boolean indicating whether or not the Panel can be closed by pressing the escape-key.
+         *
+         * @attribute closableByEscape
+         * @default true
+         * @type boolean
+         */
+        closableByEscape: {
+            value: true,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
+            }
+        },
+        /**
+         * Boolean indicating whether or not the Panel has a closeButton-button.<br>
+         * <b>Note:</b> If the attribute 'titleRight' is changed, then there will be <u>nu closebutton</u>, for the closebutton is defined in the default 'titleRight'.
+         *
+         * @attribute closeButton
+         * @default true
+         * @type boolean
+         */
+        closeButton: {
+            value: true,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
             }
         },
         /**
@@ -464,25 +493,6 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
-        },
-        /**
-         * Boolean indicating whether or not the Panel is closable by <u>user-interaction</u> meaning by 'close-button' or 'escape-key'.
-         * When set false, there won't be a close-button visible.
-         * Special notes:
-         * <ul>
-         *     <li>You can overrule the closebutton using the attribute 'titleRight'. The panel would still be closable by the 'escape-key'</li>
-         *     <li>When set false, you still can close the panel by code (panel.hide(), or by buttons that call hide() under the hood)</li>
-         * </ul>
-         *
-         * @attribute closable
-         * @default false
-         * @type boolean
-         */
-        closable: {
-            value: true,
-            validator: function(val) {
-                return (typeof val===BOOLEAN);
-            }
         }
     }
 });
@@ -597,20 +607,26 @@ ITSAPanel.prototype.bindUI = function() {
     instance._setFocusManager();
 
 
-
-// THIS CODE TROUBLESOME THINGS:
-    eventhandlers.push(
-        Y.on(
-            'keydown',
-            function(e) {
-//                // close panel on escape-key
 /*jshint expr:true */
-                (e.keyCode === 27) && instance.get(CLOSABLE) && instance.fire(ESCAPE_HIDE_EVENT, {target: instance});
+    instance.get(CLOSABLEBYESCAPE) && (instance._escapeHandler=Y.on(
+                                                KEYDOWN,
+                                                Y.rbind(instance._handleEscapeKey, instance)
+                                            )
+                                        );
 /*jshint expr:false */
-            }
-        )
-    );
 
+    eventhandlers.push(
+        instance.after(CLOSABLEBYESCAPE+CHANGE, function(e) {
+            Y.log('aftersubscriptor '+CLOSABLEBYESCAPE+CHANGE, 'info', 'ITSAPanel');
+/*jshint expr:true */
+                 e.newVal ? (instance._escapeHandler=Y.on(
+                                                              KEYDOWN,
+                                                              Y.rbind(instance._handleEscapeKey, instance)
+                                                          )
+                                                      ) : (instance._escapeHandler && instance._escapeHandler.detach());
+/*jshint expr:false */
+        })
+    );
 
     eventhandlers.push(
         instance.after(VISIBLE+CHANGE, function(e) {
@@ -713,20 +729,26 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(
             '*:viewrendered',
-            function(e) {
-                var viewinstance = e.target,
-                    isFooterView = (viewinstance===instance.get(FOOTERVIEW));
+            function() {
+                var footerView = instance.get(FOOTERVIEW),
+                    container, footercont;
                 // BECAUSE we do not have a promise yet that tells when all formelements are definitely rendered on the screen,
                 // we need to timeout
                 Y.log('aftersubscriptor *:viewrendered', 'info', 'ITSA-ViewModelPanel');
-                if (isFooterView) {
-                    instance._footercont.toggleClass('itsa-inlinefooter', true);
-                    viewinstance.get('container').get('parentNode').setStyle('overflow', 'visible');
+                if (footerView) {
+                    footercont = instance._footercont;
+                    container = footerView.get('container');
+                    footercont.toggleClass('itsa-inlinefooter', true);
+                    container = footerView.get('container');
+                    container.setStyle('paddingLeft', '1.2em');
+                    footercont.setStyle('overflow', 'visible');
                     // reset previous width, otherwise the width keeps expanding
                     instance._body.setStyle('minWidth', '');
                     // now we can calculate instance._footer.get('offsetWidth')
                     instance._body.setStyle('minWidth', instance._footer.get('offsetWidth')+'px');
-                    instance._footercont.toggleClass('itsa-inlinefooter', false);
+                    footercont.toggleClass('itsa-inlinefooter', false);
+                    footercont.setStyle('overflow', '');
+                    container.setStyle('paddingLeft', '');
                 }
                 Y.later(250, null, function() {
                     contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
@@ -745,6 +767,13 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(
             [FOOTER+CHANGE, FOOTER+RIGHT+CHANGE],
+            Y.bind(instance._renderFooter, instance)
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            [TITLE+CHANGE, FOOTER+RIGHT+CHANGE],
             Y.bind(instance._renderFooter, instance)
         )
     );
@@ -774,16 +803,17 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.on(
-            [TITLE+CHANGE, TITLERIGHT+CHANGE, CLOSABLE+CHANGE],
+            [TITLE+CHANGE, TITLERIGHT+CHANGE, CLOSEBUTTON+CHANGE],
             function(e) {
                 var value = e.newVal,
-                    type = e.type,
+                    types = e.type.split(':'),
+                    type = types[types.length-1],
                     title = (type===TITLE+CHANGE) ? value : instance.get(TITLE),
                     titleRight = (type===TITLERIGHT+CHANGE) ? value : instance.get(TITLERIGHT),
-                    closable = (type===CLOSABLE+CHANGE) ? value : instance.get(CLOSABLE),
+                    closeButton = (type===CLOSEBUTTON+CHANGE) ? value : instance.get(CLOSEBUTTON),
                     headerView = instance.get(HEADERVIEW);
                 if (!headerView || (typeof headerView===STRING)) {
-                    instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closable ? CLOSE_BUTTON : '') : titleRight)}));
+                    instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
                 }
             }
         )
@@ -933,6 +963,7 @@ ITSAPanel.prototype.destructor = function() {
     boundingBox.hasPlugin(DD) && boundingBox.dd.removeTarget(instance) && boundingBox.unplug(DD);
     contentBox.hasPlugin[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox.unplug(RESIZE);
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
+    (instance._escapeHandler && instance._escapeHandler.detach());
 /*jshint expr:false */
     instance._clearEventhandlers();
 };
@@ -985,6 +1016,22 @@ ITSAPanel.prototype._clearEventhandlers = function() {
             item.detach();
         }
     );
+};
+
+/**
+ * Function that handles the escape-key by fireing a 'escape:hide'-event if the panel has focus.
+ *
+ * @method _handleEscapeKey
+ * @private
+ * @protected
+ * @since 0.1
+*/
+ITSAPanel.prototype._handleEscapeKey = function(e) {
+    // close panel on escape-key
+    var instance = this;
+/*jshint expr:true */
+    (e.keyCode === 27) && instance.get(FOCUSED) && instance.fire(ESCAPE_HIDE_EVENT);
+/*jshint expr:false */
 };
 
 /**
@@ -1050,12 +1097,12 @@ ITSAPanel.prototype._renderHeader = function() {
     var instance = this,
         title = instance.get(TITLE),
         titleRight = instance.get(TITLERIGHT),
-        closable = instance.get(CLOSABLE),
+        closeButton = instance.get(CLOSEBUTTON),
         headerView = instance.get(HEADERVIEW);
 
     Y.log('_renderHeader ', 'info', 'ITSAPanel');
     if (!headerView || (typeof headerView===STRING)) {
-        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closable ? CLOSE_BUTTON : '') : titleRight)}));
+        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
     }
     else if (headerView instanceof Y.View) {
         headerView._set('container', instance._header);
