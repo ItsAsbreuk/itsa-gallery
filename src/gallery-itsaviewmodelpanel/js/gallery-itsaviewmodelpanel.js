@@ -64,6 +64,8 @@ var ITSAViewModelPanel,
     ITSATABKEYMANAGER = 'itsatabkeymanager',
     NO_HIDE_ON_LOAD = 'noHideOnLoad',
     NO_HIDE_ON_RESET = 'noHideOnReset',
+    NO_HIDE_ON_SUBMIT = 'noHideOnSubmit',
+    NO_HIDE_ON_SAVE = 'noHideOnSave',
     DISABLED = 'disabled',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     VALIDATION_ERROR = 'validationerror',
@@ -223,6 +225,36 @@ ITSAViewModelPanel = Y.ITSAViewModelPanel = Y.Base.create('itsaviewmodelpanel', 
         },
 
         /**
+         * When set true, the Panel won't hide when the user clicks on the 'save'-button, even if 'hideOnBtn' is set true.
+         *
+         * @attribute noHideOnSave
+         * @type {Boolean}
+         * @default false
+         * @since 0.1
+        */
+        noHideOnSave: {
+            value: false,
+            validator: function(v) {
+                return (typeof v === BOOLEAN);
+            }
+        },
+
+        /**
+         * When set true, the Panel won't hide when the user clicks on the 'submit'-button, even if 'hideOnBtn' is set true.
+         *
+         * @attribute noHideOnSubmit
+         * @type {Boolean}
+         * @default false
+         * @since 0.1
+        */
+        noHideOnSubmit: {
+            value: false,
+            validator: function(v) {
+                return (typeof v === BOOLEAN);
+            }
+        },
+
+        /**
          * The Y.Model that will be rendered in the panel. May also be an Object, which is handy in case the source is an
          * item of a Y.LazyModelList. If you pass a String-value, then the text is rendered as it is, assuming no model-instance.
          *
@@ -363,6 +395,27 @@ ITSAViewModelPanel.prototype.addCustomBtn = function(buttonId, labelHTML, config
     bodyview.addCustomBtn(buttonId, labelHTML, config);
 /*jshint expr:true */
     footerview && footerview.addCustomBtn(buttonId, labelHTML, config);
+/*jshint expr:false */
+};
+
+/**
+ * Creates custom buttons for multiple buttons. Passes through to addCustomBtn (see that method for possible buttonvalues).
+ *
+ * @method addCustomBtns
+ * @param buttons {Array} Array of objects with properties buttons.buttonId, buttons.labelHTML and optionally buttonConfig.config
+ * @since 0.4
+ *
+*/
+ITSAViewModelPanel.prototype.addCustomBtns = function(buttons) {
+    Y.log('addCustomBtns', 'info', 'ITSA-ViewModelPanel');
+    var instance = this;
+/*jshint expr:true */
+    Lang.isArray(buttons) && (YArray.each(
+        buttons,
+        function(buttonConfig) {
+            buttonConfig.buttonId && buttonConfig.labelHTML && instance.addCustomBtn(buttonConfig.buttonId, buttonConfig.labelHTML, buttonConfig.config);
+        }
+    ));
 /*jshint expr:false */
 };
 
@@ -532,7 +585,10 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     value = node && node.get(VALUE);
 /*jshint expr:true */
                 // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
-                node && instance.get('hideOnBtn') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
+                node && instance.get('hideOnBtn') && (value!==CLOSE) &&
+                     (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) &&
+                     (!instance.get(NO_HIDE_ON_SUBMIT) || (value!==SUBMIT)) && (!instance.get(NO_HIDE_ON_SAVE) || (value!==SAVE)) &&
+                     instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
             }
         )
@@ -548,8 +604,10 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     panelCloseButton = node.hasClass(ITSA_PANELCLOSEBTN); // this node must not fire the event, because it already is done by ITSAPanel
 /*jshint expr:true */
                 // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
-                !panelCloseButton && instance.get('hideOnBtn') && (value!==CLOSE) && (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) &&
-                (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) && instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
+                !panelCloseButton && instance.get('hideOnBtn') && (value!==CLOSE) &&
+                     (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) &&
+                     (!instance.get(NO_HIDE_ON_SUBMIT) || (value!==SUBMIT)) && (!instance.get(NO_HIDE_ON_SAVE) || (value!==SAVE)) &&
+                     instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
             },
             BUTTON
@@ -721,7 +779,7 @@ ITSAViewModelPanel.prototype.unlockPanel = function() {
  * </ul>
  *
  * @method removeButtonLabel
- * @param buttonType {String} the buttontype which text was replaced, one of those mentioned above.
+ * @param buttonType {String} the buttontype which text was replaced, one of those mentioned above. If none specified, all buttonlabels are removed.
  * @since 0.3
  *
 */
@@ -743,7 +801,7 @@ ITSAViewModelPanel.prototype.removeButtonLabel = function(buttonType) {
  * Removes custom buttons defined with addCustomBtn().
  *
  * @method removeCustomBtn
- * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}. If none specified, all custom buttons are removed.
  * @since 0.3
  *
 */
@@ -800,7 +858,7 @@ ITSAViewModelPanel.prototype.removeCustomBtn = function(buttonId) {
  * </ul>
  *
  * @method removeHotKey
- * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above.
+ * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above. If none specified, all hotkeys are removed.
  * @since 0.3
  *
 */
@@ -877,6 +935,27 @@ ITSAViewModelPanel.prototype.setButtonLabel = function(buttonType, labelHTML) {
 };
 
 /**
+ * Creates custom labels for multiple buttons. Passes through to setButtonLabel (see that method for possible buttonvalues).
+ *
+ * @method setButtonLabels
+ * @param buttons {Array} Array of objects with properties buttons.buttonType and buttonConfig.labelHTML
+ * @since 0.4
+ *
+*/
+ITSAViewModelPanel.prototype.setButtonLabels = function(buttons) {
+    var instance = this;
+    Y.log('setButtonLabels', 'info', 'ITSA-ViewModelPanel');
+/*jshint expr:true */
+    Lang.isArray(buttons) && (YArray.each(
+        buttons,
+        function(buttonConfig) {
+            buttonConfig.buttonType && buttonConfig.labelHTML && instance.setButtonLabel(buttonConfig.buttonType, buttonConfig.labelHTML);
+        }
+    ));
+/*jshint expr:false */
+};
+
+/**
  * Passes through to the underlying bodyView and footerView.<br />
  * Creates a listener to the specific hotkey (character). The hotkey will be bound to the specified buttonType, that should be one of types mentioned below.
  * The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
@@ -934,6 +1013,27 @@ ITSAViewModelPanel.prototype.setHotKey = function(buttonType, hotkey) {
     bodyview.setHotKey(buttonType, hotkey);
 /*jshint expr:true */
     footerview && footerview.setHotKey(buttonType, hotkey);
+/*jshint expr:false */
+};
+
+/**
+ * Creates hotkeys for multiple buttons. Passes through to setHotKey (see that method for possible buttonvalues).
+ *
+ * @method setHotKeys
+ * @param buttons {Array} Array of objects with properties buttons.buttonType and buttonConfig.hotkey
+ * @since 0.4
+ *
+*/
+ITSAViewModelPanel.prototype.setHotKeys = function(buttons) {
+    var instance = this;
+    Y.log('setHotKeys', 'info', 'ITSA-ViewModelPanel');
+/*jshint expr:true */
+    Lang.isArray(buttons) && (YArray.each(
+        buttons,
+        function(buttonConfig) {
+            buttonConfig.buttonType && buttonConfig.hotkey && instance.setHotKey(buttonConfig.buttonType, buttonConfig.hotkey);
+        }
+    ));
 /*jshint expr:false */
 };
 
