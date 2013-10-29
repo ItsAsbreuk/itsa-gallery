@@ -78,8 +78,12 @@
 .itsa-panel .itsa-panelheader {
     top: 0;
 }
-.itsa-panel .itsa-panelbody {
+.itsa-panel .itsa-panelbody,
+.itsa-panel .pure-form {
     position: static;
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
 }
 .itsa-panel .itsa-panelfooter {
     bottom: 0;
