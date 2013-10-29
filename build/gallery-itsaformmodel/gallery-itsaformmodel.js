@@ -1470,6 +1470,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
  * @method UIToModel
  * @param [nodeid] {String} nodeid of the formelement (without '#'), when left empty, all formelement-properties are set.
  * @since 0.1
+ * @chainable
  *
 */
 ITSAFormModel.prototype.UIToModel = function(nodeid) {
@@ -1501,6 +1502,7 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
             }
         );
     }
+    return instance;
 };
 
 /**
