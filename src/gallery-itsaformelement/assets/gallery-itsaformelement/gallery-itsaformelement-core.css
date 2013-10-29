@@ -145,7 +145,17 @@ span.formatlabel + input[type="checkbox"][data-formelement="true"] {
     margin-left: 0.5em;
 }
 
-.pure-form-aligned label[data-widgetlabel="true"] + div.itsa-widget-parent {
+.pure-form label.switchedlabel,
+.pure-form .pure-controls label.switchedlabel,
+.pure-form .pure-control-group label.switchedlabel,
+.pure-form-stacked .pure-controls label.switchedlabel,
+.pure-form-stacked .pure-control-group label.switchedlabel,
+.pure-form-aligned .pure-controls label.switchedlabel,
+.pure-form-aligned .pure-control-group label.switchedlabel {
+    text-align: left;
+}
+
+.pure-form-aligned .pure-control-group label[data-widgetlabel="true"] + div.itsa-widget-parent {
     margin-left: 0;
 }
 

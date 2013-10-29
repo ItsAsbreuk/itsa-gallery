@@ -636,13 +636,16 @@ ITSAFormElement._renderedElement = function(type, config, nodeid, iswidget) {
             ITSAFormElement._HKList || ITSAFormElement._actHKList();
 /*jshint expr:false */
         }
+/*jshint expr:true */
+        switchlabel && (subtituteConfig[LABELCLASSNAME]+=' switched'+LABEL);
+/*jshint expr:false */
         if (surroundlabelclass) {
             subtituteConfig[LABEL] = '<span class="formatlabel">' + subtituteConfig[LABEL] + ENDSPAN;
-            labelclass = ' class="'+surroundlabelclass+(config[LABELCLASSNAME] ? (' '+config[LABELCLASSNAME]) : '') + '"';
+            labelclass = ' class="'+surroundlabelclass+(subtituteConfig[LABELCLASSNAME] ? (' '+subtituteConfig[LABELCLASSNAME]) : '') + '"';
             template = LABEL_FOR_IS+'{id}"'+HIDDEN_SUB+LABELDATA_SUB+labelclass+'>'+(switchlabel ? (template+'{label}') : ('{label}'+template))+ENDLABEL_EL;
         }
         else {
-            labelclass = config[LABELCLASSNAME] ? (' class="'+config[LABELCLASSNAME] + '"') : '';
+            labelclass = subtituteConfig[LABELCLASSNAME] ? (' class="'+subtituteConfig[LABELCLASSNAME] + '"') : '';
             extralabel = (isdatetime ? ('<'+LABEL) : (LABEL_FOR_IS+'{id}"'))+HIDDEN_SUB+LABELDATA_SUB+labelclass+'>{label}'+ENDLABEL_EL;
             if (switchlabel) {
                 template += extralabel;
