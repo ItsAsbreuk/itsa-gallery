@@ -608,6 +608,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             optionWidth = Math.max(widthOnNode, widthOffNode);
 
             // exactly define the widths to prevent rounderrors
+
             previous = widthOnNode - PARSEINT(optionOnNode.getStyle(PADDINGLEFT)) - PARSEINT(optionOnNode.getStyle(PADDINGRIGHT));
             optionOnNode.setStyle(WIDTH, previous+(optionWidth-widthOnNode)+PX);
             previous = widthOffNode - PARSEINT(optionOffNode.getStyle(PADDINGLEFT)) - PARSEINT(optionOffNode.getStyle(PADDINGRIGHT));
