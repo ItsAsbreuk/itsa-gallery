@@ -22,113 +22,43 @@ YUI.add('gallery-itsamessage', function (Y, NAME) {
  *
 */
 
-var ITSAMessage,
-    INFO = 'info',
-    MESSAGELEVELS = {
-        info: true,
-        warn: true,
-        error: true
-    };
+var ITSAMessage;
 
-ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], {}, {
+ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], {
+    initializer: function() {
+        var instance = this;
+        instance.resolvePromise = null;
+        instance.rejectPromise = null;
+
+        instance.footer = null;
+        instance.imageButtons = false;
+        instance.level = 'info';
+        instance.message = '';
+        instance.noButtons = false;
+        instance.processing = false;
+        instance.primaryButton = null;
+        instance.rejectButton = null;
+        instance.suspended = false;
+        instance.title = null;
+        instance.target = null;
+        instance.messageType = null;
+        instance.source = null;
+        instance.buttonLabels = null;
+        instance.hotKeys = null;
+        instance.customBtns = null;
+        instance.noHideOnSubmit = true;
+    }
+}, {
     ATTRS: {
         /**
-         * Axis upon which the Slider's thumb moves.  &quot;x&quot; for
-         * horizontal, &quot;y&quot; for vertical.
+         * The button that was pressed (if appopriate). Returnvalue represents the button's-value.
          *
-         * @attribute handleAnonymous
-         * @type {Boolean}
-         * @default false
+         * @attribute button
+         * @type {String}
+         * @default null
          */
-        autoDestroy: {
-            value: 1000,
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='number');
-            }
-        },
-        footer: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string');
-            }
-        },
-        imageButtons: {
-            value: false,
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='boolean');
-            }
-        },
-        level: {
-            value: INFO,
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string') && MESSAGELEVELS[v];
-            }
-        },
-        message: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string');
-            }
-        },
-        noButtons: {
-            value: false,
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='boolean');
-            }
-        },
-        options: {
-            readOnly: true,
-            validator: function(v) {
-                return (typeof v==='object');
-            }
-        },
-        processing: {
-            readOnly: true,
-            value: false,
-            validator: function(v) {
-                return (typeof v==='boolean');
-            }
-        },
-        primaryButton: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='boolean') || (typeof v==='string');
-            }
-        },
-        rejectButton: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string');
-            }
-        },
-        source: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string');
-            }
-        },
-        suspended: {
-            value: false,
-            readOnly: true,
-            validator: function(v) {
-                return (typeof v==='boolean');
-            }
-        },
-        title: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string');
-            }
-        },
-        target: {
-            writeOnce: 'initOnly',
-            validator: function(v) {
-                return (typeof v==='string');
-            }
+        button: {
+            readOnly: true
         }
     }
 });

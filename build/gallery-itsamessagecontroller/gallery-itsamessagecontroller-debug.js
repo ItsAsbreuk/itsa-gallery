@@ -43,8 +43,6 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         GALLERY_ITSAMESSAGE = 'gallery-itsamessage',
         GET = 'get',
         SHOW = 'show',
-        DATE = 'Date',
-        TIME = 'Time',
         CONFIRMATION = 'Confirmation',
         GET_RETRY_CONFIRMATION = GET+'Retry'+CONFIRMATION,
         GET_CONFIRMATION = GET+CONFIRMATION,
@@ -52,33 +50,29 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         GET_NUMBER = GET+'Number',
         GET_EMAIL = GET+'E'+MAIL,
         GET_URL = GET+'URL',
-        GET_DATE = GET+DATE,
-        GET_TIME = GET+TIME,
-        GET_DATE_TIME = GET_DATE+TIME,
         SHOW_MESSAGE = SHOW+'M'+ESSAGE,
         SHOW_WARNING = SHOW+'Warning',
         SHOW_ERROR = SHOW+'Error',
         SHOW_STATUS = SHOW+'Status',
         UNDERSCORE = '_',
         BASE_BUILD = 'base-build',
-        TEXTAREA = 'textarea',
-        SLIDER = 'slider';
+        TEXTAREA = 'textarea';
 
-function ITSAMessageController() {
-    ITSAMessageController.superclass.constructor.apply(this, arguments);
+function ITSAMessageControllerClass() {
+    ITSAMessageControllerClass.superclass.constructor.apply(this, arguments);
 }
 
-ITSAMessageController.NAME = 'itsamessagecontroller';
+ITSAMessageControllerClass.NAME = 'ITSAMessageControllerClass';
 
-Y.extend(ITSAMessageController, Y.Base);
+Y.ITSAMessageControllerClass = Y.extend(ITSAMessageControllerClass, Y.Base);
 
-ITSAMessageController.prototype.initializer = function() {
+ITSAMessageControllerClass.prototype.initializer = function() {
     var instance = this;
     instance.queue = [];
     Y.later(LOADDELAY, instance, instance.readyPromise);
 };
 
-ITSAMessageController.prototype._retreiveParams = function(title, message, config) {
+ITSAMessageControllerClass.prototype._retrieveParams = function(title, message, config) {
     var withTitle = (typeof message === 'string'),
         withMessage;
     if (!withTitle) {
@@ -102,9 +96,9 @@ ITSAMessageController.prototype._retreiveParams = function(title, message, confi
     };
 };
 
-ITSAMessageController.prototype.readyPromise = function() {
+ITSAMessageControllerClass.prototype.readyPromise = function() {
     var instance = this;
-    return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, SLIDER, GALLERY_ITSAMESSAGE).then(
+    return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, GALLERY_ITSAMESSAGE).then(
                                                                  function() {
                                                                      instance._intlMessageObj = new Y.ITSAMessage(); // used for synchronous translations
                                                                  },
@@ -118,46 +112,45 @@ ITSAMessageController.prototype.readyPromise = function() {
                                                              ));
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, INFO);
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', 'btn_yes', 'btn_no', GET_CONFIRMATION, INFO);
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_URL] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+GET_URL] = function(title, message, config) {
     var instance = this,
-        params = instance._retreiveParams(title, message, config);
+        params = instance._retrieveParams(title, message, config);
     params.config.url = true;
     return instance[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_EMAIL] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+GET_EMAIL] = function(title, message, config) {
     var instance = this,
-        params = instance._retreiveParams(title, message, config);
+        params = instance._retrieveParams(title, message, config);
     params.config.email = true;
     return instance[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
     var instance = this,
-        params = instance._retreiveParams(title, message, config),
-        required, MyITSAMessage, email, url, formtype;
+        params = instance._retrieveParams(title, message, config),
+        required, MyITSAMessage, email, url, formtype, formconfig;
     title = params.title;
     message = params.message;
     config = params.config;
-/*jshint expr:true */
-    config.formconfig || (config.formconfig={});
-    config.formconfig.classname || (config.formconfig.classname='');
-/*jshint expr:false */
-    config.formconfig.fullselect = true;
-    config.formconfig.primarybtnonenter = !config[TEXTAREA];
+    formconfig = config.formconfig || {};
+    formconfig.fullselect = true;
     email = (typeof config.email === BOOLEAN) && config.email;
     url = (typeof config.url === BOOLEAN) && config.url;
+    formconfig.primarybtnonenter = !config[TEXTAREA] || email || url;
     formtype = email ? EMAIL : (url ?  URL : (config[TEXTAREA] ? TEXTAREA : 'text'));
-    config.formconfig.classname += ' ' + 'itsa-' + formtype;
-    config.formconfig.required = true;
+
+    formconfig.classname = 'itsa-'+formtype + (formconfig.classname ? ' '+formconfig.classname : '');
+
+    formconfig.required = true;
     required = (typeof config.required === BOOLEAN) && config.required;
     return instance.readyPromise().then(
         function() {
@@ -169,7 +162,7 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
                                       input: {
                                           value: config.value,
                                           formtype: formtype,
-                                          formconfig: config.formconfig,
+                                          formconfig: formconfig,
                                           validator: config.validator,
                                           validationerror: config.validationerror
                                       }
@@ -183,21 +176,18 @@ ITSAMessageController.prototype[UNDERSCORE+GET_INPUT] = function(title, message,
     );
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, message, config) {
     var instance = this,
-        params = instance._retreiveParams(title, message, config),
-        required, MyITSAMessage;
+        params = instance._retrieveParams(title, message, config),
+        required, MyITSAMessage, formconfig;
     title = params.title;
     message = params.message;
     config = params.config;
-/*jshint expr:true */
-    config.formconfig || (config.formconfig={});
-    config.formconfig.classname || (config.formconfig.classname='');
-/*jshint expr:false */
-    config.formconfig.fullselect = true;
-    config.formconfig.primarybtnonenter = true;
-    config.formconfig.classname += ' '+'itsa-number';
-    config.formconfig.required = true;
+    formconfig = config.formconfig || {};
+    formconfig.fullselect = true;
+    formconfig.primarybtnonenter = true;
+    formconfig.classname = 'itsa-number' + (formconfig.classname ? ' '+formconfig.classname : '');
+    formconfig.required = true;
     required = (typeof config.required === BOOLEAN) && config.required;
     return instance.readyPromise().then(
         function() {
@@ -208,8 +198,8 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
                                   ATTRS: {
                                       number: {
                                           value: config.value,
-                                          formtype: config.slider ? Y.Slider : 'number',
-                                          formconfig: config.formconfig,
+                                          formtype: 'number',
+                                          formconfig: formconfig,
                                           validator: config.validator,
                                           validationerror: config.validationerror
                                       }
@@ -223,60 +213,41 @@ ITSAMessageController.prototype[UNDERSCORE+GET_NUMBER] = function(title, message
     );
 };
 
-ITSAMessageController.prototype[UNDERSCORE+GET_DATE] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_DATE, INFO);
-};
-
-ITSAMessageController.prototype[UNDERSCORE+GET_TIME] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_TIME, INFO);
-};
-
-ITSAMessageController.prototype[UNDERSCORE+GET_DATE_TIME] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_cancel}{btn_ok}', 'btn_ok', 'btn_cancel', GET_DATE_TIME, INFO);
-};
-
-ITSAMessageController.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO);
 };
 
-ITSAMessageController.prototype[UNDERSCORE+SHOW_WARNING] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_WARNING] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN);
 };
 
-ITSAMessageController.prototype[UNDERSCORE+SHOW_ERROR] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, message, config) {
     return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR);
 };
 
 // returns a promise whith reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!
 // Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()
-ITSAMessageController.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
-    var instance = this,
-        params = instance._retreiveParams(title, message, config),
-        newconfig;
-    title = params.title;
-    message = params.message;
-    config = params.config;
-    newconfig = Y.merge(config, {
-        title: title,
-        message: message,
-        footer: null,
-        noButtons: true,
-        source: APP,
-        type: SHOW_STATUS,
-        level: INFO
-    });
+ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
+    var instance = this;
     return instance.readyPromise().then(
         function() {
-          var itsamessage = new Y.ITSAMessage(newconfig);
-          instance.queueMessage(itsamessage);
-          return itsamessage;
+            var itsamessage = new Y.ITSAMessage();
+            itsamessage.title = title;
+            itsamessage.message = message;
+            itsamessage.type = SHOW_STATUS;
+            itsamessage.level = INFO;
+            itsamessage.noButtons = true;
+            itsamessage.target = config.target;
+            itsamessage.source = config.source || APP;
+            itsamessage.messageType = SHOW_STATUS;
+            instance.queueMessage(itsamessage);
+            return itsamessage;
         }
     );
 };
 
-ITSAMessageController.prototype.queueMessage = function(itsamessage) {
+ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
     var instance = this,
-        autoDestroyDelay = itsamessage.get('autoDestroy'),
         promise, promiseResolve, promiseReject;
     promise = new Y.Promise(function (resolve, reject) {
         promiseResolve = resolve;
@@ -315,16 +286,12 @@ ITSAMessageController.prototype.queueMessage = function(itsamessage) {
                                                                           preventedFn: instance._prevDefFn
                                                                         }
                                                                        ));
-    (autoDestroyDelay > 0) && itsamessage.promise.then(
-                                  Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay),
-                                  Y.bind(instance._autoDestroyMsg, instance, itsamessage,autoDestroyDelay)
-                              );
     Y.fire(NEWMESSAGE, {model: itsamessage});
 /*jshint expr:false */
     return promise;
 };
 
-ITSAMessageController.prototype.destructor = function() {
+ITSAMessageControllerClass.prototype.destructor = function() {
     var instance = this,
         queue = instance.queue,
         intlMessageObj = instance._intlMessageObj;
@@ -343,14 +310,6 @@ ITSAMessageController.prototype.destructor = function() {
 /*jshint expr:false */
 };
 
-ITSAMessageController.prototype._autoDestroyMsg = function(itsamessage, delay) {
-    Y.later(delay, null, function() {
-        itsamessage.detachAll();
-        itsamessage.destroy();
-        itsamessage = null;
-    });
-};
-
 /**
 * Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
 * Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
@@ -359,7 +318,7 @@ ITSAMessageController.prototype._autoDestroyMsg = function(itsamessage, delay) {
  * @param {Object} [facade] eventfacade.
  * @private
 **/
-ITSAMessageController.prototype._lazyFireErrorEvent = function(facade) {
+ITSAMessageControllerClass.prototype._lazyFireErrorEvent = function(facade) {
     var instance = this;
 
     Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
@@ -377,19 +336,20 @@ ITSAMessageController.prototype._lazyFireErrorEvent = function(facade) {
  *
  * @method _prevDefFn
  * @param e {EventTarget}
- * @param e.promise {Y.Promise} promise passed by with the eventobject
- * @param e.promiseReject {Function} handle to the reject-method
- * @param e.promiseResolve {Function} handle to the resolve-method
+ * @param e.model {Y.ITSAMessage} message-instance
  * @private
  * @since 0.3
 */
-ITSAMessageController.prototype._prevDefFn = function(e) {
+ITSAMessageControllerClass.prototype._prevDefFn = function(e) {
     Y.log('_prevDefFn', 'info', 'ITSA-ModelSyncPromise');
-    e.message.promiseReject(new Error('preventDefaulted'));
+    var itsamessage = e.model;
+    itsamessage.detachAll();
+    itsamessage.destroy();
+    itsamessage = null;
 };
 
 
-ITSAMessageController.prototype._defQueueFn = function(e) {
+ITSAMessageControllerClass.prototype._defQueueFn = function(e) {
     var instance = this,
         itsamessage = e.model,
         queue = instance.queue;
@@ -423,42 +383,41 @@ ITSAMessageController.prototype._defQueueFn = function(e) {
 /*jshint expr:true */
                     (index>-1) && queue.splice(index, 1);
 /*jshint expr:false */
+                    itsamessage.detachAll();
+                    itsamessage.destroy();
+                    itsamessage = null;
                 }
             );
 };
 
-ITSAMessageController.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, ITSAMessageClass) {
+ITSAMessageControllerClass.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, ITSAMessageClass) {
     var instance = this,
-        params = instance._retreiveParams(title, message, config),
-        newconfig, imagebuttons;
+        params = instance._retrieveParams(title, message, config),
+        imageButtons;
     title = params.title;
     message = params.message;
     config = params.config;
-    imagebuttons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+    imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
 /*jshint expr:true */
-    if (imagebuttons) {
+    if (imageButtons) {
         footer = footer.replace(/\{btn_/g,'{imgbtn_');
         primaryButton && (primaryButton=primaryButton.replace(/btn_/g,'imgbtn_'));
     }
 /*jshint expr:false */
-    newconfig = Y.merge(config, {
-        title: title,
-        message: message,
-        footer: footer,
-        source: APP,
-        primaryButton: primaryButton,
-        rejectButton: rejectButton,
-        type: messageType,
-        level: level
-    });
-/*jshint expr:true */
-    config.level && (newconfig.level=config.level); // config.level should overrule the param level
-    config.primaryButton && (newconfig.primaryButton=config.primaryButton); // config.primaryButton should overrule the param level
-    newconfig.level || (newconfig.level=config.type); // config.type is for backwards compatibility
-/*jshint expr:false */
     return instance.readyPromise().then(
         function() {
-            return instance.queueMessage(ITSAMessageClass ? (new ITSAMessageClass(newconfig)) : (new Y.ITSAMessage(newconfig)));
+            var itsamessage = ITSAMessageClass ? (new ITSAMessageClass()) : (new Y.ITSAMessage());
+            itsamessage.title = title || config.title;
+            itsamessage.message = message || config.message;
+            itsamessage.footer = footer || config.footer;
+            itsamessage.imageButtons = imageButtons;
+            itsamessage.primaryButton = config.primaryButton || primaryButton; // config.primaryButton should overrule primaryButton
+            itsamessage.rejectButton = rejectButton || config.rejectButton;
+            itsamessage.target = config.target;
+            itsamessage.level = config.level || level || config.type; // config.level should overrule the param level; config.type is for backwards compatibility
+            itsamessage.source = config.source || APP;
+            itsamessage.messageType = messageType || config.type;
+            return instance.queueMessage(itsamessage);
         }
     );
 };
@@ -629,7 +588,7 @@ Y._publishAsync = function(type, opts) {
 
 // define 1 global messagecontroller
 /*jshint expr:true */
-Y.Global.ITSAMessageController || (Y.Global.ITSAMessageController=new ITSAMessageController());
+Y.Global.ITSAMessageController || (Y.Global.ITSAMessageController=new ITSAMessageControllerClass());
 /*jshint expr:false */
 ITSAMessageControllerInstance = Y.ITSAMessageController = Y.Global.ITSAMessageController;
 
@@ -640,9 +599,6 @@ Y.prompt = Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_IN
 Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITSAMessageControllerInstance);
 Y[GET_EMAIL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_EMAIL], ITSAMessageControllerInstance);
 Y[GET_URL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_URL], ITSAMessageControllerInstance);
-Y[GET_DATE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE], ITSAMessageControllerInstance);
-Y[GET_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_TIME], ITSAMessageControllerInstance);
-Y[GET_DATE_TIME] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_DATE_TIME], ITSAMessageControllerInstance);
 Y[SHOW_MESSAGE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE], ITSAMessageControllerInstance);
 Y.alert = Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_WARNING], ITSAMessageControllerInstance);
 Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITSAMessageControllerInstance);

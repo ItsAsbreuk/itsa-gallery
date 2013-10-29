@@ -1,0 +1,35 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+
+    Y.getEmail('Y.getEmail', 'Please enter your emailname:', {
+        imageButtons: true,
+        required: true,
+        formconfig: {
+            label: 'Email',
+            placeholder: 'example@example.com'
+        }
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.input);
+        },
+        function() {
+            console.log('cancelled');
+        }
+    );
+
+    Y.getURL('Y.getURL', 'Please enter an url:', {
+        imageButtons: true,
+        formconfig: {
+            label: 'url',
+            placeholder: 'http://'
+        }
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.input);
+        },
+        function() {
+            console.log('cancelled');
+        }
+    );
+
+});

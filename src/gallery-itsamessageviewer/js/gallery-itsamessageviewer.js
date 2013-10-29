@@ -29,6 +29,7 @@ var YArray = Y.Array,
     INFO = 'info',
     LEVEL = 'level',
     SUSPENDED = 'suspended',
+    TARGET = 'target',
     NEWMESSAGE_ADDED = NEWMESSAGE+'_added';
 
 
@@ -89,17 +90,17 @@ ITSAMessageViewer.prototype.initializer = function() {
     var instance = this;
     Y.ITSAMessageController.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
-    Y.later(LOADICONSDELAY, Y, Y.usePromise, 'gallerycss-itsa-form');
+    Y.later(LOADICONSDELAY, Y, Y.usePromise, ['gallerycss-itsa-base', 'gallerycss-itsa-animatespin', 'gallerycss-itsa-form']);
     Y.soon(Y.bind(instance._processQueue, instance));
 /*jshint expr:true */
     instance.get('interrupt') && (instance.interruptHandler=Y.on(NEWMESSAGE_ADDED, function(e) {
         var itsamessage = e.model,
             lastMessage = instance._lastMessage,
-            level = itsamessage.get(LEVEL),
-            lastLevel = lastMessage && lastMessage.get(LEVEL);
+            level = itsamessage[LEVEL],
+            lastLevel = lastMessage && lastMessage[LEVEL];
         if (lastLevel && (lastLevel!==level) && ((level===ERROR) || (lastLevel===INFO))) {
             // need to interrupt with new message
-            lastMessage._set(SUSPENDED, true);
+            lastMessage[SUSPENDED] = true;
 
 
 
@@ -123,13 +124,13 @@ ITSAMessageViewer.prototype._processQueue = function(startMessage) {
     handlePromise = function() {
         return instance._nextMessagePromise().then(
             function(itsamessage) {
-                if (itsamessage.get(SUSPENDED)) {
-                    itsamessage._set(SUSPENDED, false);
-                    instance.resurrect(itsamessage.get(LEVEL));
+                if (itsamessage[SUSPENDED]) {
+                    itsamessage[SUSPENDED] = false;
+                    instance.resurrect(itsamessage[LEVEL]);
                     throw new Error("promiseloop ended because of resurrection");
                 }
                 else {
-                    itsamessage._set(PROCESSING, true);
+                    itsamessage[PROCESSING] = true;
                     return instance.viewMessage(itsamessage);
                 }
             },
@@ -182,7 +183,6 @@ ITSAMessageViewer.prototype.resurrect = function(/* level */) {
 **/
 ITSAMessageViewer.prototype._lazyFireErrorEvent = function(facade) {
     var instance = this;
-
     Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
     // lazy publish
     if (!instance._errorEvent) {
@@ -211,7 +211,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function() {
                 YArray.some(
                     queue,
                     function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && (itsamessage.get(LEVEL)===ERROR) && (!itsamessage.get(PROCESSING) || itsamessage.get(SUSPENDED)) && itsamessage;
+                        nextMessage = (handleAnonymous || (itsamessage[TARGET]===name)) && (itsamessage[LEVEL]===ERROR) && (!itsamessage[PROCESSING] || itsamessage[SUSPENDED]) && itsamessage;
                         return nextMessage;
                     }
                 );
@@ -220,7 +220,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function() {
                 nextMessage || YArray.some(
                     queue,
                     function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && (itsamessage.get(LEVEL)===WARN) && (!itsamessage.get(PROCESSING) || itsamessage.get(SUSPENDED)) && itsamessage;
+                        nextMessage = (handleAnonymous || (itsamessage[TARGET]===name)) && (itsamessage[LEVEL]===WARN) && (!itsamessage[PROCESSING] || itsamessage[SUSPENDED]) && itsamessage;
                         return nextMessage;
                     }
                 );
@@ -228,13 +228,13 @@ ITSAMessageViewer.prototype._nextMessagePromise = function() {
                 nextMessage || YArray.some(
                     queue,
                     function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage.target===name)) && (!itsamessage.get(PROCESSING) || itsamessage.get(SUSPENDED)) && itsamessage;
+                        nextMessage = (handleAnonymous || (itsamessage[TARGET]===name)) && (!itsamessage[PROCESSING] || itsamessage[SUSPENDED]) && itsamessage;
                         return nextMessage;
                     }
                 );
                 nextMessage ? ((instance._lastMessage=nextMessage) && resolve(nextMessage)) : (listener=Y.on(NEWMESSAGE_ADDED, function(e) {
                                                             var itsamessage = e.model;
-                                                            if (handleAnonymous || (itsamessage.target===name)) {
+                                                            if (handleAnonymous || (itsamessage[TARGET]===name)) {
                                                                 instance._lastMessage = itsamessage;
                                                                 resolve(itsamessage);
                                                                 listener.detach();

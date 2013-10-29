@@ -1,0 +1,33 @@
+YUI(yuiconfig).use('gallery-itsalogin', 'promise', function(Y) {
+
+    Y.login('Login', 'Please enter login', {
+        imageButtons: true,
+        formconfigUsername: {
+            placeholder: 'gebruikersnaam'
+        },
+        formconfigPassword: {
+            placeholder: 'wachtwoord'
+        }
+    }, function(action) {
+        return new Y.Promise(function (resolve, reject) {
+//            reject(new Error('no syncPromise defined'));
+            Y.later(
+                2000,
+                null,
+                function() {
+                    resolve({status: 'OK'});
+                }
+            );
+        });
+    }).then(
+        function(result) {
+            console.log('Eerste bericht fulfilled '+result.username);
+        },
+        function(reason) {
+            console.log('Eerste bericht rejected '+reason);
+        }
+    );
+
+
+
+});

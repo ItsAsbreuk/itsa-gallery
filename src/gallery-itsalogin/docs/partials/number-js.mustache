@@ -1,0 +1,35 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+
+    Y.getNumber('De titel', 'Geef hier uw waarde tussen 2 en 10 (alleen gehele getallen):', {
+        imageButtons: true,
+        value: 8,
+        required: true,
+        formconfig: {
+            label: 'waarde: '
+        },
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)}
+//        validationerror: 'Please enter value between 1 and 11'
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.number);
+        }
+    );
+
+    Y.getNumber('De titel', 'Geef hier uw waarde tussen 2 en 10 (decimale toegestaan):', {
+        imageButtons: true,
+        value: 8,
+        required: true,
+        formconfig: {
+            label: 'waarde: ',
+            digits: true
+        },
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
+        validationerror: 'Please enter value between 1 and 11'
+    }).then(
+        function(result) {
+            console.log('resultaat '+result.number);
+        }
+    );
+
+});

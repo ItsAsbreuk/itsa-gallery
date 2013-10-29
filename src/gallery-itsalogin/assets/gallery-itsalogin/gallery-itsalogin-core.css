@@ -1,0 +1,19 @@
+/*csslint adjoining-classes: false, star-property-hack: false */
+
+.itsa-dialog .itsa-login {
+    text-align: right;
+    padding-right: 0.1em;
+    width: 100%;
+}
+
+.itsa-dialog input.itsa-login {
+    text-align: left;
+    width: 15em;
+}
+
+.itsa-login-checkbox {
+    text-align: left;
+    display: block;
+    float: right;
+    width: 12em;
+}
