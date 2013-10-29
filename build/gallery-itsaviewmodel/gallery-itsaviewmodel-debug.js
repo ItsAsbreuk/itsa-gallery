@@ -794,6 +794,27 @@ ITSAViewModel.prototype.addCustomBtn = function(buttonId, labelHTML, config) {
 };
 
 /**
+ * Creates custom buttons for multiple buttons. Passes through to addCustomBtn (see that method for possible buttonvalues).
+ *
+ * @method addCustomBtns
+ * @param buttons {Array} Array of objects with properties buttons.buttonId, buttons.labelHTML and optionally buttonConfig.config
+ * @since 0.4
+ *
+*/
+ITSAViewModel.prototype.addCustomBtns = function(buttons) {
+    var instance = this;
+    Y.log('addCustomBtns', 'info', 'ITSA-ViewModel');
+/*jshint expr:true */
+    Lang.isArray(buttons) && (YArray.each(
+        buttons,
+        function(buttonConfig) {
+            buttonConfig.buttonId && buttonConfig.labelHTML && instance.addCustomBtn(buttonConfig.buttonId, buttonConfig.labelHTML, buttonConfig.config);
+        }
+    ));
+/*jshint expr:false */
+};
+
+/**
  * Blur the focus of the view's container-node by removing the 'itsa-focused' class.
  *
  * @method blur
@@ -891,26 +912,33 @@ ITSAViewModel.prototype.lockView = function() {
  * </ul>
  *
  * @method removeButtonLabel
- * @param buttonType {String} the buttontype which text was replaced, one of those mentioned above.
+ * @param [buttonType] {String} the buttontype which text was replaced, one of those mentioned above. If none specified, all custom labels are removed.
  * @since 0.3
  *
 */
 ITSAViewModel.prototype.removeButtonLabel = function(buttonType) {
+    var instance = this;
     Y.log('removeButtonLabel', 'info', 'ITSA-ViewModel');
-    delete this._customBtnLabels[buttonType];
+/*jshint expr:true */
+    buttonType ? (delete instance._customBtnLabels[buttonType]) : (instance._customBtnLabels = {});
+/*jshint expr:false */
 };
 
 /**
  * Removes custom buttons defined with addCustomBtn().
  *
  * @method removeCustomBtn
- * @param buttonId {String} unique id that will be used as the reference-property during templating. F.i. {btn_button_1}
+ * @param [buttonId] {String} unique id that was used as the reference-property during templating. F.i. {btn_button_1}. if none specified, all custom buttons are removed.
  * @since 0.3
  *
 */
 ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
+    var instance = this;
     Y.log('removeCustomBtn', 'info', 'ITSA-ViewModel');
     delete this._customBtns[buttonId];
+/*jshint expr:true */
+    buttonId ? (delete instance._customBtns[buttonId]) : (instance._customBtns = {});
+/*jshint expr:false */
 };
 
 /**
@@ -952,7 +980,7 @@ ITSAViewModel.prototype.removeCustomBtn = function(buttonId) {
  * </ul>
  *
  * @method removeHotKey
- * @param buttonType {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above.
+ * @param [buttonType] {String} the buttontype whose hotkey should be removed --> should be one of the types mentioned above. If none specified, all hotkeys are removed.
  * @since 0.3
  *
 */
@@ -961,8 +989,9 @@ ITSAViewModel.prototype.removeHotKey = function(buttonType) {
 
     var instance = this;
 /*jshint expr:true */
-    instance._hotkeys[buttonType] && (delete instance._hotkeys[buttonType]) && instance._createButtons();
+    buttonType ? (delete instance._hotkeys[buttonType]) : (instance._hotkeys = {});
 /*jshint expr:false */
+    instance._createButtons();
 };
 
 /**
@@ -1097,6 +1126,27 @@ ITSAViewModel.prototype.setButtonLabel = function(buttonType, labelHTML) {
 };
 
 /**
+ * Creates custom labels for multiple buttons. Passes through to setButtonLabel (see that method for possible buttonvalues).
+ *
+ * @method setButtonLabels
+ * @param buttons {Array} Array of objects with properties buttons.buttonType and buttonConfig.labelHTML
+ * @since 0.4
+ *
+*/
+ITSAViewModel.prototype.setButtonLabels = function(buttons) {
+    var instance = this;
+    Y.log('setButtonLabels', 'info', 'ITSA-ViewModel');
+/*jshint expr:true */
+    Lang.isArray(buttons) && (YArray.each(
+        buttons,
+        function(buttonConfig) {
+            buttonConfig.buttonType && buttonConfig.labelHTML && instance.setButtonLabel(buttonConfig.buttonType, buttonConfig.labelHTML);
+        }
+    ));
+/*jshint expr:false */
+};
+
+/**
  * Creates a listener to the specific hotkey (character). The hotkey will be bound to the specified buttonType, that should be one of types mentioned below.
  * The hotkey-character will be marked with the css-class 'itsa-hotkey' (span-element), which underscores by default, but can be overruled.
  * <ul>
@@ -1149,6 +1199,27 @@ ITSAViewModel.prototype.setHotKey = function(buttonType, hotkey) {
     Y.log('setHotKey', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
     PROTECTED_BUTTON_TYPES[buttonType] && ((typeof hotkey === STRING) || Lang.isObject(hotkey)) && (instance._hotkeys[buttonType]=hotkey) && instance._createButtons();
+/*jshint expr:false */
+};
+
+/**
+ * Creates hotkeys for multiple buttons. Passes through to setHotKey (see that method for possible buttonvalues).
+ *
+ * @method setHotKeys
+ * @param buttons {Array} Array of objects with properties buttons.buttonType and buttonConfig.hotkey
+ * @since 0.4
+ *
+*/
+ITSAViewModel.prototype.setHotKeys = function(buttons) {
+    var instance = this;
+    Y.log('setHotKeys', 'info', 'ITSA-ViewModel');
+/*jshint expr:true */
+    Lang.isArray(buttons) && (YArray.each(
+        buttons,
+        function(buttonConfig) {
+            buttonConfig.buttonType && buttonConfig.hotkey && instance.setHotKey(buttonConfig.buttonType, buttonConfig.hotkey);
+        }
+    ));
 /*jshint expr:false */
 };
 
