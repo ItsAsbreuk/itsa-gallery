@@ -1,7 +1,7 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 Y.one('body').addClass('yui3-skin-sam');
 
-    Y.getInput({
+    Y.getInput('sadfhkjds askdjfh askdjhfsakdjhf asdkjhf askdjhf askdjhf sakdjhf askjdhfasd f',{
         imageButtons: true,
         textarea: false,
         required: true,
@@ -13,7 +13,13 @@ Y.one('body').addClass('yui3-skin-sam');
         validationerror: 'Please enter a valid name'
     }).then(
         function(result) {
-            console.log('resultaat '+result.itsamessage.get('input'));
+            console.log('resultaat '+result.input);
+        },
+        function(err) {
+alert('error '+err);
+            Y.soon(function () {
+                throw err;
+            });
         }
     );
 
@@ -29,7 +35,7 @@ Y.one('body').addClass('yui3-skin-sam');
         validationerror: 'Please enter a valid name'
     }).then(
         function(result) {
-            console.log('resultaat '+result.itsamessage.get('input'));
+            console.log('resultaat '+result.input);
         }
     );
 

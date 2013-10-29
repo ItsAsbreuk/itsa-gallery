@@ -2,6 +2,7 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
     Y.on('newmessage', function(e) {
         console.log('BEFORE');
+        e.preventDefault();
     });
 
     Y.after('newmessage', function(e) {

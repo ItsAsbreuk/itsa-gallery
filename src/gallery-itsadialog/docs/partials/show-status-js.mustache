@@ -4,8 +4,8 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
     }).then(
         function(itsamessage) {
             console.log('STATUS IS SET');
-            Y.later(5000, null, function() {
-                itsamessage.resolvePromise();
+            Y.later(3000, null, function() {
+                itsamessage.erase();
             });
         }
     );
