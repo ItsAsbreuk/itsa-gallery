@@ -62,14 +62,20 @@ var ITSAPanel,
     NUMBER = 'number',
     OFFSETHEIGHT = 'offsetHeight',
     OFFSETWIDTH = 'offsetWidth',
-    ITSALABEL = 'itsa-label-',
+    ITSALABEL = ITSA+'label-',
+    ITSABUTTON = ITSA+BUTTON+'-',
     UPPERCASE = 'uppercase',
     LOWERCASE = 'lowercase',
     CAPITALIZE = 'capitalize',
     ITSALABEL_UPPERCASE = ITSALABEL+UPPERCASE,
     ITSALABEL_LOWERCASE = ITSALABEL+LOWERCASE,
     ITSALABEL_CAPITALIZE = ITSALABEL+CAPITALIZE,
-    LABELTRANSFORM = 'labelTransform',
+    ITSABUTTON_UPPERCASE = ITSABUTTON+UPPERCASE,
+    ITSABUTTON_LOWERCASE = ITSABUTTON+LOWERCASE,
+    ITSABUTTON_CAPITALIZE = ITSABUTTON+CAPITALIZE,
+    TRANSFORM = 'Transform',
+    BUTTONTRANSFORM = BUTTON+TRANSFORM,
+    LABELTRANSFORM = 'label'+TRANSFORM,
     MODAL = 'modal',
     PX = 'px',
     TITLE = 'title',
@@ -194,6 +200,25 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING) || (val instanceof Y.View);
+            }
+        },
+        /**
+         * CSS text-transform of all buttons. Should be:
+         * <ul>
+         *   <li>null --> leave as it is</li>
+         *   <li>uppercase</li>
+         *   <li>lowercase</li>
+         *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+         * </ul>
+         *
+         * @attribute buttonTransform
+         * @default null
+         * @type {String}
+         */
+        buttonTransform: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
             }
         },
         /**
@@ -601,6 +626,7 @@ ITSAPanel.prototype.initializer = function() {
     boundingBox.toggleClass(FOCUSED_CLASS, instance.get(FOCUSED));
     // hide boundingBox by default and maybe inhide when rendered --> otherwise there might be a flicker effect when resetting its height
     boundingBox.addClass(HIDDENPANELCLASS);
+    instance._setButtonTransform(instance.get(BUTTONTRANSFORM));
     instance._setLabelTransform(instance.get(LABELTRANSFORM));
     // publishing event 'focusnext'
     instance.publish(
@@ -619,30 +645,6 @@ ITSAPanel.prototype.initializer = function() {
         }
     );
 /*jshint expr:false */
-};
-
-/**
- * Sets the right className to the boundingBox for making text-transForm of label-elements. Configured by attribute 'labelTransform'.<br />
- * Either one of these values:
- * <ul>
- *   <li>null --> leave as it is</li>
- *   <li>uppercase</li>
- *   <li>lowercase</li>
- *   <li>capitalize --> First character uppercase, the rest lowercase</li>
- * </ul>
- *
- * @method _setLabelTransform
- * @param type {String} new text-transform value
- * @private
- * @since 0.2
-*/
-ITSAPanel.prototype._setLabelTransform = function(type) {
-    var boundingBox = this.get(BOUNDINGBOX);
-
-    Y.log('_setLabelTransform ', 'info', 'ITSAPanel');
-    boundingBox.toggleClass(ITSALABEL_UPPERCASE, (type===UPPERCASE));
-    boundingBox.toggleClass(ITSALABEL_LOWERCASE, (type===LOWERCASE));
-    boundingBox.toggleClass(ITSALABEL_CAPITALIZE, (type===CAPITALIZE));
 };
 
 /**
@@ -720,6 +722,13 @@ ITSAPanel.prototype.bindUI = function() {
         instance.after(LABELTRANSFORM+CHANGE, function(e) {
             Y.log('aftersubscriptor '+LABELTRANSFORM+CHANGE, 'info', 'ITSAPanel');
             instance._setLabelTransform(e.newVal);
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(BUTTONTRANSFORM+CHANGE, function(e) {
+            Y.log('aftersubscriptor '+BUTTONTRANSFORM+CHANGE, 'info', 'ITSAPanel');
+            instance._setButtonTransform(e.newVal);
         })
     );
 
@@ -1247,6 +1256,30 @@ ITSAPanel.prototype._renderFooter = function() {
 };
 
 /**
+ * Sets the right className to the boundingBox for making text-transForm of buttons. Configured by attribute 'buttonTransform'.<br />
+ * Either one of these values:
+ * <ul>
+ *   <li>null --> leave as it is</li>
+ *   <li>uppercase</li>
+ *   <li>lowercase</li>
+ *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+ * </ul>
+ *
+ * @method _setButtonTransform
+ * @param type {String} new text-transform value
+ * @private
+ * @since 0.2
+*/
+ITSAPanel.prototype._setButtonTransform = function(type) {
+    var boundingBox = this.get(BOUNDINGBOX);
+
+    Y.log('_setButtonTransform ', 'info', 'ITSAPanel');
+    boundingBox.toggleClass(ITSABUTTON_UPPERCASE, (type===UPPERCASE));
+    boundingBox.toggleClass(ITSABUTTON_LOWERCASE, (type===LOWERCASE));
+    boundingBox.toggleClass(ITSABUTTON_CAPITALIZE, (type===CAPITALIZE));
+};
+
+/**
  * Sets or unsets the focusManager (provided by gallery-itsatabkeymanager)
  *
  * @method _setFocusManager
@@ -1288,6 +1321,30 @@ ITSAPanel.prototype._setHeight = function(val) {
     var instance = this;
     Y.log('_setHeight ', 'info', 'ITSAPanel');
     instance.get(CONTENTBOX).setStyle(HEIGHT, (val ? (val+PX) : ''));
+};
+
+/**
+ * Sets the right className to the boundingBox for making text-transForm of label-elements. Configured by attribute 'labelTransform'.<br />
+ * Either one of these values:
+ * <ul>
+ *   <li>null --> leave as it is</li>
+ *   <li>uppercase</li>
+ *   <li>lowercase</li>
+ *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+ * </ul>
+ *
+ * @method _setLabelTransform
+ * @param type {String} new text-transform value
+ * @private
+ * @since 0.2
+*/
+ITSAPanel.prototype._setLabelTransform = function(type) {
+    var boundingBox = this.get(BOUNDINGBOX);
+
+    Y.log('_setLabelTransform ', 'info', 'ITSAPanel');
+    boundingBox.toggleClass(ITSALABEL_UPPERCASE, (type===UPPERCASE));
+    boundingBox.toggleClass(ITSALABEL_LOWERCASE, (type===LOWERCASE));
+    boundingBox.toggleClass(ITSALABEL_CAPITALIZE, (type===CAPITALIZE));
 };
 
 /**

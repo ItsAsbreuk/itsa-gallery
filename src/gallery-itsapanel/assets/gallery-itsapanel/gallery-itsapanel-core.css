@@ -21,14 +21,17 @@
     box-sizing: border-box;
 }
 
+.itsa-panel.itsa-button-capitalize button,
 .itsa-panel.itsa-label-capitalize label {
     text-transform: capitalize;
 }
 
+.itsa-panel.itsa-button-uppercase button,
 .itsa-panel.itsa-label-uppercase label {
     text-transform: uppercase;
 }
 
+.itsa-panel.itsa-button-lowercase button,
 .itsa-panel.itsa-label-lowercase label {
     text-transform: lowercase;
 }
