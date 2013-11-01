@@ -16,6 +16,9 @@
     text-decoration: underline;
 }
 
+form [data-focusable="true"] {
+    outline: none;
+}
 /**
  * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
  * Modern browser will hide even without this css
