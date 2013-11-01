@@ -844,7 +844,7 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
 
 /**
  * Removes the UI by firing the 'remove'-event. ALSO invokes the synclayer --> use 'destroy' or 'destroyPromise' if you don'nt want to invoke the synclayer.
- * model-promisses are provided by the module 'gallrey-itsamodelsyncpromise' which is loaded by this module.
+ * model-promisses are provided by the module 'gallery-itsamodelsyncpromise' which is loaded by this module.
  *
  * @method remove
  * @since 0.1
