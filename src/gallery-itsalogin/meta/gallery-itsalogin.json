@@ -2,6 +2,7 @@
     "gallery-itsalogin": {
         "requires": [
             "yui-base",
+            "intl",
             "gallery-itsamessagecontroller",
             "gallery-itsacheckbox",
             "gallery-itsadialog",
@@ -9,7 +10,36 @@
             "gallery-itsaviewmodelpanel",
             "gallerycss-itsa-base",
             "gallerycss-itsa-animatespin",
-            "gallerycss-itsa-special"
+            "gallerycss-itsa-dialog"
+        ],
+        "lang" : [
+            "ar",
+            "bg",
+            "bs",
+            "cs",
+            "da",
+            "de",
+            "en",
+            "es",
+            "fa",
+            "fi",
+            "fr",
+            "he",
+            "hi",
+            "hr",
+            "hu",
+            "it",
+            "ja",
+            "nb",
+            "nl",
+            "pl",
+            "pt",
+            "ru",
+            "sk",
+            "sr",
+            "sv",
+            "uk",
+            "zh"
         ],
         "skinnable": true
     }

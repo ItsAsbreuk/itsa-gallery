@@ -1,12 +1,13 @@
-YUI(yuiconfig).use('gallery-itsalogin', 'promise', function(Y) {
+YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsaerrorreporter', 'gallery-itsadialog', function(Y) {
 
     Y.login('Login', 'Please enter login', {
         imageButtons: true,
+        forgotButton: true,
         formconfigUsername: {
-            placeholder: 'gebruikersnaam'
+//            placeholder: 'gebruikersnaam'
         },
         formconfigPassword: {
-            placeholder: 'wachtwoord'
+//            placeholder: 'wachtwoord'
         }
     }, function(action) {
         return new Y.Promise(function (resolve, reject) {
@@ -15,19 +16,51 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', function(Y) {
                 2000,
                 null,
                 function() {
-                    resolve({status: 'OK'});
+                    resolve({
+                        status: 'OK',
+                        title: 'retry please',
+                        message: 'second attempt'
+                    });
                 }
             );
         });
     }).then(
         function(result) {
-            console.log('Eerste bericht fulfilled '+result.username);
+            console.log('Eerste bericht fulfilled '+result.username+' | '+result.password+' | '+result.remember+' | '+result.button);
         },
         function(reason) {
             console.log('Eerste bericht rejected '+reason);
         }
     );
 
+Y.later(4000, null, function() {
+    Y.alert('Alert').then(
+        null,
+        function(reason) {
+            console.log('Error Y.showError '+reason);
+        }
+    );
+});
+    Y.showWarning('Warning').then(
+        null,
+        function(reason) {
+            console.log('Error Y.showError '+reason);
+        }
+    );
+
+    Y.showMessage('Message').then(
+        null,
+        function(reason) {
+            console.log('Error Y.showError '+reason);
+        }
+    );
+
+    Y.showError('Error').then(
+        null,
+        function(reason) {
+            console.log('Error Y.showError '+reason);
+        }
+    );
 
 
 });

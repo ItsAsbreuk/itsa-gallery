@@ -30,6 +30,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.resolvePromise = null;
         instance.rejectPromise = null;
 
+        instance.icon = '';
         instance.footer = null;
         instance.imageButtons = false;
         instance.level = 'info';

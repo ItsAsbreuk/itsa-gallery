@@ -22,6 +22,8 @@
 var YArray = Y.Array,
     Lang = Y.Lang,
     RENDERDELAY = 5000,
+    ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
+    SUSPENDED = 'suspended',
     BOOLEAN = 'boolean',
     MODEL = 'model',
     TITLE = 'title',
@@ -30,9 +32,31 @@ var YArray = Y.Array,
     WARN = 'warn',
     ERROR = 'error',
     VALUE = 'value',
+    UPPERCASE = 'uppercase',
+    LOWERCASE = 'lowercase',
+    CAPITALIZE = 'capitalize',
     ITSADIALOG = 'itsa-dialog',
     ESCAPE_HIDE_EVENT = 'escape:hide',
-    VISIBLE = 'visible';
+    VISIBLE = 'visible',
+    TRANSFORM = 'Transform',
+    BUTTONTRANSFORM = 'button'+TRANSFORM,
+    LABELTRANSFORM = 'label'+TRANSFORM,
+
+PARSED = function (response) {
+    if (typeof response === 'string') {
+        try {
+            return Y.JSON.parse(response);
+        } catch (ex) {
+            this.fire(ERROR, {
+                error   : ex,
+                response: response,
+                src     : 'parse'
+            });
+            return {};
+        }
+    }
+    return response || {};
+};
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -40,7 +64,62 @@ function ITSADialog() {
 
 ITSADialog.NAME = 'itsadialog';
 
-Y.extend(ITSADialog, Y.ITSAMessageViewer);
+Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
+    ATTRS: {
+        /**
+         * CSS text-transform of all buttons. Should be:
+         * <ul>
+         *   <li>null --> leave as it is</li>
+         *   <li>uppercase</li>
+         *   <li>lowercase</li>
+         *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+         * </ul>
+         *
+         * @attribute buttonTransform
+         * @default null
+         * @type {String}
+         */
+        buttonTransform: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
+            }
+        },
+        /**
+         * CSS text-transform of all label-elements. Should be:
+         * <ul>
+         *   <li>null --> leave as it is</li>
+         *   <li>uppercase</li>
+         *   <li>lowercase</li>
+         *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+         * </ul>
+         *
+         * @attribute labelTransform
+         * @default null
+         * @type {String}
+         */
+        labelTransform: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
+            }
+        },
+        /**
+         * Whether to show large icons on the panels (before the message).<br>
+         * Can be overruled per message.
+         *
+         * @attribute showIcon
+         * @type {Boolean}
+         * @default true
+         */
+        showIcon : {
+            value: true,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
+            }
+        }
+    }
+});
 
 ITSADialog.prototype.initializer = function() {
     var instance = this;
@@ -50,7 +129,7 @@ ITSADialog.prototype.initializer = function() {
 
 ITSADialog.prototype.renderPromise = function() {
     var instance = this;
-    return instance._renderPromise || (instance._renderPromise = Y.usePromise('gallery-itsaviewmodelpanel').then(
+    return instance._renderPromise || (instance._renderPromise = Y.usePromise('gallery-itsaviewmodelpanel', 'gallerycss-itsa-dialog').then(
                                                                     Y.bind(instance._renderPanels, instance)
                                                                  ));
 };
@@ -65,6 +144,8 @@ ITSADialog.prototype._renderPanels = function() {
             minWidth: 200,
             dragable: true,
             maxWidth: 550,
+            buttonTransform: instance.get(BUTTONTRANSFORM),
+            labelTransform: instance.get(LABELTRANSFORM),
             className: ITSADIALOG
         },
         eventhandlers = instance._eventhandlers,
@@ -90,12 +171,56 @@ ITSADialog.prototype._renderPanels = function() {
 
     eventhandlers.push(
         panels[INFO].after('*:submit', function(e) {
-            var itsamessage = e.target,
-                parsedresponse = e.parsed;
-console.log(Y.Object.keys(parsedresponse));
-/*jshint expr:true */
-            itsamessage.UIToModel() && itsamessage.resolvePromise(itsamessage.toJSON());
-/*jshint expr:false */
+            var itsamessage = e.target;
+            // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
+            e.promise.then(
+                function(response) {
+                    var responseObj = PARSED(response),
+                        panel = panels[INFO],
+                        contentBox, message, facade;
+                    if (responseObj && responseObj.status) {
+                        if (responseObj.status==='OK') {
+                            itsamessage.resolvePromise(itsamessage.toJSON());
+                        }
+                        else if (responseObj.status==='BLOCKED') {
+                            message = responseObj.message || 'Login is blocked';
+                            // production-errors will be shown through the messagecontroller
+                            Y.showError(responseObj.title || 'error', message);
+                            itsamessage.rejectPromise(message);
+                        }
+                        else if (responseObj.status==='RETRY') {
+            /*jshint expr:true */
+                            responseObj.title && panel.set('title', responseObj.title);
+            /*jshint expr:false */
+                            if (responseObj.message) {
+                                contentBox = panel.get('contentBox');
+                                contentBox.one('#itsa-messagewrapper').setHTML(responseObj.message);
+                            }
+                        }
+                        else {
+                            // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                            message = 'Wrong response.status found: '+responseObj.status+'. You should return one of these: OK | RETRY | BLOCKED';
+                            facade = {src: 'Y.ITSADialog.submit()', msg: message};
+                            panel.fire('warn', facade);
+                            itsamessage.rejectPromise(message);
+                        }
+                    }
+                    else {
+                        // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                        message = 'Response returned without response.status';
+                        facade = {src: 'Y.ITSADialog.submit()', msg: message};
+                        panel.fire('warn', facade);
+                        itsamessage.rejectPromise(message);
+                    }
+                }
+            ).then(
+                null,
+                function(catchErr) {
+                    var message = (catchErr && (catchErr.message || catchErr)) || 'Undefined error during submission';
+                    // production-errors will be shown through the messagecontroller
+                    Y.showWarning(message);
+                }
+            );
         })
     );
 
@@ -125,6 +250,22 @@ console.log(Y.Object.keys(parsedresponse));
 /*jshint expr:false */
         })
     );
+    eventhandlers.push(
+        instance.on(LABELTRANSFORM+'Change', function(e) {
+            var value = e.newVal;
+            panels[INFO].set(LABELTRANSFORM, value);
+            panels[WARN].set(LABELTRANSFORM, value);
+            panels[ERROR].set(LABELTRANSFORM, value);
+        })
+    );
+    eventhandlers.push(
+        instance.on(BUTTONTRANSFORM+'Change', function(e) {
+            var value = e.newVal;
+            panels[INFO].set(BUTTONTRANSFORM, value);
+            panels[WARN].set(BUTTONTRANSFORM, value);
+            panels[ERROR].set(BUTTONTRANSFORM, value);
+        })
+    );
     panels[INFO].render();
     panels[WARN].render();
     panels[ERROR].render();
@@ -147,16 +288,16 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                     noHideOnSubmit = (typeof itsamessage.noHideOnSubmit === BOOLEAN) ? itsamessage.noHideOnSubmit : false,
                     footer = itsamessage[FOOTER],
                     footerHasButtons = /btn_/.test(footer),
+                    messageIcon = itsamessage.icon,
+                    showIcon = messageIcon && instance.get('showIcon'),
                     footerview, removePrimaryButton;
-                panels[INFO].hide();
-                panels[WARN].hide();
-                panels[ERROR].hide();
+                    Y.log('start viewmessage '+itsamessage.level, 'info', 'ITSA-MessageViewer');
                 panel = panels[level];
                 panel.set('noHideOnSubmit', noHideOnSubmit);
                 panel.removeButtonLabel();
                 panel.removeCustomBtn();
                 panel.removeHotKey();
-                panel.set('closeButton', !footerHasButtons && !noButtons);
+                panel.set('closeButton', itsamessage.closeButton || (!footerHasButtons && !noButtons));
                 panel.set('closableByEscape', (typeof rejectbutton === 'string'));
                 panel.set(FOOTER+'Template', (noButtons ? null : footer));
                 // next statemenst AFTER defining the footerview!
@@ -175,15 +316,18 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                 panel.set(TITLE, itsamessage[TITLE]);
                 // set the model BEFORE setting the template --> Y.Slider would go wrong otherwise
                 panel.set(MODEL, itsamessage);
-                panel.set('template', itsamessage.message);
+                panel._body.toggleClass('itsa-hasicon', showIcon);
+                panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
                 // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
                 // also: hide the panel --> this might have been done by the *:hide - event, but one might also have fulfilled the promise directly
                 // in which case the panel needs to be hidden manually
                 itsamessage.promise.then(
                     function() {
+                        Y.log('viewmessage level '+itsamessage.level+' will hide', 'info', 'ITSA-MessageViewer');
                         return panel.set(VISIBLE, false, {silent: true});
                     },
                     function() {
+                        Y.log('viewmessage '+itsamessage.level+' will hide because of rejection', 'info', 'ITSA-MessageViewer');
                         return panel.set(VISIBLE, false, {silent: true});
                     }
                 ).then(
@@ -196,19 +340,36 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                         });
                     }
                 );
-                panel.show();
+                Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');
+/*jshint expr:true */
+                itsamessage[SUSPENDED] || panel.show();
+/*jshint expr:false */
             });
         }
     );
 };
 
-ITSADialog.prototype.resurrect = function(level) {
+ITSADialog.prototype.resurrect = function(itsamessage) {
     var instance = this;
     instance.renderPromise().then(
         function() {
-            var panel = instance.panels[level];
+            var panel = instance.panels[itsamessage.level];
         /*jshint expr:true */
-            panel && panel.show();
+            Y.log('viewmessage level '+itsamessage.level+' about to show by resurrect', 'info', 'ITSA-MessageViewer');
+            panel && panel.set(VISIBLE, true, {silent: true});
+        /*jshint expr:false */
+        }
+    );
+};
+
+ITSADialog.prototype.suspend = function(itsamessage) {
+    var instance = this;
+    instance.renderPromise().then(
+        function() {
+            var panel = instance.panels[itsamessage.level];
+            Y.log('viewmessage level '+itsamessage.level+' about to hide by suspend', 'info', 'ITSA-MessageViewer');
+        /*jshint expr:true */
+            panel && panel.set(VISIBLE, false, {silent: true});
         /*jshint expr:false */
         }
     );
@@ -242,8 +403,8 @@ ITSADialog.prototype._clearEventhandlers = function() {
     );
 };
 
-// define 1 global messagecontroller
+// define 1 global itsadialog
 /*jshint expr:true */
-Y.Global.ITSADialog || (Y.Global.ITSADialog=new ITSADialog({handleAnonymous: true}));
+Y.Global.ITSADialog || (Y.Global.ITSADialog=new ITSADialog());
 /*jshint expr:false */
 Y.ITSADialog = Y.Global.ITSADialog;

@@ -28,11 +28,13 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.resolvePromise = null;
         instance.rejectPromise = null;
 
+        instance.icon = '';
         instance.footer = null;
         instance.imageButtons = false;
         instance.level = 'info';
         instance.message = '';
         instance.noButtons = false;
+        instance.closeButton = false;
         instance.processing = false;
         instance.primaryButton = null;
         instance.rejectButton = null;

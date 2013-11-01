@@ -24,28 +24,90 @@ YUI.add('gallery-itsalogin', function (Y, NAME) {
 var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     ITSAMessageControllerInstance,
     Lang = Y.Lang,
+    YIntl = Y.Intl,
     BOOLEAN = 'boolean',
     INFO = 'info',
     UNDERSCORE = '_',
     OGIN = 'ogin',
     LOGIN = 'l'+OGIN,
     GET_LOGIN = 'getL'+OGIN,
-    APP = 'application';
+    APP = 'application',
+    ICON_INFO = 'itsaicon-dialog-'+INFO,
+    USERNAME = 'username',
+    PASSWORD = 'password',
+    FORGOT = 'forgot',
+    STAYLOGGEDIN = 'stayloggedin',
+    GALLERYITSALOGIN = 'gallery-itsalogin';
+
+/**
+  * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
+  * <ul>
+  *   <li>login</li>
+  *   <li>enterlogin</li>
+  *   <li>forgot</li>
+  *   <li>stayloggedin</li>
+  *   <li>remember</li>
+  *   <li>rememberme</li>
+  *   <li>username</li>
+  *   <li>password</li>
+  * </ul>
+  *
+  * @method translate
+  * @param text {String} the text to be translated
+  * @return {String} --> Translated text or the original text (if no translattion was possible)
+  * @since 0.1
+**/
+ITSAMessageControllerClass.prototype.translate = function(text) {
+    Y.log('translate', 'info', 'ITSA-Login');
+    return this._intl[text] || text;
+};
+
+/**
+  * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
+  * <ul>
+  *   <li>login</li>
+  *   <li>enterlogin</li>
+  *   <li>forgot</li>
+  *   <li>stayloggedin</li>
+  *   <li>remember</li>
+  *   <li>rememberme</li>
+  *   <li>username</li>
+  *   <li>password</li>
+  * </ul>
+  *
+  * @method translatePromise
+  * @static
+  * @param text {String} the text to be translated
+  * @return {Y.Promise} resolve(translated) --> Translated text or the original text (if no translattion was possible)
+  * @since 0.1
+**/
+ITSAMessageControllerClass.translatePromise = function(text) {
+    Y.log('translatePromise', 'info', 'ITSA-Login');
+    return Y.usePromise('intl').then(
+        function() {
+            var intl = YIntl.get(GALLERYITSALOGIN);
+            return intl[text] || text;
+        },
+        function() {
+            return text;
+        }
+    );
+};
+ITSAMessageControllerClass.prototype.translatePromise = ITSAMessageControllerClass.translatePromise;
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, message, config, sync) {
     var instance = this,
         params = instance._retrieveLoginParams(title, message, config, sync),
-        required, MyITSAMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, imageButtons, footer, primaryButton, rejectButton;
+        MyITSAMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, imageButtons, footer, primaryButton, forgotButton;
     title = params.title;
     message = params.message;
     config = params.config;
     syncPromise = params.syncPromise;
 
-    required = (typeof config.required === BOOLEAN) && config.required;
-    footer = (required ? '' : '{btn_cancel}') + '{btn_submit}';
     primaryButton = 'btn_submit';
-    rejectButton = (required ? null : 'btn_cancel');
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+    forgotButton = (typeof config.forgotButton === BOOLEAN) && config.forgotButton;
+    footer = (forgotButton ? '{btn_forgot}' : '') + '{btn_submit}';
 /*jshint expr:true */
     if (imageButtons) {
         footer = footer.replace(/\{btn_/g,'{imgbtn_');
@@ -56,7 +118,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
     // setting config for username:
     formconfigUsername = config.formconfigUsername || {};
 /*jshint expr:true */
-    formconfigUsername.label || formconfigUsername.placeholder || (formconfigUsername.label='username');
+    formconfigUsername.label || formconfigUsername.placeholder || (formconfigUsername.label=instance._intl[USERNAME]);
 /*jshint expr:false */
     formconfigUsername.fullselect = true;
     formconfigUsername.primarybtnonenter = false;
@@ -66,7 +128,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
     // setting config for password:
     formconfigPassword = config.formconfigPassword || {};
 /*jshint expr:true */
-    formconfigPassword.label || formconfigPassword.placeholder || (formconfigPassword.label='password');
+    formconfigPassword.label || formconfigPassword.placeholder || (formconfigPassword.label=instance._intl[PASSWORD]);
 /*jshint expr:false */
     formconfigPassword.fullselect = true;
     formconfigPassword.primarybtnonenter = true;
@@ -78,7 +140,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
 /*jshint expr:true */
     formconfigUsername.label && !formconfigPassword.label && (formconfigPassword.label = ' ');
     formconfigPassword.label && !formconfigUsername.label && (formconfigUsername.label = ' ');
-    formconfigRemember.label || (formconfigRemember.label='remember me');
+    formconfigRemember.label || (formconfigRemember.label=instance._intl[STAYLOGGEDIN]);
 /*jshint expr:false */
     formconfigRemember.switchlabel = true;
 
@@ -96,7 +158,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                                       },
                                       password: {
                                           value: formconfigPassword.value || '',
-                                          formtype: 'password',
+                                          formtype: PASSWORD,
                                           formconfig: formconfigPassword,
                                           validator: config.validatorPassword,
                                           validationerror: config.validationerrorPassword
@@ -108,28 +170,48 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                                       }
                                   }
                               });
-            message += '<fieldset class="'+'itsa-login'+'">'+
-                           '<div class="pure-control-group">{username}</div>'+
-                           '<div class="pure-control-group">{password}</div>'+
+            message = '<span id="itsa-messagewrapper">' + message + '</span>'+
+                      '<fieldset class="'+'itsa-login'+'">'+
+                           '<div class="pure-control-group">{'+USERNAME+'}</div>'+
+                           '<div class="pure-control-group">{'+PASSWORD+'}</div>'+
                            '<div class="itsa-login-checkbox">{remember}</div>'+
-                       '</fieldset>';
+                      '</fieldset>';
             var itsamessage = new MyITSAMessage();
             itsamessage.syncPromise = syncPromise;
+            itsamessage.icon = config.icon || ICON_INFO;
             itsamessage.target = 'itsadialog'; // widgetname that should handle this message
             itsamessage.title = title;
             itsamessage.message = message;
             itsamessage.footer = footer;
             itsamessage.imageButtons = imageButtons;
+            itsamessage.closeButton = true;
             itsamessage.primaryButton = config.primaryButton || primaryButton; // config.primaryButton should overrule primaryButton
-            itsamessage.rejectButton = rejectButton;
             itsamessage.target = config.target;
             itsamessage.level = config.level || INFO || config.type; // config.level should overrule the param level; config.type is for backwards compatibility
             itsamessage.source = config.source || APP;
             itsamessage.messageType = GET_LOGIN;
+/*jshint expr:true */
+            forgotButton && (itsamessage.customBtns=[
+                {
+                    buttonId: 'btn_forgot',
+                    labelHTML: instance._intl[FORGOT],
+                    config: {
+                        value: 'forgot'
+                    }
+                },
+                {
+                    buttonId: 'imgbtn_forgot',
+                    labelHTML: '<i class="itsaicon-dialog-question"></i>'+instance._intl[FORGOT],
+                    config: {
+                        value: 'forgot',
+                        classname: 'itsabutton-iconleft'
+                    }
+                }
+            ]);
+/*jshint expr:false */
             itsamessage.buttonLabels = [
-                {buttonType: 'btn_submit', labelHTML: 'login'},
-                {buttonType: 'imgbtn_submit', labelHTML: '<i class="itsaicon-special-key"></i>login'},
-                {buttonType: 'imgbtn_cancel', labelHTML: '<i class="itsaicon-special-cancel"></i>cancel'}
+                {buttonType: 'btn_submit', labelHTML: instance._intl[LOGIN]},
+                {buttonType: 'imgbtn_submit', labelHTML: '<i class="itsaicon-dialog-login"></i>'+instance._intl[LOGIN]}
             ];
             return instance.queueMessage(itsamessage);
         }
@@ -176,11 +258,20 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
 };
 
 ITSAMessageControllerInstance = Y.ITSAMessageController;
+/**
+ * Internal objects with internationalized buttonlabels
+ *
+ * @property _intl
+ * @private
+ * @type Object
+*/
+ITSAMessageControllerInstance._intl = YIntl.get(GALLERYITSALOGIN);
 Y[LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessageControllerInstance);
 
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "intl",
         "gallery-itsamessagecontroller",
         "gallery-itsacheckbox",
         "gallery-itsadialog",
@@ -188,7 +279,36 @@ Y[LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessa
         "gallery-itsaviewmodelpanel",
         "gallerycss-itsa-base",
         "gallerycss-itsa-animatespin",
-        "gallerycss-itsa-special"
+        "gallerycss-itsa-dialog"
+    ],
+    "lang": [
+        "ar",
+        "bg",
+        "bs",
+        "cs",
+        "da",
+        "de",
+        "en",
+        "es",
+        "fa",
+        "fi",
+        "fr",
+        "he",
+        "hi",
+        "hr",
+        "hu",
+        "it",
+        "ja",
+        "nb",
+        "nl",
+        "pl",
+        "pt",
+        "ru",
+        "sk",
+        "sr",
+        "sv",
+        "uk",
+        "zh"
     ],
     "skinnable": true
 });

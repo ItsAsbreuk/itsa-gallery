@@ -1,6 +1,6 @@
 'use strict';
 
-/*jshint maxlen:200 */
+/*jshint maxlen:205 */
 
 /**
  *
@@ -54,7 +54,16 @@
         SHOW_STATUS = SHOW+'Status',
         UNDERSCORE = '_',
         BASE_BUILD = 'base-build',
-        TEXTAREA = 'textarea';
+        TEXTAREA = 'textarea',
+        QUESTION = 'question',
+        INFORM = INFO+'rm',
+        ITSAICON_DIALOG = 'itsaicon-dialog-',
+        ICON_INFORM = ITSAICON_DIALOG+INFORM,
+        ICON_ERROR = ITSAICON_DIALOG+ERROR,
+        ICON_INFO = ITSAICON_DIALOG+INFO,
+        ICON_QUESTION = ITSAICON_DIALOG+QUESTION,
+        ICON_WARN = ITSAICON_DIALOG+WARN,
+        ITSADIALOG = 'itsadialog';
 
 function ITSAMessageControllerClass() {
     ITSAMessageControllerClass.superclass.constructor.apply(this, arguments);
@@ -67,6 +76,11 @@ Y.ITSAMessageControllerClass = Y.extend(ITSAMessageControllerClass, Y.Base);
 ITSAMessageControllerClass.prototype.initializer = function() {
     var instance = this;
     instance.queue = [];
+    instance._targets = {
+        info: ITSADIALOG,
+        warn: ITSADIALOG,
+        error: ITSADIALOG
+    };
     Y.later(LOADDELAY, instance, instance.readyPromise);
 };
 
@@ -111,25 +125,27 @@ ITSAMessageControllerClass.prototype.readyPromise = function() {
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, INFO);
+    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, INFO, ICON_WARN);
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_CONFIRMATION] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', 'btn_yes', 'btn_no', GET_CONFIRMATION, INFO);
+    return this._queueMessage(title, message, config, '{btn_no}{btn_yes}', 'btn_yes', 'btn_no', GET_CONFIRMATION, INFO, ICON_QUESTION);
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_URL] = function(title, message, config) {
     var instance = this,
-        params = instance._retrieveParams(title, message, config);
-    params.config.url = true;
-    return instance[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
+        params = instance._retrieveParams(title, message, config),
+        newconfig = params.config;
+    newconfig.url = true;
+    return instance[UNDERSCORE+GET_INPUT](params.title, params.message, newconfig);
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_EMAIL] = function(title, message, config) {
     var instance = this,
-        params = instance._retrieveParams(title, message, config);
-    params.config.email = true;
-    return instance[UNDERSCORE+GET_INPUT](params.title, params.message, params.config);
+        params = instance._retrieveParams(title, message, config),
+        newconfig = params.config;
+    newconfig.email = true;
+    return instance[UNDERSCORE+GET_INPUT](params.title, params.message, newconfig);
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, message, config) {
@@ -169,7 +185,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, mes
             message += '<fieldset class="'+'itsa-input'+'">'+
                            '<div class="pure-control-group">{input}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_INPUT, INFO, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_INPUT, INFO, ICON_INFO, MyITSAMessage);
         }
     );
 };
@@ -206,21 +222,21 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, me
             message += '<fieldset class="'+'itsa-number'+'">'+
                            '<div class="pure-control-group">{number}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_NUMBER, INFO, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_NUMBER, INFO, ICON_INFO, MyITSAMessage);
         }
     );
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO, ICON_INFORM);
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_WARNING] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN, ICON_WARN);
 };
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, message, config) {
-    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR, ICON_ERROR);
 };
 
 // returns a promise whith reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!
@@ -306,6 +322,7 @@ ITSAMessageControllerClass.prototype.destructor = function() {
 /*jshint expr:true */
     intlMessageObj && intlMessageObj.destroy() && (instance._intlMessageObj=null);
 /*jshint expr:false */
+    instance._targets = {};
 };
 
 /**
@@ -388,7 +405,7 @@ ITSAMessageControllerClass.prototype._defQueueFn = function(e) {
             );
 };
 
-ITSAMessageControllerClass.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, ITSAMessageClass) {
+ITSAMessageControllerClass.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, icon, ITSAMessageClass) {
     var instance = this,
         params = instance._retrieveParams(title, message, config),
         imageButtons;
@@ -408,6 +425,7 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
             itsamessage.title = title || config.title;
             itsamessage.message = message || config.message;
             itsamessage.footer = footer || config.footer;
+            itsamessage.icon = config.icon || icon;
             itsamessage.imageButtons = imageButtons;
             itsamessage.primaryButton = config.primaryButton || primaryButton; // config.primaryButton should overrule primaryButton
             itsamessage.rejectButton = rejectButton || config.rejectButton;

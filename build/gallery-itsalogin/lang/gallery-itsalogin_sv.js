@@ -1,0 +1,1 @@
+YUI.add("lang/gallery-itsalogin_sv",function(e){e.Intl.add("gallery-itsalogin","sv",{login:"login",enterlogin:"enter login",forgot:"forgot",stayloggedin:"stay logged in",remember:"remember",rememberme:"remember me",username:"username",password:"password"})},"@VERSION@");

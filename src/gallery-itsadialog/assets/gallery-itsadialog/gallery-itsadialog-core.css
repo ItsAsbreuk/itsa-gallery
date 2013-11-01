@@ -1,8 +1,21 @@
-/*csslint adjoining-classes: false, star-property-hack: false */
+/*csslint adjoining-classes: false, star-property-hack: false, important: false */
 
-.itsa-dialog fieldset:first-child {
-    margin-top: 0.8em;
+body .yui3-widget-mask {
+    z-index: 1000 !important;
+    zoom: 1;
+    filter: alpha(opacity=25);
+    opacity: 0.25;
 }
+
+.itsa-panel.itsa-dialog {
+    z-index: 1001 !important;
+}
+
+.itsa-dialog fieldset,
+.itsa-dialog .pure-form fieldset {
+    padding-top: 1em;
+}
+
 .itsa-dialog .itsa-input,
 .itsa-dialog fieldset.itsa-number {
     text-align: right;
@@ -30,4 +43,44 @@
 .itsa-dialog .itsa-number {
     width: 6em;
     text-align: right;
+}
+
+.itsa-dialogicon {
+    font-size: 2.5em;
+    margin-right: 0.3em;
+    margin-top: -0.3em;
+    margin-bottom: 0.3em;
+    vertical-align: top;
+    float: left;
+}
+
+.itsa-dialogicon.itsaicon-dialog-question2,
+.itsa-dialogicon.itsaicon-dialog-inform {
+    font-size: 2em;
+}
+
+.itsa-panel .itsa-panelinnerbody.itsa-hasicon {
+    padding: 2.1em 1.2em 1.6em;
+}
+
+/* reset the width created by purecss to smaller proportions */
+.itsa-dialog .pure-form-aligned .pure-control-group label {
+    width: 8em;
+}
+
+.itsa-dialogicon,
+.itsa-dialogicon:before {
+    text-shadow: 1px 1px 1px rgba(100, 100, 100, 0.6);
+    color: #0078e7;  /* non-webkit browsers */
+}
+
+.itsa-dialogicon.itsaicon-dialog-warn,
+.itsa-dialogicon.itsaicon-dialog-warn:before {
+    text-shadow: 1px 1px 1px rgba(50, 50, 50, 0.6);
+    color: #E3A900;  /* non-webkit browsers */
+}
+
+.itsa-dialogicon.itsaicon-dialog-error,
+.itsa-dialogicon.itsaicon-dialog-error:before {
+    color: #960500;  /* non-webkit browsers */
 }

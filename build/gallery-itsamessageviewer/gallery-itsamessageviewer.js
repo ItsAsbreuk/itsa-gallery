@@ -2,7 +2,7 @@ YUI.add('gallery-itsamessageviewer', function (Y, NAME) {
 
 'use strict';
 
-/*jshint maxlen:210 */
+/*jshint maxlen:215 */
 
 /**
  *
@@ -30,10 +30,15 @@ var YArray = Y.Array,
     WARN = 'warn',
     INFO = 'info',
     LEVEL = 'level',
-    SUSPENDED = 'suspended',
     TARGET = 'target',
-    NEWMESSAGE_ADDED = NEWMESSAGE+'_added';
-
+    SUSPENDED = 'suspended',
+    NEWMESSAGE_ADDED = NEWMESSAGE+'_added',
+    EVT_LEVELCLEAR = 'levelclear',
+    AVAILABLE_LEVELS = {
+        info: true,
+        warn: true,
+        error: true
+    };
 
 function ITSAMessageViewer() {
     ITSAMessageViewer.superclass.constructor.apply(this, arguments);
@@ -60,21 +65,6 @@ Y.extend(ITSAMessageViewer, Y.Base, {}, {
          * Axis upon which the Slider's thumb moves.  &quot;x&quot; for
          * horizontal, &quot;y&quot; for vertical.
          *
-         * @attribute handleAnonymous
-         * @type {Boolean}
-         * @default false
-         */
-        handleAnonymous : {
-            value     : false,
-            validator: function(v) {
-                return (typeof v==='boolean');
-            }
-        },
-
-        /**
-         * Axis upon which the Slider's thumb moves.  &quot;x&quot; for
-         * horizontal, &quot;y&quot; for vertical.
-         *
          * @attribute interrupt
          * @type {Boolean}
          * @default false
@@ -90,73 +80,43 @@ Y.extend(ITSAMessageViewer, Y.Base, {}, {
 
 ITSAMessageViewer.prototype.initializer = function() {
     var instance = this;
+    instance._lastMessage = {};
     Y.ITSAMessageController.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
     Y.later(LOADICONSDELAY, Y, Y.usePromise, ['gallerycss-itsa-base', 'gallerycss-itsa-animatespin', 'gallerycss-itsa-form']);
-    Y.soon(Y.bind(instance._processQueue, instance));
-/*jshint expr:true */
-    instance.get('interrupt') && (instance.interruptHandler=Y.on(NEWMESSAGE_ADDED, function(e) {
-        var itsamessage = e.model,
-            lastMessage = instance._lastMessage,
-            level = itsamessage[LEVEL],
-            lastLevel = lastMessage && lastMessage[LEVEL];
-        if (lastLevel && (lastLevel!==level) && ((level===ERROR) || (lastLevel===INFO))) {
-            // need to interrupt with new message
-            lastMessage[SUSPENDED] = true;
-
-
-
-            // OOK (eerst) de loop paezeren igd promise automatisch resolved!
-            instance.suspend(lastLevel);
-
-
-
-            // need to reset _lastMessage here: cannot wait for _nextMessagePromise because this leads to a timing issue.
-            instance._lastMessage = itsamessage;
-            // restart new queue which will make the interupt-message the next message
-            instance._processQueue();
-        }
-    }));
-/*jshint expr:false */
+    instance._processQueue(INFO);
+    instance._processQueue(WARN);
+    instance._processQueue(ERROR);
 };
 
-ITSAMessageViewer.prototype._processQueue = function(startMessage) {
+ITSAMessageViewer.prototype._processQueue = function(level) {
     var instance = this,
-        handlePromise, handlePromiseLoop, handlePromiseLoopStartMessage;
+        handlePromise, handlePromiseLoop;
     handlePromise = function() {
-        return instance._nextMessagePromise().then(
+        return instance._nextMessagePromise(level).then(
             function(itsamessage) {
-                if (itsamessage[SUSPENDED]) {
-                    itsamessage[SUSPENDED] = false;
-                    instance.resurrect(itsamessage[LEVEL]);
-                    throw new Error("promiseloop ended because of resurrection");
-                }
-                else {
-                    itsamessage[PROCESSING] = true;
-                    return instance.viewMessage(itsamessage);
-                }
-            },
-            function(reason) {
-                var facade = {
-                    error   : reason && (reason.message || reason),
-                    src     : 'ITSAMessageViewer._processQueue'
-                };
-                instance._lazyFireErrorEvent(facade);
-                return false;
+                itsamessage[PROCESSING] = true;
+                return instance.viewMessage(itsamessage);
+            }
+        ).then(
+            null,
+            function(err) {
+                // unfortunatly we cannot fire or log an error, because that could be caught by Y.ITSADialog and become a loop in the messageview
+                // MUST log 'info'
             }
         );
     };
     handlePromiseLoop = function() {
         // will loop until rejected, which is at destruction of the class
-        return handlePromise().then(handlePromiseLoop);
+        return instance.get('destroyed') || handlePromise().then(handlePromiseLoop);
     };
-    handlePromiseLoopStartMessage = function(itsamessage) {
-        // will loop until rejected, which is at destruction of the class
-        var startMessagePromise = new Y.Promise(function (resolve) { resolve(itsamessage); });
-        return startMessagePromise.then(handlePromiseLoop);
-    };
+    handlePromiseLoop();
+};
+
+// be sure to return a promise, otherwise all messsages are eaten up at once!
+ITSAMessageViewer.prototype.handleLevel = function(level) {
 /*jshint expr:true */
-    startMessage ? handlePromiseLoopStartMessage(startMessage) : handlePromiseLoop(startMessage);
+    AVAILABLE_LEVELS[level] && (Y.ITSAMessageController._targets[level]=this.constructor.NAME);
 /*jshint expr:false */
 };
 
@@ -165,11 +125,11 @@ ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
 };
 
-ITSAMessageViewer.prototype.suspend = function(/* level */) {
+ITSAMessageViewer.prototype.suspend = function(/* itsamessage */) {
     // could be overridden --> method that renderes the message in the dom
 };
 
-ITSAMessageViewer.prototype.resurrect = function(/* level */) {
+ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
 };
 
@@ -192,55 +152,92 @@ ITSAMessageViewer.prototype._lazyFireErrorEvent = function(facade) {
     instance.fire(ERROR, facade);
 };
 
-ITSAMessageViewer.prototype._nextMessagePromise = function() {
+ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
     var instance = this,
         messageController = Y.ITSAMessageController;
     return messageController.readyPromise().then(
         function() {
+            // if higher level is 'busy' then we need to wait until all those messages are cleaned up
+            var proceed = (level===ERROR) || (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
+            return proceed || new Y.Promise(function (resolve) {
+                var listener = instance.on(EVT_LEVELCLEAR, function() {
+                    proceed = (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
+/*jshint expr:true */
+                    proceed && listener.detach() && resolve();
+/*jshint expr:false */
+                });
+            });
+        }
+    ).then (
+        function() {
             return new Y.Promise(function (resolve, reject) {
+                var queue = messageController.queue,
+                    name = instance.constructor.NAME,
+                    handleAnonymous = (messageController._targets[level]===name),
+                    nextMessage, listener, otherLevelMessage, destroylistener, isTargeted;
 /*jshint expr:true */
                 instance.get('destroyed') && reject();
 /*jshint expr:false */
-                instance.once('destroy', reject);
-                var queue = messageController.queue,
-                    handleAnonymous = instance.get('handleAnonymous'),
-                    name = instance.constructor.NAME,
-                    nextMessage, listener;
-                // first find messages with level=error
                 YArray.some(
                     queue,
                     function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage[TARGET]===name)) && (itsamessage[LEVEL]===ERROR) && (!itsamessage[PROCESSING] || itsamessage[SUSPENDED]) && itsamessage;
+                        isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
                 );
-                // next find messages with level=warn
+                if (nextMessage) {
+                    instance._lastMessage[level] = nextMessage;
+                    // first: is level=warn or level=error then we might need to pauze previous levels
 /*jshint expr:true */
-                nextMessage || YArray.some(
-                    queue,
-                    function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage[TARGET]===name)) && (itsamessage[LEVEL]===WARN) && (!itsamessage[PROCESSING] || itsamessage[SUSPENDED]) && itsamessage;
-                        return nextMessage;
-                    }
-                );
-                // next find other messages
-                nextMessage || YArray.some(
-                    queue,
-                    function(itsamessage) {
-                        nextMessage = (handleAnonymous || (itsamessage[TARGET]===name)) && (!itsamessage[PROCESSING] || itsamessage[SUSPENDED]) && itsamessage;
-                        return nextMessage;
-                    }
-                );
-                nextMessage ? ((instance._lastMessage=nextMessage) && resolve(nextMessage)) : (listener=Y.on(NEWMESSAGE_ADDED, function(e) {
-                                                            var itsamessage = e.model;
-                                                            if (handleAnonymous || (itsamessage[TARGET]===name)) {
-                                                                instance._lastMessage = itsamessage;
-                                                                resolve(itsamessage);
-                                                                listener.detach();
-                                                            }
-                                                       })
-                );
+                    // check if 'info' needs to be suspended:
+                    (otherLevelMessage=instance._lastMessage[INFO]) && ((level!==INFO) || instance._lastMessage[WARN] || instance._lastMessage[ERROR]) &&
+                        (otherLevelMessage[SUSPENDED]=true) && instance.suspend(otherLevelMessage);
+                    // check if 'warn' needs to be suspended:
+                    (otherLevelMessage=instance._lastMessage[WARN]) && ((level===ERROR) || instance._lastMessage[ERROR]) && (otherLevelMessage[SUSPENDED]=true) &&
+                        instance.suspend(otherLevelMessage);
 /*jshint expr:false */
+                    resolve(nextMessage);
+                }
+                else {
+                    // No message in the queue: wait for new messages to be added.
+                    // first: is level=warn or level=error then we might need to reactivate previous levels
+/*jshint expr:true */
+                    if (level===ERROR) {
+                        otherLevelMessage = instance._lastMessage[WARN] || instance._lastMessage[INFO];
+                    }
+                    else if ((level===WARN) && (!instance._lastMessage[ERROR])) {
+                        otherLevelMessage = instance._lastMessage[INFO];
+                    }
+                    if (otherLevelMessage && otherLevelMessage[SUSPENDED]) {
+                        otherLevelMessage[SUSPENDED] = false;
+                        instance.resurrect(otherLevelMessage);
+                    }
+                    instance._lastMessage[level] = null;
+                    // fire the levelclear-event to make 'waiting at other levels' at the first promise of _nextMessagePromise resolve:
+                    (level!==INFO) && instance.fire(EVT_LEVELCLEAR);
+/*jshint expr:false */
+                    destroylistener = instance.once('destroy', reject);
+                    listener=Y.on(NEWMESSAGE_ADDED, function(e) {
+                        var itsamessage = e.model,
+                            isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
+                        if (isTargeted && (itsamessage[LEVEL]===level)) {
+                            listener.detach();
+                            destroylistener.detach();
+                            instance._lastMessage[level] = itsamessage;
+                    // next: is level=warn or level=error then we might need to pauze previous levels
+/*jshint expr:true */
+                            // check if 'info' needs to be suspended:
+                            (otherLevelMessage=instance._lastMessage[INFO]) && ((level!==INFO) || instance._lastMessage[WARN] || instance._lastMessage[ERROR]) &&
+                                (otherLevelMessage[SUSPENDED]=true) && instance.suspend(otherLevelMessage);
+                            // check if 'warn' needs to be suspended:
+                            (otherLevelMessage=instance._lastMessage[WARN]) && ((level===ERROR) || instance._lastMessage[ERROR]) && (otherLevelMessage[SUSPENDED]=true) &&
+                                instance.suspend(otherLevelMessage);
+/*jshint expr:false */
+                            resolve(itsamessage);
+                        }
+                    });
+                }
             });
         }
     );
@@ -252,6 +249,7 @@ ITSAMessageViewer.prototype.destructor = function() {
 /*jshint expr:true */
     instance.interruptHandler && instance.interruptHandler.detach();
 /*jshint expr:false */
+    instance._lastMessage = {};
 };
 
 
