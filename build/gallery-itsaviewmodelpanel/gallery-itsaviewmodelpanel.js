@@ -553,7 +553,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     instance.get(FOOTERVIEW).set('template', newTemplate);
                 }
             }
-            prevTemplate && !newTemplate && prevTemplate.destroy() && instance._set(FOOTERVIEW, null);
+            prevTemplate && !newTemplate && instance._set(FOOTERVIEW, null);
             contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
                     itsatabkeymanager.refresh(contentBox);
@@ -629,7 +629,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 var promise = e.promise,
                     model = e.target,
                     eventType = e.type.split(':')[1],
-                    options = e.options,
+                    options = e.options || {},
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
