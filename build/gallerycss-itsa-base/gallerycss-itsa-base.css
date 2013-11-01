@@ -16,6 +16,27 @@
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15) inset, 0 0 6px rgba(0, 0, 0, 0.2) inset;
 }
 
+.itsabutton-bordered.pure-button:active,
+.itsabutton-bordered.pure-button.pure-button-active,
+.pure-button.itsabutton-bordered.pure-button:active,
+.pure-button.itsabutton-bordered.pure-button.pure-button-active,
+.pure-button.pure-button-active:focus,
+.pure-button-hover:focus,
+.pure-button:hover:focus,
+.pure-button-active:focus,
+.pure-button:active:focus,
+.pure-button-active:hover:focus,
+.pure-button-hover:active:focus,
+.pure-button:active:hover:focus,
+.pure-button-hover.pure-button-active:focus {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#33000000',GradientType=0);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(transparent), color-stop(40%, rgba(0,0,0, 0.05)), to(rgba(0,0,0, 0.20)));
+    background-image: -webkit-linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.20));
+    background-image: -moz-linear-gradient(top, rgba(0,0,0, 0.05) 0%, rgba(0,0,0, 0.20));
+    background-image: -o-linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.20));
+    background-image: linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.20));
+}
+
 .itsabutton-rounded,
 .pure-button.itsabutton-rounded {
     border-radius: 0.2em;
