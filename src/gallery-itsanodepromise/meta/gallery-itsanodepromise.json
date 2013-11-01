@@ -3,6 +3,8 @@
         "requires": [
             "yui-base",
             "yui-later",
+            "event-base",
+            "event-custom",
             "node-base",
             "timers",
             "promise"

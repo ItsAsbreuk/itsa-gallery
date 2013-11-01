@@ -114,68 +114,63 @@ YNode.fireAvailabilities = function(nodeid) {
  *
  * @method availablePromise
  * @static
- * @param nodeid {String} Node-selector by id. You must include the #
+ * @param selector {String} Node-selector
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.
  *         If omitted, the Promise will never be rejected and can only be fulfilled once the node is available.
  * @return {Y.Promise} promised response --> resolve(Y.Node) OR reject(reason).
  * @since 0.1
 */
-YNode.availablePromise = function(nodeid, timeout) {
+YNode.availablePromise = function (selector, timeout) {
     Y.log('availablePromise', 'info', 'node');
-    var promise =  new Y.Promise(function (resolve, reject) {
-        var evt = Y.once(
-            'available',
-            function() {
-                resolve(Y.one(nodeid));
-            },
-            nodeid
-        );
-        if (timeout) {
-            Y.later(timeout, null, function() {
-                var errormessage = 'node ' + nodeid + ' was not available within ' + timeout + ' ms';
-                reject(new Error(errormessage));
+    return new Y.Promise(function (resolve, reject) {
+        var resolved = false,
+            subscription = Y.once('available', function () {
+                resolve(Y.one(selector));
+                resolved = true;
 /*jshint expr:true */
-                (promise.getStatus()==='pending') && evt.detach();
+                timer && timer.cancel();
 /*jshint expr:false */
+            }, selector),
+            timer = timeout && Y.later(timeout, null, function () {
+                if (!resolved) {
+                    reject(new Error(selector + ' was not available within ' + timeout + ' ms'));
+// detaching leads to error in the tests???
+//                    subscription.detach();
+                }
             });
-        }
     });
-    return promise;
 };
-
 /**
  * Promise that will be resolved once a node's content is ready.
  * Exactly the same as when listened to Y.on('contentready'), except you get a Promise in return.
  *
  * @method contentreadyPromise
  * @static
- * @param nodeid {String} Node-selector by id. You must include the #
+ * @param selector {String} Node-selector.
  * @param [timeout] {int} Timeout in ms, after which the promise will be rejected.
  *         If omitted, the Promise will never be rejected and can only be fulfilled once the node's content is ready.
  * @return {Y.Promise} promised response --> resolve(Y.Node) OR reject(reason).
  * @since 0.1
 */
-YNode.contentreadyPromise = function(nodeid, timeout) {
+YNode.contentreadyPromise = function(selector, timeout) {
     Y.log('contentreadyPromise', 'info', 'node');
-    var promise = new Y.Promise(function (resolve, reject) {
-        var evt = Y.once(
-            'contentready',
-            function() {
-                resolve(Y.one(nodeid));
-            },
-            nodeid
-        );
-        if (timeout) {
-            Y.later(timeout, null, function() {
-                var errormessage = 'the content of node ' + nodeid + ' was not ready within ' + timeout + ' ms';
-                reject(new Error(errormessage));
+    return new Y.Promise(function (resolve, reject) {
+        var resolved = false,
+            subscription = Y.once('available', function () {
+                resolve(Y.one(selector));
+                resolved = true;
 /*jshint expr:true */
-                (promise.getStatus()==='pending') && evt.detach();
+                timer && timer.cancel();
 /*jshint expr:false */
+            }, selector),
+            timer = timeout && Y.later(timeout, null, function () {
+                if (!resolved) {
+                    reject(new Error(selector + ' was not ready within ' + timeout + ' ms'));
+// detaching leads to error in the tests???
+//                    subscription.detach();
+                }
             });
-        }
     });
-    return promise;
 };
 
 /**
