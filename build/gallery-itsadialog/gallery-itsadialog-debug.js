@@ -82,7 +82,7 @@ Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
          * @type {String}
          */
         buttonTransform: {
-            value: UPPERCASE,
+            value: null,
             validator: function(val) {
                 return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
             }
@@ -101,7 +101,7 @@ Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
          * @type {String}
          */
         labelTransform: {
-            value: CAPITALIZE,
+            value: null,
             validator: function(val) {
                 return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
             }
@@ -164,10 +164,64 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                rejected = (e.type===ESCAPE_HIDE_EVENT) || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
+                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
+                closebuttonForgot = closedByClosebutton && (buttonNode.getAttribute('data-itsaforgot')==='true'),
+                rejected = (e.type===ESCAPE_HIDE_EVENT) || (closedByClosebutton && !closebuttonForgot) || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton)),
+                forgotMessage;
+            if (rejected) {
+                itsamessage.rejectPromise(buttonValue);
+            }
+            else {
+                // should it be the 'forgot-button', then we need to show the forgot-panel
+                if (buttonNode && (buttonNode.getAttribute('data-itsalogin')==='forgotbutton')) {
+console.log('forgotbutton');
+                    forgotMessage = itsamessage.forgotMessage;
 /*jshint expr:true */
-            rejected ? itsamessage.rejectPromise(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolvePromise(itsamessage.toJSON()));
+                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
 /*jshint expr:false */
+                }
+                else if (buttonValue==='forgotusername') {
+console.log('forgot username');
+                    forgotMessage = itsamessage.forgotMessage;
+/*jshint expr:true */
+                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
+/*jshint expr:false */
+                }
+                else if (buttonValue==='forgotpassword') {
+console.log('forgot password');
+                    forgotMessage = itsamessage.forgotMessage;
+/*jshint expr:true */
+                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
+/*jshint expr:false */
+                }
+                else if (closebuttonForgot) {
+console.log('close forgot');
+                    forgotMessage = itsamessage.forgotMessage;
+/*jshint expr:true */
+                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
+/*jshint expr:false */
+                }
+                else if (buttonValue==='sendusername') {
+console.log('send username');
+                    forgotMessage = itsamessage.forgotMessage;
+/*jshint expr:true */
+                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
+/*jshint expr:false */
+                }
+                else if (buttonValue==='resetpassword') {
+console.log('reset password');
+                    forgotMessage = itsamessage.forgotMessage;
+/*jshint expr:true */
+                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
+/*jshint expr:false */
+                }
+                else {
+                    // moste cases: resolve dialog
+                    itsamessage.UIToModel();
+                    itsamessage._set('button', buttonValue);
+                    itsamessage.resolvePromise(itsamessage.toJSON());
+                }
+            }
         })
     );
 
@@ -182,6 +236,7 @@ ITSADialog.prototype._renderPanels = function() {
                         contentBox, message, facade;
                     if (responseObj && responseObj.status) {
                         if (responseObj.status==='OK') {
+                            itsamessage._set('button', 'submit');
                             itsamessage.resolvePromise(itsamessage.toJSON());
                         }
                         else if (responseObj.status==='BLOCKED') {
@@ -233,7 +288,8 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
+                rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
             rejected ? itsamessage.rejectPromise(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolvePromise(itsamessage.toJSON()));
 /*jshint expr:false */
@@ -246,7 +302,8 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                rejected = rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton);
+                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
+                rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
             rejected ? itsamessage.rejectPromise(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolvePromise(itsamessage.toJSON()));
 /*jshint expr:false */
@@ -278,51 +335,9 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     return instance.renderPromise().then(
         function() {
             return new Y.Promise(function (resolve) {
-                var level = itsamessage.level,
-                    primarybutton = itsamessage.primaryButton,
-                    rejectbutton = itsamessage.rejectButton,
-                    panels = instance.panels,
-                    panel = panels[level],
-                    buttonLabels = itsamessage.buttonLabels,
-                    hotKeys = itsamessage.hotKeys,
-                    customBtns = itsamessage.customBtns,
-                    noButtons = itsamessage.noButtons,
-                    noHideOnSubmit = (typeof itsamessage.noHideOnSubmit === BOOLEAN) ? itsamessage.noHideOnSubmit : false,
-                    footer = itsamessage[FOOTER],
-                    footerHasButtons = /btn_/.test(footer),
-                    messageIcon = itsamessage.icon,
-                    showIcon = messageIcon && instance.get('showIcon'),
-                    footerview, removePrimaryButton;
-                    Y.log('start viewmessage '+itsamessage.level, 'info', 'ITSA-MessageViewer');
-                panel = panels[level];
-                panel.set('noHideOnSubmit', noHideOnSubmit);
-                panel.removeButtonLabel();
-                panel.removeCustomBtn();
-                panel.removeHotKey();
-                panel.set('closeButton', itsamessage.closeButton || (!footerHasButtons && !noButtons));
-                panel.set('closableByEscape', (typeof rejectbutton === 'string'));
-                panel.set(FOOTER+'Template', (noButtons ? null : footer));
-                // next statemenst AFTER defining the footerview!
-/*jshint expr:true */
-                buttonLabels && panel.setButtonLabels(buttonLabels);
-                hotKeys && panel.setHotKeys(hotKeys);
-                customBtns && panel.addCustomBtns(customBtns);
-/*jshint expr:false */
-                if (!noButtons && footer && Lang.isValue(primarybutton)) {
-                    footerview = panel.get('footerView');
-                    removePrimaryButton = (typeof primarybutton === 'boolean') && !primarybutton;
-/*jshint expr:true */
-                    removePrimaryButton ? footerview.removePrimaryButton() : footerview.setPrimaryButton(primarybutton);
-/*jshint expr:false */
-                }
-                panel.set(TITLE, itsamessage[TITLE]);
-                // set the model BEFORE setting the template --> Y.Slider would go wrong otherwise
-                panel.set(MODEL, itsamessage);
-                panel._body.toggleClass('itsa-hasicon', showIcon);
-                panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
-                // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
-                // also: hide the panel --> this might have been done by the *:hide - event, but one might also have fulfilled the promise directly
-                // in which case the panel needs to be hidden manually
+                var panels = instance.panels,
+                    panel = panels[itsamessage.level];
+                instance._showPanel(panel, itsamessage);
                 itsamessage.promise.then(
                     function() {
                         Y.log('viewmessage level '+itsamessage.level+' will hide', 'info', 'ITSA-MessageViewer');
@@ -342,13 +357,58 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                         });
                     }
                 );
-                Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');
-/*jshint expr:true */
-                itsamessage[SUSPENDED] || panel.show();
-/*jshint expr:false */
             });
         }
     );
+};
+
+ITSADialog.prototype._showPanel = function(panel, itsamessage) {
+    var instance = this,
+        primarybutton = itsamessage.primaryButton,
+        rejectbutton = itsamessage.rejectButton,
+        buttonLabels = itsamessage.buttonLabels,
+        hotKeys = itsamessage.hotKeys,
+        customBtns = itsamessage.customBtns,
+        noButtons = itsamessage.noButtons,
+        noHideOnSubmit = (typeof itsamessage.noHideOnSubmit === BOOLEAN) ? itsamessage.noHideOnSubmit : false,
+        footer = itsamessage[FOOTER],
+        footerHasButtons = /btn_/.test(footer),
+        messageIcon = itsamessage.icon,
+        showIcon = messageIcon && instance.get('showIcon'),
+        footerview, removePrimaryButton;
+        Y.log('start viewmessage '+itsamessage.level, 'info', 'ITSA-MessageViewer');
+    panel.set('noHideOnSubmit', noHideOnSubmit);
+    panel.removeButtonLabel();
+    panel.removeCustomBtn();
+    panel.removeHotKey();
+    panel.set('closeButton', itsamessage.closeButton || (!footerHasButtons && !noButtons));
+    panel.set('closableByEscape', (typeof rejectbutton === 'string'));
+    panel.set(FOOTER+'Template', (noButtons ? null : footer));
+    // next statemenst AFTER defining the footerview!
+/*jshint expr:true */
+    buttonLabels && panel.setButtonLabels(buttonLabels);
+    hotKeys && panel.setHotKeys(hotKeys);
+    customBtns && panel.addCustomBtns(customBtns);
+/*jshint expr:false */
+    if (!noButtons && footer && Lang.isValue(primarybutton)) {
+        footerview = panel.get('footerView');
+        removePrimaryButton = (typeof primarybutton === 'boolean') && !primarybutton;
+/*jshint expr:true */
+        removePrimaryButton ? footerview.removePrimaryButton() : footerview.setPrimaryButton(primarybutton);
+/*jshint expr:false */
+    }
+    panel.set(TITLE, itsamessage[TITLE]);
+    // set the model BEFORE setting the template --> Y.Slider would go wrong otherwise
+    panel.set(MODEL, itsamessage);
+    panel._body.toggleClass('itsa-hasicon', showIcon);
+    panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
+    // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
+    // also: hide the panel --> this might have been done by the *:hide - event, but one might also have fulfilled the promise directly
+    // in which case the panel needs to be hidden manually
+    Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');
+/*jshint expr:true */
+    itsamessage[SUSPENDED] || panel.show();
+/*jshint expr:false */
 };
 
 ITSADialog.prototype.resurrect = function(itsamessage) {

@@ -22,7 +22,8 @@ YUI.add('gallery-itsamessage', function (Y, NAME) {
  *
 */
 
-var ITSAMessage;
+var ITSAMessage,
+    MIN_TIMEOUT = 1000;
 
 ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], {
     initializer: function() {
@@ -36,6 +37,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.level = 'info';
         instance.message = '';
         instance.noButtons = false;
+        instance.closeButton = false;
         instance.processing = false;
         instance.primaryButton = null;
         instance.rejectButton = null;
@@ -48,6 +50,16 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.hotKeys = null;
         instance.customBtns = null;
         instance.noHideOnSubmit = true;
+        instance.timeoutResolve = null;
+        instance.timeoutReject = null;
+        instance._timerstart = null;
+        instance._timerProcessed = 0;
+        instance._timerStopped = true;
+    },
+    destructor: function() {
+/*jshint expr:true */
+        this._timer && this._timer.cancel();
+/*jshint expr:false */
     }
 }, {
     ATTRS: {
@@ -64,11 +76,57 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
     }
 });
 
-ITSAMessage.prototype.erase = function() {
+ITSAMessage.prototype.reject = function() {
+    var reject = this.rejectPromise;
+/*jshint expr:true */
+    reject && reject();
+/*jshint expr:false */
+};
+
+ITSAMessage.prototype.resolve = function() {
     var resolve = this.resolvePromise;
 /*jshint expr:true */
     resolve && resolve();
 /*jshint expr:false */
 };
+
+ITSAMessage.prototype._startTimer = function() {
+    var instance = this,
+        resolveTime = instance.timeoutResolve,
+        rejectTime = instance.timeoutReject,
+        timeout, doResolve;
+
+    if (typeof resolveTime==='number') {
+        timeout = (typeof rejectTime==='number') ? Math.min(resolveTime, rejectTime) : resolveTime;
+        doResolve = (timeout===resolveTime);
+    }
+    else if (typeof rejectTime==='number') {
+        timeout = rejectTime;
+        doResolve = false;
+    }
+/*jshint expr:true */
+    if (timeout) {
+        timeout -= instance._timerProcessed;
+        instance._timerStart = (new Date()).getTime();
+        instance._timerStopped = false;
+        instance._timer = Y.later(Math.max(timeout, MIN_TIMEOUT), instance, (doResolve ? instance.resolve : instance.reject));
+    }
+/*jshint expr:false */
+};
+
+ITSAMessage.prototype._stopTimer = function() {
+    var instance = this;
+
+    if (!instance._timerStopped) {
+        instance._timerProcessed += (new Date()).getTime() - instance._timerStart;
+        instance._timerStopped = true;
+/*jshint expr:true */
+        instance._timer && instance._timer.cancel();
+/*jshint expr:false */
+    }
+};
+
+
+
 
 }, '@VERSION@', {"requires": ["yui-base", "gallery-itsaformmodel"]});

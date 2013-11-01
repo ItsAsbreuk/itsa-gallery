@@ -5,10 +5,14 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         function(itsamessage) {
             console.log('STATUS IS SET');
             Y.later(3000, null, function() {
-                itsamessage.erase();
+                itsamessage.resolve();
             });
         }
     );
+
+    Y.showMessage('This message disappears after 3 seconds', {timeoutResolve: 3000});
+
+Y.later(5500, null, function(){Y.alert('warn');});
 
     Y.showMessage('nieuwe titel 2', 'Volgend bericht', {
   //      primaryButton: 'imgbtn_ignore',

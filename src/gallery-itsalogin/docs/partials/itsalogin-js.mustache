@@ -2,7 +2,7 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsaerrorreporter', 
 
     Y.login('Login', 'Please enter login', {
         imageButtons: true,
-        forgotButton: true,
+        regain: 'usernameorpassword',
         formconfigUsername: {
 //            placeholder: 'gebruikersnaam'
         },
@@ -32,7 +32,7 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsaerrorreporter', 
             console.log('Eerste bericht rejected '+reason);
         }
     );
-
+/*
 Y.later(4000, null, function() {
     Y.alert('Alert').then(
         null,
@@ -47,20 +47,20 @@ Y.later(4000, null, function() {
             console.log('Error Y.showError '+reason);
         }
     );
-
+*/
     Y.showMessage('Message').then(
         null,
         function(reason) {
             console.log('Error Y.showError '+reason);
         }
     );
-
+/*
     Y.showError('Error').then(
         null,
         function(reason) {
             console.log('Error Y.showError '+reason);
         }
     );
-
+*/
 
 });

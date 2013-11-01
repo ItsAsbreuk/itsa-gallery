@@ -32,7 +32,9 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     LOGIN = 'l'+OGIN,
     GET_LOGIN = 'getL'+OGIN,
     APP = 'application',
-    ICON_INFO = 'itsaicon-dialog-'+INFO,
+    ICONDIALOG = 'itsaicon-dialog-',
+    ICON_INFO = ICONDIALOG+INFO,
+    ICON_QUESTION = ICONDIALOG+'question',
     USERNAME = 'username',
     PASSWORD = 'password',
     FORGOT = 'forgot',
@@ -50,6 +52,14 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
   *   <li>rememberme</li>
   *   <li>username</li>
   *   <li>password</li>
+  *   <li>forgotlogin</li>
+  *   <li>forgotusernameorpassword</li>
+  *   <li>forgotusername</li>
+  *   <li>forgotpassword</li>
+  *   <li>resetpassword</li>
+  *   <li>forgotwhat</li>
+  *   <li>entersignupaddress</li>
+  *   <li>retrievepasswordinstructions</li>
   * </ul>
   *
   * @method translate
@@ -72,6 +82,14 @@ ITSAMessageControllerClass.prototype.translate = function(text) {
   *   <li>rememberme</li>
   *   <li>username</li>
   *   <li>password</li>
+  *   <li>forgotlogin</li>
+  *   <li>forgotusernameorpassword</li>
+  *   <li>forgotusername</li>
+  *   <li>forgotpassword</li>
+  *   <li>resetpassword</li>
+  *   <li>forgotwhat</li>
+  *   <li>entersignupaddress</li>
+  *   <li>retrievepasswordinstructions</li>
   * </ul>
   *
   * @method translatePromise
@@ -95,8 +113,10 @@ ITSAMessageControllerClass.prototype.translatePromise = ITSAMessageControllerCla
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, message, config, sync) {
     var instance = this,
+        intl = instance._intl,
         params = instance._retrieveLoginParams(title, message, config, sync),
-        MyITSAMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, imageButtons, footer, primaryButton, forgotButton;
+        MyITSAMessage, MyForgotMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, regain,
+        imageButtons, footer, primaryButton, forgotButton, formconfigForgotEmail, regainUsernameOrPassword, regainPassword;
     title = params.title;
     message = params.message;
     config = params.config;
@@ -104,7 +124,8 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
 
     primaryButton = 'btn_submit';
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
-    forgotButton = (typeof config.forgotButton === BOOLEAN) && config.forgotButton;
+    regain = config.regain;
+    forgotButton = ((typeof config.forgotButton === BOOLEAN) && config.forgotButton) || regain;
     footer = (forgotButton ? '{btn_forgot}' : '') + '{btn_submit}';
 /*jshint expr:true */
     if (imageButtons) {
@@ -116,7 +137,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
     // setting config for username:
     formconfigUsername = config.formconfigUsername || {};
 /*jshint expr:true */
-    formconfigUsername.label || formconfigUsername.placeholder || (formconfigUsername.label=instance._intl[USERNAME]);
+    formconfigUsername.label || formconfigUsername.placeholder || (formconfigUsername.label=intl[USERNAME]);
 /*jshint expr:false */
     formconfigUsername.fullselect = true;
     formconfigUsername.primarybtnonenter = false;
@@ -126,7 +147,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
     // setting config for password:
     formconfigPassword = config.formconfigPassword || {};
 /*jshint expr:true */
-    formconfigPassword.label || formconfigPassword.placeholder || (formconfigPassword.label=instance._intl[PASSWORD]);
+    formconfigPassword.label || formconfigPassword.placeholder || (formconfigPassword.label=intl[PASSWORD]);
 /*jshint expr:false */
     formconfigPassword.fullselect = true;
     formconfigPassword.primarybtnonenter = true;
@@ -138,13 +159,14 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
 /*jshint expr:true */
     formconfigUsername.label && !formconfigPassword.label && (formconfigPassword.label = ' ');
     formconfigPassword.label && !formconfigUsername.label && (formconfigUsername.label = ' ');
-    formconfigRemember.label || (formconfigRemember.label=instance._intl[STAYLOGGEDIN]);
+    formconfigRemember.label || (formconfigRemember.label=intl[STAYLOGGEDIN]);
 /*jshint expr:false */
     formconfigRemember.switchlabel = true;
 
 
     return instance.readyPromise().then(
         function() {
+            var itsamessage, forgotMessage;
             MyITSAMessage = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
                                   ATTRS: {
                                       username: {
@@ -174,7 +196,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                            '<div class="pure-control-group">{'+PASSWORD+'}</div>'+
                            '<div class="itsa-login-checkbox">{remember}</div>'+
                       '</fieldset>';
-            var itsamessage = new MyITSAMessage();
+            itsamessage = new MyITSAMessage();
             itsamessage.syncPromise = syncPromise;
             itsamessage.icon = config.icon || ICON_INFO;
             itsamessage.target = 'itsadialog'; // widgetname that should handle this message
@@ -184,33 +206,86 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
             itsamessage.imageButtons = imageButtons;
             itsamessage.closeButton = true;
             itsamessage.primaryButton = config.primaryButton || primaryButton; // config.primaryButton should overrule primaryButton
-            itsamessage.target = config.target;
-            itsamessage.level = config.level || INFO || config.type; // config.level should overrule the param level; config.type is for backwards compatibility
+            itsamessage.timeoutReject = config.timeoutReject;
+            itsamessage.level = config.level || INFO; // config.level should overrule the param level; config.type is for backwards compatibility
             itsamessage.source = config.source || APP;
             itsamessage.messageType = GET_LOGIN;
-/*jshint expr:true */
-            forgotButton && (itsamessage.customBtns=[
-                {
-                    buttonId: 'btn_forgot',
-                    labelHTML: instance._intl[FORGOT],
-                    config: {
-                        value: 'forgot'
-                    }
-                },
-                {
-                    buttonId: 'imgbtn_forgot',
-                    labelHTML: '<i class="itsaicon-dialog-question"></i>'+instance._intl[FORGOT],
-                    config: {
-                        value: 'forgot',
-                        classname: 'itsabutton-iconleft'
-                    }
-                }
-            ]);
-/*jshint expr:false */
             itsamessage.buttonLabels = [
-                {buttonType: 'btn_submit', labelHTML: instance._intl[LOGIN]},
-                {buttonType: 'imgbtn_submit', labelHTML: '<i class="itsaicon-dialog-login"></i>'+instance._intl[LOGIN]}
+                {buttonType: 'btn_submit', labelHTML: intl[LOGIN]},
+                {buttonType: 'imgbtn_submit', labelHTML: '<i class="itsaicon-dialog-login"></i>'+intl[LOGIN]}
             ];
+            // Next: if the user want a 'forgot-button' then set it up
+            if (forgotButton) {
+                // first an extra button for itsamessage on the first dialog:
+                formconfigForgotEmail = config.formconfigForgotEmail || {};
+                itsamessage.customBtns=[
+                    {
+                        buttonId: 'btn_forgot',
+                        labelHTML: intl[FORGOT],
+                        config: {
+                            value: 'forgot',
+                            data: 'data-itsalogin="forgotbutton"'
+                        }
+                    },
+                    {
+                        buttonId: 'imgbtn_forgot',
+                        labelHTML: '<i class="itsaicon-dialog-question"></i>'+intl[FORGOT],
+                        config: {
+                            value: 'forgot',
+                            data: 'data-itsalogin="forgotbutton"',
+                            classname: 'itsabutton-iconleft'
+                        }
+                    }
+                ];
+                regainUsernameOrPassword = (regain===USERNAME+'or'+PASSWORD);
+                regainPassword = (regain===PASSWORD);
+                // now create a second messageobject that holds the 'forgot-config', as strored inside itsamessage.forgotMessage
+                if (regainUsernameOrPassword) {
+                    MyForgotMessage = Y.Base.create('itsamessageforgot', Y.ITSAMessage, [], null, {
+                                          ATTRS: {
+                                              emailaddress: {
+                                                  formtype: 'email',
+                                                  formconfig: Y.merge(formconfigForgotEmail, {required: true})
+                                              },
+                                              username: {
+                                                  formtype: 'text',
+                                                  formconfig: Y.merge(formconfigUsername, {required: true}),
+                                                  validator: config.validatorUsername,
+                                                  validationerror: config.validationerrorUsername
+                                              }
+                                          }
+                                      });
+                    message = '<form>'+
+                              (config.forgotMessage || intl[FORGOT+'what']) +
+                              '<div class="itsa-dialog-forgotbutton itsadialog-firstbutton">{btn_'+FORGOT+USERNAME+'}</div>'+
+                              '<div class="itsa-dialog-forgotbutton">{btn_'+FORGOT+PASSWORD+'}</div>'+
+                              '</form>';
+                    forgotMessage = new MyForgotMessage();
+                    forgotMessage.icon = config.iconquestion || ICON_QUESTION;
+                    forgotMessage.title = config.titleForgotUsernameOrPassword || intl[FORGOT+USERNAME+'or'+PASSWORD];
+                    forgotMessage.message = message;
+                    forgotMessage.closeButton = true;
+        /*jshint expr:true */
+                    forgotMessage.customBtns=[
+                        {
+                            buttonId: 'btn_'+FORGOT+USERNAME,
+                            labelHTML: intl[FORGOT+USERNAME],
+                            config: {
+                                value: FORGOT+USERNAME
+                            }
+                        },
+                        {
+                            buttonId: 'btn_'+FORGOT+PASSWORD,
+                            labelHTML: intl[FORGOT+PASSWORD],
+                            config: {
+                                value: FORGOT+PASSWORD
+                            }
+                        }
+                    ];
+        /*jshint expr:false */
+                }
+                itsamessage.forgotMessage = forgotMessage;
+            }
             return instance.queueMessage(itsamessage);
         }
     );

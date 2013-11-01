@@ -34,6 +34,8 @@ var YArray = Y.Array,
     SUSPENDED = 'suspended',
     NEWMESSAGE_ADDED = NEWMESSAGE+'_added',
     EVT_LEVELCLEAR = 'levelclear',
+    TIMEOUTRESOLVE = 'timeoutResolve',
+    TIMEOUTREJECT = 'timeoutReject',
     AVAILABLE_LEVELS = {
         info: true,
         warn: true,
@@ -97,6 +99,9 @@ ITSAMessageViewer.prototype._processQueue = function(level) {
             function(itsamessage) {
                 Y.log('handlePromise has a new message '+itsamessage.level, 'info', 'ITSA-MessageViewer');
                 itsamessage[PROCESSING] = true;
+/*jshint expr:true */
+                (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
+/*jshint expr:false */
                 return instance.viewMessage(itsamessage);
             }
         ).then(
@@ -122,10 +127,9 @@ ITSAMessageViewer.prototype.handleLevel = function(level) {
 /*jshint expr:false */
 };
 
-// be sure to return a promise, otherwise all messsages are eaten up at once!
-ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
+ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
-    Y.log('Y.ITSAMessageViewer.viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
+    Y.log('Y.ITSAMessageViewer.resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
 ITSAMessageViewer.prototype.suspend = function(/* itsamessage */) {
@@ -133,9 +137,10 @@ ITSAMessageViewer.prototype.suspend = function(/* itsamessage */) {
     Y.log('Y.ITSAMessageViewer.suspend() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
-ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
+// be sure to return a promise, otherwise all messsages are eaten up at once!
+ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
-    Y.log('Y.ITSAMessageViewer.resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
+    Y.log('Y.ITSAMessageViewer.viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
 /**
@@ -200,10 +205,10 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
 /*jshint expr:true */
                     // check if 'info' needs to be suspended:
                     (otherLevelMessage=instance._lastMessage[INFO]) && ((level!==INFO) || instance._lastMessage[WARN] || instance._lastMessage[ERROR]) &&
-                        (otherLevelMessage[SUSPENDED]=true) && instance.suspend(otherLevelMessage);
+                        (otherLevelMessage[SUSPENDED]=true) && instance._suspend(otherLevelMessage);
                     // check if 'warn' needs to be suspended:
                     (otherLevelMessage=instance._lastMessage[WARN]) && ((level===ERROR) || instance._lastMessage[ERROR]) && (otherLevelMessage[SUSPENDED]=true) &&
-                        instance.suspend(otherLevelMessage);
+                        instance._suspend(otherLevelMessage);
 /*jshint expr:false */
                     resolve(nextMessage);
                     Y.log('_nextMessagePromise about to return a message from queue '+nextMessage.level+' check '+instance._lastMessage[level], 'info', 'ITSA-MessageViewer');
@@ -221,7 +226,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     }
                     if (otherLevelMessage && otherLevelMessage[SUSPENDED]) {
                         otherLevelMessage[SUSPENDED] = false;
-                        instance.resurrect(otherLevelMessage);
+                        instance._resurrect(otherLevelMessage);
                     }
                     instance._lastMessage[level] = null;
                     // fire the levelclear-event to make 'waiting at other levels' at the first promise of _nextMessagePromise resolve:
@@ -239,10 +244,10 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
 /*jshint expr:true */
                             // check if 'info' needs to be suspended:
                             (otherLevelMessage=instance._lastMessage[INFO]) && ((level!==INFO) || instance._lastMessage[WARN] || instance._lastMessage[ERROR]) &&
-                                (otherLevelMessage[SUSPENDED]=true) && instance.suspend(otherLevelMessage);
+                                (otherLevelMessage[SUSPENDED]=true) && instance._suspend(otherLevelMessage);
                             // check if 'warn' needs to be suspended:
                             (otherLevelMessage=instance._lastMessage[WARN]) && ((level===ERROR) || instance._lastMessage[ERROR]) && (otherLevelMessage[SUSPENDED]=true) &&
-                                instance.suspend(otherLevelMessage);
+                                instance._suspend(otherLevelMessage);
 /*jshint expr:false */
                             Y.log('_nextMessagePromise about to return a NEW message from eventlistener NEWMESSAGE '+itsamessage.level+' check '+instance._lastMessage[level], 'info', 'ITSA-MessageViewer');
                             resolve(itsamessage);
@@ -263,6 +268,24 @@ ITSAMessageViewer.prototype.destructor = function() {
     instance._lastMessage = {};
 };
 
+ITSAMessageViewer.prototype._resurrect = function(itsamessage) {
+    var instance = this;
+    // should be overridden --> method that renderes the message in the dom
+    Y.log('Y.ITSAMessageViewer._resurrect()', 'info', 'ITSAMessageViewer');
+/*jshint expr:true */
+    (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
+/*jshint expr:false */
+    instance.resurrect(itsamessage);
+};
+
+ITSAMessageViewer.prototype._suspend = function(itsamessage) {
+    var instance = this;
+    Y.log('Y.ITSAMessageViewer._suspend()', 'info', 'ITSAMessageViewer');
+/*jshint expr:true */
+    (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._stopTimer();
+/*jshint expr:false */
+    instance.suspend(itsamessage);
+};
 
 Y.ITSAMessageViewer = ITSAMessageViewer;
 
