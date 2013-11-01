@@ -31,6 +31,8 @@ var ITSAPanel,
     ITSA = 'itsa-',
     GALLERYCSS_ITSA = GALLERY + 'css-' + ITSA,
     PLUGIN_TIMEOUT = 4000, // timeout within the plugin of itsatabkeymanager should be loaded
+    ERROR = 'error',
+    WARN = 'warn',
     DESTROYED = 'destroyed',
     STRING = 'string',
     BOOLEAN = 'boolean',
@@ -60,6 +62,14 @@ var ITSAPanel,
     NUMBER = 'number',
     OFFSETHEIGHT = 'offsetHeight',
     OFFSETWIDTH = 'offsetWidth',
+    ITSALABEL = 'itsa-label-',
+    UPPERCASE = 'uppercase',
+    LOWERCASE = 'lowercase',
+    CAPITALIZE = 'capitalize',
+    ITSALABEL_UPPERCASE = ITSALABEL+UPPERCASE,
+    ITSALABEL_LOWERCASE = ITSALABEL+LOWERCASE,
+    ITSALABEL_CAPITALIZE = ITSALABEL+CAPITALIZE,
+    LABELTRANSFORM = 'labelTransform',
     MODAL = 'modal',
     PX = 'px',
     TITLE = 'title',
@@ -346,6 +356,25 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             setter: '_setHeight'
         },
         /**
+         * CSS text-transform of all label-elements. Should be:
+         * <ul>
+         *   <li>null --> leave as it is</li>
+         *   <li>uppercase</li>
+         *   <li>lowercase</li>
+         *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+         * </ul>
+         *
+         * @attribute labelTransform
+         * @default null
+         * @type {String}
+         */
+        labelTransform: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
+            }
+        },
+        /**
          * Maximum height of the Panel: need to be numbers: due to its construction no percented sizes are allowed.
          *
          * @attribute maxHeight
@@ -529,6 +558,24 @@ ITSAPanel.prototype.initializer = function() {
         }
     );
 
+    // publishing event 'error'
+    instance.publish(
+        ERROR,
+        {
+            emitFacade: true,
+            broadcast: 1
+        }
+    );
+
+    // publishing event 'error'
+    instance.publish(
+        WARN,
+        {
+            emitFacade: true,
+            broadcast: 1
+        }
+    );
+
     /**
      * Internal list of all eventhandlers bound by this widget.
      * @property _eventhandlers
@@ -554,6 +601,7 @@ ITSAPanel.prototype.initializer = function() {
     boundingBox.toggleClass(FOCUSED_CLASS, instance.get(FOCUSED));
     // hide boundingBox by default and maybe inhide when rendered --> otherwise there might be a flicker effect when resetting its height
     boundingBox.addClass(HIDDENPANELCLASS);
+    instance._setLabelTransform(instance.get(LABELTRANSFORM));
     // publishing event 'focusnext'
     instance.publish(
         FOCUS_NEXT,
@@ -571,6 +619,30 @@ ITSAPanel.prototype.initializer = function() {
         }
     );
 /*jshint expr:false */
+};
+
+/**
+ * Sets the right className to the boundingBox for making text-transForm of label-elements. Configured by attribute 'labelTransform'.<br />
+ * Either one of these values:
+ * <ul>
+ *   <li>null --> leave as it is</li>
+ *   <li>uppercase</li>
+ *   <li>lowercase</li>
+ *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+ * </ul>
+ *
+ * @method _setLabelTransform
+ * @param type {String} new text-transform value
+ * @private
+ * @since 0.2
+*/
+ITSAPanel.prototype._setLabelTransform = function(type) {
+    var boundingBox = this.get(BOUNDINGBOX);
+
+    Y.log('_setLabelTransform ', 'info', 'ITSAPanel');
+    boundingBox.toggleClass(ITSALABEL_UPPERCASE, (type===UPPERCASE));
+    boundingBox.toggleClass(ITSALABEL_LOWERCASE, (type===LOWERCASE));
+    boundingBox.toggleClass(ITSALABEL_CAPITALIZE, (type===CAPITALIZE));
 };
 
 /**
@@ -605,7 +677,6 @@ ITSAPanel.prototype.bindUI = function() {
 /*jshint expr:false */
 
     instance._setFocusManager();
-
 
 /*jshint expr:true */
     instance.get(CLOSABLEBYESCAPE) && (instance._escapeHandler=Y.on(
@@ -642,6 +713,13 @@ ITSAPanel.prototype.bindUI = function() {
             else {
                 instance.blur();
             }
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(LABELTRANSFORM+CHANGE, function(e) {
+            Y.log('aftersubscriptor '+LABELTRANSFORM+CHANGE, 'info', 'ITSAPanel');
+            instance._setLabelTransform(e.newVal);
         })
     );
 
