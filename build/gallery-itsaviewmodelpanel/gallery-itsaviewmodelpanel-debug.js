@@ -546,9 +546,10 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         /*jshint expr:true */
             var newTemplate = e.newVal,
                 prevTemplate = e.prevVal,
-                newFooterView;
+                newFooterView, footerview;
             if (newTemplate) {
-                if (!prevTemplate) {
+                footerview = instance.get(FOOTERVIEW);
+                if (!footerview) {
                     newFooterView = new Y.ITSAViewModel({
                         model: instance.get(MODEL),
                         template: newTemplate,
@@ -562,7 +563,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     instance._renderFooter();
                 }
                 else {
-                    instance.get(FOOTERVIEW).set('template', newTemplate);
+                    footerview.set('template', newTemplate);
                 }
             }
             prevTemplate && !newTemplate && instance._set(FOOTERVIEW, null);
