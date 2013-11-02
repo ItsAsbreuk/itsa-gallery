@@ -49,7 +49,9 @@ Y.later(4000, null, function() {
     );
 */
     Y.showMessage('Message').then(
-        null,
+        function(response) {
+            console.log('Message resolved '+response.button);
+        },
         function(reason) {
             console.log('Error Y.showError '+reason);
         }

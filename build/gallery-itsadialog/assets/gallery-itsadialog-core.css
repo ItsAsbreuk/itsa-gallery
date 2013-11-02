@@ -7,8 +7,47 @@ body .yui3-widget-mask {
     opacity: 0.25;
 }
 
+body.itsa-dialogwarnup .yui3-widget-mask {
+    z-index: 1010 !important;
+}
+
+body.itsa-dialogerrorup .yui3-widget-mask {
+    z-index: 1020 !important;
+}
+
 .itsa-panel.itsa-dialog {
     z-index: 1001 !important;
+}
+
+.itsa-dialogwarnup .itsa-panel.itsa-dialog {
+    z-index: 1011 !important;
+}
+
+.itsa-dialogerrorup .itsa-panel.itsa-dialog {
+    z-index: 1021 !important;
+}
+
+.itsa-dialoginfoup .tipsy-formelement-ok,
+.itsa-dialoginfoup .tipsy-formelement-invalid {
+    z-index: 1005 !important;
+}
+
+.itsa-dialogwarnup .tipsy-formelement-ok,
+.itsa-dialogwarnup .tipsy-formelement-invalid,
+.itsa-dialoginfoup.itsa-dialogwarnup .tipsy-formelement-ok,
+.itsa-dialoginfoup.itsa-dialogwarnup .tipsy-formelement-invalid {
+    z-index: 1015 !important;
+}
+
+.itsa-dialogerrorup .tipsy-formelement-ok,
+.itsa-dialogerrorup .tipsy-formelement-invalid,
+.itsa-dialoginfoup.itsa-dialogerrorup .tipsy-formelement-ok,
+.itsa-dialoginfoup.itsa-dialogerrorup .tipsy-formelement-invalid,
+.itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-ok,
+.itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-invalid,
+.itsa-dialoginfoup.itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-ok,
+.itsa-dialoginfoup.itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-invalid {
+    z-index: 1025 !important;
 }
 
 .itsa-dialog fieldset,

@@ -278,13 +278,6 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
     itsamessage.promise = promise;
     itsamessage.resolvePromise = promiseResolve;
     itsamessage.rejectPromise = promiseReject;
-    // always keep itsamessageinstance life synced:
-    itsamessage.after(
-        'submit',
-        function() {
-            itsamessage.resolve();
-        }
-    );
     // lazy publish the event
     /**
       * Event fired when the add-button is clicked.

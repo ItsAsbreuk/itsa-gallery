@@ -43,6 +43,10 @@ var YArray = Y.Array,
     TRANSFORM = 'Transform',
     BUTTONTRANSFORM = 'button'+TRANSFORM,
     LABELTRANSFORM = 'label'+TRANSFORM,
+    UP = 'up',
+    ITSADIALOG_INFO_UP = ITSADIALOG+INFO+UP,
+    ITSADIALOG_WARN_UP = ITSADIALOG+WARN+UP,
+    ITSADIALOG_ERROR_UP = ITSADIALOG+ERROR+UP,
 
 PARSED = function (response) {
     if (typeof response === 'string') {
@@ -126,6 +130,7 @@ Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
 ITSADialog.prototype.initializer = function() {
     var instance = this;
     instance._eventhandlers = [];
+    instance._body = Y.one('body');
     Y.later(RENDERDELAY, instance, instance.renderPromise);
 };
 
@@ -151,82 +156,29 @@ ITSADialog.prototype._renderPanels = function() {
             className: ITSADIALOG
         },
         eventhandlers = instance._eventhandlers,
-        panels;
+        panels, panelinfo, panelwarn, panelerror;
     panels = instance.panels = {};
-    panels[INFO] = new Y.ITSAViewModelPanel(config);
-    panels[WARN] = new Y.ITSAViewModelPanel(config);
-    panels[ERROR] = new Y.ITSAViewModelPanel(config);
+    panelinfo = panels[INFO] = new Y.ITSAViewModelPanel(config);
+    panelwarn = panels[WARN] = new Y.ITSAViewModelPanel(config);
+    panelerror = panels[ERROR] = new Y.ITSAViewModelPanel(config);
 
     eventhandlers.push(
-        panels[INFO].after('*:hide', function(e) {
+        panelinfo.after('*:hide', function(e) {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
-                closebuttonForgot = closedByClosebutton && (buttonNode.getAttribute('data-itsaforgot')==='true'),
-                rejected = (e.type===ESCAPE_HIDE_EVENT) || (closedByClosebutton && !closebuttonForgot) || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton)),
-                forgotMessage;
-            if (rejected) {
-                itsamessage.rejectPromise(buttonValue);
-            }
-            else {
-                // should it be the 'forgot-button', then we need to show the forgot-panel
-                if (buttonNode && (buttonNode.getAttribute('data-itsalogin')==='forgotbutton')) {
-console.log('forgotbutton');
-                    forgotMessage = itsamessage.forgotMessage;
+                closedByClosebutton = buttonNode && buttonNode.hasClass('itsa-panelclosebtn'),
+                rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
-                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
+            rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
 /*jshint expr:false */
-                }
-                else if (buttonValue==='forgotusername') {
-console.log('forgot username');
-                    forgotMessage = itsamessage.forgotMessage;
-/*jshint expr:true */
-                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
-/*jshint expr:false */
-                }
-                else if (buttonValue==='forgotpassword') {
-console.log('forgot password');
-                    forgotMessage = itsamessage.forgotMessage;
-/*jshint expr:true */
-                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
-/*jshint expr:false */
-                }
-                else if (closebuttonForgot) {
-console.log('close forgot');
-                    forgotMessage = itsamessage.forgotMessage;
-/*jshint expr:true */
-                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
-/*jshint expr:false */
-                }
-                else if (buttonValue==='sendusername') {
-console.log('send username');
-                    forgotMessage = itsamessage.forgotMessage;
-/*jshint expr:true */
-                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
-/*jshint expr:false */
-                }
-                else if (buttonValue==='resetpassword') {
-console.log('reset password');
-                    forgotMessage = itsamessage.forgotMessage;
-/*jshint expr:true */
-                    forgotMessage ? instance._showPanel(panel, forgotMessage) : itsamessage.rejectPromise(buttonValue);
-/*jshint expr:false */
-                }
-                else {
-                    // moste cases: resolve dialog
-                    itsamessage.UIToModel();
-                    itsamessage._set('button', buttonValue);
-                    itsamessage.resolvePromise(itsamessage.toJSON());
-                }
-            }
         })
     );
 
     eventhandlers.push(
-        panels[INFO].after('*:submit', function(e) {
+        panelinfo.after('*:submit', function(e) {
             var itsamessage = e.target;
             // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
             e.promise.then(
@@ -237,13 +189,13 @@ console.log('reset password');
                     if (responseObj && responseObj.status) {
                         if (responseObj.status==='OK') {
                             itsamessage._set('button', 'submit');
-                            itsamessage.resolvePromise(itsamessage.toJSON());
+                            itsamessage.resolve(itsamessage.toJSON());
                         }
                         else if (responseObj.status==='BLOCKED') {
                             message = responseObj.message || 'Login is blocked';
                             // production-errors will be shown through the messagecontroller
                             Y.showError(responseObj.title || 'error', message);
-                            itsamessage.rejectPromise(message);
+                            itsamessage.reject(message);
                         }
                         else if (responseObj.status==='RETRY') {
             /*jshint expr:true */
@@ -259,7 +211,7 @@ console.log('reset password');
                             message = 'Wrong response.status found: '+responseObj.status+'. You should return one of these: OK | RETRY | BLOCKED';
                             facade = {src: 'Y.ITSADialog.submit()', msg: message};
                             panel.fire('warn', facade);
-                            itsamessage.rejectPromise(message);
+                            itsamessage.reject(message);
                         }
                     }
                     else {
@@ -267,7 +219,7 @@ console.log('reset password');
                         message = 'Response returned without response.status';
                         facade = {src: 'Y.ITSADialog.submit()', msg: message};
                         panel.fire('warn', facade);
-                        itsamessage.rejectPromise(message);
+                        itsamessage.reject(message);
                     }
                 }
             ).then(
@@ -282,7 +234,7 @@ console.log('reset password');
     );
 
     eventhandlers.push(
-        panels[WARN].after('*:hide', function(e) {
+        panelwarn.after('*:hide', function(e) {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
@@ -291,12 +243,12 @@ console.log('reset password');
                 closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
                 rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
-            rejected ? itsamessage.rejectPromise(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolvePromise(itsamessage.toJSON()));
+            rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
 /*jshint expr:false */
         })
     );
     eventhandlers.push(
-        panels[ERROR].after('*:hide', function(e) {
+        panelerror.after('*:hide', function(e) {
             var panel = e.target,
                 itsamessage = panel.get(MODEL),
                 buttonNode = e.buttonNode,
@@ -305,29 +257,44 @@ console.log('reset password');
                 closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
                 rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
-            rejected ? itsamessage.rejectPromise(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolvePromise(itsamessage.toJSON()));
+            rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
 /*jshint expr:false */
         })
     );
     eventhandlers.push(
         instance.on(LABELTRANSFORM+'Change', function(e) {
             var value = e.newVal;
-            panels[INFO].set(LABELTRANSFORM, value);
-            panels[WARN].set(LABELTRANSFORM, value);
-            panels[ERROR].set(LABELTRANSFORM, value);
+            panelinfo.set(LABELTRANSFORM, value);
+            panelwarn.set(LABELTRANSFORM, value);
+            panelerror.set(LABELTRANSFORM, value);
         })
     );
     eventhandlers.push(
         instance.on(BUTTONTRANSFORM+'Change', function(e) {
             var value = e.newVal;
-            panels[INFO].set(BUTTONTRANSFORM, value);
-            panels[WARN].set(BUTTONTRANSFORM, value);
-            panels[ERROR].set(BUTTONTRANSFORM, value);
+            panelinfo.set(BUTTONTRANSFORM, value);
+            panelwarn.set(BUTTONTRANSFORM, value);
+            panelerror.set(BUTTONTRANSFORM, value);
         })
     );
-    panels[INFO].render();
-    panels[WARN].render();
-    panels[ERROR].render();
+    eventhandlers.push(
+        panelinfo.on(VISIBLE+'Change', function(e) {
+            instance._body.toggleClass(ITSADIALOG_INFO_UP, e.newValue);
+        })
+    );
+    eventhandlers.push(
+        panelwarn.on(VISIBLE+'Change', function(e) {
+            instance._body.toggleClass(ITSADIALOG_WARN_UP, e.newValue);
+        })
+    );
+    eventhandlers.push(
+        panelerror.on(VISIBLE+'Change', function(e) {
+            instance._body.toggleClass(ITSADIALOG_ERROR_UP, e.newValue);
+        })
+    );
+    panelinfo.render();
+    panelwarn.render();
+    panelerror.render();
 };
 
 ITSADialog.prototype.viewMessage = function(itsamessage) {

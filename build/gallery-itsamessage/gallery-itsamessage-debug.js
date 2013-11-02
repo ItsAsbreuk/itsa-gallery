@@ -23,6 +23,9 @@ YUI.add('gallery-itsamessage', function (Y, NAME) {
 */
 
 var ITSAMessage,
+    MESSAGE = 'message',
+    MESSAGEREJECT = MESSAGE+'reject',
+    MESSAGERESOLVE = MESSAGE+'resolve',
     MIN_TIMEOUT = 1000;
 
 ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], {
@@ -55,6 +58,25 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance._timerstart = null;
         instance._timerProcessed = 0;
         instance._timerStopped = true;
+        instance.forgotMessage = null;
+
+        // publishing event 'messagereject'
+        instance.publish(
+            MESSAGEREJECT,
+            {
+                defaultFn: Y.bind(instance._reject, instance),
+                emitFacade: true
+            }
+        );
+        // publishing event 'messageresolve'
+        instance.publish(
+            MESSAGERESOLVE,
+            {
+                defaultFn: Y.bind(instance._resolve, instance),
+                emitFacade: true
+            }
+        );
+
     },
     destructor: function() {
 /*jshint expr:true */
@@ -76,17 +98,26 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
     }
 });
 
-ITSAMessage.prototype.reject = function() {
+ITSAMessage.prototype.reject = function(message) {
+    this.fire(MESSAGEREJECT, {message: message});
+};
+
+ITSAMessage.prototype.resolve = function(attrs) {
+    this.fire(MESSAGERESOLVE, {attrs: attrs});
+};
+
+
+ITSAMessage.prototype._reject = function(e) {
     var reject = this.rejectPromise;
 /*jshint expr:true */
-    reject && reject();
+    reject && reject(e.message);
 /*jshint expr:false */
 };
 
-ITSAMessage.prototype.resolve = function() {
+ITSAMessage.prototype._resolve = function(e) {
     var resolve = this.resolvePromise;
 /*jshint expr:true */
-    resolve && resolve();
+    resolve && resolve(e.attrs);
 /*jshint expr:false */
 };
 
