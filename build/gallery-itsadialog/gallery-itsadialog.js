@@ -46,23 +46,7 @@ var YArray = Y.Array,
     UP = 'up',
     ITSADIALOG_INFO_UP = ITSADIALOG+INFO+UP,
     ITSADIALOG_WARN_UP = ITSADIALOG+WARN+UP,
-    ITSADIALOG_ERROR_UP = ITSADIALOG+ERROR+UP,
-
-PARSED = function (response) {
-    if (typeof response === 'string') {
-        try {
-            return Y.JSON.parse(response);
-        } catch (ex) {
-            this.fire(ERROR, {
-                error   : ex,
-                response: response,
-                src     : 'parse'
-            });
-            return {};
-        }
-    }
-    return response || {};
-};
+    ITSADIALOG_ERROR_UP = ITSADIALOG+ERROR+UP;
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -174,62 +158,6 @@ ITSADialog.prototype._renderPanels = function() {
 /*jshint expr:true */
             rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
 /*jshint expr:false */
-        })
-    );
-
-    eventhandlers.push(
-        panelinfo.after('*:submit', function(e) {
-            var itsamessage = e.target;
-            // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
-            e.promise.then(
-                function(response) {
-                    var responseObj = PARSED(response),
-                        panel = panels[INFO],
-                        contentBox, message, facade;
-                    if (responseObj && responseObj.status) {
-                        if (responseObj.status==='OK') {
-                            itsamessage._set('button', 'submit');
-                            itsamessage.resolve(itsamessage.toJSON());
-                        }
-                        else if (responseObj.status==='BLOCKED') {
-                            message = responseObj.message || 'Login is blocked';
-                            // production-errors will be shown through the messagecontroller
-                            Y.showError(responseObj.title || 'error', message);
-                            itsamessage.reject(message);
-                        }
-                        else if (responseObj.status==='RETRY') {
-            /*jshint expr:true */
-                            responseObj.title && panel.set('title', responseObj.title);
-            /*jshint expr:false */
-                            if (responseObj.message) {
-                                contentBox = panel.get('contentBox');
-                                contentBox.one('#itsa-messagewrapper').setHTML(responseObj.message);
-                            }
-                        }
-                        else {
-                            // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
-                            message = 'Wrong response.status found: '+responseObj.status+'. You should return one of these: OK | RETRY | BLOCKED';
-                            facade = {src: 'Y.ITSADialog.submit()', msg: message};
-                            panel.fire('warn', facade);
-                            itsamessage.reject(message);
-                        }
-                    }
-                    else {
-                        // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
-                        message = 'Response returned without response.status';
-                        facade = {src: 'Y.ITSADialog.submit()', msg: message};
-                        panel.fire('warn', facade);
-                        itsamessage.reject(message);
-                    }
-                }
-            ).then(
-                null,
-                function(catchErr) {
-                    var message = (catchErr && (catchErr.message || catchErr)) || 'Undefined error during submission';
-                    // production-errors will be shown through the messagecontroller
-                    Y.showWarning(message);
-                }
-            );
         })
     );
 

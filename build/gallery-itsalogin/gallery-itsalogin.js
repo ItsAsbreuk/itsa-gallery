@@ -23,11 +23,13 @@ YUI.add('gallery-itsalogin', function (Y, NAME) {
 
 var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     ITSAMessageControllerInstance = Y.ITSAMessageController,
+    ITSADialogInstance = Y.ITSADialog,
     Lang = Y.Lang,
     YIntl = Y.Intl,
     BOOLEAN = 'boolean',
     INFO = 'info',
     WARN = 'warn',
+    ERROR = 'error',
     UNDERSCORE = '_',
     OGIN = 'ogin',
     LOGIN = 'l'+OGIN,
@@ -46,12 +48,32 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     FORGOT_PASSWORD = FORGOT+PASSWORD,
     FORGOT_USERNAME_OR_PASSWORD = FORGOT+USERNAME_OR_PASSWORD,
     SEND = 'send',
+    RESET = 'reset',
     SEND_USERNAME = SEND+USERNAME,
+    RESET_PASSWORD = RESET+PASSWORD,
     MESSAGE = 'message',
     MESSAGERESOLVE = MESSAGE+'resolve',
     STAYLOGGEDIN = 'stayloggedin',
     GALLERYITSALOGIN = 'gallery-itsalogin',
-    regainFn_Un, regainFn_Pw, regainFn_UnPw;
+    regainFn_Un,
+    regainFn_Pw,
+    regainFn_UnPw,
+
+    PARSED = function (response) {
+        if (typeof response === 'string') {
+            try {
+                return Y.JSON.parse(response);
+            } catch (ex) {
+                this.fire(ERROR, {
+                    error   : ex,
+                    response: response,
+                    src     : 'parse'
+                });
+                return {};
+            }
+        }
+        return response || {};
+    };
 
 /**
  * Internal objects with internationalized buttonlabels
@@ -62,12 +84,13 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
 */
 ITSAMessageControllerInstance._intl = YIntl.get(GALLERYITSALOGIN);
 
-regainFn_UnPw = function(itsamessage, config) {
+regainFn_UnPw = function(config) {
     var intl = ITSAMessageControllerInstance._intl,
+        imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons,
         message = '<form>'+
                   (config.messageForgotUsernameOrPassword || intl[FORGOT+'what']) +
-                  '<div class="itsa-dialog-forgotbutton itsadialog-firstbutton">{btn_'+FORGOT_USERNAME+'}</div>'+
-                  '<div class="itsa-dialog-forgotbutton">{btn_'+FORGOT_PASSWORD+'}</div>'+
+                  '<div class="itsa-dialog-forgotbutton itsadialog-firstbutton">{'+(imageButtons ? 'img' : '')+'btn_'+FORGOT_USERNAME+'}</div>'+
+                  '<div class="itsa-dialog-forgotbutton">{'+(imageButtons ? 'img' : '')+'btn_'+FORGOT_PASSWORD+'}</div>'+
                   '</form>',
         forgotMessage = new Y.ITSAMessage();
     forgotMessage.icon = config.iconquestion || ICON_QUESTION;
@@ -78,96 +101,236 @@ regainFn_UnPw = function(itsamessage, config) {
     forgotMessage.messageType = FORGOT_USERNAME_OR_PASSWORD;
     forgotMessage.message = message;
     forgotMessage.closeButton = true;
-/*jshint expr:true */
-    forgotMessage.customBtns=[
-        {
-            buttonId: 'btn_'+FORGOT_USERNAME,
-            labelHTML: intl[FORGOT_USERNAME],
-            config: {
-                value: FORGOT_USERNAME
+    if (imageButtons) {
+        forgotMessage.customBtns=[
+            {
+                buttonId: 'imgbtn_'+FORGOT_USERNAME,
+                labelHTML: '<i class="itsaicon-dialog-user"></i>'+intl[FORGOT_USERNAME],
+                config: {
+                    value: FORGOT_USERNAME,
+                    classname: 'itsabutton-iconleft'
+                }
+            },
+            {
+                buttonId: 'imgbtn_'+FORGOT_PASSWORD,
+                labelHTML: '<i class="itsaicon-dialog-key"></i>'+intl[FORGOT_PASSWORD],
+                config: {
+                    value: FORGOT_PASSWORD,
+                    classname: 'itsabutton-iconleft'
+                }
             }
-        },
-        {
-            buttonId: 'btn_'+FORGOT_PASSWORD,
-            labelHTML: intl[FORGOT_PASSWORD],
-            config: {
-                value: FORGOT_PASSWORD
+        ];
+    }
+    else {
+        forgotMessage.customBtns=[
+            {
+                buttonId: 'btn_'+FORGOT_USERNAME,
+                labelHTML: intl[FORGOT_USERNAME],
+                config: {
+                    value: FORGOT_USERNAME
+                }
+            },
+            {
+                buttonId: 'btn_'+FORGOT_PASSWORD,
+                labelHTML: intl[FORGOT_PASSWORD],
+                config: {
+                    value: FORGOT_PASSWORD
+                }
             }
-        }
-    ];
+        ];
+    }
     return ITSAMessageControllerInstance.queueMessage(forgotMessage);
 };
 
-regainFn_Un = function(itsamessage, config) {
-        var formconfigForgotUsername, MyForgotUsername, message, forgotUsername, imageButtons, intl;
-        intl = ITSAMessageControllerInstance._intl;
-        // setting config for username:
-        formconfigForgotUsername = config.formconfigForgotUsername || {};
-    /*jshint expr:true */
-        formconfigForgotUsername.label || formconfigForgotUsername.placeholder || (formconfigForgotUsername.label=intl[EMAIL]);
-    /*jshint expr:false */
-        formconfigForgotUsername.fullselect = true;
-        formconfigForgotUsername.primarybtnonenter = false;
-        formconfigForgotUsername.classname = 'itsa-login' + (formconfigForgotUsername.classname ? ' '+formconfigForgotUsername.classname : '');
-        formconfigForgotUsername.required = true;
+regainFn_Un = function(config) {
+    var formconfigForgotUsername, MyForgotUsername, message, forgotUsername, imageButtons, intl;
+    intl = ITSAMessageControllerInstance._intl;
+    // setting config for username:
+    formconfigForgotUsername = config.formconfigForgotUsername || {};
+/*jshint expr:true */
+    formconfigForgotUsername.label || formconfigForgotUsername.placeholder || (formconfigForgotUsername.label=intl[EMAIL]);
+/*jshint expr:false */
+    formconfigForgotUsername.fullselect = true;
+    formconfigForgotUsername.primarybtnonenter = false;
+    formconfigForgotUsername.classname = 'itsa-login' + (formconfigForgotUsername.classname ? ' '+formconfigForgotUsername.classname : '');
+    formconfigForgotUsername.required = true;
 
-        MyForgotUsername = Y.Base.create('itsamessageforgotun', Y.ITSAMessage, [], null, {
-                               ATTRS: {
-                                   emailaddress: {
-                                       formtype: 'email',
-                                       formconfig: formconfigForgotUsername,
-                                       validator: config.validatorForgotUsername,
-                                       validationerror: config.validationerrorForgotUsername
-                                   }
+    MyForgotUsername = Y.Base.create('itsamessageforgotun', Y.ITSAMessage, [], null, {
+                           ATTRS: {
+                               emailaddress: {
+                                   formtype: 'email',
+                                   formconfig: formconfigForgotUsername,
+                                   validator: config.validatorForgotUsername,
+                                   validationerror: config.validationerrorForgotUsername
                                }
-                           });
-        message = (config.messageForgotUsername || intl.entersignupaddress) +
-                  '<fieldset class="'+'itsa-login'+'">'+
-                       '<div class="pure-control-group">{emailaddress}</div>'+
-                  '</fieldset>';
-        forgotUsername = new MyForgotUsername();
-        imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
-        forgotUsername.icon = config.iconquestion || ICON_QUESTION;
-        forgotUsername.title = config.titleForgotUsername || intl[FORGOT_USERNAME];
-        forgotUsername.message = message;
-        forgotUsername.level = WARN;
-        forgotUsername.target = 'itsadialog'; // widgetname that should handle this message
-        forgotUsername.source = config.source || APP;
-        forgotUsername.messageType = FORGOT_USERNAME_OR_PASSWORD;
-        forgotUsername.closeButton = true;
-        if (imageButtons) {
-            forgotUsername.footer = '{imgbtn_'+SEND_USERNAME+'}';
-            forgotUsername.customBtns=[
-                {
-                    buttonId: 'imgbtn_'+SEND_USERNAME,
-                    labelHTML: '<i class="itsaicon-dialog-question"></i>'+intl[SEND_USERNAME],
-                    config: {
-                        value: SEND_USERNAME,
-                        classname: 'itsabutton-iconleft'
-                    }
+                           }
+                       });
+    message = (config.messageForgotUsername || intl.entersignupaddress) +
+              '<fieldset class="'+'itsa-login'+'">'+
+                   '<div class="pure-control-group">{emailaddress}</div>'+
+              '</fieldset>';
+    forgotUsername = new MyForgotUsername();
+    imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+    forgotUsername.icon = config.iconquestion || ICON_QUESTION;
+    forgotUsername.title = config.titleForgotUsername || intl[FORGOT_USERNAME];
+    forgotUsername.message = message;
+    forgotUsername.level = WARN;
+    forgotUsername.target = 'itsadialog'; // widgetname that should handle this message
+    forgotUsername.source = config.source || APP;
+    forgotUsername.messageType = FORGOT_USERNAME;
+    forgotUsername.closeButton = true;
+    if (imageButtons) {
+        forgotUsername.footer = '{imgbtn_'+SEND_USERNAME+'}';
+        forgotUsername.customBtns=[
+            {
+                buttonId: 'imgbtn_'+SEND_USERNAME,
+                labelHTML: '<i class="itsaicon-dialog-mail"></i>'+intl[SEND_USERNAME],
+                config: {
+                    value: SEND_USERNAME,
+                    classname: 'itsabutton-iconleft'
                 }
-            ];
-        }
-        else {
-            forgotUsername.footer = '{imgbtn_'+SEND_USERNAME+'}';
-            forgotUsername.customBtns=[
-                {
-                    buttonId: 'btn_'+SEND_USERNAME,
-                    labelHTML: intl[SEND_USERNAME],
-                    config: {
-                        value: SEND_USERNAME
-                    }
+            }
+        ];
+    }
+    else {
+        forgotUsername.footer = '{imgbtn_'+SEND_USERNAME+'}';
+        forgotUsername.customBtns=[
+            {
+                buttonId: 'btn_'+SEND_USERNAME,
+                labelHTML: intl[SEND_USERNAME],
+                config: {
+                    value: SEND_USERNAME
                 }
-            ];
-        }
-        return ITSAMessageControllerInstance.queueMessage(forgotUsername);
+            }
+        ];
+    }
+    return ITSAMessageControllerInstance.queueMessage(forgotUsername);
 };
 
-regainFn_Pw = function(itsamessage, config) {
-    return new Y.Promise(function (resolve, reject) {
-        resolve();
-    });
+regainFn_Pw = function(config) {
+    var formconfigForgotPassword, MyForgotPassword, message, forgotPassword, imageButtons, intl;
+    intl = ITSAMessageControllerInstance._intl;
+    // setting config for username:
+    formconfigForgotPassword = config.formconfigForgotPassword || {};
+/*jshint expr:true */
+    formconfigForgotPassword.label || formconfigForgotPassword.placeholder || (formconfigForgotPassword.label=intl[USERNAME]);
+/*jshint expr:false */
+    formconfigForgotPassword.fullselect = true;
+    formconfigForgotPassword.primarybtnonenter = false;
+    formconfigForgotPassword.classname = 'itsa-login' + (formconfigForgotPassword.classname ? ' '+formconfigForgotPassword.classname : '');
+    formconfigForgotPassword.required = true;
+
+    MyForgotPassword = Y.Base.create('itsamessageforgotpw', Y.ITSAMessage, [], null, {
+                           ATTRS: {
+                               username: {
+                                   formtype: 'text',
+                                   formconfig: formconfigForgotPassword,
+                                   validator: config.validatorUsername,
+                                   validationerror: config.validationerrorUsername
+                               }
+                           }
+                       });
+    message = (config.messageForgotPassword || intl.retrievepasswordinstructions) +
+              '<fieldset class="'+'itsa-login'+'">'+
+                   '<div class="pure-control-group">{username}</div>'+
+              '</fieldset>';
+    forgotPassword = new MyForgotPassword();
+    imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+    forgotPassword.icon = config.iconquestion || ICON_QUESTION;
+    forgotPassword.title = config.titleForgotPassword || intl[FORGOT_PASSWORD];
+    forgotPassword.message = message;
+    forgotPassword.level = WARN;
+    forgotPassword.target = 'itsadialog'; // widgetname that should handle this message
+    forgotPassword.source = config.source || APP;
+    forgotPassword.messageType = FORGOT_PASSWORD;
+    forgotPassword.closeButton = true;
+    if (imageButtons) {
+        forgotPassword.footer = '{imgbtn_'+RESET_PASSWORD+'}';
+        forgotPassword.customBtns=[
+            {
+                buttonId: 'imgbtn_'+RESET_PASSWORD,
+                labelHTML: '<i class="itsaicon-dialog-mail"></i>'+intl[RESET_PASSWORD],
+                config: {
+                    value: RESET_PASSWORD,
+                    classname: 'itsabutton-iconleft'
+                }
+            }
+        ];
+    }
+    else {
+        forgotPassword.footer = '{imgbtn_'+RESET_PASSWORD+'}';
+        forgotPassword.customBtns=[
+            {
+                buttonId: 'btn_'+RESET_PASSWORD,
+                labelHTML: intl[RESET_PASSWORD],
+                config: {
+                    value: RESET_PASSWORD
+                }
+            }
+        ];
+    }
+    return ITSAMessageControllerInstance.queueMessage(forgotPassword);
 };
+
+ITSADialogInstance.renderPromise().then(
+    function() {
+        var panel = ITSADialogInstance.panels[INFO];
+        ITSADialogInstance._eventhandlers.push(
+            panel.after('*:submit', function(e) {
+                var itsamessage = e.target;
+                // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
+                e.promise.then(
+                    function(response) {
+                        var responseObj = PARSED(response),
+                            contentBox, message, facade;
+                        if (responseObj && responseObj.status) {
+                            if (responseObj.status==='OK') {
+                                itsamessage._set('button', 'submit');
+                                itsamessage.resolve(itsamessage.toJSON());
+                            }
+                            else if (responseObj.status==='BLOCKED') {
+                                message = responseObj.message || 'Login is blocked';
+                                // production-errors will be shown through the messagecontroller
+                                Y.showError(responseObj.title || 'error', message);
+                                itsamessage.reject(message);
+                            }
+                            else if (responseObj.status==='RETRY') {
+                /*jshint expr:true */
+                                responseObj.title && panel.set('title', responseObj.title);
+                /*jshint expr:false */
+                                if (responseObj.message) {
+                                    contentBox = panel.get('contentBox');
+                                    contentBox.one('#itsa-messagewrapper').setHTML(responseObj.message);
+                                }
+                            }
+                            else {
+                                // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                                message = 'Wrong response.status found: '+responseObj.status+'. You should return one of these: OK | RETRY | BLOCKED';
+                                facade = {src: 'Y.ITSADialog.submit()', msg: message};
+                                panel.fire('warn', facade);
+                                itsamessage.reject(message);
+                            }
+                        }
+                        else {
+                            // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                            message = 'Response returned without response.status';
+                            facade = {src: 'Y.ITSADialog.submit()', msg: message};
+                            panel.fire('warn', facade);
+                            itsamessage.reject(message);
+                        }
+                    }
+                ).then(
+                    null,
+                    function(catchErr) {
+                        var message = (catchErr && (catchErr.message || catchErr)) || 'Undefined error during submission';
+                        // production-errors will be shown through the messagecontroller
+                        Y.showWarning(message);
+                    }
+                );
+            })
+        );
+    }
+);
 
 /**
   * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
@@ -363,23 +526,21 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                 itsamessage.on(MESSAGERESOLVE, function(e) {
                     if (e.attrs && (e.attrs.button==='forgot')) {
                         e.preventDefault();
-                        regainFn = (regain===USERNAME_OR_PASSWORD) ? regainFn_UnPw(itsamessage, config) : regainFn_Pw(itsamessage, config);
+                        regainFn = (regain===USERNAME_OR_PASSWORD) ? regainFn_UnPw(config) : regainFn_Pw(config);
                         regainFn.then(
                             function(result) {
                                 if (result.button===FORGOT_USERNAME) {
-                                    return regainFn_Un(itsamessage, config);
+                                    return regainFn_Un(config);
                                 }
                                 else if (result.button===FORGOT_PASSWORD) {
-                                    return regainFn_Pw(itsamessage, config);
+                                    return regainFn_Pw(config);
                                 }
-                            },
-                            function(reason) {
                             }
                         ).then(
                             function() {
                                 Y.ITSADialog.resurrect(itsamessage);
                             },
-                            function(reason) {
+                            function() {
                                 Y.ITSADialog.resurrect(itsamessage);
                             }
                         );
