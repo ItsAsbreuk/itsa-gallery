@@ -713,7 +713,7 @@ ITSAFormElement.tooltipReadyPromise = function() {
                 hideOn: [TOUCHEND, BLUR, KEYPRESS],
                 zIndex: ZINDEX_TIPSY
             }).render();
-            tipsyOK.get(BOUNDINGBOX).addClass();
+            tipsyOK.get(BOUNDINGBOX).addClass(TIPSY_FORMELEMENT+'-ok');
             tipsyInvalid.get(BOUNDINGBOX).addClass(TIPSY_FORMELEMENT+'-invalid');
             // now we modify _alignTooltip, because we need to keep reference of the aligned node, in case we want to re-align
             tipsyOK._alignTooltip = function(node) {
