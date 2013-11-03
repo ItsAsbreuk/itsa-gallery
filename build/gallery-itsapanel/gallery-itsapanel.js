@@ -103,6 +103,7 @@ var ITSAPanel,
     PANELBODYINNERCLASS = ITSA+'panelinnerbody',
     PANELFOOTERINNERCLASS = ITSA+'panelinnerfooter',
     ITSA_PANELCLOSEBTN = ITSA+PANEL+'closebtn',
+    PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-disabled',
     HEADERTEMPLATE = '<div class="'+PANELHEADERCLASS+'"><div class="'+PANELHEADERINNERCLASS+'"></div></div>',
     BODYTEMPLATE = '<div class="'+PANELBODYCLASS+'"><div class="'+PANELBODYINNERCLASS+'"></div></div>',
     FOOTERTEMPLATE = '<div class="'+PANELFOOTERCLASS+'"><div class="'+PANELFOOTERINNERCLASS+'"></div></div>',
@@ -927,7 +928,10 @@ ITSAPanel.prototype.bindUI = function() {
         instance._header.delegate(
             CLICK,
             function(e) {
-                instance.fire(BUTTON_HIDE_EVENT, {buttonNode: e.target});
+                var button = e.target;
+                if (!button.hasClass(PURE_BUTTON_DISABLED)) {
+                    instance.fire(BUTTON_HIDE_EVENT, {buttonNode: e.target});
+                }
             },
             '.'+ITSA_PANELCLOSEBTN
         )
