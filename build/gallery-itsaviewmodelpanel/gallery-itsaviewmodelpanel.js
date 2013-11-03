@@ -42,6 +42,7 @@ var ITSAViewModelPanel,
     BODYVIEW = 'body'+VIEW,
     FOOTER = 'footer',
     FOOTERVIEW = FOOTER+VIEW,
+    HEADERVIEW = 'header'+VIEW,
     TEMPLATE = 'template',
     FOOTERTEMPLATE = FOOTER+'Template',
     FOCUSED_CLASS = 'itsa-focused',
@@ -694,12 +695,14 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 */
 ITSAViewModelPanel.prototype.lockPanel = function() {
     var instance = this,
+        headerview = instance.get(HEADERVIEW),
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
     // bodyview always exists, footerview, we need to check first:
     bodyview.lockView();
 /*jshint expr:true */
+    headerview ? headerview.lockView() : instance._header.all('button').addClass(PURE_BUTTON_DISABLED);
     footerview ? footerview.lockView() : instance._footercont.all('button').addClass(PURE_BUTTON_DISABLED);
     arguments[0] || (instance._locked=true);
 /*jshint expr:false */
@@ -714,12 +717,14 @@ ITSAViewModelPanel.prototype.lockPanel = function() {
 */
 ITSAViewModelPanel.prototype.unlockPanel = function() {
     var instance = this,
+        headerview = instance.get(HEADERVIEW),
         bodyview = instance.get(BODYVIEW),
         footerview = instance.get(FOOTERVIEW);
 
     // bodyview always exists, footerview, we need to check first:
     bodyview.unlockView();
 /*jshint expr:true */
+    headerview ? headerview.unlockView() : instance._header.all('button').removeClass(PURE_BUTTON_DISABLED);
     footerview ? footerview.unlockView() : instance._footercont.all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
     instance._locked = false;
