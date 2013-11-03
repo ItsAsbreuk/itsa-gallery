@@ -52,7 +52,7 @@ function ITSADialog() {
 
 ITSADialog.NAME = 'itsadialog';
 
-Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
+Y.ITSADialogClass = Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
     ATTRS: {
         /**
          * CSS text-transform of all buttons. Should be:
@@ -205,17 +205,17 @@ ITSADialog.prototype._renderPanels = function() {
     );
     eventhandlers.push(
         panelinfo.on(VISIBLE+'Change', function(e) {
-            instance._body.toggleClass(ITSADIALOG_INFO_UP, e.newValue);
+            instance._body.toggleClass(ITSADIALOG_INFO_UP, e.newVal);
         })
     );
     eventhandlers.push(
         panelwarn.on(VISIBLE+'Change', function(e) {
-            instance._body.toggleClass(ITSADIALOG_WARN_UP, e.newValue);
+            instance._body.toggleClass(ITSADIALOG_WARN_UP, e.newVal);
         })
     );
     eventhandlers.push(
         panelerror.on(VISIBLE+'Change', function(e) {
-            instance._body.toggleClass(ITSADIALOG_ERROR_UP, e.newValue);
+            instance._body.toggleClass(ITSADIALOG_ERROR_UP, e.newVal);
         })
     );
     panelinfo.render();

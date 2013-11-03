@@ -57,6 +57,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance._timerProcessed = 0;
         instance._timerStopped = true;
         instance.forgotMessage = null;
+        instance.config = {}; // orriginal config passed trhough
 
         // publishing event 'messagereject'
         instance.publish(
