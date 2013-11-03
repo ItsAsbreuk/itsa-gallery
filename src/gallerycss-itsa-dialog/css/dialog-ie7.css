@@ -9,3 +9,4 @@ i.itsaicon-dialog-logout { *zoom: expression( this.runtimeStyle['zoom'] = '1', t
 i.itsaicon-dialog-key { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
 i.itsaicon-dialog-mail { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
 i.itsaicon-dialog-user { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
+i.itsaicon-dialog-switch { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
