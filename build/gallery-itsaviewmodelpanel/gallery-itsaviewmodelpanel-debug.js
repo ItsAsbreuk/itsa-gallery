@@ -701,6 +701,28 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     );
 
 };
+
+/**
+ * Sets focus to the initial item.
+ *
+ * @method focusInitialItem
+ * @since 0.4
+ * return {Y.Promise} when item gets focussed
+*/
+ITSAViewModelPanel.prototype.focusInitialItem = function() {
+    var instance = this,
+        contentBox = instance.get(CONTENTBOX);
+
+    Y.log('focusInitialItem', 'info', 'ITSA-ViewModelPanel');
+    return contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+        function(itsatabkeymanager) {
+            instance.focus();
+            contentBox.addClass('itsa-focused');
+            itsatabkeymanager.focusInitialItem();
+        }
+    );
+};
+
 /**
  * Locks the Panel (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.<br />
  * Passes through to the underlying bodyView and footerView.
