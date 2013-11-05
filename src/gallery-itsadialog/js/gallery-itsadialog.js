@@ -130,7 +130,7 @@ ITSADialog.prototype._renderPanels = function() {
             centered: true,
             modal:    true,
             editable: true,
-            minWidth: 200,
+            minWidth: 280,
             dragable: true,
             maxWidth: 550,
             buttonTransform: instance.get(BUTTONTRANSFORM),
@@ -151,7 +151,7 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode && buttonNode.hasClass('itsa-panelclosebtn'),
+                closedByClosebutton = buttonNode && buttonNode.hasClass('itsa-panelclosebtn') && (buttonValue='closebutton'),
                 rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
             rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
@@ -166,7 +166,7 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
+                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn') && (buttonValue='closebutton'),
                 rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
             rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
@@ -180,7 +180,7 @@ ITSADialog.prototype._renderPanels = function() {
                 buttonNode = e.buttonNode,
                 buttonValue = buttonNode && buttonNode.get(VALUE),
                 rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn'),
+                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn') && (buttonValue='closebutton'),
                 rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
             rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));

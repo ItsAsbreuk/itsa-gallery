@@ -32,6 +32,8 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.resolvePromise = null;
         instance.rejectPromise = null;
 
+        instance._resurrectable = true;
+        instance.priority = false; // messages with priority===true appear before messages with priority===false
         instance.icon = '';
         instance.footer = null;
         instance.imageButtons = false;
@@ -57,6 +59,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance._timerProcessed = 0;
         instance._timerStopped = true;
         instance.forgotMessage = null;
+        instance._submitBtn = null;
         instance.config = {}; // orriginal config passed trhough
 
         // publishing event 'messagereject'
@@ -92,7 +95,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @default null
          */
         button: {
-            readOnly: true
+//            writeOnce: 'initOnly'
         }
     }
 });

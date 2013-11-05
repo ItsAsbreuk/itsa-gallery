@@ -3,6 +3,8 @@
         "requires": [
             "yui-base",
             "intl",
+            "promise",
+            "gallery-lazy-promise",
             "gallery-itsamessagecontroller",
             "gallery-itsacheckbox",
             "gallery-itsadialog",

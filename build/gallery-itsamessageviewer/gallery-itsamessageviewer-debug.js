@@ -33,6 +33,8 @@ var YArray = Y.Array,
     TARGET = 'target',
     SUSPENDED = 'suspended',
     NEWMESSAGE_ADDED = NEWMESSAGE+'_added',
+    DESTROYED = 'destroyed',
+    PRIORITY = 'priority',
     EVT_LEVELCLEAR = 'levelclear',
     TIMEOUTRESOLVE = 'timeoutResolve',
     TIMEOUTREJECT = 'timeoutReject',
@@ -115,7 +117,7 @@ ITSAMessageViewer.prototype._processQueue = function(level) {
     };
     handlePromiseLoop = function() {
         // will loop until rejected, which is at destruction of the class
-        return instance.get('destroyed') || handlePromise().then(handlePromiseLoop);
+        return instance.get(DESTROYED) || handlePromise().then(handlePromiseLoop);
     };
     handlePromiseLoop();
 };
@@ -189,16 +191,28 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     handleAnonymous = (messageController._targets[level]===name),
                     nextMessage, listener, otherLevelMessage, destroylistener, isTargeted;
 /*jshint expr:true */
-                instance.get('destroyed') && reject();
+                instance.get(DESTROYED) && reject();
 /*jshint expr:false */
+                // first try to retrieve message with priority
                 YArray.some(
                     queue,
                     function(itsamessage) {
                         isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
-                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && !itsamessage[PROCESSING] && itsamessage;
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
                 );
+                // if no prioritymessage, then try to retrieve message without priority
+/*jshint expr:true */
+                nextMessage || YArray.some(
+                    queue,
+                    function(itsamessage) {
+                        isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && !itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
+                        return nextMessage;
+                    }
+                );
+/*jshint expr:false */
                 if (nextMessage) {
                     instance._lastMessage[level] = nextMessage;
                     // first: is level=warn or level=error then we might need to pauze previous levels
@@ -272,10 +286,12 @@ ITSAMessageViewer.prototype._resurrect = function(itsamessage) {
     var instance = this;
     // should be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer._resurrect()', 'info', 'ITSAMessageViewer');
-/*jshint expr:true */
-    (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
-/*jshint expr:false */
-    instance.resurrect(itsamessage);
+    if (!itsamessage.get(DESTROYED)) {
+    /*jshint expr:true */
+        (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
+    /*jshint expr:false */
+        instance.resurrect(itsamessage);
+    }
 };
 
 ITSAMessageViewer.prototype._suspend = function(itsamessage) {

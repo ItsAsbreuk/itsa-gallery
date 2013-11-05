@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsalogin",
     "displayName": "Gallery: gallery-itsalogin",
-    "description": "*Summary Goes Here*",
+    "description": "Y.ITSALogin supplies Y.login() through theY.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsalogin" ],
 
@@ -9,66 +9,57 @@
 
     "examples": [
         {
-            "name"       : "itsalogin",
-            "displayName": "Itsa login",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "standard",
+            "displayName": "standard login",
+            "description": "This example shows how to create a standard Y.login() promise",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsalogin", "itsamessage"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "input",
-            "displayName": "Get input",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "nonrejectable",
+            "displayName": "non-rejectable login",
+            "description": "This example shows how to create a Y.login() promise that can be closed (thus rejected).",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "rejectable"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "number",
-            "displayName": "Get number",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "retrieve",
+            "displayName": "retrieve username or password",
+            "description": "This example shows how setup the Y.login()-promise with retrieval of the username or password.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "forgot", "retrieve"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "email-url",
-            "displayName": "Get emailaddress and url",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "resetpassword",
+            "displayName": "force password-reset",
+            "description": "This example shows how setup the Y.login()-promise to force a passwordreset once loggedin.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "force", "reset", "passwordreset"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "show-status",
-            "displayName": "Set statusmessage",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "newaccount",
+            "displayName": "login with option to create new account",
+            "description": "This example shows how setup the Y.login()-promise with the posibility of creating a new account.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog", "gallery-lazy-promise"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "newaccount", "account"],
             "hideTableOfContents": true
         },
         {
-            "name"       : "standard-methods",
-            "displayName": "Standard methods",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "customize",
+            "displayName": "customize internationalized messages",
+            "description": "This example shows how to customize internationalized messages.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "prevent-default",
-            "displayName": "Prevent default",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsalogin", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "customize", "internationalized", "i18n"],
             "hideTableOfContents": true
         }
     ]

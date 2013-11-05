@@ -1,16 +1,79 @@
+{{>api-button}}
+
 <div class="intro">
     <p>
-    *Summary Goes Here*
+        {{description}}
     </p>
+    <p>
+         Y.login() also has several config-options that are useful when retrieving login-data, like retrieving forgotten logindata or creatin new accounts.
+     </p>
 </div>
 
 {{>getting-started}}
 
 <h2>Description</h2>
+    <p>
+        This module comes with only one method: Y.login(), which is automaticly created at the YUI-instance. Once called, a modal panel rises that will retrieve the logindata from the user. To get that done, you need to setup the synclayer and make the server response the right way.
+    </p>
 
-<p>*Module Description Goes Here*</p>
+<h2>Usage</h2>
+<p>
+    Y.login comes with 4 parameters:
+    <ul>
+        <li><code>title</code></li>
+        <li><code>message</code></li>
+        <li><code>config</code></li>
+        <li><code>syncPromise</code></li>
+    </ul>
+    Where syncPromise calls a synclayer and should return a promise. This is best be done by using gallery-io-utils.
+    ```js
+    YUI(yuiconfig).use('gallery-itsalogin', 'gallery-io-utils', function(Y) {
 
-```
-//Module example code
-```
+        var syncFn = function(action) {
+            return Y.io.get('http://mydomain.com/submitdata.php?modelid='+this.toJSON());
+        };
 
+        var logindata = Y.login('Login', 'Please enter login', {
+            imageButtons: true,
+            showStayLoggedin: true
+        }, syncFn);
+
+        logindata.then(
+            function(result) {
+                /*
+                 * result.username <-- has the username
+                 * result.password <-- has the password
+                 * result.remember <-- is the login should be remembered
+                 */
+            }
+        );
+
+    });
+    ```
+
+</p>
+
+
+<h2>Setting up the server</h2>
+    <p>
+        In order to function right, the server needs to setup to make responses.
+    </p>
+
+<h2>Different functionalities using options</h2>
+
+<h3>required login</h3>
+
+<h3>stay logged in</h3>
+
+<h3>forgotten username or password</h3>
+
+<h3>create a new account</h3>
+
+
+<h2>Other options</h2>
+
+
+<h2>licence</h2>
+
+Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
