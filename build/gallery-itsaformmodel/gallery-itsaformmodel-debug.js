@@ -1549,7 +1549,7 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
   *
   * @method translate
   * @param text {String} the text to be translated
-  * @return {Y.Promise} resolve(translated) --> Translated text or the original text (if no translattion was possible)
+  * @return {String} --> Translated text or the original text (if no translattion was possible)
   * @since 0.4
 **/
 ITSAFormModel.prototype.translate = function(text) {

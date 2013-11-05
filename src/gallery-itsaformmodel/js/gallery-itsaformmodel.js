@@ -1402,7 +1402,7 @@ ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 ITSAFormModel.prototype[SUBMIT+PROMISE] = function(options) {
-    Y.log('savePromise', 'info', 'ITSA-ModelSyncPromise');
+    Y.log('submitPromise', 'info', 'ITSA-ModelSyncPromise');
     return this._createPromise(SUBMIT, options);
     // method _createPromise is supplied by gallery-itsamodelsyncpromise
     // it will publish the submit-event with defaultfn _defFn_submit, which is defined in this module
