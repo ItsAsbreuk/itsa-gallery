@@ -36,6 +36,7 @@ var LANG = Y.Lang,
     OPTION_OFF = OPTION + 'off',
     ISIE = (Y.UA.ie>0),
     BOUNDINGBOX = 'boundingBox',
+    BOOLEAN = 'boolean',
     STRING = 'string',
     WIDTH = 'width',
     HEIGHT = 'height',
@@ -48,6 +49,7 @@ var LANG = Y.Lang,
     PADDINGRIGHT = 'paddingRight',
     MARGINLEFT = 'marginLeft',
     VALUECHANGE_EVT = 'valuechange',
+    FOCUSSED = 'focussed',
     PX = 'px',
     LEFT = 'left',
     DISABLED = 'disabled',
@@ -56,6 +58,12 @@ var LANG = Y.Lang,
     UNSELECTABLE = 'unselectable',
     DIVCLASS = '<div class="',
     ENDDIV = '</div>',
+    STRINGTRUE = 'true',
+    SUBMITONENTER = 'submitonenter',
+    PRIMARYBTNONENTER = 'primarybtnonenter',
+    DATA_ = 'data-',
+    DATA_SUBMITONENTER = DATA_+SUBMITONENTER,
+    DATA_PRIMARYBTNONENTER = DATA_+PRIMARYBTNONENTER,
     HTML_CHECKBOX_TEMPLATE = '<input id="{id}" type="checkbox" class="'+CREATED_CHECKBOX+'"{'+READONLY+'}{'+CHECKED+'}{'+DISABLED+'}>',
     TEMPLATE = '{htmlcheckbox}'+
                DIVCLASS+OPTION_WRAPPER+'">'+
@@ -192,6 +200,8 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
         bindUI : function() {
             var instance = this,
                 boundingBox = instance.get(BOUNDINGBOX),
+                parentNode = instance._parentNode || boundingBox,
+                boundingBoxDOMNode = parentNode.getDOMNode(),
                 dd;
 
             instance.dd = dd = new Y.DD.Drag({
@@ -291,7 +301,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                     checked = instance.get(CHECKED);
                     instance._forceCheckedVal = false;
                     boundingBox.toggleClass(READONLY_CLASS, readonly);
-                    dd.set('lock', readonly|| instance.get(DISABLED));
+                    dd.set('lock', readonly || instance.get(DISABLED));
                     instance._goFinal(checked, true);
                     if (instance._src) {
                         if (readonly) {
@@ -306,14 +316,37 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
 
             instance._eventhandlers.push(
                 instance._containerNode.on('tap', function() {
+                    instance.focus();
                     instance.toggle();
+                })
+            );
+
+            instance._eventhandlers.push(
+                parentNode.on('blur', function() {
+                    instance.blur();
+                })
+            );
+
+            instance._eventhandlers.push(
+                instance.on(SUBMITONENTER+CHANGE, function(e) {
+/*jshint expr:true */
+                    e.newVal ? parentNode.setAttribute(DATA_SUBMITONENTER, STRINGTRUE) : parentNode.removeAttribute(DATA_SUBMITONENTER);
+/*jshint expr:false */
+                })
+            );
+
+            instance._eventhandlers.push(
+                instance.on(PRIMARYBTNONENTER+CHANGE, function(e) {
+/*jshint expr:true */
+                    e.newVal ? parentNode.setAttribute(DATA_PRIMARYBTNONENTER, STRINGTRUE) : parentNode.removeAttribute(DATA_PRIMARYBTNONENTER);
+/*jshint expr:false */
                 })
             );
 
             // DO NOT use 'keypress' for Safari doesn't pass through the arrowkeys!
             instance._eventhandlers.push(
                 Y.on('keydown', function(e) {
-                    if (instance.get('focused')) {
+                    if (instance.get(FOCUSSED) || (boundingBoxDOMNode===Y.config.doc.activeElement)) {
                         var keyCode = e.keyCode;
                         e.preventDefault(); // prevent scrolling
                         if ((keyCode === 37) || (keyCode === 40)) {
@@ -693,6 +726,11 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             instance._optionOnNode = optionOnNode = boundingBox.one('.'+OPTION_ON);
             instance._optionOffNode = optionOffNode = optionOnNode.next();
             instance._optionBtnNode = optionOffNode.next();
+            parentNode = copyNode || boundingBox;
+/*jshint expr:true */
+            instance.get(SUBMITONENTER) && parentNode.setAttribute(DATA_SUBMITONENTER, STRINGTRUE);
+            instance.get(PRIMARYBTNONENTER) && parentNode.setAttribute(DATA_PRIMARYBTNONENTER, STRINGTRUE);
+/*jshint expr:false */
         },
 
         /**
@@ -724,7 +762,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                     if (instance.get('rendered')) {
                         blocked = instance.get(DISABLED) || instance.get(READONLY);
                     }
-                    return (typeof val === 'boolean') && !blocked;
+                    return (typeof val === BOOLEAN) && !blocked;
                 },
                 getter: function(val) {
                     var instance = this;
@@ -772,6 +810,21 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             },
 
             /**
+             * @description when part of ITSAViewModel, ITSAPanel or ITSAViewModelPanel, the primary-button
+             * will be 'click-simulated' when 'enter' is pressed while the checkbox has focus
+             *
+             * @default false
+             * @attribute primarybtnonenter
+             * @type String
+            */
+            primarybtnonenter : {
+                value: false,
+                validator: function(val) {
+                    return typeof val === BOOLEAN;
+                }
+            },
+
+            /**
              * @description When readonly, the widget has a valid value, but cannot be altered.
              * @attribute readonly
              * @default false
@@ -780,7 +833,22 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             readonly : {
                 value: false,
                 validator: function(val) {
-                    return typeof val === 'boolean';
+                    return typeof val === BOOLEAN;
+                }
+            },
+
+            /**
+             * @description when part of ITSAViewModel or ITSAViewModelPanel, the model will be submitted when 'enter'
+             * is pressed while the checkbox has focus
+             *
+             * @default false
+             * @attribute submitonenter
+             * @type String
+            */
+            submitonenter : {
+                value: false,
+                validator: function(val) {
+                    return typeof val === BOOLEAN;
                 }
             }
 
