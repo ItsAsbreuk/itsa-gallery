@@ -1268,6 +1268,7 @@ ITSAPanel.prototype._setFocusManager = function() {
             else {
                 contentBox.plug(Y.Plugin.ITSATabKeyManager);
                 itsatabkeymanager = contentBox.itsatabkeymanager;
+                instance.addTarget(itsatabkeymanager);
             }
             if (contentBox.hasClass(FOCUSED_CLASS)) {
                 itsatabkeymanager.focusInitialItem();
