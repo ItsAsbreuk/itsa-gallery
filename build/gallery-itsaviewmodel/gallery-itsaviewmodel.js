@@ -2080,6 +2080,7 @@ ITSAViewModel.prototype._setFocusManager = function(activate) {
                 else {
                     container.plug(Y.Plugin.ITSATabKeyManager);
                     itsatabkeymanager = container.itsatabkeymanager;
+                    instance.addTarget(itsatabkeymanager);
                 }
                 if (container.hasClass(FOCUSED_CLASS)) {
                     itsatabkeymanager.focusInitialItem();
