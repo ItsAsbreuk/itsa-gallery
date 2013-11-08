@@ -1137,6 +1137,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
         // if widget, then we need to add an eventlistener for valuechanges:
         widget = formelement.widget;
         if (widget) {
+            widget.addTarget(instance); // making widgets-events shown at formmodelinstance
             //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // The last thing we need to do is, set some action when the node gets into the dom: We need to
             // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
@@ -1755,7 +1756,7 @@ ITSAFormModel.prototype._bindUI = function() {
     // listening life for valuechanges
     eventhandlers.push(
         body.delegate(
-            'keypress',
+            'keydown',
             function(e) {
                 Y.log('delegatedsubscriptor keypress delegated to bode.someformelement with e.keyCode===13', 'info', 'ITSAFormModel');
                 e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
@@ -1783,8 +1784,10 @@ ITSAFormModel.prototype._bindUI = function() {
             },
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
-                var formelement = instance._FORM_elements[e.target.get(ID)];
-                return (formelement && (e.keyCode===13) && FOCUS_NEXT_ELEMENTS[formelement.type]);
+                var node = e.target,
+                    formelement = instance._FORM_elements[node.get(ID)];
+                return (formelement && (e.keyCode===13) &&
+                        (FOCUS_NEXT_ELEMENTS[formelement.type] || (node.getAttribute('data-submitonenter')==='true') || (node.getAttribute('data-primarybtnonenter')==='true')));
             }
         )
     );

@@ -1139,6 +1139,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
         // if widget, then we need to add an eventlistener for valuechanges:
         widget = formelement.widget;
         if (widget) {
+            widget.addTarget(instance); // making widgets-events shown at formmodelinstance
             //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // The last thing we need to do is, set some action when the node gets into the dom: We need to
             // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
@@ -1404,7 +1405,7 @@ ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 ITSAFormModel.prototype[SUBMIT+PROMISE] = function(options) {
-    Y.log('savePromise', 'info', 'ITSA-ModelSyncPromise');
+    Y.log('submitPromise', 'info', 'ITSA-ModelSyncPromise');
     return this._createPromise(SUBMIT, options);
     // method _createPromise is supplied by gallery-itsamodelsyncpromise
     // it will publish the submit-event with defaultfn _defFn_submit, which is defined in this module
@@ -1757,7 +1758,7 @@ ITSAFormModel.prototype._bindUI = function() {
     // listening life for valuechanges
     eventhandlers.push(
         body.delegate(
-            'keypress',
+            'keydown',
             function(e) {
                 Y.log('delegatedsubscriptor keypress delegated to bode.someformelement with e.keyCode===13', 'info', 'ITSAFormModel');
                 e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
@@ -1785,8 +1786,10 @@ ITSAFormModel.prototype._bindUI = function() {
             },
             function(delegatedNode, e){ // node === e.target
                 // only process if node's id is part of this ITSAFormModel-instance and if enterkey is pressed
-                var formelement = instance._FORM_elements[e.target.get(ID)];
-                return (formelement && (e.keyCode===13) && FOCUS_NEXT_ELEMENTS[formelement.type]);
+                var node = e.target,
+                    formelement = instance._FORM_elements[node.get(ID)];
+                return (formelement && (e.keyCode===13) &&
+                        (FOCUS_NEXT_ELEMENTS[formelement.type] || (node.getAttribute('data-submitonenter')==='true') || (node.getAttribute('data-primarybtnonenter')==='true')));
             }
         )
     );
