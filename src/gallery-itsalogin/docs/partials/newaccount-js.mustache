@@ -42,7 +42,7 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-lazy-promise', 'gall
                     validator:  function(val) {
                         return (typeof val === 'string') && (val.length>=5) && (val.indexOf(' ')===-1);
                     },
-                    validationerror: 'Username should be at least 5 characters and no whitespaces are allowed'
+                    validationerror: 'Username should be at least 5 characters without whitespaces'
                 },
                 verifypassword: {
                     formtype: 'password',
@@ -54,7 +54,7 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-lazy-promise', 'gall
                     validator:  function(val) {
                         return (typeof val === 'string') && (val.length>=5) && (val.indexOf(' ')===-1);
                     },
-                    validationerror: 'Username should be at least 5 characters and no whitespaces are allowed'
+                    validationerror: 'Username should be at least 5 characters without whitespaces'
                 }
             }
         });
@@ -141,7 +141,9 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-lazy-promise', 'gall
         createAccount: createAccountPromise
     }, syncFn).then(
         function(result) {
-            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+' | password='+result.password+' | stayloggedin: '+result.remember+' | button='+result.button);
+            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+
+                ' | password='+result.password+' | stayloggedin: '+result.remember+
+                ' | button='+result.button);
         },
         function(reason) {
             Y.alert(reason);

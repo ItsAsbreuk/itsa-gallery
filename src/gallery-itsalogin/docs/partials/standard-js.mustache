@@ -35,12 +35,11 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', functio
         });
     };
 
-    Y.login('Login', 'Please enter login', {
-        imageButtons: true,
-        showStayLoggedin: true
-    }, syncFn).then(
+    Y.login('Login', 'Please enter login', syncFn).then(
         function(result) {
-            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+' | password='+result.password+' | stayloggedin: '+result.remember+' | button='+result.button);
+            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+
+                ' | password='+result.password+' | stayloggedin: '+result.remember+
+                ' | button='+result.button);
         },
         function(reason) {
             Y.showMessage('Rejected:', reason);

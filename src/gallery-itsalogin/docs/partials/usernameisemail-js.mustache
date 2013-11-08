@@ -15,23 +15,17 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', functio
                 null,
                 function() {
                     var button  = logininstance.get('button'),
-                        status, valid, emailaddress, username, password, message;
-                    if (button==='forgotusername') {
-                        // IN THIS EXAMPLE, ONLY someone@somedomain.com IS A KNOWN EMAILADDRESS
-                        emailaddress  = logininstance.get('emailaddress').toLowerCase();
+                        status, valid, emailaddress, password, message;
+                    if (button==='forgotpassword') {
+                        // IN THIS EXAMPLE, ONLY marco IS A KNOWN USERNAME
+                        emailaddress  = logininstance.get('username').toLowerCase(),
                         valid = (emailaddress==='someone@somedomain.com');
                         status = valid ? 'OK' : 'RETRY';
                     }
-                    else if (button==='forgotpassword') {
-                        // IN THIS EXAMPLE, ONLY marco IS A KNOWN USERNAME
-                        username  = logininstance.get('username').toLowerCase(),
-                        valid = (username==='marco');
-                        status = valid ? 'OK' : 'RETRY';
-                    }
                     else if (button==='getlogin') {
-                        username = logininstance.get('username').toLowerCase();
+                        emailaddress  = logininstance.get('username').toLowerCase(),
                         password = logininstance.get('password');
-                        valid = (username==='marco') && (password==='test');
+                        valid = ((emailaddress==='someone@somedomain.com') && (password==='test'));
                         status = valid ? 'OK' : 'RETRY';
                     }
                     else {
@@ -49,11 +43,11 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', functio
 
     Y.login('Login', 'Please enter login', {
         imageButtons: true,
-        showStayLoggedin: true,
-        regain: 'usernameorpassword'
+        usernameIsEmail: true,
+        regain: 'password'
     }, syncFn).then(
         function(result) {
-            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+
+            Y.showMessage('Resolved:', 'succesfully logged in with email='+result.username+
                 ' | password='+result.password+' | stayloggedin: '+result.remember+
                 ' | button='+result.button);
         },

@@ -18,19 +18,13 @@
 
 <h2>Usage</h2>
 <p>
-    Y.login comes with 4 parameters:
-    <ul>
-        <li><code>title</code></li>
-        <li><code>message</code></li>
-        <li><code>config</code></li>
-        <li><code>syncPromise</code></li>
-    </ul>
-    Where syncPromise calls a synclayer and should return a promise. This is best be done by using gallery-io-utils.
+    Y.login should be used like: Y.login([title], [message], [config], sync), where only sync is a required parameter. sync calls a synclayer and <u>should return a Promise</u>. This is best be done by using gallery-io-utils.
     ```js
-    YUI(yuiconfig).use('gallery-itsalogin', 'gallery-io-utils', function(Y) {
+    YUI(yuiconfig).use('gallery-itsalogin', 'gallery-io-utils', 'json', function(Y) {
 
         var syncFn = function(action) {
-            return Y.io.get('http://mydomain.com/submitdata.php?modelid='+this.toJSON());
+            // Y.io.postJSON requires the 'json' module
+            return Y.io.postJSON('http://mydomain.com/submitdata.php'+this.toJSON());
         };
 
         var logindata = Y.login('Login', 'Please enter login', {
@@ -43,34 +37,178 @@
                 /*
                  * result.username <-- has the username
                  * result.password <-- has the password
-                 * result.remember <-- is the login should be remembered
+                 * result.remember <-- whether the login should be remembered
                  */
             }
         );
 
     });
     ```
-
+</p>
+<p>
+    Once resolved, this means the user loggedin successfully. A resolved promise calls back with an object with three parameters:
+    <ul>
+        <li><code>username</code></li>
+        <li><code>password</code></li>
+        <li><code>remember</code></li>
+    </ul>
+    It is up to the developer to take further action. Typically by adding the username and password to the headers of future ssl-requests.
 </p>
 
+<h2>Available sub-panels</h2>
+    <p>Besides the original login-panel, multiple subpanels can show up, based on the config:
+        <ul>
+            <li><code>changepassword-panel</code> will show up when the server responses to button==='getlogin' with {status: 'CHANGEPASSWORD'}</li>
+            <li><code>forgot-username-or-password-panel</code> is available when config.regain==='usernameorpassword'</li>
+            <li><code>forgotusername-panel</code> is available when config.regain==='usernameorpassword' || 'username'</li>
+            <li><code>forgotpassword-panel</code> is available when config.regain==='usernameorpassword' || 'password'</li>
+            <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
+        </ul>
+    </p>
+
+<h2>The sync-Promise</h2>
+    <p>The only required parameter Y.login() has, is <code>sync</code>. This should be a function that does the syncing and returns a Promise. Setting up this function is really easy if you consider these rules:
+        <ul>
+            <li>Set the sync-Promise up by using gallery-io-utils. See the example above. gallery-io-utils has multiple transfermethods to use, they all return a Promise.</li>
+            <li>The context inside sync-Promise is a ITSAMessage-instance that is created under the hood by Y.login</li>
+            <li>The properties of the ITSAMessage-instance need to be transfered to the server. These can be accessed by this.toJSON(), which reflects the actual formvalues of the UI.</li>
+        </ul>
+    </p>
 
 <h2>Setting up the server</h2>
     <p>
-        In order to function right, the server needs to setup to make responses.
+        In order to work right, the server needs to setup to make responses. Because there are mor subforms that can submit, the server needs to inspect the value of <code>button</button> which tells what panel made the submission
+    </p>
+<h3>response to the login-panel</h3>
+    ```js
+    request = {
+        button   : 'getlogin',
+        username : {String}, // any user-input
+        password : {String}, // any user-input
+        remember : {boolean}, // any user-input
+    }
+    server-response = {
+        status  : 'OK' || 'ERROR' || 'RETRY' || 'NOACCESS' || 'CHANGEPASSWORD',
+        title   : {String} (optional), // appears in the response-dialog
+        message : {String} (optional) // appears in the response-dialog
+    }
+    ```
+    <ul>
+        <li><code>OK</code> resolves the promise, using username/password/remember that was filled in (doesn't need to be returned by the server)</li>
+        <li><code>ERROR</code> rejects the promise, showing an error-dialog</li>
+        <li><code>RETRY</code> reactivates the login-panel, making another entry possible</li>
+        <li><code>NOACCESS</code> rejects the promise, showing an 'no-access' message</li>
+        <li><code>CHANGEPASSWORD</code> <u>only return when login is ok</u> will not fulfill the promise, but prompt the changepassword-panel. The result of this panel will determine whether the login-panel resolves or rejects.</li>
+    </ul>
+
+<h3>response to the changepassword-panel</h3>
+    ```js
+    request = {
+        button   : 'changepassword',
+        password : {String} // any user-input
+    }
+    server-response = {
+        status  : 'OK' || 'ERROR' || 'RETRY',
+        title   : {String} (optional), // appears in the response-dialog
+        message : {String} (optional) // appears in the response-dialog
+    }
+    ```
+    <ul>
+        <li><code>OK</code> resolves the promise of the login-panel, using username/password (changed)/remember that was filled in (doesn't need to be returned by the server)</li>
+        <li><code>ERROR</code> rejects the promise of the login-panel, showing an error-dialog</li>
+        <li><code>RETRY</code> reactivates the changepassword-panel, making another entry possible</li>
+    </ul>
+
+<h3>response to the forgotusername-panel</h3>
+    ```js
+    request = {
+        button   : 'forgotusername',
+        emailaddress : {String} // any user-input
+    }
+    server-response = {
+        status  : 'OK' || 'ERROR' || 'RETRY',
+        title   : {String} (optional), // appears in the response-dialog
+        message : {String} (optional), // appears in the response-dialog
+    }
+    ```
+    <ul>
+        <li><code>OK</code> showing a message and reactivates the login-panel, making another entry possible</li>
+        <li><code>ERROR</code> showing an error-dialog and reactivates the login-panel, making another entry possible</li>
+        <li><code>RETRY</code> reactivates the forgotusername-panel, making another entry possible</li>
+    </ul>
+
+<h3>response to the forgotpassword-panel</h3>
+    ```js
+    request = {
+        button   : 'forgotpassword',
+        username : {String} // any user-input
+    }
+    server-response = {
+        status  : 'OK' || 'ERROR' || 'RETRY',
+        title   : {String} (optional), // appears in the response-dialog
+        message : {String} (optional), // appears in the response-dialog
+    }
+    ```
+    <ul>
+        <li><code>OK</code> showing a message and reactivates the login-panel, making another entry possible</li>
+        <li><code>ERROR</code> showing an error-dialog and reactivates the login-panel, making another entry possible</li>
+        <li><code>RETRY</code> reactivates the forgotpassword-panel, making another entry possible</li>
+    </ul>
+
+<h3>response to the createaccount-panel</h3>
+    <p>
+        This is not part of this module, but should be set up inside config.createAccount. See the examples.
     </p>
 
-<h2>Different functionalities using options</h2>
+<h2>Using config to setup different functionalities</h2>
+    <p>There are many options posible, see the API. However, special notice should be taken to the config-properties that make the Y.login() behave differently:
+    </p>
+    <ul>
+        <li><code>config.required</code> when true, there is no closebutton, so the enduser need to enter a valid login. Be aware though, that returning a serverresponse with status==='ERROR' or status='NOACCESS' <u>do close the login-panel</u> by making it rejected (and showing an errorMessage).</li>
+        <li><code>config.showStayLoggedin</code> when true, an iOS-stylisch checkbox-slider appears by which the login can be remembered. Its value is available in the resolved promise by result.remember (which is 'false' when the checkbox wasn't showed)</li>
+        <li><code>config.regain</code> when set, it can be either 'username', 'password' or 'usernameorpassword'. Once set, a button appeasr on the login-panel by which the enduser can tereive his login-data.</li>
+        <li><code>config.usernameIsEmail</code> when true, the login-pattern for the username is set to an email-pattern. And regain='usernameorpassword' will automaticly turned into regain='password'. <b>Note:</b> the request-properties and the resolved-result-properties still use <u>username</u> as property-name.</li>
+        <li><code>config.createAccount</code> when set a 'Create account' button is generated, which will call the createAccount-promise. The createAccount-panel is then responsible for fulfilling the original login-panel. This means, you need to create at least the UI-fields 'username' and 'password'.<b>Note:</b> config.createAccount needs to be a Y.LazYPromise-instance, see 'gallery-lazy-promise'.</li>
+    </ul>
 
-<h3>required login</h3>
-
-<h3>stay logged in</h3>
-
-<h3>forgotten username or password</h3>
-
-<h3>create a new account</h3>
-
-
-<h2>Other options</h2>
+<h2>Internationalization</h2>
+    <p>
+        All messages are Internationalised. If you do not set any response-message (or title) from the server, a default internationalized message wil appear. If you want custom internationalized messages, then you have 2 options:
+        <ol>
+            <li>Create your own internationalized message.</li>
+            <li>Make use of Y.ITSADialog.translate() which has several pre-defined messages available. See the API.</li>
+        </ol>
+    </p>
+    <p>At this moment the following languages are supported:</p>
+    <ul>
+        <li><code>ar</code> (Arabic)</li>
+        <li><code>bg</code> (Bulgarian)</li>
+        <li><code>bs</code> (Bosnian)</li>
+        <li><code>cs</code> (Czech)</li>
+        <li><code>da</code> (Danish)</li>
+        <li><code>de</code> (German)</li>
+        <li><code>en</code> (English)</li>
+        <li><code>es</code> (Spanish)</li>
+        <li><code>fa</code> (Perian)</li>
+        <li><code>fi</code> (Finnish)</li>
+        <li><code>fr</code> (French)</li>
+        <li><code>he</code> (Hebrew)</li>
+        <li><code>hi</code> (Hindi)</li>
+        <li><code>hr</code> (Croatian)</li>
+        <li><code>hu</code> (Hungarian)</li>
+        <li><code>it</code> (Italian)</li>
+        <li><code>ja</code> (Japanese)</li>
+        <li><code>nb</code> (Norwegian)</li>
+        <li><code>nl</code> (Dutch)</li>
+        <li><code>pl</code> (Polish)</li>
+        <li><code>pt</code> (Portugese)</li>
+        <li><code>ru</code> (Russian)</li>
+        <li><code>sk</code> (Slovak)</li>
+        <li><code>sr</code> (Serbian)</li>
+        <li><code>sv</code> (Swedish)</li>
+        <li><code>uk</code> (Ukrainian)</li>
+        <li><code>zh</code> (Chinese)</li>
+    </ul>
 
 
 <h2>licence</h2>

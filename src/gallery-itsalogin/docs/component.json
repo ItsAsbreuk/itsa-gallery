@@ -36,6 +36,15 @@
             "hideTableOfContents": true
         },
         {
+            "name"       : "usernameisemail",
+            "displayName": "login with emailaddress as username",
+            "description": "This example shows how setup the Y.login()-promise with an emailaddress as username.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "emailaddres", "username"],
+            "hideTableOfContents": true
+        },
+        {
             "name"       : "resetpassword",
             "displayName": "force password-reset",
             "description": "This example shows how setup the Y.login()-promise to force a passwordreset once loggedin.",
@@ -46,7 +55,7 @@
         },
         {
             "name"       : "newaccount",
-            "displayName": "login with option to create new account",
+            "displayName": "login with create new account",
             "description": "This example shows how setup the Y.login()-promise with the posibility of creating a new account.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog", "gallery-lazy-promise"],
