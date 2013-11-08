@@ -223,7 +223,7 @@ Y.extend(FocusManager, Y.Plugin.Base, {
             host.on('keydown', this._onKeyDown, this),
             host.after('blur', this._afterBlur, this),
             host.after('focus', this._afterFocus, this),
-
+            this.after('*:focusedChange', this._afterFocusedChange),
             this.after({
                 activeItemChange: this._afterActiveItemChange
             })
@@ -305,10 +305,22 @@ Y.extend(FocusManager, Y.Plugin.Base, {
     },
 
     _afterFocus: function (e) {
-        var target = e.target;
         this._set('focused', true);
-        if (target !== this._host && target.test(this.get('itemSelector'))) {
-            this.set('activeItem', target, {src: 'focus'});
+        this._tryFocusNode(e.target);
+    },
+
+    _afterFocusedChange: function (e) {
+        var target = e.target,
+            iswidget = (typeof target.BOUNDING_TEMPLATE === 'string'), // don't want to check instanceof Y.Widget for would need to load widgetmodule
+            node;
+/*jshint expr:true */
+        e.newVal && iswidget && (node=(target._parentNode || target.get('boundingBox'))) && this._tryFocusNode(node);
+/*jshint expr:false */
+    },
+
+    _tryFocusNode: function (node) {
+        if (node !== this._host && node.test(this.get('itemSelector'))) {
+            this.set('activeItem', node, {src: 'focus'});
         }
     },
 
