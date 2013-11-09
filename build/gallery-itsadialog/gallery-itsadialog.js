@@ -27,6 +27,7 @@ var YArray = Y.Array,
     ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
     SUSPENDED = 'suspended',
     BOOLEAN = 'boolean',
+    STRING = 'string',
     MODEL = 'model',
     TITLE = 'title',
     FOOTER = 'footer',
@@ -40,8 +41,13 @@ var YArray = Y.Array,
     ITSADIALOG = 'itsa-dialog',
     ESCAPE_HIDE_EVENT = 'escape:hide',
     VISIBLE = 'visible',
+    ITSA_PANELCLOSEBTN = 'itsa-panelclosebtn',
+    CLOSEBUTTON = 'closebutton',
+    BTN_ = 'btn_',
+    BUTTON = 'button',
+    CHANGE = 'Change',
     TRANSFORM = 'Transform',
-    BUTTONTRANSFORM = 'button'+TRANSFORM,
+    BUTTONTRANSFORM = BUTTON+TRANSFORM,
     LABELTRANSFORM = 'label'+TRANSFORM,
     UP = 'up',
     ITSADIALOG_INFO_UP = ITSADIALOG+INFO+UP,
@@ -111,6 +117,11 @@ Y.ITSADialogClass = Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
     }
 });
 
+/**
+ * @method initializer
+ * @protected
+ * @since 0.1
+*/
 ITSADialog.prototype.initializer = function() {
     var instance = this;
     instance._eventhandlers = [];
@@ -118,6 +129,12 @@ ITSADialog.prototype.initializer = function() {
     Y.later(RENDERDELAY, instance, instance.renderPromise);
 };
 
+/**
+ * Promise that is resolved once all internal dialog-panels are rendered and ready to use.
+ *
+ * @method renderPromise
+ * @since 0.1
+*/
 ITSADialog.prototype.renderPromise = function() {
     var instance = this;
     return instance._renderPromise || (instance._renderPromise = Y.usePromise('gallery-itsaviewmodelpanel', 'gallerycss-itsa-dialog').then(
@@ -125,6 +142,13 @@ ITSADialog.prototype.renderPromise = function() {
                                                                  ));
 };
 
+/**
+ * Renderes 3 panels: info-panel, warn-panel and hide-panel.
+ *
+ * @method _renderPanels
+ * @private
+ * @since 0.1
+*/
 ITSADialog.prototype._renderPanels = function() {
     var instance = this,
         config = {
@@ -146,51 +170,28 @@ ITSADialog.prototype._renderPanels = function() {
     panelwarn = panels[WARN] = new Y.ITSAViewModelPanel(config);
     panelerror = panels[ERROR] = new Y.ITSAViewModelPanel(config);
 
-    eventhandlers.push(
-        panelinfo.after('*:hide', function(e) {
-            var panel = e.target,
-                itsamessage = panel.get(MODEL),
-                buttonNode = e.buttonNode,
-                buttonValue = buttonNode && buttonNode.get(VALUE),
-                rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode && buttonNode.hasClass('itsa-panelclosebtn') && (buttonValue='closebutton'),
-                rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
+    YArray.each(
+        [INFO, WARN, ERROR],
+        function(panellevel) {
+            eventhandlers.push(
+                panels[panellevel].after('*:hide', function(e) {
+                    var panel = e.target,
+                        itsamessage = panel.get(MODEL),
+                        buttonNode = e.buttonNode,
+                        buttonValue = buttonNode && buttonNode.get(VALUE),
+                        rejectButton = itsamessage.rejectButton,
+                        closedByClosebutton = buttonNode && buttonNode.hasClass(ITSA_PANELCLOSEBTN) && (buttonValue=CLOSEBUTTON),
+                        rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp(BTN_+buttonValue+'$')).test(rejectButton));
 /*jshint expr:true */
-            rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
+                    rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set(BUTTON, buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
 /*jshint expr:false */
-        })
+                })
+            );
+        }
     );
 
     eventhandlers.push(
-        panelwarn.after('*:hide', function(e) {
-            var panel = e.target,
-                itsamessage = panel.get(MODEL),
-                buttonNode = e.buttonNode,
-                buttonValue = buttonNode && buttonNode.get(VALUE),
-                rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn') && (buttonValue='closebutton'),
-                rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
-/*jshint expr:true */
-            rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
-/*jshint expr:false */
-        })
-    );
-    eventhandlers.push(
-        panelerror.after('*:hide', function(e) {
-            var panel = e.target,
-                itsamessage = panel.get(MODEL),
-                buttonNode = e.buttonNode,
-                buttonValue = buttonNode && buttonNode.get(VALUE),
-                rejectButton = itsamessage.rejectButton,
-                closedByClosebutton = buttonNode.hasClass('itsa-panelclosebtn') && (buttonValue='closebutton'),
-                rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp('btn_'+buttonValue+'$')).test(rejectButton));
-/*jshint expr:true */
-            rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set('button', buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
-/*jshint expr:false */
-        })
-    );
-    eventhandlers.push(
-        instance.on(LABELTRANSFORM+'Change', function(e) {
+        instance.on(LABELTRANSFORM+CHANGE, function(e) {
             var value = e.newVal;
             panelinfo.set(LABELTRANSFORM, value);
             panelwarn.set(LABELTRANSFORM, value);
@@ -198,7 +199,7 @@ ITSADialog.prototype._renderPanels = function() {
         })
     );
     eventhandlers.push(
-        instance.on(BUTTONTRANSFORM+'Change', function(e) {
+        instance.on(BUTTONTRANSFORM+CHANGE, function(e) {
             var value = e.newVal;
             panelinfo.set(BUTTONTRANSFORM, value);
             panelwarn.set(BUTTONTRANSFORM, value);
@@ -206,17 +207,17 @@ ITSADialog.prototype._renderPanels = function() {
         })
     );
     eventhandlers.push(
-        panelinfo.on(VISIBLE+'Change', function(e) {
+        panelinfo.on(VISIBLE+CHANGE, function(e) {
             instance._body.toggleClass(ITSADIALOG_INFO_UP, e.newVal);
         })
     );
     eventhandlers.push(
-        panelwarn.on(VISIBLE+'Change', function(e) {
+        panelwarn.on(VISIBLE+CHANGE, function(e) {
             instance._body.toggleClass(ITSADIALOG_WARN_UP, e.newVal);
         })
     );
     eventhandlers.push(
-        panelerror.on(VISIBLE+'Change', function(e) {
+        panelerror.on(VISIBLE+CHANGE, function(e) {
             instance._body.toggleClass(ITSADIALOG_ERROR_UP, e.newVal);
         })
     );
@@ -225,6 +226,14 @@ ITSADialog.prototype._renderPanels = function() {
     panelerror.render();
 };
 
+/**
+ * Views the message<br>
+ * Inherited and overruled from Y.ITSAMessageViewer
+ *
+ * @method viewMessage
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @since 0.1
+*/
 ITSADialog.prototype.viewMessage = function(itsamessage) {
     var instance = this;
     return instance.renderPromise().then(
@@ -255,6 +264,15 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
     );
 };
 
+/**
+ * Sets the right attributes for the panel (fitting the message) ans makes the panel-instance visible.
+ *
+ * @method _showPanel
+ * @param panel {ITSAViewModelPanel} the panelinstance to be shown.
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @private
+ * @since 0.1
+*/
 ITSADialog.prototype._showPanel = function(panel, itsamessage) {
     var instance = this,
         primarybutton = itsamessage.primaryButton,
@@ -263,6 +281,7 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
         hotKeys = itsamessage.hotKeys,
         customBtns = itsamessage.customBtns,
         noButtons = itsamessage.noButtons,
+        closeButton = itsamessage.closeButton,
         noHideOnSubmit = (typeof itsamessage.noHideOnSubmit === BOOLEAN) ? itsamessage.noHideOnSubmit : false,
         footer = itsamessage[FOOTER],
         footerHasButtons = /btn_/.test(footer),
@@ -273,8 +292,9 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
     panel.removeButtonLabel();
     panel.removeCustomBtn();
     panel.removeHotKey();
-    panel.set('closeButton', itsamessage.closeButton || (!footerHasButtons && !noButtons));
-    panel.set('closableByEscape', (typeof rejectbutton === 'string'));
+    // careful: CLOSEBUTTON === 'closebutton' and NOT 'closeButton'
+    panel.set('closeButton', (typeof closeButton === BOOLEAN) ? closeButton : (!footerHasButtons && !noButtons));
+    panel.set('closableByEscape', (typeof rejectbutton === STRING));
     panel.set(FOOTER+'Template', (noButtons ? null : footer));
     // next statemenst AFTER defining the footerview!
 /*jshint expr:true */
@@ -302,6 +322,14 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
 /*jshint expr:false */
 };
 
+/**
+ * Makes the panel-instance -that belongs to the message- show up again, after it has been suspended.<br>
+ * Inherited and overruled from Y.ITSAMessageViewer
+ *
+ * @method resurrect
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @since 0.1
+*/
 ITSADialog.prototype.resurrect = function(itsamessage) {
     var instance = this;
     instance.renderPromise().then(
@@ -314,6 +342,14 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
     );
 };
 
+/**
+ * Makes the panel-instance -that belongs to the message- to hide, in order for a mesage at a higher level to show up.<br>
+ * Inherited and overruled from Y.ITSAMessageViewer
+ *
+ * @method resurrect
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @since 0.1
+*/
 ITSADialog.prototype.suspend = function(itsamessage) {
     var instance = this;
     instance.renderPromise().then(
@@ -326,6 +362,12 @@ ITSADialog.prototype.suspend = function(itsamessage) {
     );
 };
 
+/**
+ * Cleans up bindings
+ * @method destructor
+ * @protected
+ * @since 0.1
+*/
 ITSADialog.prototype.destructor = function() {
     var panels = this.panels;
     this._clearEventhandlers();
@@ -343,7 +385,6 @@ ITSADialog.prototype.destructor = function() {
  *
 */
 ITSADialog.prototype._clearEventhandlers = function() {
-
     var instance = this;
     YArray.each(
         instance._eventhandlers,

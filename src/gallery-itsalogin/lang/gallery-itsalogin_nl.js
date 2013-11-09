@@ -44,6 +44,7 @@
     show: 'Laat zien',
     showinput: 'Laat invoer zien',
     showpassword: 'Laat wachtwoord zien',
+    signup: 'Aanmelden',
     stayloggedin: 'Blijf ingelogd',
     successfully: 'Met succes',
     toomanyattempts: 'Te veel pogingen',

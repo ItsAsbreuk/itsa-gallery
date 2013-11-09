@@ -77,7 +77,7 @@
 
 <h2>Setting up the server</h2>
     <p>
-        In order to work right, the server needs to setup to make responses. Because there are mor subforms that can submit, the server needs to inspect the value of <code>button</button> which tells what panel made the submission
+        In order to work right, the server needs to setup to make responses. Because there are mor subforms that can submit, the server needs to inspect the value of <code>button</code> which tells what panel made the submission
     </p>
 <h3>response to the login-panel</h3>
     ```js
@@ -176,7 +176,7 @@
         All messages are Internationalised. If you do not set any response-message (or title) from the server, a default internationalized message wil appear. If you want custom internationalized messages, then you have 2 options:
         <ol>
             <li>Create your own internationalized message.</li>
-            <li>Make use of Y.ITSADialog.translate() which has several pre-defined messages available. See the API.</li>
+            <li>Make use of <code>Y.ITSADialog.translate()</code> which has several pre-defined messages available. See below.</li>
         </ol>
     </p>
     <p>At this moment the following languages are supported:</p>
@@ -210,8 +210,84 @@
         <li><code>zh</code> (Chinese)</li>
     </ul>
 
+    <h3>available internationalized sentences</h3>
+    <p>Using <code>Y.ITSADialog.translate()</code> you can make use of predefined translations. You just take use the property as first (String) parameter of Y.ITSADialog.translate(). F.i. by calling Y.ITSADialog.translate('checkspambox') leads to "If you don't find any mail from us, check your spambox" in the used language.
+    </p>
+    <p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th><th>Internationalized sentence</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>changepassword</td><td>Change password</td></tr>
+                <tr><td>changeyourpassword</td><td>Change your password</td></tr>
+                <tr><td>checkmail</td><td>Check your mail</td></tr>
+                <tr><td>checkspambox</td><td>If you don't find any mail from us, check your spambox</td></tr>
+                <tr><td>confirmpassword</td><td>Confirm password</td></tr>
+                <tr><td>createaccount</td><td>Create account</td></tr>
+                <tr><td>email</td><td>Email</td></tr>
+                <tr><td>emailaddress</td><td>Emailaddress</td></tr>
+                <tr><td>enterlogin</td><td>Enter login</td></tr>
+                <tr><td>entersignupaddress</td><td>Enter the emailaddress you used to sign up</td></tr>
+                <tr><td>error</td><td>Error</td></tr>
+                <tr><td>forgot</td><td>Forgot</td></tr>
+                <tr><td>forgotlogin</td><td>Forgot login</td></tr>
+                <tr><td>forgotpassword</td><td>Forgot my password</td></tr>
+                <tr><td>forgotusername</td><td>Forgot my username</td></tr>
+                <tr><td>forgotusernameorpassword</td><td>Forgot username or password</td></tr>
+                <tr><td>forgotwhat</td><td>What did you forget?</td></tr>
+                <tr><td>iforgotpassword</td><td>I forgot my password</td></tr>
+                <tr><td>iforgotusername</td><td>I forgot my username</td></tr>
+                <tr><td>loggedin</td><td>You are loggedin</td></tr>
+                <tr><td>login</td><td>Login</td></tr>
+                <tr><td>loginblocked</td><td>Login is blocked</td></tr>
+                <tr><td>loginrightlevel</td><td>You don't have the rights to see this page, please login with the right loginlevel</td></tr>
+                <tr><td>needchangepassword</td><td>You need to change your password</td></tr>
+                <tr><td>noaccess</td><td>No access</td></tr>
+                <tr><td>password</td><td>Password</td></tr>
+                <tr><td>passwordchange</td><td>Password change</td></tr>
+                <tr><td>passwordchanged</td><td>Your password changed successfully</td></tr>
+                <tr><td>passwordnotaccepted</td><td>Your password is not accepted, please try again</td></tr>
+                <tr><td>passwordnotchanged</td><td>Your password has not been changed</td></tr>
+                <tr><td>passwordwassend</td><td>Your password was sent to your emailaddress</td></tr>
+                <tr><td>pleaseenterlogin</td><td>Please enter login</td></tr>
+                <tr><td>remember</td><td>Remember</td></tr>
+                <tr><td>rememberme</td><td>Remember me</td></tr>
+                <tr><td>resetpassword</td><td>Reset password</td></tr>
+                <tr><td>receivedmail</td><td>You recieved an email with further instructions</td></tr>
+                <tr><td>recievedmailwithinstructions</td><td>You recieved an email with further instructions how to login</td></tr>
+                <tr><td>retrievedirectpasswordinstructions</td><td>Enter username and you will get an email with your password</td></tr>
+                <tr><td>retrievepasswordinstructions</td><td>Enter username and you will get an email with instructions how to reset your password</td></tr>
+                <tr><td>retrievedirectpasswordinstructionsmaillogin</td><td>Enter the emailaddress you used to sign up and you will get an email with your password</td></tr>
+                <tr><td>retrievepasswordinstructionsmaillogin</td><td>Enter the emailaddress you used to sign up and you will get an email with instructions how to reset your password</td></tr>
+                <tr><td>sendusername</td><td>Send username</td></tr>
+                <tr><td>show</td><td>Show</td></tr>
+                <tr><td>showinput</td><td>Show input</td></tr>
+                <tr><td>showpassword</td><td>Show password</td></tr>
+                <tr><td>signup</td><td>Sign up</td></tr>
+                <tr><td>stayloggedin</td><td>Stay logged in</td></tr>
+                <tr><td>successfully</td><td>Successfully</td></tr>
+                <tr><td>toomanyattempts</td><td>Too many attempts</td></tr>
+                <tr><td>unknownemail</td><td>The emailaddress you entered is unknown, try again</td></tr>
+                <tr><td>unknownlogin</td><td>The login you entered is unkown, try again</td></tr>
+                <tr><td>unknownusername</td><td>The username you entered is unknown, try again</td></tr>
+                <tr><td>unspecifiederror</td><td>The server responsed with an unspecified error</td></tr>
+                <tr><td>username</td><td>Username</td></tr>
+                <tr><td>usernamewassend</td><td>Your username was sent to your emailaddress</td></tr>
+                <tr><td>verificationerror</td><td>Passwordverification failed</td></tr>
+                <tr><td>verify</td><td>Verify</td></tr>
+                <tr><td>verifypassword</td><td>Verify password</td></tr>
+                <tr><td>wrongemailorpassword</td><td>You entered the wrong emailaddress or password</td></tr>
+                <tr><td>wrongpassword</td><td>You entered the wrong password</td></tr>
+                <tr><td>wrongusernameorpassword</td><td>You entered the wrong username or password</td></tr>
+            </tbody>
+        </table>
+    </p>
 
 <h2>licence</h2>
-
+<p class= 'copyright'>
 Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
 Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
+</p>

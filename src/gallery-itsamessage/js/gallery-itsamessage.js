@@ -8,10 +8,9 @@
  * This model is for defining the UI-structure for all Model's properties and for firing model-events for
  * Y.ITSAFormModel does not rendering to the dom itself. That needs to be done by an Y.View-instance, like Y.ITSAViewModel.
  *
- * @module gallery-itsaformmodel
- * @extends Model
- * @uses gallery-itsamodelsyncpromise
- * @class ITSAFormModel
+ * @module gallery-itsamessage
+ * @extends ITSAFormModel
+ * @class ITSAMessage
  * @constructor
  * @since 0.1
  *

@@ -44,6 +44,7 @@
     show: 'Show',
     showinput: 'Show input',
     showpassword: 'Show password',
+    signup: 'Sign up',
     stayloggedin: 'Stay logged in',
     successfully: 'Successfully',
     toomanyattempts: 'Too many attempts',

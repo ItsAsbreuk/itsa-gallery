@@ -44,6 +44,7 @@
     show: 'xxxxx',
     showinput: 'xxxxx',
     showpassword: 'xxxxx',
+    signup: 'xxxxx',
     stayloggedin: 'xxxxx',
     successfully: 'xxxxx',
     toomanyattempts: 'xxxxx',

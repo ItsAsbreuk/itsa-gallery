@@ -8,10 +8,9 @@
  * This model is for defining the UI-structure for all Model's properties and for firing model-events for
  * Y.ITSAFormModel does not rendering to the dom itself. That needs to be done by an Y.View-instance, like Y.ITSAViewModel.
  *
- * @module gallery-itsaformmodel
- * @extends Model
- * @uses gallery-itsamodelsyncpromise
- * @class ITSAFormModel
+ * @module gallery-itsamessageviewer
+ * @extends Base
+ * @class ITSAMessageViewer
  * @constructor
  * @since 0.1
  *
@@ -20,9 +19,11 @@
  *
 */
 var YArray = Y.Array,
-    MESSAGE = 'message',
+    ITSAMessageControllerInstance = Y.ITSAMessageController,
+    ESSAGE = 'essage',
+    MESSAGE = 'm'+ESSAGE,
+    MAIL = 'mail',
     LOADICONSDELAY = 5000, // for gallerycss-itsa-form
-    NEWMESSAGE = 'new' + MESSAGE,
     PROCESSING = 'processing',
     ERROR = 'error',
     WARN = 'warn',
@@ -30,12 +31,26 @@ var YArray = Y.Array,
     LEVEL = 'level',
     TARGET = 'target',
     SUSPENDED = 'suspended',
-    NEWMESSAGE_ADDED = NEWMESSAGE+'_added',
+    NEWMESSAGE = 'new'+MESSAGE,
     DESTROYED = 'destroyed',
     PRIORITY = 'priority',
     EVT_LEVELCLEAR = 'levelclear',
     TIMEOUTRESOLVE = 'timeoutResolve',
     TIMEOUTREJECT = 'timeoutReject',
+    GET = 'get',
+    SHOW = 'show',
+    CONFIRMATION = 'Confirmation',
+    GET_RETRY_CONFIRMATION = GET+'Retry'+CONFIRMATION,
+    GET_CONFIRMATION = GET+CONFIRMATION,
+    GET_INPUT = GET+'Input',
+    GET_NUMBER = GET+'Number',
+    GET_EMAIL = GET+'E'+MAIL,
+    GET_URL = GET+'URL',
+    SHOW_MESSAGE = SHOW+'M'+ESSAGE,
+    SHOW_WARNING = SHOW+'Warning',
+    SHOW_ERROR = SHOW+'Error',
+    SHOW_STATUS = SHOW+'Status',
+    UNDERSCORE = '_',
     AVAILABLE_LEVELS = {
         info: true,
         warn: true,
@@ -48,39 +63,16 @@ function ITSAMessageViewer() {
 
 ITSAMessageViewer.NAME = 'itsamessageviewer';
 
-Y.extend(ITSAMessageViewer, Y.Base, {}, {
-    /**
-     * The identity of the widget.
-     *
-     * @property NAME
-     * @type String
-     * @default 'sliderBase'
-     * @readOnly
-     * @protected
-     * @static
-     */
-    NAME : 'itsamessageviewer',
+Y.extend(ITSAMessageViewer, Y.Base);
 
-    ATTRS : {
 
-        /**
-         * Axis upon which the Slider's thumb moves.  &quot;x&quot; for
-         * horizontal, &quot;y&quot; for vertical.
-         *
-         * @attribute interrupt
-         * @type {Boolean}
-         * @default false
-         */
-        interrupt : {
-            value     : true,
-            validator: function(v) {
-                return (typeof v==='boolean');
-            }
-        }
-    }
-});
-
+/**
+ * @method initializer
+ * @protected
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype.initializer = function() {
+    Y.log('initializer', 'info', 'ITSAMessageViewer');
     var instance = this;
     instance._lastMessage = {};
     Y.ITSAMessageController.addTarget(instance);
@@ -91,79 +83,89 @@ ITSAMessageViewer.prototype.initializer = function() {
     instance._processQueue(ERROR);
 };
 
-ITSAMessageViewer.prototype._processQueue = function(level) {
-    var instance = this,
-        handlePromise, handlePromiseLoop;
-    handlePromise = function() {
-        return instance._nextMessagePromise(level).then(
-            function(itsamessage) {
-                Y.log('handlePromise has a new message '+itsamessage.level, 'info', 'ITSA-MessageViewer');
-                itsamessage[PROCESSING] = true;
-/*jshint expr:true */
-                (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
-/*jshint expr:false */
-                return instance.viewMessage(itsamessage);
-            }
-        ).then(
-            null,
-            function(err) {
-                // unfortunatly we cannot fire or log an error, because that could be caught by Y.ITSADialog and become a loop in the messageview
-                // MUST log 'info'
-                Y.log('***** ITSAMessageViewer._processQueue HALTED because of error: '+err+' *****', 'info', 'ITSAMessageViewer');
-            }
-        );
-    };
-    handlePromiseLoop = function() {
-        // will loop until rejected, which is at destruction of the class
-        return instance.get(DESTROYED) || handlePromise().then(handlePromiseLoop);
-    };
-    handlePromiseLoop();
-};
-
-// be sure to return a promise, otherwise all messsages are eaten up at once!
+/**
+ * Makes the panel-instance -that belongs to the message- show up again, after it has been suspended.<br>
+ * Should be overruled by a descendant-Class.
+ *
+ * @method handleLevel
+ * @param level {String} queue-level, should be either 'info', 'warn' or 'error'
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype.handleLevel = function(level) {
+    Y.log('handleLevel', 'info', 'ITSAMessageViewer');
 /*jshint expr:true */
     AVAILABLE_LEVELS[level] && (Y.ITSAMessageController._targets[level]=this.constructor.NAME);
 /*jshint expr:false */
 };
 
+/**
+ * Makes the panel-instance -that belongs to the message- show up again, after it has been suspended.<br>
+ * Should be overruled by a descendant-Class.
+ *
+ * @method resurrect
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer.resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
+/**
+ * Makes the panel-instance -that belongs to the message- to hide, in order for a mesage at a higher level to show up.<br>
+ * Should be overruled by a descendant-Class.
+ *
+ * @method resurrect
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype.suspend = function(/* itsamessage */) {
     // could be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer.suspend() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
-// be sure to return a promise, otherwise all messsages are eaten up at once!
+/**
+ * Views the message<br>
+ * Should be overruled by a descendant-Class.<br>
+ * <b>Note:</b> Make sure to return a Promise that fulfills when the message is read! otherwise all messsages are eaten up at once.
+ *
+ * @method viewMessage
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @return {Y.Promise}
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer.viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
 
+
 /**
-* Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
-* Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
-*
-* @method _lazyFireErrorEvent
- * @param {Object} [facade] eventfacade.
- * @private
-**/
-ITSAMessageViewer.prototype._lazyFireErrorEvent = function(facade) {
+ * Cleans up bindings
+ * @method destructor
+ * @protected
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype.destructor = function() {
+    Y.log('destructor', 'info', 'ITSAMessageViewer');
     var instance = this;
-    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
-    // lazy publish
-    if (!instance._errorEvent) {
-        instance._errorEvent = instance.publish(ERROR, {
-            broadcast: 1
-        });
-    }
-    instance.fire(ERROR, facade);
+    Y.ITSAMessageController.removeTarget(instance);
+    instance._lastMessage = {};
 };
 
+//--- private methods ---------------------------------------------------
+
+/**
+ * Returns the next Y.ITSAMessage from the queue.
+ *
+ * @method _nextMessagePromise
+ * @param level {String} queue-level, should be either 'info', 'warn' or 'error'
+ * @private
+ * @return {Y.Promise} always returns a resolved Promise returning a Y.ITSAMessage-instance --> resolve(itsamessage)
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
+    Y.log('_nextMessagePromise', 'info', 'ITSAMessageViewer');
     var instance = this,
         messageController = Y.ITSAMessageController;
     return messageController.readyPromise().then(
@@ -245,8 +247,8 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     (level!==INFO) && instance.fire(EVT_LEVELCLEAR);
 /*jshint expr:false */
                     destroylistener = instance.once('destroy', reject);
-                    listener=Y.on(NEWMESSAGE_ADDED, function(e) {
-                        var itsamessage = e.model,
+                    listener=Y.on(NEWMESSAGE, function(e) {
+                        var itsamessage = e.itsamessage,
                             isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
                         if (isTargeted && (itsamessage[LEVEL]===level)) {
                             listener.detach();
@@ -261,7 +263,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                             (otherLevelMessage=instance._lastMessage[WARN]) && ((level===ERROR) || instance._lastMessage[ERROR]) && (otherLevelMessage[SUSPENDED]=true) &&
                                 instance._suspend(otherLevelMessage);
 /*jshint expr:false */
-                            Y.log('_nextMessagePromise about to return a NEW message from eventlistener NEWMESSAGE '+itsamessage.level+' check '+instance._lastMessage[level], 'info', 'ITSA-MessageViewer');
+                            Y.log('_nextMessagePromise about to return a NEW message from eventlistener QUEUEDMESSAGE '+itsamessage.level+' check '+instance._lastMessage[level], 'info', 'ITSA-MessageViewer');
                             resolve(itsamessage);
                         }
                     });
@@ -271,19 +273,57 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
     );
 };
 
-ITSAMessageViewer.prototype.destructor = function() {
-    var instance = this;
-    Y.ITSAMessageController.removeTarget(instance);
+/**
+ * Starts processing a queue-level. This will make messages (Y.ITSAMessage-instances) to be taken from Y.ITSAMessageController's queue and
+ * to be handled by a descendant messageviewer, f.i. like Y.ITSADialog.
+ *
+ * @method _processQueue
+ * @param level {String} queue-level, should be either 'info', 'warn' or 'error'
+ * @private
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype._processQueue = function(level) {
+    Y.log('_processQueue', 'info', 'ITSAMessageViewer');
+    var instance = this,
+        handlePromise, handlePromiseLoop;
+    handlePromise = function() {
+        return instance._nextMessagePromise(level).then(
+            function(itsamessage) {
+                Y.log('handlePromise has a new message '+itsamessage.level, 'info', 'ITSA-MessageViewer');
+                itsamessage[PROCESSING] = true;
 /*jshint expr:true */
-    instance.interruptHandler && instance.interruptHandler.detach();
+                (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
 /*jshint expr:false */
-    instance._lastMessage = {};
+                return instance.viewMessage(itsamessage);
+            }
+        ).then(
+            null,
+            function(err) {
+                // unfortunatly we cannot fire or log an error, because that could be caught by Y.ITSADialog and become a loop in the messageview
+                // MUST log 'info'
+                Y.log('***** ITSAMessageViewer._processQueue HALTED because of error: '+err+' *****', 'info', 'ITSAMessageViewer');
+            }
+        );
+    };
+    handlePromiseLoop = function() {
+        // will loop until rejected, which is at destruction of the class
+        return instance.get(DESTROYED) || handlePromise().then(handlePromiseLoop, handlePromiseLoop);
+    };
+    handlePromiseLoop();
 };
 
+/**
+ * Calls resurrect() and also starts Y.ITSAMessage.timer - if appropriate.
+ *
+ * @method _resurrect
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @private
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype._resurrect = function(itsamessage) {
     var instance = this;
     // should be overridden --> method that renderes the message in the dom
-    Y.log('Y.ITSAMessageViewer._resurrect()', 'info', 'ITSAMessageViewer');
+    Y.log('_resurrect', 'info', 'ITSAMessageViewer');
     if (!itsamessage.get(DESTROYED)) {
     /*jshint expr:true */
         (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
@@ -292,9 +332,17 @@ ITSAMessageViewer.prototype._resurrect = function(itsamessage) {
     }
 };
 
+/**
+ * Calls suspend() and also interrupts Y.ITSAMessage.timer - if appropriate.
+ *
+ * @method _suspend
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @private
+ * @since 0.1
+*/
 ITSAMessageViewer.prototype._suspend = function(itsamessage) {
     var instance = this;
-    Y.log('Y.ITSAMessageViewer._suspend()', 'info', 'ITSAMessageViewer');
+    Y.log('_suspend', 'info', 'ITSAMessageViewer');
 /*jshint expr:true */
     (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._stopTimer();
 /*jshint expr:false */
@@ -302,3 +350,381 @@ ITSAMessageViewer.prototype._suspend = function(itsamessage) {
 };
 
 Y.ITSAMessageViewer = ITSAMessageViewer;
+
+// define public methods:
+
+/**
+ * Informs the user with a message and three buttons: 'abort', 'ignore', 'retry'.<br>
+ * The promise can resolve by either 'ignore' or 'retry' and will reject by 'abort'. Once resolved, look for result.button
+ * to find out which button the user pressed.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.getRetryConfirmation
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton ('btn_retry') is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Check 'button' to find out what button was pressed.
+ *                     resolve(result) --> result.button==='ignore' || 'retry' OR reject(reason) --> reason==='abort' or error
+ * @since 0.1
+*/
+Y[GET_RETRY_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_RETRY_CONFIRMATION], ITSAMessageControllerInstance);
+
+/**
+ * Alias for Y.getConfirmation.<br>
+ * Informs the user with a message and two buttons: 'no' and 'yes'.<br>
+ * The promise can resolve by 'yes and will reject by 'no'.
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.confirm
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton 'btn_yes' is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolves by 'ok' and rejects by 'no'.
+ * @since 0.1
+*/
+
+/**
+ * Informs the user with a message and two buttons: 'no' and 'yes'.<br>
+ * The promise can resolve by 'yes and will reject by 'no'.
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.getConfirmation
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton 'btn_yes' is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolves by 'ok' and rejects by 'no'.
+ * @since 0.1
+*/
+Y.confirm = Y[GET_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_CONFIRMATION], ITSAMessageControllerInstance);
+
+/**
+ * Asks the user for an url.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.getURL
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.formconfig] {Object} Config that passes through to the UI-element. See Y.ITSAFormModel for usage of formconfig.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
+     * @param [config.validator] {Function} Validator function for the UI-element
+     * @param [config.value] {Any} Initial value that passes through to the UI-element.
+ * @return {Y.Promise} Promise that holds the user-response.
+ *                     resolve(result) --> result.input===the url OR reject(reason) --> reason==='cancel' or error
+ * @since 0.1
+*/
+Y[GET_URL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_URL], ITSAMessageControllerInstance);
+
+/**
+ * Asks the user for an emailaddress.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.getEmail
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.formconfig] {Object} Config that passes through to the UI-element. See Y.ITSAFormModel for usage of formconfig.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
+     * @param [config.validator] {Function} Validator function for the UI-element
+     * @param [config.value] {Any} Initial value that passes through to the UI-element.
+ * @return {Y.Promise} Promise that holds the user-response.
+ *                     resolve(result) --> result.input===the emailaddress OR reject(reason) --> reason==='cancel' or error
+ * @since 0.1
+*/
+Y[GET_EMAIL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_EMAIL], ITSAMessageControllerInstance);
+
+/**
+ * Alias for Y.getInput.<br>
+ * Asks the user for any input.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.prompt
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.formconfig] {Object} Config that passes through to the UI-element. See Y.ITSAFormModel for usage of formconfig.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.textarea] {Boolean} Render a textarea instead of an input-element.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
+     * @param [config.validator] {Function} Validator function for the UI-element
+     * @param [config.value] {Any} Initial value that passes through to the UI-element.
+ * @return {Y.Promise} Promise that holds the user-response.
+ *                     resolve(result) --> result.input===the input OR reject(reason) --> reason==='cancel' or error
+ * @since 0.1
+*/
+
+/**
+ * Asks the user for any input.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.getInput
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.formconfig] {Object} Config that passes through to the UI-element. See Y.ITSAFormModel for usage of formconfig.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.textarea] {Boolean} Render a textarea instead of an input-element.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
+     * @param [config.validator] {Function} Validator function for the UI-element
+     * @param [config.value] {Any} Initial value that passes through to the UI-element.
+ * @return {Y.Promise} Promise that holds the user-response.
+ *                     resolve(result) --> result.input===the input OR reject(reason) --> reason==='cancel' or error
+ * @since 0.1
+*/
+Y.prompt = Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_INPUT], ITSAMessageControllerInstance);
+
+/**
+ * Asks the user for a number.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.getNumber
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.formconfig] {Object} Config that passes through to the UI-element. See Y.ITSAFormModel for usage of formconfig.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
+     * @param [config.validator] {Function} Validator function for the UI-element
+     * @param [config.value] {Any} Initial value that passes through to the UI-element.
+ * @return {Y.Promise} Promise that holds the user-response.
+ *                     resolve(result) --> result.number===the number OR reject(reason) --> reason==='cancel' or error
+ * @since 0.1
+*/
+Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITSAMessageControllerInstance);
+
+/**
+ * Shows a message.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.showMessage
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+Y[SHOW_MESSAGE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE], ITSAMessageControllerInstance);
+
+/**
+ * Alias for Y.showWarning.<br>
+ * Shows a warning. Because the level will be 'warn', the message has precedence above normal messages.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.alert
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+
+/**
+ * Shows a warning. Because the level will be 'warn', the message has precedence above normal messages.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.showWarning
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+Y.alert = Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_WARNING], ITSAMessageControllerInstance);
+
+/**
+ * Shows an error. Because the level will be 'error', the message has precedence above warnings and normal messages.<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.showError
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITSAMessageControllerInstance);
+
+/**
+ * Returns a promise with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
+ * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ *
+ * @method Y.showStatus
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolves or rejects manually.
+ * @since 0.1
+*/
+Y[SHOW_STATUS] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS], ITSAMessageControllerInstance);
