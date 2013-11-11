@@ -51,6 +51,13 @@ var YArray = Y.Array,
     SPAN_DATA_FOR_IS = 'span[data-for="',
     YUI3_SLIDER = 'yui3-slider',
     ASK_TO_CLICK_EVENT = 'itsabutton-asktoclick',
+    ONENTER = 'onenter',
+    SUBMITONENTER = 'submit'+ONENTER,
+    PRIMARYBTNONENTER = 'primarybtn'+ONENTER,
+    DATA_ = 'data-',
+    DATA_SUBMITONENTER = DATA_+SUBMITONENTER,
+    DATA_PRIMARYBTNONENTER = DATA_+PRIMARYBTNONENTER,
+    DATA_FOCUSNEXTONENTER = DATA_+'focusnext'+ONENTER,
     VALID_BUTTON_TYPES = {
         button: true,
         destroy: true,
@@ -1761,10 +1768,10 @@ ITSAFormModel.prototype._bindUI = function() {
                 Y.log('delegatedsubscriptor keypress delegated to bode.someformelement with e.keyCode===13', 'info', 'ITSAFormModel');
                 e.halt(); // need to do so, otherwise there will be multiple events for every node up the tree until body
                 // now it depends: there will be a focus-next OR the model will submit.
-                // It depends on the value of 'data-submitonenter'
+                // It depends on the value of DATA_SUBMITONENTER
                 var node = e.target,
-                    submitonenter = (node.getAttribute('data-submitonenter')==='true'),
-                    primarybtnonenter = (node.getAttribute('data-primarybtnonenter')==='true'),
+                    submitonenter = (node.getAttribute(DATA_SUBMITONENTER)==='true'),
+                    primarybtnonenter = (node.getAttribute(DATA_PRIMARYBTNONENTER)==='true'),
                     type, payload, primarybtnNode;
                 if (submitonenter) {
                     instance.submit({fromInternal: true});
@@ -1787,7 +1794,8 @@ ITSAFormModel.prototype._bindUI = function() {
                 var node = e.target,
                     formelement = instance._FORM_elements[node.get(ID)];
                 return (formelement && (e.keyCode===13) &&
-                        (FOCUS_NEXT_ELEMENTS[formelement.type] || (node.getAttribute('data-submitonenter')==='true') || (node.getAttribute('data-primarybtnonenter')==='true')));
+                        (FOCUS_NEXT_ELEMENTS[formelement.type] || (node.getAttribute(DATA_SUBMITONENTER)==='true') ||
+                         (node.getAttribute(DATA_PRIMARYBTNONENTER)==='true') || (node.getAttribute(DATA_FOCUSNEXTONENTER)==='true')));
             }
         )
     );
