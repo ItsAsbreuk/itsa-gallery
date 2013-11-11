@@ -154,6 +154,11 @@ if (!Y.Global.ITSAErrorReporter) {
                         var err = e.msg || UNDEFINED_WARNING,
                             cat = e.cat,
                             src = e.src;
+                        // temporarely bugfix, to catch forgotten promise-reject handlers --> the sender (Y.Promise) should log through 'warn'
+                        // but logs through 'info'
+/*jshint expr:true */
+                        (err==='This promise was rejected but no error handlers were registered to it') && (cat=WARN);
+/*jshint expr:false */
                         if (cat===WARN) {
                             Y.showWarning(src, err);
                         }
