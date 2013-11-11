@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsadialog",
     "displayName": "Gallery: gallery-itsadialog",
-    "description": "A View for the ITSA-MVC-message system that uses modal panels.",
+    "description": "A View for the ITSA-MVC-message system which uses modal panels.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsadialog" ],
 
