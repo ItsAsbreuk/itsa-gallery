@@ -138,6 +138,8 @@
     box-shadow: none;
 }
 
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled:focus,
+.itsa-widget-parent[data-type="itsacheckbox"]:focus .yui3-itsacheckbox.yui3-itsacheckbox-disabled,
 .yui3-itsacheckbox.yui3-itsacheckbox-disabled:focus .optionbtn,
 .yui3-itsacheckbox.yui3-itsacheckbox-readonly:focus,
 .yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-readonly,
