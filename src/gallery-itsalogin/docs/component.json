@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsalogin",
     "displayName": "Gallery: gallery-itsalogin",
-    "description": "Y.ITSALogin supplies Y.login() through theY.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.",
+    "description": "supplies Y.login() through the Y.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsalogin" ],
 

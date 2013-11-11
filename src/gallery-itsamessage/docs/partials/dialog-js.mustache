@@ -64,11 +64,13 @@ YUI(yuiconfig).use('base-build', 'gallery-itsadialog', 'gallery-itsacheckbox', '
             var firstname = result.firstname,
                 lastname = result.lastname,
                 birthdate = result.birthdate,
-                married = result.married;
+                married = result.married,
+                button = result.button;
             Y.showMessage('Userinput:', 'firstname: '+firstname+'<br>'+
                                         'lastname: '+lastname+'<br>'+
                                         'birthdate: '+birthdate+'<br>'+
-                                        'married: '+married);
+                                        'married: '+married+'<br>'+
+                                        'button: '+button);
         },
         function() {
             Y.showMessage('dialog was closed by closebutton');

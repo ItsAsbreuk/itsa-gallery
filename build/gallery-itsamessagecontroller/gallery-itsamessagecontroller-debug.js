@@ -2,7 +2,7 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
 
 'use strict';
 
-/*jshint maxlen:210 */
+/*jshint maxlen:215 */
 
 /**
  *
@@ -496,11 +496,9 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, mes
     url = (typeof config.url === BOOLEAN) && config.url;
     formconfig.primarybtnonenter = !config[TEXTAREA] || email || url;
     formtype = email ? EMAIL : (url ?  URL : (config[TEXTAREA] ? TEXTAREA : 'text'));
-
     formconfig.classname = 'itsa-'+formtype + (formconfig.classname ? ' '+formconfig.classname : '');
-
-    formconfig.required = true;
     required = (typeof config.required === BOOLEAN) && config.required;
+    formconfig.required = required;
     return instance.isReady().then(
         function() {
 /*jshint expr:true */
@@ -520,7 +518,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, mes
             message += '<fieldset class="'+'itsa-input'+'">'+
                            '<div class="pure-control-group">{input}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_INPUT, INFO, ICON_INFO, null, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_INPUT, INFO, ICON_INFO, null, null, MyITSAMessage);
         }
     );
 };
@@ -589,7 +587,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, me
             message += '<fieldset class="'+'itsa-number'+'">'+
                            '<div class="pure-control-group">{number}</div>'+
                        '</fieldset>';
-            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_NUMBER, INFO, ICON_INFO, null, MyITSAMessage);
+            return instance._queueMessage(title, message, config, (required ? '' : '{btn_cancel}') + '{btn_ok}', 'btn_ok', (required ? null : 'btn_cancel'), GET_NUMBER, INFO, ICON_INFO, null, null, MyITSAMessage);
         }
     );
 };
@@ -621,7 +619,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, me
 */
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, message, config) {
     Y.log('_showMessage', 'info', 'ITSAMessageController');
-    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO, ICON_INFORM, false);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_MESSAGE, INFO, ICON_INFORM, false, true);
 };
 
 /**
@@ -651,7 +649,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, 
 */
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_WARNING] = function(title, message, config) {
     Y.log('_showWarning', 'info', 'ITSAMessageController');
-    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN, ICON_WARN, false);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_WARNING, WARN, ICON_WARN, false, true);
 };
 
 /**
@@ -681,7 +679,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_WARNING] = function(title, 
 */
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, message, config) {
     Y.log('_showError', 'info', 'ITSAMessageController');
-    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR, ICON_ERROR, false);
+    return this._queueMessage(title, message, config, '{btn_ok}', 'btn_ok', null, SHOW_ERROR, ERROR, ICON_ERROR, false, true);
 };
 
 /**
@@ -857,19 +855,21 @@ ITSAMessageControllerClass.prototype._defQueueFn = function(e) {
  * @param [level] {String} The message-level, should be either 'info', warn' or 'error'.
  * @param [icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
  * @param [closeButton] {Boolean} whether the closebutton should be visible.
+ * @param [simpleMessage] {Boolean} whether the message is a simplemessage with only title+message.
  * @param [ITSAMessageClass] {Y.ITSAMessage-Class} the class that is created, defaults to Y.ITSAMessage, but could be a descendant.
  * @private
  * @since 0.1
 */
-ITSAMessageControllerClass.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, icon, closeButton, ITSAMessageClass) {
+ITSAMessageControllerClass.prototype._queueMessage = function(title, message, config, footer, primaryButton, rejectButton, messageType, level, icon, closeButton, simpleMessage, ITSAMessageClass) {
     Y.log('_queueMessage', 'info', 'ITSAMessageController');
     var instance = this,
         params = instance._retrieveParams(title, message, config),
-        imageButtons, required;
+        imageButtons, required, simpleMsg;
     title = params.title;
     message = params.message;
     config = params.config;
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
+    simpleMsg = ((typeof config.simpleMessage === BOOLEAN) && config.simpleMessage) || false;
     required = ((typeof config.required === BOOLEAN) && config.required) || false;
 /*jshint expr:true */
     if (imageButtons) {
@@ -883,6 +883,7 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
             itsamessage.title = title;
             itsamessage.message = message;
             itsamessage._config = config;
+            itsamessage._simpleMessage = simpleMsg;
             itsamessage.footer = footer;
             itsamessage.icon = config.icon || icon;
             itsamessage.closeButton = required ? false : (config.closeButton || closeButton);

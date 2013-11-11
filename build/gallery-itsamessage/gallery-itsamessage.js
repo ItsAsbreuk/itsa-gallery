@@ -207,6 +207,13 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @private
          */
         /**
+         * Internal flag that tells whether the instance is a simplemessage that only holds a title+message.
+         * @property _simpleMessage
+         * @default false
+         * @type Boolean
+         * @private
+         */
+        /**
          * Internal flag that tells whether the instance is suspended.
          * @property _suspended
          * @default false
@@ -246,6 +253,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
 
         instance._config = {}; // orriginal config passed trhough
         instance._processing = false;
+        instance._simpleMessage = false;
         instance._suspended = false;
         instance._timerProcessed = 0;
         instance._timerStopped = true;
@@ -285,7 +293,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @default null
          */
         button: {
-//            writeOnce: 'initOnly'
+            writeOnce: 'initOnly'
         }
     }
 });

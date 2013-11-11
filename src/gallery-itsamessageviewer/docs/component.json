@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsamessageviewer",
     "displayName": "Gallery: gallery-itsamessageviewer",
-    "description": "*Summary Goes Here*",
+    "description": "(abstract) View of the ITSA-MVC-message system.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsamessageviewer" ],
 

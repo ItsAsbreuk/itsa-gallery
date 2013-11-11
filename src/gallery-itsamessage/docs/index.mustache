@@ -1,16 +1,130 @@
+{{>api-button}}
 <div class="intro">
     <p>
-    *Summary Goes Here*
+        {{description}}
     </p>
+    <p>
+         You can use Y.ITSAMessage-instances -or descendants- to add to the queue of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> by calling Y.ITSAMessageController.queueMessage(yourMessage).
+         Only needed for creation of complex forms. For simple forms, you might take advantages of predefined messages, supplied by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>.
+     </p>
 </div>
 
 {{>getting-started}}
 
 <h2>Description</h2>
 
-<p>*Module Description Goes Here*</p>
+    <p>Y.ITSAMessage is an extention of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAFormModel</a> and has all those functionalty. Typically, Y.ITSAMessage is extended by giving it custom attributes and validators.</p>
+    <p>
+        The attributes have a special meaning: their values will be present in the resolved MessageViewer (see examples). Therefore, configuration is done by its properties. Y.ITSAMessage has 1 predefined attribute: <code>button</code> which holds the information of the pressed button inside the Promise-callback of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>. It depends on the sort of Y.ITSAMessageViewer-descendant whether the supplied properties are effective.
+    </p>
+
+<h2>Finishing messages</h2>
+    <p>
+        The <b>ITSA-MVC-message system</b> is build in a way that messages are removed from the queue once they have been viewed. Y.ITSAMessage has an internal _promise-property that is set up by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> once it gets into the queue and will be fulfilled by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a> once it is viewed.
+    </p>
+    <p>
+        This means: finishing is done automaticly. (destruction as well: see next paragraph). However, there night be situations where the developer wants -or needs- to fulfill the message manually, without being viewed. For instance when you have messages without buttons with the purpose of just displaying statustext. Manually fulfilling can be done by one of these ways:
+        <ul>
+            <li><code>Y.ITSAMessage.resolve()</code> --> resolve and remove the message immediatly.</li>
+            <li><code>Y.ITSAMessage.reject()</code> --> rejects and remove the message immediatly.</li>
+            <li><code>Y.ITSAMessage.timeoutResolve</code> {Number} --> resolves and removes the message after specified amount of time.</li>
+            <li><code>Y.ITSAMessage.timeoutReject</code> {Number} --> rejects and removes the message after specified amount of time.</li>
+        </ul>
+        Should the message currently be viewed, then the view disapears.
+    </p>
+
+<h2>Automatic destruction</h2>
+    <p>
+        The Y.ITSAMessage-instances need to be created by the developer, but are destroyed automaticly by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> when they get out of the queue. So you just can add them to the queue and you're done. Just before they get destroyed, their attributes are passed through to the Y.ITSAMessageViewer-Promise, so you can use its Promise-callback safely.
+    </p>
+<h2>Usage</h2>
+
+```js
+YUI(yuiconfig).use('base-build', 'gallery-itsacheckbox', 'gallery-itsamessagecontroller', 'gallery-itsamessage', function(Y) {
+
+    var myMessage, MyMessageClass, queuedMessage;
+    Y.one('body').addClass('yui3-skin-sam');
+
+    MyMessageClass = Y.Base.create('mymessage', Y.ITSAMessage, [], null, {
+        ATTRS: {
+            firstname: {
+                formtype: 'text',
+                formconfig: {
+                    label: 'firstname',
+                    fullselect: true
+                },
+                validator:  function(val) {
+                    return (typeof val === 'string') && (val.length>=2);
+                },
+                validationerror: 'Firstname should be at least 2 characters'
+            },
+            lastname: {
+                formtype: 'text',
+                formconfig: {
+                    label: 'lastname',
+                    fullselect: true
+                },
+                validator:  function(val) {
+                    return (typeof val === 'string') && (val.length>=2);
+                },
+                validationerror: 'Lastname should be at least 2 characters'
+            },
+            birthdate: {
+                value: new Date(),
+                formtype: 'date',
+                formconfig: {
+                    label: 'date of birth'
+                },
+            },
+            married: {
+                formtype: Y.ITSACheckbox,
+                formconfig: {
+                    label: 'maried'
+                },
+            }
+        }
+    });
+    message = '<fieldset>'+
+                   '<div class="pure-control-group">'+'{firstname}</div>'+
+                   '<div class="pure-control-group">'+'{lastname}</div>'+
+                   '<div class="pure-control-group">'+'{birthdate}</div>'+
+                   '<div class="pure-control-group">'+'{married}</div>'+
+              '</fieldset>';
+
+    myMessage = new MyMessageClass({button: 'createaccount'});
+    myMessage.icon = 'itsaicon-dialog-info';
+    myMessage.title = 'Personal data';
+    myMessage.message = message;
+    myMessage.footer = '{imgbtn_ok}';
+    myMessage.primaryButton = 'imgbtn_ok';
+    myMessage.closeButton = true;
+
+    queuedMessage = Y.ITSAMessageController.queueMessage(myMessage);
+
+    queuedMessage.then(
+        function(result) {
+            var firstname = result.firstname,
+                lastname = result.lastname,
+                birthdate = result.birthdate,
+                married = result.married,
+                button = result.button;
+            console.log('Userinput: firstname: '+firstname+'<br>'+
+                                    'lastname: '+lastname+'<br>'+
+                                    'birthdate: '+birthdate+'<br>'+
+                                    'married: '+married+'<br>'+
+                                    'button: '+button);
+        },
+        function() {
+            console.log('dialog was closed by closebutton');
+        }
+    );
+
+});
 
 ```
-//Module example code
-```
 
+<h2>licence</h2>
+<p class= 'copyright'>
+Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
+</p>

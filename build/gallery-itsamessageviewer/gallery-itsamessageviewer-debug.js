@@ -76,6 +76,22 @@ Y.extend(ITSAMessageViewer, Y.Base);
 ITSAMessageViewer.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSAMessageViewer');
     var instance = this;
+
+    /**
+     * Flag that tells whether the MessageViewer can only handle simple messages: Y.showMessage(), showWarning()/Y.alert() and Y.showError().
+     * @property simpleMessages
+     * @default false
+     * @type Boolean
+     */
+    instance.simpleMessages = false;
+
+    /**
+     * Holds the currently viewed message of all levels.
+     * @property _lastMessage
+     * @default {}
+     * @private
+     * @type Object
+     */
     instance._lastMessage = {};
     Y.ITSAMessageController.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
@@ -133,7 +149,7 @@ ITSAMessageViewer.prototype.suspend = function(/* itsamessage */) {
  *
  * @method viewMessage
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
- * @return {Y.Promise}
+ * @return {Y.Promise} will resolve when Y.ITSAMessage._promise gets fulfilled.
  * @since 0.1
 */
 ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
@@ -199,7 +215,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     queue,
                     function(itsamessage) {
                         isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
-                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && (!instance.simpleMessages || itsamessage._simpleMessage) && itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
                 );
@@ -209,7 +225,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     queue,
                     function(itsamessage) {
                         isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
-                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && !itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && (!instance.simpleMessages || itsamessage._simpleMessage) && !itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
                 );

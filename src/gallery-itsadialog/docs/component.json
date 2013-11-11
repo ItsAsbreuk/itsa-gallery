@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsadialog",
     "displayName": "Gallery: gallery-itsadialog",
-    "description": "*Summary Goes Here*",
+    "description": "A View for the ITSA-MVC-message system that uses modal panels.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsadialog" ],
 
@@ -11,55 +11,46 @@
         {
             "name"       : "input",
             "displayName": "Get input",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how to get userinput by calling Y.getInput(). Two examples are created, one with input-element and one with a text-element.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "input", "formelement", "form"],
             "hideTableOfContents": true
         },
         {
             "name"       : "number",
             "displayName": "Get number",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how to retrieve a number from the user by calling Y.getNumber. Two examples are created, one without digits and one with digits allowed.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "number", "formelement", "form"],
             "hideTableOfContents": true
         },
         {
             "name"       : "email-url",
             "displayName": "Get emailaddress and url",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows how to retrieve an emailaddress or url from the user.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "show-status",
-            "displayName": "Set statusmessage",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "url", "formelement", "form", "email", "emailaddress"],
             "hideTableOfContents": true
         },
         {
             "name"       : "standard-methods",
             "displayName": "Standard methods",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "description": "This example shows hows how the standard methods Y.alert, Y.confirm and Y.prompt can be used.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "alert", "formelement", "form", "confirm", "prompt", "Y.alert", "Y.prompt", "Y.confirm"],
             "hideTableOfContents": true
         },
         {
             "name"       : "internationalized",
             "displayName": "Internationalization of button-labels",
-            "description": "This example shows how buttonlabels are automaticly translated.",
+            "description": "This example shows the Internationalisation of this module.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "internationalized", "formelement", "form", "translate"],
             "hideTableOfContents": true
         }
     ]

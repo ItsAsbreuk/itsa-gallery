@@ -186,6 +186,7 @@ ITSADialog.prototype.suspend = function(itsamessage) {
  *
  * @method viewMessage
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @return {Y.Promise} will resolve when Y.ITSAMessage._promise gets fulfilled.
  * @since 0.2
 */
 ITSADialog.prototype.viewMessage = function(itsamessage) {
