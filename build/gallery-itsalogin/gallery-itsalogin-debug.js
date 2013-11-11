@@ -435,8 +435,7 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
 /**
  *
  * @module gallery-itsadialog
- * @class ITSALogin
- * @extends ITSADialog
+ * @class ITSADialog
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -1058,6 +1057,7 @@ Y[LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessa
     "requires": [
         "yui-base",
         "intl",
+        "base-build",
         "promise",
         "gallery-lazy-promise",
         "gallery-itsamessagecontroller",
