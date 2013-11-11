@@ -1,9 +1,9 @@
 {
-    "name"       : "gallerycss-itsa-edit",
-    "displayName": "Gallery: gallerycss-itsa-edit",
-    "description": "This module supplies beautiful stylable iconfonts from the category 'edit', which can be used by classname.",
+    "name"       : "gallerycss-itsa-dialog",
+    "displayName": "Gallery: gallerycss-itsa-dialog",
+    "description": "This module supplies beautiful stylable iconfonts from the category 'dialog', which can be used by classname.",
     "author"     : [ "itsasbreuk" ],
-    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-edit" ],
+    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-dialog" ],
 
     "tags": [ "gallery" ],
 
@@ -13,8 +13,8 @@
             "displayName": "Creating imagebuttons",
             "description": "This is a summary of all available icon-fonts this module offers, applied to purecss-buttons.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-edit"],
-            "tags"       : ["gallerycss-itsa-edit", "iconfonts", "icons", "edit"],
+            "modules"    : ["gallerycss-itsa-dialog"],
+            "tags"       : ["gallerycss-itsa-dialog", "iconfonts", "icons", "dialog"],
             "hideTableOfContents": true
         },
         {
@@ -22,8 +22,8 @@
             "displayName": "Custom styling",
             "description": "This example shows how to customize an icon.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallerycss-itsa-edit"],
-            "tags"       : ["gallerycss-itsa-edit", "iconfonts", "icons", "edit", "customize", "styling"],
+            "modules"    : ["gallerycss-itsa-dialog"],
+            "tags"       : ["gallerycss-itsa-dialog", "iconfonts", "icons", "dialog", "customize", "styling"],
             "hideTableOfContents": true
         }
     ]
