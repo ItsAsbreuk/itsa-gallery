@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsamessage",
     "displayName": "Gallery: gallery-itsamessage",
-    "description": "ModelClass that is used with the ITSA-MVC-message system.",
+    "description": "ModelClass that is used by the ITSA-MVC-message system.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-messagecontroller", "gallery-itsamessage" ],
 
