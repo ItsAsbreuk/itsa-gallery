@@ -17,9 +17,10 @@
 
 var YArray = Y.Array,
     Lang = Y.Lang,
+    MINWIDTHPANEL = 335,
     RENDERDELAY = 5000,
     ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
-    SUSPENDED = 'suspended',
+    SUSPENDED = '_suspended',
     BOOLEAN = 'boolean',
     STRING = 'string',
     MODEL = 'model',
@@ -121,19 +122,20 @@ ITSADialog.prototype.initializer = function() {
     var instance = this;
     instance._eventhandlers = [];
     instance._body = Y.one('body');
-    Y.later(RENDERDELAY, instance, instance.renderPromise);
+    Y.later(RENDERDELAY, instance, instance.isRendered);
 };
 
 /**
  * Promise that is resolved once all internal dialog-panels are rendered and ready to use.
  *
- * @method renderPromise
+ * @method isRendered
+ * @return {Y.Promise} resolves when everything is rendered.
  * @since 0.2
 */
-ITSADialog.prototype.renderPromise = function() {
-    Y.log('renderPromise', 'info', 'ITSADialog');
+ITSADialog.prototype.isRendered = function() {
+    Y.log('isRendered', 'info', 'ITSADialog');
     var instance = this;
-    return instance._renderPromise || (instance._renderPromise = Y.usePromise('gallery-itsaviewmodelpanel', 'gallerycss-itsa-dialog').then(
+    return instance._renderPromise || (instance._renderPromise = Y.usePromise('gallery-itsaviewmodelpanel', 'gallerycss-itsa-dialog', 'gallerycss-itsa-form').then(
                                                                     Y.bind(instance._renderPanels, instance)
                                                                  ));
 };
@@ -149,7 +151,7 @@ ITSADialog.prototype.renderPromise = function() {
 ITSADialog.prototype.resurrect = function(itsamessage) {
     Y.log('resurrect', 'info', 'ITSADialog');
     var instance = this;
-    instance.renderPromise().then(
+    instance.isRendered().then(
         function() {
             var panel = instance.panels[itsamessage.level];
         /*jshint expr:true */
@@ -171,7 +173,7 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
 ITSADialog.prototype.suspend = function(itsamessage) {
     Y.log('suspend', 'info', 'ITSADialog');
     var instance = this;
-    instance.renderPromise().then(
+    instance.isRendered().then(
         function() {
             var panel = instance.panels[itsamessage.level];
             Y.log('viewmessage level '+itsamessage.level+' about to hide by suspend', 'info', 'ITSA-MessageViewer');
@@ -193,13 +195,13 @@ ITSADialog.prototype.suspend = function(itsamessage) {
 ITSADialog.prototype.viewMessage = function(itsamessage) {
     Y.log('viewMessage', 'info', 'ITSADialog');
     var instance = this;
-    return instance.renderPromise().then(
+    return instance.isRendered().then(
         function() {
             return new Y.Promise(function (resolve) {
                 var panels = instance.panels,
                     panel = panels[itsamessage.level];
                 instance._showPanel(panel, itsamessage);
-                itsamessage.promise.then(
+                itsamessage._promise.then(
                     function() {
                         Y.log('viewmessage level '+itsamessage.level+' will hide', 'info', 'ITSA-MessageViewer');
                         return panel.set(VISIBLE, false, {silent: true});
@@ -274,7 +276,7 @@ ITSADialog.prototype._renderPanels = function() {
             centered: true,
             modal:    true,
             editable: true,
-            minWidth: 280,
+            minWidth: MINWIDTHPANEL,
             dragable: true,
             maxWidth: 550,
             buttonTransform: instance.get(BUTTONTRANSFORM),
@@ -300,8 +302,10 @@ ITSADialog.prototype._renderPanels = function() {
                         rejectButton = itsamessage.rejectButton,
                         closedByClosebutton = buttonNode && buttonNode.hasClass(ITSA_PANELCLOSEBTN) && (buttonValue=CLOSEBUTTON),
                         rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp(BTN_+buttonValue+'$')).test(rejectButton));
+                        itsamessage.UIToModel();
+                        itsamessage._set(BUTTON, buttonValue);
 /*jshint expr:true */
-                    rejected ? itsamessage.reject(buttonValue) : (itsamessage.UIToModel() && itsamessage._set(BUTTON, buttonValue) && itsamessage.resolve(itsamessage.toJSON()));
+                    rejected ? itsamessage.reject(buttonValue) : (itsamessage.resolve(itsamessage.toJSON()));
 /*jshint expr:false */
                 })
             );
@@ -396,7 +400,7 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
     panel.set(MODEL, itsamessage);
     panel._body.toggleClass('itsa-hasicon', showIcon);
     panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
-    // resolve viewMessagePromise when itsamessage.promise gets fulfilled --> so the next message from the queue will rise up
+    // resolve viewMessagePromise when itsamessage._promise gets fulfilled --> so the next message from the queue will rise up
     // also: hide the panel --> this might have been done by the *:hide - event, but one might also have fulfilled the promise directly
     // in which case the panel needs to be hidden manually
     Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');

@@ -1,0 +1,24 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+
+    Y.showMessage('Message 1', 'This is message 1, just wait for the warning-message to take over...', {
+        imageButtons: true
+    });
+
+    Y.showMessage('Message 2', 'This is message 2: it will be the last message you\'ll see.', {
+        imageButtons: true
+    });
+
+    Y.later(4000, null, function() {
+        Y.showWarning('Warning message', 'This is a warning-message, '+
+                      'just wait for the error-message to take over...', {
+            imageButtons: true
+        });
+    });
+
+    Y.later(8000, null, function() {
+        Y.showError('Error message', 'This is an error-message, you can now close all dialog-panels...', {
+            imageButtons: true
+        });
+    });
+
+});

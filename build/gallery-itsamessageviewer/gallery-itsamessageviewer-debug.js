@@ -26,13 +26,13 @@ var YArray = Y.Array,
     MESSAGE = 'm'+ESSAGE,
     MAIL = 'mail',
     LOADICONSDELAY = 5000, // for gallerycss-itsa-form
-    PROCESSING = 'processing',
+    PROCESSING = '_processing',
     ERROR = 'error',
     WARN = 'warn',
     INFO = 'info',
     LEVEL = 'level',
     TARGET = 'target',
-    SUSPENDED = 'suspended',
+    SUSPENDED = '_suspended',
     NEWMESSAGE = 'new'+MESSAGE,
     DESTROYED = 'destroyed',
     PRIORITY = 'priority',
@@ -117,7 +117,7 @@ ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
  * Makes the panel-instance -that belongs to the message- to hide, in order for a mesage at a higher level to show up.<br>
  * Should be overruled by a descendant-Class.
  *
- * @method resurrect
+ * @method suspend
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
  * @since 0.1
 */
@@ -140,7 +140,6 @@ ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer.viewMessage() is not overridden', 'warn', 'ITSAMessageViewer');
 };
-
 
 /**
  * Cleans up bindings
@@ -170,7 +169,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
     Y.log('_nextMessagePromise', 'info', 'ITSAMessageViewer');
     var instance = this,
         messageController = Y.ITSAMessageController;
-    return messageController.readyPromise().then(
+    return messageController.isReady().then(
         function() {
             // if higher level is 'busy' then we need to wait until all those messages are cleaned up
             var proceed = (level===ERROR) || (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
@@ -330,6 +329,8 @@ ITSAMessageViewer.prototype._resurrect = function(itsamessage) {
     /*jshint expr:true */
         (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
     /*jshint expr:false */
+        // first: play sound again:
+        Y.ITSAMessageController.sound(itsamessage);
         instance.resurrect(itsamessage);
     }
 };
@@ -349,6 +350,22 @@ ITSAMessageViewer.prototype._suspend = function(itsamessage) {
     (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._stopTimer();
 /*jshint expr:false */
     instance.suspend(itsamessage);
+};
+
+/**
+ * Views the message through viewMessage(), but also makes the Y.ITSAMessage-instance create sound<br>
+ *
+ * @method _viewMessage
+ * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @private
+ * @return {Y.Promise}
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype._viewMessage = function(itsamessage) {
+    // should be overridden --> method that renderes the message in the dom
+    Y.log('Y.ITSAMessageViewer._viewMessage()', 'info', 'ITSAMessageViewer');
+    Y.ITSAMessageController.sound(itsamessage);
+    return this.viewMessage(itsamessage);
 };
 
 Y.ITSAMessageViewer = ITSAMessageViewer;
@@ -706,7 +723,7 @@ Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITS
 
 /**
  * Returns a promise with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
- * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()<br>
+ * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolve() or itsamessage.reject()<br>
  * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
  *
  * @method Y.showStatus

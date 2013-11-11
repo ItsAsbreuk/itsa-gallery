@@ -9,15 +9,6 @@
 
     "examples": [
         {
-            "name"       : "itsadialog",
-            "displayName": "Itsa dailogs",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "input",
             "displayName": "Get input",
             "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
@@ -63,9 +54,9 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "prevent-default",
-            "displayName": "Prevent default",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "internationalized",
+            "displayName": "Internationalization of button-labels",
+            "description": "This example shows how buttonlabels are automaticly translated.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
             "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],

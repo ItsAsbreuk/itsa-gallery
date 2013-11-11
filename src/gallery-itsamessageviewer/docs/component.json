@@ -7,5 +7,42 @@
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "showmessage",
+            "displayName": "Viewing a message",
+            "description": "This example shows how a descendant Class (Y.ITSADialog) handles a simple message.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "showmessage"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "simultaniously",
+            "displayName": "Handling simultanious messages",
+            "description": "This example shows how simultanious messages at different levels are handled a descendant Class (Y.ITSADialog).",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "simultaniously"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "event-subscribers",
+            "displayName": "Event-subscribers",
+            "description": "This example shows how to use event-subscribers of the the event 'queuedmessage'.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "subscribe", "event"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "prevent-default",
+            "displayName": "Using preventDefault()",
+            "description": "This example shows how to preventDefault the event 'queuedmessage' and prevent the message from being added to the message-queue",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "preventDefault"],
+            "hideTableOfContents": true
+        }
+    ]
 }

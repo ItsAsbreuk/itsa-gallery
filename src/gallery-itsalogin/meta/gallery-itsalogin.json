@@ -3,6 +3,7 @@
         "requires": [
             "yui-base",
             "intl",
+            "base-build",
             "promise",
             "gallery-lazy-promise",
             "gallery-itsamessagecontroller",

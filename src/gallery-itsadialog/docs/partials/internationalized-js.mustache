@@ -1,9 +1,11 @@
+yuiconfig.lang = 'es';
+
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 Y.one('body').addClass('yui3-skin-sam');
 
-    Y.alert('Y.alert', 'Some warning in action');
+    Y.alert('This is Y.alert()');
 
-    Y.confirm('Y.confirm', 'do you agree?').then(
+    Y.confirm('This is Y.confirm: do you agree?').then(
         function() {
             console.log('agreed');
         },
@@ -12,7 +14,7 @@ Y.one('body').addClass('yui3-skin-sam');
         }
     );
 
-    Y.prompt('Y.prompt', 'Enter some input').then(
+    Y.prompt('This is Y.promt(): enter some input').then(
         function(response) {
             console.log(response.input);
         },

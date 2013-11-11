@@ -88,9 +88,10 @@
         remember : {boolean}, // any user-input
     }
     server-response = {
-        status  : 'OK' || 'ERROR' || 'RETRY' || 'NOACCESS' || 'CHANGEPASSWORD',
-        title   : {String} (optional), // appears in the response-dialog
-        message : {String} (optional) // appears in the response-dialog
+        status   : 'OK' || 'ERROR' || 'RETRY' || 'NOACCESS' || 'CHANGEPASSWORD',
+        title    : {String} (optional), // appears in the response-dialog
+        message  : {String} (optional), // appears in the response-dialog
+        ....     : // any other response that the developer can read with the resolved Promise, or by the 'loggedin'-event, which fires when status==='OK' || 'CHANGEPASSWORD'.
     }
     ```
     <ul>

@@ -85,12 +85,48 @@ ITSAMessageControllerClass.prototype.initializer = function() {
         warn: ITSADIALOG,
         error: ITSADIALOG
     };
-    Y.later(LOADDELAY, instance, instance.readyPromise);
+
+    /**
+     * The sound that is generated when a message at level-error occurs. Sound only happens when the property soundError is set true.<br>
+     * @property errorMidi
+     * @default 'xxxxx.midi'
+     * @type String
+     */
+    instance.errorMidi = 'error.midi';
+
+    /**
+     * Whether the webapp should sound when a message at level-error appears<br>
+     * The messagesound is defined by a midi-file, which is defined by the property: warnMidi
+     * @property soundWarning
+     * @default true
+     * @type Boolean
+     */
+    instance.soundWarning = true;
+
+    /**
+     * Whether the webapp should sound when a message at level-error appears<br>
+     * The messagesound is defined by a midi-file, which is defined by the property: errorMidi
+     * @property soundError
+     * @default true
+     * @type Boolean
+     */
+    instance.soundError = true;
+
+    /**
+     * The sound that is generated when a message at warb-error occurs. Sound only happens when the property soundWarning is set true.<br>
+     * @property errorMidi
+     * @default 'xxxxx.midi'
+     * @type String
+     */
+    instance.warnMidi = 'warn.midi';
+
+    Y.later(LOADDELAY, instance, instance.isReady);
 };
 
 /**
  * Adds the Y.ITSAMessage-instance to the queue.<br>
- * This method is meant for creating custom messages. Read Y.ITSAMessage for how to setup a new Y.ITSAMessage-instance.
+ * This method is meant for creating custom messages. Read Y.ITSAMessage for how to setup a new Y.ITSAMessage-instance.<br>
+ * <b>Note:</b> itsamessage needs to be initiated. Destruction takes place automaticly when it gets out of the queue (Y.ITSAMessageController takes care of this)
  *
  * @method queueMessage
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
@@ -108,9 +144,9 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
     // this way we can fullfill the promise in the messageviewer or prevDefaultFn.
 /*jshint expr:true */
     itsamessage || (itsamessage = {});
-    itsamessage.promise = promise;
-    itsamessage.resolvePromise = promiseResolve;
-    itsamessage.rejectPromise = promiseReject;
+    itsamessage._promise = promise;
+    itsamessage._resolvePromise = promiseResolve;
+    itsamessage._rejectPromise = promiseReject;
     // lazy publish the event
     /**
       * Event fired when a new Y.ITSAMessage-instance gets in the queue. Aftersubscribers will execute once it gets out (handled by a ITSAMessageViewer)
@@ -135,14 +171,15 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
 
 /**
  * Promise that is resolved once all dependencies are loaded and ITSAMessageController is ready to use.<br>
- * To speed up initial loading of the webpage, several modules are loaded by delay, or when needed. readyPromise holds the promise
+ * To speed up initial loading of the webpage, several modules are loaded by delay, or when needed. this.isReady() holds the promise
  * that everything is loaded.
  *
- * @method readyPromise
+ * @method isReady
+ * @return {Y.Promise} resolves when everything is loaded.
  * @since 0.1
 */
-ITSAMessageControllerClass.prototype.readyPromise = function() {
-    Y.log('readyPromise', 'info', 'ITSAMessageController');
+ITSAMessageControllerClass.prototype.isReady = function() {
+    Y.log('isReady', 'info', 'ITSAMessageController');
     var instance = this;
     return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, GALLERY_ITSAMESSAGE).then(
                                                                  function() {
@@ -156,6 +193,36 @@ ITSAMessageControllerClass.prototype.readyPromise = function() {
                                                                     instance._lazyFireErrorEvent(facade);
                                                                  }
                                                              ));
+};
+
+/**
+ * Creates a sound, if appropriate. Plays itsamessage.soundfile if found. Otherwise this.warnMidi or this.errorMidi might be played, but only if
+ * itsamessage.level has the 'warn'-level or 'error'-level and the corresponding this.soundWarning/this.soundError is true.
+ * @method sound
+ * @param itsamessage {Y.ITSAMessage} The Y.ITSAMessage-instance which should be sounded.
+ * @since 0.1
+*/
+ITSAMessageControllerClass.prototype.sound = function(itsamessage) {
+    Y.log('sound', 'info', 'ITSAMessage');
+    var instance = this;
+    instance.isReady().then(
+        function() {
+            var soundfile,
+                itsamessageSoundfile = itsamessage.soundfile;
+/*jshint expr:true */
+            if (itsamessageSoundfile) {
+                soundfile = itsamessageSoundfile;
+            }
+            else if (itsamessage.level===WARN) {
+                instance.soundWarning && (soundfile=instance.warnMidi);
+            }
+            else if (itsamessage.level===ERROR)  {
+                instance.soundError && (soundfile=instance.errorMidi);
+            }
+            soundfile && instance._playMidi(soundfile);
+/*jshint expr:false */
+        }
+    );
 };
 
 /**
@@ -186,6 +253,19 @@ ITSAMessageControllerClass.prototype.destructor = function() {
 };
 
 //--- private methods ---------------------------------------------------
+
+/**
+ * Plays a midi-file.
+ * @method _playMidi
+ * @param soundfile {String} The soundfile to be played.
+ * @private
+ * @since 0.1
+*/
+ITSAMessageControllerClass.prototype._playMidi = function(soundfile) {
+    Y.log('_playMidi', 'info', 'ITSAMessage');
+    // TODO: create JS to play a midi-file
+    console.log('playing '+soundfile);
+};
 
 /**
   * Rearanges the 3 parameters that are passed through to many methods. Because some of the are optional.<br>
@@ -254,7 +334,7 @@ ITSAMessageControllerClass.prototype._retrieveParams = function(title, message, 
 */
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = function(title, message, config) {
     Y.log('_getRetryConfirmation', 'info', 'ITSAMessageController');
-    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, INFO, ICON_WARN);
+    return this._queueMessage(title, message, config, '{btn_abort}{btn_ignore}{btn_retry}', 'btn_retry', 'btn_abort', GET_RETRY_CONFIRMATION, WARN, ICON_WARN);
 };
 
 /**
@@ -419,7 +499,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, mes
 
     formconfig.required = true;
     required = (typeof config.required === BOOLEAN) && config.required;
-    return instance.readyPromise().then(
+    return instance.isReady().then(
         function() {
 /*jshint expr:true */
             (config.email || config.url) && (config.validationerror || (config.validationerror=instance._intlMessageObj.translate('enterrightformat')));
@@ -488,7 +568,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, me
     formconfig.classname = 'itsa-number' + (formconfig.classname ? ' '+formconfig.classname : '');
     formconfig.required = true;
     required = (typeof config.required === BOOLEAN) && config.required;
-    return instance.readyPromise().then(
+    return instance.isReady().then(
         function() {
 /*jshint expr:true */
             config.validationerror || (config.validationerror=instance._intlMessageObj.translate('entervalidnumber'));
@@ -604,7 +684,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
 
 /**
  * Returns a promise with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
- * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolvePromise() or itsamessage.rejectPromise()<br>
+ * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolve() or itsamessage.reject()<br>
  * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
  *
  * @method _showStatus
@@ -631,7 +711,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
     Y.log('_showStatus', 'info', 'ITSAMessageController');
     var instance = this;
-    return instance.readyPromise().then(
+    return instance.isReady().then(
         function() {
             var itsamessage = new Y.ITSAMessage();
             itsamessage.title = title;
@@ -730,7 +810,7 @@ ITSAMessageControllerClass.prototype._defQueueFn = function(e) {
                                                                                ));
 /*jshint expr:false */
     Y.fire(NEWMESSAGE, {itsamessage: itsamessage});
-    return itsamessage.promise.then(
+    return itsamessage._promise.then(
                 null,
                 function() {return true;} // fullfil promise
             ).then(
@@ -795,12 +875,12 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
         primaryButton && (primaryButton=primaryButton.replace(/btn_/g,'imgbtn_'));
     }
 /*jshint expr:false */
-    return instance.readyPromise().then(
+    return instance.isReady().then(
         function() {
             var itsamessage = ITSAMessageClass ? (new ITSAMessageClass()) : (new Y.ITSAMessage());
             itsamessage.title = title;
             itsamessage.message = message;
-            itsamessage.config = config;
+            itsamessage._config = config;
             itsamessage.footer = footer;
             itsamessage.icon = config.icon || icon;
             itsamessage.closeButton = required ? false : (config.closeButton || closeButton);

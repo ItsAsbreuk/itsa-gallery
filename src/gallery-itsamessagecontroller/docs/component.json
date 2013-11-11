@@ -9,12 +9,12 @@
 
     "examples": [
         {
-            "name"       : "itsadialog",
-            "displayName": "Recreate a Purecss form",
-            "description": "This example shows how the form of the Purecss-site would look like when using Y.ITSAFormElement.",
+            "name"       : "dialog",
+            "displayName": "Add a message to the queue",
+            "description": "This example shows how to create an Y.ITSAMessage-instance and add it to the queue. It will be handled by Y.ITSADialog.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["node", "gallery-itsaformmodel", "gallery-itsaselectlist", "gallery-itsadialog", "gallery-itsacheckbox", "json-stringify"],
-            "tags"    : ["gallery-itsaformmodel", "model", "formelement", "form", "pure", "purecss"],
+            "modules"    : ["base-buils", "gallery-itsamessagecontroller", "gallery-itsadialog", "gallery-itsadialog", "gallery-itsacheckbox", "gallery-itsamessage"],
+            "tags"    : ["gallery-itsamessagecontroller", "gallery-itsamessage"],
             "hideTableOfContents": true
         }
     ]
