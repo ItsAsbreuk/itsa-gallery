@@ -58,7 +58,7 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     PUBLISHED_LOGGEDIN = '_pub_'+LOGGEDIN,
     GALLERYITSALOGIN = 'gallery-itsalogin',
     CHECK = 'check',
-    RECIEVEDMAILWITHINSTRUCTIONS = 'recievedmailwithinstructions',
+    RECIEVEDMAILWITHINSTRUCTIONS = 'receivedmailwithinstructions',
     CHECKSPAMBOX = CHECK+'spambox',
     CHECKMAIL = CHECK+'mail',
     CLASSNAME = 'classname',
@@ -489,7 +489,7 @@ ITSADialogClass.prototype._intl = YIntl.get(GALLERYITSALOGIN);
   *   <li>rememberme</li>
   *   <li>resetpassword</li>
   *   <li>receivedmail</li>
-  *   <li>recievedmailwithinstructions</li>
+  *   <li>receivedmailwithinstructions</li>
   *   <li>retrievedirectpasswordinstructions</li>
   *   <li>retrievepasswordinstructions</li>
   *   <li>retrievedirectpasswordinstructionsmaillogin</li>

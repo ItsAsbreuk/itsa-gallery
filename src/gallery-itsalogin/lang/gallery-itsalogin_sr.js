@@ -35,7 +35,7 @@
     rememberme: 'xxxxx',
     resetpassword: 'xxxxx',
     receivedmail: 'xxxxx',
-    recievedmailwithinstructions: 'xxxxx',
+    receivedmailwithinstructions: 'xxxxx',
     retrievedirectpasswordinstructions: 'xxxxx',
     retrievepasswordinstructions: 'xxxxx',
     retrievedirectpasswordinstructionsmaillogin: 'xxxxx',

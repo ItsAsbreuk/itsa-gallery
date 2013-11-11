@@ -35,7 +35,7 @@
     rememberme: 'Onthoud mij',
     resetpassword: 'Herstel wachtwoord',
     receivedmail: 'U hebt een email ontvangen met nadere instructies',
-    recievedmailwithinstructions: 'U hebt een email ontvangen met nadere instructies hoe u kunt inloggen',
+    receivedmailwithinstructions: 'U hebt een email ontvangen met nadere instructies hoe u kunt inloggen',
     retrievedirectpasswordinstructions: 'Voer uw gebruikersnaam in en u ontvangt een email met uw wachtwoord',
     retrievepasswordinstructions: 'Voer uw gebruikersnaam in en u ontvangt een email met nadere instructies hoe u uw wachtwoord kunt herstellen',
     retrievedirectpasswordinstructionsmaillogin: 'Voer het emailadres in dat u gebruikte bij de aanmelding en u ontvangt een email met uw wachtwoord',
