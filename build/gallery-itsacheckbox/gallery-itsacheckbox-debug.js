@@ -59,11 +59,13 @@ var LANG = Y.Lang,
     DIVCLASS = '<div class="',
     ENDDIV = '</div>',
     STRINGTRUE = 'true',
-    SUBMITONENTER = 'submitonenter',
-    PRIMARYBTNONENTER = 'primarybtnonenter',
+    ONENTER = 'onenter',
+    SUBMITONENTER = 'submit'+ONENTER,
+    PRIMARYBTNONENTER = 'primarybtn'+ONENTER,
     DATA_ = 'data-',
     DATA_SUBMITONENTER = DATA_+SUBMITONENTER,
     DATA_PRIMARYBTNONENTER = DATA_+PRIMARYBTNONENTER,
+    DATA_FOCUSNEXTONENTER = DATA_+'focusnext'+ONENTER,
     HTML_CHECKBOX_TEMPLATE = '<input id="{id}" type="checkbox" class="'+CREATED_CHECKBOX+'"{'+READONLY+'}{'+CHECKED+'}{'+DISABLED+'}>',
     TEMPLATE = '{htmlcheckbox}'+
                DIVCLASS+OPTION_WRAPPER+'">'+
@@ -743,6 +745,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             instance._optionOffNode = optionOffNode = optionOnNode.next();
             instance._optionBtnNode = optionOffNode.next();
             parentNode = copyNode || boundingBox;
+            parentNode.setAttribute(DATA_FOCUSNEXTONENTER, STRINGTRUE);
 /*jshint expr:true */
             instance.get(SUBMITONENTER) && parentNode.setAttribute(DATA_SUBMITONENTER, STRINGTRUE);
             instance.get(PRIMARYBTNONENTER) && parentNode.setAttribute(DATA_PRIMARYBTNONENTER, STRINGTRUE);
