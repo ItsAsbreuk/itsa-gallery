@@ -5,10 +5,24 @@ YUI(yuiconfig).use('gallery-itsastatusbar', 'gallery-itsadialog', function(Y) {
     mystatusbar.handleLevel('warn');
     mystatusbar.handleLevel('error');
 
-    Y.showMessage('title info', 'Message info');
-    Y.alert('title warning', 'message warning');
-    Y.showError('title error', 'message error');
+Y.later(2000, null, function() {
+    Y.showError('title error', 'message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error message error ');
+});
 
+    Y.showMessage('title info', 'first message info');
+    Y.showMessage('title info', 'second message info');
+    Y.alert('title warning', 'message warning');
+
+    var loading = Y.showStatus('loading', 'busy loading');
+    loading.then(
+        function(itsamessage) {
+            Y.later(80000, null, function() {
+                itsamessage.resolve();
+            });
+        }
+    );
+
+/*
     Y.confirm('Y.confirm', 'do you agree?').then(
         function() {
             console.log('agreed');
@@ -17,6 +31,5 @@ YUI(yuiconfig).use('gallery-itsastatusbar', 'gallery-itsadialog', function(Y) {
             console.log('disagreed');
         }
     );
-
-
+*/
 });

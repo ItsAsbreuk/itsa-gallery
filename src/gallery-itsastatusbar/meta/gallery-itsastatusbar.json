@@ -5,7 +5,9 @@
             "event-tap",
             "promise",
             "timers",
+            "escape",
             "node-event-delegate",
+            "node-style",
             "gallery-itsamessageviewer"
         ],
         "skinnable": true
