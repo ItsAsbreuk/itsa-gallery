@@ -38,12 +38,11 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @default null
          * @type Array
          */
-
         /**
          * Whether the closebutton should be visible.
          * @property closeButton
          * @default true
-         * @type Node
+         * @type Boolean
          */
         /**
          * Array of objects with properties buttons.buttonId, buttons.labelHTML and optionally buttonConfig.config, that passes through to Y.ITSAViewModelPanel.addCustomBtns.
