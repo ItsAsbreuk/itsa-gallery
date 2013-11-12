@@ -332,7 +332,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                     if (e.attrs && (e.attrs.button===FORGOT)) {
                         e.preventDefault(); // prevents the panel from resolving
                         regainFn = (regain===USERNAME_OR_PASSWORD) ? regainFn_UnPw(config) : regainFn_Pw(config, syncPromise);
-                        ITSADialogInstance.panels[INFO].focusInitialItem()
+                        ITSADialogInstance._panels[INFO].focusInitialItem()
                         .then(
                             null,
                             function() {
@@ -633,7 +633,7 @@ changePwFn = function(itsamessage) {
     if (verifyNewPassword) {
         changePassword.setLifeUpdate(true);
         changePassword.after('showpasswordChange', function(e) {
-            var panelwarn = ITSADialogInstance.panels[WARN],
+            var panelwarn = ITSADialogInstance._panels[WARN],
                 inputpassword = panelwarn.get(CONTENTBOX).one(INPUTNAMEIS+PASSWORD+'"]'),
                 inputverifypassword = panelwarn.get(CONTENTBOX).one(INPUTNAMEIS+VERIFY_PASSWORD+'"]'),
                 checked = e.newVal;
@@ -845,7 +845,7 @@ ITSADialogInstance.isRendered().then(
         YArray.each(
             [INFO, WARN],
             function(level) {
-                var panel = ITSADialogInstance.panels[level];
+                var panel = ITSADialogInstance._panels[level];
                 ITSADialogInstance._eventhandlers.push(
                     panel.on('*:submit', function(e) {
                         Y.log('panel.on(*:submit)', 'info', 'ITSALogin');

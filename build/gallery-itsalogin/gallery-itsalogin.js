@@ -60,7 +60,7 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     PUBLISHED_LOGGEDIN = '_pub_'+LOGGEDIN,
     GALLERYITSALOGIN = 'gallery-itsalogin',
     CHECK = 'check',
-    RECIEVEDMAILWITHINSTRUCTIONS = 'recievedmailwithinstructions',
+    RECIEVEDMAILWITHINSTRUCTIONS = 'receivedmailwithinstructions',
     CHECKSPAMBOX = CHECK+'spambox',
     CHECKMAIL = CHECK+'mail',
     CLASSNAME = 'classname',
@@ -333,7 +333,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                     if (e.attrs && (e.attrs.button===FORGOT)) {
                         e.preventDefault(); // prevents the panel from resolving
                         regainFn = (regain===USERNAME_OR_PASSWORD) ? regainFn_UnPw(config) : regainFn_Pw(config, syncPromise);
-                        ITSADialogInstance.panels[INFO].focusInitialItem()
+                        ITSADialogInstance._panels[INFO].focusInitialItem()
                         .then(
                             null,
                             function() {
@@ -488,7 +488,7 @@ ITSADialogClass.prototype._intl = YIntl.get(GALLERYITSALOGIN);
   *   <li>rememberme</li>
   *   <li>resetpassword</li>
   *   <li>receivedmail</li>
-  *   <li>recievedmailwithinstructions</li>
+  *   <li>receivedmailwithinstructions</li>
   *   <li>retrievedirectpasswordinstructions</li>
   *   <li>retrievepasswordinstructions</li>
   *   <li>retrievedirectpasswordinstructionsmaillogin</li>
@@ -630,7 +630,7 @@ changePwFn = function(itsamessage) {
     if (verifyNewPassword) {
         changePassword.setLifeUpdate(true);
         changePassword.after('showpasswordChange', function(e) {
-            var panelwarn = ITSADialogInstance.panels[WARN],
+            var panelwarn = ITSADialogInstance._panels[WARN],
                 inputpassword = panelwarn.get(CONTENTBOX).one(INPUTNAMEIS+PASSWORD+'"]'),
                 inputverifypassword = panelwarn.get(CONTENTBOX).one(INPUTNAMEIS+VERIFY_PASSWORD+'"]'),
                 checked = e.newVal;
@@ -839,7 +839,7 @@ ITSADialogInstance.isRendered().then(
         YArray.each(
             [INFO, WARN],
             function(level) {
-                var panel = ITSADialogInstance.panels[level];
+                var panel = ITSADialogInstance._panels[level];
                 ITSADialogInstance._eventhandlers.push(
                     panel.on('*:submit', function(e) {
                         var itsamessage = e.target,
