@@ -1,0 +1,13 @@
+{
+    "gallery-itsastatusbar": {
+        "requires": [
+            "yui-base",
+            "event-tap",
+            "promise",
+            "timers",
+            "node-event-delegate",
+            "gallery-itsamessageviewer"
+        ],
+        "skinnable": true
+    }
+}

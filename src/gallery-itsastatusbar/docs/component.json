@@ -1,0 +1,57 @@
+{
+    "name"       : "gallery-itsastatusbar",
+    "displayName": "Gallery: gallery-itsastatusbar",
+    "description": "A View for the ITSA-MVC-message system which uses modal panels.",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsastatusbar" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "input",
+            "displayName": "Get input",
+            "description": "This example shows how to get userinput by calling Y.getInput(). Two examples are created, one with input-element and one with a text-element.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "input", "formelement", "form"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "number",
+            "displayName": "Get number",
+            "description": "This example shows how to retrieve a number from the user by calling Y.getNumber. Two examples are created, one without digits and one with digits allowed.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "number", "formelement", "form"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "email-url",
+            "displayName": "Get emailaddress and url",
+            "description": "This example shows how to retrieve an emailaddress or url from the user.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "url", "formelement", "form", "email", "emailaddress"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "standard-methods",
+            "displayName": "Standard methods",
+            "description": "This example shows hows how the standard methods Y.alert, Y.confirm and Y.prompt can be used.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "alert", "formelement", "form", "confirm", "prompt", "Y.alert", "Y.prompt", "Y.confirm"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "internationalized",
+            "displayName": "Internationalization of button-labels",
+            "description": "This example shows the Internationalisation of this module.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "internationalized", "formelement", "form", "translate"],
+            "hideTableOfContents": true
+        }
+    ]
+}

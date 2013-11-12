@@ -1,0 +1,35 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+
+    Y.getNumber('Whole numbers:', 'Enter a value between 2 and 10 (no digits allowed):', {
+        imageButtons: true,
+        value: 8,
+        required: true,
+        formconfig: {
+            label: 'value'
+        },
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
+        validationerror: 'Please enter value between 2 and 10'
+    }).then(
+        function(result) {
+            console.log('number: '+result.number);
+        }
+    );
+
+    Y.getNumber('Broken numbers:', 'Enter a value between 2 and 10 (digits are allowed):', {
+        imageButtons: true,
+        value: 8,
+        required: true,
+        formconfig: {
+            label: 'value',
+            digits: true
+        },
+        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
+        validationerror: 'Please enter value between 2 and 10'
+    }).then(
+        function(result) {
+            console.log('number: '+result.number);
+        }
+    );
+
+});

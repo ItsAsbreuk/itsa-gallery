@@ -1,0 +1,33 @@
+YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+
+    Y.getInput('What is your name?',{
+        imageButtons: true,
+        required: true,
+        formconfig: {
+            placeholder: 'your name'
+        },
+        validator: function(val) {return (typeof val === 'string') && (val.length>1)},
+        validationerror: 'Please enter a valid name'
+    }).then(
+        function(result) {
+            console.log('name: '+result.input);
+        }
+    );
+
+    Y.getInput('What are yout hobbies?', {
+        imageButtons: true,
+        textarea: true,
+        required: true,
+        formconfig: {
+            label: 'Hobbies:: '
+        },
+        validator: function(val) {return (typeof val === 'string') && (val.length>1)},
+        validationerror: 'Please enter some input'
+    }).then(
+        function(result) {
+            console.log('hobbies: '+result.input);
+        }
+    );
+
+});

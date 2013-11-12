@@ -1,0 +1,67 @@
+{{>api-button}}
+
+<div class="intro">
+    <p>
+        {{description}}
+    </p>
+    <p>
+        This module creates Y.ITSADialog, which can be used by the webapplication - even accross multiple YUI-instances. Y.ITSADialog is the View of the <b>ITSA-MVC-message system</b> where Y.ITSAMessageController is the controller and messages of the type Y.ITSAMessage can be added.
+    </p>
+</div>
+
+{{>getting-started}}
+
+<h2>Description</h2>
+    <p>
+        Y.ITSADialog is created and ready to be used once this module is loaded. By adding messages to the queue of <b>ITSA-MVC-message system</b>, Y.ITSADialog will pcik them up, show them in a modal panel and return a Promise that holds the users interaction.
+    </p>
+    <p>
+        Using Y.ITSAMessageControler.queueMessage(itsamessage), a custom Y.ITSAMessage can be added. But there are also some convenience methods made available by Y.ITSAMessageViewer:
+        <ul>
+            <li><code>Y.getConfirmation</code> or <code>Y.confirm</code></li>
+            <li><code>Y.getEmail</code></li>
+            <li><code>Y.getInput</code> or <code>Y.prompt</code></li>
+            <li><code>Y.getNumber</code></li>
+            <li><code>Y.getRetryConfirmation</code></li>
+            <li><code>Y.getURL</code></li>
+            <li><code>Y.showError</code></li>
+            <li><code>Y.showMessage</code></li>
+            <li><code>Y.showStatus</code></li>
+            <li><code>Y.showWarning</code> or <code>Y.alert</code></li>
+        </ul>
+        All these methods call Y.ITSAMessageController.queueMessage() under the hood and return a Y.Promise with the future userinput.
+    </p>
+
+<h2>Usage</h2>
+    <p>
+        The View will take one message (Y.ITSAMessage-instance) at the time, taken from Y.ITSAMessageController.queue. Once the Y.ITSAMessage-instance is resolved -mostly by the enduser finished it- the View will fulfill the original Y.ITSAMessageController.queueMessage-Promise. When Y.ITSAMessage._promise gets resolved, then Y.ITSAMessageController.queueMessage also resolves, returning the attributes of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage</a>. The developer can inspect these values.
+
+    ```js
+        YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
+
+            var promisedNumber = Y.getNumber('Whole numbers:', 'Enter a value between 2 and 10:', {
+                formconfig: {
+                    label: 'value'
+                },
+                validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
+                validationerror: 'Please enter value between 2 and 10'
+            });
+
+            promisedNumber.then(
+                function(result) {
+                    console.log('number: '+result.number);
+                },
+                function() {
+                    console.log('canceled: no user-input');
+                }
+            );
+
+        });
+    ```
+    </p>
+
+<h2>licence</h2>
+<p class= 'copyright'>
+Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
+</p>

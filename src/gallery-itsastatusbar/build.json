@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsastatusbar",
+    "builds": {
+        "gallery-itsastatusbar": {
+            "jsfiles": [
+                "js/gallery-itsastatusbar.js"
+            ]
+        }
+    }
+}
