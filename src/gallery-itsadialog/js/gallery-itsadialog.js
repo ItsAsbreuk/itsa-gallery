@@ -33,7 +33,10 @@ var YArray = Y.Array,
     UPPERCASE = 'uppercase',
     LOWERCASE = 'lowercase',
     CAPITALIZE = 'capitalize',
-    ITSADIALOG = 'itsa-dialog',
+    ITSA = 'itsa',
+    DIALOG = 'dialog',
+    ITSADIALOG = ITSA+DIALOG,
+    ITSA_DIALOG = ITSA+'-'+DIALOG,
     ESCAPE_HIDE_EVENT = 'escape:hide',
     VISIBLE = 'visible',
     ITSA_PANELCLOSEBTN = 'itsa-panelclosebtn',
@@ -45,9 +48,9 @@ var YArray = Y.Array,
     BUTTONTRANSFORM = BUTTON+TRANSFORM,
     LABELTRANSFORM = 'label'+TRANSFORM,
     UP = 'up',
-    ITSADIALOG_INFO_UP = ITSADIALOG+INFO+UP,
-    ITSADIALOG_WARN_UP = ITSADIALOG+WARN+UP,
-    ITSADIALOG_ERROR_UP = ITSADIALOG+ERROR+UP;
+    ITSA_DIALOG_INFO_UP = ITSA_DIALOG+INFO+UP,
+    ITSA_DIALOG_WARN_UP = ITSA_DIALOG+WARN+UP,
+    ITSA_DIALOG_ERROR_UP = ITSA_DIALOG+ERROR+UP;
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -148,6 +151,8 @@ ITSADialog.prototype.initializer = function() {
      */
     instance._panels = {};
 
+    // set the viewName to 'itsadialog', to make sure nontargeted messages are targeted to this module.
+    instance._viewName = ITSADIALOG;
     Y.later(RENDERDELAY, instance, instance.isRendered);
 };
 
@@ -192,7 +197,7 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
  * Makes the panel-instance -that belongs to the message- to hide, in order for a mesage at a higher level to show up.<br>
  * Inherited and overruled from Y.ITSAMessageViewer
  *
- * @method resurrect
+ * @method suspend
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
  * @since 0.2
 */
@@ -308,7 +313,7 @@ ITSADialog.prototype._renderPanels = function() {
             maxWidth: 550,
             buttonTransform: instance.get(BUTTONTRANSFORM),
             labelTransform: instance.get(LABELTRANSFORM),
-            className: ITSADIALOG
+            className: ITSA_DIALOG
         },
         panels = instance._panels,
         eventhandlers = instance._eventhandlers,
@@ -357,17 +362,17 @@ ITSADialog.prototype._renderPanels = function() {
     );
     eventhandlers.push(
         panelinfo.on(VISIBLE+CHANGE, function(e) {
-            instance._body.toggleClass(ITSADIALOG_INFO_UP, e.newVal);
+            instance._body.toggleClass(ITSA_DIALOG_INFO_UP, e.newVal);
         })
     );
     eventhandlers.push(
         panelwarn.on(VISIBLE+CHANGE, function(e) {
-            instance._body.toggleClass(ITSADIALOG_WARN_UP, e.newVal);
+            instance._body.toggleClass(ITSA_DIALOG_WARN_UP, e.newVal);
         })
     );
     eventhandlers.push(
         panelerror.on(VISIBLE+CHANGE, function(e) {
-            instance._body.toggleClass(ITSADIALOG_ERROR_UP, e.newVal);
+            instance._body.toggleClass(ITSA_DIALOG_ERROR_UP, e.newVal);
         })
     );
     panelinfo.render();

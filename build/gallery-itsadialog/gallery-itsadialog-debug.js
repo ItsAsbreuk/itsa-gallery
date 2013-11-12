@@ -35,7 +35,10 @@ var YArray = Y.Array,
     UPPERCASE = 'uppercase',
     LOWERCASE = 'lowercase',
     CAPITALIZE = 'capitalize',
-    ITSADIALOG = 'itsa-dialog',
+    ITSA = 'itsa',
+    DIALOG = 'dialog',
+    ITSADIALOG = ITSA+DIALOG,
+    ITSA_DIALOG = ITSA+'-'+DIALOG,
     ESCAPE_HIDE_EVENT = 'escape:hide',
     VISIBLE = 'visible',
     ITSA_PANELCLOSEBTN = 'itsa-panelclosebtn',
@@ -47,9 +50,9 @@ var YArray = Y.Array,
     BUTTONTRANSFORM = BUTTON+TRANSFORM,
     LABELTRANSFORM = 'label'+TRANSFORM,
     UP = 'up',
-    ITSADIALOG_INFO_UP = ITSADIALOG+INFO+UP,
-    ITSADIALOG_WARN_UP = ITSADIALOG+WARN+UP,
-    ITSADIALOG_ERROR_UP = ITSADIALOG+ERROR+UP;
+    ITSA_DIALOG_INFO_UP = ITSA_DIALOG+INFO+UP,
+    ITSA_DIALOG_WARN_UP = ITSA_DIALOG+WARN+UP,
+    ITSA_DIALOG_ERROR_UP = ITSA_DIALOG+ERROR+UP;
 
 function ITSADialog() {
     ITSADialog.superclass.constructor.apply(this, arguments);
@@ -122,8 +125,36 @@ Y.ITSADialogClass = Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
 ITSADialog.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSADialog');
     var instance = this;
+
+    /**
+     * Array with internal eventsubscribers.
+     * @property _eventhandlers
+     * @default []
+     * @type Array
+     * @private
+     */
     instance._eventhandlers = [];
+
+    /**
+     * Reference to the body-node.
+     * @property _body
+     * @default Y.one('body')
+     * @type Node
+     * @private
+     */
     instance._body = Y.one('body');
+
+    /**
+     * Objects that holds the 3 Y.ITSAViweModelPanel-instances for the levels 'info', 'warn' and 'error'.
+     * @property _panels
+     * @default {info: Y.ITSAViewModelPanel, warn: Y.ITSAViewModelPanel, error: Y.ITSAViewModelPanel}
+     * @type Object
+     * @private
+     */
+    instance._panels = {};
+
+    // set the viewName to 'itsadialog', to make sure nontargeted messages are targeted to this module.
+    instance._viewName = ITSADIALOG;
     Y.later(RENDERDELAY, instance, instance.isRendered);
 };
 
@@ -155,7 +186,7 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
     var instance = this;
     instance.isRendered().then(
         function() {
-            var panel = instance.panels[itsamessage.level];
+            var panel = instance._panels[itsamessage.level];
         /*jshint expr:true */
             Y.log('viewmessage level '+itsamessage.level+' about to show by resurrect', 'info', 'ITSA-MessageViewer');
             panel && panel.set(VISIBLE, true, {silent: true});
@@ -168,7 +199,7 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
  * Makes the panel-instance -that belongs to the message- to hide, in order for a mesage at a higher level to show up.<br>
  * Inherited and overruled from Y.ITSAMessageViewer
  *
- * @method resurrect
+ * @method suspend
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
  * @since 0.2
 */
@@ -177,7 +208,7 @@ ITSADialog.prototype.suspend = function(itsamessage) {
     var instance = this;
     instance.isRendered().then(
         function() {
-            var panel = instance.panels[itsamessage.level];
+            var panel = instance._panels[itsamessage.level];
             Y.log('viewmessage level '+itsamessage.level+' about to hide by suspend', 'info', 'ITSA-MessageViewer');
         /*jshint expr:true */
             panel && panel.set(VISIBLE, false, {silent: true});
@@ -196,12 +227,12 @@ ITSADialog.prototype.suspend = function(itsamessage) {
  * @since 0.2
 */
 ITSADialog.prototype.viewMessage = function(itsamessage) {
-    Y.log('viewMessage', 'info', 'ITSADialog');
+    Y.log('viewMessage '+itsamessage.message, 'info', 'ITSADialog');
     var instance = this;
     return instance.isRendered().then(
         function() {
             return new Y.Promise(function (resolve) {
-                var panels = instance.panels,
+                var panels = instance._panels,
                     panel = panels[itsamessage.level];
                 instance._showPanel(panel, itsamessage);
                 itsamessage._promise.then(
@@ -236,7 +267,7 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
 */
 ITSADialog.prototype.destructor = function() {
     Y.log('destructor', 'info', 'ITSADialog');
-    var panels = this.panels;
+    var panels = this._panels;
     this._clearEventhandlers();
     panels[INFO].destroy();
     panels[WARN].destroy();
@@ -265,7 +296,7 @@ ITSADialog.prototype._clearEventhandlers = function() {
 };
 
 /**
- * Renderes 3 panels: info-panel, warn-panel and hide-panel.
+ * Renderes 3 panels: info-panel, warn-panel and error-panel.
  *
  * @method _renderPanels
  * @private
@@ -284,11 +315,11 @@ ITSADialog.prototype._renderPanels = function() {
             maxWidth: 550,
             buttonTransform: instance.get(BUTTONTRANSFORM),
             labelTransform: instance.get(LABELTRANSFORM),
-            className: ITSADIALOG
+            className: ITSA_DIALOG
         },
+        panels = instance._panels,
         eventhandlers = instance._eventhandlers,
-        panels, panelinfo, panelwarn, panelerror;
-    panels = instance.panels = {};
+        panelinfo, panelwarn, panelerror;
     panelinfo = panels[INFO] = new Y.ITSAViewModelPanel(config);
     panelwarn = panels[WARN] = new Y.ITSAViewModelPanel(config);
     panelerror = panels[ERROR] = new Y.ITSAViewModelPanel(config);
@@ -333,17 +364,17 @@ ITSADialog.prototype._renderPanels = function() {
     );
     eventhandlers.push(
         panelinfo.on(VISIBLE+CHANGE, function(e) {
-            instance._body.toggleClass(ITSADIALOG_INFO_UP, e.newVal);
+            instance._body.toggleClass(ITSA_DIALOG_INFO_UP, e.newVal);
         })
     );
     eventhandlers.push(
         panelwarn.on(VISIBLE+CHANGE, function(e) {
-            instance._body.toggleClass(ITSADIALOG_WARN_UP, e.newVal);
+            instance._body.toggleClass(ITSA_DIALOG_WARN_UP, e.newVal);
         })
     );
     eventhandlers.push(
         panelerror.on(VISIBLE+CHANGE, function(e) {
-            instance._body.toggleClass(ITSADIALOG_ERROR_UP, e.newVal);
+            instance._body.toggleClass(ITSA_DIALOG_ERROR_UP, e.newVal);
         })
     );
     panelinfo.render();
@@ -352,7 +383,7 @@ ITSADialog.prototype._renderPanels = function() {
 };
 
 /**
- * Sets the right attributes for the panel (fitting the message) ans makes the panel-instance visible.
+ * Sets the right attributes for the panel (fitting the message) and makes the panel-instance visible.
  *
  * @method _showPanel
  * @param panel {ITSAViewModelPanel} the panelinstance to be shown.
@@ -403,9 +434,6 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
     panel.set(MODEL, itsamessage);
     panel._body.toggleClass('itsa-hasicon', showIcon);
     panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
-    // resolve viewMessagePromise when itsamessage._promise gets fulfilled --> so the next message from the queue will rise up
-    // also: hide the panel --> this might have been done by the *:hide - event, but one might also have fulfilled the promise directly
-    // in which case the panel needs to be hidden manually
     Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');
 /*jshint expr:true */
     itsamessage[SUSPENDED] || panel.show();
@@ -424,6 +452,7 @@ Y.ITSADialog = Y.Global.ITSADialog;
         "promise",
         "event-custom-base",
         "yui-later",
+        "timers",
         "oop",
         "gallery-itsaviewmodelpanel",
         "gallery-itsamodulesloadedpromise",
