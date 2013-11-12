@@ -5,6 +5,7 @@
             "promise",
             "event-custom-base",
             "yui-later",
+            "timers",
             "oop",
             "gallery-itsaviewmodelpanel",
             "gallery-itsamodulesloadedpromise",
