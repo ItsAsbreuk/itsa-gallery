@@ -80,8 +80,36 @@ Y.ITSAMessageControllerClass = Y.extend(ITSAMessageControllerClass, Y.Base);
 */
 ITSAMessageControllerClass.prototype.initializer = function() {
     var instance = this;
+
+    /**
+     * Array with all the messages that needs to be shown.
+     * @property queue
+     * @default []
+     * @type Array
+     */
     instance.queue = [];
+
+    /**
+     * Reference to which MessageViewer wil handle untargeted messages.
+     * @property _targets
+     * @default {info: 'itsadialog', warn: 'itsadialog', error: 'itsadialog'}
+     * @type Object
+     * @private
+     */
     instance._targets = {
+        info: ITSADIALOG,
+        warn: ITSADIALOG,
+        error: ITSADIALOG
+    };
+
+    /**
+     * Reference to which MessageViewer wil handle untargeted 'simple'-messages.
+     * @property _simpleTargets
+     * @default {info: 'itsadialog', warn: 'itsadialog', error: 'itsadialog'}
+     * @type Object
+     * @private
+     */
+    instance._simpleTargets = {
         info: ITSADIALOG,
         warn: ITSADIALOG,
         error: ITSADIALOG
@@ -247,6 +275,7 @@ ITSAMessageControllerClass.prototype.destructor = function() {
     intlMessageObj && intlMessageObj.destroy() && (instance._intlMessageObj=null);
 /*jshint expr:false */
     instance._targets = {};
+    instance._simpleTargets = {};
 };
 
 //--- private methods ---------------------------------------------------
@@ -693,12 +722,17 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
  * @since 0.1
 */
 ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
-    var instance = this;
+    var instance = this,
+        params = instance._retrieveParams(title, message, config);
+    title = params.title;
+    message = params.message;
+    config = params.config;
     return instance.isReady().then(
         function() {
             var itsamessage = new Y.ITSAMessage();
             itsamessage.title = title;
             itsamessage.message = message;
+            itsamessage._simpleMessage = true;
             itsamessage.type = SHOW_STATUS;
             itsamessage.level = INFO;
             itsamessage.noButtons = true;
@@ -848,7 +882,7 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
     message = params.message;
     config = params.config;
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
-    simpleMsg = ((typeof config.simpleMessage === BOOLEAN) && config.simpleMessage) || false;
+    simpleMsg = ((typeof config.simpleMessage === BOOLEAN) && config.simpleMessage) || ((typeof simpleMessage === BOOLEAN) && simpleMessage) || false;
     required = ((typeof config.required === BOOLEAN) && config.required) || false;
 /*jshint expr:true */
     if (imageButtons) {
