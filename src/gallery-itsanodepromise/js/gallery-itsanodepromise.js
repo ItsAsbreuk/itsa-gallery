@@ -202,7 +202,10 @@ YArray.each(
             return Y.usePromise('transition').then(
                 function() {
                     return new Y.Promise(function (resolve) {
-                        instance[type](name || true, config, Y.bind(resolve, null, instance));
+                        instance[type](name || true, config, function() {
+                            instance.setStyle('opacity', (type==='hide') ? 0 : 1);
+                            resolve(instance);
+                        });
                     });
                 },
                 function(err) {
