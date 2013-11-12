@@ -100,8 +100,8 @@ ITSAMessageViewer.prototype.initializer = function() {
 };
 
 /**
- * Makes the panel-instance -that belongs to the message- show up again, after it has been suspended.<br>
- * Should be overruled by a descendant-Class.
+ * Makes this instance handle 'untargeted' messages of the specified level.
+ * If this.simpleMessage is set true, then only Y.showMessage, Y.showWarning, Y.alert and Y.showError messages are handled.
  *
  * @method handleLevel
  * @param level {String} queue-level, should be either 'info', 'warn' or 'error'
@@ -111,6 +111,7 @@ ITSAMessageViewer.prototype.handleLevel = function(level) {
     Y.log('handleLevel', 'info', 'ITSAMessageViewer');
 /*jshint expr:true */
     AVAILABLE_LEVELS[level] && (Y.ITSAMessageController._targets[level]=this.constructor.NAME);
+console.log(this.constructor.NAME);
 /*jshint expr:false */
 };
 
