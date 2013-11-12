@@ -16,6 +16,7 @@ YUI.add('gallery-itsanodepromise', function (Y, NAME) {
 */
 
 var YNode = Y.Node,
+    YArray = Y.Array,
     // To check DOMNodeRemoved-event, the browser must support 'mutation events'. To check this:
     supportsMutationEvents = document.implementation.hasFeature("MutationEvents", "2.0"),
     NODECHECK_TIMER = 250, // ms to repeately check for the node's existance. Only for browsers without supportsMutationEvents
@@ -140,6 +141,7 @@ YNode.availablePromise = function (selector, timeout) {
             });
     });
 };
+
 /**
  * Promise that will be resolved once a node's content is ready.
  * Exactly the same as when listened to Y.on('contentready'), except you get a Promise in return.
@@ -171,6 +173,45 @@ YNode.contentreadyPromise = function(selector, timeout) {
             });
     });
 };
+
+/**
+ * Hides the node using a transition.
+ * Animates the hiding of the node using either the default
+ * transition effect ('fadeOut'), or the given named effect.
+ * @method hidePromise
+ * @param {String} name A named Transition effect to use as the show effect.
+ * @param {Object} config Options to use with the transition.
+ * @return {Y.Promise} resolved promise when ready hiding, returning the Node-instance in the promise-callback --> resolve(node)
+ */
+/**
+ * Shows the node using a transition.
+ * Animates the showing of the node using either the default
+ * transition effect ('fadeIn'), or the given named effect.
+ * @method hidePromise
+ * @param {String} name A named Transition effect to use as the show effect.
+ * @param {Object} config Options to use with the transition.
+ * @return {Y.Promise} resolved promise when ready showing, returning the Node-instance in the promise-callback --> resolve(node)
+ */
+YArray.each(
+    ['show', 'hide'],
+    function(type) {
+        YNode[type+'Promise'] = function (name, config) {
+            var instance = this;
+            return Y.usePromise('transition').then(
+                function() {
+                    return new Y.Promise(function (resolve) {
+                        instance[type](name || true, config, Y.bind(resolve, null, instance));
+                    });
+                },
+                function(err) {
+                    Y.soon(function () {
+                        throw err;
+                    });
+                }
+            );
+        };
+    }
+);
 
 /**
  * Promise that will be resolved once a node is NOT in the DOM.
@@ -270,5 +311,18 @@ if (supportsMutationEvents) {
 Y.Node.prototype.availablePromise = YNode.availablePromise;
 Y.Node.prototype.contentreadyPromise = YNode.contentreadyPromise;
 Y.Node.prototype.unavailablePromise = YNode.unavailablePromise;
+Y.Node.prototype.showPromise = YNode.showPromise;
+Y.Node.prototype.hidePromise = YNode.hidePromise;
 
-}, '@VERSION@', {"requires": ["yui-base", "yui-later", "event-base", "event-custom", "node-base", "timers", "promise"]});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "yui-later",
+        "event-base",
+        "event-custom",
+        "node-base",
+        "timers",
+        "promise",
+        "gallery-itsamodulesloadedpromise"
+    ]
+});
