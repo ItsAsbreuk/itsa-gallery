@@ -55,11 +55,11 @@
 
     <h3>targeting messages</h3>
     <p>
-        Messages (Y.ITSAMessage-instances) need to be told what MessageView-instance they are targetting. This can be done by any seperate message, and it is posible to tell what MessageView-instance should handle the 'untargeted' messages. If yourMessageView.simpleMessages is true, then only Y.showMessage, Y.showWarning/Y.alert and Y.showError are possibly targeted: these only hold simple text with an OK-button (which is up to the View to be rendered or not).
+        Messages (Y.ITSAMessage-instances) need to be told what MessageView-instance they are targetting. This can be done by any seperate message, and it is posible to tell what MessageView-instance should handle the 'untargeted' messages. If <code>.yourMessageViewer.simpleMessages</code> is true, then only Y.showMessage, Y.showWarning/Y.alert and Y.showError are possibly targeted: these only hold simple text with an OK-button (which is up to the View to be rendered or not). In order tp make targeting work, each MessageViewer-instance must have an unique attribute 'viewName'.
     </p>
     <h4>target specific message</h4>
     <p>
-        To target a specific message, you need to set yourMessage.target='viewName' where 'viewName' is the attribute yourMessageView-instance.get('viewName'). If you make use if the predefined messages (see below), then you can set config.target='viewName' inside the config-parameter.
+        To target a specific message, you need to set yourMessage.target='viewName' where <code>viewName</code> is the attribute of yourMessageView-instance. If you make use if the predefined messages (see below), then you can set config.target='viewName' inside the config-parameter.
     </p>
     <h4>handling untargeted messages</h4>
     <p>

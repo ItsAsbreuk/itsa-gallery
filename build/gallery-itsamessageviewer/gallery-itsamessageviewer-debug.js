@@ -53,6 +53,7 @@ var YArray = Y.Array,
     SHOW_ERROR = SHOW+'Error',
     SHOW_STATUS = SHOW+'Status',
     UNDERSCORE = '_',
+    ITSADIALOG = 'itsadialog',
     AVAILABLE_LEVELS = {
         info: true,
         warn: true,
@@ -64,7 +65,6 @@ function ITSAMessageViewer() {
 }
 
 ITSAMessageViewer.NAME = 'itsamessageviewer';
-
 Y.extend(ITSAMessageViewer, Y.Base);
 
 
@@ -82,6 +82,7 @@ ITSAMessageViewer.prototype.initializer = function() {
      * @property simpleMessages
      * @default false
      * @type Boolean
+     * @since 0.1
      */
     instance.simpleMessages = false;
 
@@ -91,14 +92,59 @@ ITSAMessageViewer.prototype.initializer = function() {
      * @default {}
      * @private
      * @type Object
+     * @since 0.1
      */
     instance._lastMessage = {};
-    Y.ITSAMessageController.addTarget(instance);
+
+    /**
+     * Unique name that is used to determine which messages it should handle
+     *
+     * @property _viewName
+     * @private
+     * @type String
+     * @since 0.1
+     */
+    instance._viewName = Y.guid();
+
+    ITSAMessageControllerInstance.addTarget(instance);
     // now loading formicons with a delay --> should anyonde need it, then is nice to have the icons already available
     Y.later(LOADICONSDELAY, Y, Y.usePromise, ['gallerycss-itsa-base', 'gallerycss-itsa-animatespin', 'gallerycss-itsa-form']);
     instance._processQueue(INFO);
     instance._processQueue(WARN);
     instance._processQueue(ERROR);
+};
+
+ITSAMessageViewer.prototype.countMessages = function(processed, level) {
+    var instance = this,
+        queue = ITSAMessageControllerInstance.queue,
+        viewname = instance._viewName,
+        simplemessages = instance.simpleMessages,
+        total = 0,
+        isTargeted, itsasimplemessage, validMessage, countLevel;
+
+    countLevel = function(onelevel) {
+        var count = 0,
+            handleAnonymous = (ITSAMessageControllerInstance._targets[onelevel]===viewname),
+            handleAnonymousSimple = (ITSAMessageControllerInstance._simpleTargets[onelevel]===viewname);
+        YArray.each(
+            queue,
+            function(itsamessage) {
+                itsasimplemessage = itsamessage._simpleMessage;
+                isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                validMessage = isTargeted && (itsamessage[LEVEL]===onelevel) && (processed || !itsamessage[PROCESSING]);
+/*jshint expr:true */
+                validMessage && count++;
+/*jshint expr:false */
+            }
+        );
+        return count;
+    };
+/*jshint expr:true */
+    ((level===INFO) || !level) && (total+=countLevel(INFO));
+    ((level===WARN) || !level) && (total+=countLevel(WARN));
+    ((level===ERROR) || !level) && (total+=countLevel(ERROR));
+/*jshint expr:false */
+    return total;
 };
 
 /**
@@ -111,10 +157,13 @@ ITSAMessageViewer.prototype.initializer = function() {
 */
 ITSAMessageViewer.prototype.handleLevel = function(level) {
     Y.log('handleLevel', 'info', 'ITSAMessageViewer');
+    var targetname = this._viewName;
+    if (AVAILABLE_LEVELS[level]) {
+        ITSAMessageControllerInstance._simpleTargets[level]=targetname;
 /*jshint expr:true */
-    AVAILABLE_LEVELS[level] && (Y.ITSAMessageController._targets[level]=this.constructor.NAME);
-console.log(this.constructor.NAME);
+        this.simpleMessages || (ITSAMessageControllerInstance._targets[level]=targetname);
 /*jshint expr:false */
+    }
 };
 
 /**
@@ -166,8 +215,20 @@ ITSAMessageViewer.prototype.viewMessage = function(/* itsamessage */) {
 */
 ITSAMessageViewer.prototype.destructor = function() {
     Y.log('destructor', 'info', 'ITSAMessageViewer');
-    var instance = this;
-    Y.ITSAMessageController.removeTarget(instance);
+    var instance = this,
+        targetname = instance._viewName,
+        controllerTargets = ITSAMessageControllerInstance._targets,
+        controllerSimpleTargets = ITSAMessageControllerInstance._simpleTargets;
+    ITSAMessageControllerInstance.removeTarget(instance);
+    // reset the target to 'itsadialog'
+/*jshint expr:true */
+    (controllerTargets[INFO]===targetname) && (controllerTargets[INFO]=ITSADIALOG);
+    (controllerTargets[WARN]===targetname) && (controllerTargets[WARN]=ITSADIALOG);
+    (controllerTargets[ERROR]===targetname) && (controllerTargets[ERROR]=ITSADIALOG);
+    (controllerSimpleTargets[INFO]===targetname) && (controllerSimpleTargets[INFO]=ITSADIALOG);
+    (controllerSimpleTargets[WARN]===targetname) && (controllerSimpleTargets[WARN]=ITSADIALOG);
+    (controllerSimpleTargets[ERROR]===targetname) && (controllerSimpleTargets[ERROR]=ITSADIALOG);
+/*jshint expr:false */
     instance._lastMessage = {};
 };
 
@@ -184,30 +245,16 @@ ITSAMessageViewer.prototype.destructor = function() {
 */
 ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
     Y.log('_nextMessagePromise', 'info', 'ITSAMessageViewer');
-    var instance = this,
-        messageController = Y.ITSAMessageController;
-    return messageController.isReady().then(
-        function() {
-            // if higher level is 'busy' then we need to wait until all those messages are cleaned up
-            var proceed = (level===ERROR) || (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
-            Y.log('_nextMessagePromise first promise-stage '+level+' proceed: '+proceed, 'info', 'ITSA-MessageViewer');
-            return proceed || new Y.Promise(function (resolve) {
-                var listener = instance.on(EVT_LEVELCLEAR, function() {
-                    proceed = (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
-                    Y.log('_nextMessagePromise first promise-stage '+level+' INSIDE EVT_LEVELCLEAR proceed: '+proceed, 'info', 'ITSA-MessageViewer');
-/*jshint expr:true */
-                    proceed && listener.detach() && resolve();
-/*jshint expr:false */
-                });
-            });
-        }
-    ).then (
+    var instance = this;
+    return ITSAMessageControllerInstance.isReady().then(
         function() {
             return new Y.Promise(function (resolve, reject) {
-                var queue = messageController.queue,
-                    name = instance.constructor.NAME,
-                    handleAnonymous = (messageController._targets[level]===name),
-                    nextMessage, listener, otherLevelMessage, destroylistener, isTargeted;
+                var queue = ITSAMessageControllerInstance.queue,
+                    viewname = instance._viewName,
+                    simplemessages = instance.simpleMessages,
+                    handleAnonymous = (ITSAMessageControllerInstance._targets[level]===viewname),
+                    handleAnonymousSimple = (ITSAMessageControllerInstance._simpleTargets[level]===viewname),
+                    nextMessage, listener, otherLevelMessage, destroylistener, isTargeted, itsasimplemessage;
 /*jshint expr:true */
                 instance.get(DESTROYED) && reject();
 /*jshint expr:false */
@@ -215,8 +262,9 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                 YArray.some(
                     queue,
                     function(itsamessage) {
-                        isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
-                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && (!instance.simpleMessages || itsamessage._simpleMessage) && itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
+                        itsasimplemessage = itsamessage._simpleMessage;
+                        isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
                 );
@@ -225,8 +273,9 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                 nextMessage || YArray.some(
                     queue,
                     function(itsamessage) {
-                        isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
-                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && (!instance.simpleMessages || itsamessage._simpleMessage) && !itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
+                        itsasimplemessage = itsamessage._simpleMessage;
+                        isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                        nextMessage = isTargeted && (itsamessage[LEVEL]===level) && !itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
                 );
@@ -266,8 +315,9 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
 /*jshint expr:false */
                     destroylistener = instance.once('destroy', reject);
                     listener=Y.on(NEWMESSAGE, function(e) {
-                        var itsamessage = e.itsamessage,
-                            isTargeted = (itsamessage[TARGET]===name) || (!itsamessage[TARGET] && handleAnonymous);
+                        var itsamessage = e.itsamessage;
+                            itsasimplemessage = itsamessage._simpleMessage;
+                            isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
                         if (isTargeted && (itsamessage[LEVEL]===level)) {
                             listener.detach();
                             destroylistener.detach();
@@ -286,6 +336,21 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                         }
                     });
                 }
+            });
+        }
+    ).then(
+        function(itsamessage) {
+            // if higher level is 'busy' then we need to wait until all those messages are cleaned up
+            var proceed = (level===ERROR) || (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
+            Y.log('_nextMessagePromise first promise-stage '+level+' proceed: '+proceed, 'info', 'ITSA-MessageViewer');
+            return proceed ? itsamessage : new Y.Promise(function (resolve) {
+                var listener = instance.on(EVT_LEVELCLEAR, function() {
+                    proceed = (!instance._lastMessage[ERROR] && ((level===WARN) || !instance._lastMessage[WARN]));
+                    Y.log('_nextMessagePromise first promise-stage '+level+' INSIDE EVT_LEVELCLEAR proceed: '+proceed, 'info', 'ITSA-MessageViewer');
+/*jshint expr:true */
+                    proceed && listener.detach() && resolve(itsamessage);
+/*jshint expr:false */
+                });
             });
         }
     );
@@ -312,7 +377,7 @@ ITSAMessageViewer.prototype._processQueue = function(level) {
 /*jshint expr:true */
                 (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
 /*jshint expr:false */
-                return instance.viewMessage(itsamessage);
+                return instance._viewMessage(itsamessage);
             }
         ).then(
             null,
@@ -347,7 +412,7 @@ ITSAMessageViewer.prototype._resurrect = function(itsamessage) {
         (itsamessage[TIMEOUTRESOLVE] || itsamessage[TIMEOUTREJECT]) && itsamessage._startTimer();
     /*jshint expr:false */
         // first: play sound again:
-        Y.ITSAMessageController.sound(itsamessage);
+        ITSAMessageControllerInstance.sound(itsamessage);
         instance.resurrect(itsamessage);
     }
 };
@@ -381,7 +446,7 @@ ITSAMessageViewer.prototype._suspend = function(itsamessage) {
 ITSAMessageViewer.prototype._viewMessage = function(itsamessage) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer._viewMessage()', 'info', 'ITSAMessageViewer');
-    Y.ITSAMessageController.sound(itsamessage);
+    ITSAMessageControllerInstance.sound(itsamessage);
     return this.viewMessage(itsamessage);
 };
 
