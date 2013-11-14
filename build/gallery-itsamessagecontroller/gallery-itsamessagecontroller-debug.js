@@ -27,12 +27,16 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         ERROR = 'error',
         INFO = 'info',
         WARN = 'warn',
+        STRING = 'string',
+        DELETE = 'delete',
+        DESTROY = 'destroy',
         ESSAGE = 'essage',
         MESSAGE = 'm'+ESSAGE,
         MAIL = 'mail',
         EMAIL = 'e'+MAIL,
         URL = 'url',
         LOADDELAY = 5000,
+        MODELSYNC = 'modelsync',
         PUBLISHED = '_pub_',
         QUEUEDMESSAGE = 'queued' + MESSAGE,
         PUBLISHED_QUEUEDMESSAGE = PUBLISHED+QUEUEDMESSAGE,
@@ -41,6 +45,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         GALLERY_ITSAMESSAGE = 'gallery-itsamessage',
         GET = 'get',
         SHOW = 'show',
+        REMOVE = 'remove',
+        STATUS = 'Status',
         CONFIRMATION = 'Confirmation',
         GET_RETRY_CONFIRMATION = GET+'Retry'+CONFIRMATION,
         GET_CONFIRMATION = GET+CONFIRMATION,
@@ -51,7 +57,8 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         SHOW_MESSAGE = SHOW+'M'+ESSAGE,
         SHOW_WARNING = SHOW+'Warning',
         SHOW_ERROR = SHOW+'Error',
-        SHOW_STATUS = SHOW+'Status',
+        SHOW_STATUS = SHOW+STATUS,
+        REMOVE_STATUS = REMOVE+STATUS,
         UNDERSCORE = '_',
         BASE_BUILD = 'base-build',
         TEXTAREA = 'textarea',
@@ -91,9 +98,26 @@ ITSAMessageControllerClass.prototype.initializer = function() {
     instance.queue = [];
 
     /**
+     * Array with internal eventsubscribers.
+     * @property _eventhandlers
+     * @default []
+     * @type Array
+     * @private
+     */
+    instance._eventhandlers = [];
+
+    /**
+     * Internal reference with default i18n syncMessages for Models 'load', 'submit', 'save' and 'destroy' events
+     * @property instance_syncMessage
+     * @default {load: 'loading data...', submit: 'submitting data...', save: 'updating data...', destroy: 'updating data...'}
+     * @type Object
+     * @private
+     */
+
+    /**
      * Reference to which MessageViewer wil handle untargeted messages.
      * @property _targets
-     * @default {info: 'itsadialog', warn: 'itsadialog', error: 'itsadialog'}
+     * @default {info: 'itsadialog', warn: 'itsadialog', error: 'itsadialog', status: undefined, modelsync: undefined}
      * @type Object
      * @private
      */
@@ -154,6 +178,38 @@ ITSAMessageControllerClass.prototype.initializer = function() {
 };
 
 /**
+ * Promise that is resolved once all dependencies are loaded and ITSAMessageController is ready to use.<br>
+ * To speed up initial loading of the webpage, several modules are loaded by delay, or when needed. this.isReady() holds the promise
+ * that everything is loaded.
+ *
+ * @method isReady
+ * @return {Y.Promise} resolves when everything is loaded.
+ * @since 0.1
+*/
+ITSAMessageControllerClass.prototype.isReady = function() {
+    Y.log('isReady', 'info', 'ITSAMessageController');
+    var instance = this;
+    return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, GALLERY_ITSAMESSAGE).then(
+                                                                 function() {
+                                                                     instance._intlMessageObj = new Y.ITSAMessage(); // used for synchronous translations
+                                                                     instance._syncMessage = {
+                                                                         load: 'loading data...',
+                                                                         submit: 'submitting data...',
+                                                                         save: 'updating data...',
+                                                                         destroy: 'updating data...'
+                                                                     };
+                                                                 },
+                                                                 function(reason) {
+                                                                    var facade = {
+                                                                        error   : reason && (reason.message || reason),
+                                                                        src     : 'ITSAMessageViewer._processQueue'
+                                                                    };
+                                                                    instance._lazyFireErrorEvent(facade);
+                                                                 }
+                                                             ));
+};
+
+/**
  * Adds the Y.ITSAMessage-instance to the queue.<br>
  * This method is meant for creating custom messages. Read Y.ITSAMessage for how to setup a new Y.ITSAMessage-instance.<br>
  * <b>Note:</b> itsamessage needs to be initiated. Destruction takes place automaticly when it gets out of the queue (Y.ITSAMessageController takes care of this)
@@ -189,7 +245,6 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
                                                                         {
                                                                           defaultTargetOnly: true,
                                                                           emitFacade: true,
-                                                                          broadcast: 2,
                                                                           defaultFn: Y.rbind(instance._defQueueFn, instance),
                                                                           preventedFn: instance._prevDefFn
                                                                         }
@@ -197,32 +252,6 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
     Y.fire(QUEUEDMESSAGE, {itsamessage: itsamessage});
 /*jshint expr:false */
     return promise;
-};
-
-/**
- * Promise that is resolved once all dependencies are loaded and ITSAMessageController is ready to use.<br>
- * To speed up initial loading of the webpage, several modules are loaded by delay, or when needed. this.isReady() holds the promise
- * that everything is loaded.
- *
- * @method isReady
- * @return {Y.Promise} resolves when everything is loaded.
- * @since 0.1
-*/
-ITSAMessageControllerClass.prototype.isReady = function() {
-    Y.log('isReady', 'info', 'ITSAMessageController');
-    var instance = this;
-    return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, GALLERY_ITSAMESSAGE).then(
-                                                                 function() {
-                                                                     instance._intlMessageObj = new Y.ITSAMessage(); // used for synchronous translations
-                                                                 },
-                                                                 function(reason) {
-                                                                    var facade = {
-                                                                        error   : reason && (reason.message || reason),
-                                                                        src     : 'ITSAMessageViewer._processQueue'
-                                                                    };
-                                                                    instance._lazyFireErrorEvent(facade);
-                                                                 }
-                                                             ));
 };
 
 /**
@@ -266,6 +295,7 @@ ITSAMessageControllerClass.prototype.destructor = function() {
     var instance = this,
         queue = instance.queue,
         intlMessageObj = instance._intlMessageObj;
+    instance._clearEventhandlers();
     instance.removeTarget(Y);
     YArray.each(
         queue,
@@ -281,9 +311,29 @@ ITSAMessageControllerClass.prototype.destructor = function() {
 /*jshint expr:false */
     instance._targets = {};
     instance._simpleTargets = {};
+    instance._syncMessage = {};
 };
 
 //--- private methods ---------------------------------------------------
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _clearEventhandlers
+ * @private
+ * @since 0.1
+ *
+*/
+ITSAMessageControllerClass.prototype._clearEventhandlers = function() {
+    Y.log('_clearEventhandlers', 'info', 'ITSAMessageController');
+    var instance = this;
+    YArray.each(
+        instance._eventhandlers,
+        function(item){
+            item.detach();
+        }
+    );
+};
 
 /**
  * Plays a midi-file.
@@ -293,13 +343,13 @@ ITSAMessageControllerClass.prototype.destructor = function() {
  * @since 0.1
 */
 ITSAMessageControllerClass.prototype._playMidi = function(soundfile) {
-    Y.log('_playMidi', 'info', 'ITSAMessage');
+    Y.log('_playMidi', 'info', 'ITSAMessageController');
     // TODO: create JS to play a midi-file
     console.log('playing '+soundfile);
 };
 
 /**
-  * Rearanges the 3 parameters that are passed through to many methods. Because some of the are optional.<br>
+  * Rearanges the 3 parameters that are passed through to many methods. Because some of them are optional.<br>
   * Returns an object where you are sure that all properties are indeed those that the developer send through.
   *
   * @method _retrieveParams
@@ -312,14 +362,14 @@ ITSAMessageControllerClass.prototype._playMidi = function(soundfile) {
 */
 ITSAMessageControllerClass.prototype._retrieveParams = function(title, message, config) {
     Y.log('_retrieveParams', 'info', 'ITSAMessageController');
-    var withTitle = (typeof message === 'string'),
+    var withTitle = (typeof message === STRING),
         withMessage;
     if (!withTitle) {
         config = message;
         message = title;
         title = null;
     }
-    withMessage = (typeof message === 'string');
+    withMessage = (typeof message === STRING);
     if (!withMessage) {
         config = message;
         message = '';
@@ -333,6 +383,52 @@ ITSAMessageControllerClass.prototype._retrieveParams = function(title, message, 
         message: message,
         config: config
     };
+};
+
+/**
+  * Rearanges the 3 parameters that are passed through to many methods. Because some of the are optional.<br>
+  * Returns an object where you are sure that all properties are indeed those that the developer send through.
+  *
+  * @method _setupModelSyncListeners
+  * @param title {String} 1st parameter
+  * @param message {String} 2nd parameter
+  * @param config {Object} 3th parameter
+  * @private
+  * @return {Object} with properties: title, message and config
+  * @since 0.1
+*/
+ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
+    Y.log('_setupModelSyncListeners', 'info', 'ITSAMessageController');
+    var instance = this,
+        eventhandlers = instance._eventhandlers;
+    eventhandlers.push(
+        Y.on(['*:load', '*:submit', '*:save', '*:destroy'], function(e) {
+            var model = e.target,
+                type = e.type,
+                options = e.options,
+                remove = options.remove || options[DELETE],
+                subtype = type.split(':')[1],
+                statushandle;
+            // cannot check Y.Model until we are sure the model-module is loaded
+            Y.usePromise('model', 'gallery-itsamodelsyncpromise').then(
+                function() {
+                    if ((model instanceof Y.Model) && ((subtype!==DESTROY) || remove)) {
+                        // because multiple simultanious on-events will return only one after-event (is this an error?),
+                        // we will take the promise's then() to remove the status lateron.
+                        statushandle = instance._showStatus(e.statusmessage || instance._syncMessage[subtype], {source: MODELSYNC});
+                        e.promise.then(
+                            function() {
+                                instance._removeStatus(statushandle);
+                            },
+                            function() {
+                                instance._removeStatus(statushandle);
+                            }
+                        );
+                    }
+                }
+            );
+        })
+    );
 };
 
 /**
@@ -355,7 +451,7 @@ ITSAMessageControllerClass.prototype._retrieveParams = function(title, message, 
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton ('btn_retry') is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @private
@@ -387,7 +483,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_RETRY_CONFIRMATION] = functi
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton 'btn_yes' is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @private
@@ -419,7 +515,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_CONFIRMATION] = function(tit
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
      * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
@@ -459,7 +555,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_URL] = function(title, messa
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
      * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
@@ -499,7 +595,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_EMAIL] = function(title, mes
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.textarea] {Boolean} Render a textarea instead of an input-element.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
@@ -572,7 +668,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_INPUT] = function(title, mes
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
      * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
@@ -622,6 +718,23 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, me
 };
 
 /**
+ * Removes a message (that was shown using Y.showStatus) from the MessageView - or queue.
+ *
+ * @method _removeStatus
+ * @param handle {Y.Promise} The returnvalue when Y.showStatus was called.
+ * @private
+ * @since 0.1
+*/
+ITSAMessageControllerClass.prototype[UNDERSCORE+REMOVE_STATUS] = function(messageHandle) {
+    Y.log('_removeStatus', 'info', 'ITSAMessageController');
+    messageHandle.then(
+        function(itsamessage) {
+            itsamessage.resolve();
+        }
+    );
+};
+
+/**
  * Shows a message.<br>
  * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
  *
@@ -639,7 +752,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_NUMBER] = function(title, me
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @private
@@ -669,7 +782,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_MESSAGE] = function(title, 
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @private
@@ -699,7 +812,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_WARNING] = function(title, 
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @private
@@ -712,13 +825,12 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
 };
 
 /**
- * Returns a promise with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
- * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolve() or itsamessage.reject()<br>
- * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ * Returns a handle with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
+ * Because there are no buttons to make it fullfilled, you <u>must fullfil manually</u> by calling removeStatus(handle)<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer that has its property 'statusMessages' (f.i. Y.ITSADialog) to make the message be displayed!
  *
  * @method _showStatus
- * @param [title] {String} The title of the message
- * @param [message] {String} The message
+ * @param message {String} The message
  * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
      * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
      *                               By setting this, you the default setting of closeButton is overruled.
@@ -730,26 +842,26 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @private
- * @return {Y.Promise} Promise that holds the user-response. Resolves or rejects manually.
+ * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
  * @since 0.1
 */
-ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(title, message, config) {
+ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(message, config) {
     Y.log('_showStatus', 'info', 'ITSAMessageController');
-    var instance = this,
-        params = instance._retrieveParams(title, message, config);
-    title = params.title;
-    message = params.message;
-    config = params.config;
+    var instance = this;
+    message = (typeof message===STRING) ? message : '';
+/*jshint expr:true */
+    config || (config={});
+/*jshint expr:false */
     return instance.isReady().then(
         function() {
             var itsamessage = new Y.ITSAMessage();
-            itsamessage.title = title;
             itsamessage.message = message;
             itsamessage._simpleMessage = true;
+            itsamessage._statusMessage = true;
             itsamessage.type = SHOW_STATUS;
             itsamessage.level = INFO;
             itsamessage.noButtons = true;
@@ -879,7 +991,7 @@ ITSAMessageControllerClass.prototype._defQueueFn = function(e) {
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @param [footer] {String} Footertemplate, typically something like: '{btn_cancel}{btn_ok}' be aware to use <u>brackets</u> to identify the UI-elements!
@@ -1008,13 +1120,16 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
   **/
 Y._publishAsync = function(type, opts) {
     var instance = this,
-        asyncEvent = this.publish(type, opts);
+        asyncEvent = instance.publish(type, opts);
 
     Y.log('_publishAsync', 'info', 'ITSAMessageController');
     asyncEvent._firing = new Y.Promise(function (resolve) { resolve(); });
 
     asyncEvent.fire = function (data) {
         var args  = Y.Array(arguments, 0, true),
+            stack, next;
+
+        asyncEvent._firing = asyncEvent._firing.then(function () {
             stack = {
                 id: asyncEvent.id,
                 next: asyncEvent,
@@ -1024,9 +1139,7 @@ Y._publishAsync = function(type, opts) {
                 bubbling: null,
                 type: asyncEvent.type,
                 defaultTargetOnly: asyncEvent.defaultTargetOnly
-            }, next;
-
-        asyncEvent._firing = asyncEvent._firing.then(function () {
+            };
             asyncEvent.details = args;
             // Execute on() subscribers
             var subs = asyncEvent._subscribers,
@@ -1098,6 +1211,7 @@ Y._publishAsync = function(type, opts) {
     asyncEvent._fire = function (args) {
         return asyncEvent.fire(args[0]);
     };
+    return asyncEvent;
 };
 
 // define 1 global messagecontroller
