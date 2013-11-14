@@ -427,6 +427,7 @@ YModelList.prototype._createPromise = function(type, options) {
                                                                                 {
                                                                                   defaultTargetOnly: true,
                                                                                   emitFacade: true,
+                                                                                  broadcast: 1,
                                                                                   defaultFn: instance[DEFFN+type],
                                                                                   preventedFn: instance._prevDefFn
                                                                                 }
@@ -754,13 +755,20 @@ YModelList.prototype._lazyFireErrorEvent = function(facade) {
   **/
 YModelList.prototype._publishAsync = function(type, opts) {
     var instance = this,
-        asyncEvent = this.publish(type, opts);
+        asyncEvent = instance.publish(type, opts);
 
     Y.log('_publishAsync', 'info', 'ITSA-ModelSyncPromise');
+/*jshint expr:true */
+    opts && (opts.broadcast===1) && instance.addTarget(Y);
+    opts && (opts.broadcast===2) && instance.addTarget(YUI);
+/*jshint expr:false */
     asyncEvent._firing = new Y.Promise(function (resolve) { resolve(); });
 
     asyncEvent.fire = function (data) {
         var args  = Y.Array(arguments, 0, true),
+            stack, next;
+
+        asyncEvent._firing = asyncEvent._firing.then(function () {
             stack = {
                 id: asyncEvent.id,
                 next: asyncEvent,
@@ -770,9 +778,7 @@ YModelList.prototype._publishAsync = function(type, opts) {
                 bubbling: null,
                 type: asyncEvent.type,
                 defaultTargetOnly: asyncEvent.defaultTargetOnly
-            }, next;
-
-        asyncEvent._firing = asyncEvent._firing.then(function () {
+            };
             asyncEvent.details = args;
             // Execute on() subscribers
             var subs = asyncEvent._subscribers,
@@ -848,6 +854,7 @@ YModelList.prototype._publishAsync = function(type, opts) {
     asyncEvent._fire = function (args) {
         return asyncEvent.fire(args[0]);
     };
+    return asyncEvent;
 };
 
 /**
