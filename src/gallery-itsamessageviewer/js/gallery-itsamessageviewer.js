@@ -22,6 +22,8 @@ var YArray = Y.Array,
     ITSAMessageControllerInstance = Y.ITSAMessageController,
     ESSAGE = 'essage',
     MESSAGE = 'm'+ESSAGE,
+    MODELSYNC = 'modelsync',
+    STATUS = 'status',
     MAIL = 'mail',
     LOADICONSDELAY = 5000, // for gallerycss-itsa-form
     PROCESSING = '_processing',
@@ -39,6 +41,7 @@ var YArray = Y.Array,
     TIMEOUTREJECT = 'timeoutReject',
     GET = 'get',
     SHOW = 'show',
+    REMOVE = 'remove',
     CONFIRMATION = 'Confirmation',
     GET_RETRY_CONFIRMATION = GET+'Retry'+CONFIRMATION,
     GET_CONFIRMATION = GET+CONFIRMATION,
@@ -49,8 +52,11 @@ var YArray = Y.Array,
     SHOW_MESSAGE = SHOW+'M'+ESSAGE,
     SHOW_WARNING = SHOW+'Warning',
     SHOW_ERROR = SHOW+'Error',
-    SHOW_STATUS = SHOW+'Status',
+    STATUSCAPITALIZED = 'Status',
+    SHOW_STATUS = SHOW+STATUSCAPITALIZED,
+    REMOVE_STATUS = REMOVE+STATUSCAPITALIZED,
     UNDERSCORE = '_',
+    STATUSMESSAGE = UNDERSCORE+STATUS+'M'+ESSAGE,
     ITSADIALOG = 'itsadialog',
     AVAILABLE_LEVELS = {
         info: true,
@@ -83,6 +89,15 @@ ITSAMessageViewer.prototype.initializer = function() {
      * @since 0.1
      */
     instance.simpleMessages = false;
+
+    /**
+     * Flag that tells whether the MessageViewer should handle status messages without buttons, creates by Y.showStatus().
+     * @property statusMessages
+     * @default true
+     * @type Boolean
+     * @since 0.1
+     */
+    instance.statusMessages = true;
 
     /**
      * Holds the currently viewed message of all levels.
@@ -118,17 +133,23 @@ ITSAMessageViewer.prototype.countMessages = function(processed, level) {
         viewname = instance._viewName,
         simplemessages = instance.simpleMessages,
         total = 0,
-        isTargeted, itsasimplemessage, validMessage, countLevel;
+        isTargeted, itsasimplemessage, validMessage, countLevel, messagesource, doHandleAnonymousSimple, messagetargetViewname;
 
     countLevel = function(onelevel) {
         var count = 0,
             handleAnonymous = (ITSAMessageControllerInstance._targets[onelevel]===viewname),
-            handleAnonymousSimple = (ITSAMessageControllerInstance._simpleTargets[onelevel]===viewname);
+            handleAnonymousSimple = (ITSAMessageControllerInstance._simpleTargets[onelevel]===viewname),
+            handleAnonymousStatus = (ITSAMessageControllerInstance._targets[STATUS]===viewname),
+            handleAnonymousModelSync = (ITSAMessageControllerInstance._targets[MODELSYNC]===viewname);
         YArray.each(
             queue,
             function(itsamessage) {
                 itsasimplemessage = itsamessage._simpleMessage;
-                isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                messagesource = itsamessage.source;
+                messagetargetViewname = itsamessage[TARGET] && itsamessage[TARGET]._viewName;
+                doHandleAnonymousSimple = (handleAnonymousSimple && !itsamessage[STATUSMESSAGE]) ||
+                                          (itsamessage[STATUSMESSAGE] && ((handleAnonymousStatus && (messagesource!==MODELSYNC)) || (handleAnonymousModelSync && (messagesource===MODELSYNC))));
+                isTargeted = ((messagetargetViewname===viewname) && (!simplemessages || itsasimplemessage)) || (!messagetargetViewname && (itsasimplemessage ? doHandleAnonymousSimple : handleAnonymous));
                 validMessage = isTargeted && (itsamessage[LEVEL]===onelevel) && (processed || !itsamessage[PROCESSING]);
 /*jshint expr:true */
                 validMessage && count++;
@@ -147,10 +168,11 @@ ITSAMessageViewer.prototype.countMessages = function(processed, level) {
 
 /**
  * Makes this instance handle 'untargeted' messages of the specified level.
- * If this.simpleMessage is set true, then only Y.showMessage, Y.showWarning, Y.alert and Y.showError messages are handled.
+ * If this.simpleMessage is set true, then only Y.showMessage, Y.showWarning, Y.alert and Y.showError messages are handled.<br>
+ * Handling level==='info' does not handle statusmessages or modelsync-messages. These should be set by handleStatus() or handleModelSync().
  *
  * @method handleLevel
- * @param level {String} queue-level, should be either 'info', 'warn' or 'error'
+ * @param level {String} queue-level, should be either 'info', 'warn', 'error'
  * @since 0.1
 */
 ITSAMessageViewer.prototype.handleLevel = function(level) {
@@ -165,6 +187,30 @@ ITSAMessageViewer.prototype.handleLevel = function(level) {
 };
 
 /**
+ * Making the statusbar handle untargeted Y.showStatus() messages. This excludes 'modelsync'-messages --> these
+ * should be set by handleModelSync().
+ *
+ * @method handleStatus
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype.handleStatus = function() {
+    Y.log('handleStatus', 'info', 'ITSAMessageViewer');
+    ITSAMessageControllerInstance._targets[STATUS]=this._viewName;
+};
+
+/**
+ * Making the statusbar handle untargeted Model-sync-status messages, that appear when Models are busy syncing.
+ *
+ * @method handleModelSync
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype.handleModelSync = function() {
+    Y.log('handleModelSync', 'info', 'ITSAMessageViewer');
+    ITSAMessageControllerInstance._targets[MODELSYNC]=this._viewName;
+    ITSAMessageControllerInstance._setupModelSyncListeners();
+};
+
+/**
  * Makes the panel-instance -that belongs to the message- show up again, after it has been suspended.<br>
  * Should be overruled by a descendant-Class.
  *
@@ -175,6 +221,133 @@ ITSAMessageViewer.prototype.handleLevel = function(level) {
 ITSAMessageViewer.prototype.resurrect = function(/* itsamessage */) {
     // should be overridden --> method that renderes the message in the dom
     Y.log('Y.ITSAMessageViewer.resurrect() is not overridden', 'warn', 'ITSAMessageViewer');
+};
+
+/**
+ * Shows a message to be shown by this MessageView-instance.
+ *
+ * @method Y.showMessage
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype[SHOW_MESSAGE] = function(title, message, config) {
+    var params = ITSAMessageControllerInstance._retrieveParams(title, message, config);
+    params.config.target = this;
+    return ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE](params.title, params.message, params.config);
+};
+
+/**
+ * Shows a warning to be shown by this MessageView-instance. Because the level will be 'warn', the message has precedence above normal messages.
+ *
+ * @method Y.showWarning
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype[SHOW_WARNING] = function(title, message, config) {
+    var params = ITSAMessageControllerInstance._retrieveParams(title, message, config);
+    params.config.target = this;
+    return ITSAMessageControllerInstance[UNDERSCORE+SHOW_WARNING](params.title, params.message, params.config);
+};
+
+/**
+ * Shows an error to be shown by this MessageView-instance.
+ *
+ * @method Y.showError
+ * @param [title] {String} The title of the message
+ * @param [message] {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype[SHOW_ERROR] = function(title, message, config) {
+    var params = ITSAMessageControllerInstance._retrieveParams(title, message, config);
+    params.config.target = this;
+    return ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR](params.title, params.message, params.config);
+};
+
+/**
+ * Returns a handle with reference to the ITSAMessage-instance to be shown by this MessageView-instance. The message itself is NOT fullfilled yet!<br>
+ * Because there are no buttons to make it fullfilled, you <u>must fullfil manually</u> by calling removeStatus(handle).
+ *
+ * @method Y.showStatus
+ * @param message {String} The message
+ * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
+     *                               By setting this, you the default setting of closeButton is overruled.
+     * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
+     *                               By setting this, you the default icon is overruled.
+     * @param [config.imageButtons] {Boolean} Whether to display imagebuttons.
+     * @param [config.level] {String} The message-level, should be either 'info', warn' or 'error'.
+     * @param [config.priority] {boolean} By setting this, the message will be positioned in the queue above messages that have no priority.
+     * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
+     *                               By setting this, you the default primaryButton is overruled.
+     * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
+     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
+     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+ * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype[SHOW_STATUS] = function(title, message, config) {
+    var params = ITSAMessageControllerInstance._retrieveParams(title, message, config);
+    params.config.target = this;
+    return ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS](params.title, params.message, params.config);
+};
+
+/**
+ * Removes a message (that was shown using Y.showStatus) from the MessageView - or queue.
+ *
+ * @method removeStatus
+ * @param handle {Y.Promise} The returnvalue when Y.showStatus was called.
+ * @since 0.1
+*/
+ITSAMessageViewer.prototype[REMOVE_STATUS] = function(messageHandle) {
+    ITSAMessageControllerInstance[UNDERSCORE+REMOVE_STATUS](messageHandle);
 };
 
 /**
@@ -252,7 +425,9 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     simplemessages = instance.simpleMessages,
                     handleAnonymous = (ITSAMessageControllerInstance._targets[level]===viewname),
                     handleAnonymousSimple = (ITSAMessageControllerInstance._simpleTargets[level]===viewname),
-                    nextMessage, listener, otherLevelMessage, destroylistener, isTargeted, itsasimplemessage;
+                    handleAnonymousStatus = (ITSAMessageControllerInstance._targets[STATUS]===viewname),
+                    handleAnonymousModelSync = (ITSAMessageControllerInstance._targets[MODELSYNC]===viewname),
+                    nextMessage, listener, otherLevelMessage, destroylistener, isTargeted, itsasimplemessage, messagesource, doHandleAnonymousSimple, messagetargetViewname;
 /*jshint expr:true */
                 instance.get(DESTROYED) && reject();
 /*jshint expr:false */
@@ -261,7 +436,11 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     queue,
                     function(itsamessage) {
                         itsasimplemessage = itsamessage._simpleMessage;
-                        isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                        messagesource = itsamessage.source;
+                        messagetargetViewname = itsamessage[TARGET] && itsamessage[TARGET]._viewName;
+                        doHandleAnonymousSimple = (handleAnonymousSimple && !itsamessage[STATUSMESSAGE]) ||
+                                                  (itsamessage[STATUSMESSAGE] && ((handleAnonymousStatus && (messagesource!==MODELSYNC)) || (handleAnonymousModelSync && (messagesource===MODELSYNC))));
+                        isTargeted = ((messagetargetViewname===viewname) && (!simplemessages || itsasimplemessage)) || (!messagetargetViewname && (itsasimplemessage ? doHandleAnonymousSimple : handleAnonymous));
                         nextMessage = isTargeted && (itsamessage[LEVEL]===level) && itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
@@ -272,7 +451,11 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     queue,
                     function(itsamessage) {
                         itsasimplemessage = itsamessage._simpleMessage;
-                        isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                        messagesource = itsamessage.source;
+                        messagetargetViewname = itsamessage[TARGET] && itsamessage[TARGET]._viewName;
+                        doHandleAnonymousSimple = (handleAnonymousSimple && !itsamessage[STATUSMESSAGE]) ||
+                                                  (itsamessage[STATUSMESSAGE] && ((handleAnonymousStatus && (messagesource!==MODELSYNC)) || (handleAnonymousModelSync && (messagesource===MODELSYNC))));
+                        isTargeted = ((messagetargetViewname===viewname) && (!simplemessages || itsasimplemessage)) || (!messagetargetViewname && (itsasimplemessage ? doHandleAnonymousSimple : handleAnonymous));
                         nextMessage = isTargeted && (itsamessage[LEVEL]===level) && !itsamessage[PRIORITY] && !itsamessage[PROCESSING] && itsamessage;
                         return nextMessage;
                     }
@@ -315,7 +498,11 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     listener=Y.on(NEWMESSAGE, function(e) {
                         var itsamessage = e.itsamessage;
                             itsasimplemessage = itsamessage._simpleMessage;
-                            isTargeted = ((itsamessage[TARGET]===viewname) && (!simplemessages || itsasimplemessage)) || (!itsamessage[TARGET] && (itsasimplemessage ? handleAnonymousSimple : handleAnonymous));
+                            messagesource = itsamessage.source;
+                            messagetargetViewname = itsamessage[TARGET] && itsamessage[TARGET]._viewName;
+                            doHandleAnonymousSimple = (handleAnonymousSimple && !itsamessage[STATUSMESSAGE]) ||
+                                                      (itsamessage[STATUSMESSAGE] && ((handleAnonymousStatus && (messagesource!==MODELSYNC)) || (handleAnonymousModelSync && (messagesource===MODELSYNC))));
+                            isTargeted = ((messagetargetViewname===viewname) && (!simplemessages || itsasimplemessage)) || (!messagetargetViewname && (itsasimplemessage ? doHandleAnonymousSimple : handleAnonymous));
                         if (isTargeted && (itsamessage[LEVEL]===level)) {
                             listener.detach();
                             destroylistener.detach();
@@ -472,7 +659,7 @@ Y.ITSAMessageViewer = ITSAMessageViewer;
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton ('btn_retry') is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Check 'button' to find out what button was pressed.
@@ -501,7 +688,7 @@ Y[GET_RETRY_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton 'btn_yes' is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Resolves by 'ok' and rejects by 'no'.
@@ -527,7 +714,7 @@ Y[GET_RETRY_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton 'btn_yes' is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Resolves by 'ok' and rejects by 'no'.
@@ -555,7 +742,7 @@ Y.confirm = Y[GET_CONFIRMATION] = Y.bind(ITSAMessageControllerInstance[UNDERSCOR
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
      * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
@@ -587,7 +774,7 @@ Y[GET_URL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_URL], ITSAMessa
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
      * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
@@ -620,7 +807,7 @@ Y[GET_EMAIL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_EMAIL], ITSAM
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.textarea] {Boolean} Render a textarea instead of an input-element.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
@@ -652,7 +839,7 @@ Y[GET_EMAIL] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_EMAIL], ITSAM
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.textarea] {Boolean} Render a textarea instead of an input-element.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
@@ -685,7 +872,7 @@ Y.prompt = Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_IN
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.required] {Boolean} Makes the input required: the promise cannot be rejected, there is no cancel or close-button.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
      * @param [config.validationerror] {String} Message that Y.Tipsy uses when validation fails.
@@ -696,6 +883,15 @@ Y.prompt = Y[GET_INPUT] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_IN
  * @since 0.1
 */
 Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITSAMessageControllerInstance);
+
+/**
+ * Removes a message (that was shown using Y.showStatus) from the MessageView - or queue.
+ *
+ * @method removeStatus
+ * @param handle {Y.Promise} The returnvalue when Y.showStatus was called.
+ * @since 0.1
+*/
+Y[REMOVE_STATUS] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+REMOVE_STATUS], ITSAMessageControllerInstance);
 
 /**
  * Shows a message.<br>
@@ -715,7 +911,7 @@ Y[GET_NUMBER] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_NUMBER], ITS
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
@@ -742,7 +938,7 @@ Y[SHOW_MESSAGE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE],
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
@@ -767,7 +963,7 @@ Y[SHOW_MESSAGE] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_MESSAGE],
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
@@ -793,7 +989,7 @@ Y.alert = Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
  * @return {Y.Promise} Promise that holds the user-response. Resolved once the user presses the 'ok'-button.
@@ -802,13 +998,12 @@ Y.alert = Y[SHOW_WARNING] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW
 Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITSAMessageControllerInstance);
 
 /**
- * Returns a promise with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
- * Because there are no buttons to make it fullfilled, you must fullfil the message through itsamessage.resolve() or itsamessage.reject()<br>
- * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer (f.i. Y.ITSADialog) to make the message be displayed!
+ * Returns a handle with reference to the ITSAMessage-instance. The message itself is NOT fullfilled yet!<br>
+ * Because there are no buttons to make it fullfilled, you <u>must fullfil manually</u> by calling removeStatus(handle)<br>
+ * <b>Note:</b> You need a descendant of Y.ITSAMessageViewer that has its property 'statusMessages' (f.i. Y.ITSAStatusbar) to make the message be displayed!
  *
  * @method Y.showStatus
- * @param [title] {String} The title of the message
- * @param [message] {String} The message
+ * @param message {String} The message
  * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
      * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
      *                               By setting this, you the default setting of closeButton is overruled.
@@ -820,10 +1015,10 @@ Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITS
      * @param [config.primaryButton] {String} Name of the primary button, f.i. 'btn_ok'.
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
-     * @param [config.target] {String} Classname of the Y.ITSAMessageViewer that is targeted and should hanlde the message.
+     * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
      * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
      * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
- * @return {Y.Promise} Promise that holds the user-response. Resolves or rejects manually.
+ * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
  * @since 0.1
 */
 Y[SHOW_STATUS] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS], ITSAMessageControllerInstance);

@@ -34,7 +34,7 @@
         The Views will handle the messages from the queue, one by one. If there gets a message in the queue that has a higher <code>Y.ITSAMessage.level</code> (warn>info, error>warn), then previous 'lower-level' messages get suspended and the higher message shows up. The lower-message will resurrect once the higher-message disapears. Inside the same level, messages can be given a priority by setting ITSAMessage.priority=true. This wil not result into suspension, but makes the message being placed in its own queue (info, warn or error) just above the last 'non-priority'-message.
     </p>
     <p>
-        <b>Note:</b> there is also the module <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">gallery-itsalogin</a>, which is not a messageviewer, but just introduces Y.login() which can be viewed through Y.ITSADialog.
+        <b>Note:</b> there is also the module <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsalogin/">gallery-itsalogin</a>, which is not a messageviewer, but just introduces Y.login() which can be viewed through Y.ITSADialog.
     </p>
 
 
@@ -53,17 +53,44 @@
         <b>Note:</b> it is important that viewMessage returns a Promise that resolves as soon as itsamessage._promise resolves or rejects. Only this way, the queue will get its next message right in time.
     </p>
 
+<h2>How to handle the messages?</h2>
+    <p>
+        <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage-instances</a> need be processed by a Y.ITSAMessageViewer-instance. You can target messages to the MessageViewer-instance by <code>yourMessage.addTarget(yourMessageViewer)</code>. If you don't target a message, then it will be processed as an 'untargeted'-message. Each MessageViewer could be set up to handle the 'untargeted'-messages, but only one at a time.
+    </p>
+
     <h3>targeting messages</h3>
     <p>
-        Messages (Y.ITSAMessage-instances) need to be told what MessageView-instance they are targetting. This can be done by any seperate message, and it is posible to tell what MessageView-instance should handle the 'untargeted' messages. If <code>.yourMessageViewer.simpleMessages</code> is true, then only Y.showMessage, Y.showWarning/Y.alert and Y.showError are possibly targeted: these only hold simple text with an OK-button (which is up to the View to be rendered or not). In order tp make targeting work, each MessageViewer-instance must have an unique attribute 'viewName'.
+        Messages (Y.ITSAMessage-instances) need to be told what MessageView-instance they are targetting. This can be done by any separate message, and it is possible to tell what MessageView-instance should handle the 'untargeted' messages. If <code>.yourMessageViewer.simpleMessages</code> is true, then only Y.showMessage, Y.showWarning/Y.alert and Y.showError are possibly targeted: these only hold simple text with an OK-button (which is up to the View to be rendered or not). In order tp make targeting work, each MessageViewer-instance must have an unique attribute 'viewName'.
     </p>
     <h4>target specific message</h4>
     <p>
-        To target a specific message, you need to set yourMessage.target='viewName' where <code>viewName</code> is the attribute of yourMessageView-instance. If you make use if the predefined messages (see below), then you can set config.target='viewName' inside the config-parameter.
+        To target a specific message, you need call yourMessage.addTarget(viewInstance) where <code>viewInstance</code> is the messageView-instance that should handle the message. If you make use if the predefined messages (see below), then you can set config.target=viewInstance inside the config-parameter.
     </p>
     <h4>handling untargeted messages</h4>
     <p>
-        You can define your yourMessageView-instance to handle untargeted messages by using: yourMessageView.handleLevel(level), where level is <code>info</code>, <code>warn</code> and/or <code>error</code>. By default <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> will target all these levels to 'itsadialog' which represents <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsadialog/">Y.ITSADialog</a>.
+        You can define your yourMessageView-instance to handle untargeted messages by three methods:
+        <ul>
+            <li><code>handleLevel(level)</code> --> where level is 'info', 'warn' or 'error'. Note: statusmessages and modelsync-messages are at the level 'info', but are only targeted by the methods below.</li>
+            <li><code>handleStatus()</code> --> to handle Y.showStatus()</li>
+            <li><code>handleModelSync()</code> --> to handle messages that arise during syncing of models</li>
+        </ul>
+    </p>
+    <p>
+        By default <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> will target all levels to 'itsadialog' which represents <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsadialog/">Y.ITSADialog</a>, but this <u>excludes statusMessages and modelsyncMessages</u>.
+    </p>
+    <h4>automatic handling simple message</h4>
+    <p>
+        There are some custom methods that can be called by the MessageViewer-instance and will make this instance to handle the message.
+        <ul>
+            <li>showMessage</li>
+            <li>showWarning</li>
+            <li>showError</li>
+            <li>showStatus</li>
+            <li>removeStatus</li>
+        </ul>
+    </p>
+    <p>
+        The same methods can be called at the YUI-instance (Y), but then you need to take care of the target as described above. (queueMessage should be called by Y.ITSAMessageController.queueMessage).
     </p>
 
 <h2>Handling messages</h2>
