@@ -9,33 +9,6 @@
 
     "examples": [
         {
-            "name"       : "input",
-            "displayName": "Get input",
-            "description": "This example shows how to get userinput by calling Y.getInput(). Two examples are created, one with input-element and one with a text-element.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsastatusbar"],
-            "tags"    : ["gallery-itsastatusbar", "input", "formelement", "form"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "number",
-            "displayName": "Get number",
-            "description": "This example shows how to retrieve a number from the user by calling Y.getNumber. Two examples are created, one without digits and one with digits allowed.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsastatusbar"],
-            "tags"    : ["gallery-itsastatusbar", "number", "formelement", "form"],
-            "hideTableOfContents": true
-        },
-        {
-            "name"       : "email-url",
-            "displayName": "Get emailaddress and url",
-            "description": "This example shows how to retrieve an emailaddress or url from the user.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsastatusbar"],
-            "tags"    : ["gallery-itsastatusbar", "url", "formelement", "form", "email", "emailaddress"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "standard-methods",
             "displayName": "Standard methods",
             "description": "This example shows hows how the standard methods Y.alert, Y.confirm and Y.prompt can be used.",
@@ -45,8 +18,8 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "internationalized",
-            "displayName": "Internationalization of button-labels",
+            "name"       : "modelsync",
+            "displayName": "Modelsync",
             "description": "This example shows the Internationalisation of this module.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsastatusbar"],

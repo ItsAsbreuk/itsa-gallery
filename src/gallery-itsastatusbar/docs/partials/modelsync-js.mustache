@@ -1,0 +1,55 @@
+YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodelsyncpromise', 'promise', 'gallery-itsadialog', function(Y) {
+
+    var countrymodel,
+        loadbutton = Y.one('#loaddata'),
+        mystatusbar = new Y.ITSAStatusbar(),
+        teststatusbar = new Y.ITSAStatusbar({parentNode: '#testbar'});
+
+//    mystatusbar.handleLevel('info');
+
+ //   mystatusbar.handleStatus();
+    teststatusbar.handleModelSync();
+
+    Y.CountryModel = Y.Base.create('countryModel', Y.Model, [], {
+        syncPromise: function(action, options) {
+            if (action==='read') {
+                // simulating loaddelay through Y.later:
+                return new Y.Promise(function (resolve, reject) {
+                    Y.later(
+                        3000,
+                        null,
+                        function() {
+                            resolve({Country: "Netherlands"});
+                        }
+                    );
+                });
+            }
+            // do not forget to reject the promise in case an invalid 'action' is defined
+            return new Y.Promise(function (resolve, reject) {
+                reject(new Error('The syncPromise()-method was is called with undefined action: '+action));
+            });
+        }
+    });
+
+    countrymodel = new Y.CountryModel();
+
+    countrymodel.on('load', function() {
+        console.log('start loading');
+    });
+    countrymodel.after('load', function() {
+        console.log('ready loading');
+    });
+
+    loadbutton.on(
+        'click',
+        function(e) {
+            countrymodel.load();
+            mystatusbar.showMessage('start');
+            var x = Y.showStatus('bezig', {target: teststatusbar});
+            Y.later(2000, null, function() {Y.removeStatus(x);});
+        }
+    );
+
+    loadbutton.removeClass('pure-button-disabled');
+
+});

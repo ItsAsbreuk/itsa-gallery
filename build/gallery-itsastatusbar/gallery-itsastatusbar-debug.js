@@ -27,7 +27,7 @@ var YArray = Y.Array,
     EMPTY = 'empty',
     NUMBER = 'number',
     TEMPLATE_CONTAINERBAR = '<div class="itsa-statusbar-container"></div>',
-    TEMPLATE_BAR_EMPTY = '<div class="itsa-statusbar-empty">ready2</div>',
+    TEMPLATE_BAR_EMPTY = '<div class="itsa-statusbar-empty"></div>',
     TEMPLATE_BAR_INFO = '<div class="itsa-statusbar-info" style="display: none;"></div>',
     TEMPLATE_BAR_WARN = '<div class="itsa-statusbar-warn" style="display: none;"></div>',
     TEMPLATE_BAR_ERROR = '<div class="itsa-statusbar-error" style="display: none;"></div>',
@@ -41,12 +41,11 @@ var YArray = Y.Array,
     SUSPENDED = '_suspended',
     BOOLEAN = 'boolean',
     STRING = 'string',
-    TITLE = 'title',
     BUTTON = 'button',
     READYTEXT = 'readyText',
-    TD_STATUS_CLOSE_BUTTON = '<td class="itsa-statusbar-btntd"><button class="pure-button itsabutton-rounded itsabutton-bordered">close</button></td>',
+    STATUS_CLOSE_BUTTON = '<button class="pure-button itsabutton-rounded itsabutton-bordered" data-barlevel="{level}"">{buttontext}</button>',
     ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
-    STATUSBAR_TEMPLATE = '<table><tbody><tr><td><div class="itsa-statusbar-msgtd">{icontemplate}{message}</div></td>{button}</tr></tbody></table>';
+    STATUSBAR_TEMPLATE = '<div class="itsa-statusbar-statusmsg">{icontemplate}{message}</div>{button}';
 
 function ITSAStatusbar() {
     ITSAStatusbar.superclass.constructor.apply(this, arguments);
@@ -64,9 +63,9 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          * @default 1
          */
         fadeDelay : {
-            value: 0.2,
+            value: 0.15,
             validator: function(val) {
-                return (typeof val===NUMBER) && (val>-0);
+                return (typeof val===NUMBER) && (val>=0);
             }
         },
         /**
@@ -257,11 +256,8 @@ ITSAStatusbar.prototype.viewMessage = function(itsamessage) {
                 var bars = instance._bars,
                     barNode = bars[itsamessage.level];
                 instance._hideBar(bars[EMPTY]);
-                instance._showBar(barNode, itsamessage).then(
-                    function() {
-                        return itsamessage._promise;
-                    }
-                ).then(
+                instance._showBar(barNode, itsamessage);
+                itsamessage._promise.then(
                     function() {
                         Y.log('viewmessage level '+itsamessage.level+' will hide', 'info', 'ITSA-MessageViewer');
                         return instance._hideBar(barNode, true);
@@ -354,6 +350,7 @@ ITSAStatusbar.prototype._renderBars = function() {
     var instance = this,
         eventhandlers = instance._eventhandlers,
         textTransform = instance.get(TEXTTRANSFORM),
+        parentNode = instance.get('parentNode'),
         bars, barempty, barinfo, barwarn, barerror, containerbar;
     containerbar = YNode.create(TEMPLATE_CONTAINERBAR);
     bars = instance._bars;
@@ -361,35 +358,30 @@ ITSAStatusbar.prototype._renderBars = function() {
     barinfo = bars[INFO] = YNode.create(TEMPLATE_BAR_INFO);
     barwarn = bars[WARN] = YNode.create(TEMPLATE_BAR_WARN);
     barerror = bars[ERROR] = YNode.create(TEMPLATE_BAR_ERROR);
-    instance.get('parentNode').prepend(containerbar.append(barempty).append(barinfo).append(barwarn).append(barerror));
+/*jshint expr:true */
+    (parentNode===Y.one('body')) && containerbar.addClass('itsa-body-statusbar');
+/*jshint expr:false */
+    parentNode.prepend(containerbar.append(barempty).append(barinfo).append(barwarn).append(barerror));
     barempty.set('text', instance.get(READYTEXT));
-
-//console.log(instance.get('parentNode').getHTML());
-
-//    barempty.set('text', 'ooh no');
 
 /*jshint expr:true */
     textTransform && containerbar.addClass(CLASS_TEXTTRANSFORM + textTransform);
 /*jshint expr:false */
 
-    YArray.each(
-        [INFO, WARN, ERROR],
-        function(barlevel) {
-            eventhandlers.push(
-                bars[barlevel].delegate(
-                    'tap',
-                    function() {
-                        var itsamessage = instance._lastMessage[barlevel];
-                        itsamessage.resolve();
-                        // ALSO need to make sure the panel is hidden, for some strange interaction between buttons on different levels, this could otherwise go wrong.
-                        itsamessage._promise.then(
-                            Y.bind(instance._hideBar, instance, bars[barlevel], true)
-                        );
-                    },
-                    BUTTON
-                )
-            );
-        }
+    eventhandlers.push(
+        containerbar.delegate(
+            'tap',
+            function(e) {
+                var node = e.target,
+                    barlevel = node.getAttribute('data-barlevel'),
+                    itsamessage;
+                itsamessage = instance._lastMessage[barlevel];
+/*jshint expr:true */
+                itsamessage && itsamessage.resolve();
+/*jshint expr:false */
+            },
+            BUTTON
+        )
     );
 
     eventhandlers.push(
@@ -433,7 +425,7 @@ ITSAStatusbar.prototype._showBar = function(barnode, itsamessage) {
     messageObject = {
         icontemplate: icon ? Lang.sub(ICON_TEMPLATE, {icon: icon}) : '',
         message: Y.Escape.html(itsamessage.message.replace(/<br ?\/?>/g,'x')),
-        button: itsamessage.noButtons ? '' : TD_STATUS_CLOSE_BUTTON
+        button: itsamessage.noButtons ? '' : Lang.sub(STATUS_CLOSE_BUTTON, {buttontext: 'close', level: itsamessage.level})
     };
     barnode.setHTML(Lang.sub(STATUSBAR_TEMPLATE, messageObject));
     Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');
