@@ -27,15 +27,6 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "event-subscribers",
-            "displayName": "Event-subscribers",
-            "description": "This example shows how to use event-subscribers of the the event 'queuedmessage'.",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsadialog"],
-            "tags"    : ["gallery-itsadialog", "subscribe", "event"],
-            "hideTableOfContents": true
-        },
-        {
             "name"       : "prevent-default",
             "displayName": "Using preventDefault()",
             "description": "This example shows how to preventDefault the event 'queuedmessage' and prevent the message from being added to the message-queue",
