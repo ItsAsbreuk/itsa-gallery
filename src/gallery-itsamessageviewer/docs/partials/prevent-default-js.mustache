@@ -1,6 +1,6 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
-    Y.on('queuedmessage', function(e) {
+    Y.on('newmessage', function(e) {
         console.log('prevent message from added to the queue');
         e.preventDefault();
     });

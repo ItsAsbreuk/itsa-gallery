@@ -333,10 +333,11 @@ ITSAMessageViewer.prototype[SHOW_ERROR] = function(title, message, config) {
  * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
  * @since 0.1
 */
-ITSAMessageViewer.prototype[SHOW_STATUS] = function(title, message, config) {
-    var params = ITSAMessageControllerInstance._retrieveParams(title, message, config);
+ITSAMessageViewer.prototype[SHOW_STATUS] = function(message, config) {
+    var params = ITSAMessageControllerInstance._retrieveParams(null, message, config);
     params.config.target = this;
-    return ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS](params.title, params.message, params.config);
+console.log('going to show message '+params.message);
+    return ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS](params.message, params.config);
 };
 
 /**
