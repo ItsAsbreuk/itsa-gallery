@@ -38,8 +38,6 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         LOADDELAY = 5000,
         MODELSYNC = 'modelsync',
         PUBLISHED = '_pub_',
-        QUEUEDMESSAGE = 'queued' + MESSAGE,
-        PUBLISHED_QUEUEDMESSAGE = PUBLISHED+QUEUEDMESSAGE,
         NEWMESSAGE = 'new'+MESSAGE,
         PUBLISHED_NEWMESSAGE = PUBLISHED+NEWMESSAGE,
         GALLERY_ITSAMESSAGE = 'gallery-itsamessage',
@@ -232,13 +230,13 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
     itsamessage._rejectPromise = promiseReject;
     // lazy publish the event
     /**
-      * Event fired when a new Y.ITSAMessage-instance gets in the queue. Aftersubscribers will execute once it gets out (handled by a ITSAMessageViewer)
+      * Event fired when a new Y.ITSAMessage-instance gets in the queue.
       * @preventable
-      * @event queuedmessage
+      * @event newmessage
       * @param e {EventFacade} Event Facade including:
       * @param e.itsamessage {Y.ITSAMessage} Y.ITSAMessage-instance.
     **/
-    instance[PUBLISHED_QUEUEDMESSAGE] || (instance[PUBLISHED_QUEUEDMESSAGE]=Y._publishAsync(QUEUEDMESSAGE,
+    instance[PUBLISHED_NEWMESSAGE] || (instance[PUBLISHED_NEWMESSAGE]=Y.publish(NEWMESSAGE,
                                                                         {
                                                                           defaultTargetOnly: true,
                                                                           emitFacade: true,
@@ -246,7 +244,7 @@ ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
                                                                           preventedFn: instance._prevDefFn
                                                                         }
                                                                        ));
-    Y.fire(QUEUEDMESSAGE, {itsamessage: itsamessage});
+    Y.fire(NEWMESSAGE, {itsamessage: itsamessage});
 /*jshint expr:false */
     return promise;
 };
@@ -400,10 +398,11 @@ ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
                 remove = options.remove || options[DELETE],
                 subtype = type.split(':')[1],
                 statushandle;
-            // cannot check Y.Model until we are sure the model-module is loaded
-            Y.usePromise('model', 'gallery-itsamodelsyncpromise').then(
+            // cannot check Y.Model or Y.ModelList until we are sure the model-module is loaded
+            Y.usePromise('model', 'model-list', 'gallery-itsamodelsyncpromise', 'gallery-itsamodellistsyncpromise').then(
                 function() {
-                    if ((model instanceof Y.Model) && ((subtype!==DESTROY) || remove)) {
+                    // model._itsaMessageViewer needs to be undefined, that means it has no target
+                    if (((model instanceof Y.Model) || (model instanceof Y.ModelList)) && ((subtype!==DESTROY) || remove) && (!model._itsamessageListener)) {
                         // because multiple simultanious on-events will return only one after-event (is this an error?),
                         // we will take the promise's then() to remove the status lateron.
                         statushandle = instance._showStatus(e.statusmessage || instance._syncMessage[subtype], {source: MODELSYNC});
@@ -913,26 +912,6 @@ ITSAMessageControllerClass.prototype._defQueueFn = function(e) {
         itsamessage = e.itsamessage,
         queue = instance.queue;
     queue.push(itsamessage);
-
-// lazy publish event PUBLISHED_NEWMESSAGE
-
-/**
-  * Fired when a new Y.ITSAMessage-instance is added in the pool, that is when the defaultFn of the 'queuemessage'-event executes.
-  * @event newmessage
-  * @param e {EventFacade} Event Facade including:
-  * @param e.itsamessage {Y.ITSAMessage} The new Y.ITSAMessage-instance.
-**/
-
-/*jshint expr:true */
-    instance[PUBLISHED_NEWMESSAGE] || (instance[PUBLISHED_NEWMESSAGE]=Y.publish(NEWMESSAGE,
-                                                                                {
-                                                                                  defaultTargetOnly: true,
-                                                                                  broadcast: 2,
-                                                                                  emitFacade: true
-                                                                                }
-                                                                               ));
-/*jshint expr:false */
-    Y.fire(NEWMESSAGE, {itsamessage: itsamessage});
     return itsamessage._promise.then(
                 null,
                 function() {return true;} // fullfil promise
@@ -1022,168 +1001,6 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
             return instance.queueMessage(itsamessage);
         }
     );
-};
-
- /**
-   * Hack with the help of Luke Smith: https://gist.github.com/lsmith/6664382/d688740bb91f9ecfc3c89456a82f30d35c5095cb
-   * Variant of publish(), but works with asynchronious defaultFn and preventedFn.
-   *
-   * Creates a new custom event of the specified type.  If a custom event
-   * by that name already exists, it will not be re-created.  In either
-   * case the custom event is returned.
-   *
-   * @method _publishAsync
-   *
-   * @param type {String} the type, or name of the event
-   * @param opts {object} optional config params.  Valid properties are:
-   *
-   *  <ul>
-   *    <li>
-   *   'broadcast': whether or not the YUI instance and YUI global are notified when the event is fired (false)
-   *    </li>
-   *    <li>
-   *   'bubbles': whether or not this event bubbles (true)
-   *              Events can only bubble if emitFacade is true.
-   *    </li>
-   *    <li>
-   *   'context': the default execution context for the listeners (this)
-   *    </li>
-   *    <li>
-   *   'defaultFn': the default function to execute when this event fires if preventDefault was not called
-   *    </li>
-   *    <li>
-   *   'emitFacade': whether or not this event emits a facade (false)
-   *    </li>
-   *    <li>
-   *   'prefix': the prefix for this targets events, e.g., 'menu' in 'menu:click'
-   *    </li>
-   *    <li>
-   *   'fireOnce': if an event is configured to fire once, new subscribers after
-   *   the fire will be notified immediately.
-   *    </li>
-   *    <li>
-   *   'async': fireOnce event listeners will fire synchronously if the event has already
-   *    fired unless async is true.
-   *    </li>
-   *    <li>
-   *   'preventable': whether or not preventDefault() has an effect (true)
-   *    </li>
-   *    <li>
-   *   'preventedFn': a function that is executed when preventDefault is called
-   *    </li>
-   *    <li>
-   *   'queuable': whether or not this event can be queued during bubbling (false)
-   *    </li>
-   *    <li>
-   *   'silent': if silent is true, debug messages are not provided for this event.
-   *    </li>
-   *    <li>
-   *   'stoppedFn': a function that is executed when stopPropagation is called
-   *    </li>
-   *
-   *    <li>
-   *   'monitored': specifies whether or not this event should send notifications about
-   *   when the event has been attached, detached, or published.
-   *    </li>
-   *    <li>
-   *   'type': the event type (valid option if not provided as the first parameter to publish)
-   *    </li>
-   *  </ul>
-   *
-   *  @return {CustomEvent} the custom event
-   *  @private
-   *
-  **/
-Y._publishAsync = function(type, opts) {
-    var instance = this,
-        asyncEvent = instance.publish(type, opts);
-
-    asyncEvent._firing = new Y.Promise(function (resolve) { resolve(); });
-
-    asyncEvent.fire = function (data) {
-        var args  = Y.Array(arguments, 0, true),
-            stack, next;
-
-        asyncEvent._firing = asyncEvent._firing.then(function () {
-            stack = {
-                id: asyncEvent.id,
-                next: asyncEvent,
-                silent: asyncEvent.silent,
-                stopped: 0,
-                prevented: 0,
-                bubbling: null,
-                type: asyncEvent.type,
-                defaultTargetOnly: asyncEvent.defaultTargetOnly
-            };
-            asyncEvent.details = args;
-            // Execute on() subscribers
-            var subs = asyncEvent._subscribers,
-                args2 = [],
-                e, i, len;
-
-                args2.push.apply(args2, data);
-                e = asyncEvent._createFacade(args2);
-
-            e.target = e.target || instance;
-            if (subs) {
-                for (i = 0, len = subs.length; i < len; ++i) {
-                    try {
-                        subs[i].fn.call(subs[i].context, e);
-                    }
-                    catch (catchErr) {
-                    }
-                }
-            }
-            // Execute on() subscribers for each bubble target and their respective targets:
-            if (asyncEvent.bubbles && !asyncEvent.stopped) {
-                instance.bubble(asyncEvent, args, null, stack);
-                e.prevented = Math.max(e.prevented, stack.prevented);
-            }
-
-            // Resolve the _firing promise with either prefentedFn promise if it was prevented, or with a promise for
-            // the result of the defaultFn followed by the execution of the after subs.
-            return e.prevented ?
-                asyncEvent.preventedFn.call(instance, e).then(null, function (reason) {
-                    return false;
-                }) :
-                asyncEvent.defaultFn.call(instance, e).then(function () {
-                    // no need to handle 'response' it is merged into 'e' within the defaultfunction
-                    // Execute after() subscribers
-
-                    subs = asyncEvent._afters;
-                    if (subs) {
-                        for (i = 0, len = subs.length; i < len; ++i) {
-                            try {
-                                subs[i].fn.call(subs[i].context, e);
-                            }
-                            catch (catchErr) {
-                            }
-                        }
-                    }
-                    // Execute after() subscribers for each bubble target and their respective targets:
-                    if (stack.afterQueue) {
-                        while ((next = stack.afterQueue.last())) {
-                            next();
-                        }
-                    }
-
-                // Catch errors/preventions and reset the promise state to fulfilled for
-                // the next call to fire();
-                }).then(null, function (reason) {
-                    var facade = {
-                        error   : reason && (reason.message || reason),
-                        src     : 'ITSAMessageViewer._processQueue'
-                    };
-                    instance._lazyFireErrorEvent(facade);
-                    return false;
-                });
-        });
-    };
-
-    asyncEvent._fire = function (args) {
-        return asyncEvent.fire(args[0]);
-    };
-    return asyncEvent;
 };
 
 // define 1 global messagecontroller
