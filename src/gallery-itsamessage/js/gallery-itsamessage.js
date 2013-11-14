@@ -204,8 +204,15 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @private
          */
         /**
-         * Internal flag that tells whether the instance is a simplemessage that only holds a title+message.
+         * Internal flag that tells whether the instance is a simplemessage that can be proccessed without title, buttons and as simple text.
          * @property _simpleMessage
+         * @default false
+         * @type Boolean
+         * @private
+         */
+        /**
+         * Internal flag that tells whether the instance is a statusmessage that needs to be removed manually.
+         * @property _statusMessage
          * @default false
          * @type Boolean
          * @private
@@ -251,6 +258,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance._config = {}; // orriginal config passed trhough
         instance._processing = false;
         instance._simpleMessage = false;
+        instance._statusMessage = false;
         instance._suspended = false;
         instance._timerProcessed = 0;
         instance._timerStopped = true;
@@ -295,6 +303,18 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         }
     }
 });
+
+/**
+ * Makes the message to target the specified messageViewer.
+ *
+ * @method addTarget
+ * @param itsamessageviewer {Y.ITSAMessageViewer}
+ * @since 0.1
+*/
+ITSAMessage.prototype.addTarget = function(itsamessageviewer) {
+    Y.log('reject', 'info', 'ITSAMessage');
+    this.target = itsamessageviewer;
+};
 
 /**
  * Rejects the Y.ITSAMessage. Therefore it will removed from the Y.ITSAMessageController-queue with a Promise-reject callback.

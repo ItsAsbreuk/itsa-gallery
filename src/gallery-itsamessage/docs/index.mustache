@@ -18,6 +18,11 @@
         The attributes have a special meaning: their values will be present in the resolved MessageViewer (see examples). Therefore, configuration is done by its properties. Y.ITSAMessage has 1 predefined attribute: <code>button</code> which holds the information of the pressed button inside the Promise-callback of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>. It depends on the sort of Y.ITSAMessageViewer-descendant whether the supplied properties are effective.
     </p>
 
+<h2>Who handles the message?</h2>
+    <p>
+        The Y.ITSAMessage-instance will be processed by a <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>-instance. You can target the message to a MessageViewer-instance by <code>yourMessage.addTarget(yourMessageViewer)</code>. If you don't target a message, then it will be processed as an 'untargeted'-message. Each MessageViewer could be set up to handle the 'untargeted'-messages, but only one at a time. By default, untargeted mesaages are processed by Y.ITSADialog (if loaded).
+    </p>
+
 <h2>Finishing messages</h2>
     <p>
         The <b>ITSA-MVC-message system</b> is build in a way that messages are removed from the queue once they have been viewed. Y.ITSAMessage has an internal _promise-property that is set up by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> once it gets into the queue and will be fulfilled by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a> once it is viewed.

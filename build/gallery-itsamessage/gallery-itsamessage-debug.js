@@ -206,8 +206,15 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
          * @private
          */
         /**
-         * Internal flag that tells whether the instance is a simplemessage that only holds a title+message.
+         * Internal flag that tells whether the instance is a simplemessage that can be proccessed without title, buttons and as simple text.
          * @property _simpleMessage
+         * @default false
+         * @type Boolean
+         * @private
+         */
+        /**
+         * Internal flag that tells whether the instance is a statusmessage that needs to be removed manually.
+         * @property _statusMessage
          * @default false
          * @type Boolean
          * @private
@@ -253,6 +260,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance._config = {}; // orriginal config passed trhough
         instance._processing = false;
         instance._simpleMessage = false;
+        instance._statusMessage = false;
         instance._suspended = false;
         instance._timerProcessed = 0;
         instance._timerStopped = true;
