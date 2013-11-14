@@ -7,7 +7,8 @@
             "node-base",
             "json-parse",
             "promise",
-            "model"
+            "model",
+            "gallery-itsamodulesloadedpromise"
         ]
     }
 }
