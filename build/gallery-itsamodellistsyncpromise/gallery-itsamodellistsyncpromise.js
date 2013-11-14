@@ -2,7 +2,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
 
 'use strict';
 
-/*jshint maxlen:175 */
+/*jshint maxlen:200 */
 
 /**
  *
@@ -24,7 +24,9 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
        PUBLISHED = '_published',
        READ = 'read',
        APPEND = 'append',
+       DELETE = 'delete',
        READAPPEND = READ+APPEND,
+       MODELSYNC = 'modelsync',
        DEFFN = '_defFn_',
    /**
      * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
@@ -119,6 +121,59 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
     };
 
 /**
+ * Makes sync-messages to target the specified messageViewer. You can only target to 1 MessageViewer at the same time.<br>
+ * See gallery-itsamessageviewer for more info.
+ *
+ * @method addMessageTarget
+ * @param itsamessageviewer {Y.ITSAMessageViewer}
+ * @since 0.4
+*/
+YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
+    var instance = this;
+    Y.usePromise('gallery-itsamessagecontroller', 'gallery-itsamessageviewer').then(
+        function() {
+            return Y.ITSAMessageController.isReady();
+        }
+    ).then(
+        function() {
+            if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
+/*jshint expr:true */
+                instance._itsamessageListener && instance.removeMessageTarget();
+/*jshint expr:false */
+                instance._itsamessageListener = instance.on(
+                    [LOAD, SUBMIT, SAVE, DESTROY],
+                    function(e) {
+                        var options = e.options,
+                            remove = options.remove || options[DELETE],
+                            type = e.type,
+                            typesplit = type.split(':'),
+                            subtype = typesplit[1] || typesplit[0],
+                            statushandle;
+                        if ((subtype!==DESTROY) || remove) {
+                            statushandle = itsamessageviewer.showStatus(e.statusmessage || Y.ITSAMessageController._syncMessage[subtype], {source: MODELSYNC});
+                            e.promise.then(
+                                function() {
+                                    itsamessageviewer.removeStatus(statushandle);
+                                },
+                                function() {
+                                    itsamessageviewer.removeStatus(statushandle);
+                                }
+                            );
+                        }
+                    }
+                );
+                instance._itsamessagedestroylistener1 = instance.onceAfter(DESTROY, function() {
+                    instance._itsamessageListener.detach();
+                });
+                instance._itsamessagedestroylistener2 = itsamessageviewer.once(DESTROY, function() {
+                    instance._itsamessageListener.detach();
+                });
+            }
+        }
+    );
+};
+
+/**
   * Destroys this model instance and removes it from its containing lists, if any. The 'callback', if one is provided,
   * will be called after the model is destroyed.<br /><br />
   * If `options.remove` is `true`, then this method delegates to the `sync()` method to delete the model from the persistence layer, which is an
@@ -132,6 +187,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
   * @method destroymodels
   * @param {Object} [options] Sync options. It's up to the custom sync implementation to determine what options it supports or requires, if any.
   *   @param {Boolean} [options.remove=false] If `true`, the model will be deleted via the sync layer in addition to the instance being destroyed.
+  *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious destruction. Will overrule the default message. See gallery-itsamessageviewer.
   * @param {callback} [callback] Called after the model has been destroyed (and deleted via the sync layer if `options.remove` is `true`).
   *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. Otherwise 'err' will be null.
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
@@ -152,6 +208,8 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method destroymodelsPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
+ *   @param {Boolean} [options.remove=false] If `true`, the model will be deleted via the sync layer in addition to the instance being destroyed.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious destruction. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 
@@ -190,6 +248,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
   * @method load
   * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
   *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+  *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
   * @param {callback} [callback] Called when the sync operation finishes.
   *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. If the sync operation succeeded, 'err' will be null.
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
@@ -212,6 +271,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method loadPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
 **/
 
@@ -234,6 +294,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
   * @method loadappend
   * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
   *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+  *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
   * @param {callback} [callback] Called when the sync operation finishes.
   *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. If the sync operation succeeded, 'err' will be null.
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
@@ -256,6 +317,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method loadappendPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
 **/
 
@@ -280,6 +342,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method save
  * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during saving destruction. Will overrule the default message. See gallery-itsamessageviewer.
  * @param {Function} [callback] Called when the sync operation finishes.
  *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
  *                                    If the sync operation succeeded, 'err' will be null.
@@ -307,11 +370,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method savePromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious saving. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 
 /**
- * Saves this model to the server.
+ * Submits this model to the server.
  *
  * This method delegates to the `sync()` method to perform the actual save operation, which is an asynchronous action.
  * Specify a 'callback' function to be notified of success or failure.
@@ -331,6 +395,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method submit
  * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
  * @param {Function} [callback] Called when the sync operation finishes.
  *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
  *                                    If the sync operation succeeded, 'err' will be null.
@@ -340,7 +405,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
 */
 
 /**
- * Saves this model to the server.
+ * Submits this model to the server.
  * <br /><br />
  * This method delegates to the `sync()` method to perform the actual save
  * operation, which is an asynchronous action.
@@ -358,6 +423,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * @method submitPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 
@@ -386,6 +452,21 @@ YArray.each(
         };
     }
 );
+
+/**
+ * Removes the messageViewer-target that was set up by addMessageTarget().
+ *
+ * @method removeMessageTarget
+ * @since 0.1
+*/
+YModelList.prototype.removeMessageTarget = function() {
+    var instance = this;
+/*jshint expr:true */
+    instance._itsamessageListener && instance._itsamessageListener.detach();
+    instance._itsamessagedestroylistener1 && instance._itsamessagedestroylistener1.detach();
+    instance._itsamessagedestroylistener2 && instance._itsamessagedestroylistener2.detach();
+/*jshint expr:false */
+};
 
 /**
  * Private function that creates the promises for all promise-events
@@ -899,6 +980,7 @@ YModelList.prototype.destroyPromise = YModelList.prototype.destroyModelPromise;
         "promise",
         "model",
         "model-list",
-        "gallery-itsamodelsyncpromise"
+        "gallery-itsamodelsyncpromise",
+        "gallery-itsamodulesloadedpromise"
     ]
 });
