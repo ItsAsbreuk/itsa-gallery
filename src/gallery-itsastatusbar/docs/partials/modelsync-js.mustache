@@ -8,7 +8,7 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
 //    mystatusbar.handleLevel('info');
 
  //   mystatusbar.handleStatus();
-    teststatusbar.handleModelSync();
+    mystatusbar.handleModelSync();
 
     Y.CountryModel = Y.Base.create('countryModel', Y.Model, [], {
         syncPromise: function(action, options) {
@@ -16,7 +16,7 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
                 // simulating loaddelay through Y.later:
                 return new Y.Promise(function (resolve, reject) {
                     Y.later(
-                        3000,
+                        6000,
                         null,
                         function() {
                             resolve({Country: "Netherlands"});
@@ -32,24 +32,19 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
     });
 
     countrymodel = new Y.CountryModel();
-
-    countrymodel.on('load', function() {
-        console.log('start loading');
-    });
-    countrymodel.after('load', function() {
-        console.log('ready loading');
-    });
-
+countrymodel.addMessageTarget(teststatusbar);
     loadbutton.on(
         'click',
         function(e) {
             countrymodel.load();
-            mystatusbar.showMessage('start');
-            var x = Y.showStatus('bezig', {target: teststatusbar});
-            Y.later(2000, null, function() {Y.removeStatus(x);});
+         //   mystatusbar.showMessage('start');
+//            var x = Y.showStatus('bezig', {target: mystatusbar});
+//            Y.later(4000, null, function() {Y.removeStatus(x);});
         }
     );
 
     loadbutton.removeClass('pure-button-disabled');
+
+
 
 });
