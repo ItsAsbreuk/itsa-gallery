@@ -55,9 +55,10 @@ var ITSAPanel,
     CHANGE = 'Change',
     FLOATED = 'floated',
     BODY = 'body',
-    HEADERVIEW = 'header'+VIEW,
-    BODYVIEW = BODY+VIEW,
+    HEADER = 'header',
     FOOTER = 'footer',
+    HEADERVIEW = HEADER+VIEW,
+    BODYVIEW = BODY+VIEW,
     FOOTERVIEW = FOOTER+VIEW,
     NUMBER = 'number',
     OFFSETHEIGHT = 'offsetHeight',
@@ -96,13 +97,14 @@ var ITSAPanel,
     HIDDENSECTIONCLASS = ITSA+HIDDEN+'section',
     INLINECLASS = ITSA+'inline'+PANEL,
     CLASSNAME = 'className',
-    PANELHEADERCLASS = ITSA+'panelheader',
-    PANELBODYCLASS = ITSA+'panelbody',
-    PANELFOOTERCLASS = ITSA+'panelfooter',
-    PANELSTATUSBARCLASS = ITSA+'panelstatusbar',
-    PANELHEADERINNERCLASS = ITSA+'panelinnerheader',
-    PANELBODYINNERCLASS = ITSA+'panelinnerbody',
-    PANELFOOTERINNERCLASS = ITSA+'panelinnerfooter',
+    PANELHEADERCLASS = ITSA+PANEL+HEADER,
+    PANELBODYCLASS = ITSA+PANEL+BODY,
+    PANELFOOTERCLASS = ITSA+PANEL+FOOTER,
+    PANELSTATUSBARCLASS = ITSA+PANEL+'statusbar',
+    INNER = 'inner',
+    PANELHEADERINNERCLASS = ITSA+PANEL+INNER+HEADER,
+    PANELBODYINNERCLASS = ITSA+PANEL+INNER+BODY,
+    PANELFOOTERINNERCLASS = ITSA+PANEL+INNER+FOOTER,
     ITSA_PANELCLOSEBTN = ITSA+PANEL+'closebtn',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-disabled',
     HEADERTEMPLATE = '<div class="'+PANELHEADERCLASS+'"><div class="'+PANELHEADERINNERCLASS+'"></div></div>',
@@ -112,12 +114,20 @@ var ITSAPanel,
     CLOSE_BUTTON = '<'+BUTTON+' class="pure-'+BUTTON+' itsa'+BUTTON+'-onlyicon '+ITSA_PANELCLOSEBTN+'" data-focusable="true"><i class="itsaicon-form-abort"></i></'+BUTTON+'>',
     DEFAULT_HEADERVIEW = '<div>{title}</div><div class="itsa-rightalign">{titleRight}</div>',
     DEFAULT_BODYVIEW = '{body}',
-    DEFAULT_FOOTERVIEW = '<div>{footer}</div><div class="itsa-rightalign">{footerRight}</div>',
+    DEFAULT_FOOTERVIEW = '<div>{'+FOOTER+'}</div><div class="itsa-rightalign">{footerRight}</div>',
     CLICK = 'click',
     CLICK_OUTSIDE = CLICK+'outside',
-    FOOTERONTOP = 'footerOnTop',
+    FOOTERONTOP = FOOTER+'OnTop',
     STATUSBAR = 'statusBar',
-    CLASS_FOOTERONTOP = 'itsa-panelfooter-top',
+    CLASS_FOOTERONTOP = ITSA+PANEL+FOOTER+'-top',
+    SIZE_SMALL = 'small',
+    SIZE_MEDIUM = 'medium',
+    SIZE_LARGE = 'large',
+    FOOTERSIZE = 'footerSize',
+    SIZE = 'size',
+    FOOTERSIZE_SMALL_CLASS = ITSA+PANEL+FOOTER+SIZE_SMALL+SIZE,
+    FOOTERSIZE_MEDIUM_CLASS = ITSA+PANEL+FOOTER+SIZE_MEDIUM+SIZE,
+    FOOTERSIZE_LARGE_CLASS = ITSA+PANEL+FOOTER+SIZE_LARGE+SIZE,
     VALUE = 'value',
     /**
       * Fired when a UI-elemnt needs to focus to the next element (in case of editable view).
@@ -320,6 +330,20 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
+            }
+        },
+        /**
+         * The size (height) of the footersection and its buttons.
+         *
+         * @attribute footerSize
+         * @type {String} 'small' || 'medium' || 'large'
+         * @default medium
+         * @since 0.2
+        */
+        footerSize : {
+            value: SIZE_MEDIUM,
+            validator: function(val) {
+                return (val===SIZE_SMALL) || (val===SIZE_MEDIUM) || (val===SIZE_LARGE);
             }
         },
         /**
@@ -594,6 +618,7 @@ ITSAPanel.prototype.initializer = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
         footerOnTop = instance.get(FOOTERONTOP),
+        footerSize = instance.get(FOOTERSIZE),
         className = instance.get(CLASSNAME);
 
     // asynchroniously loading fonticons:
@@ -658,6 +683,11 @@ ITSAPanel.prototype.initializer = function() {
     boundingBox.toggleClass(INLINECLASS, !instance.get(FLOATED));
     boundingBox.toggleClass(STYLEDPANELCLASS, instance.get(STYLED));
     boundingBox.toggleClass(FOCUSED_CLASS, instance.get(FOCUSED));
+/*jshint expr:true */
+    (footerSize===SIZE_SMALL) && boundingBox.addClass(FOOTERSIZE_SMALL_CLASS);
+    (footerSize===SIZE_MEDIUM) && boundingBox.addClass(FOOTERSIZE_MEDIUM_CLASS);
+    (footerSize===SIZE_LARGE) && boundingBox.addClass(FOOTERSIZE_LARGE_CLASS);
+/*jshint expr:false */
     // hide boundingBox by default and maybe inhide when rendered --> otherwise there might be a flicker effect when resetting its height
     boundingBox.addClass(HIDDENPANELCLASS);
     instance._setButtonTransform(instance.get(BUTTONTRANSFORM));
@@ -674,7 +704,11 @@ ITSAPanel.prototype.initializer = function() {
     instance.get(VISIBLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
     className && boundingBox.addClass(className);
     footerOnTop && boundingBox.addClass(CLASS_FOOTERONTOP);
-    instance.renderPromise().then(
+    instance._statusbarReady = new Y.Promise(function (resolve) {
+        instance._resolveStatusbarReady = resolve; // so we can resolve it from the outside
+    });
+
+    instance.readyPromise().then(
         function() {
             instance.get(VISIBLE) && boundingBox.removeClass(HIDDENPANELCLASS);
         }
@@ -737,7 +771,11 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(VISIBLE+CHANGE, function(e) {
             var visible = e.newVal;
-            boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
+            instance.readyPromise().then( // not too soon, the statusbar might not be rendered
+                function() {
+                    boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
+                }
+            );
             contentBox.toggleClass(FOCUSED_CLASS, visible); // to make tabkeymanager work
             if (visible) {
 /*jshint expr:true */
@@ -759,6 +797,18 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(BUTTONTRANSFORM+CHANGE, function(e) {
             instance._setButtonTransform(e.newVal);
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(FOOTERSIZE+CHANGE, function(e) {
+            var footerSize = e.newVal;
+            boundingBox.addClass(FOOTERSIZE_SMALL_CLASS, (footerSize===SIZE_SMALL));
+            boundingBox.addClass(FOOTERSIZE_MEDIUM_CLASS, (footerSize===SIZE_MEDIUM));
+            boundingBox.addClass(FOOTERSIZE_LARGE_CLASS, (footerSize===SIZE_LARGE));
+/*jshint expr:true */
+            instance.get(FOOTERONTOP) ? instance._adjustPaddingTop() : instance._adjustPaddingBottom();
+/*jshint expr:false */
         })
     );
 
@@ -818,7 +868,7 @@ ITSAPanel.prototype.bindUI = function() {
             [RESIZE+':end', HEIGHT+CHANGE, WIDTH+CHANGE, 'minHeight'+CHANGE, 'minWidth'+CHANGE],
             function() {
 /*jshint expr:true */
-                instance.get(CENTERED) && instance.centered();
+                instance.get(CENTERED) && instance[CENTERED]();
 /*jshint expr:false */
             }
         )
@@ -1040,6 +1090,10 @@ ITSAPanel.prototype.bindUI = function() {
             instance._adjustPaddingBottom();
         })
     );
+};
+
+Y.Widget.prototype.promiseBeforeReady = function() {
+    return this._statusbarReady;
 };
 
 /**
@@ -1304,19 +1358,25 @@ ITSAPanel.prototype._renderStatusBar = function() {
         statusbar = instance._statusbar,
         itsastatusbar = instance._itsastatusbar,
         hideStatusbar = !instance.get(STATUSBAR);
-console.log(statusbar);
     statusbar.toggleClass(HIDDENSECTIONCLASS, hideStatusbar);
     if (hideStatusbar) {
+        instance._resolveStatusbarReady();
         if (itsastatusbar) {
             itsastatusbar.destroy();
+            instance._adjustPaddingBottom();
         }
     }
     else if (!itsastatusbar) {
         Y.use('gallery-itsastatusbar', function() {
-            instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar});
+            itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar});
+            itsastatusbar.isReady().then(
+                function() {
+                    instance._adjustPaddingBottom();
+                    instance._resolveStatusbarReady();
+                }
+            );
         });
     }
-    instance._adjustPaddingBottom();
 };
 
 /**

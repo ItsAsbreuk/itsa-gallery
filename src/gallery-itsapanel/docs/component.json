@@ -45,6 +45,15 @@
             "hideTableOfContents": true
         },
         {
+            "name"       : "resizable-panel",
+            "displayName": "Creating a resizable panel",
+            "description": "This example shows how to create a resizable panel.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : [ "gallery-itsapanel"],
+            "tags"    : ["gallery-itsapanel", "panel", "itsapanel", "resizable", "resize"],
+            "hideTableOfContents": true
+        },
+        {
             "name"       : "custom-css",
             "displayName": "Customize style",
             "description": "This example shows how to create your own stylescheme for ITSAPanel-instances.",

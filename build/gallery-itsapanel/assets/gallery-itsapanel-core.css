@@ -12,6 +12,7 @@
     z-index: 2 !important;
     overflow: hidden;
     border: solid 1px #000;
+    vertical-align: middle;
     font-size: 100%;
     text-align: left;
     width: auto !important;
@@ -84,12 +85,18 @@
     min-height: 24px;
 }
 .itsa-panel .itsa-panelheader,
+.itsa-panel .itsa-panelstatusbar,
 .itsa-panel .itsa-panelfooter {
     position: absolute;
     line-height: 1em;
     white-space: nowrap;
     vertical-align: middle;
     overflow: hidden;
+}
+
+.itsa-panel .itsa-statusbar-container {
+    height: 1.7em;
+    line-height: 1.7em;
 }
 .itsa-panel .itsa-panelheader {
     top: 0;
@@ -102,6 +109,10 @@
     *zoom: 1;
     width: 100%;
 }
+.itsa-panel .itsa-panelstatusbar {
+    width: 100%;
+    bottom: 0;
+}
 .itsa-panel .itsa-panelfooter {
     bottom: 0;
 }
@@ -111,16 +122,30 @@
 .itsa-panel .itsa-panelinnerfooter {
     padding: 0.55em 1.2em 0.55em 0.7em;
 }
-.itsa-panel .itsaviewmodel {
-    overflow: hidden;
+
+.itsa-panel.itsa-panelfootersmallsize .itsa-panelinnerfooter {
+    padding: 0.4em 1.2em 0.4em 0.7em;
+    font-size: 85%;
 }
-.itsa-panel .itsa-panelinnerfooter.itsaviewmodel {
-    text-align: right;
+
+.itsa-panel.itsa-panelfooterlargesize .itsa-panelinnerfooter {
+    padding: 0.65em 1.2em 0.65em 0.7em;
+    font-size: 135%;
 }
+
 .itsa-panel .itsa-panelinnerfooter button + button,
 .itsa-panel .itsa-panelinnerfooter button + button {
     margin-left: 0.5em;
 }
+
+.itsa-panel .itsaviewmodel {
+    overflow: hidden;
+}
+
+.itsa-panel .itsa-panelinnerfooter.itsaviewmodel {
+    text-align: right;
+}
+
 .itsa-panel .itsa-panelinnerheader >div,
 .itsa-panel .itsa-panelinnerfooter >div {
     vertical-align: middle;
