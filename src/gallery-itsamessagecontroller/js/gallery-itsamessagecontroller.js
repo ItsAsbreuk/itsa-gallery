@@ -103,14 +103,6 @@ ITSAMessageControllerClass.prototype.initializer = function() {
     instance._eventhandlers = [];
 
     /**
-     * Internal reference with default i18n syncMessages for Models 'load', 'submit', 'save' and 'destroy' events
-     * @property instance_syncMessage
-     * @default {load: 'loading data...', submit: 'submitting data...', save: 'updating data...', destroy: 'updating data...'}
-     * @type Object
-     * @private
-     */
-
-    /**
      * Reference to which MessageViewer wil handle untargeted messages.
      * @property _targets
      * @default {info: 'itsadialog', warn: 'itsadialog', error: 'itsadialog', status: undefined, modelsync: undefined}
@@ -188,17 +180,11 @@ ITSAMessageControllerClass.prototype.isReady = function() {
     return instance._readyPromise || (instance._readyPromise=Y.usePromise(BASE_BUILD, GALLERY_ITSAMESSAGE).then(
                                                                  function() {
                                                                      instance._intlMessageObj = new Y.ITSAMessage(); // used for synchronous translations
-                                                                     instance._syncMessage = {
-                                                                         load: 'loading data...',
-                                                                         submit: 'submitting data...',
-                                                                         save: 'updating data...',
-                                                                         destroy: 'updating data...'
-                                                                     };
                                                                  },
                                                                  function(reason) {
                                                                     var facade = {
                                                                         error   : reason && (reason.message || reason),
-                                                                        src     : 'ITSAMessageViewer._processQueue'
+                                                                        src     : 'ITSAMessageViewer'
                                                                     };
                                                                     instance._lazyFireErrorEvent(facade);
                                                                  }
@@ -307,7 +293,6 @@ ITSAMessageControllerClass.prototype.destructor = function() {
 /*jshint expr:false */
     instance._targets = {};
     instance._simpleTargets = {};
-    instance._syncMessage = {};
 };
 
 //--- private methods ---------------------------------------------------
@@ -412,7 +397,7 @@ ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
                     if (((model instanceof Y.Model) || (model instanceof Y.ModelList)) && ((subtype!==DESTROY) || remove) && (!model._itsamessageListener)) {
                         // because multiple simultanious on-events will return only one after-event (is this an error?),
                         // we will take the promise's then() to remove the status lateron.
-                        statushandle = instance._showStatus(e.syncmessage || instance._syncMessage[subtype], {source: MODELSYNC});
+                        statushandle = instance._showStatus(e.syncmessage || model._defSyncMessage[subtype], {source: MODELSYNC});
                         e.promise.then(
                             function() {
                                 instance._removeStatus(statushandle);
