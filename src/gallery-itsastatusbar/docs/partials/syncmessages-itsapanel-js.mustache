@@ -1,34 +1,59 @@
-YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
-Y.one('body').addClass('yui3-skin-sam');
+YUI(yuiconfig).use('node', 'gallery-itsapanel', 'gallery-itsastatusbar', 'model', 'gallery-itsamodelsyncpromise', 'promise', 'gallerycss-itsa-base', function(Y) {
 
-    Y.getNumber('Whole numbers:', 'Enter a value between 2 and 10 (no digits allowed):', {
-        imageButtons: true,
-        value: 8,
-        required: true,
-        formconfig: {
-            label: 'value'
-        },
-        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
-        validationerror: 'Please enter value between 2 and 10'
-    }).then(
-        function(result) {
-            console.log('number: '+result.number);
+    // 'gallerycss-itsa-base' is loaded to give the pure-buttons a border
+    var mystatusbar = new Y.ITSAStatusbar(),
+        btnLoadModel1 = Y.one('#btnLoadModel1'),
+        btnLoadModel2 = Y.one('#btnLoadModel2'),
+        countrymodel1, countrymodel2, mypanel;
+
+    mystatusbar.handleModelSync();
+
+    Y.CountryModel = Y.Base.create('countryModel', Y.Model, [], {
+        syncPromise: function(action, options) {
+            if (action==='read') {
+                // simulating loaddelay through Y.later:
+                return new Y.Promise(function (resolve, reject) {
+                    Y.later(
+                        3000,
+                        null,
+                        function() {
+                            resolve({Country: "Netherlands"});
+                        }
+                    );
+                });
+            }
+            // do not forget to reject the promise in case an invalid 'action' is defined
+            return new Y.Promise(function (resolve, reject) {
+                reject(new Error('The syncPromise()-method was is called with undefined action: '+action));
+            });
+        }
+    });
+
+    countrymodel1 = new Y.CountryModel();
+    countrymodel2 = new Y.CountryModel();
+
+    mypanel = new Y.ITSAPanel({
+        boundingBox: '#itsapanel',
+        title: 'Information',
+        statusBar: true,
+        body: 'This panel handles syncmessages from Model 2',
+        floated: false,
+        width: 320,
+        visible: true
+    }).render();
+    countrymodel2.addMessageTarget(mypanel);
+
+    btnLoadModel1.on(
+        'click',
+        function() {
+            countrymodel1.load(); // <-- uses default syncmessage
         }
     );
 
-    Y.getNumber('Broken numbers:', 'Enter a value between 2 and 10 (digits are allowed):', {
-        imageButtons: true,
-        value: 8,
-        required: true,
-        formconfig: {
-            label: 'value',
-            digits: true
-        },
-        validator: function(val) {return (typeof val === 'number') && (val>=2) && (val<=10)},
-        validationerror: 'Please enter value between 2 and 10'
-    }).then(
-        function(result) {
-            console.log('number: '+result.number);
+    btnLoadModel2.on(
+        'click',
+        function() {
+            countrymodel2.load({syncmessage: 'I am loading...'});
         }
     );
 
