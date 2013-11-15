@@ -4,7 +4,7 @@
         {{description}}
     </p>
     <p>
-         Y.ITSAMessageViewer is the (abstract) View of the <b>ITSA-MVC-message system</b>. The developer should use a descendant Class to view the messages.
+         Y.ITSAMessageViewer is the (abstract) View of the <b>ITSA-MVC-message system</b>. The developer should use a descendant Class to view the messages. ViewInstance kan show messages that are put in the MVC-queue by several statements like Y.showMessage() f.i. Also, Y.Model and Y.ModelList can send messages during asynchronous requests, which can be handled by a MessageViewer like <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsastatusbar/">gallery-itsastatusbar</a>.
      </p>
 </div>
 
@@ -55,16 +55,21 @@
 
 <h2>How to handle the messages?</h2>
     <p>
-        <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage-instances</a> need be processed by a Y.ITSAMessageViewer-instance. You can target messages to the MessageViewer-instance by <code>yourMessage.addTarget(yourMessageViewer)</code>. If you don't target a message, then it will be processed as an 'untargeted'-message. Each MessageViewer could be set up to handle the 'untargeted'-messages, but only one at a time.
+        <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage-instances</a> need be processed by a Y.ITSAMessageViewer-instance. You can target messages to the MessageViewer-instance by <code>yourMessage.addTarget(yourMessageViewer)</code>. If you don't target a message, then it will be processed as an 'untargeted'-message. Each MessageViewer could be set up to handle the 'untargeted'-messages, but only one at a time. Descendants of this Class also can automaticly create some message-types that target the MessageView-instance automaticly (see below).
     </p>
 
     <h3>targeting messages</h3>
     <p>
-        Messages (Y.ITSAMessage-instances) need to be told what MessageView-instance they are targetting. This can be done by any separate message, and it is possible to tell what MessageView-instance should handle the 'untargeted' messages. If <code>.yourMessageViewer.simpleMessages</code> is true, then only Y.showMessage, Y.showWarning/Y.alert and Y.showError are possibly targeted: these only hold simple text with an OK-button (which is up to the View to be rendered or not). In order tp make targeting work, each MessageViewer-instance must have an unique attribute 'viewName'.
+        Messages (Y.ITSAMessage-instances) need to be told what MessageView-instance they are targetting. This can be done by any separate message, and it is possible to tell what MessageView-instance should handle the 'untargeted' messages. If <code>.yourMessageViewer.simpleMessages</code> is true, then only Y.showMessage, Y.showWarning/Y.alert and Y.showError are possibly targeted: these messages only hold simple text with an OK-button (which is up to the View to be rendered or not).
     </p>
     <h4>target specific message</h4>
     <p>
         To target a specific message, you need call yourMessage.addTarget(viewInstance) where <code>viewInstance</code> is the messageView-instance that should handle the message. If you make use if the predefined messages (see below), then you can set config.target=viewInstance inside the config-parameter.
+    </p>
+    <h4>target specific modelsync-messages</h4>
+    <p>
+        Both Y.Model and Y.ModelList can create sync-messages when syncing starts or ends. In order to get this fascility, you need to load <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodelsyncpromise/">gallery-itsamodelsyncpromise</a> or <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodellistsyncpromise/">gallery-itsamodellistsyncpromise</a>.
+        To make a specific Y.Model-instance (or Y.ModelList-instance) target its syncmessages, you need call yourModel(list).addTarget(viewInstance) where <code>viewInstance</code> is the messageView-instance that should handle the message.
     </p>
     <h4>handling untargeted messages</h4>
     <p>
@@ -72,7 +77,7 @@
         <ul>
             <li><code>handleLevel(level)</code> --> where level is 'info', 'warn' or 'error'. Note: statusmessages and modelsync-messages are at the level 'info', but are only targeted by the methods below.</li>
             <li><code>handleStatus()</code> --> to handle Y.showStatus()</li>
-            <li><code>handleModelSync()</code> --> to handle messages that arise during syncing of models</li>
+            <li><code>handleModelSync()</code> --> to handle messages that arise during syncing of models or modellists</li>
         </ul>
     </p>
     <p>
