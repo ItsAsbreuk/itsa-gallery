@@ -963,7 +963,11 @@ ITSAPanel.prototype.bindUI = function() {
         instance.after(
             FOOTERONTOP+CHANGE,
             function(e) {
-                boundingBox.toggleClass(CLASS_FOOTERONTOP, e.newVal);
+                var onTop = e.newVal;
+                boundingBox.toggleClass(CLASS_FOOTERONTOP, onTop);
+/*jshint expr:true */
+                instance._itsastatusbar && instance._footercont.setStyle('bottom', onTop ? '' : (instance._statusbar.get(OFFSETHEIGHT)+'px'));
+/*jshint expr:false */
                 instance._adjustPaddingTop();
                 instance._adjustPaddingBottom();
             }
@@ -1356,6 +1360,8 @@ ITSAPanel.prototype._renderHeader = function() {
 ITSAPanel.prototype._renderStatusBar = function() {
     var instance = this,
         statusbar = instance._statusbar,
+        footer = instance._footercont,
+        footerOnTop = instance.get(FOOTERONTOP),
         itsastatusbar = instance._itsastatusbar,
         hideStatusbar = !instance.get(STATUSBAR);
     statusbar.toggleClass(HIDDENSECTIONCLASS, hideStatusbar);
@@ -1363,6 +1369,9 @@ ITSAPanel.prototype._renderStatusBar = function() {
         instance._resolveStatusbarReady();
         if (itsastatusbar) {
             itsastatusbar.destroy();
+/*jshint expr:true */
+            footerOnTop || footer.setStyle('bottom', '');
+/*jshint expr:false */
             instance._adjustPaddingBottom();
         }
     }
@@ -1371,6 +1380,9 @@ ITSAPanel.prototype._renderStatusBar = function() {
             itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar});
             itsastatusbar.isReady().then(
                 function() {
+/*jshint expr:true */
+                    footerOnTop || footer.setStyle('bottom', instance._statusbar.get(OFFSETHEIGHT)+'px');
+/*jshint expr:false */
                     instance._adjustPaddingBottom();
                     instance._resolveStatusbarReady();
                 }
@@ -1536,6 +1548,7 @@ ITSAPanel.prototype._setWidth = function(val) {
         "gallery-itsapluginpromise",
         "dd-ddm",
         "node-event-delegate",
+        "node-style",
         "base-build",
         "widget-modality",
         "widget-position",
