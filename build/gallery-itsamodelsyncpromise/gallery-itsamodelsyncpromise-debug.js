@@ -30,9 +30,17 @@ var YModel = Y.Model,
     DELETE = 'delete',
     READ = 'read',
     DESTROYED = DESTROY+'ed',
-    PUBLISHED = '_published',
-    PROMISE = 'Promise',
+    PUBLISHED = '_pub_',
+    ROMISE = 'romise',
+    PROMISE = 'P'+ROMISE,
+    AVAILABLESYNCMESSAGES = {
+        load: true,
+        save: true,
+        submit: true,
+        destroy: true
+    },
     MODELSYNC = 'modelsync',
+    GALLERYITSAMODELSYNCPROMISE = 'gallery-itsa'+MODELSYNC+'p'+ROMISE,
 /**
  * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
  * the sync layer submit-function returns an error.
@@ -135,9 +143,10 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
                             type = e.type,
                             typesplit = type.split(':'),
                             subtype = typesplit[1] || typesplit[0],
-                            statushandle;
+                            statushandle, syncMessages;
                         if ((subtype!==DESTROY) || remove) {
-                            statushandle = itsamessageviewer.showStatus(e.syncmessage || Y.ITSAMessageController._syncMessage[subtype], {source: MODELSYNC});
+                            syncMessages = instance._defSyncMessages;
+                            statushandle = itsamessageviewer.showStatus(e.syncmessage || (syncMessages && syncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype], {source: MODELSYNC});
                             e.promise.then(
                                 function() {
                                     itsamessageviewer.removeStatus(statushandle);
@@ -360,6 +369,26 @@ YModel.prototype.removeMessageTarget = function() {
 /*jshint expr:false */
 };
 
+/**
+ * Defines the syncmessage to be used when calling the synclayer. When not defined (and not declared during calling the syncmethod by 'options.syncmessage'),
+ * a default i18n-message will be used.
+ * See gallery-itsamessageviewer for more info about syncmessages.
+ *
+ * @method setSyncMessage
+ * @param type {String} the syncaction = 'load'|'save'|destroy'|'submit'
+ * @param message {String} the syncmessage that should be viewed by a Y.ITSAMessageViewer
+ * @chainable
+ * @since 0.4
+*/
+YModel.prototype.setSyncMessage = function(type, message) {
+    Y.log('setSyncMessage', 'info', 'ITSA-ModelSyncPromise');
+    var instance = this;
+/*jshint expr:true */
+    instance._defSyncMessages || (instance._defSyncMessages={});
+    AVAILABLESYNCMESSAGES[type] && (instance._defSyncMessages[type]=message);
+/*jshint expr:false */
+    return instance;
+};
 
 /**
  * Private function that creates the promises for all promise-events
@@ -871,6 +900,7 @@ YModel.prototype._syncTimeoutPromise = function(action, options) {
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "intl",
         "base-base",
         "base-build",
         "node-base",

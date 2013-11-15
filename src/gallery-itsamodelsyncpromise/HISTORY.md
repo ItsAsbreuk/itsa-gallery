@@ -3,6 +3,7 @@ gallery-itsamodelsyncpromise
 
 14-11-2013 - version 0.4:
 * added addMessageTarget() to target sync-messages to Y.ITSAMessageViewer instances - see gallery-itsamessageviewer
+* added setSyncMessage()
 
 25-09-2013 - version 0.3:
 * removed submitPromise() --> is available in Y.ITSAFormModel now

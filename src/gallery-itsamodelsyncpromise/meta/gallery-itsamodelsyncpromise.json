@@ -2,6 +2,7 @@
     "gallery-itsamodelsyncpromise": {
         "requires": [
             "yui-base",
+            "intl",
             "base-base",
             "base-build",
             "node-base",
