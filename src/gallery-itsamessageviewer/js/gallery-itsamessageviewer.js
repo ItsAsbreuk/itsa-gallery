@@ -336,7 +336,6 @@ ITSAMessageViewer.prototype[SHOW_ERROR] = function(title, message, config) {
 ITSAMessageViewer.prototype[SHOW_STATUS] = function(message, config) {
     var params = ITSAMessageControllerInstance._retrieveParams(null, message, config);
     params.config.target = this;
-console.log('going to show message '+params.message);
     return ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS](params.message, params.config);
 };
 
