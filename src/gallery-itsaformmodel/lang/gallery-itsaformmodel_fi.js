@@ -1,4 +1,5 @@
 {
+    ready: 'ready',
     enterrightformat : 'kirjoita oikeassa muodossa',
     entervalidnumber : 'kirjoita kelvollinen numero',
     inputrequired : 'Syötettävä',

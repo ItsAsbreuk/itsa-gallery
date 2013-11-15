@@ -1346,6 +1346,7 @@ ITSAFormModel.prototype.setWidgetValueField = ITSAFormModel.setWidgetValueField;
  * @method submit
  * @param {Object} [options] Options to be passed to `sync()`.
  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
  * @param {Function} [callback] Called when the sync operation finishes.
  *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
  *                                    If the sync operation succeeded, 'err' will be null.
@@ -1383,6 +1384,7 @@ ITSAFormModel.prototype[SUBMIT] = function(options, callback) {
  * @method submitPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
+ *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 ITSAFormModel.prototype[SUBMIT+PROMISE] = function(options) {
@@ -1781,7 +1783,7 @@ ITSAFormModel.prototype._bindUI = function() {
     );
 
     eventhandlers.push(
-        Y.Intl.after(
+        Y.Intl.on( // subscribe to the on-event, so the model updates before the views, which are subscribed to the after-event
             'intl:langChange',
             function() {
                 instance._intl = Y.Intl.get(GALLERYITSAFORMMODEL);

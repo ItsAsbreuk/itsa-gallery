@@ -1,4 +1,5 @@
 {
+    ready: 'ready',
     enterrightformat : 'unesite pravo formatu',
     entervalidnumber : 'unesite važeći broj',
     inputrequired : 'Ulaz je potrebno',

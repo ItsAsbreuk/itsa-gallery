@@ -1820,10 +1820,10 @@ ITSAFormModel.prototype._bindUI = function() {
     );
 
     eventhandlers.push(
-        Y.Intl.after(
+        Y.Intl.on( // subscribe to the on-event, so the model updates before the views, which are subscribed to the after-event
             'intl:langChange',
             function() {
-                Y.log('aftersubscriptor intl:langChange', 'info', 'ITSAFormModel');
+                Y.log('onsubscriptor intl:langChange', 'info', 'ITSAFormModel');
                 instance._intl = Y.Intl.get(GALLERYITSAFORMMODEL);
             }
         )

@@ -1,4 +1,5 @@
 {
+    ready: 'ready',
     enterrightformat : 'من فضلك ادخل الشكل الصحيح',
     entervalidnumber : 'الرجاء إدخال رقم صالح',
     inputrequired : 'مطلوب مدخلات',

@@ -1,4 +1,5 @@
 {
+    ready: 'gereed',
     enterrightformat : 'geef de juiste opmaak',
     entervalidnumber : 'geef aan geldig nummer',
     inputrequired : 'Invoer is verplicht',
