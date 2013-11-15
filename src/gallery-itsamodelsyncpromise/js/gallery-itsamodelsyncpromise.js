@@ -154,6 +154,9 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
                     instance._itsamessageListener.detach();
                 });
             }
+            else {
+                Y.log('Y.Model.addMessageTarget() is targetted to an invalid Y.ITSAMessageViewer', 'warn', 'ModelSyncPromise');
+            }
         }
     );
 };
