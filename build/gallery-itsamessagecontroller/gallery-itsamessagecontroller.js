@@ -405,7 +405,7 @@ ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
                     if (((model instanceof Y.Model) || (model instanceof Y.ModelList)) && ((subtype!==DESTROY) || remove) && (!model._itsamessageListener)) {
                         // because multiple simultanious on-events will return only one after-event (is this an error?),
                         // we will take the promise's then() to remove the status lateron.
-                        statushandle = instance._showStatus(e.statusmessage || instance._syncMessage[subtype], {source: MODELSYNC});
+                        statushandle = instance._showStatus(e.syncmessage || instance._syncMessage[subtype], {source: MODELSYNC});
                         e.promise.then(
                             function() {
                                 instance._removeStatus(statushandle);
