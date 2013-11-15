@@ -125,12 +125,12 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  * See gallery-itsamessageviewer for more info.
  *
  * @method addMessageTarget
- * @param itsamessageviewer {Y.ITSAMessageViewer}
+ * @param itsamessageviewer {Y.ITSAMessageViewer|Y.ITSAPanel}
  * @since 0.4
 */
 YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
     var instance = this;
-    Y.usePromise('gallery-itsamessagecontroller', 'gallery-itsamessageviewer').then(
+    Y.usePromise('gallery-itsamessagecontroller', 'gallery-itsamessageviewer', 'gallery-itsapanel').then(
         function() {
             return Y.ITSAMessageController.isReady();
         }
