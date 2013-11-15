@@ -55,7 +55,7 @@
         },
         {
             "name"       : "promised-syncing",
-            "displayName": "Formsyncing through Promise-layer",
+            "displayName": "Formsyncing through a Promise-synclayer",
             "description": "This example shows how to set up a form that syncs through a Promise-synclayer.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node-base", "gallery-itsaformmodel", "gallery-itsaviewmodelpanel", "gallery-itsaslider", "gallery-itsadialog", "gallery-io-utils"],
@@ -64,7 +64,7 @@
         },
         {
             "name"       : "sync-statusbar",
-            "displayName": "Formsyncing through Promise-layer with a statusbar",
+            "displayName": "Formsyncing with a statusbar",
             "description": "This example shows how to set up a form that syncs through a Promise-synclayer.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["node-base", "gallery-itsaformmodel", "gallery-itsaviewmodelpanel", "gallery-itsaslider", "gallery-itsadialog", "gallery-io-utils"],
