@@ -1586,7 +1586,7 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
     eventhandlers.push(
-        Y.Intl.after(
+        Y.Intl.after( // subscribe to the after event, so the formmodel gets updated sooner: that one is subscribing the on-event
             'intl:lang'+CHANGE,
             function() {
                 instance._intl = Y.Intl.get(GALLERY+ITSAVIEWMODEL);
