@@ -91,7 +91,7 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          */
         parentNode : {
             getter: function(val) {
-                return (val instanceof YNode) || Y.one(val || BODY) || Y.one(BODY);
+                return ((val instanceof YNode) && val) || Y.one(val || BODY) || Y.one(BODY);
             },
             validator: function(val) {
                 return (val instanceof YNode) || (typeof val===STRING);
