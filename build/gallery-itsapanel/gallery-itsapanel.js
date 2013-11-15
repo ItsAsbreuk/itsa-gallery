@@ -519,7 +519,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             }
         },
         /**
-         * Whether the panel should have a statusbar (Y.ITSAStatusbar). See gallery-itsastatusbar.
+         * Whether the panel should have a statusbar (Y.ITSAStatusbar). Targeting should be done directly at the panel-instance. See gallery-itsastatusbar.
          *
          * @attribute statusBar
          * @type Boolean

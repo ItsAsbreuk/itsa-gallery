@@ -133,6 +133,10 @@
     font-size: 135%;
 }
 
+.itsa-panel .pure-button {
+    margin: 0;
+}
+
 .itsa-panel .itsa-panelinnerfooter button + button,
 .itsa-panel .itsa-panelinnerfooter button + button {
     margin-left: 0.5em;

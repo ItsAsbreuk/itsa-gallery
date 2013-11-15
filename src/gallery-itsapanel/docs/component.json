@@ -73,7 +73,7 @@
         },
         {
             "name"       : "statusbar",
-            "displayName": "Panel with a statusbar",
+            "displayName": "Panel with a statusbar and buttons on top",
             "description": "This example shows how to create a panel with a statusbar. The footer is set on top as well.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : [ "gallery-itsapanel"],
