@@ -110,16 +110,16 @@ body.itsa-dialogerrorup .yui3-widget-mask {
 .itsa-dialogicon,
 .itsa-dialogicon:before {
     text-shadow: 1px 1px 1px rgba(100, 100, 100, 0.6);
-    color: #0078e7;  /* non-webkit browsers */
+    color: #0078e7;
 }
 
 .itsa-dialogicon.itsaicon-dialog-warn,
 .itsa-dialogicon.itsaicon-dialog-warn:before {
     text-shadow: 1px 1px 1px rgba(50, 50, 50, 0.6);
-    color: #E3A900;  /* non-webkit browsers */
+    color: #E3A900;
 }
 
 .itsa-dialogicon.itsaicon-dialog-error,
 .itsa-dialogicon.itsaicon-dialog-error:before {
-    color: #960500;  /* non-webkit browsers */
+    color: #960500;
 }
