@@ -136,6 +136,9 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
         }
     ).then(
         function() {
+/*jshint expr:true */
+            (itsamessageviewer instanceof Y.ITSAPanel) && (itsamessageviewer=itsamessageviewer._itsastatusbar);
+/*jshint expr:false */
             if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
 /*jshint expr:true */
                 instance._itsamessageListener && instance.removeMessageTarget();
