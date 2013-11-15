@@ -10,8 +10,10 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
         // define 'syncPromise' instead of 'sync'.
         // when 'syncPromise' is defined, Y.ITSAFormModel will use this method instead of 'sync'
         syncPromise: function (action, options) {
-            if (action==='submit') {
-                return Y.io.post('http://mydomain.com/senddata.php?model='+Y.JSON.stringify(this.toJSON()));
+            if ((action==='create') || (action==='update')) {
+                return new Y.Promise(function (resolve) {
+                    Y.later(3000, null, resolve);
+                });
             }
             // do not forget to reject the promise in case an invalid 'action' is defined
             return new Y.Promise(function (resolve, reject) {
@@ -72,11 +74,13 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
                     '<div class="pure-control-group">{release}</div>';
                 '</fieldset>';
 
-    footertemplate = '{btn_close}{spinbtn_submit}';
+    footertemplate = '{btn_close}{spinbtn_save}';
 
     panel = new Y.ITSAViewModelPanel({
         title: 'Enter data',
+        statusBar: true,
         closeButton: false,
+        noHideOnSave: true,
         model: artist,
         template: template,
         footerTemplate: footertemplate,
@@ -87,15 +91,5 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
         width: 420
     }).render();
 
-    artist.after('submit', function() {
-        Y.alert('succesfully submitted');
-    });
-
-    artist.after('error', function(e) {
-        var errorsource = e.src;
-        if (errorsource==='submit') {
-            Y.showError('Simulated error submitting', e.src+' failed --> '+e.error);
-        }
-    });
 
 });

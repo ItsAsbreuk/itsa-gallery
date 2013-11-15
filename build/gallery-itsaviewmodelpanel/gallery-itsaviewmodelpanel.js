@@ -54,6 +54,7 @@ var ITSAViewModelPanel,
     CLICK = 'click',
     CLOSE_CLICK = CLOSE+CLICK,
     BUTTON = 'button',
+    BUTTONCLICK = BUTTON+CLICK,
     BUTTON_HIDE_EVENT = BUTTON+':hide',
     BOOLEAN = 'boolean',
     STRING = 'string',
@@ -73,6 +74,7 @@ var ITSAViewModelPanel,
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     VALIDATION_ERROR = 'validationerror',
     ITSA_PANELCLOSEBTN = 'itsa-panelclosebtn',
+    STATUSBAR = 'statusBar',
     VALIDATED_BTN_TYPES = {
         ok: true,
         retry: true,
@@ -340,6 +342,11 @@ ITSAViewModelPanel.prototype.initializer = function() {
     // we need this, because all sources are the same and we do not want multiple the same events caught
     instance._partOfMultiView = true;
 
+    // automaticly add sync-messages from Y.Model to the statusbar. See 'gallery-itsamessageviewer'.
+/*jshint expr:true */
+    instance.get(STATUSBAR) && model && model.addMessageTarget(instance);
+/*jshint expr:false */
+
     instance._set(BODYVIEW, new Y.ITSAViewModel({
         model: model,
         template: instance.get(TEMPLATE),
@@ -460,11 +467,27 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(MODEL+CHANGE, function(e) {
-            var footerView = instance.get(FOOTERVIEW);
-            bodyView.set(MODEL, e.newVal);
+            var footerView = instance.get(FOOTERVIEW),
+                newmodel = e.newVal;
+            bodyView.set(MODEL, newmodel);
 /*jshint expr:true */
-            footerView && footerView.set(MODEL, e.newVal);
+            footerView && footerView.set(MODEL, newmodel);
 /*jshint expr:false */
+            if (instance.get(STATUSBAR)) {
+                newmodel.addMessageTarget(instance);
+                e.prevVal.removeMessageTarget();
+            }
+        })
+    );
+
+    eventhandlers.push(
+        instance.after(STATUSBAR+CHANGE, function(e) {
+            var model = instance.get(MODEL);
+            if (model) {
+/*jshint expr:true */
+                e.newVal ? model.addMessageTarget(instance) : model.removeMessageTarget();
+/*jshint expr:false */
+            }
         })
     );
 
@@ -570,7 +593,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            ['*:'+CLICK],
+            ['*:'+BUTTONCLICK],
             function(e) {
                 var node = e.buttonNode,
                     value = node && node.get(VALUE);
@@ -611,7 +634,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 editable = instance.get(EDITABLE),
                 btnNode = e.buttonNode,
                 buttonValue = btnNode.get(VALUE),
-                unvalidNodes = model.getUnvalidatedUI(),
+                unvalidNodes = model && model.getUnvalidatedUI && model.getUnvalidatedUI(),
                 payload = {
                               target: model,
                               nodelist: unvalidNodes,
@@ -628,6 +651,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
+console.log('eventtype: '+e.type);
                 var promise = e.promise,
                     model = e.target,
                     eventType = e.type.split(':')[1],
@@ -644,11 +668,14 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     instance.lockPanel(true);
                     instance._setSpin(eventType, true);
     /*jshint expr:true */
+console.log('eventtype: '+e.type+' --> action');
                     (eventType===DESTROY) || promise.then(
                         function() {
+console.log('eventtype: '+e.type+' --> resolved');
                             ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
                         },
-                        function() {
+                        function(reason) {
+console.log('eventtype: '+e.type+' --> rejected '+reason);
                             ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs, {fromInternal: true});
                             return true; // make promise fulfilled
                         }
