@@ -1,6 +1,6 @@
 'use strict';
 
-/*jshint maxlen:200 */
+/*jshint maxlen:205 */
 
 /**
  *
@@ -19,12 +19,19 @@
    var YModelList = Y.ModelList,
        YArray = Y.Array,
        YObject = Y.Object,
-       PUBLISHED = '_published',
+       PUBLISHED = '_pub_',
        READ = 'read',
        APPEND = 'append',
        DELETE = 'delete',
        READAPPEND = READ+APPEND,
        MODELSYNC = 'modelsync',
+       GALLERYITSAMODELSYNCPROMISE = 'gallery-itsa'+MODELSYNC+'promise',
+       AVAILABLESYNCMESSAGES = {
+           load: true,
+           save: true,
+           submit: true,
+           destroy: true
+       },
        DEFFN = '_defFn_',
    /**
      * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
@@ -150,9 +157,10 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
                             type = e.type,
                             typesplit = type.split(':'),
                             subtype = typesplit[1] || typesplit[0],
-                            statushandle;
+                            statushandle, syncMessages;
                         if ((subtype!==DESTROY) || remove) {
-                            statushandle = itsamessageviewer.showStatus(e.syncmessage || Y.ITSAMessageController._syncMessage[subtype], {source: MODELSYNC});
+                            syncMessages = instance._defSyncMessages;
+                            statushandle = itsamessageviewer.showStatus(e.syncmessage || (syncMessages && syncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype], {source: MODELSYNC});
                             e.promise.then(
                                 function() {
                                     itsamessageviewer.removeStatus(statushandle);
@@ -474,6 +482,27 @@ YModelList.prototype.removeMessageTarget = function() {
     instance._itsamessagedestroylistener1 && instance._itsamessagedestroylistener1.detach();
     instance._itsamessagedestroylistener2 && instance._itsamessagedestroylistener2.detach();
 /*jshint expr:false */
+};
+
+/**
+ * Defines the syncmessage to be used when calling the synclayer. When not defined (and not declared during calling the syncmethod by 'options.syncmessage'),
+ * a default i18n-message will be used.
+ * See gallery-itsamessageviewer for more info about syncmessages.
+ *
+ * @method setSyncMessage
+ * @param type {String} the syncaction = 'load'|'save'|destroy'|'submit'
+ * @param message {String} the syncmessage that should be viewed by a Y.ITSAMessageViewer
+ * @chainable
+ * @since 0.4
+*/
+YModelList.prototype.setSyncMessage = function(type, message) {
+    Y.log('setSyncMessage', 'info', 'ITSA-ModellistSyncPromise');
+    var instance = this;
+/*jshint expr:true */
+    instance._defSyncMessages || (instance._defSyncMessages={});
+    AVAILABLESYNCMESSAGES[type] && (instance._defSyncMessages[type]=message);
+/*jshint expr:false */
+    return instance;
 };
 
 /**
