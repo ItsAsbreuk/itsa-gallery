@@ -1089,7 +1089,7 @@ ITSAViewModelPanel.prototype.syncUI = function() {
   * @since 0.3
  **/
 ITSAViewModelPanel.prototype.translate = function(text) {
-    return Y.ITSAViewModel.translate(text);
+    return this.get(BODYVIEW).translate(text);
 };
 
 /**
