@@ -6,6 +6,7 @@ Added attribute footerSize
 Added attribute footerOnTop
 Added attribute labelTransform
 Added attribute statusBar
+Added attribute readytext
 
 version 0.1:
 Initial release

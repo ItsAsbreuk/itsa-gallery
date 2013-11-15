@@ -83,6 +83,7 @@ var ITSAPanel,
     RIGHT = 'Right',
     TITLERIGHT = TITLE+RIGHT,
     CENTERED = 'centered',
+    READYTEXT = 'readyText',
     DRAG = 'drag',
     DRAGABLE = DRAG+'able',
     RESIZE = 'resize',
@@ -504,6 +505,19 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
                 return (val===null) || (typeof val===NUMBER);
             },
             setter: '_setMinWidth'
+        },
+        /**
+         * Passes through to the statusbar (if available).
+         *
+         * @attribute readyText
+         * @type {String|null}
+         * @default null
+         */
+        readyText : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
         },
         /**
          * @attribute resizable
@@ -983,6 +997,17 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.on(
+            READYTEXT+CHANGE,
+            function(e) {
+/*jshint expr:true */
+                instance._itsastatusbar && instance._itsastatusbar.set(READYTEXT, e.newVal);
+/*jshint expr:false */
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
             [TITLE+CHANGE, TITLERIGHT+CHANGE, CLOSEBUTTON+CHANGE],
             function(e) {
                 var value = e.newVal,
@@ -1377,7 +1402,7 @@ ITSAPanel.prototype._renderStatusBar = function() {
     }
     else if (!itsastatusbar) {
         Y.use('gallery-itsastatusbar', function() {
-            itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar});
+            itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar, readyText: instance.get(READYTEXT)});
             itsastatusbar.isReady().then(
                 function() {
 /*jshint expr:true */
