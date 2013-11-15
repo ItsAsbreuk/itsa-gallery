@@ -17,6 +17,11 @@
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#dddddd',GradientType=0 )\9; /* IE6-8 */
 }
 
+.itsa-statusbar-container button,
+.itsa-statusbar-container .pure-button {
+    margin: 0;
+}
+
 .itsa-statusbar-container.itsa-body-statusbar {
     position: fixed;
     bottom: 0;
@@ -126,6 +131,11 @@
 .itsa-statusbar-container .itsa-dialogicon.itsaicon-dialog-warn:before {
     text-shadow: 1px 1px 1px rgba(50, 50, 50, 0.95);
     color: #FB0;
+}
+
+.itsa-statusbar-container .itsa-dialogicon.itsaicon-dialog-error,
+.itsa-statusbar-container .itsa-dialogicon.itsaicon-dialog-error:before {
+    color: #960500;
 }
 
 .itsa-statusbar-container i.itsa-busy:before {

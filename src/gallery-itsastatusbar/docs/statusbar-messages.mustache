@@ -1,0 +1,28 @@
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css">
+
+<div class="intro">
+    <p>
+        {{description}}
+    </p>
+    <p>
+        Each message that is added -after clicking the buttons- needs to be removed by pressing the 'close'-button on the statusbar. Except for showStatus(), which only stays active for 3 seconds after it has been added. The buttons will do into the queue (fifo), where warn-messages will appear above normal messages and errormessages above warn-messages.
+    </p>
+</div>
+
+<style type='text/css'>
+{{>statusbar-messages-css}}
+</style>
+
+{{>statusbar-messages-html}}
+
+<h2>Code</h2>
+```
+{{>statusbar-messages-js}}
+```
+
+
+<script>
+{{>init-loaderconfig-js}}
+{{>loaderconfig-js}}
+{{>statusbar-messages-js}}
+</script>

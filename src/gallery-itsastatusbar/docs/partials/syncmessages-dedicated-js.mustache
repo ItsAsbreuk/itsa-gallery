@@ -1,11 +1,13 @@
 YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodelsyncpromise', 'promise', 'gallerycss-itsa-base', function(Y) {
 
     // 'gallerycss-itsa-base' is loaded to give the pure-buttons a border
-    var countrymodel,
-        loadbutton = Y.one('#loaddata'),
-        mystatusbar = new Y.ITSAStatusbar();
+    var mystatusbar1 = new Y.ITSAStatusbar(),
+        mystatusbar2 = new Y.ITSAStatusbar({parentNode: '#customBar'}),
+        btnLoadModel1 = Y.one('#btnLoadModel1'),
+        btnLoadModel2 = Y.one('#btnLoadModel2'),
+        countrymodel1, countrymodel2;
 
-    mystatusbar.handleModelSync();
+    mystatusbar1.handleModelSync();
 
     Y.CountryModel = Y.Base.create('countryModel', Y.Model, [], {
         syncPromise: function(action, options) {
@@ -28,11 +30,21 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
         }
     });
 
-    countrymodel = new Y.CountryModel();
-    loadbutton.on(
+    countrymodel1 = new Y.CountryModel();
+    countrymodel2 = new Y.CountryModel();
+    countrymodel2.addMessageTarget(mystatusbar2);
+
+    btnLoadModel1.on(
         'click',
-        function(e) {
-            countrymodel.load();
+        function() {
+            countrymodel1.load(); // <-- uses default syncmessage
+        }
+    );
+
+    btnLoadModel2.on(
+        'click',
+        function() {
+            countrymodel2.load({syncmessage: 'I am loading...'});
         }
     );
 

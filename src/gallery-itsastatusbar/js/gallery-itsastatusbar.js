@@ -41,6 +41,7 @@ var YArray = Y.Array,
     STRING = 'string',
     BUTTON = 'button',
     READYTEXT = 'readyText',
+    CLASSNAME = 'className',
     STATUS_CLOSE_BUTTON = '<button class="pure-button itsabutton-rounded itsabutton-bordered" data-barlevel="{level}"">{buttontext}</button>',
     ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
     STATUSBAR_TEMPLATE = '<div class="itsa-statusbar-statusmsg">{icontemplate}{message}</div>{button}';
@@ -53,6 +54,19 @@ ITSAStatusbar.NAME = 'itsastatusbar';
 
 Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
     ATTRS: {
+        /**
+         * Extra classname that will be set to the statusbar-node. You need to take care of the css yourself.
+         *
+         * @attribute className
+         * @default null
+         * @type String
+         */
+        className : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
+        },
         /**
          * Duration of fading-transition in seconds. Set to zero for no transition.
          *
@@ -75,7 +89,7 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          */
         parentNode : {
             getter: function(val) {
-                return (val instanceof YNode) || Y.one(val || BODY) || Y.one(BODY);
+                return ((val instanceof YNode) && val) || Y.one(val || BODY) || Y.one(BODY);
             },
             validator: function(val) {
                 return (val instanceof YNode) || (typeof val===STRING);
@@ -152,6 +166,14 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
 ITSAStatusbar.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSAStatusbar');
     var instance = this;
+
+    /**
+     * Reference to the containernode.
+     * @property _containerNode
+     * @type Y.Node
+     * @private
+     */
+
     /**
      * Array with internal eventsubscribers.
      * @property _eventhandlers
@@ -294,7 +316,7 @@ ITSAStatusbar.prototype.destructor = function() {
     Y.log('destructor', 'info', 'ITSAStatusbar');
     var instance = this;
     instance._clearEventhandlers();
-    instance._bars.destroy(true);
+    instance._containerNode.destroy(true);
 };
 
 //--- private methods ---------------------------------------------------
@@ -349,6 +371,7 @@ ITSAStatusbar.prototype._renderBars = function() {
         eventhandlers = instance._eventhandlers,
         textTransform = instance.get(TEXTTRANSFORM),
         parentNode = instance.get('parentNode'),
+        className = instance.get(CLASSNAME),
         bars, barempty, barinfo, barwarn, barerror, containerbar;
     containerbar = YNode.create(TEMPLATE_CONTAINERBAR);
     bars = instance._bars;
@@ -360,6 +383,10 @@ ITSAStatusbar.prototype._renderBars = function() {
     (parentNode===Y.one('body')) && containerbar.addClass('itsa-body-statusbar');
 /*jshint expr:false */
     parentNode.prepend(containerbar.append(barempty).append(barinfo).append(barwarn).append(barerror));
+    instance._containerNode = containerbar; // so we can destroy later on
+/*jshint expr:true */
+    className && containerbar.addClass(className);
+/*jshint expr:false */
     barempty.set('text', instance.get(READYTEXT));
 
 /*jshint expr:true */
@@ -370,6 +397,7 @@ ITSAStatusbar.prototype._renderBars = function() {
         containerbar.delegate(
             'tap',
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSAStatusbar');
                 var node = e.target,
                     barlevel = node.getAttribute('data-barlevel'),
                     itsamessage;
@@ -384,6 +412,7 @@ ITSAStatusbar.prototype._renderBars = function() {
 
     eventhandlers.push(
         instance.on(TEXTTRANSFORM+CHANGE, function(e) {
+            Y.log('aftersubscriptor '+e.type, 'info', 'ITSAStatusbar');
             var value = e.newVal;
             containerbar.removeClass(CLASS_TEXTTRANSFORM+UPPERCASE);
             containerbar.removeClass(CLASS_TEXTTRANSFORM+LOWERCASE);
@@ -396,8 +425,22 @@ ITSAStatusbar.prototype._renderBars = function() {
 
     eventhandlers.push(
         instance.on(READYTEXT+CHANGE, function(e) {
+            Y.log('aftersubscriptor '+e.type, 'info', 'ITSAStatusbar');
             barempty.set('text', e.newVal);
         })
+    );
+
+    eventhandlers.push(
+        instance.after(
+            CLASSNAME+CHANGE,
+            function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSAStatusbar');
+/*jshint expr:true */
+                e.prevVal && containerbar.removeClass(e.prevVal);
+                e.newVal && containerbar.addClass(e.newVal);
+/*jshint expr:false */
+            }
+        )
     );
 
 };

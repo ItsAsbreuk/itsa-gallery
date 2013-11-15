@@ -1,0 +1,33 @@
+YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'gallerycss-itsa-base', function(Y) {
+
+    // 'gallerycss-itsa-base' is loaded to give the pure-buttons a border
+    var mystatusbar = new Y.ITSAStatusbar({readyText: 'statusbar is ready'}),
+        btnShowMessage = Y.one('#btnShowMessage'),
+        btnShowWarning = Y.one('#btnShowWarning'),
+        btnShowError = Y.one('#btnShowError'),
+        btnShowStatus = Y.one('#btnShowStatus'),
+        countinfo=0, countwarn=0, counterror=0, countstatus=0, statushandle;
+
+    mystatusbar.handleLevel('info');
+    mystatusbar.handleLevel('warn');
+    mystatusbar.handleLevel('error');
+    mystatusbar.handleStatus();
+
+    btnShowMessage.on('click', function() {
+        Y.showMessage('this is message '+(++countinfo));
+    });
+
+    btnShowWarning.on('click', function() {
+        Y.alert('this is warning '+(++countwarn));
+    });
+    btnShowError.on('click', function() {
+        Y.showError('this is error '+(++counterror));
+    });
+    btnShowStatus.on('click', function() {
+        statushandle = Y.showStatus('this is statusmessage '+(++countwarn)+' will remove after 3 seconds');
+        Y.later(3000, null, function() {
+            Y.removeStatus(statushandle);
+        });
+    });
+
+});

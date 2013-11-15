@@ -9,9 +9,9 @@
 
     "examples": [
         {
-            "name"       : "standard-methods",
-            "displayName": "Standard methods",
-            "description": "This example shows hows how the standard methods Y.alert, Y.confirm and Y.prompt can be used.",
+            "name"       : "statusbar-messages",
+            "displayName": "Messages on a statusbar",
+            "description": "This example shows hows how to create a statusbar at the bottom of the window and make it to show messages.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsastatusbar"],
             "tags"    : ["gallery-itsastatusbar", "alert", "formelement", "form", "confirm", "prompt", "Y.alert", "Y.prompt", "Y.confirm"],
@@ -19,8 +19,35 @@
         },
         {
             "name"       : "modelsync",
-            "displayName": "Modelsync",
-            "description": "This example shows the Internationalisation of this module.",
+            "displayName": "Model sync-messages on a statusbar",
+            "description": "This example shows hows how to create a statusbar at the bottom of the window and make it to show syncmessages that comes from a Model-instance.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "internationalized", "formelement", "form", "translate"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "messages-dedicated",
+            "displayName": "Messages on a separate bar",
+            "description": "This example shows hows how to get messages on a separate bar.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "internationalized", "formelement", "form", "translate"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "syncmessages-dedicated",
+            "displayName": "Model sync-messages on a separate bar",
+            "description": "This example shows hows how to get Model's syncmessages on a separate bar.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "internationalized", "formelement", "form", "translate"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "syncmessages-itsapanel",
+            "displayName": "Messages on a bar of a Y.ITSAPanel-instance",
+            "description": "This example shows hows how to get messages on a Y.ITSAPanel-instance.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsastatusbar"],
             "tags"    : ["gallery-itsastatusbar", "internationalized", "formelement", "form", "translate"],
