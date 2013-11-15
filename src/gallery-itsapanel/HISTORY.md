@@ -1,8 +1,10 @@
 gallery-itsapanel
 ========
 
-version 0.2:
+17-11-2013 version 0.2:
+Added attribute footerOnTop
 Added attribute labelTransform
+Added attribute statusBar
 
 version 0.1:
 Initial release

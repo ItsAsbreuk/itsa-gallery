@@ -97,6 +97,7 @@ var ITSAPanel,
     PANELHEADERCLASS = ITSA+'panelheader',
     PANELBODYCLASS = ITSA+'panelbody',
     PANELFOOTERCLASS = ITSA+'panelfooter',
+    PANELSTATUSBARCLASS = ITSA+'panelstatusbar',
     PANELHEADERINNERCLASS = ITSA+'panelinnerheader',
     PANELBODYINNERCLASS = ITSA+'panelinnerbody',
     PANELFOOTERINNERCLASS = ITSA+'panelinnerfooter',
@@ -105,12 +106,16 @@ var ITSAPanel,
     HEADERTEMPLATE = '<div class="'+PANELHEADERCLASS+'"><div class="'+PANELHEADERINNERCLASS+'"></div></div>',
     BODYTEMPLATE = '<div class="'+PANELBODYCLASS+'"><div class="'+PANELBODYINNERCLASS+'"></div></div>',
     FOOTERTEMPLATE = '<div class="'+PANELFOOTERCLASS+'"><div class="'+PANELFOOTERINNERCLASS+'"></div></div>',
+    STATUSBARTEMPLATE = '<div class="'+PANELSTATUSBARCLASS+'"></div>',
     CLOSE_BUTTON = '<'+BUTTON+' class="pure-'+BUTTON+' itsa'+BUTTON+'-onlyicon '+ITSA_PANELCLOSEBTN+'" data-focusable="true"><i class="itsaicon-form-abort"></i></'+BUTTON+'>',
     DEFAULT_HEADERVIEW = '<div>{title}</div><div class="itsa-rightalign">{titleRight}</div>',
     DEFAULT_BODYVIEW = '{body}',
     DEFAULT_FOOTERVIEW = '<div>{footer}</div><div class="itsa-rightalign">{footerRight}</div>',
     CLICK = 'click',
     CLICK_OUTSIDE = CLICK+'outside',
+    FOOTERONTOP = 'footerOnTop',
+    STATUSBAR = 'statusBar',
+    CLASS_FOOTERONTOP = 'itsa-panelfooter-top',
     VALUE = 'value',
     /**
       * Fired when a UI-elemnt needs to focus to the next element (in case of editable view).
@@ -285,6 +290,20 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             value: null,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
+            }
+        },
+        /**
+         * Whether to place the footer above the body-section. This is handy if you want to use the footar as a buttonbar which should be placed on top.
+         *
+         * @attribute footerOnTop
+         * @type Boolean
+         * @default false
+         * @since 0.3
+        */
+        footerOnTop : {
+            value: false,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
             }
         },
         /**
@@ -474,6 +493,20 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             }
         },
         /**
+         * Whether the panel should have a statusbar (Y.ITSAStatusbar). See gallery-itsastatusbar.
+         *
+         * @attribute statusBar
+         * @type Boolean
+         * @default false
+         * @since 0.3
+        */
+        statusBar : {
+            value: false,
+            validator: function(val) {
+                return (typeof val===BOOLEAN);
+            }
+        },
+        /**
          * Styles the Panel by adding the className 'itsa-styledpanel' to the container.
          * The css-rules for the class 'itsa-styledpanel' are coming together with this module.
          *
@@ -486,6 +519,35 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             value: true,
             validator: function(v){
                 return (typeof v === BOOLEAN);
+            }
+        },
+        /**
+         * Title of the view (headercontent). Is only used when 'headerView' is not set: if so then headerView takes care of the headersection-content.
+         *
+         * @attribute title
+         * @type String
+         * @default null
+         * @since 0.1
+        */
+        title : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
+            }
+        },
+        /**
+         * Right side of the title of the view (headercontent). Is only used when 'headerView' is not set: if so then headerView takes care of the headersection-content.
+         * When not set, then Y.ITSAPanel will render a 'closebutton' in this area.
+         *
+         * @attribute titleRight
+         * @type String
+         * @default null
+         * @since 0.1
+        */
+        titleRight : {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (typeof val===STRING);
             }
         },
         /**
@@ -517,35 +579,6 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             },
             getter: '_getWidth',
             setter: '_setWidth'
-        },
-        /**
-         * Title of the view (headercontent). Is only used when 'headerView' is not set: if so then headerView takes care of the headersection-content.
-         *
-         * @attribute title
-         * @type String
-         * @default null
-         * @since 0.1
-        */
-        title : {
-            value: null,
-            validator: function(val) {
-                return (val===null) || (typeof val===STRING);
-            }
-        },
-        /**
-         * Right side of the title of the view (headercontent). Is only used when 'headerView' is not set: if so then headerView takes care of the headersection-content.
-         * When not set, then Y.ITSAPanel will render a 'closebutton' in this area.
-         *
-         * @attribute titleRight
-         * @type String
-         * @default null
-         * @since 0.1
-        */
-        titleRight : {
-            value: null,
-            validator: function(val) {
-                return (val===null) || (typeof val===STRING);
-            }
         }
     }
 });
@@ -558,6 +591,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
 ITSAPanel.prototype.initializer = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
+        footerOnTop = instance.get(FOOTERONTOP),
         className = instance.get(CLASSNAME);
 
     Y.log('initializer ', 'info', 'ITSAPanel');
@@ -638,6 +672,7 @@ ITSAPanel.prototype.initializer = function() {
 /*jshint expr:true */
     instance.get(VISIBLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
     className && boundingBox.addClass(className);
+    footerOnTop && boundingBox.addClass(CLASS_FOOTERONTOP);
     instance.renderPromise().then(
         function() {
             instance.get(VISIBLE) && boundingBox.removeClass(HIDDENPANELCLASS);
@@ -859,8 +894,8 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            [TITLE+CHANGE, FOOTER+RIGHT+CHANGE],
-            Y.bind(instance._renderFooter, instance)
+            [TITLE+CHANGE, TITLE+RIGHT+CHANGE],
+            Y.bind(instance._renderHeader, instance)
         )
     );
 
@@ -884,6 +919,25 @@ ITSAPanel.prototype.bindUI = function() {
                 e.newVal && boundingBox.addClass(e.newVal);
 /*jshint expr:false */
             }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            FOOTERONTOP+CHANGE,
+            function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSAPanel');
+                boundingBox.toggleClass(CLASS_FOOTERONTOP, e.newVal);
+                instance._adjustPaddingTop();
+                instance._adjustPaddingBottom();
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
+            STATUSBAR+CHANGE,
+            Y.bind(instance._renderStatusBar, instance)
         )
     );
 
@@ -1020,14 +1074,16 @@ ITSAPanel.prototype.renderUI = function() {
         contentBox = instance.get(CONTENTBOX);
 
     Y.log('renderUI ', 'info', 'ITSAPanel');
-    contentBox.setHTML(HEADERTEMPLATE+BODYTEMPLATE+FOOTERTEMPLATE);
+    contentBox.setHTML(HEADERTEMPLATE+BODYTEMPLATE+FOOTERTEMPLATE+STATUSBARTEMPLATE);
     instance._header = contentBox.one('.'+PANELHEADERINNERCLASS);
     instance._body = contentBox.one('.'+PANELBODYINNERCLASS);
     instance._footer = contentBox.one('.'+PANELFOOTERINNERCLASS);
     instance._footercont = contentBox.one('.'+PANELFOOTERCLASS);
+    instance._statusbar = contentBox.one('.'+PANELSTATUSBARCLASS);
     instance._renderHeader();
     instance._renderBody();
     instance._renderFooter();
+    instance._renderStatusBar();
 };
 
 /**
@@ -1067,10 +1123,15 @@ ITSAPanel.prototype.destructor = function() {
  * @since 0.1
 */
 ITSAPanel.prototype._adjustPaddingBottom = function() {
-    var instance = this;
-
+    var instance = this,
+        newValue = 0;
     Y.log('_adjustPaddingBottom ', 'info', 'ITSAPanel');
-    instance.get(CONTENTBOX).setStyle(PADDINGBOTTOM, instance._footer.get(OFFSETHEIGHT)+PX);
+
+/*jshint expr:true */
+    instance.get(FOOTERONTOP) || (newValue+=instance._footercont.get(OFFSETHEIGHT));
+    instance.get(STATUSBAR) && (newValue+=instance._statusbar.get(OFFSETHEIGHT));
+/*jshint expr:false */
+    instance.get(CONTENTBOX).setStyle(PADDINGBOTTOM, newValue+PX);
 };
 
 /**
@@ -1083,10 +1144,16 @@ ITSAPanel.prototype._adjustPaddingBottom = function() {
  * @since 0.1
 */
 ITSAPanel.prototype._adjustPaddingTop = function() {
-    var instance = this;
-
+    var instance = this,
+        footer = instance._footercont,
+        newHeight = instance._header.get(OFFSETHEIGHT),
+        footerontop = instance.get(FOOTERONTOP);
     Y.log('_adjustPaddingTop ', 'info', 'ITSAPanel');
-    instance.get(CONTENTBOX).setStyle(PADDINGTOP, instance._header.get(OFFSETHEIGHT)+PX);
+    footer.setStyle('top', footerontop ? newHeight : '');
+/*jshint expr:true */
+    footerontop && (newHeight+=footer.get(OFFSETHEIGHT));
+/*jshint expr:false */
+    instance.get(CONTENTBOX).setStyle(PADDINGTOP, newHeight+PX);
 };
 
 /**
@@ -1176,33 +1243,6 @@ ITSAPanel.prototype._getWidth = function() {
 };
 
 /**
- * Renderes the header-content. Either by templating (if 'headerView' is a String), or by calling headerView.render() in case headerView is a Y.View-instance.
- *
- * @method _renderHeader
- * @private
- * @since 0.1
-*/
-ITSAPanel.prototype._renderHeader = function() {
-    var instance = this,
-        title = instance.get(TITLE),
-        titleRight = instance.get(TITLERIGHT),
-        closeButton = instance.get(CLOSEBUTTON),
-        headerView = instance.get(HEADERVIEW);
-
-    Y.log('_renderHeader ', 'info', 'ITSAPanel');
-    if (!headerView || (typeof headerView===STRING)) {
-        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
-    }
-    else if (headerView instanceof Y.View) {
-        headerView._set('container', instance._header);
-/*jshint expr:true */
-        headerView.render && headerView.render();
-/*jshint expr:false */
-    }
-    instance._adjustPaddingTop();
-};
-
-/**
  * Renderes the BODY-content. Either by templating (if 'BODYView' is a String), or by calling BODYView.render() in case BODYView is a Y.View-instance.
  *
  * @method _renderBody
@@ -1254,6 +1294,63 @@ ITSAPanel.prototype._renderFooter = function() {
         }
     }
     instance._footercont.toggleClass(HIDDENSECTIONCLASS, hideFooter);
+/*jshint expr:true */
+    instance.get(FOOTERONTOP) ? instance._adjustPaddingTop() : instance._adjustPaddingBottom();
+/*jshint expr:false */
+};
+
+/**
+ * Renderes the header-content. Either by templating (if 'headerView' is a String), or by calling headerView.render() in case headerView is a Y.View-instance.
+ *
+ * @method _renderHeader
+ * @private
+ * @since 0.1
+*/
+ITSAPanel.prototype._renderHeader = function() {
+    var instance = this,
+        title = instance.get(TITLE),
+        titleRight = instance.get(TITLERIGHT),
+        closeButton = instance.get(CLOSEBUTTON),
+        headerView = instance.get(HEADERVIEW);
+
+    Y.log('_renderHeader ', 'info', 'ITSAPanel');
+    if (!headerView || (typeof headerView===STRING)) {
+        instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
+    }
+    else if (headerView instanceof Y.View) {
+        headerView._set('container', instance._header);
+/*jshint expr:true */
+        headerView.render && headerView.render();
+/*jshint expr:false */
+    }
+    instance._adjustPaddingTop();
+};
+
+/**
+ * Renderes the statusbar. See gallery-itsastatusbar.
+ *
+ * @method _renderStatusBar
+ * @private
+ * @since 0.1
+*/
+ITSAPanel.prototype._renderStatusBar = function() {
+    var instance = this,
+        statusbar = instance._statusbar,
+        itsastatusbar = instance._itsastatusbar,
+        hideStatusbar = !instance.get(STATUSBAR);
+console.log(statusbar);
+    Y.log('_renderStatusBar ', 'info', 'ITSAPanel');
+    statusbar.toggleClass(HIDDENSECTIONCLASS, hideStatusbar);
+    if (hideStatusbar) {
+        if (itsastatusbar) {
+            itsastatusbar.destroy();
+        }
+    }
+    else if (!itsastatusbar) {
+        Y.use('gallery-itsastatusbar', function() {
+            instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar});
+        });
+    }
     instance._adjustPaddingBottom();
 };
 

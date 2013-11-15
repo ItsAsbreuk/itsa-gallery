@@ -192,6 +192,11 @@
     background-color: #FFF;
     border-top: 1px solid #EAE6DB;
 }
+.itsa-panel.itsa-styledpanel.itsa-panelfooter-top .itsa-panelfooter {
+    border-top: none;
+    border-bottom: 1px solid #EAE6DB;
+    bottom: auto;
+}
 .itsa-panel.itsa-styledpanel .itsa-panelheader {
     color: #FFF;
     border-bottom: 1px solid #2647A0;
