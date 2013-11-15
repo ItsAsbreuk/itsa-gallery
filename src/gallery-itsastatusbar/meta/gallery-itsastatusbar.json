@@ -2,6 +2,7 @@
     "gallery-itsastatusbar": {
         "requires": [
             "yui-base",
+            "intl",
             "event-tap",
             "promise",
             "timers",

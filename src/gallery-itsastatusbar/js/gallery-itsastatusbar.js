@@ -122,7 +122,7 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          * @default 'ready'
          */
         readyText : {
-            value: 'ready',
+            value: Y.Intl.get('gallery-itsaformmodel').ready,
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
