@@ -42,6 +42,7 @@ var YArray = Y.Array,
     BUTTON = 'button',
     READYTEXT = 'readyText',
     CLASSNAME = 'className',
+    GALLERY_ITSAFORMMODEL = 'gallery-itsaformmodel',
     STATUS_CLOSE_BUTTON = '<button class="pure-button itsabutton-rounded itsabutton-bordered" data-barlevel="{level}"">{buttontext}</button>',
     ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
     STATUSBAR_TEMPLATE = '<div class="itsa-statusbar-statusmsg">{icontemplate}{message}</div>{button}';
@@ -122,7 +123,10 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          * @default 'ready'
          */
         readyText : {
-            value: Y.Intl.get('gallery-itsaformmodel').ready,
+            value: null,
+            getter: function(val) {
+                return val || this._defReady;
+            },
             validator: function(val) {
                 return (val===null) || (typeof val===STRING);
             }
@@ -191,6 +195,14 @@ ITSAStatusbar.prototype.initializer = function() {
      * @private
      */
     instance._bars = {};
+
+    /**
+     * Hold the default internationalized ready-message.
+     * @property _defReady
+     * @type String
+     * @private
+     */
+    instance._defReady = Y.Intl.get(GALLERY_ITSAFORMMODEL).ready;
 
     instance.simpleMessages = true;
     instance._renderBars();
@@ -421,6 +433,17 @@ ITSAStatusbar.prototype._renderBars = function() {
             value && containerbar.addClass(CLASS_TEXTTRANSFORM+value);
 /*jshint expr:false */
         })
+    );
+
+    eventhandlers.push(
+        Y.Intl.after(
+            'intl:langChange',
+            function() {
+                Y.log('onsubscriptor intl:langChange', 'info', 'ITSAFormModel');
+                instance._defReady = Y.Intl.get(GALLERY_ITSAFORMMODEL).ready;
+                barempty.set('text', instance.get(READYTEXT));
+            }
+        )
     );
 
     eventhandlers.push(
