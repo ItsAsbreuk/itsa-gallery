@@ -32,6 +32,7 @@ YUI.add('gallery-itsaviewmodelpanel', function (Y, NAME) {
 var ITSAViewModelPanel,
     ITSAFORMELEMENT = Y.ITSAFormElement,
     YArray = Y.Array,
+    YObject = Y.Object,
     Lang = Y.Lang,
     PLUGIN_TIMEOUT = 4000, // timeout within the plugin of itsatabkeymanager should be loaded
     FOCUS_NEXT = 'focusnext',
@@ -75,6 +76,13 @@ var ITSAViewModelPanel,
     VALIDATION_ERROR = 'validationerror',
     ITSA_PANELCLOSEBTN = 'itsa-panelclosebtn',
     STATUSBAR = 'statusBar',
+    GALLERY_ITSAMODELSYNCPROMISE = 'gallery-itsamodelsyncpromise',
+    AVAILABLESYNCMESSAGES = {
+        load: true,
+        save: true,
+        submit: true,
+        destroy: true
+    },
     VALIDATED_BTN_TYPES = {
         ok: true,
         retry: true,
@@ -343,9 +351,13 @@ ITSAViewModelPanel.prototype.initializer = function() {
     instance._partOfMultiView = true;
 
     // automaticly add sync-messages from Y.Model to the statusbar. See 'gallery-itsamessageviewer'.
-/*jshint expr:true */
-    instance.get(STATUSBAR) && model && model.addMessageTarget(instance);
-/*jshint expr:false */
+    if (instance.get(STATUSBAR) && model) {
+        Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), instance.readyPromise()).then(
+            function() {
+                model.addMessageTarget(instance);
+            }
+        );
+    }
 
     instance._set(BODYVIEW, new Y.ITSAViewModel({
         model: model,
@@ -468,14 +480,27 @@ ITSAViewModelPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(MODEL+CHANGE, function(e) {
             var footerView = instance.get(FOOTERVIEW),
-                newmodel = e.newVal;
+                newmodel = e.newVal,
+                syncMessages = instance._syncMessages;
             bodyView.set(MODEL, newmodel);
 /*jshint expr:true */
             footerView && footerView.set(MODEL, newmodel);
 /*jshint expr:false */
+            if (syncMessages && newmodel && newmodel.setSyncMessage) {
+                YObject.each(
+                    syncMessages,
+                    function(value, key) {
+                       new newmodel.setSyncMessage(key, value);
+                    }
+                );
+            }
             if (instance.get(STATUSBAR)) {
-                newmodel.addMessageTarget(instance);
-                e.prevVal.removeMessageTarget();
+                Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), instance.readyPromise()).then(
+                    function() {
+                        newmodel.addMessageTarget(instance);
+                        e.prevVal.removeMessageTarget();
+                    }
+                );
             }
         })
     );
@@ -651,9 +676,9 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
-console.log('eventtype: '+e.type);
                 var promise = e.promise,
                     model = e.target,
+                    statusbar = instance.get(STATUSBAR),
                     eventType = e.type.split(':')[1],
                     options = e.options || {},
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
@@ -666,23 +691,20 @@ console.log('eventtype: '+e.type);
                     // Caution: need to lockPanel AFTER UIToModel, because the changeevent would unlock again
                     instance._lockedBefore = instance._locked;
                     instance.lockPanel(true);
-                    instance._setSpin(eventType, true);
     /*jshint expr:true */
-console.log('eventtype: '+e.type+' --> action');
+                    statusbar || instance._setSpin(eventType, true);
                     (eventType===DESTROY) || promise.then(
                         function() {
-console.log('eventtype: '+e.type+' --> resolved');
                             ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
                         },
-                        function(reason) {
-console.log('eventtype: '+e.type+' --> rejected '+reason);
+                        function() {
                             ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs, {fromInternal: true});
                             return true; // make promise fulfilled
                         }
                     ).then(
                         function() {
-                            instance._setSpin(eventType, false);
         /*jshint expr:true */
+                            statusbar || instance._setSpin(eventType, false);
                             instance._lockedBefore || instance.unlockPanel();
                             contentBox.hasClass(FOCUSED_CLASS) && contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                                 function(itsatabkeymanager) {
@@ -1070,6 +1092,25 @@ ITSAViewModelPanel.prototype.setHotKeys = function(buttons) {
 };
 
 /**
+ * Defines the syncmessage to be used when calling the synclayer. When not defined (and not declared during calling the syncmethod by 'options.syncmessage'),
+ * a default i18n-message will be used. Passes by to the model of the panel.
+ * See gallery-itsamessageviewer for more info about syncmessages.
+ *
+ * @method setSyncMessage
+ * @param type {String} the syncaction = 'load'|'save'|destroy'|'submit'
+ * @param message {String} the syncmessage that should be viewed by a Y.ITSAMessageViewer
+ * @since 0.1
+*/
+ITSAViewModelPanel.prototype.setSyncMessage = function(type, message) {
+    var instance = this,
+        model = instance.get(MODEL);
+/*jshint expr:true */
+    instance._syncMessages || (instance._syncMessages={});
+    AVAILABLESYNCMESSAGES[type] && model && model.setSyncMessage && model.setSyncMessage(type, message) && (instance._syncMessages[type]=message); // instance._syncMessages for backup
+/*jshint expr:true */
+};
+
+/**
  * Updates Panels view by calling all view's render() methods.
  * You only need to call this when the attribute 'model' is an object and no Y.Model-instance and the properties are changed.
  *
@@ -1215,6 +1256,7 @@ ITSAViewModelPanel.prototype._setSpin = function(buttonType, spin) {
         "model",
         "gallery-itsapanel",
         "gallery-itsaviewmodel",
-        "gallery-itsaformelement"
+        "gallery-itsaformelement",
+        "gallery-itsamodulesloadedpromise"
     ]
 });
