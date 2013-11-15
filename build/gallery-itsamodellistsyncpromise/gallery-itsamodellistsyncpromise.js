@@ -150,7 +150,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
                             subtype = typesplit[1] || typesplit[0],
                             statushandle;
                         if ((subtype!==DESTROY) || remove) {
-                            statushandle = itsamessageviewer.showStatus(e.statusmessage || Y.ITSAMessageController._syncMessage[subtype], {source: MODELSYNC});
+                            statushandle = itsamessageviewer.showStatus(e.syncmessage || Y.ITSAMessageController._syncMessage[subtype], {source: MODELSYNC});
                             e.promise.then(
                                 function() {
                                     itsamessageviewer.removeStatus(statushandle);
@@ -187,7 +187,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
   * @method destroymodels
   * @param {Object} [options] Sync options. It's up to the custom sync implementation to determine what options it supports or requires, if any.
   *   @param {Boolean} [options.remove=false] If `true`, the model will be deleted via the sync layer in addition to the instance being destroyed.
-  *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious destruction. Will overrule the default message. See gallery-itsamessageviewer.
+  *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious destruction. Will overrule the default message. See gallery-itsamessageviewer.
   * @param {callback} [callback] Called after the model has been destroyed (and deleted via the sync layer if `options.remove` is `true`).
   *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. Otherwise 'err' will be null.
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
@@ -209,7 +209,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
  *   @param {Boolean} [options.remove=false] If `true`, the model will be deleted via the sync layer in addition to the instance being destroyed.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious destruction. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious destruction. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 
@@ -248,7 +248,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
   * @method load
   * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
   *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
-  *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
+  *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
   * @param {callback} [callback] Called when the sync operation finishes.
   *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. If the sync operation succeeded, 'err' will be null.
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
@@ -271,7 +271,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @method loadPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
 **/
 
@@ -294,7 +294,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
   * @method loadappend
   * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
   *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
-  *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
+  *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
   * @param {callback} [callback] Called when the sync operation finishes.
   *   @param {Error|null} callback.err If an error occurred, this parameter will contain the error. If the sync operation succeeded, 'err' will be null.
   *   @param {Any} callback.response The server's response. This value will be passed to the `parse()` method, which is expected to parse it and return an attribute hash.
@@ -317,7 +317,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @method loadappendPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
 **/
 
@@ -342,7 +342,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @method save
  * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during saving destruction. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during saving destruction. Will overrule the default message. See gallery-itsamessageviewer.
  * @param {Function} [callback] Called when the sync operation finishes.
  *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
  *                                    If the sync operation succeeded, 'err' will be null.
@@ -370,7 +370,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @method savePromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious saving. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious saving. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 
@@ -395,7 +395,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @method submit
  * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting synced attributes.
  *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
  * @param {Function} [callback] Called when the sync operation finishes.
  *   @param {Error|null} callback.err If an error occurred or validation failed, this parameter will contain the error.
  *                                    If the sync operation succeeded, 'err' will be null.
@@ -423,7 +423,7 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
  * @method submitPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
- *   @param {String} [options.statusmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
+ *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronous submission. Will overrule the default message. See gallery-itsamessageviewer.
  * @return {Y.Promise} promised response --> resolve(response) OR reject(reason). (examine reason.message).
 **/
 
