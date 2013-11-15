@@ -306,6 +306,27 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
 });
 
 /**
+ * Makes the message to target the specified messageViewer.
+ *
+ * @method addTarget
+ * @param itsamessageviewer {Y.ITSAMessageViewer|Y.ITSAPanel}
+ * @since 0.1
+*/
+ITSAMessage.prototype.addTarget = function(itsamessageviewer) {
+    var instance = this;
+    Y.usePromise('gallery-itsamessageviewer', 'gallery-itsapanel').then(
+        function() {
+/*jshint expr:true */
+            (itsamessageviewer instanceof Y.ITSAPanel) && (itsamessageviewer=itsamessageviewer._itsastatusbar);
+/*jshint expr:false */
+            if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
+                instance.target = itsamessageviewer;
+            }
+        }
+    );
+};
+
+/**
  * Rejects the Y.ITSAMessage. Therefore it will removed from the Y.ITSAMessageController-queue with a Promise-reject callback.
  * Rejects event-driven by firing a 'm'essagereject'-event, which can be listen to and prevented.
  *
@@ -415,4 +436,4 @@ ITSAMessage.prototype._stopTimer = function() {
 
 
 
-}, '@VERSION@', {"requires": ["yui-base", "gallery-itsaformmodel"]});
+}, '@VERSION@', {"requires": ["yui-base", "gallery-itsaformmodel", "gallery-itsamodulesloadedpromise"]});

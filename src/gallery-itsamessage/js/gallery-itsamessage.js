@@ -313,7 +313,20 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
 */
 ITSAMessage.prototype.addTarget = function(itsamessageviewer) {
     Y.log('reject', 'info', 'ITSAMessage');
-    this.target = itsamessageviewer;
+    var instance = this;
+    Y.usePromise('gallery-itsamessageviewer', 'gallery-itsapanel').then(
+        function() {
+/*jshint expr:true */
+            (itsamessageviewer instanceof Y.ITSAPanel) && (itsamessageviewer=itsamessageviewer._itsastatusbar);
+/*jshint expr:false */
+            if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
+                instance.target = itsamessageviewer;
+            }
+            else {
+                Y.log('Y.ITSAMessage.addTarget() is targetted to an invalid Y.ITSAMessageViewer', 'warn', 'ITSAMessage');
+            }
+        }
+    );
 };
 
 /**

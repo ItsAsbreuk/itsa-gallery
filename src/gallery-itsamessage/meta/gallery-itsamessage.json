@@ -2,7 +2,8 @@
     "gallery-itsamessage": {
         "requires": [
             "yui-base",
-            "gallery-itsaformmodel"
+            "gallery-itsaformmodel",
+            "gallery-itsamodulesloadedpromise"
         ]
     }
 }
