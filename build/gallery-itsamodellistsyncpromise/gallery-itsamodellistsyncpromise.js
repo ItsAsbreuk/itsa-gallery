@@ -172,6 +172,8 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
                     instance._itsamessageListener.detach();
                 });
             }
+            else {
+            }
         }
     );
 };
