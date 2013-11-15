@@ -308,7 +308,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
  * Makes the message to target the specified messageViewer.
  *
  * @method addTarget
- * @param itsamessageviewer {Y.ITSAMessageViewer}
+ * @param itsamessageviewer {Y.ITSAMessageViewer|Y.ITSAPanel}
  * @since 0.1
 */
 ITSAMessage.prototype.addTarget = function(itsamessageviewer) {
