@@ -1028,6 +1028,8 @@ Y.ITSAMessageController = Y.Global.ITSAMessageController;
         "base-build",
         "event-custom-complex",
         "promise",
+        "event-custom-base",
+        "yui-later",
         "gallery-itsamodulesloadedpromise"
     ]
 });
