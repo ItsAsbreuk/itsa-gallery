@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'Klar',
     enterrightformat : 'ange rätt format',
     entervalidnumber : 'ange ett giltigt nummer',
     inputrequired : 'Inmatning erfordras',

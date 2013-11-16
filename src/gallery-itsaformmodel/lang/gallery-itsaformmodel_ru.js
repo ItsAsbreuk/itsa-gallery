@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'готовый',
     enterrightformat : 'введите нужный формат',
     entervalidnumber : 'введите правильный номер',
     inputrequired : 'Требуется ввод',

@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'vVlmis',
     enterrightformat : 'kirjoita oikeassa muodossa',
     entervalidnumber : 'kirjoita kelvollinen numero',
     inputrequired : 'Syötettävä',

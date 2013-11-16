@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'तैयार',
     enterrightformat : 'सही प्रारूप दर्ज करें',
     entervalidnumber : 'एक मान्य संख्या दर्ज करें',
     inputrequired : 'इनपुट की आवश्यकता है',

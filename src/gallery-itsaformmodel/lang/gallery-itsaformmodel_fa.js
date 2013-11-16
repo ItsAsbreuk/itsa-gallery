@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'اماده',
     enterrightformat : 'لطفا فرمت مناسب وارد کنید',
     entervalidnumber : 'لطفا یک شماره تلفن معتبر وارد کنید',
     inputrequired : 'ورودی مورد نیاز است',

@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'готов',
     enterrightformat : 'моля, въведете в правилния формат',
     entervalidnumber : 'mоля да въведете валиден номер',
     inputrequired : 'Входно се изисква',

@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'Pripravený',
     enterrightformat : 'zadajte správny formát',
     entervalidnumber : 'zadajte platné číslo',
     inputrequired : 'Je nutné zadať',

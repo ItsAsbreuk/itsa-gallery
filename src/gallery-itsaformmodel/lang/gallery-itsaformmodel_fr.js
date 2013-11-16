@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'Prêt',
     enterrightformat : 's\'il vous plaît entrer le bon format',
     entervalidnumber : 's\'il vous plaît entrer un numéro valide',
     inputrequired : 'L\'entrée est requise',

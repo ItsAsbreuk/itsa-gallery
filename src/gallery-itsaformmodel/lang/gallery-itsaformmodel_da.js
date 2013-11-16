@@ -1,5 +1,5 @@
 {
-    ready: 'ready',
+    ready: 'Klar',
     enterrightformat : 'angiv det rigtige format',
     entervalidnumber : 'angiv et gyldigt tal',
     inputrequired : 'Input er påkrævet',
