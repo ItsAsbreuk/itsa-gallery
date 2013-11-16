@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsa-i18n-login",
+    "displayName": "Gallery: gallery-itsa-i18n-login",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsa-i18n-login" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}
