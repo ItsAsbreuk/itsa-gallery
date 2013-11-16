@@ -2569,6 +2569,7 @@ YArray.each(
         "event-valuechange",
         "event-synthetic",
         "event-base",
+        "event-custom-base",
         "event-custom",
         "json-parse",
         "gallery-itsanodepromise",
