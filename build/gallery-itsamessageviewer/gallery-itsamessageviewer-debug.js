@@ -497,7 +497,7 @@ ITSAMessageViewer.prototype._nextMessagePromise = function(level) {
                     (level!==INFO) && instance.fire(EVT_LEVELCLEAR);
 /*jshint expr:false */
                     destroylistener = instance.once('destroy', reject);
-                    listener=Y.on(NEWMESSAGE, function(e) {
+                    listener=Y.after(NEWMESSAGE, function(e) {
                         var itsamessage = e.itsamessage;
                             itsasimplemessage = itsamessage._simpleMessage;
                             messagesource = itsamessage.source;

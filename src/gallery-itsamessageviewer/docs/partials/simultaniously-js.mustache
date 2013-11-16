@@ -8,14 +8,14 @@ YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
         imageButtons: true
     });
 
-    Y.later(4000, null, function() {
+    Y.later(3000, null, function() {
         Y.showWarning('Warning message', 'This is a warning-message, '+
                       'just wait for the error-message to take over...', {
             imageButtons: true
         });
     });
 
-    Y.later(8000, null, function() {
+    Y.later(6000, null, function() {
         Y.showError('Error message', 'This is an error-message, you can now close all dialog-panels...', {
             imageButtons: true
         });

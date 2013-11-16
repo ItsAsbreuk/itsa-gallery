@@ -1,12 +1,24 @@
 YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
 
+    var msg;
+
     Y.on('newmessage', function(e) {
         console.log('prevent message from added to the queue');
         e.preventDefault();
     });
 
-    Y.showMessage('Prevented message', 'This message should never occur', {
+    msg = Y.showMessage('Prevented message', 'This message should never occur', {
         imageButtons: true
     });
+
+    msg.then(
+        function() {
+            console.log('resolved --> this message should not appear');
+        },
+        function(reason) {
+            console.log('rejected '+reason);
+
+        }
+    );
 
 });
