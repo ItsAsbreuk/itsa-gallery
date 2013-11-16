@@ -692,7 +692,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
             function(e) {
                 var promise = e.promise,
                     model = e.target,
-                    statusbar = instance.get(STATUSBAR),
+                    messageController = Y.ITSAMessageController,
+                    statusbar = instance.get(STATUSBAR) || (messageController && messageController._targets[MODEL+'sync']),
                     eventType = e.type.split(':')[1],
                     options = e.options || {},
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
