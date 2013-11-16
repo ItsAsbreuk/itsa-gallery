@@ -120,6 +120,7 @@ var ITSAPanel,
     CLICK_OUTSIDE = CLICK+'outside',
     FOOTERONTOP = FOOTER+'OnTop',
     STATUSBAR = 'statusBar',
+    STATUSBARTRANSFORM = STATUSBAR+TRANSFORM,
     CLASS_FOOTERONTOP = ITSA+PANEL+FOOTER+'-top',
     SIZE_SMALL = 'small',
     SIZE_MEDIUM = 'medium',
@@ -544,6 +545,25 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
             value: false,
             validator: function(val) {
                 return (typeof val===BOOLEAN);
+            }
+        },
+        /**
+         * CSS text-transform of the statusbar. Passes through to the statisbar (if available):
+         * <ul>
+         *   <li>null --> leave as it is</li>
+         *   <li>uppercase</li>
+         *   <li>lowercase</li>
+         *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+         * </ul>
+         *
+         * @attribute statusBarTransform
+         * @default null
+         * @type {String}
+         */
+        statusBarTransform: {
+            value: null,
+            validator: function(val) {
+                return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
             }
         },
         /**
@@ -1018,6 +1038,17 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.on(
+            STATUSBARTRANSFORM+CHANGE,
+            function(e) {
+/*jshint expr:true */
+                instance._itsastatusbar && instance._itsastatusbar.set(STATUSBARTRANSFORM, e.newVal);
+/*jshint expr:false */
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.on(
             [TITLE+CHANGE, TITLERIGHT+CHANGE, CLOSEBUTTON+CHANGE],
             function(e) {
                 var value = e.newVal,
@@ -1412,7 +1443,11 @@ ITSAPanel.prototype._renderStatusBar = function() {
     }
     else if (!itsastatusbar) {
         Y.use('gallery-itsastatusbar', function() {
-            itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: statusbar, readyText: instance.get(READYTEXT)});
+            itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({
+                                parentNode: statusbar,
+                                readyText: instance.get(READYTEXT),
+                                statusBarTransform: instance.get(STATUSBARTRANSFORM)
+                            });
             itsastatusbar.isReady().then(
                 function() {
 /*jshint expr:true */
