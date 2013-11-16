@@ -904,9 +904,19 @@ ITSAPanel.prototype.bindUI = function() {
             [HEADERVIEW+CHANGE, BODYVIEW+CHANGE, FOOTERVIEW+CHANGE],
             function (ev) {
             Y.log('aftersubscriptor '+ev.type, 'info', 'ITSAPanel');
+                var type = ev.type,
+                    newVal = ev.newVal,
+                    prevVal = ev.prevVal,
+                    split = type.split(':'),
+                    subtype = split[1] || split[0],
+                    hideFooter;
+                if (subtype===FOOTERVIEW+CHANGE) {
+                    hideFooter = !newVal && !instance.get(FOOTER) && !instance.get(FOOTER+RIGHT);
+                    instance._footercont.toggleClass(HIDDENSECTIONCLASS, hideFooter);
+                }
     /*jshint expr:true */
-                (ev.prevVal instanceof Y.View) && ev.prevVal.removeTarget(instance);
-                (ev.newVal instanceof Y.View) && (!instance._partOfMultiView || (ev.type===BODYVIEW+CHANGE)) && ev.newVal.addTarget(instance);
+                (prevVal instanceof Y.View) && prevVal.removeTarget(instance);
+                (newVal instanceof Y.View) && (!instance._partOfMultiView || (subtype===BODYVIEW+CHANGE)) && newVal.addTarget(instance);
     /*jshint expr:false */
             }
         )
