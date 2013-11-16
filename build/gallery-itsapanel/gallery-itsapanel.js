@@ -1579,11 +1579,13 @@ ITSAPanel.prototype._setWidth = function(val) {
 
 }, '@VERSION@', {
     "requires": [
+        "yui-base",
         "node-pluginhost",
         "gallery-itsapluginpromise",
         "dd-ddm",
         "node-event-delegate",
         "node-style",
+        "base-base",
         "base-build",
         "widget-modality",
         "widget-position",
@@ -1591,7 +1593,11 @@ ITSAPanel.prototype._setWidth = function(val) {
         "widget-position-constrain",
         "widget-stack",
         "view",
+        "promise",
+        "oop",
         "widget",
+        "event-custom-base",
+        "yui-later",
         "gallery-itsawidgetrenderpromise"
     ],
     "skinnable": true
