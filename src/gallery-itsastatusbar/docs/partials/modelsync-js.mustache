@@ -1,8 +1,9 @@
 YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodelsyncpromise', 'promise', 'gallerycss-itsa-base', function(Y) {
 
     // 'gallerycss-itsa-base' is loaded to give the pure-buttons a border
-    var countrymodel,
-        loadbutton = Y.one('#loaddata'),
+    var countrymodel1, countrymodel2,
+        loadbutton1 = Y.one('#loaddata1'),
+        loadbutton2 = Y.one('#loaddata2'),
         mystatusbar = new Y.ITSAStatusbar();
 
     mystatusbar.handleModelSync();
@@ -28,11 +29,23 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
         }
     });
 
-    countrymodel = new Y.CountryModel();
-    loadbutton.on(
+    countrymodel1 = new Y.CountryModel();
+    countrymodel2 = new Y.CountryModel();
+
+    // to show differencies between the 2 models, we set a 'non-default' syncmessage for countrymodel2:
+    countrymodel2.setSyncMessage('load', '2nd countrymodel is loading...');
+
+    loadbutton1.on(
         'click',
         function(e) {
-            countrymodel.load();
+            countrymodel1.load();
+        }
+    );
+
+    loadbutton2.on(
+        'click',
+        function(e) {
+            countrymodel2.load('oeps');
         }
     );
 
