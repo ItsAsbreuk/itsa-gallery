@@ -69,6 +69,18 @@
     padding: 0;
 }
 
+.itsa-statusbar-container.itsa-statusbar-texttransform-capitalize {
+    text-transform: capitalize;
+}
+
+.itsa-statusbar-container.itsa-statusbar-texttransform-uppercase {
+    text-transform: uppercase;
+}
+
+.itsa-statusbar-container.itsa-statusbar-texttransform-lowercase {
+    text-transform: lowercase;
+}
+
 .itsa-statusbar-container .itsa-dialogicon.itsaicon-dialog-inform,
 .itsa-statusbar-container .itsa-dialogicon.itsaicon-dialog-question2 {
     font-size: 1em;

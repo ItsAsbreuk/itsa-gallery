@@ -555,11 +555,11 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
          * </ul>
          *
          * @attribute statusBarTransform
-         * @default null
+         * @default lowercase
          * @type {String}
          */
         statusBarTransform: {
-            value: null,
+            value: LOWERCASE,
             validator: function(val) {
                 return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
             }

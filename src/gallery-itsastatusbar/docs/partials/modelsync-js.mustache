@@ -4,7 +4,7 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
     var countrymodel1, countrymodel2,
         loadbutton1 = Y.one('#loaddata1'),
         loadbutton2 = Y.one('#loaddata2'),
-        mystatusbar = new Y.ITSAStatusbar();
+        mystatusbar = new Y.ITSAStatusbar({textTransform: 'lowercase'});
 
     mystatusbar.handleModelSync();
 
