@@ -34,11 +34,18 @@
         EMAIL = 'e'+MAIL,
         URL = 'url',
         LOADDELAY = 5000,
-        MODELSYNC = 'modelsync',
+        MODEL = 'model',
+        SYNC = 'sync',
+        LIST = 'list',
+        GALLERY_ITSA = 'gallery-itsa',
+        SYNCPROMISE = SYNC+'promise',
+        GALLERYITSAMODELSYNCPROMISE = GALLERY_ITSA+MODEL+SYNCPROMISE,
+        GALLERYITSAMODELLISTSYNCPROMISE = GALLERY_ITSA+MODEL+LIST+SYNCPROMISE,
+        MODELSYNC = MODEL+SYNC,
         PUBLISHED = '_pub_',
         NEWMESSAGE = 'new'+MESSAGE,
         PUBLISHED_NEWMESSAGE = PUBLISHED+NEWMESSAGE,
-        GALLERY_ITSAMESSAGE = 'gallery-itsamessage',
+        GALLERY_ITSAMESSAGE = GALLERY_ITSA+MESSAGE,
         GET = 'get',
         SHOW = 'show',
         REMOVE = 'remove',
@@ -389,15 +396,16 @@ ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
                 options = e.options,
                 remove = options.remove || options[DELETE],
                 subtype = type.split(':')[1],
-                statushandle;
+                statushandle, defSyncMessages;
             // cannot check Y.Model or Y.ModelList until we are sure the model-module is loaded
-            Y.usePromise('model', 'model-list', 'gallery-itsamodelsyncpromise', 'gallery-itsamodellistsyncpromise').then(
+            Y.usePromise(MODEL, MODEL+'-'+LIST, GALLERYITSAMODELSYNCPROMISE, GALLERYITSAMODELLISTSYNCPROMISE).then(
                 function() {
                     // model._itsaMessageViewer needs to be undefined, that means it has no target
                     if (((model instanceof Y.Model) || (model instanceof Y.ModelList)) && ((subtype!==DESTROY) || remove) && (!model._itsamessageListener)) {
                         // because multiple simultanious on-events will return only one after-event (is this an error?),
                         // we will take the promise's then() to remove the status lateron.
-                        statushandle = instance._showStatus(e.syncmessage || model._defSyncMessage[subtype], {source: MODELSYNC});
+                        defSyncMessages = model._defSyncMessages;
+                        statushandle = instance._showStatus(e.syncmessage || (defSyncMessages && defSyncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype], {source: MODELSYNC});
                         e.promise.then(
                             function() {
                                 instance._removeStatus(statushandle);
