@@ -58,7 +58,7 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     LOGGEDIN = 'loggedin',
     STAYLOGGEDIN = 'stay'+LOGGEDIN,
     PUBLISHED_LOGGEDIN = '_pub_'+LOGGEDIN,
-    GALLERYITSALOGIN = 'gallery-itsalogin',
+    GALLERYITSAI18NLOGIN = 'gallery-itsa-i18n-login',
     CHECK = 'check',
     RECIEVEDMAILWITHINSTRUCTIONS = 'receivedmailwithinstructions',
     CHECKSPAMBOX = CHECK+'spambox',
@@ -447,7 +447,7 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
  * @private
  * @type Object
 */
-ITSADialogClass.prototype._intl = YIntl.get(GALLERYITSALOGIN);
+ITSADialogClass.prototype._intl = YIntl.get(GALLERYITSAI18NLOGIN);
 
 /**
   * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
@@ -663,6 +663,7 @@ regainFn_UnPw = function(config) {
     forgotMessage.icon = config.iconquestion || ICON_QUESTION;
     forgotMessage.title = config.titleForgotUsernameOrPassword || intl[FORGOT_USERNAME_OR_PASSWORD];
     forgotMessage.level = WARN;
+    forgotMessage.footer = null;
     forgotMessage._config = config;
     forgotMessage.target = ITSADIALOG; // widgetname that should handle this message
     forgotMessage.source = config.source || APP;
@@ -1049,6 +1050,7 @@ Y[LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessa
         "intl",
         "base-build",
         "promise",
+        "gallery-itsa-i18n-login",
         "gallery-lazy-promise",
         "gallery-itsamessagecontroller",
         "gallery-itsacheckbox",
@@ -1058,35 +1060,6 @@ Y[LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessa
         "gallerycss-itsa-base",
         "gallerycss-itsa-animatespin",
         "gallerycss-itsa-dialog"
-    ],
-    "lang": [
-        "ar",
-        "bg",
-        "bs",
-        "cs",
-        "da",
-        "de",
-        "en",
-        "es",
-        "fa",
-        "fi",
-        "fr",
-        "he",
-        "hi",
-        "hr",
-        "hu",
-        "it",
-        "ja",
-        "nb",
-        "nl",
-        "pl",
-        "pt",
-        "ru",
-        "sk",
-        "sr",
-        "sv",
-        "uk",
-        "zh"
     ],
     "skinnable": true
 });
