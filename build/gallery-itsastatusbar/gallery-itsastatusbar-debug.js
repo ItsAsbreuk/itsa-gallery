@@ -505,9 +505,12 @@ ITSAStatusbar.prototype._showBar = function(barnode, itsamessage) {
         "event-tap",
         "promise",
         "timers",
+        "yui-later",
         "escape",
         "node-event-delegate",
         "node-style",
+        "oop",
+        "node-core",
         "gallery-itsamessageviewer"
     ],
     "skinnable": true
