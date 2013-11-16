@@ -2214,12 +2214,18 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
     "requires": [
         "gallery-itsapluginpromise",
         "intl",
+        "base-base",
         "base-build",
         "view",
+        "widget-base",
+        "template-base",
         "template-micro",
         "model",
+        "node-style",
         "event-custom",
         "event-outside",
+        "event-custom-base",
+        "oop",
         "pluginhost-base",
         "gallery-itsamodulesloadedpromise",
         "gallerycss-itsa-base"
