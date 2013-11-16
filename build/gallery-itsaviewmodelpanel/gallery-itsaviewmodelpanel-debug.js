@@ -597,7 +597,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
             var newTemplate = e.newVal,
                 prevTemplate = e.prevVal,
                 newFooterView, footerview;
-            if (newTemplate) {
+            if (newTemplate && (newTemplate!=='')) {
                 footerview = instance.get(FOOTERVIEW);
                 if (!footerview) {
                     newFooterView = new Y.ITSAViewModel({
@@ -616,7 +616,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                     footerview.set('template', newTemplate);
                 }
             }
-            prevTemplate && !newTemplate && instance._set(FOOTERVIEW, null);
+            prevTemplate && (!newTemplate || newTemplate==='') && instance._set(FOOTERVIEW, null);
             contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
                     itsatabkeymanager.refresh(contentBox);
