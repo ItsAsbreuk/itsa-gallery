@@ -438,4 +438,12 @@ ITSAMessage.prototype._stopTimer = function() {
 
 
 
-}, '@VERSION@', {"requires": ["yui-base", "gallery-itsaformmodel", "gallery-itsamodulesloadedpromise"]});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "oop",
+        "yui-later",
+        "gallery-itsaformmodel",
+        "gallery-itsamodulesloadedpromise"
+    ]
+});
