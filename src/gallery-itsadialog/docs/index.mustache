@@ -5,7 +5,10 @@
         {{description}}
     </p>
     <p>
-        This module creates Y.ITSADialog, which can be used by the webapplication - even accross multiple YUI-instances. Y.ITSADialog is the View of the <b>ITSA-MVC-message system</b> where Y.ITSAMessageController is the controller and messages of the type Y.ITSAMessage can be added.
+        This module creates Y.ITSADialog, which can be used by the webapplication - even accross multiple YUI-instances. Y.ITSADialog is a MessageViewer of the <b>ITSA-MVC-message system</b> where Y.ITSAMessageController is the controller and messages of the type Y.ITSAMessage can be added.
+    </p>
+    <p>
+        You could also choose to make use of other MessageViewers. Create one of your own (see <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>), or use <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsastatusbar/">Y.ITSAStatusbar</a>, which also is a MessageViewer. Or use multiple and target which MessageViewer to handle what messages.
     </p>
 </div>
 
@@ -13,10 +16,10 @@
 
 <h2>Description</h2>
     <p>
-        Y.ITSADialog is created and ready to be used once this module is loaded. By adding messages to the queue of <b>ITSA-MVC-message system</b>, Y.ITSADialog will pcik them up, show them in a modal panel and return a Promise that holds the users interaction.
+        This module automaticly creates <code>Y.ITSADialog</code> (an instance of Y.ITSADialogClass) once loaded. You just need 1 instance. By adding messages to the queue of the <code>ITSA-MVC-message system</code>, Y.ITSADialog will pick them up, show them in a modal panel and return a Promise that holds the user-interaction.
     </p>
     <p>
-        Using Y.ITSAMessageControler.queueMessage(itsamessage), a custom Y.ITSAMessage can be added. But there are also some convenience methods made available by Y.ITSAMessageViewer:
+        Using Y.ITSAMessageControler.queueMessage(itsamessage), custom Y.ITSAMessage's can be added. But there are also some convenience methods made available once this module is loaded:
         <ul>
             <li><code>Y.getConfirmation</code> or <code>Y.confirm</code></li>
             <li><code>Y.getEmail</code></li>
@@ -29,12 +32,12 @@
             <li><code>Y.showStatus</code></li>
             <li><code>Y.showWarning</code> or <code>Y.alert</code></li>
         </ul>
-        All these methods call Y.ITSAMessageController.queueMessage() under the hood and return a Y.Promise with the future userinput.
+        All these methods call Y.ITSAMessageController.queueMessage() under the hood and return a Y.Promise with the future userinput. These convenience-methods are provided by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>, thus they can be 're-targeted' to another MessageViewer (see below).
     </p>
 
 <h2>Usage</h2>
     <p>
-        The View will take one message (Y.ITSAMessage-instance) at the time, taken from Y.ITSAMessageController.queue. Once the Y.ITSAMessage-instance is resolved -mostly by the enduser finished it- the View will fulfill the original Y.ITSAMessageController.queueMessage-Promise. When Y.ITSAMessage._promise gets resolved, then Y.ITSAMessageController.queueMessage also resolves, returning the attributes of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage</a>. The developer can inspect these values.
+        The MessageView will take one message (Y.ITSAMessage-instance) at the time, taken from Y.ITSAMessageController.queue. Once the Y.ITSAMessage-instance is resolved -mostly by the enduser finished it- the View will fulfill the original Y.ITSAMessageController.queueMessage-Promise. When Y.ITSAMessage._promise gets resolved, then Y.ITSAMessageController.queueMessage also resolves, returning the attributes of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage</a>. The developer can inspect these values.
 
     ```js
         YUI(yuiconfig).use('gallery-itsadialog', function(Y) {
@@ -59,6 +62,71 @@
         });
     ```
     </p>
+
+<h2>How to handle the messages?</h2>
+    <p>
+        When creating an <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessage/">Y.ITSAMessage</a>, you add it to the queue of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessagecontroller/">Y.ITSAMessageController</a> and you get a Promise in return. The promise will be resolved once the user finished it by pressing a button. Messages can be added to the queue by calling <code>Y.ITSAMessageController.queueMessage()</code>, or by any convenience-method mentioned below.
+    </p>
+    <p>
+        Every message need be processed by a MessageViewer like Y.ITSADialog. By default, Y.ITSAMessages are 'untargeted' and come in the queue of Y.ITSAMessageController. Because Y.ITSDialog is marked as the default MessageViewer to handle 'general untargeted-messages', it will handle all 'general'-messages by default. Should you want to change this, see <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>.
+    </p>
+    <p>
+        There are also <code>status-message</code> and <code>modelsync-messages</code>, but they are meant for non-modal view, so they are not handled by Y.ITSADialog by default. <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsastatusbar/">Y.ITSAStatusbar</a> suites better for these messagetypes.
+    </p>
+
+<h2>Different message-levels</h2>
+    <p>
+        There are three different messagelevels:
+        <ul>
+            <li>info</li>
+            <li>warn</li>
+            <li>error</li>
+        </ul>
+        When a message at warn-level occurs it overrules an info-message - which returns after the warn-message if handled. The same for error-messages, which have a ranking above warn-messages. You can set the message-level by using <code>options.level</code>.
+    </p>
+
+<h2>Convenience messages</h2>
+    <p>
+        Some general messages can be executed directly on the Y-instance for convenience:
+        <ul>
+            <li>Y.showMessage()</li>
+            <li>Y.showWarning()</li>
+            <li>Y.showError()</li>
+            <li>Y.getConfirmation()</li>
+            <li>Y.getEmail()</li>
+            <li>Y.getInput()</li>
+            <li>Y.getNumber()</li>
+            <li>Y.getRetryConfirmation()</li>
+            <li>Y.getURL()</li>
+            <li>Y.alert()  = alias for showWarning()</li>
+            <li>Y.prompt()  = alias for getInput()</li>
+            <li>Y.confirm()  = alias for getConfirmation()</li>
+        </ul>
+    </p>
+
+<h2>Y.ITSADialog v.s. Y.ITSAViewModelPanel</h2>
+    <p>
+        Y.ITSADialog looks quite the same as <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodelpanel/">Y.ITSAViewModelPanel</a>. Actually, it uses Y.ITSAViewModelPanel under the hood. So when to choose one above the other:
+    </p>
+
+    <h3>Advantages Y.ITSADialog</h3>
+        <ul>
+            <li>Messages are queued. So the user will see only 1 message at the time. And when there appears an warn- or error-message during your custom message, your messaga will be temporarely replaced</li>
+            <li>You always get the userinteraction in return (the Promise-value)</li>
+        </ul>
+
+    <h3>Advantages Y.ITSAViewModelPanel</h3>
+        <ul>
+            <li>Easier to setup, you just attach a model</li>
+            <li>Can handle Y.ITSAFormModel-types, you don't need to create an Y.ITSAMessage</li>
+            <li>The model-instance remains, while Y.ITSAMessages are cleaned up by Y.ITSADialog</li>
+            <li>You could setup multiple panels at the same time</li>
+        </ul>
+
+    <h3>General best practice</h3>
+        <p>
+            In general, when you want <code>one time modal user-interaction</code> (that is: an 'editable' panel were the model isn't needed for something else), you better create an Y.ITSAMessage and use Y.ITSADialog. In all other situations, use Y.ITSAViewModelPanel.
+        </p>
 
 <h2>licence</h2>
 <p class= 'copyright'>
