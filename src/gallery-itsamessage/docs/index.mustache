@@ -20,7 +20,7 @@
 
 <h2>Who handles the message?</h2>
     <p>
-        The Y.ITSAMessage-instance will be processed by a <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>-instance. You can target the message to a MessageViewer-instance by <code>yourMessage.addTarget(yourMessageViewer)</code>. If you don't target a message, then it will be processed as an 'untargeted'-message. Each MessageViewer could be set up to handle the 'untargeted'-messages, but only one at a time. By default, untargeted mesaages are processed by Y.ITSADialog (if loaded).
+        The Y.ITSAMessage-instance will be processed by a <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamessageviewer/">Y.ITSAMessageViewer</a>-instance. You can target the message to a MessageViewer-instance by <code>yourMessage.addMessageTarget(yourMessageViewer)</code>. If you don't target a message, then it will be processed as an 'untargeted'-message. Each MessageViewer could be set up to handle the 'untargeted'-messages, but only one at a time. By default, untargeted mesaages are processed by Y.ITSADialog (if loaded).
     </p>
 
 <h2>Finishing messages</h2>

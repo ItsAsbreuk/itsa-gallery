@@ -257,7 +257,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.priority = false; // messages with priority===true appear before messages with priority===false
         instance.source = 'application';
 
-        instance._config = {}; // orriginal config passed trhough
+        instance._config = {}; // orriginal config passed through
         instance._processing = false;
         instance._simpleMessage = false;
         instance._statusMessage = false;
@@ -309,11 +309,11 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
 /**
  * Makes the message to target the specified messageViewer.
  *
- * @method addTarget
+ * @method addMessageTarget
  * @param itsamessageviewer {Y.ITSAMessageViewer|Y.ITSAPanel}
  * @since 0.1
 */
-ITSAMessage.prototype.addTarget = function(itsamessageviewer) {
+ITSAMessage.prototype.addMessageTarget = function(itsamessageviewer) {
     Y.log('reject', 'info', 'ITSAMessage');
     var instance = this;
     Y.usePromise('gallery-itsamessageviewer', 'gallery-itsapanel').then(
@@ -323,6 +323,9 @@ ITSAMessage.prototype.addTarget = function(itsamessageviewer) {
 /*jshint expr:false */
             if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
                 instance.target = itsamessageviewer;
+            }
+            else {
+                Y.log('Y.ITSAMessage.addMessageTarget() is targetted to an invalid Y.ITSAMessageViewer', 'warn', 'ITSAMessage');
             }
         }
     );
