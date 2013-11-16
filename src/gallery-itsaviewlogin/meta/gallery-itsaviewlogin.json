@@ -1,0 +1,7 @@
+{
+    "gallery-itsaviewlogin": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}
