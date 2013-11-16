@@ -75,6 +75,7 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         ICON_INFO = ITSAICON_DIALOG+INFO,
         ICON_QUESTION = ITSAICON_DIALOG+QUESTION,
         ICON_WARN = ITSAICON_DIALOG+WARN,
+        ERROR_MSG_SIMPLE_NOTARGET = 'non-simple-message cannot be targetted to simple-messageviewer',
         ITSADIALOG = 'itsadialog';
 
 function ITSAMessageControllerClass() {
@@ -92,7 +93,8 @@ Y.ITSAMessageControllerClass = Y.extend(ITSAMessageControllerClass, Y.Base);
 */
 ITSAMessageControllerClass.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSAMessageController');
-    var instance = this;
+    var instance = this,
+        eventhandlers;
 
     /**
      * Array with all the messages that needs to be shown.
@@ -109,7 +111,7 @@ ITSAMessageControllerClass.prototype.initializer = function() {
      * @type Array
      * @private
      */
-    instance._eventhandlers = [];
+    eventhandlers = instance._eventhandlers = [];
 
     /**
      * Reference to which MessageViewer wil handle untargeted messages.
@@ -171,6 +173,21 @@ ITSAMessageControllerClass.prototype.initializer = function() {
      */
     instance.warnMidi = 'warn.midi';
 
+    eventhandlers.push(
+        Y.on(
+            NEWMESSAGE,
+            function(e) {
+                var itsamessage = e.itsamessage,
+                    messagetarget = itsamessage.target;
+                if (messagetarget && !itsamessage._simpleMessage && messagetarget.simpleMessages) {
+                    e.preventDefault();
+                    Y.log(ERROR_MSG_SIMPLE_NOTARGET, 'warn', 'ITSAMessageController');
+                    itsamessage._rejectPromise(new Error(ERROR_MSG_SIMPLE_NOTARGET));
+                }
+            }
+        )
+    );
+
     Y.later(LOADDELAY, instance, instance.isReady);
 };
 
@@ -207,6 +224,7 @@ ITSAMessageControllerClass.prototype.isReady = function() {
  *
  * @method queueMessage
  * @param itsamessage {Y.ITSAMessage} the Y.ITSAMessage-instance to be viewed.
+ * @return {Y.Promise} Promise that holds the user-response.
  * @since 0.1
 */
 ITSAMessageControllerClass.prototype.queueMessage = function(itsamessage) {
@@ -903,7 +921,8 @@ ITSAMessageControllerClass.prototype._lazyFireErrorEvent = function(facade) {
 ITSAMessageControllerClass.prototype._prevDefFn = function(e) {
     Y.log('_prevDefFn', 'info', 'ITSAMessageController');
     var itsamessage = e.itsamessage;
-    // need to return a Promise
+    itsamessage._rejectPromise(new Error('queuemessage prevented'));
+    // need to return a Promise to continue the messageviewer
     return new Y.Promise(function (resolve) {
         itsamessage.detachAll();
         itsamessage.destroy();
