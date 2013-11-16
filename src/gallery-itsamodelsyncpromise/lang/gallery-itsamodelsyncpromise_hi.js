@@ -1,6 +1,6 @@
 {
-    load: 'loading data...',
-    submit: 'submitting data...',
-    save: 'updating data...',
-    destroy: 'updating data...'
+    load: 'डेटा लोड हो रहा है ...',
+    submit: 'डेटा भेजने से ...',
+    save: 'डेटा अपडेट कर रहा है ...',
+    destroy: 'डेटा अपडेट कर रहा है ...'
 }

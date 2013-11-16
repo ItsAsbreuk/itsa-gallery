@@ -1,6 +1,6 @@
 {
-    load: 'loading data...',
-    submit: 'submitting data...',
-    save: 'updating data...',
-    destroy: 'updating data...'
+    load: 'Adatok betöltése ...',
+    submit: 'Adatok küldése ...',
+    save: 'Adatok frissítése ...',
+    destroy: 'Adatok frissítése ...'
 }

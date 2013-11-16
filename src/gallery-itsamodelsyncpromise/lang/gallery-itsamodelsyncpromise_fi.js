@@ -1,6 +1,6 @@
 {
-    load: 'loading data...',
-    submit: 'submitting data...',
-    save: 'updating data...',
-    destroy: 'updating data...'
+    load: 'Ladataan tietoja ...',
+    submit: 'Toimittaa tiedot ...',
+    save: 'Päivittää tietoja ...',
+    destroy: 'Päivittää tietoja ...'
 }

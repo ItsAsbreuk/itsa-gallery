@@ -1,6 +1,6 @@
 {
-    load: 'loading data...',
-    submit: 'submitting data...',
-    save: 'updating data...',
-    destroy: 'updating data...'
+    load: 'データを読み込んでいます...',
+    submit: 'データを送信する...',
+    save: 'データを更新しています...',
+    destroy: 'データを更新しています...'
 }

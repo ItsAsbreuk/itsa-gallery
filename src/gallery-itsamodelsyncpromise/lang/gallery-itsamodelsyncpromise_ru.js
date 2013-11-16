@@ -1,6 +1,6 @@
 {
-    load: 'loading data...',
-    submit: 'submitting data...',
-    save: 'updating data...',
-    destroy: 'updating data...'
+    load: 'Загрузка данных ...',
+    submit: 'Передача данных ...',
+    save: 'Обновление данных ...',
+    destroy: 'Обновление данных ...'
 }

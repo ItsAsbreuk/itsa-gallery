@@ -1,6 +1,6 @@
 {
-    load: 'loading data...',
-    submit: 'submitting data...',
-    save: 'updating data...',
-    destroy: 'updating data...'
+    load: 'Учитавање података ...',
+    submit: 'Слање података ...',
+    save: 'Ажурирање података ...',
+    destroy: 'Ажурирање података ...'
 }
