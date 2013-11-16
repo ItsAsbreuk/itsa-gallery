@@ -2,6 +2,7 @@
     "gallery-itsaviewmodelpanel": {
         "requires": [
             "node-pluginhost",
+            "yui-base",
             "base-build",
             "base-base",
             "event-outside",

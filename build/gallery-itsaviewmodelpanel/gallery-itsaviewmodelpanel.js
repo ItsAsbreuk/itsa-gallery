@@ -1251,6 +1251,7 @@ ITSAViewModelPanel.prototype._setSpin = function(buttonType, spin) {
 }, '@VERSION@', {
     "requires": [
         "node-pluginhost",
+        "yui-base",
         "base-build",
         "base-base",
         "event-outside",
