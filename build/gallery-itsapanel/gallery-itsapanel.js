@@ -1041,7 +1041,7 @@ ITSAPanel.prototype.bindUI = function() {
             STATUSBARTRANSFORM+CHANGE,
             function(e) {
 /*jshint expr:true */
-                instance._itsastatusbar && instance._itsastatusbar.set(STATUSBARTRANSFORM, e.newVal);
+                instance._itsastatusbar && instance._itsastatusbar.set('text'+TRANSFORM, e.newVal);
 /*jshint expr:false */
             }
         )
@@ -1446,7 +1446,7 @@ ITSAPanel.prototype._renderStatusBar = function() {
             itsastatusbar = instance._itsastatusbar = new Y.ITSAStatusbar({
                                 parentNode: statusbar,
                                 readyText: instance.get(READYTEXT),
-                                statusBarTransform: instance.get(STATUSBARTRANSFORM)
+                                textTransform: instance.get(STATUSBARTRANSFORM)
                             });
             itsastatusbar.isReady().then(
                 function() {
