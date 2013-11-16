@@ -1008,6 +1008,7 @@ Y[SHOW_STATUS] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_STATUS], I
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "base-base",
         "yui-later",
         "timers",
         "promise",
