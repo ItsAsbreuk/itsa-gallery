@@ -450,6 +450,7 @@ Y.ITSADialog = Y.Global.ITSADialog;
     "requires": [
         "yui-base",
         "promise",
+        "node-core",
         "event-custom-base",
         "yui-later",
         "timers",
