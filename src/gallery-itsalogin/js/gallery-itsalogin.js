@@ -901,6 +901,9 @@ ITSADialogInstance.isRendered().then(
                                                                        ));
 /*jshint expr:false */
                                             ITSADialogInstance.fire(LOGGEDIN, facade);
+/*jshint expr:true */
+                                            (message=responseObj.message) && Y.showMessage(responseObj.title, message);
+/*jshint expr:false */
                                         }
                                         else if ((messageType===FORGOT_USERNAME) || (messageType===FORGOT_PASSWORD) || (messageType===FORGOT_PASSWORD_EMAIL)) {
                                             itsamessageconfig = itsamessage._config;

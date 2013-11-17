@@ -81,6 +81,7 @@
         In order to work right, the server needs to setup to make responses. Because there are mor subforms that can submit, the server needs to inspect the value of <code>button</code> which tells what panel made the submission
     </p>
 <h3>response to the login-panel</h3>
+    <p>
     ```js
     request = {
         button   : 'getlogin',
@@ -102,6 +103,11 @@
         <li><code>NOACCESS</code> rejects the promise, showing an 'no-access' message</li>
         <li><code>CHANGEPASSWORD</code> <u>only return when login is ok</u> will not fulfill the promise, but prompt the changepassword-panel. The result of this panel will determine whether the login-panel resolves or rejects.</li>
     </ul>
+    </p>
+    <h4>dedicated messages after succesfully login</h4>
+    <p>
+        If you response with status: 'OK' <u>and define</u> the response <code>message</code> then an extra message is shown after login, using Y.showMessage(response.title, response.message). This way you can make the server return user-dedicated messages.
+    </p>
 
 <h3>response to the changepassword-panel</h3>
     ```js
