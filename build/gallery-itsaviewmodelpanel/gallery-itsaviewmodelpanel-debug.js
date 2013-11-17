@@ -675,13 +675,13 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 editable = instance.get(EDITABLE),
                 btnNode = e.buttonNode,
                 buttonValue = btnNode.get(VALUE),
-                unvalidNodes = model && model.getUnvalidatedUI && model.getUnvalidatedUI(),
+                unvalidNodes,
                 payload = {
                               target: model,
                               nodelist: unvalidNodes,
                               src: e.type
                           };
-            if (VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.toJSONUI && !unvalidNodes.isEmpty()) {
+            if (VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.getUnvalidatedUI && (unvalidNodes=model.getUnvalidatedUI()) && !unvalidNodes.isEmpty()) {
                 e.preventDefault();
                 model.fire(VALIDATION_ERROR, payload);
             }
