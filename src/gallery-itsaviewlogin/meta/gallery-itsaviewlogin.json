@@ -1,7 +1,12 @@
 {
     "gallery-itsaviewlogin": {
         "requires": [
-            "yui-base"
+            "yui-base",
+            "base-build",
+            "gallery-itsaformmodel",
+            "gallery-itsaviewmodel",
+            "gallery-itsacheckbox",
+            "gallery-itsa-i18n-login"
         ]
     }
 }

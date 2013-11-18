@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewlogin', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -319,7 +321,6 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
  * @since 0.1
 */
 ITSAViewLogin.prototype.initializer = function() {
-    Y.log('initializer', 'info', 'ITSAViewLogin');
     var instance = this,
         eventhandlers = instance._eventhandlers;
 
@@ -356,7 +357,6 @@ ITSAViewLogin.prototype.initializer = function() {
  * @since 0.1
 */
 ITSAViewLogin.prototype._defineModel = function() {
-    Y.log('initializer', 'info', 'ITSAViewLogin');
     var instance = this,
         MyLoginModel;
     MyLoginModel = Y.Base.create('itsaviewloginmodel', Y.ITSAFormModel, [], null, {
@@ -391,7 +391,6 @@ ITSAViewLogin.prototype._defineModel = function() {
  * @since 0.1
 */
 ITSAViewLogin.prototype._getterTemplate = function() {
-    Y.log('_getterTemplate', 'info', 'ITSAViewLogin');
     var instance = this,
         icon = instance.get(ICON);
     return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
@@ -402,3 +401,15 @@ ITSAViewLogin.prototype._getterTemplate = function() {
                (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox">'+'{remember}'+ENDDIV : '')+
            ENDFIELDSET;
 };
+
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-build",
+        "gallery-itsaformmodel",
+        "gallery-itsaviewmodel",
+        "gallery-itsacheckbox",
+        "gallery-itsa-i18n-login"
+    ]
+});

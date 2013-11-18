@@ -1,3 +1,5 @@
+YUI.add('gallery-itsaviewlogin', function (Y, NAME) {
+
 'use strict';
 
 /*jshint maxlen:200 */
@@ -402,3 +404,15 @@ ITSAViewLogin.prototype._getterTemplate = function() {
                (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox">'+'{remember}'+ENDDIV : '')+
            ENDFIELDSET;
 };
+
+
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "base-build",
+        "gallery-itsaformmodel",
+        "gallery-itsaviewmodel",
+        "gallery-itsacheckbox",
+        "gallery-itsa-i18n-login"
+    ]
+});
