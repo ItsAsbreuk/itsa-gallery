@@ -4,7 +4,7 @@
 
 /**
  *
- * @module gallery-itsadialog
+ * @module gallery-itsastatusbar
  * @extends ITSAMessageViewer
  * @class ITSAStatusbar
  * @constructor
