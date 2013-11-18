@@ -412,7 +412,7 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 },
                 getter: function(v) {
                     var model = this.get(MODEL);
-                    return (model && model.toJSONUI && v) || v;
+                    return (v && model && model.toJSONUI);
                 }
             },
             /**

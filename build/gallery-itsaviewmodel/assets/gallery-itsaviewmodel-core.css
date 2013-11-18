@@ -12,3 +12,12 @@
     -moz-box-shadow:    5px 5px 6px rgba(50, 50, 50, 0.45);
     box-shadow:         5px 5px 6px rgba(50, 50, 50, 0.45);
 }
+
+.itsaviewmodel .pure-button {
+    /* increase Transitions */
+    -webkit-transition: 0.03s linear -webkit-box-shadow;
+    -moz-transition: 0.03s linear -moz-box-shadow;
+    -ms-transition: 0.03s linear box-shadow;
+    -o-transition: 0.03s linear box-shadow;
+    transition: 0.03s linear box-shadow;
+}
