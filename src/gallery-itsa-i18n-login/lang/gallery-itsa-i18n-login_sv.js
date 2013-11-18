@@ -47,6 +47,7 @@
     signup: 'xxxxx',
     stayloggedin: 'xxxxx',
     successfully: 'xxxxx',
+    successlogin: 'xxxxx'
     toomanyattempts: 'xxxxx',
     unknownemail: 'xxxxx',
     unknownlogin: 'xxxxx',

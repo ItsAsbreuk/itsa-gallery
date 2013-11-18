@@ -47,6 +47,7 @@
     signup: 'Aanmelden',
     stayloggedin: 'Blijf ingelogd',
     successfully: 'Met succes',
+    successlogin: 'U bent succesvol ingelogd'
     toomanyattempts: 'Te veel pogingen',
     unknownemail: 'Het emailadres dat u invoerde is bij ons onbekend, probeer opnieuw',
     unknownlogin: 'De logingegevens die u invoerde zijn bij ons onbekend, probeer opnieuw',

@@ -47,6 +47,7 @@
     signup: 'Sign up',
     stayloggedin: 'Stay logged in',
     successfully: 'Successfully',
+    successlogin: 'You logged in successfully'
     toomanyattempts: 'Too many attempts',
     unknownemail: 'The emailaddress you entered is unknown, try again',
     unknownlogin: 'The login you entered is unknown, try again',
