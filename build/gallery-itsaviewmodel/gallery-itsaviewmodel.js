@@ -1380,7 +1380,7 @@ ITSAViewModel.prototype._bindUI = function() {
         eventhandlers = instance._eventhandlers;
     eventhandlers.push(
         instance.after(
-            'model'+CHANGE,
+            MODEL+CHANGE,
             function(e) {
                 var prevVal = e.prevVal,
                     newVal = e.newVal,
@@ -1426,7 +1426,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'editable'+CHANGE,
+            EDITABLE+CHANGE,
             function(e) {
                 var newEditable = e.newVal,
                     model = instance.get(MODEL);
