@@ -31,6 +31,15 @@ var Lang = Y.Lang,
     FORMCONFIG = 'formconfig',
     VALIDATOR = 'validator',
     VALIDATIONERROR = 'validationerror',
+    MAIL = 'mail',
+    EMAIL = 'e'+MAIL,
+    ADDRESS = 'address',
+    EMAILADDRESS = EMAIL+ADDRESS,
+    PRIMARYBTNONENTER = 'primarybtnonenter',
+    FULLSELECT = 'fullselect',
+    REQUIRED = 'required',
+    LOGGEDIN = 'loggedin',
+    STAYLOGGEDIN = 'stay'+LOGGEDIN,
     SERNAME = 'sername',
     ASSWORD = 'assword',
     EMEMBER = 'emember',
@@ -44,6 +53,9 @@ var Lang = Y.Lang,
     ITSA = 'itsa',
     LOGIN = 'login',
     ITSA_LOGIN = ITSA+'-'+LOGIN,
+    LABEL = 'label',
+    PLACEHOLDER = 'placeholder',
+    CLASSNAME = 'classname',
     SPANWRAPPER = '<span class="itsa-messagewrapper">',
     FIELDSET_START = '<fieldset class="'+ITSA_LOGIN+'">',
     ENDSPAN = '</span>',
@@ -55,7 +67,8 @@ var Lang = Y.Lang,
     OBJECT = 'object',
     STRING = 'string',
     FUNCTION = 'function',
-    ICONTEMPLATE = '<i class="{icon}"></i>';
+    ICONTEMPLATE = '<i class="{icon}"></i>',
+    GALLERYITSAI18NLOGIN = 'gallery-itsa-i18n-login';
 
 
 function ITSAViewLogin() {
@@ -323,6 +336,7 @@ ITSAViewLogin.prototype.initializer = function() {
     var instance = this,
         eventhandlers = instance._eventhandlers;
 
+    instance._intl = Y.Intl.get(GALLERYITSAI18NLOGIN);
     instance._defineModel();
     eventhandlers.push(
         instance.after(
@@ -358,31 +372,68 @@ ITSAViewLogin.prototype.initializer = function() {
 ITSAViewLogin.prototype._defineModel = function() {
     Y.log('initializer', 'info', 'ITSAViewLogin');
     var instance = this,
-        MyLoginModel;
+        intl = instance._intl,
+        usernameIsEmail = instance.get(USERNAMEISEMAIL),
+        MyLoginModel, formconfigUsername, formconfigPassword, formconfigRemember, model;
+
+    formconfigUsername = instance.get(FORMCONFIG+CAP_USERNAME);
+/*jshint expr:true */
+    formconfigUsername[LABEL] || formconfigUsername[PLACEHOLDER] || (formconfigUsername[LABEL]=intl[usernameIsEmail ? EMAILADDRESS : USERNAME]);
+/*jshint expr:false */
+    formconfigUsername[FULLSELECT] = true;
+    formconfigUsername[PRIMARYBTNONENTER] = false;
+    formconfigUsername[CLASSNAME] = ITSA_LOGIN + (formconfigUsername[CLASSNAME] ? ' '+formconfigUsername[CLASSNAME] : '');
+    formconfigUsername[REQUIRED] = true;
+
+    // setting config for password:
+    formconfigPassword = instance.get(FORMCONFIG+CAP_PASSWORD);
+/*jshint expr:true */
+    formconfigPassword[LABEL] || formconfigPassword[PLACEHOLDER] || (formconfigPassword[LABEL]=intl[PASSWORD]);
+/*jshint expr:false */
+    formconfigPassword[FULLSELECT] = true;
+    formconfigPassword[PRIMARYBTNONENTER] = true;
+    formconfigPassword[CLASSNAME] = ITSA_LOGIN + (formconfigPassword[CLASSNAME] ? ' '+formconfigPassword[CLASSNAME] : '');
+    formconfigPassword[REQUIRED] = true;
+
+    // setting config for remember:
+    formconfigRemember = instance.get(FORMCONFIG+CAP_REMEMBER);
+    formconfigRemember.widgetconfig = {
+        primarybtnonenter: true
+    };
+/*jshint expr:true */
+    formconfigUsername[LABEL] && !formconfigPassword[LABEL] && (formconfigPassword[LABEL] = ' ');
+    formconfigPassword[LABEL] && !formconfigUsername[LABEL] && (formconfigUsername[LABEL] = ' ');
+    formconfigRemember[LABEL] || (formconfigRemember[LABEL]=intl[STAYLOGGEDIN]);
+/*jshint expr:false */
+    formconfigRemember.switchlabel = true;
+
     MyLoginModel = Y.Base.create('itsaviewloginmodel', Y.ITSAFormModel, [], null, {
                       ATTRS: {
                           username: {
                               value: instance.get(USERNAME),
-                              formtype: instance.get(USERNAMEISEMAIL) ? 'email' : 'text',
-                              formconfig: instance.get(FORMCONFIG+CAP_USERNAME),
+                              formtype: usernameIsEmail ? 'email' : 'text',
+                              formconfig: formconfigUsername,
                               validator: instance.get(VALIDATOR+CAP_USERNAME),
                               validationerror: instance.get(VALIDATIONERROR+CAP_USERNAME)
                           },
                           password: {
                               value: instance.get(PASSWORD),
                               formtype: PASSWORD,
-                              formconfig: instance.get(FORMCONFIG+CAP_PASSWORD),
+                              formconfig: formconfigPassword,
                               validator: instance.get(VALIDATOR+CAP_PASSWORD),
                               validationerror: instance.get(VALIDATIONERROR+CAP_PASSWORD)
                           },
                           remember: {
                               value: instance.get(REMEMBER),
                               formtype: Y.ITSACheckbox,
-                              formconfig: instance.get(FORMCONFIG+CAP_REMEMBER)
+                              formconfig: formconfigRemember
                           }
                       }
                   });
-    instance._set(MODEL, new MyLoginModel());
+    model = new MyLoginModel();
+    instance._set(MODEL, model);
+    // need to set target manually, for the subscribers (_bindUI) aren't loaded yet:
+    model.addTarget(instance);
 };
 
 /**
