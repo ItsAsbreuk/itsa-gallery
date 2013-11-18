@@ -410,7 +410,7 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 },
                 getter: function(v) {
                     var model = this.get(MODEL);
-                    return (v && model && model.toJSONUI);
+                    return (model && model.toJSONUI && v) || v;
                 }
             },
             /**
@@ -997,7 +997,6 @@ ITSAViewModel.prototype.render = function (clear) {
         editMode = instance.get(EDITABLE),
         itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
         html = (clear || !model) ? '' : instance._modelRenderer(model);
-
     // Render this view's HTML into the container element.
     // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
     if (editMode || instance._isMicroTemplate) {
@@ -1020,6 +1019,7 @@ ITSAViewModel.prototype.render = function (clear) {
     (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
 /*jshint expr:false */
     container.setHTML(html);
+
     instance._setFocusManager(editMode && instance.get(FOCUSMANAGED));
     if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
         itsaDateTimePicker.hide(true);
@@ -1378,7 +1378,6 @@ ITSAViewModel.prototype._bindUI = function() {
     var instance = this,
         container = instance.get(CONTAINER),
         eventhandlers = instance._eventhandlers;
-
     eventhandlers.push(
         instance.after(
             'model'+CHANGE,
