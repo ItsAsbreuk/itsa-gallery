@@ -47,7 +47,7 @@
     signup: 'Tilmeld dig',
     stayloggedin: 'Forbliv logget ind',
     successfully: 'Succesfuld',
-    successlogin: 'Du er logget ind med succes'
+    successlogin: 'Du er logget ind med succes',
     toomanyattempts: 'Alt for mange forsøg',
     unknownemail: 'Den email-adresse, du har indtastet, er ukendt, prøv igen',
     unknownlogin: 'Det login, du indtastede, er ukendt, prøv igen',

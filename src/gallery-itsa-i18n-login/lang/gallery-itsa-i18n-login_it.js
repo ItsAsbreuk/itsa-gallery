@@ -47,7 +47,7 @@
     signup: 'Iscriviti',
     stayloggedin: 'Resta collegato al',
     successfully: 'Con successo',
-    successlogin: 'È iscritto con successo'
+    successlogin: 'È iscritto con successo',
     toomanyattempts: 'Troppi tentativi',
     unknownemail: 'L\'indirizzo email che hai inserito non è noto, riprovare',
     unknownlogin: 'Il login immesso è sconosciuto, riprovare',

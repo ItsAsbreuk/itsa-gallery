@@ -1,11 +1,11 @@
 {
     "name"       : "gallery-itsa-i18n-login",
     "displayName": "Gallery: gallery-itsa-i18n-login",
-    "description": "*Summary Goes Here*",
+    "description": "This module supplies Internationalisation of most messages that are need for login-modules.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsa-i18n-login" ],
 
-    "tags": [ "gallery" ],
+    "tags": [ "gallery", "i18n", "internationalization" ],
 
     "examples": []
 }

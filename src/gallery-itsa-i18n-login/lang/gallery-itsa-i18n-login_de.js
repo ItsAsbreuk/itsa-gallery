@@ -47,7 +47,7 @@
     signup: 'Registrieren',
     stayloggedin: 'Angemeldet bleiben',
     successfully: 'Erfolgreich',
-    successlogin: 'Sie sind erfolgreich angemeldet'
+    successlogin: 'Sie sind erfolgreich angemeldet',
     toomanyattempts: 'Zu viele Versuche',
     unknownemail: 'Die Mail Adresse die Sie eingegeben haben ist unbekannt, versuchen Sie es erneut',
     unknownlogin: 'Die Anmeldung die Sie eingegeben haben ist unbekannt, versuchen Sie es erneut',

@@ -47,7 +47,7 @@
     signup: 'Regisztrálj',
     stayloggedin: 'Maradjon bejelentkezve',
     successfully: 'Sikeresen',
-    successlogin: 'Belépve sikeresen'
+    successlogin: 'Belépve sikeresen',
     toomanyattempts: 'Túl sok próbálkozás',
     unknownemail: 'Az e-mail címre is ismeretlen, próbáld újra',
     unknownlogin: 'A bejelentkezési beírt ismeretlen, próbáld újra',

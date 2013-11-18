@@ -47,7 +47,7 @@
     signup: 'साइन अप',
     stayloggedin: 'लॉग इन रहो',
     successfully: 'सफलतापूर्वक',
-    successlogin: 'आप सफलतापूर्वक लॉग इन'
+    successlogin: 'आप सफलतापूर्वक लॉग इन',
     toomanyattempts: 'बहुत सारे प्रयास',
     unknownemail: 'ईमेल पता दर्ज अज्ञात है, फिर कोशिश',
     unknownlogin: 'आपके द्वारा दर्ज लॉगिन अज्ञात है, फिर कोशिश',

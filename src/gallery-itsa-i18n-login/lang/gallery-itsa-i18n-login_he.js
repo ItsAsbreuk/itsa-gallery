@@ -47,7 +47,7 @@
     signup: 'הרשם',
     stayloggedin: 'הישאר מחובר',
     successfully: 'בהצלחה',
-    successlogin: 'אתה מחובר בהצלחה'
+    successlogin: 'אתה מחובר בהצלחה',
     toomanyattempts: 'ניסיונות רבים מדי',
     unknownemail: 'כתובת הדוא"ל שהזנת אינן ידועה, נסה שוב',
     unknownlogin: 'ההתחברות שהזנת אינן ידועה, נסה שוב',

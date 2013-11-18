@@ -1,16 +1,123 @@
 <div class="intro">
     <p>
-    *Summary Goes Here*
+        {{description}}
     </p>
 </div>
 
 {{>getting-started}}
 
 <h2>Description</h2>
+    <p>
+        This module supplies Internationalisation of most messages that are need for login-modules like <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsalogin/">gallery-itsalogin</a> and <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewlogin/">gallery-itsaviewlogin</a>.
+    </p>
+    <p>At this moment the following languages are supported:</p>
+    <ul>
+        <li><code>ar</code> (Arabic)</li>
+        <li><code>bg</code> (Bulgarian)</li>
+        <li><code>bs</code> (Bosnian)</li>
+        <li><code>cs</code> (Czech)</li>
+        <li><code>da</code> (Danish)</li>
+        <li><code>de</code> (German)</li>
+        <li><code>en</code> (English)</li>
+        <li><code>es</code> (Spanish)</li>
+        <li><code>fa</code> (Perian)</li>
+        <li><code>fi</code> (Finnish)</li>
+        <li><code>fr</code> (French)</li>
+        <li><code>he</code> (Hebrew)</li>
+        <li><code>hi</code> (Hindi)</li>
+        <li><code>hr</code> (Croatian)</li>
+        <li><code>hu</code> (Hungarian)</li>
+        <li><code>it</code> (Italian)</li>
+        <li><code>ja</code> (Japanese)</li>
+        <li><code>nb</code> (Norwegian)</li>
+        <li><code>nl</code> (Dutch)</li>
+        <li><code>pl</code> (Polish)</li>
+        <li><code>pt</code> (Portugese)</li>
+        <li><code>ru</code> (Russian)</li>
+        <li><code>sk</code> (Slovak)</li>
+        <li><code>sr</code> (Serbian)</li>
+        <li><code>sv</code> (Swedish)</li>
+        <li><code>uk</code> (Ukrainian)</li>
+        <li><code>zh</code> (Chinese)</li>
+    </ul>
 
-<p>*Module Description Goes Here*</p>
+    <h3>available internationalized sentences</h3>
+    <p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th><th>Internationalized sentence</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>changepassword</td><td>Change password</td></tr>
+                <tr><td>changeyourpassword</td><td>Change your password</td></tr>
+                <tr><td>checkmail</td><td>Check your mail</td></tr>
+                <tr><td>checkspambox</td><td>If you don't find any mail from us, check your spambox</td></tr>
+                <tr><td>confirmpassword</td><td>Confirm password</td></tr>
+                <tr><td>createaccount</td><td>Create account</td></tr>
+                <tr><td>email</td><td>Email</td></tr>
+                <tr><td>emailaddress</td><td>Emailaddress</td></tr>
+                <tr><td>enterlogin</td><td>Enter login</td></tr>
+                <tr><td>entersignupaddress</td><td>Enter the emailaddress you used to sign up</td></tr>
+                <tr><td>error</td><td>Error</td></tr>
+                <tr><td>forgot</td><td>Forgot</td></tr>
+                <tr><td>forgotlogin</td><td>Forgot login</td></tr>
+                <tr><td>forgotpassword</td><td>Forgot my password</td></tr>
+                <tr><td>forgotusername</td><td>Forgot my username</td></tr>
+                <tr><td>forgotusernameorpassword</td><td>Forgot username or password</td></tr>
+                <tr><td>forgotwhat</td><td>What did you forget?</td></tr>
+                <tr><td>iforgotpassword</td><td>I forgot my password</td></tr>
+                <tr><td>iforgotusername</td><td>I forgot my username</td></tr>
+                <tr><td>loggedin</td><td>You are loggedin</td></tr>
+                <tr><td>login</td><td>Login</td></tr>
+                <tr><td>loginblocked</td><td>Login is blocked</td></tr>
+                <tr><td>loginrightlevel</td><td>You don't have the rights to see this page, please login with the right loginlevel</td></tr>
+                <tr><td>needchangepassword</td><td>You need to change your password</td></tr>
+                <tr><td>noaccess</td><td>No access</td></tr>
+                <tr><td>password</td><td>Password</td></tr>
+                <tr><td>passwordchange</td><td>Password change</td></tr>
+                <tr><td>passwordchanged</td><td>Your password changed successfully</td></tr>
+                <tr><td>passwordnotaccepted</td><td>Your password is not accepted, please try again</td></tr>
+                <tr><td>passwordnotchanged</td><td>Your password has not been changed</td></tr>
+                <tr><td>passwordwassend</td><td>Your password was sent to your emailaddress</td></tr>
+                <tr><td>pleaseenterlogin</td><td>Please enter login</td></tr>
+                <tr><td>remember</td><td>Remember</td></tr>
+                <tr><td>rememberme</td><td>Remember me</td></tr>
+                <tr><td>resetpassword</td><td>Reset password</td></tr>
+                <tr><td>receivedmail</td><td>You recieved an email with further instructions</td></tr>
+                <tr><td>receivedmailwithinstructions</td><td>You recieved an email with further instructions how to login</td></tr>
+                <tr><td>retrievedirectpasswordinstructions</td><td>Enter username and you will get an email with your password</td></tr>
+                <tr><td>retrievepasswordinstructions</td><td>Enter username and you will get an email with instructions how to reset your password</td></tr>
+                <tr><td>retrievedirectpasswordinstructionsmaillogin</td><td>Enter the emailaddress you used to sign up and you will get an email with your password</td></tr>
+                <tr><td>retrievepasswordinstructionsmaillogin</td><td>Enter the emailaddress you used to sign up and you will get an email with instructions how to reset your password</td></tr>
+                <tr><td>sendusername</td><td>Send username</td></tr>
+                <tr><td>show</td><td>Show</td></tr>
+                <tr><td>showinput</td><td>Show input</td></tr>
+                <tr><td>showpassword</td><td>Show password</td></tr>
+                <tr><td>signup</td><td>Sign up</td></tr>
+                <tr><td>stayloggedin</td><td>Stay logged in</td></tr>
+                <tr><td>successfully</td><td>Successfully</td></tr>
+                <tr><td>successlogin</td><td>You logged in successfully</td></tr>
+                <tr><td>toomanyattempts</td><td>Too many attempts</td></tr>
+                <tr><td>unknownemail</td><td>The emailaddress you entered is unknown, try again</td></tr>
+                <tr><td>unknownlogin</td><td>The login you entered is unkown, try again</td></tr>
+                <tr><td>unknownusername</td><td>The username you entered is unknown, try again</td></tr>
+                <tr><td>unspecifiederror</td><td>The server responsed with an unspecified error</td></tr>
+                <tr><td>username</td><td>Username</td></tr>
+                <tr><td>usernamewassend</td><td>Your username was sent to your emailaddress</td></tr>
+                <tr><td>verificationerror</td><td>Passwordverification failed</td></tr>
+                <tr><td>verify</td><td>Verify</td></tr>
+                <tr><td>verifypassword</td><td>Verify password</td></tr>
+                <tr><td>wrongemailorpassword</td><td>You entered the wrong emailaddress or password</td></tr>
+                <tr><td>wrongpassword</td><td>You entered the wrong password</td></tr>
+                <tr><td>wrongusernameorpassword</td><td>You entered the wrong username or password</td></tr>
+            </tbody>
+        </table>
+    </p>
 
-```
-//Module example code
-```
-
+<h2>licence</h2>
+<p class= 'copyright'>
+Copyright (c) 2013 <a href="http://itsasbreuk.nl">Its Asbreuk</a><br />
+Copyright (c) 2013 <a href="http://developer.yahoo.com/yui/license.html">YUI BSD License</a>
+</p>

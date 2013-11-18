@@ -47,7 +47,7 @@
     signup: 'Sign up',
     stayloggedin: 'Stay logged in',
     successfully: 'Successfully',
-    successlogin: 'You logged in successfully'
+    successlogin: 'You logged in successfully',
     toomanyattempts: 'Too many attempts',
     unknownemail: 'The emailaddress you entered is unknown, try again',
     unknownlogin: 'The login you entered is unknown, try again',
@@ -55,7 +55,7 @@
     unspecifiederror: 'The server responded with an unspecified error',
     username: 'Username',
     usernamewassend: 'Your username was sent to your emailaddress',
-    verificationerror: 'Passwordverification failed',
+    verificationerror: 'Password authentication failed',
     verify: 'Verify',
     verifypassword: 'Verify password',
     wrongemailorpassword: 'You entered the wrong emailaddress or password',

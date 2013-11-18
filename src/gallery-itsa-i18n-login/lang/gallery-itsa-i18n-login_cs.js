@@ -47,7 +47,7 @@
     signup: 'Zaregistrujte se',
     stayloggedin: 'Zůstat přihlášen',
     successfully: 'Úspěšně',
-    successlogin: 'Nacházíte se úspěšně přihlásili'
+    successlogin: 'Nacházíte se úspěšně přihlásili',
     toomanyattempts: 'Příliš mnoho pokusů',
     unknownemail: 'Emailová adresa zadaná je neznámá, zkuste to znovu',
     unknownlogin: 'Přihlašovací jste zadali není znám, zkuste to znovu',

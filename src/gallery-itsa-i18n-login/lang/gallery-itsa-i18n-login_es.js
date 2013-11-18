@@ -47,7 +47,7 @@
     signup: 'Contratar',
     stayloggedin: 'Permanecer conectado',
     successfully: 'con éxito',
-    successlogin: 'Usted ha entrado en el éxito'
+    successlogin: 'Usted ha entrado en el éxito',
     toomanyattempts: 'Demasiados intentos',
     unknownemail: 'La dirección de correo electrónico que ha introducido es desconocido, inténtalo de nuevo',
     unknownlogin: 'El nombre de usuario que introdujo no es desconocido, inténtalo de nuevo',

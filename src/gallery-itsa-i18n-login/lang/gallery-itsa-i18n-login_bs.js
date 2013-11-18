@@ -47,7 +47,7 @@
     signup: 'Registriraj se',
     stayloggedin: 'Ostanite prijavljeni',
     successfully: 'Uspješno',
-    successlogin: 'Vi prijavljeni uspješno'
+    successlogin: 'Vi prijavljeni uspješno',
     toomanyattempts: 'Previše pokušaja',
     unknownemail: 'Na email adresu koju ste unijeli nije nepoznat, pokušajte ponovo',
     unknownlogin: 'Za prijavu ste unijeli je nepoznat, pokušajte ponovo',

@@ -47,7 +47,7 @@
     signup: 'Ilmoittautua',
     stayloggedin: 'Pysy kirjautuneena',
     successfully: 'Onnistuneesti',
-    successlogin: 'Olet kirjautunut sisään onnistuneesti'
+    successlogin: 'Olet kirjautunut sisään onnistuneesti',
     toomanyattempts: 'Liian monta kertaa',
     unknownemail: 'Syöttämäsi sähköpostiosoite on tuntematon, yritä uudelleen',
     unknownlogin: 'Kirjautumisen tuli on tuntematon, yritä uudelleen',
