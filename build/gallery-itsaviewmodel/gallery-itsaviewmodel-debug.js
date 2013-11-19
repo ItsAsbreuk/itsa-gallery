@@ -842,6 +842,22 @@ ITSAViewModel.prototype.addCustomBtns = function(buttons) {
 };
 
 /**
+ * Makes sync-messages to target the specified messageViewer. Passes through to the underlying model-instance (if available).
+ * You can only target to 1 MessageViewer at the same time.<br>
+ * See gallery-itsamessageviewer for more info.
+ *
+ * @method addMessageTarget
+ * @param itsamessageviewer {Y.ITSAMessageViewer|Y.ITSAPanel}
+ * @since 0.1
+*/
+ITSAViewModel.prototype.addMessageTarget = function(itsamessageviewer) {
+    var model = this.get(MODEL);
+/*jshint expr:true */
+    model && model.addMessageTarget && model.addMessageTarget(itsamessageviewer);
+/*jshint expr:false */
+};
+
+/**
  * Blur the focus of the view's container-node by removing the 'itsa-focused' class.
  *
  * @method blur
@@ -1023,6 +1039,19 @@ ITSAViewModel.prototype.removeHotKey = function(buttonType) {
     buttonType ? (delete instance._hotkeys[buttonType]) : (instance._hotkeys = {});
 /*jshint expr:false */
     instance._createButtons();
+};
+
+/**
+ * Removes the messageViewer-target that was set up by addMessageTarget().
+ *
+ * @method removeMessageTarget
+ * @since 0.1
+*/
+ITSAViewModel.prototype.removeMessageTarget = function() {
+    var model = this.get(MODEL);
+/*jshint expr:true */
+    model && model.removeMessageTarget && model.removeMessageTarget();
+/*jshint expr:false */
 };
 
 /**
@@ -1550,6 +1579,8 @@ ITSAViewModel.prototype._bindUI = function() {
                     model = e.target,
                     eventType = e.type.split(':')[1],
                     options = e.options,
+                    messageController = Y.ITSAMessageController,
+                    statusbar = model._itsamessageListener || (messageController && messageController._targets[MODEL+'sync']),
                     destroyWithoutRemove = ((eventType===DESTROY) && options && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
@@ -1559,7 +1590,7 @@ ITSAViewModel.prototype._bindUI = function() {
                         prevAttrs = model.getAttrs();
                         model.UIToModel();
                     }
-                    instance._setSpin(eventType, true);
+                    statusbar || instance._setSpin(eventType, true);
                     (eventType===DESTROY) || promise.then(
                         function() {
                             ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
@@ -1570,7 +1601,7 @@ ITSAViewModel.prototype._bindUI = function() {
                         }
                     ).then(
                         function() {
-                            instance._setSpin(eventType, false);
+                            statusbar || instance._setSpin(eventType, false);
                             instance._lockedBefore || instance.unlockView();
                             container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                                 function(itsatabkeymanager) {
