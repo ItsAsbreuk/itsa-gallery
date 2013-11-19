@@ -101,7 +101,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         var logininstance = this;
         return new Y.Promise(function (resolve, reject) {
             Y.later(
-                1000,
+                2000,
                 null,
                 function() {
                     var button = logininstance.get('button'),
@@ -134,6 +134,8 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         message: 'please login',
         regain: 'username',
         imageButtons: true,
+        showStayLoggedin: true,
+        sync: syncFn,
         createAccount: createAccountPromise
     });
     myView._set('editable', true);

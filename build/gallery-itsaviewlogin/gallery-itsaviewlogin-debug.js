@@ -52,6 +52,7 @@ var Lang = Y.Lang,
     CAP_PASSWORD = 'P'+ASSWORD,
     CAP_REMEMBER = 'R'+EMEMBER,
     USERNAMEISEMAIL = USERNAME+'IsEmail',
+    SYNC = 'sync',
     ITSA = 'itsa',
     LOGIN = 'login',
     ITSA_LOGIN = ITSA+'-'+LOGIN,
@@ -292,6 +293,20 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             value: false,
             initOnly: true
         },
+        /**
+         * Reference to the synclayer. Should be a function that returns a Y.Promise. Best way is to set up the synclayer using gallery-io-utils.
+         *
+         * @attribute sync
+         * @type {Function}
+         * @default null
+         * @since 0.1
+         */
+        sync: {
+            value: null,
+            validator: function(v) {
+                return (typeof v === FUNCTION);
+            }
+        },
        /**
         * Template for the bodysection to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
         * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
@@ -442,6 +457,14 @@ ITSAViewLogin.prototype.initializer = function() {
             }
         )
     );
+    eventhandlers.push(
+        instance.after(
+            SYNC+CHANGE,
+            function(e) {
+                instance.get(MODEL)[SYNC+'Promise']=e.newVal;
+            }
+        )
+    );
 };
 
 /**
@@ -458,11 +481,10 @@ ITSAViewLogin.prototype.initializer = function() {
  *      </ul>
  *
  * @method getLogin
- * @param sync {Y.Promise} sync-layer that communicates with the server
  * @return {Y.Promise} Promise that holds valid logindata (if resolved) --> resolve(result) result={username, password, remember} OR reject(reason)
  * @since 0.1
  */
-ITSAViewLogin.prototype.getLogin = function(sync) {
+ITSAViewLogin.prototype.getLogin = function() {
 };
 
 
@@ -577,6 +599,7 @@ ITSAViewLogin.prototype._defineModel = function() {
     instance._set(MODEL, model);
     // need to set target manually, for the subscribers (_bindUI) aren't loaded yet:
     model.addTarget(instance);
+    model.syncPromise = instance.get(SYNC);
     // redefine, because the templaterenderer was set with editable=false for there was no model
     instance._setTemplateRenderer(true);
 };
@@ -626,6 +649,7 @@ ITSAViewLogin.prototype._getterTemplate = function() {
         "gallery-itsaviewmodel",
         "gallery-itsacheckbox",
         "gallery-itsa-i18n-login",
+        "gallery-itsamodelsyncpromise",
         "gallery-itsamodulesloadedpromise",
         "gallery-lazy-promise"
     ]
