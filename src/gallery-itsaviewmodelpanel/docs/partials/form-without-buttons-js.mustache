@@ -7,7 +7,8 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
             var instance = this;
             switch (action) {
               case 'submit':
-                Y.later(1500, null, function() {
+console.log('submitting');
+                Y.later(2000, null, function() {
                     // normally you need to invest the response on the server,
                     // but now we do this here:
                     var loginok = ((instance.get('username')==='marco') &&
@@ -81,19 +82,19 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
         editable: true,
         width: 320
     }).render();
+/*
+    panel.isRendered().then(
+        function(){
+            retrylegend = Y.one('#retrylegend');
+        }
+    );
+*/
+    user.after('submit', function() {
+        panel.hide();
+    });
 
-    retrylegend = Y.one('#retrylegend');
-    user.on('submit', function(e) {
-        var submitpromise = e.promise;
-        submitpromise.then(
-            function() {
-                panel.hide();
-            },
-            function(reason) {
-                user.reset();
-                retrylegend.set('text', reason.message);
-            }
-        );
+    user.after('error', function(e) {
+  //      retrylegend.setHTML(e);
     });
 
 });

@@ -641,6 +641,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 node && instance.get('hideOnBtn') && (value!==CLOSE) &&
                      (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) &&
                      (!instance.get(NO_HIDE_ON_SUBMIT) || (value!==SUBMIT)) && (!instance.get(NO_HIDE_ON_SAVE) || (value!==SAVE)) &&
+                     (node.getAttribute('data-datetimepicker')!=='true') &&
                      instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
 /*jshint expr:false */
             }
