@@ -137,6 +137,7 @@ var statusbar = new Y.ITSAStatusbar();
         regain: 'username',
         imageButtons: true,
         showStayLoggedin: true,
+        statusBar: true,
         sync: syncFn,
         createAccount: createAccountPromise
     });
@@ -144,6 +145,6 @@ var statusbar = new Y.ITSAStatusbar();
 
     myView.renderOnReady();
 
-    myView.addMessageTarget(statusbar);
+//    myView.addMessageTarget(statusbar);
 
 });
