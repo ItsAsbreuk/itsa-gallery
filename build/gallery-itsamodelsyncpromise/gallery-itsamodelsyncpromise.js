@@ -40,7 +40,8 @@ var YModel = Y.Model,
         destroy: true
     },
     MODELSYNC = 'modelsync',
-    GALLERYITSAMODELSYNCPROMISE = 'gallery-itsa'+MODELSYNC+'p'+ROMISE,
+    GALLERY_ITSA = 'gallery-itsa',
+    GALLERYITSAMODELSYNCPROMISE = GALLERY_ITSA+MODELSYNC+'p'+ROMISE,
 /**
  * Fired when an error occurs, such as when an attribute (or property) doesn't validate or when
  * the sync layer submit-function returns an error.
@@ -121,7 +122,7 @@ PARSED = function (response) {
 */
 YModel.prototype.addMessageTarget = function(itsamessageviewer) {
     var instance = this;
-    Y.usePromise('gallery-itsamessagecontroller', 'gallery-itsamessageviewer', 'gallery-itsapanel').then(
+    Y.usePromise(GALLERY_ITSA+'messagecontroller', GALLERY_ITSA+'messageviewer', GALLERY_ITSA+'panel', GALLERY_ITSA+'viewmodel').then(
         function() {
             return Y.ITSAMessageController.isReady();
         }
@@ -129,6 +130,7 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
         function() {
 /*jshint expr:true */
             (itsamessageviewer instanceof Y.ITSAPanel) && (itsamessageviewer=itsamessageviewer._itsastatusbar);
+            itsamessageviewer || ((itsamessageviewer instanceof Y.ITSAViewModel) && (itsamessageviewer=itsamessageviewer._itsastatusbar));
 /*jshint expr:false */
             if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
 /*jshint expr:true */
