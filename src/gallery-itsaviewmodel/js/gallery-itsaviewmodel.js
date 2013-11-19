@@ -544,6 +544,10 @@ ITSAViewModel.prototype.initializer = function() {
 
     Y.log('initializer', 'info', 'ITSA-ViewModel');
 
+    instance._renderPromise = new Y.Promise(function (resolve) {
+        instance._renderPromiseResolve = resolve;
+    });
+
     /**
      * Internal objects with internationalized buttonlabels
      *
@@ -853,15 +857,18 @@ ITSAViewModel.prototype.focus = function() {
 };
 
 /**
- * Use toJSON() instead
+ * Promise that will be resolved once the view is rendered.
+ * This is asynchronious, because of promiseBeforeRender() which needs to be fulfilled before rendering.
  *
- * @method getModelToJSON
- * @deprecated
- * @param {Y.Model|Object} model
- * @return {Object} Object or model.toJSON()
- * @since 0.1
- *
+ * @method isRendered
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
+ * @since 0.2
 */
+ITSAViewModel.prototype.isRendered = function() {
+    Y.log('isRendered', 'info', 'ITSA-ViewModel');
+
+    return this._renderPromise;
+};
 
 /**
  * Locks the view (all UI-elements of the form-model) in case model is Y.ITSAFormModel and the view is editable.
@@ -877,6 +884,21 @@ ITSAViewModel.prototype.lockView = function() {
     canDisableModel ? model.disableUI() : instance.get('container').all('button').addClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
     instance._locked = true;
+};
+
+/**
+ * Promise that holds any stuff that should be done before the view is defined as 'ready'.
+ * By default this promise is resolved right away. The intention is that it can be overridden in widget's extentions.<br /><br />
+ * <b>Notion</b>It is not the intention to make a direct call an promiseBeforeRender --> use isReady() instead,
+ *
+ * @method promiseBeforeRender
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
+ * @since 0.3
+*/
+ITSAViewModel.prototype.promiseBeforeRender = function() {
+    return new Y.Promise(function (resolve) {
+        resolve();
+    });
 };
 
 /**
@@ -1036,7 +1058,8 @@ ITSAViewModel.prototype.render = function (clear) {
         model = instance.get(MODEL),
         editMode = instance.get(EDITABLE),
         itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
-        html = (clear || !model) ? '' : instance._modelRenderer(model);
+        html = (clear || !model) ? '' : instance._modelRenderer(model),
+        withfocusmanager;
     Y.log('render', 'info', 'ITSA-ViewModel');
     // Render this view's HTML into the container element.
     // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
@@ -1060,9 +1083,26 @@ ITSAViewModel.prototype.render = function (clear) {
 /*jshint expr:true */
     (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
 /*jshint expr:false */
-    container.setHTML(html);
+    // we set the html only as soon as promiseBeforeRender is resolved --> this way we can make sure extra dependencies -like iconfonts- are loaded
+    instance.promiseBeforeRender().then(
+        function() {
+            container.setHTML(html);
+            withfocusmanager = editMode && instance.get(FOCUSMANAGED);
+            instance._setFocusManager(withfocusmanager);
+            if (withfocusmanager) {
+                Y.usePromise(GALLERY+ITSATABKEYMANAGER).then(
+                    instance._renderPromiseResolve
+                );
+            }
+            else {
+                instance._renderPromiseResolve();
+            }
+        },
+        function(reason) {
+            Y.log((reason && (reason.message || reason)), 'error', 'ITSA-ViewModel');
+        }
+    );
 
-    instance._setFocusManager(editMode && instance.get(FOCUSMANAGED));
     if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
         itsaDateTimePicker.hide(true);
     }

@@ -25,6 +25,10 @@
     text-transform: lowercase;
 }
 
+.itsaviewmodel button + button,
+.itsaviewmodel button + button {
+    margin-left: 0.5em;
+}
 /* speed-up Transitions-time pure-buttons from 0.1s to 0.05s */
 .itsaviewmodel .pure-button {
     -webkit-transition: 0.05s linear -webkit-box-shadow;
