@@ -1569,7 +1569,7 @@ console.log('create listener');
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
-console.log(e.type +' | '+ e.target.get('clientId'));
+console.log('viewmodel event 1: '+e.type);
                     instance._lockedBefore = instance._locked;
                     instance.lockView();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
@@ -1678,6 +1678,7 @@ console.log(e.type +' | '+ e.target.get('clientId'));
                 instance.on(
                     '*:'+event,
                     function(e) {
+console.log('viewmodel event 2: '+e.type);
                         var validEvent = true,
                             newevent = event,
                             payload, button;

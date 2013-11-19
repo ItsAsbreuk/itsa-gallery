@@ -1555,7 +1555,7 @@ ITSAViewModel.prototype._bindUI = function() {
             }
         )
     );
-console.log('create listener');
+
     instance.get('partOfMultiView') || eventhandlers.push(
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
@@ -1567,7 +1567,6 @@ console.log('create listener');
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
-console.log(e.type +' | '+ e.target.get('clientId'));
                     instance._lockedBefore = instance._locked;
                     instance.lockView();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
