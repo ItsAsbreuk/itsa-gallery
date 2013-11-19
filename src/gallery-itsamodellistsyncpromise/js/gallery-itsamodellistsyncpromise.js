@@ -482,6 +482,7 @@ YModelList.prototype.removeMessageTarget = function() {
     instance._itsamessagedestroylistener1 && instance._itsamessagedestroylistener1.detach();
     instance._itsamessagedestroylistener2 && instance._itsamessagedestroylistener2.detach();
 /*jshint expr:false */
+    instance._itsamessageListener = null;
 };
 
 /**
