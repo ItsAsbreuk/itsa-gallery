@@ -6,7 +6,7 @@ YUI.add('gallery-itsastatusbar', function (Y, NAME) {
 
 /**
  *
- * @module gallery-itsadialog
+ * @module gallery-itsastatusbar
  * @extends ITSAMessageViewer
  * @class ITSAStatusbar
  * @constructor
@@ -492,7 +492,8 @@ ITSAStatusbar.prototype._showBar = function(barnode, itsamessage) {
         "node-style",
         "oop",
         "node-core",
-        "gallery-itsamessageviewer"
+        "gallery-itsamessageviewer",
+        "gallery-itsamodulesloadedpromise"
     ],
     "skinnable": true
 });

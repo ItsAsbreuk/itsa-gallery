@@ -12,7 +12,8 @@
             "node-style",
             "oop",
             "node-core",
-            "gallery-itsamessageviewer"
+            "gallery-itsamessageviewer",
+            "gallery-itsamodulesloadedpromise"
         ],
         "skinnable": true
     }

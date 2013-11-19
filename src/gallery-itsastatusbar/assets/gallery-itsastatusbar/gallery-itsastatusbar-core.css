@@ -18,6 +18,10 @@
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#dddddd',GradientType=0 )\9; /* IE6-8 */
 }
 
+body >div.itsa-statusbar-container {
+    z-index: 900;
+}
+
 .itsa-statusbar-container button,
 .itsa-statusbar-container .pure-button {
     margin: 0;
