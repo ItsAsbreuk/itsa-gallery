@@ -540,12 +540,27 @@ ITSAViewModel.prototype._formcss_loaded = false;
 */
 ITSAViewModel.prototype.initializer = function() {
     var instance = this,
-        model = instance.get(MODEL);
+        model = instance.get(MODEL),
+        renderpromise;
 
 
-    instance._renderPromise = new Y.Promise(function (resolve) {
+    renderpromise = instance._renderPromise = new Y.Promise(function (resolve) {
         instance._renderPromiseResolve = resolve;
     });
+
+    renderpromise.then(
+        function() {
+            /**
+            * Fired when the view is rendered
+            *
+            * @event viewrendered
+            * @param e {EventFacade} Event Facade including:
+            * @param e.target {Y.ITSAViewModel} This instance.
+            * @since 0.3
+            */
+            instance.fire('viewrendered', {target: instance});
+        }
+    );
 
     /**
      * Internal objects with internationalized buttonlabels
@@ -852,14 +867,13 @@ ITSAViewModel.prototype.focus = function() {
 
 /**
  * Promise that will be resolved once the view is rendered.
- * This is asynchronious, because of promiseBeforeRender() which needs to be fulfilled before rendering.
+ * This is asynchronious, because it also takes into account asynchronous loading of the tabkeymanager.
  *
  * @method isRendered
  * @return {Y.Promise} promised response --> resolve() OR reject(reason).
  * @since 0.2
 */
 ITSAViewModel.prototype.isRendered = function() {
-
     return this._renderPromise;
 };
 
@@ -870,27 +884,14 @@ ITSAViewModel.prototype.isRendered = function() {
 ITSAViewModel.prototype.lockView = function() {
     var instance = this,
         model = instance.get(MODEL),
+        // hidden parameter: 'nolock'
+        nolock = arguments[0],
         canDisableModel = (instance.get(EDITABLE) && model && model.toJSONUI);
 
 /*jshint expr:true */
-    canDisableModel ? model.disableUI() : instance.get('container').all('button').addClass(PURE_BUTTON_DISABLED);
+    canDisableModel ? model.disableUI() : instance.get(CONTAINER).all('button').addClass(PURE_BUTTON_DISABLED);
+    nolock || (instance._locked=true);
 /*jshint expr:false */
-    instance._locked = true;
-};
-
-/**
- * Promise that holds any stuff that should be done before the view is defined as 'ready'.
- * By default this promise is resolved right away. The intention is that it can be overridden in widget's extentions.<br /><br />
- * <b>Notion</b>It is not the intention to make a direct call an promiseBeforeRender --> use isReady() instead,
- *
- * @method promiseBeforeRender
- * @return {Y.Promise} promised response --> resolve() OR reject(reason).
- * @since 0.3
-*/
-ITSAViewModel.prototype.promiseBeforeRender = function() {
-    return new Y.Promise(function (resolve) {
-        resolve();
-    });
 };
 
 /**
@@ -1070,37 +1071,21 @@ ITSAViewModel.prototype.render = function (clear) {
 /*jshint expr:true */
     (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
 /*jshint expr:false */
-    // we set the html only as soon as promiseBeforeRender is resolved --> this way we can make sure extra dependencies -like iconfonts- are loaded
-    instance.promiseBeforeRender().then(
-        function() {
-            container.setHTML(html);
-            withfocusmanager = editMode && instance.get(FOCUSMANAGED);
-            instance._setFocusManager(withfocusmanager);
-            if (withfocusmanager) {
-                Y.usePromise(GALLERY+ITSATABKEYMANAGER).then(
-                    instance._renderPromiseResolve
-                );
-            }
-            else {
-                instance._renderPromiseResolve();
-            }
-        },
-        function(reason) {
-        }
-    );
+    container.setHTML(html);
+    withfocusmanager = editMode && instance.get(FOCUSMANAGED);
+    instance._setFocusManager(withfocusmanager);
+    if (withfocusmanager) {
+        Y.usePromise(GALLERY+ITSATABKEYMANAGER).then(
+            instance._renderPromiseResolve
+        );
+    }
+    else {
+        instance._renderPromiseResolve();
+    }
 
     if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
         itsaDateTimePicker.hide(true);
     }
-    /**
-    * Fired when the view is rendered
-    *
-    * @event viewrendered
-    * @param e {EventFacade} Event Facade including:
-    * @param e.target {Y.ITSAViewModel} This instance.
-    * @since 0.3
-    */
-    instance.fire('viewrendered', {target: instance});
     return instance;
 };
 
@@ -1529,7 +1514,7 @@ ITSAViewModel.prototype._bindUI = function() {
             }
         )
     );
-console.log('create listener');
+
     instance.get('partOfMultiView') || eventhandlers.push(
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
@@ -1538,12 +1523,11 @@ console.log('create listener');
                     model = e.target,
                     eventType = e.type.split(':')[1],
                     options = e.options,
-                    destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
+                    destroyWithoutRemove = ((eventType===DESTROY) && options && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
-console.log('viewmodel event 1: '+e.type);
                     instance._lockedBefore = instance._locked;
-                    instance.lockView();
+                    instance.lockView(true);
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
                         model.UIToModel();
@@ -1642,7 +1626,6 @@ console.log('viewmodel event 1: '+e.type);
             }
         )
     );
-
     YArray.each(
         [CLICK, VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
@@ -1650,13 +1633,12 @@ console.log('viewmodel event 1: '+e.type);
                 instance.on(
                     '*:'+event,
                     function(e) {
-console.log('viewmodel event 2: '+e.type);
                         var validEvent = true,
                             newevent = event,
                             payload, button;
-                        // check if e.target===instance, because it checks by *: and will recurse
-
-                        if (e.target!==instance) {
+                        // check if e.target!==instance, because it checks by *: and will recurse
+                        // also check if e.currentTarget===instance, because you might get double events after itsamodelsyncpromise did _asyncPublishing
+                        if ((e.target!==instance) && (e.currentTarget===instance)) {
                             if (event===CLICK) {
                                 button = e.type.split(':')[0];
                                 if (VALID_BUTTON_TYPES[button]) {
@@ -2170,7 +2152,7 @@ ITSAViewModel.prototype._setFocusManager = function(activate) {
     }
     else {
 /*jshint expr:true */
-        itsatabkeymanager && container.unplug(ITSATABKEYMANAGER);
+        itsatabkeymanager && instance.removeTarget(itsatabkeymanager) && container.unplug(ITSATABKEYMANAGER);
 /*jshint expr:false */
     }
 };
@@ -2217,11 +2199,8 @@ ITSAViewModel.prototype._setModel = function(v) {
 ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
     var instance = this,
         buttonicons = instance.get('container').all('[data-buttonsubtype="'+buttonType+'"] i');
-console.log(buttonicons);
-if (spin) {
     buttonicons.toggleClass('itsaicon-form-loading', spin);
     buttonicons.toggleClass('itsa-busy', spin);
-  }
 };
 
 /**
