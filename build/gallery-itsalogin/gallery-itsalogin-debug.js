@@ -434,7 +434,6 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
 
 /**
  *
- * @module gallery-itsadialog
  * @class ITSADialog
  * @since 0.1
  *
