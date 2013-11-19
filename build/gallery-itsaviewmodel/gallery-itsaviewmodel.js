@@ -1529,7 +1529,7 @@ ITSAViewModel.prototype._bindUI = function() {
             }
         )
     );
-
+console.log('create listener');
     instance.get('partOfMultiView') || eventhandlers.push(
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
@@ -1541,6 +1541,7 @@ ITSAViewModel.prototype._bindUI = function() {
                     destroyWithoutRemove = ((eventType===DESTROY) && (options.remove || options[DELETE])),
                     prevAttrs;
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
+console.log(e.type +' | '+ e.target.get('clientId'));
                     instance._lockedBefore = instance._locked;
                     instance.lockView();
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
@@ -2215,8 +2216,11 @@ ITSAViewModel.prototype._setModel = function(v) {
 ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
     var instance = this,
         buttonicons = instance.get('container').all('[data-buttonsubtype="'+buttonType+'"] i');
+console.log(buttonicons);
+if (spin) {
     buttonicons.toggleClass('itsaicon-form-loading', spin);
     buttonicons.toggleClass('itsa-busy', spin);
+  }
 };
 
 /**
