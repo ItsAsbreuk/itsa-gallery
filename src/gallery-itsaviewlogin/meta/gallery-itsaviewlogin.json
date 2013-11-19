@@ -6,7 +6,8 @@
             "gallery-itsaformmodel",
             "gallery-itsaviewmodel",
             "gallery-itsacheckbox",
-            "gallery-itsa-i18n-login"
+            "gallery-itsa-i18n-login",
+            "gallery-lazy-promise"
         ]
     }
 }

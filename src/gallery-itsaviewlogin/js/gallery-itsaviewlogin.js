@@ -60,14 +60,32 @@ var Lang = Y.Lang,
     FIELDSET_START = '<fieldset class="'+ITSA_LOGIN+'">',
     ENDSPAN = '</span>',
     DIVCLASS_PURECONTROLGROUP = '<div class="pure-control-group">',
+    DIVCLASS_PURECONTROLS = '<div class="pure-controls">',
     DIVCLASS_ITSA = '<div class="itsa-',
     ENDFIELDSET = '</fieldset>',
     ENDDIV = '</div>',
     CHANGE = 'Change',
     OBJECT = 'object',
     STRING = 'string',
+    BOOLEAN = 'boolean',
     FUNCTION = 'function',
+    CREATE = 'create',
+    CCOUNT = 'ccount',
+    IMG = 'img',
+    SUBMIT = 'submit',
+    BTN_ = 'btn_',
+    BTNSUBMIT = BTN_+SUBMIT,
+    IMGBTN_ = IMG+BTN_,
+    BTN_CREATE_ACCOUNT = 'btn_'+CREATE+'a'+CCOUNT,
+    IMGBTN_CREATE_ACCOUNT = IMG+BTN_CREATE_ACCOUNT,
+    CREATEACCOUNT = CREATE+'A'+CCOUNT,
+    REGAIN = 'regain',
+    USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
+    FORGOT = 'forgot',
+    IMAGEBUTTONS = 'imageButtons',
     ICONTEMPLATE = '<i class="{icon}"></i>',
+    ITSABUTTON_ICONLEFT = 'itsabutton-iconleft',
+    I_CLASS_ITSADIALOG = '<i class="itsaicon-dialog',
     GALLERYITSAI18NLOGIN = 'gallery-itsa-i18n-login';
 
 
@@ -79,6 +97,22 @@ ITSAViewLogin.NAME = 'itsaviewlogin';
 
 Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
     ATTRS: {
+
+        /**
+         * Need to be a Y.LazyPromise-instance. Should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
+         * By fulfilling the queueMessage, the Y.LazyPromise should be fulfilled. See the examples how this works.
+         *
+         * @attribute createAccount
+         * @type {Y.LazyPromise}
+         * @default null
+         * @since 0.1
+         */
+        createAccount: {
+            value: null,
+            validator: function(v) {
+                return (v instanceof Y.LazyPromise);
+            }
+        },
         /**
          * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
          *
@@ -150,6 +184,22 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
                 return (typeof v === STRING);
             }
         },
+
+        /**
+         * Whether to have imagebuttons
+         *
+         * @attribute imageButtons
+         * @type {Boolean}
+         * @default false
+         * @since 0.1
+         */
+        imageButtons: {
+            value: false,
+            validator: function(v) {
+                return (typeof v === BOOLEAN);
+            },
+            initOnly: true
+        },
         /**
          * Message that appears above the formfields.
          *
@@ -200,6 +250,21 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          */
         password: {
             value: ''
+        },
+        /**
+         * Set this attribute to make it possible to regain username or password. Should be either 'usernameorpassword' || 'username' || 'password'.
+         *
+         * @attribute regain
+         * @type {String}
+         * @default null
+         * @since 0.1
+         */
+        regain: {
+            value: null,
+            validator: function(v) {
+                return (v===null) || (v===USERNAMEORPASSWORD) || (v===USERNAME) || (v===PASSWORD);
+            },
+            initOnly: true
         },
         /**
          * Value of 'remember' that passes through to the underlying model.
@@ -334,9 +399,18 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
 ITSAViewLogin.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSAViewLogin');
     var instance = this,
-        eventhandlers = instance._eventhandlers;
+        eventhandlers = instance._eventhandlers,
+        loginintl;
 
-    instance._intl = Y.Intl.get(GALLERYITSAI18NLOGIN);
+    loginintl = instance._loginintl = Y.Intl.get(GALLERYITSAI18NLOGIN);
+    if (instance.get(IMAGEBUTTONS)) {
+        instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN]);
+        instance.setPrimaryButton(IMGBTN_+SUBMIT);
+    }
+    else {
+        instance.setButtonLabel(BTNSUBMIT, loginintl[LOGIN]);
+        instance.setPrimaryButton(BTNSUBMIT);
+    }
     instance._defineModel();
     eventhandlers.push(
         instance.after(
@@ -365,21 +439,47 @@ ITSAViewLogin.prototype.initializer = function() {
 };
 
 /**
+ *
+ * Renderes a login-panel where the user can fill in a username and password. Using config, the behaviour of the panel can be extended
+ * by introducing several sub-panels:<br>
+ *
+ *      <ul>
+ *          <li><code>changepassword-panel</code> will show up when the server responses to button==='getlogin' with {status: 'CHANGEPASSWORD'}</li>
+ *          <li><code>forgot-username-or-password-panel</code> is available when config.regain==='usernameorpassword'</li>
+ *          <li><code>forgotusername-panel</code> is available when config.regain==='usernameorpassword' || 'username'</li>
+ *          <li><code>forgotpassword-panel</code> is available when config.regain==='usernameorpassword' || 'password'</li>
+ *          <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
+ *      </ul>
+ *
+ * @method getLogin
+ * @param sync {Y.Promise} sync-layer that communicates with the server
+ * @return {Y.Promise} Promise that holds valid logindata (if resolved) --> resolve(result) result={username, password, remember} OR reject(reason)
+ * @since 0.1
+ */
+ITSAViewLogin.prototype.getLogin = function(sync) {
+};
+
+
+/**
  * @method _defineModel
  * @private
  * @since 0.1
 */
 ITSAViewLogin.prototype._defineModel = function() {
+console.log('define model');
     Y.log('initializer', 'info', 'ITSAViewLogin');
     var instance = this,
-        intl = instance._intl,
+        loginintl = instance._loginintl,
         usernameIsEmail = instance.get(USERNAMEISEMAIL),
+        imagebuttons = instance.get(IMAGEBUTTONS),
+        extrabuttons = [],
         MyLoginModel, formconfigUsername, formconfigPassword, formconfigRemember, model;
 
     formconfigUsername = instance.get(FORMCONFIG+CAP_USERNAME);
 /*jshint expr:true */
-    formconfigUsername[LABEL] || formconfigUsername[PLACEHOLDER] || (formconfigUsername[LABEL]=intl[usernameIsEmail ? EMAILADDRESS : USERNAME]);
+    formconfigUsername[LABEL] || formconfigUsername[PLACEHOLDER] || (formconfigUsername[LABEL]=loginintl[usernameIsEmail ? EMAILADDRESS : USERNAME]);
 /*jshint expr:false */
+    formconfigUsername.initialfocus = true;
     formconfigUsername[FULLSELECT] = true;
     formconfigUsername[PRIMARYBTNONENTER] = false;
     formconfigUsername[CLASSNAME] = ITSA_LOGIN + (formconfigUsername[CLASSNAME] ? ' '+formconfigUsername[CLASSNAME] : '');
@@ -388,7 +488,7 @@ ITSAViewLogin.prototype._defineModel = function() {
     // setting config for password:
     formconfigPassword = instance.get(FORMCONFIG+CAP_PASSWORD);
 /*jshint expr:true */
-    formconfigPassword[LABEL] || formconfigPassword[PLACEHOLDER] || (formconfigPassword[LABEL]=intl[PASSWORD]);
+    formconfigPassword[LABEL] || formconfigPassword[PLACEHOLDER] || (formconfigPassword[LABEL]=loginintl[PASSWORD]);
 /*jshint expr:false */
     formconfigPassword[FULLSELECT] = true;
     formconfigPassword[PRIMARYBTNONENTER] = true;
@@ -403,9 +503,47 @@ ITSAViewLogin.prototype._defineModel = function() {
 /*jshint expr:true */
     formconfigUsername[LABEL] && !formconfigPassword[LABEL] && (formconfigPassword[LABEL] = ' ');
     formconfigPassword[LABEL] && !formconfigUsername[LABEL] && (formconfigUsername[LABEL] = ' ');
-    formconfigRemember[LABEL] || (formconfigRemember[LABEL]=intl[STAYLOGGEDIN]);
+    formconfigRemember[LABEL] || (formconfigRemember[LABEL]=loginintl[STAYLOGGEDIN]);
 /*jshint expr:false */
     formconfigRemember.switchlabel = true;
+
+/*jshint expr:true */
+    instance.get(REGAIN) && extrabuttons.push(imagebuttons ?
+                                            {
+                                                buttonId: IMGBTN_+FORGOT,
+                                                labelHTML: I_CLASS_ITSADIALOG+'-question"></i>'+loginintl[FORGOT],
+                                                config: {
+                                                    value: FORGOT,
+                                                    classname: ITSABUTTON_ICONLEFT
+                                                }
+                                            } :
+                                            {
+                                                buttonId: BTN_+FORGOT,
+                                                labelHTML: loginintl[FORGOT],
+                                                config: {
+                                                    value: FORGOT
+                                                }
+                                            }
+                                        );
+    instance.get(CREATEACCOUNT) && extrabuttons.push(imagebuttons ?
+                                        {
+                                            buttonId: IMGBTN_+CREATEACCOUNT,
+                                            labelHTML: I_CLASS_ITSADIALOG+'-user"></i>'+loginintl[CREATEACCOUNT],
+                                            config: {
+                                                value: CREATEACCOUNT,
+                                                classname: ITSABUTTON_ICONLEFT
+                                            }
+                                        } :
+                                        {
+                                            buttonId: BTN_CREATE_ACCOUNT,
+                                            labelHTML: loginintl[CREATEACCOUNT],
+                                            config: {
+                                                value: CREATEACCOUNT
+                                            }
+                                        }
+                                        );
+    (extrabuttons.length>0) && instance.addCustomBtns(extrabuttons);
+/*jshint expr:false */
 
     MyLoginModel = Y.Base.create('itsaviewloginmodel', Y.ITSAFormModel, [], null, {
                       ATTRS: {
@@ -434,6 +572,8 @@ ITSAViewLogin.prototype._defineModel = function() {
     instance._set(MODEL, model);
     // need to set target manually, for the subscribers (_bindUI) aren't loaded yet:
     model.addTarget(instance);
+    // redefine, because the templaterenderer was set with editable=false for there was no model
+    instance._setTemplateRenderer(true);
 };
 
 /**
@@ -444,12 +584,30 @@ ITSAViewLogin.prototype._defineModel = function() {
 ITSAViewLogin.prototype._getterTemplate = function() {
     Y.log('_getterTemplate', 'info', 'ITSAViewLogin');
     var instance = this,
-        icon = instance.get(ICON);
+        icon = instance.get(ICON),
+        imagebuttons = instance.get(IMAGEBUTTONS),
+        footer;
+
+    if (imagebuttons) {
+        footer = (instance.get(REGAIN) ? '{'+IMGBTN_+FORGOT+'}' : '');
+    /*jshint expr:true */
+        instance.get(CREATEACCOUNT) && (footer += '{'+IMGBTN_CREATE_ACCOUNT+'}');
+    /*jshint expr:false */
+        footer += '{'+IMGBTN_+SUBMIT+'}';
+    }
+    else {
+        footer = (instance.get(REGAIN) ? '{'+BTN_+FORGOT+'}' : '');
+    /*jshint expr:true */
+        instance.get(CREATEACCOUNT) && (footer += '{'+BTN_CREATE_ACCOUNT+'}');
+    /*jshint expr:false */
+        footer += '{'+BTNSUBMIT+'}';
+    }
     return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
            SPANWRAPPER + (instance.get(MESSAGE) || '') + ENDSPAN+
            FIELDSET_START+
                DIVCLASS_PURECONTROLGROUP+'{'+USERNAME+'}'+ENDDIV+
                DIVCLASS_PURECONTROLGROUP+'{'+PASSWORD+'}'+ENDDIV+
                (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox">'+'{remember}'+ENDDIV : '')+
+               DIVCLASS_PURECONTROLS+footer+ENDDIV+
            ENDFIELDSET;
 };
