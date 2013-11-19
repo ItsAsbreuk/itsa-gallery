@@ -88,7 +88,12 @@ var Lang = Y.Lang,
     ICONTEMPLATE = '<i class="{icon}"></i>',
     ITSABUTTON_ICONLEFT = 'itsabutton-iconleft',
     I_CLASS_ITSADIALOG = '<i class="itsaicon-dialog',
-    GALLERYITSAI18NLOGIN = 'gallery-itsa-i18n-login';
+    GALLERY = 'gallery',
+    GALLERYCSS = GALLERY+'css-itsa-',
+    GALLERYCSS_DIALOG = GALLERYCSS+'dialog',
+    GALLERYCSS_FORM = GALLERYCSS+'form',
+    GALLERYCSS_ANIMATESPIN = GALLERYCSS+'animatespin',
+    GALLERYITSAI18NLOGIN = GALLERY+'-itsa-i18n-login';
 
 
 function ITSAViewLogin() {
@@ -422,9 +427,7 @@ ITSAViewLogin.prototype.initializer = function() {
     if (instance.get(IMAGEBUTTONS)) {
         instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN]);
         instance.setPrimaryButton(IMGBTN_+SUBMIT);
-        instance.promiseBeforeRender = function() {
-            return Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
-        };
+        Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
     }
     else {
         instance.setButtonLabel(BTNSUBMIT, loginintl[LOGIN]);
@@ -485,6 +488,14 @@ ITSAViewLogin.prototype.initializer = function() {
 ITSAViewLogin.prototype.getLogin = function() {
 };
 
+ITSAViewLogin.prototype.renderOnReady = function() {
+    var instance = this;
+    Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
+        function() {
+            instance.render();
+        }
+    );
+};
 
 /**
  * @method _defineModel

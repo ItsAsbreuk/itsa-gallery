@@ -1,6 +1,8 @@
-YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsastatusbar', function(Y) {
 
     var createAccountPromise, getAccountMessage, syncFn, myView;
+var statusbar = new Y.ITSAStatusbar();
+
 
     getAccountMessage = function(syncPromise) {
         var AccountMessage, newAccountMessage, message;
@@ -139,6 +141,9 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         createAccount: createAccountPromise
     });
     myView._set('editable', true);
-    myView.render();
+
+    myView.renderOnReady();
+
+    myView.addMessageTarget(statusbar);
 
 });
