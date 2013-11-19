@@ -68,8 +68,7 @@
         </p>
         <h4>modelsync-messages</h4>
         <p>
-            Both Y.Model and Y.ModelList can create sync-messages when syncing starts or ends. In order to get this facility, you need to load <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodelsyncpromise/">gallery-itsamodelsyncpromise</a> or <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodellistsyncpromise/">gallery-itsamodellistsyncpromise</a>.
-            To make a specific Y.Model-instance (or Y.ModelList-instance) target its syncmessages, you need call <code>yourModel(list).addMessageTarget(statusbarInstance)</code> where 'statusbarInstance' is the statusbar-instance that should handle the message.
+            Both Y.Model and Y.ModelList can create sync-messages when syncing starts or ends. In order to get this facility, you need to load <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodelsyncpromise/">gallery-itsamodelsyncpromise</a> or <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodellistsyncpromise/">gallery-itsamodellistsyncpromise</a>, which will be active when use make use of <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaformmodel/">gallery-itsaformmodel</a>. To make a specific Y.Model-instance (or Y.ModelList-instance) target its syncmessages, you need call <code>yourModel(list).addMessageTarget(statusbarInstance)</code> where 'statusbarInstance' is the statusbar-instance that should handle the message.
         </p>
 
     <h3>handling untargeted messages</h3>
@@ -89,11 +88,11 @@
 
         <h4>status-messages</h4>
             <p>
-                You can define your messageView-instance to handle untargeted 'status-messages' by <code>handleStatus(level)</code>.
+                You can define your messageView-instance to handle untargeted 'status-messages' by <code>handleStatus()</code>.
             </p>
         <h4>modelsync-messages</h4>
             <p>
-                You can define your messageView-instance to handle untargeted 'modelsync-messages' by <code>handleModelSync(level)</code>.
+                You can define your messageView-instance to handle untargeted 'modelsync-messages' by <code>handleModelSync()</code>.
             </p>
     <h3>automatic generate simple message by MessageViewer</h3>
         <p>
