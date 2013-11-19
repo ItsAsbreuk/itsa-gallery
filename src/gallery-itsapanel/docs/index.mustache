@@ -122,6 +122,11 @@
     <p>There is a focusmanager active out of the box. The focussing is done by using the (shift)-tab key and takes into account all items with <b>data-focusable="true"</b>
     </p>
 
+<h2>Adding statusbar</h2>
+    <p>
+        By setting the attribute <code>statusBar</code> true, you create a statusbar inside the panel. See <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsastatusbar/">Y.ITSAStatusbar</a>. You can target specific messages to this statusbar by using targeting the messages to the panel-instance, f.e.: <code>Y.alert('oops, something went wrong', {target: yourPanel});</code>.
+    </p>
+
 <h2>Customizing style</h2>
     <p>The Panels are styled by default using Y.ITSAPanels default scheme. You can set styling of by setting the attribute <code>styled</code> to false, or by override the default css-classes:
     </p>

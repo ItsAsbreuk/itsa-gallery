@@ -1468,6 +1468,7 @@ ITSAPanel.prototype._renderStatusBar = function() {
     Y.log('_renderStatusBar ', 'info', 'ITSAPanel');
     statusbar.toggleClass(HIDDENSECTIONCLASS, hideStatusbar);
     if (hideStatusbar) {
+        instance._viewName = null;
         instance._resolveStatusbarReady();
         if (itsastatusbar) {
             itsastatusbar.destroy();
@@ -1484,6 +1485,8 @@ ITSAPanel.prototype._renderStatusBar = function() {
                                 readyText: instance.get(READYTEXT),
                                 textTransform: instance.get(STATUSBARTRANSFORM)
                             });
+            // to make targeting Y.ITSAMessages to this instance posible:
+            instance._viewName = itsastatusbar._viewName;
             itsastatusbar.isReady().then(
                 function() {
 /*jshint expr:true */
