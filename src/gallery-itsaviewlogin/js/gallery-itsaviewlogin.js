@@ -408,7 +408,7 @@ ITSAViewLogin.prototype.initializer = function() {
         instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN]);
         instance.setPrimaryButton(IMGBTN_+SUBMIT);
         instance.promiseBeforeRender = function() {
-            return Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-animatespin');
+            return Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
         };
     }
     else {
