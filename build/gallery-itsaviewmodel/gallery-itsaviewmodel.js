@@ -1143,6 +1143,8 @@ ITSAViewModel.prototype.render = function (clear) {
         Y.usePromise(GALLERY_ITSASTATUSBAR).then(
             function() {
                 statusbarinstance = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
+                // to make targeting Y.ITSAMessages to this instance posible:
+                instance._viewName = statusbarinstance._viewName;
                 if (model) {
                     Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), statusbarinstance.isReady()).then(
                         function() {
@@ -1155,6 +1157,7 @@ ITSAViewModel.prototype.render = function (clear) {
     }
     else {
         container.removeAttribute(DATA_ITSASTATUSBAR);
+        instance._viewName = null;
     }
 
     withfocusmanager = editMode && instance.get(FOCUSMANAGED);
