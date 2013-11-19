@@ -264,6 +264,11 @@
         ```
     </p>
 
+<h2>Adding statusbar</h2>
+    <p>
+        By setting the attribute <code>statusBar</code> true, you create a statusbar inside the ViewModelPanel. See <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsastatusbar/">Y.ITSAStatusbar</a>. The statusbar is targeted by the bounded model automaticly. You can also target specific messages to this statusbar by using targeting the messages to the instance, f.e.: <code>Y.alert('oops, something went wrong', {target: yourViewModelPanel});</code>.
+    </p>
+
 <h2>Styling</h2>
     <p>
         By default, the Y.ITSAViewModelPanel comes with its own style supplied by <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsapanel/">Y.ITSAPanel</a>: see that module how to customize the style of the panel. When you need to style form-elements, then it is higly recommended to include <a href="http://purecss.io/">Purecss</a>.
