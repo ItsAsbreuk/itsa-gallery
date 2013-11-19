@@ -24,17 +24,19 @@ var ITSAViewModel,
     YArray = Y.Array,
     YObject = Y.Object,
     YIntl = Y.Intl,
+    ITSA = 'itsa',
+    ITSA_ = ITSA+'-',
     PURE_FORM = 'pure-form',
     DEF_FORM_CLASS = PURE_FORM+' '+PURE_FORM+'-aligned',
-    BUTTON_ICON_LEFT = 'itsabutton-iconleft',
+    BUTTON_ICON_LEFT = ITSA+'button-iconleft',
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
     FORM_CAPITALIZED = 'FORM',
     CHANGE = 'Change',
     TAGNAME = 'tagName',
     GALLERY = 'gallery-',
-    ITSAVIEWMODEL = 'itsaviewmodel',
-    FOCUSED_CLASS = 'itsa-focused',
+    ITSAVIEWMODEL = ITSA+'viewmodel',
+    FOCUSED_CLASS = ITSA_+'focused',
     STYLED = 'styled',
     BUTTON = 'button',
     MODEL = 'model',
@@ -52,7 +54,7 @@ var ITSAViewModel,
     EDITABLE = 'editable',
     CONTAINER = 'container',
     DEF_PREV_FN = '_defPrevFn_',
-    ITSATABKEYMANAGER = 'itsatabkeymanager',
+    ITSATABKEYMANAGER = ITSA+'tabkeymanager',
     FOCUSMANAGED = 'focusManaged',
     DISABLED = 'disabled',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
@@ -152,6 +154,14 @@ var ITSAViewModel,
     SPINBTN_REMOVE = SPIN+BTN_REMOVE,
     SPINBTN_SAVE = SPIN+BTN_SAVE,
     SPINBTN_SUBMIT = SPIN+BTN_SUBMIT,
+    UPPERCASE = 'uppercase',
+    LOWERCASE = 'lowercase',
+    CAPITALIZE = 'capitalize',
+    ITSA_BUTTON = ITSA_+BUTTON+'-',
+    ITSABUTTON_UPPERCASE = ITSA_BUTTON+UPPERCASE,
+    ITSABUTTON_LOWERCASE = ITSA_BUTTON+LOWERCASE,
+    ITSABUTTON_CAPITALIZE = ITSA_BUTTON+CAPITALIZE,
+    BUTTONTRANSFORM = BUTTON+'Transform',
 
     /**
       * Fired when a UI-element needs to focus to the next element (in case of editable view).
@@ -395,6 +405,25 @@ Y.Base.mix(Y.Node, [ITSANodeCleanup]);
 ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
     {
         ATTRS : {
+            /**
+             * CSS text-transform of all buttons. Should be:
+             * <ul>
+             *   <li>null --> leave as it is</li>
+             *   <li>uppercase</li>
+             *   <li>lowercase</li>
+             *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+             * </ul>
+             *
+             * @attribute buttonTransform
+             * @default null
+             * @type {String}
+             */
+            buttonTransform: {
+                value: null,
+                validator: function(val) {
+                    return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
+                }
+            },
             /**
              * Makes the View to render the editable-version of the Model. Only when the Model has <b>Y.Plugin.ITSAEditModel</b> plugged in.
              *
@@ -1024,6 +1053,7 @@ ITSAViewModel.prototype.render = function (clear) {
 /*jshint expr:false */
         container.addClass(ITSAVIEWMODEL);
         container.toggleClass(ITSAVIEWMODEL+'-'+STYLED, instance.get(STYLED));
+        instance._setButtonTransform(instance.get(BUTTONTRANSFORM));
         instance._bindUI();
     }
     instance._rendered = true;
@@ -1589,6 +1619,15 @@ ITSAViewModel.prototype._bindUI = function() {
         )
     );
 
+    eventhandlers.push(
+        instance.after(
+            BUTTONTRANSFORM+CHANGE,
+            function(e) {
+                instance._setButtonTransform(e.newVal);
+            }
+        )
+    );
+
     YArray.each(
         [CLICK, VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
@@ -2066,6 +2105,30 @@ ITSAViewModel.prototype[DEF_FN+VALIDATION_ERROR] = function(e) {
 /*jshint expr:false */
         node.scrollIntoView();
     }
+};
+
+/**
+ * Sets the right className to the container for making text-transForm of buttons. Configured by attribute 'buttonTransform'.<br />
+ * Either one of these values:
+ * <ul>
+ *   <li>null --> leave as it is</li>
+ *   <li>uppercase</li>
+ *   <li>lowercase</li>
+ *   <li>capitalize --> First character uppercase, the rest lowercase</li>
+ * </ul>
+ *
+ * @method _setButtonTransform
+ * @param type {String} new text-transform value
+ * @private
+ * @since 0.2
+*/
+ITSAViewModel.prototype._setButtonTransform = function(type) {
+    var container = this.get(CONTAINER);
+
+    Y.log('_setButtonTransform ', 'info', 'ITSAPanel');
+    container.toggleClass(ITSABUTTON_UPPERCASE, (type===UPPERCASE));
+    container.toggleClass(ITSABUTTON_LOWERCASE, (type===LOWERCASE));
+    container.toggleClass(ITSABUTTON_CAPITALIZE, (type===CAPITALIZE));
 };
 
 /**
