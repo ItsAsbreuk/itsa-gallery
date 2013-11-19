@@ -1,12 +1,14 @@
 /*csslint adjoining-classes: false, star-property-hack: false */
 
 .itsaviewmodel {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
 }
 
 .itsaviewmodel-styled {
     border: solid 1px #CCC;
-    padding: 18px 14px;
+    padding: 1.3em 1.1em;
     background-color: #EDF5FF;
     -webkit-box-shadow: 5px 5px 6px rgba(50, 50, 50, 0.45);
     -moz-box-shadow:    5px 5px 6px rgba(50, 50, 50, 0.45);
@@ -60,4 +62,27 @@
     -ms-transition: 0.15s linear border;
     -o-transition: 0.15s linear border;
     transition: 0.15s linear border;
+}
+
+.itsaview-statusbar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.itsaviewmodel[data-itsastatusbar="true"] {
+    padding-bottom: 1.6em;
+}
+
+.itsaviewmodel.itsaviewmodel-styled[data-itsastatusbar="true"] {
+    padding-bottom: 2.6em;
+}
+
+.itsaviewmodel-styled .itsaview-statusbar {
+    margin-left: -1.1em;
+}
+
+.itsaview-statusbar .itsa-statusbar-container {
+    height: 1.5em;
+    line-height: 1.6em;
 }

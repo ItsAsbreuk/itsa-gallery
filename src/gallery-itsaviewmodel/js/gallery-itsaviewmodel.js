@@ -49,7 +49,7 @@ var ITSAViewModel,
     DESTROYED = 'destroyed',
     DELETE = 'delete',
     DEF_FN = '_defFn_',
-//    STATUSBAR = 'statusBar',
+    STATUSBAR = 'statusBar',
     BOOLEAN = 'boolean',
     STRING = 'string',
     EDITABLE = 'editable',
@@ -58,6 +58,7 @@ var ITSAViewModel,
     ITSATABKEYMANAGER = ITSA+'tabkeymanager',
     FOCUSMANAGED = 'focusManaged',
     DISABLED = 'disabled',
+    DATA_ITSASTATUSBAR = 'data-itsastatusbar',
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     VALID_BUTTON_TYPES = {
         button: true,
@@ -163,6 +164,10 @@ var ITSAViewModel,
     ITSABUTTON_LOWERCASE = ITSA_BUTTON+LOWERCASE,
     ITSABUTTON_CAPITALIZE = ITSA_BUTTON+CAPITALIZE,
     BUTTONTRANSFORM = BUTTON+'Transform',
+    GALLERY_ITSASTATUSBAR = GALLERY+ITSA+STATUSBAR,
+    GALLERY_ITSAMODELSYNCPROMISE = GALLERY+ITSA+MODEL+'syncpromise',
+    STATUSBAR_CLASS = 'itsaview-statusbar',
+    STATUSBAR_TEMPLATE = '<div class="'+STATUSBAR_CLASS+'"></div>',
 
     /**
       * Fired when a UI-element needs to focus to the next element (in case of editable view).
@@ -486,6 +491,21 @@ ITSAViewModel = Y.ITSAViewModel = Y.Base.create(ITSAVIEWMODEL, Y.View, [], {},
                 initOnly: true,
                 validator: function(v){
                     return (typeof v === BOOLEAN);
+                }
+            },
+
+            /**
+             * Whether the view should have a statusbar (Y.ITSAStatusbar). Targeting should be done directly at the view-instance. See gallery-itsastatusbar.
+             *
+             * @attribute statusBar
+             * @type Boolean
+             * @default false
+             * @since 0.3
+            */
+            statusBar : {
+                value: false,
+                validator: function(val) {
+                    return (typeof val===BOOLEAN);
                 }
             },
 
@@ -1088,6 +1108,8 @@ ITSAViewModel.prototype.render = function (clear) {
         container = instance.get(CONTAINER),
         model = instance.get(MODEL),
         editMode = instance.get(EDITABLE),
+        statusbar = instance.get(STATUSBAR),
+        statusbarinstance = instance._statusbar,
         itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
         html = (clear || !model) ? '' : instance._modelRenderer(model),
         withfocusmanager;
@@ -1114,7 +1136,38 @@ ITSAViewModel.prototype.render = function (clear) {
 /*jshint expr:true */
     (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
 /*jshint expr:false */
+
+    if (statusbar) {
+/*jshint expr:true */
+        if (statusbarinstance) {
+            model && model.removeMessageTarget(statusbarinstance);
+            statusbarinstance.destroy();
+        }
+        clear || (html+=STATUSBAR_TEMPLATE);
+/*jshint expr:false */
+    }
+
     container.setHTML(html);
+
+    if (statusbar && !clear) {
+        container.setAttribute(DATA_ITSASTATUSBAR, 'true');
+        Y.usePromise(GALLERY_ITSASTATUSBAR).then(
+            function() {
+                statusbarinstance = instance._statusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
+                if (model) {
+                    Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), statusbarinstance.isReady()).then(
+                        function() {
+                            model.addMessageTarget(instance._statusbar);
+                        }
+                    );
+                }
+            }
+        );
+    }
+    else {
+        container.removeAttribute(DATA_ITSASTATUSBAR);
+    }
+
     withfocusmanager = editMode && instance.get(FOCUSMANAGED);
     instance._setFocusManager(withfocusmanager);
     if (withfocusmanager) {
@@ -1453,12 +1506,21 @@ ITSAViewModel.prototype.unlockView = function() {
 ITSAViewModel.prototype.destructor = function() {
     var instance = this,
         model = instance.get(MODEL),
+        statusbarinstance = instance._statusbar,
         container = instance.get(CONTAINER);
 
     Y.log('destructor', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
     model && model.removeTarget && model.removeTarget(instance);
 /*jshint expr:false */
+
+    if (statusbarinstance) {
+/*jshint expr:true */
+        model && model.removeMessageTarget(statusbarinstance);
+/*jshint expr:false */
+        statusbarinstance.destroy();
+    }
+
     instance._clearEventhandlers();
     instance._customBtns = {};
     instance._customBtnLabels = {};
@@ -1493,12 +1555,24 @@ ITSAViewModel.prototype._bindUI = function() {
                 var prevVal = e.prevVal,
                     newVal = e.newVal,
                     prevFormModel = prevVal && prevVal.toJSONUI,
-                    newFormModel = newVal && newVal.toJSONUI;
+                    newFormModel = newVal && newVal.toJSONUI,
+                    statusbar = instance.get(STATUSBAR);
                 if (prevVal) {
 /*jshint expr:true */
                     prevVal.removeTarget && prevVal.removeTarget(instance);
+                    statusbar && prevVal.removeMessageTarget(instance._statusbar);
                 }
-                newVal && newVal.addTarget && newVal.addTarget(instance);
+                if (newVal) {
+                    newVal.addTarget && newVal.addTarget(instance);
+                    if (statusbar) {
+                        Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE).then(
+                            function() {
+                                newVal.addMessageTarget(instance._statusbar);
+                            }
+                        );
+                    }
+                }
+
                 (prevFormModel !== newFormModel) && instance._setTemplateRenderer(newFormModel && instance.get(EDITABLE));
 /*jshint expr:false */
                 instance.render();
@@ -1512,6 +1586,12 @@ ITSAViewModel.prototype._bindUI = function() {
                 instance._setTemplateRenderer(instance.get(EDITABLE));
                 instance.render();
             }
+        )
+    );
+    eventhandlers.push(
+        instance.after(
+            STATUSBAR+CHANGE,
+            Y.bind(instance.render, instance)
         )
     );
     eventhandlers.push(
