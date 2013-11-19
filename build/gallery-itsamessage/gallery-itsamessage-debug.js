@@ -25,6 +25,7 @@ var ITSAMessage,
     MESSAGE = 'message',
     MESSAGEREJECT = MESSAGE+'reject',
     MESSAGERESOLVE = MESSAGE+'resolve',
+    GALLERY_ITSA = 'gallery-itsa',
     MIN_TIMEOUT = 1000;
 
 ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], {
@@ -316,10 +317,11 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
 ITSAMessage.prototype.addMessageTarget = function(itsamessageviewer) {
     Y.log('reject', 'info', 'ITSAMessage');
     var instance = this;
-    Y.usePromise('gallery-itsamessageviewer', 'gallery-itsapanel').then(
+    Y.usePromise(GALLERY_ITSA+'messageviewer', GALLERY_ITSA+'panel', GALLERY_ITSA+'viewmodel').then(
         function() {
 /*jshint expr:true */
             (itsamessageviewer instanceof Y.ITSAPanel) && (itsamessageviewer=itsamessageviewer._itsastatusbar);
+            itsamessageviewer || ((itsamessageviewer instanceof Y.ITSAViewModel) && (itsamessageviewer=itsamessageviewer._itsastatusbar));
 /*jshint expr:false */
             if (itsamessageviewer instanceof Y.ITSAMessageViewer) {
                 instance.target = itsamessageviewer;
