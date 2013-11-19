@@ -252,7 +252,7 @@ Y.Widget.prototype.renderPromise = function(timeout) {
  * @return {Y.Promise} promised response --> resolve() OR reject(reason).
  * @since 0.2
 */
-Y.Widget.prototype.promiseBeforeReady = function() {
+Y.Widget.prototype.promiseBeforeReady = function(/* timeout */) {
     return new Y.Promise(function (resolve) {
         resolve();
     });
