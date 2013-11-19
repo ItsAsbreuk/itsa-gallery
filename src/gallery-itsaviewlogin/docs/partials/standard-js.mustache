@@ -1,6 +1,8 @@
 YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
 
-    var getAccountMessage = function(syncPromise) {
+    var createAccountPromise, getAccountMessage, syncFn, myView;
+
+    getAccountMessage = function(syncPromise) {
         var AccountMessage, newAccountMessage, message;
         AccountMessage = Y.Base.create('accountmessage', Y.ITSAMessage, [], {
             crossValidation: function() {
@@ -88,7 +90,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         return newAccountMessage;
     };
 
-    var syncFn = function(action) {
+    syncFn = function(action) {
         /*
          * typically you would use gallery-io-utils and create a promise like this:
          *
@@ -131,6 +133,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         container: '#viewcont',
         message: 'please login',
         regain: 'username',
+        imageButtons: true,
         createAccount: createAccountPromise
     });
     myView._set('editable', true);

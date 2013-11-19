@@ -78,9 +78,10 @@ var Lang = Y.Lang,
     BTN_ = 'btn_',
     BTNSUBMIT = BTN_+SUBMIT,
     IMGBTN_ = IMG+BTN_,
-    BTN_CREATE_ACCOUNT = 'btn_'+CREATE+'a'+CCOUNT,
-    IMGBTN_CREATE_ACCOUNT = IMG+BTN_CREATE_ACCOUNT,
-    CREATEACCOUNT = CREATE+'A'+CCOUNT,
+    CREATEACCOUNT = CREATE+'a'+CCOUNT,
+    BTN_CREATEACCOUNT = 'btn_'+CREATEACCOUNT,
+    IMGBTN_CREATEACCOUNT = IMG+BTN_CREATEACCOUNT,
+    CAP_CREATEACCOUNT = CREATE+'A'+CCOUNT,
     REGAIN = 'regain',
     USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
     FORGOT = 'forgot',
@@ -407,6 +408,9 @@ ITSAViewLogin.prototype.initializer = function() {
     if (instance.get(IMAGEBUTTONS)) {
         instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN]);
         instance.setPrimaryButton(IMGBTN_+SUBMIT);
+        instance.promiseBeforeReady = function() {
+            return Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-animatespin');
+        };
     }
     else {
         instance.setButtonLabel(BTNSUBMIT, loginintl[LOGIN]);
@@ -467,7 +471,6 @@ ITSAViewLogin.prototype.getLogin = function(sync) {
  * @since 0.1
 */
 ITSAViewLogin.prototype._defineModel = function() {
-console.log('define model');
     var instance = this,
         loginintl = instance._loginintl,
         usernameIsEmail = instance.get(USERNAMEISEMAIL),
@@ -525,22 +528,22 @@ console.log('define model');
                                                 }
                                             }
                                         );
-    instance.get(CREATEACCOUNT) && extrabuttons.push(imagebuttons ?
-                                        {
-                                            buttonId: IMGBTN_+CREATEACCOUNT,
-                                            labelHTML: I_CLASS_ITSADIALOG+'-user"></i>'+loginintl[CREATEACCOUNT],
-                                            config: {
-                                                value: CREATEACCOUNT,
-                                                classname: ITSABUTTON_ICONLEFT
+    instance.get(CAP_CREATEACCOUNT) && extrabuttons.push(imagebuttons ?
+                                            {
+                                                buttonId: IMGBTN_+CREATEACCOUNT,
+                                                labelHTML: I_CLASS_ITSADIALOG+'-user"></i>'+loginintl[CREATEACCOUNT],
+                                                config: {
+                                                    value: CREATEACCOUNT,
+                                                    classname: ITSABUTTON_ICONLEFT
+                                                }
+                                            } :
+                                            {
+                                                buttonId: BTN_CREATEACCOUNT,
+                                                labelHTML: loginintl[CREATEACCOUNT],
+                                                config: {
+                                                    value: CREATEACCOUNT
+                                                }
                                             }
-                                        } :
-                                        {
-                                            buttonId: BTN_CREATE_ACCOUNT,
-                                            labelHTML: loginintl[CREATEACCOUNT],
-                                            config: {
-                                                value: CREATEACCOUNT
-                                            }
-                                        }
                                         );
     (extrabuttons.length>0) && instance.addCustomBtns(extrabuttons);
 /*jshint expr:false */
@@ -590,14 +593,14 @@ ITSAViewLogin.prototype._getterTemplate = function() {
     if (imagebuttons) {
         footer = (instance.get(REGAIN) ? '{'+IMGBTN_+FORGOT+'}' : '');
     /*jshint expr:true */
-        instance.get(CREATEACCOUNT) && (footer += '{'+IMGBTN_CREATE_ACCOUNT+'}');
+        instance.get(CAP_CREATEACCOUNT) && (footer += '{'+IMGBTN_CREATEACCOUNT+'}');
     /*jshint expr:false */
         footer += '{'+IMGBTN_+SUBMIT+'}';
     }
     else {
         footer = (instance.get(REGAIN) ? '{'+BTN_+FORGOT+'}' : '');
     /*jshint expr:true */
-        instance.get(CREATEACCOUNT) && (footer += '{'+BTN_CREATE_ACCOUNT+'}');
+        instance.get(CAP_CREATEACCOUNT) && (footer += '{'+BTN_CREATEACCOUNT+'}');
     /*jshint expr:false */
         footer += '{'+BTNSUBMIT+'}';
     }
@@ -620,6 +623,7 @@ ITSAViewLogin.prototype._getterTemplate = function() {
         "gallery-itsaviewmodel",
         "gallery-itsacheckbox",
         "gallery-itsa-i18n-login",
+        "gallery-itsamodulesloadedpromise",
         "gallery-lazy-promise"
     ]
 });
