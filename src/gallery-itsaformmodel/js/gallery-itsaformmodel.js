@@ -1775,11 +1775,11 @@ ITSAFormModel.prototype._bindUI = function() {
                     submitonenter = (node.getAttribute(DATA_SUBMITONENTER)==='true'),
                     primarybtnonenter = (node.getAttribute(DATA_PRIMARYBTNONENTER)==='true'),
                     type, payload, primarybtnNode;
-                if (submitonenter) {
-                    instance.submit({fromInternal: true});
-                }
-                else if (primarybtnonenter && (primarybtnNode=instance._findPrimaryBtnNode())) {
+                if (primarybtnonenter && (primarybtnNode=instance._findPrimaryBtnNode())) {
                     primarybtnNode.simulate(CLICK);
+                }
+                else if (submitonenter) {
+                    instance.submit({fromInternal: true});
                 }
                 else {
                     type = FOCUS_NEXT;
