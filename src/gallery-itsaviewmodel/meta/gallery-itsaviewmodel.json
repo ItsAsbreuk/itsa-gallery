@@ -15,6 +15,7 @@
             "event-outside",
             "event-custom-base",
             "oop",
+            "promise",
             "pluginhost-base",
             "gallery-itsamodulesloadedpromise",
             "gallerycss-itsa-base"

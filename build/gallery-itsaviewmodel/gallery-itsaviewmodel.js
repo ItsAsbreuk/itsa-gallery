@@ -51,7 +51,9 @@ var ITSAViewModel,
     DESTROYED = 'destroyed',
     DELETE = 'delete',
     DEF_FN = '_defFn_',
-    STATUSBAR = 'statusBar',
+    STATUS = 'status',
+    STATUSBAR = STATUS+'bar',
+    CAP_STATUSBAR = STATUS+'Bar',
     BOOLEAN = 'boolean',
     STRING = 'string',
     EDITABLE = 'editable',
@@ -60,7 +62,7 @@ var ITSAViewModel,
     ITSATABKEYMANAGER = ITSA+'tabkeymanager',
     FOCUSMANAGED = 'focusManaged',
     DISABLED = 'disabled',
-    DATA_ITSASTATUSBAR = 'data-itsastatusbar',
+    DATA_ITSASTATUSBAR = 'data-itsa'+STATUSBAR,
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     VALID_BUTTON_TYPES = {
         button: true,
@@ -168,7 +170,7 @@ var ITSAViewModel,
     BUTTONTRANSFORM = BUTTON+'Transform',
     GALLERY_ITSASTATUSBAR = GALLERY+ITSA+STATUSBAR,
     GALLERY_ITSAMODELSYNCPROMISE = GALLERY+ITSA+MODEL+'syncpromise',
-    STATUSBAR_CLASS = 'itsaview-statusbar',
+    STATUSBAR_CLASS = 'itsaview-'+STATUSBAR,
     STATUSBAR_TEMPLATE = '<div class="'+STATUSBAR_CLASS+'"></div>',
 
     /**
@@ -1096,8 +1098,8 @@ ITSAViewModel.prototype.render = function (clear) {
         container = instance.get(CONTAINER),
         model = instance.get(MODEL),
         editMode = instance.get(EDITABLE),
-        statusbar = instance.get(STATUSBAR),
-        statusbarinstance = instance._statusbar,
+        statusbar = instance.get(CAP_STATUSBAR),
+        statusbarinstance = instance._itsastatusbar,
         itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
         html = (clear || !model) ? '' : instance._modelRenderer(model),
         withfocusmanager;
@@ -1129,22 +1131,22 @@ ITSAViewModel.prototype.render = function (clear) {
         if (statusbarinstance) {
             model && model.removeMessageTarget(statusbarinstance);
             statusbarinstance.destroy();
+            instance._itsastatusbar = null;
         }
         clear || (html+=STATUSBAR_TEMPLATE);
 /*jshint expr:false */
     }
 
     container.setHTML(html);
-
     if (statusbar && !clear) {
         container.setAttribute(DATA_ITSASTATUSBAR, 'true');
         Y.usePromise(GALLERY_ITSASTATUSBAR).then(
             function() {
-                statusbarinstance = instance._statusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
+                statusbarinstance = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
                 if (model) {
                     Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), statusbarinstance.isReady()).then(
                         function() {
-                            model.addMessageTarget(instance._statusbar);
+                            model.addMessageTarget(instance._itsastatusbar);
                         }
                     );
                 }
@@ -1483,12 +1485,13 @@ ITSAViewModel.prototype.unlockView = function() {
 ITSAViewModel.prototype.destructor = function() {
     var instance = this,
         model = instance.get(MODEL),
-        statusbarinstance = instance._statusbar,
+        statusbarinstance = instance._itsastatusbar,
         container = instance.get(CONTAINER);
 
 /*jshint expr:true */
     model && model.removeTarget && model.removeTarget(instance);
 /*jshint expr:false */
+    instance._itsastatusbar = null;
 
     if (statusbarinstance) {
 /*jshint expr:true */
@@ -1531,18 +1534,18 @@ ITSAViewModel.prototype._bindUI = function() {
                     newVal = e.newVal,
                     prevFormModel = prevVal && prevVal.toJSONUI,
                     newFormModel = newVal && newVal.toJSONUI,
-                    statusbar = instance.get(STATUSBAR);
+                    statusbar = instance.get(CAP_STATUSBAR);
                 if (prevVal) {
 /*jshint expr:true */
                     prevVal.removeTarget && prevVal.removeTarget(instance);
-                    statusbar && prevVal.removeMessageTarget(instance._statusbar);
+                    statusbar && prevVal.removeMessageTarget(instance._itsastatusbar);
                 }
                 if (newVal) {
                     newVal.addTarget && newVal.addTarget(instance);
                     if (statusbar) {
                         Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE).then(
                             function() {
-                                newVal.addMessageTarget(instance._statusbar);
+                                newVal.addMessageTarget(instance._itsastatusbar);
                             }
                         );
                     }
@@ -1565,7 +1568,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            STATUSBAR+CHANGE,
+            CAP_STATUSBAR+CHANGE,
             Y.bind(instance.render, instance)
         )
     );
@@ -2400,6 +2403,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
         "event-outside",
         "event-custom-base",
         "oop",
+        "promise",
         "pluginhost-base",
         "gallery-itsamodulesloadedpromise",
         "gallerycss-itsa-base"
