@@ -644,12 +644,23 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
 });
 
 /**
+ * Backup to the previous focussed node, before modal panels instances are shown
+ * @property _prevFocussed
+ * @protected
+ * @private
+ * @type {Y.Node}
+ * @since 0.1
+*/
+ITSAPanel.prototype._prevFocussed = null;
+
+/**
  * @method initializer
  * @protected
  * @since 0.1
 */
 ITSAPanel.prototype.initializer = function() {
     var instance = this,
+        visible = instance.get(VISIBLE),
         boundingBox = instance.get(BOUNDINGBOX),
         footerOnTop = instance.get(FOOTERONTOP),
         footerSize = instance.get(FOOTERSIZE),
@@ -736,7 +747,7 @@ ITSAPanel.prototype.initializer = function() {
         }
     );
 /*jshint expr:true */
-    instance.get(VISIBLE) && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
+    visible && instance.get(CONTENTBOX).addClass(FOCUSED_CLASS); // to make tabkeymanager work
     className && boundingBox.addClass(className);
     footerOnTop && boundingBox.addClass(CLASS_FOOTERONTOP);
     instance._statusbarReady = new Y.Promise(function (resolve) {
@@ -745,7 +756,13 @@ ITSAPanel.prototype.initializer = function() {
 
     instance.readyPromise().then(
         function() {
-            instance.get(VISIBLE) && boundingBox.removeClass(HIDDENPANELCLASS);
+            if (instance.get(VISIBLE)) {
+                boundingBox.removeClass(HIDDENPANELCLASS);
+                if (instance.get(MODAL)) {
+                    instance._getTabkeyManagerNode();
+                    instance.focus();
+                }
+            }
         }
     );
 /*jshint expr:false */
@@ -808,7 +825,9 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(VISIBLE+CHANGE, function(e) {
             Y.log('aftersubscriptor '+VISIBLE+CHANGE, 'info', 'ITSAPanel');
-            var visible = e.newVal;
+            var visible = e.newVal,
+                modal = instance.get(MODAL),
+                prevFocussed;
             instance.readyPromise().then( // not too soon, the statusbar might not be rendered
                 function() {
                     boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
@@ -817,11 +836,29 @@ ITSAPanel.prototype.bindUI = function() {
             contentBox.toggleClass(FOCUSED_CLASS, visible); // to make tabkeymanager work
             if (visible) {
 /*jshint expr:true */
-                (instance.get(MODAL) || instance.get('focusOnShow')) && instance.focus();
+                instance._prevFocussed || (modal && instance._getTabkeyManagerNode());
+                // Cautious: also need to blur first, or you might miss the focusChange-event !
+                if (modal || instance.get('focusOnShow')) {
+                    // must make it asynchronous, because otherwise the eventqueue regains focus to the panel
+                    Y.soon(function() {
+                        instance.blur();
+                        instance.focus();
+                    });
+                }
 /*jshint expr:true */
             }
             else {
                 instance.blur();
+                if (modal && (prevFocussed=instance._prevFocussed)) {
+                    // must make it asynchronous, because otherwise the eventqueue regains focus to the panel
+                    Y.soon(function() {
+                        prevFocussed.addClass(FOCUSED_CLASS);
+/*jshint expr:true */
+                        prevFocussed.itsatabkeymanager._retreiveFocus();
+/*jshint expr:false */
+                        instance._prevFocussed = null;
+                    });
+                }
             }
         })
     );
@@ -1151,18 +1188,32 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         boundingBox.on(CLICK, function() {
             Y.log('onsubscriptor boundingBox.click', 'info', 'ITSAPanel');
-            instance.focus();
+            // NEED to check visibility! the panel might have been hidden by now
+            // always blur --> when 'just' do focus, then there is no focusChange-event
+        /*jshint expr:true */
+            if (instance.get(VISIBLE)) {
+                // must make it asynchronous, because otherwise the eventqueue regains focus to the panel
+                Y.soon(function() {
+                    instance.blur();
+                    instance.focus();
+                });
+            }
+        /*jshint expr:false */
         })
     );
 
     eventhandlers.push(
         boundingBox.after(CLICK_OUTSIDE, function() {
             Y.log('onsubscriptor '+CLICK_OUTSIDE, 'info', 'ITSAPanel');
-            // always blur --> when 'just' do focus, then there is no focusChange-event
-            instance.blur();
-        /*jshint expr:true */
-            instance.get(MODAL) && instance.focus();
-        /*jshint expr:false */
+            // must make it asynchronous, because otherwise the eventqueue regains focus to the panel
+            Y.soon(function() {
+                // always blur --> when 'just' do focus, then there is no focusChange-event
+                instance.blur();
+/*jshint expr:true */
+                // NEED to check visibility! the panel might have been hidden by now
+                instance.get(VISIBLE) && instance.get(MODAL) && instance.focus();
+/*jshint expr:false */
+            });
         })
     );
 
@@ -1174,7 +1225,8 @@ ITSAPanel.prototype.bindUI = function() {
         /*jshint expr:true */
             focusclassed && contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
-                    itsatabkeymanager._retreiveFocus();
+                    // NEED to check visibility! the panel might have been hidden by now
+                    instance.get(VISIBLE) && itsatabkeymanager._retreiveFocus();
                 }
             );
         /*jshint expr:false */
@@ -1229,9 +1281,16 @@ ITSAPanel.prototype.destructor = function() {
         contentBox = instance.get(CONTENTBOX),
         headerView = instance.get(HEADERVIEW),
         bodyView = instance.get(BODYVIEW),
-        footerView = instance.get(FOOTERVIEW);
+        footerView = instance.get(FOOTERVIEW),
+        prevFocussed = instance._prevFocussed;
 
     Y.log('destructor ', 'info', 'ITSAPanel');
+    instance._clearEventhandlers();
+    instance.blur();
+    if (prevFocussed) {
+        prevFocussed.addClass(FOCUSED_CLASS);
+        prevFocussed.itsatabkeymanager._retreiveFocus();
+    }
 /*jshint expr:true */
     (headerView instanceof Y.View) && headerView.removeTarget(instance);
     (bodyView instanceof Y.View) && bodyView.removeTarget(instance);
@@ -1241,7 +1300,6 @@ ITSAPanel.prototype.destructor = function() {
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
     (instance._escapeHandler && instance._escapeHandler.detach());
 /*jshint expr:false */
-    instance._clearEventhandlers();
 };
 
 /**
@@ -1358,6 +1416,31 @@ ITSAPanel.prototype._defFn_focusnext = function() {
 ITSAPanel.prototype._getHeight = function() {
     Y.log('_getHeight ', 'info', 'ITSAPanel');
     return Math.round(this.get(BOUNDINGBOX).get(OFFSETHEIGHT));
+};
+
+/**
+ * Retrieves the container-node -if any- that holds the tabkeymanager of the currently focussed node.
+ *
+ * @method _getTabkeyManagerNode
+ * @private
+ * @return {Number} height in pixels
+ * @since 0.1
+*/
+ITSAPanel.prototype._getTabkeyManagerNode = function() {
+    Y.log('_getTabkeyManagerNode ', 'info', 'ITSAPanel');
+    var instance = this,
+        node = Y.one(Y.config.doc.activeElement);
+
+    instance._prevFocussed = null;
+/*jshint expr:true */
+    node && node.itsatabkeymanager && (instance._prevFocussed=node);
+/*jshint expr:true */
+    while (!instance._prevFocussed && node) {
+        node = node.get('parentNode');
+/*jshint expr:true */
+        node && node.itsatabkeymanager && (instance._prevFocussed=node);
+/*jshint expr:false */
+    }
 };
 
 /**
@@ -1685,6 +1768,7 @@ ITSAPanel.prototype._setWidth = function(val) {
         "promise",
         "oop",
         "widget",
+        "timers",
         "event-custom-base",
         "yui-later",
         "gallery-itsawidgetrenderpromise"

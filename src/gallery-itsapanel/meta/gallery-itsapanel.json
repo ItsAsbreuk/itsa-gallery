@@ -18,6 +18,7 @@
             "promise",
             "oop",
             "widget",
+            "timers",
             "event-custom-base",
             "yui-later",
             "gallery-itsawidgetrenderpromise"
