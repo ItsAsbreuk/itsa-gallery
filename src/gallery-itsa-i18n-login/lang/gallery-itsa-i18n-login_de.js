@@ -19,10 +19,13 @@
     forgotwhat: 'Was haben Sie vergessen?',
     iforgotpassword: 'Ich habe mein Passwort vergessen',
     iforgotusername: 'Ich habe meinen Benutzername',
-    loggedin: 'Sie sind eingeloggt',
+    loggedin: 'Angemeldet',
+    loggedinas: 'Angemeldet als {user}',
     login: 'Anmeldung',
     loginblocked: 'Die Anmeldung ist blockiert',
     loginrightlevel: 'Sie haben nicht die Rechte, um diese Seite zu sehen, loggen Sie sich bitte mit der rechten loginlevel',
+    loggedout: 'Abgemeldet',
+    logout: 'Abmelden',
     needchangepassword: 'Sie müssen Ihr Kennwort ändern',
     noaccess: 'Kein Zugriff',
     password: 'Kennwort',
@@ -61,5 +64,7 @@
     verifypassword: 'Kennwort bestätigen',
     wrongemailorpassword: 'Sie haben die falsche Mail-Adresse oder Kennwort zugeführt',
     wrongpassword: 'Sie haben das falsche Kennwort zugeführt',
-    wrongusernameorpassword: 'Sie haben die falsche Benutzername oder Kennwort zugeführt'
+    wrongusernameorpassword: 'Sie haben die falsche Benutzername oder Kennwort zugeführt',
+    youareloggedin: 'Sie sind angemeldet',
+    youareloggedinas: 'Sie sind als {user} angemeldet'
 }

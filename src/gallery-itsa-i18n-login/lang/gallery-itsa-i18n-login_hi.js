@@ -19,10 +19,13 @@
     forgotwhat: 'आप क्या भूल गए?',
     iforgotpassword: 'मैं अपना पासवर्ड भूल गया',
     iforgotusername: 'मैं अपना उपयोगकर्ता नाम भूल गया',
-    loggedin: 'आप में लॉग इन कर रहे हैं',
+    loggedin: 'में लॉग',
+    loggedinas: 'के रूप में लॉग {user}',
     login: 'लॉगिन',
     loginblocked: 'लॉगइन अवरुद्ध है',
     loginrightlevel: 'आप इस पृष्ठ को देखने के लिए अधिकार नहीं है, सही loginlevel साथ लॉगिन करें',
+    loggedout: 'लॉग आउट',
+    logout: 'लॉगआउट',
     needchangepassword: 'आप अपने पासवर्ड को बदलने की जरूरत',
     noaccess: 'कोई उपयोग',
     password: 'पासवर्ड',
@@ -61,5 +64,7 @@
     verifypassword: 'पासवर्ड सत्यापित करें',
     wrongemailorpassword: 'आप गलत ईमेल पता या पासवर्ड दर्ज',
     wrongpassword: 'आप गलत पासवर्ड दर्ज',
-    wrongusernameorpassword: 'आप गलत उपयोगकर्ता नाम या पासवर्ड दर्ज'
+    wrongusernameorpassword: 'आप गलत उपयोगकर्ता नाम या पासवर्ड दर्ज',
+    youareloggedin: 'तुम में लॉग इन कर रहे हैं',
+    youareloggedinas: 'आप {user} के रूप में लॉग इन किया है'
 }

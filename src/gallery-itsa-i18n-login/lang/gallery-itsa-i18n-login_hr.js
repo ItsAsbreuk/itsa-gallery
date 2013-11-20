@@ -19,10 +19,13 @@
     forgotwhat: 'Što ste zaboravili?',
     iforgotpassword: 'Zaboravio sam lozinku',
     iforgotusername: 'Zaboravio sam korisničko ime',
-    loggedin: 'Ti su prijavljeni',
+    loggedin: 'Prijavljen',
+    loggedinas: 'Prijavljen kao {user}',
     login: 'Prijava',
     loginblocked: 'Prijava je blokiran',
     loginrightlevel: 'Vi nemate pravo da vidite ovu stranicu, molimo prijavite se s pravom loginlevel',
+    loggedout: 'Evidentirano out',
+    logout: 'Odjava',
     needchangepassword: 'Morate promijeniti svoju lozinku',
     noaccess: 'Nema pristupa',
     password: 'Lozinka',
@@ -61,5 +64,7 @@
     verifypassword: 'Provjerite lozinke',
     wrongemailorpassword: 'Vi ste unijeli pogrešnu adresu e-pošte ili lozinku',
     wrongpassword: 'Vi ste unijeli pogrešnu lozinku',
-    wrongusernameorpassword: 'Unijeli ste pogrešan korisničko ime i zaporku'
+    wrongusernameorpassword: 'Unijeli ste pogrešan korisničko ime i zaporku',
+    youareloggedin: 'You are logged in',
+    youareloggedinas: 'Vi ste prijavljeni kao {user}'
 }

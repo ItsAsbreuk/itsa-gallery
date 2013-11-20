@@ -19,10 +19,13 @@
     forgotwhat: 'Wat bent u vergeten?',
     iforgotpassword: 'Ik ben mijn wachtwoord vergeten',
     iforgotusername: 'Ik ben mijn gebruikersnaam vergeten',
-    loggedin: 'U bent ingelogd',
+    loggedin: 'Ingelogd',
+    loggedinas: 'Ingelogd als {user}',
     login: 'Inloggen',
     loginblocked: 'De login is geblokkeerd',
     loginrightlevel: 'U hebt geen rechten deze pagina te bekijken, log in met de juiste login-rechten',
+    loggedout: 'Uitgelogd',
+    logout: 'Uitloggen',
     needchangepassword: 'U moet uw wachtwoord wijzigen',
     noaccess: 'Geen toegang',
     password: 'Wachtwoord',
@@ -61,5 +64,7 @@
     verifypassword: 'Controleer wachtwoord',
     wrongemailorpassword: 'U heeft het verkeerde emailadres of wachtwoord ingevoerd',
     wrongpassword: 'U heeft een onjuist wachtwoord ingevoerd',
-    wrongusernameorpassword: 'U heeft het verkeerde gebruikersnaam of wachtwoord ingevoerd'
+    wrongusernameorpassword: 'U heeft het verkeerde gebruikersnaam of wachtwoord ingevoerd',
+    youareloggedin: 'U bent ingelogd',
+    youareloggedinas: 'U bent ingelogd als {user}'
 }

@@ -19,10 +19,13 @@
     forgotwhat: 'Mit elfelejtette?',
     iforgotpassword: 'Elfelejtettem a jelszavam',
     iforgotusername: 'Elfelejtettem a felhasználónevemet',
-    loggedin: 'Be van jelentkezve',
+    loggedin: 'Bejelentkezve a',
+    loggedinas: 'Belépve mint {user}',
     login: 'Bejelentkezés',
     loginblocked: 'Bejelentkezés blokkolva',
     loginrightlevel: 'Nem kell a jogot, hogy ezt az oldalt, akkor jelentkezzen be a megfelelő loginlevel',
+    loggedout: 'Kijelentkezett',
+    logout: 'Kilépés',
     needchangepassword: 'Meg kell változtatni a jelszót',
     noaccess: 'Nincs hozzáférés',
     password: 'Jelszó',
@@ -61,5 +64,7 @@
     verifypassword: 'Jelszó megerősítése',
     wrongemailorpassword: 'Is hibásan e-mail cím vagy a jelszó',
     wrongpassword: 'Ön rossz jelszót',
-    wrongusernameorpassword: 'Is hibásan felhasználónév vagy jelszó'
+    wrongusernameorpassword: 'Is hibásan felhasználónév vagy jelszó',
+    youareloggedin: 'Be van jelentkezve',
+    youareloggedinas: 'Be van jelentkezve az {user}'
 }

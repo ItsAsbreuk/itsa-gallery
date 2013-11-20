@@ -19,10 +19,13 @@
     forgotwhat: 'Mitä unohdat?',
     iforgotpassword: 'Olen unohtanut salasanani',
     iforgotusername: 'Olen unohtanut käyttäjätunnukseni',
-    loggedin: 'Olet kirjautunut sisään',
+    loggedin: 'Kirjautunut',
+    loggedinas: 'Kirjautunut nimellä {user}',
     login: 'Kirjaudu',
     loginblocked: 'Kirjautuminen on estetty',
     loginrightlevel: 'Sinulla ei ole oikeuksia nähdä tämän sivun, kirjaudu sisään oikean loginlevel',
+    loggedout: 'Kirjautunut ulos',
+    logout: 'Kirjaudu ulos',
     needchangepassword: 'Sinun täytyy vaihtaa salasana',
     noaccess: 'Ei pääsyä',
     password: 'Salasana',
@@ -61,5 +64,7 @@
     verifypassword: 'Toista salasana',
     wrongemailorpassword: 'Annoit väärän sähköpostiosoite tai salasana',
     wrongpassword: 'Annoit väärän salasanan',
-    wrongusernameorpassword: 'Annoit väärän käyttäjätunnuksen tai salasanan'
+    wrongusernameorpassword: 'Annoit väärän käyttäjätunnuksen tai salasanan',
+    youareloggedin: 'Olet kirjautunut',
+    youareloggedinas: 'Olet kirjautunut sisään {user}'
 }

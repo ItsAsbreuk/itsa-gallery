@@ -19,10 +19,13 @@
     forgotwhat: '你忘了什麼？',
     iforgotpassword: '我忘記了密碼',
     iforgotusername: '我忘了我的用戶名',
-    loggedin: '您登錄',
+    loggedin: '登錄',
+    loggedinas: '登入為，{user}',
     login: '註冊',
     loginblocked: '被封鎖登入',
     loginrightlevel: '你沒有看到這個頁面的權利，請登錄登陸水平',
+    loggedout: '註銷',
+    logout: '註銷',
     needchangepassword: '您需要更改您的密碼',
     noaccess: '禁止訪問',
     password: '密碼',
@@ -61,5 +64,7 @@
     verifypassword: '驗證密碼',
     wrongemailorpassword: '你輸入了錯誤的電子郵件地址或密碼',
     wrongpassword: '你輸入了錯誤的密碼',
-    wrongusernameorpassword: '你輸入了錯誤的用戶名或密碼'
+    wrongusernameorpassword: '你輸入了錯誤的用戶名或密碼',
+    youareloggedin: '您登錄',
+    youareloggedinas: '您登錄，{user}'
 }

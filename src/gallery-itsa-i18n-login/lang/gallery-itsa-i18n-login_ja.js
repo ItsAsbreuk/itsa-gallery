@@ -19,10 +19,13 @@
     forgotwhat: 'あなたは何を忘れたのか？',
     iforgotpassword: '私は自分のパスワードを忘れてしまった',
     iforgotusername: '私は自分のユーザー名を忘れてしまった',
-    loggedin: 'あなたがログインしている',
+    loggedin: 'ログインして',
+    loggedinas: 'としてログイン、{user}',
     login: 'ログイン',
     loginblocked: 'ログインがブロックされている',
     loginrightlevel: 'あなたはこのページを参照する権限を持っていない、右のログインレベルでログインしてください',
+    loggedout: 'ログアウト',
+    logout: 'ログアウト',
     needchangepassword: 'あなたのパスワードを変更する必要が',
     noaccess: 'アクセスなし',
     password: 'パスワード',
@@ -61,5 +64,7 @@
     verifypassword: 'パスワードを照合する',
     wrongemailorpassword: 'あなたが間違ったメールアドレスまたはパスワードを入力',
     wrongpassword: 'あなたが間違ったパスワードを入力',
-    wrongusernameorpassword: 'あなたは、間違ったユーザー名またはパスワードを入力した'
+    wrongusernameorpassword: 'あなたは、間違ったユーザー名またはパスワードを入力した',
+    youareloggedin: 'あなたがログインしている',
+    youareloggedinas: 'あなたは、{user}、としてログインしている'
 }

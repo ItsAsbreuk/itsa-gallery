@@ -19,10 +19,13 @@
     forgotwhat: 'Qu\'est-ce que vous avez oublié?',
     iforgotpassword: 'J\'ai oublié mon mot de passe',
     iforgotusername: 'J\'ai oublié mon nom d\'utilisateur',
-    loggedin: 'Vous êtes connecté',
+    loggedin: 'Connecté',
+    loggedinas: 'Connecté en tant que {user}',
     login: 'Connexion',
     loginblocked: 'Connexion est bloqué',
     loginrightlevel: 'Vous n\'avez pas le droit de voir cette page, s\'il vous plaît vous connecter avec le niveau de connexion à droite',
+    loggedout: 'Déconnecté',
+    logout: 'Déconnexion',
     needchangepassword: 'Vous devez changer votre mot de passe',
     noaccess: 'Pas d\'accès',
     password: 'Mot de passe',
@@ -61,5 +64,7 @@
     verifypassword: 'Vérifiez le mot de passe',
     wrongemailorpassword: 'Vous avez saisi l\'adresse e-mail ou mot de passe',
     wrongpassword: 'Vous avez entré le mauvais mot de passe',
-    wrongusernameorpassword: 'Vous avez entré le mauvais nom d\'utilisateur ou mot de passe'
+    wrongusernameorpassword: 'Vous avez entré le mauvais nom d\'utilisateur ou mot de passe',
+    youareloggedin: 'Vous êtes connecté',
+    youareloggedinas: 'Vous êtes connecté en tant {user}'
 }

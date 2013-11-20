@@ -19,10 +19,13 @@
     forgotwhat: 'Co jsi zapomněl?',
     iforgotpassword: 'Zapomněl jsem své heslo',
     iforgotusername: 'Zapomněl jsem uživatelské jméno',
-    loggedin: 'Jste přihlášeni',
+    loggedin: 'Přihlášen',
+    loggedinas: 'Přihlášen jako {user}',
     login: 'Přihlášení',
     loginblocked: 'Přihlášení je blokován',
     loginrightlevel: 'Nemáte práva k zobrazení této stránky, prosím přihlašte se s pravou přihlašovací úrovni',
+    loggedout: 'Odhlášeni',
+    logout: 'Odhlášení',
     needchangepassword: 'Musíte změnit heslo',
     noaccess: 'Bez přístupu',
     password: 'Heslo',
@@ -61,5 +64,7 @@
     verifypassword: 'Ověřte heslo',
     wrongemailorpassword: 'Zadali jste chybnou emailovou adresu nebo heslo',
     wrongpassword: 'Zadali jste nesprávné heslo',
-    wrongusernameorpassword: 'Zadali jste nesprávný uživatelské jméno nebo heslo'
+    wrongusernameorpassword: 'Zadali jste nesprávný uživatelské jméno nebo heslo',
+    youareloggedin: 'Jste přihlášen',
+    youareloggedinas: 'Jste přihlášeni jako {user}'
 }

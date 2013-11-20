@@ -19,10 +19,13 @@
     forgotwhat: 'Vad har du glömt?',
     iforgotpassword: 'Jag har glömt mitt lösenord',
     iforgotusername: 'Jag har glömt mitt användarnamn',
-    loggedin: 'Du är inloggad',
+    loggedin: 'Loggade in',
+    loggedinas: 'Inloggad som {user}',
     login: 'Inloggning',
     loginblocked: 'Inloggning är blockerad',
     loginrightlevel: 'Du har inte behörighet att se denna sida, vänligen logga in med rätt loginlevel',
+    loggedout: 'Utloggad',
+    logout: 'Logga ut',
     needchangepassword: 'Du måste ändra ditt lösenord',
     noaccess: 'Ingen åtkomst',
     password: 'Lösenord',
@@ -61,5 +64,7 @@
     verifypassword: 'Verifiera lösenord',
     wrongemailorpassword: 'Du angav fel e-postadress eller lösenord',
     wrongpassword: 'Du angav fel lösenord',
-    wrongusernameorpassword: 'Du angav fel användarnamn eller lösenord'
+    wrongusernameorpassword: 'Du angav fel användarnamn eller lösenord',
+    youareloggedin: 'Du är inloggad',
+    youareloggedinas: 'Du är inloggad som {user}'
 }

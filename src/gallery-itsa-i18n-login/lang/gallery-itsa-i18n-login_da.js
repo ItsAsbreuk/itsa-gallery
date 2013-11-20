@@ -19,10 +19,13 @@
     forgotwhat: 'Hvad har du glemt?',
     iforgotpassword: 'Jeg har glemt mit kodeord',
     iforgotusername: 'Jeg har glemt mit brugernavn',
-    loggedin: 'Du er logget ind',
+    loggedin: 'Logget på',
+    loggedinas: 'Logget ind som {user}',
     login: 'Login',
     loginblocked: 'Login er blokeret',
     loginrightlevel: 'Du har ikke rettigheder til at se denne side, skal du logge ind med den rigtige login-niveau',
+    loggedout: 'Logget ud',
+    logout: 'Logud',
     needchangepassword: 'You need to change your password',
     noaccess: 'Ingen adgang',
     password: 'Adgangskode',
@@ -61,5 +64,7 @@
     verifypassword: 'Bekræft adgangskode',
     wrongemailorpassword: 'Du har indtastet en forkert email-adresse eller adgangskode',
     wrongpassword: 'Du har indtastet en forkert adgangskode',
-    wrongusernameorpassword: 'You entered the wrong username or password'
+    wrongusernameorpassword: 'You entered the wrong username or password',
+    youareloggedin: 'Du er logget ind',
+    youareloggedinas: 'Du er logget ind som {user}'
 }

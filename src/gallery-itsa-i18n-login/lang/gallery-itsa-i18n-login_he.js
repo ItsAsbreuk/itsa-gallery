@@ -19,10 +19,13 @@
     forgotwhat: 'מה ששכחת?',
     iforgotpassword: 'שכחתי את הסיסמה שלי',
     iforgotusername: 'שכחתי את שם המשתמש שלי',
-    loggedin: 'אתה מחובר',
+    loggedin: 'מחובר',
+    loggedinas: 'מחובר בשם {user}',
     login: 'התחברות',
     loginblocked: 'כניסה חסומה',
     loginrightlevel: 'אין לך הרשאות לראות את הדף הזה, אנא התחבר עם רמת הכניסה הנכונה',
+    loggedout: 'יצא מהמערכת',
+    logout: 'התנתק',
     needchangepassword: 'אתה צריך לשנות את הסיסמה שלך',
     noaccess: 'אין גישה לחיבור',
     password: 'סיסמא',
@@ -61,5 +64,7 @@
     verifypassword: 'אימות סיסמא',
     wrongemailorpassword: 'אתה נכנס לכתובת דוא"ל השגויה או הסיסמה',
     wrongpassword: 'אתה נכנס לסיסמה השגויה',
-    wrongusernameorpassword: 'אתה נכנס לשם משתמש או סיסמא השגוי'
+    wrongusernameorpassword: 'אתה נכנס לשם משתמש או סיסמא השגוי',
+    youareloggedin: 'אתה מחובר',
+    youareloggedinas: 'אתה מחובר כ {user}'
 }

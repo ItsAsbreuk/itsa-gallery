@@ -19,10 +19,13 @@
     forgotwhat: 'Qué se te olvidó?',
     iforgotpassword: 'Olvidé mi contraseña',
     iforgotusername: 'Olvidé mi nombre de usuario',
-    loggedin: 'Usted ha entrado en el',
+    loggedin: 'Apuntado en',
+    loggedinas: 'Conectado como {user}',
     login: 'Acceder',
     loginblocked: 'Acceder está bloqueado',
     loginrightlevel: 'Usted no tiene el derecho de ver esta página, por favor conéctese con el nivel de acceso adecuado',
+    loggedout: 'Conectados a',
+    logout: 'Salir',
     needchangepassword: 'Es necesario cambiar la contraseña',
     noaccess: 'No hay acceso a',
     password: 'Contraseña',
@@ -61,5 +64,7 @@
     verifypassword: 'Verificar contraseña',
     wrongemailorpassword: 'Ha introducido la dirección de correo electrónico o contraseña incorrectos',
     wrongpassword: 'Ha introducido una contraseña incorrecta',
-    wrongusernameorpassword: 'Ha introducido el nombre de usuario o contraseña incorrecta'
+    wrongusernameorpassword: 'Ha introducido el nombre de usuario o contraseña incorrecta',
+    youareloggedin: 'Usted ha entrado en el',
+    youareloggedinas: 'Usted está conectado como {user}'
 }

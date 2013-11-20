@@ -19,10 +19,13 @@
     forgotwhat: 'O que você esqueceu?',
     iforgotpassword: 'Esqueci minha senha',
     iforgotusername: 'Eu esqueci meu nome de usuário',
-    loggedin: 'Você está logado',
+    loggedin: 'Logado',
+    loggedinas: 'Logado como {user}',
     login: 'Login',
     loginblocked: 'Entrar é bloqueado',
     loginrightlevel: 'Você não tem o direito de ver esta página, faça o login com o loginlevel direita',
+    loggedout: 'Sesconectado',
+    logout: 'Sair',
     needchangepassword: 'Você precisa mudar sua senha',
     noaccess: 'Sem acesso',
     password: 'Senha',
@@ -61,5 +64,7 @@
     verifypassword: 'Verificar senha',
     wrongemailorpassword: 'Você digitou o endereço de e-mail errado ou a senha',
     wrongpassword: 'Você digitou a senha errada',
-    wrongusernameorpassword: 'Você digitou o nome de usuário ou senha errada'
+    wrongusernameorpassword: 'Você digitou o nome de usuário ou senha errada',
+    youareloggedin: 'Você está logado',
+    youareloggedinas: 'Você está logado como {user}'
 }

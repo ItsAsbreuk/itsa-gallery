@@ -19,10 +19,13 @@
     forgotwhat: 'What did you forget?',
     iforgotpassword: 'I forgot my password',
     iforgotusername: 'I forgot my username',
-    loggedin: 'You are logged in',
+    loggedin: 'Logged in',
+    loggedinas: 'Logged in as {user}',
     login: 'Login',
     loginblocked: 'Login is blocked',
     loginrightlevel: 'You don\'t have the rights to see this page, please login with the right loginlevel',
+    loggedout: 'Uitgelogd',
+    logout: 'Logout',
     needchangepassword: 'You need to change your password',
     noaccess: 'No access',
     password: 'Password',
@@ -61,5 +64,7 @@
     verifypassword: 'Verify password',
     wrongemailorpassword: 'You entered the wrong emailaddress or password',
     wrongpassword: 'You entered the wrong password',
-    wrongusernameorpassword: 'You entered the wrong username or password'
+    wrongusernameorpassword: 'You entered the wrong username or password',
+    youareloggedin: 'You are logged in',
+    youareloggedinas: 'You are logged in as {user}'
 }

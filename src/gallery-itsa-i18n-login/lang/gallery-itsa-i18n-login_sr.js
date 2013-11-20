@@ -19,10 +19,13 @@
     forgotwhat: 'Шта си заборавио?',
     iforgotpassword: 'Заборавио сам шифру',
     iforgotusername: 'Заборавио сам корисничко име',
-    loggedin: 'Пријављени сте',
+    loggedin: 'Сачувана у',
+    loggedinas: 'Пријављен као {user}',
     login: 'Пријава',
     loginblocked: 'Пријава је блокиран',
     loginrightlevel: 'Ви немате права да видите ову страницу, молим вас пријавите са правом логинлевел',
+    loggedout: 'Одјављен',
+    logout: 'Одјава',
     needchangepassword: 'Потребно је да промените лозинку',
     noaccess: 'Без приступа',
     password: 'Лозинка',
@@ -61,5 +64,7 @@
     verifypassword: 'Потврди лозинку',
     wrongemailorpassword: 'Унели сте погрешан емаил адреса или лозинка',
     wrongpassword: 'Унели сте погрешну лозинку',
-    wrongusernameorpassword: 'Унели сте погрешан корисничко име или лозинку'
+    wrongusernameorpassword: 'Унели сте погрешан корисничко име или лозинку',
+    youareloggedin: 'Пријављени сте',
+    youareloggedinas: 'Пријављени сте као {user}'
 }

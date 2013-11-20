@@ -19,10 +19,13 @@
     forgotwhat: 'Hva har du glemt?',
     iforgotpassword: 'Jeg har glemt passordet',
     iforgotusername: 'Jeg har glemt brukernavnet',
-    loggedin: 'Du er logget inn',
+    loggedin: 'Logget inn',
+    loggedinas: 'Logget inn som {user}',
     login: 'Innlogging',
     loginblocked: 'Logg blokkert',
     loginrightlevel: 'Du har ikke rettigheter til å se denne siden, kan du logge på med riktig login nivå',
+    loggedout: 'Logget ut',
+    logout: 'Logg ut',
     needchangepassword: 'Du må endre passordet ditt',
     noaccess: 'Ingen tilgang',
     password: 'Passord',
@@ -61,5 +64,7 @@
     verifypassword: 'Bekreft passord',
     wrongemailorpassword: 'Du har tastet inn feil e-postadresse eller passord',
     wrongpassword: 'Du har tastet inn feil passord',
-    wrongusernameorpassword: 'Du har tastet inn feil brukernavn eller passord'
+    wrongusernameorpassword: 'Du har tastet inn feil brukernavn eller passord',
+    youareloggedin: 'Du er logget inn',
+    youareloggedinas: 'Du er logget inn som {user}'
 }

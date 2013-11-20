@@ -19,10 +19,13 @@
     forgotwhat: 'Что ты забыл?',
     iforgotpassword: 'Я забыл свой пароль',
     iforgotusername: 'Я забыл свое имя пользователя',
-    loggedin: 'Вы вошли',
+    loggedin: 'Зашли',
+    loggedinas: 'Вы вошли как {user}',
     login: 'Войти',
     loginblocked: 'Вход заблокирован',
     loginrightlevel: 'У вас нет прав, чтобы увидеть эту страницу, войдите с правом loginlevel',
+    loggedout: 'Записан из',
+    logout: 'Выход',
     needchangepassword: 'Вам нужно изменить пароль',
     noaccess: 'Нет доступа',
     password: 'Пароль',
@@ -61,5 +64,7 @@
     verifypassword: 'Подтвердите пароль',
     wrongemailorpassword: 'Вы ввели неверный адрес электронной почты или пароль',
     wrongpassword: 'Вы ввели неправильный пароль',
-    wrongusernameorpassword: 'Вы ввели неправильное имя пользователя или пароль'
+    wrongusernameorpassword: 'Вы ввели неправильное имя пользователя или пароль',
+    youareloggedin: 'Вы вошли',
+    youareloggedinas: 'Вы вошли как {user}'
 }

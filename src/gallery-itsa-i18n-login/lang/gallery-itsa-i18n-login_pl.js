@@ -19,10 +19,13 @@
     forgotwhat: 'Co pan zapomnieć?',
     iforgotpassword: 'Nie pamiętam nazwy hasła',
     iforgotusername: 'Nie pamiętam nazwy użytkownika',
-    loggedin: 'Jesteś zalogowany',
+    loggedin: 'Zalogowany',
+    loggedinas: 'Zalogowany jako {user}',
     login: 'Login',
     loginblocked: 'Logowanie jest zablokowany',
     loginrightlevel: 'Nie masz uprawnień, aby zobaczyć tę stronę, zaloguj się w prawym loginlevel',
+    loggedout: 'Zalogować się',
+    logout: 'Wyloguj',
     needchangepassword: 'Musisz zmienić swoje hasło',
     noaccess: 'Brak dostępu',
     password: 'Hasło',
@@ -61,5 +64,7 @@
     verifypassword: 'Potwierdź hasło',
     wrongemailorpassword: 'Wpisano niewłaściwy adres e-mail lub hasło',
     wrongpassword: 'Wprowadzono błędne hasło',
-    wrongusernameorpassword: 'Wpisano niewłaściwy login i hasło'
+    wrongusernameorpassword: 'Wpisano niewłaściwy login i hasło',
+    youareloggedin: 'Jesteś zalogowany',
+    youareloggedinas: 'Jesteś zalogowany jako {user}'
 }

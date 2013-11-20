@@ -19,10 +19,13 @@
     forgotwhat: 'Какво забрави ли?',
     iforgotpassword: 'Забравих си паролата',
     iforgotusername: 'Забравих потребителското си име',
-    loggedin: 'Вие сте влязъл',
+    loggedin: 'Активен в',
+    loggedinas: 'Влезли сте като {user}',
     login: 'Влез',
     loginblocked: 'Вход е блокиран',
     loginrightlevel: 'Вие нямате права да видите тази страница, моля влезте с необходимото ниво вход',
+    loggedout: 'Излязохте',
+    logout: 'Изход',
     needchangepassword: 'Вие трябва да промените паролата си',
     noaccess: 'Няма достъп',
     password: 'Парола',
@@ -61,5 +64,7 @@
     verifypassword: 'Повтори парола',
     wrongemailorpassword: 'Въвели сте грешен имейл адрес или парола',
     wrongpassword: 'Въвели сте грешна парола',
-    wrongusernameorpassword: 'Въвели сте грешна електронна поща или парола'
+    wrongusernameorpassword: 'Въвели сте грешна електронна поща или парола',
+    youareloggedin: 'Сте влезли в',
+    youareloggedinas: 'Вие сте влязъл като {user}'
 }

@@ -19,10 +19,13 @@
     forgotwhat: 'چه شما را فراموش کردید؟',
     iforgotpassword: 'من رمز عبور را فراموش کرده ام',
     iforgotusername: 'نام کاربری خود را فراموش کرده ام',
-    loggedin: 'شما به خاطر بسپار',
+    loggedin: 'خارج شده است در',
+    loggedinas: 'به عنوان خارج شده است {user}',
     login: 'ورود به سیستم',
     loginblocked: 'ورود مسدود شده است',
     loginrightlevel: 'شما حقوق برای دیدن این صفحه را نداشته باشند، لطفا با نام کاربری خود وارد شوید، یا ثبت نام با سطح ورود به راست',
+    loggedout: 'خارج شده اید',
+    logout: 'خروج از سیستم',
     needchangepassword: 'شما نیاز به تغییر رمز عبور خود را',
     noaccess: 'بدون دسترسی',
     password: 'رمز عبور',
@@ -61,5 +64,7 @@
     verifypassword: 'تکرار رمز عبور',
     wrongemailorpassword: 'شما وارد آدرس ایمیل اشتباه و یا کلمه عبور',
     wrongpassword: 'شما وارد رمز عبور اشتباه است',
-    wrongusernameorpassword: 'شما نام کاربری یا رمز عبور اشتباه وارد شده'
+    wrongusernameorpassword: 'شما نام کاربری یا رمز عبور اشتباه وارد شده',
+    youareloggedin: 'شما وارد',
+    youareloggedinas: 'شما به عنوان {user} وارد'
 }
