@@ -54,7 +54,11 @@ var Lang = Y.Lang,
     USERNAMEISEMAIL = USERNAME+'IsEmail',
     SYNC = 'sync',
     ITSA = 'itsa',
-    LOGIN = 'login',
+    OGIN = 'ogin',
+    GET = 'get',
+    CAP_GETLOGIN = GET+'L'+OGIN,
+    LOGIN = 'l'+OGIN,
+    GETLOGIN = GET+LOGIN,
     ITSA_LOGIN = ITSA+'-'+LOGIN,
     LABEL = 'label',
     PLACEHOLDER = 'placeholder',
@@ -67,6 +71,8 @@ var Lang = Y.Lang,
     DIVCLASS_ITSA = '<div class="itsa-',
     ENDFIELDSET = '</fieldset>',
     ENDDIV = '</div>',
+    ERROR = 'error',
+    PUBLISHED_LOGGEDIN = '_pub_'+LOGGEDIN,
     CHANGE = 'Change',
     OBJECT = 'object',
     STRING = 'string',
@@ -86,16 +92,33 @@ var Lang = Y.Lang,
     REGAIN = 'regain',
     USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
     FORGOT = 'forgot',
+    DIALOG = 'dialog',
     IMAGEBUTTONS = 'imageButtons',
     ICONTEMPLATE = '<i class="{icon}"></i>',
     ITSABUTTON_ICONLEFT = 'itsabutton-iconleft',
-    I_CLASS_ITSADIALOG = '<i class="itsaicon-dialog',
+    I_CLASS_ITSADIALOG = '<i class="itsaicon-'+DIALOG,
     GALLERY = 'gallery',
     GALLERYCSS = GALLERY+'css-itsa-',
-    GALLERYCSS_DIALOG = GALLERYCSS+'dialog',
+    GALLERYCSS_DIALOG = GALLERYCSS+DIALOG,
     GALLERYCSS_FORM = GALLERYCSS+'form',
     GALLERYCSS_ANIMATESPIN = GALLERYCSS+'animatespin',
-    GALLERYITSAI18NLOGIN = GALLERY+'-itsa-i18n-login';
+    GALLERYITSAI18NLOGIN = GALLERY+'-itsa-i18n-login',
+    GALLERYITSADIALOG = GALLERY+'-itsa'+DIALOG,
+    PARSED = function (response) {
+        if (typeof response === 'string') {
+            try {
+                return Y.JSON.parse(response);
+            } catch (ex) {
+                this.fire(ERROR, {
+                    error   : ex,
+                    response: response,
+                    src     : 'parse'
+                });
+                return {};
+            }
+        }
+        return response || {};
+    };
 
 
 function ITSAViewLogin() {
@@ -425,7 +448,7 @@ ITSAViewLogin.prototype.initializer = function() {
         eventhandlers = instance._eventhandlers,
         loginintl;
 
-    loginintl = instance._loginintl = Y.Intl.get(GALLERYITSAI18NLOGIN);
+    loginintl = instance._loginintl;
     if (instance.get(IMAGEBUTTONS)) {
         instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN]);
         instance.setPrimaryButton(IMGBTN_+SUBMIT);
@@ -468,6 +491,134 @@ ITSAViewLogin.prototype.initializer = function() {
             }
         )
     );
+    eventhandlers.push(
+        instance.after('*:submit', function(e) {
+            Y.log('after(*:submit)', 'info', 'ITSAViewLogin');
+            var formmodel = e.target;
+            if (e.currentTarget===instance) {
+                // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
+                e.promise.then(
+                    function(response) {
+                        var responseObj = PARSED(response),
+                            loginintl = instance._loginintl,
+                            messageType = formmodel.messageType,
+                            message, facade;
+                        if (responseObj && responseObj.status) {
+    console.log(responseObj.status + ' '+responseObj.message);
+                            if (responseObj.status==='ERROR') {
+                                message = responseObj.message || loginintl.unspecifiederror;
+                                // production-errors will be shown through the messagecontroller
+                                Y.showError(responseObj.title || loginintl[ERROR], message);
+                            }
+                            if (responseObj.status==='OK') {
+                                facade = Y.merge(responseObj, formmodel.toJSON());
+                                // fire the login-event in case messageType===CAP_GETLOGIN
+    // lazy publish the event
+    /**
+    * Event fired when a a user successfully logs in.<br>
+    * Not preventable.
+    *
+    * @event loggedin
+    * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
+    *                        as an answer to the 'getlogin'-request.
+    **/
+    /*jshint expr:true */
+                                instance[PUBLISHED_LOGGEDIN] || (instance[PUBLISHED_LOGGEDIN]=Y.publish(LOGGEDIN,
+                                                            {
+                                                              defaultTargetOnly: true,
+                                                              emitFacade: true,
+                                                              broadcast: 2,
+                                                              preventable: false
+                                                            }
+                                                           ));
+    /*jshint expr:false */
+                                instance.fire(LOGGEDIN, facade);
+    /*jshint expr:true */
+                                (message=responseObj.message) && Y.showMessage(responseObj.title, message);
+    /*jshint expr:false */
+                            }
+                            else if ((messageType===CAP_GETLOGIN) && (responseObj.status==='NOACCESS')) {
+                                message = responseObj.message || loginintl.loginblocked;
+                                // production-errors will be shown through the messagecontroller
+                                Y.usePromise(GALLERYITSADIALOG).then(
+                                    function() {
+                                        Y.showError(responseObj.title || loginintl[ERROR], message);
+                                    }
+                                );
+                            }
+                            else if (responseObj.status==='RETRY') {
+                /*jshint expr:true */
+                                (message = responseObj.message || loginintl.unknownlogin);
+                /*jshint expr:false */
+                                Y.usePromise(GALLERYITSADIALOG).then(
+                                    function() {
+                                        Y.getInput(responseObj.title || loginintl[ERROR], message);
+                                        Y.later(5000, null, function() {
+                                            console.log('focussing view');
+                                            instance.focus();
+                                        });
+//                                        Y.showWarning(responseObj.title || loginintl[ERROR], message);
+                                    }
+                                );
+                            }
+                            else if (responseObj.status==='CHANGEPASSWORD') {
+    /*
+                                changePwFn(itsamessage).then(
+                                    function(response) {
+                                        facade = Y.merge(responseObj, formmessage.toJSON());
+            // lazy publish the event
+                                        instance[PUBLISHED_LOGGEDIN] || (instance[PUBLISHED_LOGGEDIN]=Y.publish(LOGGEDIN,
+                                                                    {
+                                                                      defaultTargetOnly: true,
+                                                                      emitFacade: true,
+                                                                      broadcast: 2,
+                                                                      preventable: false
+                                                                    }
+                                                                   ));
+            /*jshint expr:false */
+    /*                                    instance.fire(LOGGEDIN, facade);
+            /*jshint expr:true */
+    /*                                    (message=responseObj.message) && Y.showMessage(responseObj.title, message);
+            /*jshint expr:false */
+    /*                                },
+                                    function() {
+                                        message = loginintl.passwordnotchanged;
+                                        // production-errors will be shown through the messagecontroller
+                                        Y.showError(loginintl[ERROR], message);
+                                    }
+                                );
+    */
+                            }
+                            else {
+                                // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                                message = 'Wrong response.status found: '+responseObj.status;
+                                facade = {src: 'Y.ITSALogin.submit()', msg: message};
+                                instance.fire('warn', facade);
+                            }
+                        }
+                        else {
+                            // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                            message = 'Response returned without response.status';
+                            facade = {src: 'Y.ITSALogin.submit()', msg: message};
+                            instance.fire('warn', facade);
+                        }
+                    }
+                ).then(
+                    null,
+                    function(catchErr) {
+                        var message = (catchErr && (catchErr.message || catchErr)) || 'Undefined error during submission';
+                        // production-errors will be shown through the messagecontroller
+                        Y.usePromise(GALLERYITSADIALOG).then(
+                            function() {
+                                Y.showWarning(message);
+                            }
+                        );
+                    }
+                );
+            }
+        })
+    );
+
 };
 
 /**
@@ -492,7 +643,7 @@ ITSAViewLogin.prototype.getLogin = function() {
 
 ITSAViewLogin.prototype.renderOnReady = function() {
     var instance = this;
-    Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
+    return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
         function() {
             instance.render();
         }
@@ -603,10 +754,15 @@ ITSAViewLogin.prototype._defineModel = function() {
                               value: instance.get(REMEMBER),
                               formtype: Y.ITSACheckbox,
                               formconfig: formconfigRemember
+                          },
+                          button: {
+                              value: GETLOGIN,
+                              writeOnce: 'initOnly'
                           }
                       }
                   });
     model = new MyLoginModel();
+    model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
     instance._set(MODEL, model);
     // need to set target manually, for the subscribers (_bindUI) aren't loaded yet:
     model.addTarget(instance);
@@ -646,15 +802,25 @@ ITSAViewLogin.prototype._getterTemplate = function() {
            FIELDSET_START+
                DIVCLASS_PURECONTROLGROUP+'{'+USERNAME+'}'+ENDDIV+
                DIVCLASS_PURECONTROLGROUP+'{'+PASSWORD+'}'+ENDDIV+
-               (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox">'+'{remember}'+ENDDIV : '')+
+               (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox pure-controls">'+'{remember}'+ENDDIV : '')+
                DIVCLASS_PURECONTROLS+footer+ENDDIV+
            ENDFIELDSET;
 };
+
+/**
+ * Internal objects with internationalized login-messages
+ *
+ * @property _loginintl
+ * @private
+ * @type Object
+*/
+ITSAViewLogin.prototype._loginintl = Y.Intl.get(GALLERYITSAI18NLOGIN);
 
 
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "intl",
         "base-build",
         "gallery-itsaformmodel",
         "gallery-itsaviewmodel",
@@ -663,5 +829,6 @@ ITSAViewLogin.prototype._getterTemplate = function() {
         "gallery-itsamodelsyncpromise",
         "gallery-itsamodulesloadedpromise",
         "gallery-lazy-promise"
-    ]
+    ],
+    "skinnable": true
 });

@@ -1,7 +1,6 @@
-YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsastatusbar', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsadialog', function(Y) {
 
     var createAccountPromise, getAccountMessage, syncFn, myView;
-var statusbar = new Y.ITSAStatusbar();
 
 
     getAccountMessage = function(syncPromise) {
@@ -93,6 +92,7 @@ var statusbar = new Y.ITSAStatusbar();
     };
 
     syncFn = function(action) {
+console.log('syncing');
         /*
          * typically you would use gallery-io-utils and create a promise like this:
          *
@@ -103,7 +103,7 @@ var statusbar = new Y.ITSAStatusbar();
         var logininstance = this;
         return new Y.Promise(function (resolve, reject) {
             Y.later(
-                2000,
+                1000,
                 null,
                 function() {
                     var button = logininstance.get('button'),
@@ -143,7 +143,11 @@ var statusbar = new Y.ITSAStatusbar();
     });
     myView._set('editable', true);
 
-    myView.renderOnReady();
+    myView.renderOnReady().then(
+        function() {
+            myView.focus();
+        }
+    );
 
 //    myView.addMessageTarget(statusbar);
 
