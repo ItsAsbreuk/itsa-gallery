@@ -25,6 +25,7 @@
     loginblocked: 'Kirjautuminen on estetty',
     loginrightlevel: 'Sinulla ei ole oikeuksia nähdä tämän sivun, kirjaudu sisään oikean loginlevel',
     loggedout: 'Kirjautunut ulos',
+    loggingout: 'Kirjautuminen ulos',
     logout: 'Kirjaudu ulos',
     needchangepassword: 'Sinun täytyy vaihtaa salasana',
     noaccess: 'Ei pääsyä',

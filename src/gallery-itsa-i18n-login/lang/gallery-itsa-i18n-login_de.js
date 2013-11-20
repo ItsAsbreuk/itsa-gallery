@@ -24,6 +24,7 @@
     login: 'Anmeldung',
     loginblocked: 'Die Anmeldung ist blockiert',
     loginrightlevel: 'Sie haben nicht die Rechte, um diese Seite zu sehen, loggen Sie sich bitte mit der rechten loginlevel',
+    loggingout: 'Abmelden',
     loggedout: 'Abgemeldet',
     logout: 'Abmelden',
     needchangepassword: 'Sie müssen Ihr Kennwort ändern',

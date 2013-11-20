@@ -25,6 +25,7 @@
     loginblocked: 'Entrar é bloqueado',
     loginrightlevel: 'Você não tem o direito de ver esta página, faça o login com o loginlevel direita',
     loggedout: 'Sesconectado',
+    loggingout: 'Logout',
     logout: 'Sair',
     needchangepassword: 'Você precisa mudar sua senha',
     noaccess: 'Sem acesso',

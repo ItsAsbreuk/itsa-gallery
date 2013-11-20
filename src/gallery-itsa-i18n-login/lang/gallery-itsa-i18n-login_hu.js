@@ -25,6 +25,7 @@
     loginblocked: 'Bejelentkezés blokkolva',
     loginrightlevel: 'Nem kell a jogot, hogy ezt az oldalt, akkor jelentkezzen be a megfelelő loginlevel',
     loggedout: 'Kijelentkezett',
+    loggingout: 'Kijelentkezni',
     logout: 'Kilépés',
     needchangepassword: 'Meg kell változtatni a jelszót',
     noaccess: 'Nincs hozzáférés',

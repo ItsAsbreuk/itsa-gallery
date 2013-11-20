@@ -25,6 +25,7 @@
     loginblocked: 'Login is blocked',
     loginrightlevel: 'You don\'t have the rights to see this page, please login with the right loginlevel',
     loggedout: 'Logged out',
+    loggingout: 'Logging out',
     logout: 'Logout',
     needchangepassword: 'You need to change your password',
     noaccess: 'No access',

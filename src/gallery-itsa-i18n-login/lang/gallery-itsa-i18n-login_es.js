@@ -25,6 +25,7 @@
     loginblocked: 'Acceder está bloqueado',
     loginrightlevel: 'Usted no tiene el derecho de ver esta página, por favor conéctese con el nivel de acceso adecuado',
     loggedout: 'Conectados a',
+    loggingout: 'Cierre de sesión',
     logout: 'Salir',
     needchangepassword: 'Es necesario cambiar la contraseña',
     noaccess: 'No hay acceso a',

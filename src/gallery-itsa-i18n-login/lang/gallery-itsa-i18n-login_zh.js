@@ -25,6 +25,7 @@
     loginblocked: '被封鎖登入',
     loginrightlevel: '你沒有看到這個頁面的權利，請登錄登陸水平',
     loggedout: '註銷',
+    loggingout: '註銷',
     logout: '註銷',
     needchangepassword: '您需要更改您的密碼',
     noaccess: '禁止訪問',

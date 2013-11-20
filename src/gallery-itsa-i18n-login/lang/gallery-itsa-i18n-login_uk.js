@@ -25,6 +25,7 @@
     loginblocked: 'Вхід заблоковано',
     loginrightlevel: 'У вас немає прав, щоб побачити цю сторінку, увійдіть з правом loginlevel',
     loggedout: 'Записаний з',
+    loggingout: 'Вихід із системи',
     logout: 'Вихід',
     needchangepassword: 'Вам потрібно змінити пароль',
     noaccess: 'Немає доступу',

@@ -25,6 +25,7 @@
     loginblocked: 'Logowanie jest zablokowany',
     loginrightlevel: 'Nie masz uprawnień, aby zobaczyć tę stronę, zaloguj się w prawym loginlevel',
     loggedout: 'Zalogować się',
+    loggingout: 'Wylogowanie',
     logout: 'Wyloguj',
     needchangepassword: 'Musisz zmienić swoje hasło',
     noaccess: 'Brak dostępu',

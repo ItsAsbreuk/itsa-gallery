@@ -26,6 +26,7 @@
     loginrightlevel: 'आप इस पृष्ठ को देखने के लिए अधिकार नहीं है, सही loginlevel साथ लॉगिन करें',
     loggedout: 'लॉग आउट',
     logout: 'लॉगआउट',
+    loggingout: 'लॉग आउट',
     needchangepassword: 'आप अपने पासवर्ड को बदलने की जरूरत',
     noaccess: 'कोई उपयोग',
     password: 'पासवर्ड',

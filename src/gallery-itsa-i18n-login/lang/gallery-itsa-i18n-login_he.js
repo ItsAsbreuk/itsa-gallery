@@ -25,6 +25,7 @@
     loginblocked: 'כניסה חסומה',
     loginrightlevel: 'אין לך הרשאות לראות את הדף הזה, אנא התחבר עם רמת הכניסה הנכונה',
     loggedout: 'יצא מהמערכת',
+    loggingout: 'ביצוע יציאה',
     logout: 'התנתק',
     needchangepassword: 'אתה צריך לשנות את הסיסמה שלך',
     noaccess: 'אין גישה לחיבור',

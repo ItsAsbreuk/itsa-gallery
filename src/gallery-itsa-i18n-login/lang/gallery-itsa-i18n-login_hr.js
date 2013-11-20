@@ -25,6 +25,7 @@
     loginblocked: 'Prijava je blokiran',
     loginrightlevel: 'Vi nemate pravo da vidite ovu stranicu, molimo prijavite se s pravom loginlevel',
     loggedout: 'Evidentirano out',
+    loggingout: 'Evidencija iz',
     logout: 'Odjava',
     needchangepassword: 'Morate promijeniti svoju lozinku',
     noaccess: 'Nema pristupa',

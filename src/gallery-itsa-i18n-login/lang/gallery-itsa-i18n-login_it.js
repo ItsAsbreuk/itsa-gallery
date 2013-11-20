@@ -25,6 +25,7 @@
     loginblocked: 'Accedi bloccato',
     loginrightlevel: 'Non si dispone dei diritti per vedere questa pagina, per favore accedi con la loginlevel destra',
     loggedout: 'Non attivo su',
+    loggingout: 'Chiusura della sessione',
     logout: 'Esci',
     needchangepassword: 'È necessario modificare la password',
     noaccess: 'Nessun accesso',

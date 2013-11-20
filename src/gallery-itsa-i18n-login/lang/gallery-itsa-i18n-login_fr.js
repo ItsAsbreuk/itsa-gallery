@@ -25,6 +25,7 @@
     loginblocked: 'Connexion est bloqué',
     loginrightlevel: 'Vous n\'avez pas le droit de voir cette page, s\'il vous plaît vous connecter avec le niveau de connexion à droite',
     loggedout: 'Déconnecté',
+    loggingout: 'Déconnexion',
     logout: 'Déconnexion',
     needchangepassword: 'Vous devez changer votre mot de passe',
     noaccess: 'Pas d\'accès',

@@ -25,6 +25,7 @@
     loginblocked: 'De login is geblokkeerd',
     loginrightlevel: 'U hebt geen rechten deze pagina te bekijken, log in met de juiste login-rechten',
     loggedout: 'Uitgelogd',
+    loggingout: 'Bezig met uitloggen',
     logout: 'Uitloggen',
     needchangepassword: 'U moet uw wachtwoord wijzigen',
     noaccess: 'Geen toegang',

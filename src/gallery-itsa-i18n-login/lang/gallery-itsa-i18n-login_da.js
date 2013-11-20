@@ -25,6 +25,7 @@
     loginblocked: 'Login er blokeret',
     loginrightlevel: 'Du har ikke rettigheder til at se denne side, skal du logge ind med den rigtige login-niveau',
     loggedout: 'Logget ud',
+    loggingout: 'Logning ud',
     logout: 'Logud',
     needchangepassword: 'You need to change your password',
     noaccess: 'Ingen adgang',

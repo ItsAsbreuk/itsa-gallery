@@ -25,6 +25,7 @@
     loginblocked: 'Přihlášení je blokován',
     loginrightlevel: 'Nemáte práva k zobrazení této stránky, prosím přihlašte se s pravou přihlašovací úrovni',
     loggedout: 'Odhlášeni',
+    loggingout: 'Odhlášení',
     logout: 'Odhlášení',
     needchangepassword: 'Musíte změnit heslo',
     noaccess: 'Bez přístupu',
