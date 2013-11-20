@@ -1135,8 +1135,12 @@ ITSAPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        boundingBox.on(CLICK_OUTSIDE, function() {
+        boundingBox.after(CLICK_OUTSIDE, function() {
+            // always blur --> when 'just' do focus, then there is no focusChange-event
             instance.blur();
+        /*jshint expr:true */
+            instance.get(MODAL) && instance.focus();
+        /*jshint expr:false */
         })
     );
 
