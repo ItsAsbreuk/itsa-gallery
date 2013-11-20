@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Bejelentkezési kísérlet',
     changepassword: 'Jelszó módosítása',
     changeyourpassword: 'Változtassa meg a jelszavát',
     checkmail: 'Ellenőrizze a mail',

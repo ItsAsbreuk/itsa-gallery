@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Přihlásit se pokus',
     changepassword: 'Změnit heslo',
     changeyourpassword: 'Změnit heslo',
     checkmail: 'Zkontrolujte si poštu',

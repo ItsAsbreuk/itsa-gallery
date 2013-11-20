@@ -1,4 +1,5 @@
 {
+    attemptlogin: '登錄嘗試',
     changepassword: '更改密碼',
     changeyourpassword: '更改您的密碼',
     checkmail: '檢查你的郵件',

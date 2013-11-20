@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Inloggningsförsök',
     changepassword: 'Ändra lösenord',
     changeyourpassword: 'Ändra ditt lösenord',
     checkmail: 'Kontrollera din e-post',

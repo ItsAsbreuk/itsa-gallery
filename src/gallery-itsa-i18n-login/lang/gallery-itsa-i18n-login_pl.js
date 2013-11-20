@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Zaloguj próbę',
     changepassword: 'Zmień hasło',
     changeyourpassword: 'Zmień swoje hasło',
     checkmail: 'Sprawdź swoją pocztę',

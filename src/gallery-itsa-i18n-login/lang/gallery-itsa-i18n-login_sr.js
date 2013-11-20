@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Пријава покушај',
     changepassword: 'Промените лозинку',
     changeyourpassword: 'Промените лозинку',
     checkmail: 'Проверите своју пошту',

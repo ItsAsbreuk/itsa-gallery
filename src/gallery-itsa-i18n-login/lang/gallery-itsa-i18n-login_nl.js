@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Poging tot inloggen',
     changepassword: 'Wijzig wachtwoord',
     changeyourpassword: 'Wijzig uw wachtwoord',
     checkmail: 'Controleer uw email',

@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Влез опит',
     changepassword: 'Промяна паролата',
     changeyourpassword: 'Промяна на паролата',
     checkmail: 'Проверете пощата си',

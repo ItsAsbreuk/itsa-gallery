@@ -1,4 +1,5 @@
 {
+    attemptlogin: '試みログイン',
     changepassword: 'パスワードを変更',
     changeyourpassword: 'あなたのパスワードを変更',
     checkmail: 'あなたのメールをチェック',

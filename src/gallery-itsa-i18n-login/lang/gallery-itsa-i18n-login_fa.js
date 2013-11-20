@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'ورود تلاش',
     changepassword: 'تغییر رمز عبور',
     changeyourpassword: 'رمز عبور خود را تغییر دهید',
     checkmail: 'ایمیل خود را بررسی کنید',

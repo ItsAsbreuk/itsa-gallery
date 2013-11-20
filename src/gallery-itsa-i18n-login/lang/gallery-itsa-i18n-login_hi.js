@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'प्रयास कीजिये',
     changepassword: 'पासवर्ड बदलें',
     changeyourpassword: 'अपना पासवर्ड बदलें',
     checkmail: 'अपने मेल की जाँच करें',

@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Pokušaj prijave',
     changepassword: 'Promjena šifre',
     changeyourpassword: 'Promijenite svoju lozinku',
     checkmail: 'Provjerite svoje mail',

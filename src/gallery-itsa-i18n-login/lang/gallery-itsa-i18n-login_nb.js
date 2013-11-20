@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Logg forsøk',
     changepassword: 'Bytt passord',
     changeyourpassword: 'Endre passordet',
     checkmail: 'Sjekk e-posten din',

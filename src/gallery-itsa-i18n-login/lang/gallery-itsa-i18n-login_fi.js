@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Kirjaudu yritys',
     changepassword: 'Vaihda salasana',
     changeyourpassword: 'Vaihda salasana',
     checkmail: 'Tarkista sähköpostisi',

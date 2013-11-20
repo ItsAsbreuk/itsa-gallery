@@ -1,4 +1,5 @@
 {
+    attemptlogin: 'Log ind forsøg',
     changepassword: 'Skift adgangskode',
     changeyourpassword: 'Skift din adgangskode',
     checkmail: 'Tjek din mail',
