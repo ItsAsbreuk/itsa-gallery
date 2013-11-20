@@ -107,12 +107,19 @@ console.log('syncing');
                 null,
                 function() {
                     var button = logininstance.get('button'),
-                        status, username, password, verified, message;
+                        status, username, password, verified, message, messageLoggedin;
+console.log('buttonvalue: '+button);
                     if (button==='getlogin') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
                         verified = (username==='marco') && (password==='test');
                         status = verified ? 'OK' : 'RETRY';
+                        if (verified) {
+                          //  messageLoggedin = 'Ingelogd als Marco Asbreuk';
+                        }
+                    }
+                    else if (button==='logout') {
+                        status = 'OK';
                     }
                     else {
                         status = 'ERROR';
@@ -120,7 +127,10 @@ console.log('syncing');
                     }
                     resolve({
                         status: status,
-                        message: message
+                        message: message,
+                        messageLoggedin: messageLoggedin,
+                        user: 'Marco Asbreuk',
+                        userImage: 'http://www.brongegeven.nl/itsasbreuk/uploads/balkjfoto1mid.jpg'
                     });
                 }
             );

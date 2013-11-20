@@ -37,10 +37,13 @@ var Lang = Y.Lang,
     EMAIL = 'e'+MAIL,
     ADDRESS = 'address',
     EMAILADDRESS = EMAIL+ADDRESS,
+    BUTTON = 'button',
     PRIMARYBTNONENTER = 'primarybtnonenter',
     FULLSELECT = 'fullselect',
     REQUIRED = 'required',
-    LOGGEDIN = 'loggedin',
+    LOGGED = 'logged',
+    LOGGEDIN = LOGGED+'in',
+    LOGGEDOUT = LOGGED+'out',
     STAYLOGGEDIN = 'stay'+LOGGEDIN,
     SERNAME = 'sername',
     ASSWORD = 'assword',
@@ -56,8 +59,10 @@ var Lang = Y.Lang,
     ITSA = 'itsa',
     OGIN = 'ogin',
     GET = 'get',
+    MESSAGELOGGEDIN = 'messageLoggedin',
     CAP_GETLOGIN = GET+'L'+OGIN,
     LOGIN = 'l'+OGIN,
+    LOGOUT = 'logout',
     GETLOGIN = GET+LOGIN,
     ITSA_LOGIN = ITSA+'-'+LOGIN,
     LABEL = 'label',
@@ -93,6 +98,7 @@ var Lang = Y.Lang,
     USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
     FORGOT = 'forgot',
     DIALOG = 'dialog',
+    DESTROYED = 'destroyed',
     IMAGEBUTTONS = 'imageButtons',
     ICONTEMPLATE = '<i class="{icon}"></i>',
     ITSABUTTON_ICONLEFT = 'itsabutton-iconleft',
@@ -241,6 +247,20 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          * @since 0.1
          */
         message: {
+            value: null,
+            validator: function(v) {
+                return (typeof v === STRING);
+            }
+        },
+        /**
+         * Message that appears in the view when logged in. Can be set by the server when the server responses with {status: 'OK', messageLoggedin: 'your message'}
+         *
+         * @attribute messageLoggedin
+         * @type {String}
+         * @default null
+         * @since 0.1
+         */
+        messageLoggedin: {
             value: null,
             validator: function(v) {
                 return (typeof v === STRING);
@@ -442,19 +462,36 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
  * @protected
  * @since 0.1
 */
+ITSAViewLogin.prototype.setSubmitButtons = function(login) {
+    var instance = this,
+        logging = login ? LOGIN : LOGOUT,
+        loginintl = instance._loginintl;
+
+    if (instance.get(IMAGEBUTTONS)) {
+        instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-'+logging+'"></i>'+loginintl[logging]);
+    }
+    else {
+        instance.setButtonLabel(BTNSUBMIT, loginintl[logging]);
+    }
+};
+
+/**
+ * @method initializer
+ * @protected
+ * @since 0.1
+*/
 ITSAViewLogin.prototype.initializer = function() {
     var instance = this,
         eventhandlers = instance._eventhandlers,
         loginintl;
 
     loginintl = instance._loginintl;
+    instance.setSubmitButtons(true);
     if (instance.get(IMAGEBUTTONS)) {
-        instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN]);
         instance.setPrimaryButton(IMGBTN_+SUBMIT);
         Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
     }
     else {
-        instance.setButtonLabel(BTNSUBMIT, loginintl[LOGIN]);
         instance.setPrimaryButton(BTNSUBMIT);
     }
     instance._defineModel();
@@ -494,29 +531,73 @@ ITSAViewLogin.prototype.initializer = function() {
         Y.after(
             LOGGEDIN,
             function(e) {
-    console.log('subdcriber '+LOGGEDIN);
-            //    instance._loggedin = true;
-//                instance._setTemplateRenderer(false);
-//                instance.render();
+                var messageLoggedin = e.messageLoggedin,
+                    model = instance.get(MODEL);
+                instance._loggedin = true;
+                instance._user = e.user;
+                // need to delay, because automatic refocussing would fail if previous template disappeared to soon
+                Y.later(25, null, function() {
+                    if (!instance.get(DESTROYED)) {
+    /*jshint expr:true */
+                        messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
+    /*jshint expr:false */
+                        instance.setSubmitButtons(false);
+                        model._set(BUTTON, LOGOUT);
+                        model.setSyncMessage(SUBMIT, loginintl.loggingout);
+                        instance._setTemplateRenderer(false);
+                        instance.render();
+                    }
+                });
             }
         )
     );
 
+    eventhandlers.push(
+        Y.on(
+            LOGGEDOUT,
+            function(e) {
+console.log('event logout occured');
+                var model = instance.get(MODEL);
+                instance._loggedin = false;
+                instance._user = null;
+                // need to delay, because automatic refocussing would fail if previous template disappeared to soon
+                Y.later(5000, null, function() {
+                    if (!instance.get(DESTROYED)) {
+                        instance.setSubmitButtons(true);
+                        model._set(BUTTON, GETLOGIN);
+                        model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
+                        instance._setTemplateRenderer(true);
+                        instance.render();
+                    }
+                });
+            }
+        )
+    );
 
+    eventhandlers.push(
+        instance.on('*:submit', function(e) {
+            var formmodel = e.target,
+                logout = (formmodel.get('button')===LOGOUT);
+            e.promise._logout = logout; // flag for aftersubscriber;
+    /*jshint expr:true */
+            logout && Y.fire(LOGGEDOUT);
+    /*jshint expr:false */
+        })
+    );
 
     eventhandlers.push(
         instance.after('*:submit', function(e) {
-            var formmodel = e.target;
+            var formmodel = e.target,
+                promise = e.promise;
             if (e.currentTarget===instance) {
                 // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
-                e.promise.then(
+                promise.then(
                     function(response) {
                         var responseObj = PARSED(response),
                             loginintl = instance._loginintl,
                             messageType = formmodel.messageType,
                             message, facade;
-                        if (responseObj && responseObj.status) {
-    console.log(responseObj.status + ' '+responseObj.message);
+                        if (responseObj && responseObj.status && !promise._logout) {
                             if (responseObj.status==='ERROR') {
                                 message = responseObj.message || loginintl.unspecifiederror;
                                 // production-errors will be shown through the messagecontroller
@@ -534,8 +615,9 @@ ITSAViewLogin.prototype.initializer = function() {
     * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
     *                        as an answer to the 'getlogin'-request.
     **/
-    console.log('firein '+LOGGEDIN);
                                 Y.fire(LOGGEDIN, facade);
+
+
     /*jshint expr:true */
                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
     /*jshint expr:false */
@@ -809,21 +891,22 @@ ITSAViewLogin.prototype._loggedinTemplate = function() {
  * @since 0.1
 */
 ITSAViewLogin.prototype._loggedoutTemplate = function() {
-console.log('_loggedoutTemplate');
     var instance = this,
         icon = instance.get(ICON),
         imagebuttons = instance.get(IMAGEBUTTONS),
+        user = instance._user,
+        message = (instance.get(MESSAGELOGGEDIN) || (user ? instance._loginintl.youareloggedinas : instance._loginintl.youareloggedin)),
+        loggedinUser = user || '',
         footer;
 
     if (imagebuttons) {
-        footer += '{'+IMGBTN_+SUBMIT+'}';
+        footer = '{'+IMGBTN_+SUBMIT+'}';
     }
     else {
-        footer += '{'+BTNSUBMIT+'}';
+        footer = '{'+BTNSUBMIT+'}';
     }
-console.log('_loggedoutTemplate 2');
     return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
-           SPANWRAPPER + (instance.get(MESSAGE) || '') + ENDSPAN+
+           SPANWRAPPER + Lang.sub(message, {user: loggedinUser}) + ENDSPAN+
            FIELDSET_START+
                DIVCLASS_PURECONTROLS+footer+ENDDIV+
            ENDFIELDSET;
