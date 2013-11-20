@@ -69,6 +69,9 @@
         <p>
             To target a specific message, you need call <code>yourMessage.addMessageTarget(viewInstance)</code> where 'viewInstance' is the messageView-instance that should handle the message. If you make use if the predefined messages (see below), then you can set config.target=viewInstance inside the config-parameter.
         </p>
+        <p>
+            <b>Note:</b> when you work with <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodel/">Y.ITSAViewModel</a>, <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsapanel/">Y.ITSAPanel</a> or <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsaviewmodelpanel/">Y.ITSAViewModelPanel</a>, then those instances can be a messagetarget as well, as long as you set their attribute <code>statusBar</code> true.
+        </p>
         <h4>modelsync-messages</h4>
         <p>
             Both Y.Model and Y.ModelList can create sync-messages when syncing starts or ends. In order to get this facility, you need to load <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodelsyncpromise/">gallery-itsamodelsyncpromise</a> or <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsamodellistsyncpromise/">gallery-itsamodellistsyncpromise</a>.
