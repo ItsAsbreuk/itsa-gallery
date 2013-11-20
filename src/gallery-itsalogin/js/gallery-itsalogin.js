@@ -901,7 +901,7 @@ console.log('after sumbit '+e.type+' | '+(e.target===panel)+' | '+(e.currentTarg
                                                                         }
                                                                        ));
 /*jshint expr:false */
-                                            ITSADialogInstance.fire(LOGGEDIN, facade);
+                                            Y.fire(LOGGEDIN, facade);
 /*jshint expr:true */
                                             (message=responseObj.message) && Y.showMessage(responseObj.title, message);
 /*jshint expr:false */
@@ -974,7 +974,7 @@ console.log('after sumbit '+e.type+' | '+(e.target===panel)+' | '+(e.currentTarg
                                                                         }
                                                                        ));
 /*jshint expr:false */
-                                                ITSADialogInstance.fire(LOGGEDIN, facade);
+                                                Y.fire(LOGGEDIN, facade);
 /*jshint expr:true */
                                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
 /*jshint expr:false */
