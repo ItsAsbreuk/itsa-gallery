@@ -58,6 +58,7 @@ var ITSAViewModel,
     STRING = 'string',
     EDITABLE = 'editable',
     CONTAINER = 'container',
+    VIEWRENDERED = 'viewrendered',
     DEF_PREV_FN = '_defPrevFn_',
     ITSATABKEYMANAGER = ITSA+'tabkeymanager',
     FOCUSMANAGED = 'focusManaged',
@@ -570,20 +571,6 @@ ITSAViewModel.prototype.initializer = function() {
     renderpromise = instance._renderPromise = new Y.Promise(function (resolve) {
         instance._renderPromiseResolve = resolve;
     });
-
-    renderpromise.then(
-        function() {
-            /**
-            * Fired when the view is rendered
-            *
-            * @event viewrendered
-            * @param e {EventFacade} Event Facade including:
-            * @param e.target {Y.ITSAViewModel} This instance.
-            * @since 0.3
-            */
-            instance.fire('viewrendered', {target: instance});
-        }
-    );
 
     /**
      * Internal objects with internationalized buttonlabels
@@ -1105,6 +1092,7 @@ ITSAViewModel.prototype.render = function (clear) {
         withfocusmanager;
     // Render this view's HTML into the container element.
     // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
+
     if (editMode || instance._isMicroTemplate) {
         if (editMode) {
             instance._initialEditAttrs = model.getAttrs();
@@ -1164,16 +1152,21 @@ ITSAViewModel.prototype.render = function (clear) {
     instance._setFocusManager(withfocusmanager);
     if (withfocusmanager) {
         Y.usePromise(GALLERY+ITSATABKEYMANAGER).then(
-            instance._renderPromiseResolve
+            function() {
+                instance._renderPromiseResolve();
+                instance.fire(VIEWRENDERED, {target: instance});
+            }
         );
     }
     else {
         instance._renderPromiseResolve();
+        instance.fire(VIEWRENDERED, {target: instance});
     }
 
     if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
         itsaDateTimePicker.hide(true);
     }
+
     return instance;
 };
 
