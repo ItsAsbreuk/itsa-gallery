@@ -1003,6 +1003,8 @@ ITSAPanel.prototype.bindUI = function() {
                     footercont.setStyle('overflow', '');
                     container.setStyle('paddingLeft', '');
                 }
+                instance._adjustPaddingTop();
+                instance._adjustPaddingBottom();
                 Y.later(250, null, function() {
                     contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                         function(itsatabkeymanager) {
@@ -1231,13 +1233,6 @@ ITSAPanel.prototype.bindUI = function() {
         })
     );
 
-    eventhandlers.push(
-        instance.after('*:viewrendered', function() {
-            Y.log('aftersubscriptor *:viewrendered', 'info', 'ITSAPanel');
-            instance._adjustPaddingTop();
-            instance._adjustPaddingBottom();
-        })
-    );
 };
 
 Y.Widget.prototype.promiseBeforeReady = function() {
