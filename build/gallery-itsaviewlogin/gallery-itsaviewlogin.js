@@ -550,12 +550,7 @@ ITSAViewLogin.prototype.initializer = function() {
                 /*jshint expr:false */
                                 Y.usePromise(GALLERYITSADIALOG).then(
                                     function() {
-                                        Y.getInput(responseObj.title || loginintl[ERROR], message);
-                                        Y.later(5000, null, function() {
-                                            console.log('focussing view');
-                                            instance.focus();
-                                        });
-//                                        Y.showWarning(responseObj.title || loginintl[ERROR], message);
+                                        Y.showWarning(responseObj.title || loginintl[ERROR], message);
                                     }
                                 );
                             }
