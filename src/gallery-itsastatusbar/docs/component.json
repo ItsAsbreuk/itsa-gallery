@@ -37,7 +37,7 @@
         },
         {
             "name"       : "syncmessages-dedicated",
-            "displayName": "Model sync-messages on a separate bar",
+            "displayName": "Customized sync-messages on a separate bar",
             "description": "This example shows hows how to get Model's syncmessages on a separate bar.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsastatusbar"],
