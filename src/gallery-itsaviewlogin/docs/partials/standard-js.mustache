@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsadialog', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
 
     var createAccountPromise, getAccountMessage, syncFn, myView;
 
@@ -144,8 +144,8 @@ console.log('syncing');
     myView._set('editable', true);
 
     myView.renderOnReady().then(
-        function() {
-            myView.focus();
+        function(){
+           myView.focus();
         }
     );
 

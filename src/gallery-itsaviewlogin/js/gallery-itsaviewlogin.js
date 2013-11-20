@@ -490,6 +490,20 @@ ITSAViewLogin.prototype.initializer = function() {
         )
     );
     eventhandlers.push(
+        Y.after(
+            LOGGEDIN,
+            function(e) {
+    console.log('subdcriber '+LOGGEDIN);
+            //    instance._loggedin = true;
+//                instance._setTemplateRenderer(false);
+//                instance.render();
+            }
+        )
+    );
+
+
+
+    eventhandlers.push(
         instance.after('*:submit', function(e) {
             Y.log('after(*:submit)', 'info', 'ITSAViewLogin');
             var formmodel = e.target;
@@ -520,17 +534,8 @@ ITSAViewLogin.prototype.initializer = function() {
     * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
     *                        as an answer to the 'getlogin'-request.
     **/
-    /*jshint expr:true */
-                                instance[PUBLISHED_LOGGEDIN] || (instance[PUBLISHED_LOGGEDIN]=Y.publish(LOGGEDIN,
-                                                            {
-                                                              defaultTargetOnly: true,
-                                                              emitFacade: true,
-                                                              broadcast: 2,
-                                                              preventable: false
-                                                            }
-                                                           ));
-    /*jshint expr:false */
-                                instance.fire(LOGGEDIN, facade);
+    console.log('firein '+LOGGEDIN);
+                                Y.fire(LOGGEDIN, facade);
     /*jshint expr:true */
                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
     /*jshint expr:false */
@@ -559,17 +564,7 @@ ITSAViewLogin.prototype.initializer = function() {
                                 changePwFn(itsamessage).then(
                                     function(response) {
                                         facade = Y.merge(responseObj, formmessage.toJSON());
-            // lazy publish the event
-                                        instance[PUBLISHED_LOGGEDIN] || (instance[PUBLISHED_LOGGEDIN]=Y.publish(LOGGEDIN,
-                                                                    {
-                                                                      defaultTargetOnly: true,
-                                                                      emitFacade: true,
-                                                                      broadcast: 2,
-                                                                      preventable: false
-                                                                    }
-                                                                   ));
-            /*jshint expr:false */
-    /*                                    instance.fire(LOGGEDIN, facade);
+    /*                                    Y.fire(LOGGEDIN, facade);
             /*jshint expr:true */
     /*                                    (message=responseObj.message) && Y.showMessage(responseObj.title, message);
             /*jshint expr:false */
@@ -771,6 +766,17 @@ ITSAViewLogin.prototype._defineModel = function() {
 */
 ITSAViewLogin.prototype._getterTemplate = function() {
     Y.log('_getterTemplate', 'info', 'ITSAViewLogin');
+    var instance = this;
+    return instance._loggedin ? instance._loggedoutTemplate() : instance._loggedinTemplate();
+};
+
+/**
+ * @method _loggedinTemplate
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._loggedinTemplate = function() {
+    Y.log('_loggedinTemplate', 'info', 'ITSAViewLogin');
     var instance = this,
         icon = instance.get(ICON),
         imagebuttons = instance.get(IMAGEBUTTONS),
@@ -796,6 +802,33 @@ ITSAViewLogin.prototype._getterTemplate = function() {
                DIVCLASS_PURECONTROLGROUP+'{'+USERNAME+'}'+ENDDIV+
                DIVCLASS_PURECONTROLGROUP+'{'+PASSWORD+'}'+ENDDIV+
                (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox pure-controls">'+'{remember}'+ENDDIV : '')+
+               DIVCLASS_PURECONTROLS+footer+ENDDIV+
+           ENDFIELDSET;
+};
+
+/**
+ * @method _loggedoutTemplate
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._loggedoutTemplate = function() {
+    Y.log('_loggedoutTemplate', 'info', 'ITSAViewLogin');
+console.log('_loggedoutTemplate');
+    var instance = this,
+        icon = instance.get(ICON),
+        imagebuttons = instance.get(IMAGEBUTTONS),
+        footer;
+
+    if (imagebuttons) {
+        footer += '{'+IMGBTN_+SUBMIT+'}';
+    }
+    else {
+        footer += '{'+BTNSUBMIT+'}';
+    }
+console.log('_loggedoutTemplate 2');
+    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
+           SPANWRAPPER + (instance.get(MESSAGE) || '') + ENDSPAN+
+           FIELDSET_START+
                DIVCLASS_PURECONTROLS+footer+ENDDIV+
            ENDFIELDSET;
 };
