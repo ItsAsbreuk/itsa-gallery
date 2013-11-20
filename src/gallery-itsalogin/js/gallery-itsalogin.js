@@ -273,6 +273,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
             itsamessage.title = title;
             itsamessage.message = message;
             itsamessage.footer = footer;
+            itsamessage.setSyncMessage(SUBMIT, intl.attemptlogin);
             itsamessage.imageButtons = imageButtons;
             itsamessage.closeButton = !required;
             itsamessage.priority = config.priority;
@@ -441,7 +442,7 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
 */
 
 /**
- * Internal objects with internationalized buttonlabels
+ * Internal objects with internationalized login-messages
  *
  * @property _intl
  * @private
@@ -859,6 +860,7 @@ ITSADialogInstance.isRendered().then(
                 );
                 ITSADialogInstance._eventhandlers.push(
                     panel.after('*:submit', function(e) {
+console.log('after sumbit '+e.type+' | '+(e.target===panel)+' | '+(e.currentTarget===panel));
                         Y.log('panel.after(*:submit)', 'info', 'ITSALogin');
                         var itsamessage = e.target;
                         // Cautious: e.response is NOT available in the after-bubble chain --> see Y.ITSAFormModel - know issues
@@ -973,6 +975,9 @@ ITSADialogInstance.isRendered().then(
                                                                        ));
 /*jshint expr:false */
                                                 ITSADialogInstance.fire(LOGGEDIN, facade);
+/*jshint expr:true */
+                                                (message=responseObj.message) && Y.showMessage(responseObj.title, message);
+/*jshint expr:false */
                                             },
                                             function() {
                                                 message = intl.passwordnotchanged;
