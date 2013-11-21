@@ -318,9 +318,11 @@ ITSAStatusbar.prototype.viewMessage = function(itsamessage) {
  * @since 0.1
 */
 ITSAStatusbar.prototype.destructor = function() {
-    var instance = this;
+    var instance = this,
+        containerNode = instance._containerNode;
     instance._clearEventhandlers();
-    instance._containerNode.destroy(true);
+    containerNode.empty();
+    containerNode.destroy(true);
 };
 
 //--- private methods ---------------------------------------------------

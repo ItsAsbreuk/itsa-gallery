@@ -328,9 +328,11 @@ ITSAStatusbar.prototype.viewMessage = function(itsamessage) {
 */
 ITSAStatusbar.prototype.destructor = function() {
     Y.log('destructor', 'info', 'ITSAStatusbar');
-    var instance = this;
+    var instance = this,
+        containerNode = instance._containerNode;
     instance._clearEventhandlers();
-    instance._containerNode.destroy(true);
+    containerNode.empty();
+    containerNode.destroy(true);
 };
 
 //--- private methods ---------------------------------------------------
