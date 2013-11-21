@@ -892,6 +892,25 @@ ITSAViewModel.prototype.focus = function() {
 };
 
 /**
+ * Sets focus to the initial item.
+ *
+ * @method focusInitialItem
+ * @since 0.4
+ * return {Y.Promise} when item gets focussed
+*/
+ITSAViewModel.prototype.focusInitialItem = function() {
+    var instance = this,
+        container = instance.get(CONTAINER);
+
+    return container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+        function(itsatabkeymanager) {
+            container.addClass(FOCUSED_CLASS);
+            itsatabkeymanager.focusInitialItem();
+        }
+    );
+};
+
+/**
  * Promise that will be resolved once the view is rendered.
  * This is asynchronious, because it also takes into account asynchronous loading of the tabkeymanager.
  *
