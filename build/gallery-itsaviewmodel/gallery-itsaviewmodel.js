@@ -1097,7 +1097,9 @@ ITSAViewModel.prototype.render = function (clear) {
         if (editMode) {
             instance._initialEditAttrs = model.getAttrs();
         }
-        container.cleanupWidgets(true);
+/*jshint expr:true */
+        instance._rendered && container.cleanupWidgets(true);
+/*jshint expr:false */
     }
     // Append the container element to the DOM if it's not on the page already.
     if (!instance._rendered) {
@@ -1116,32 +1118,33 @@ ITSAViewModel.prototype.render = function (clear) {
 
     if (statusbar) {
 /*jshint expr:true */
-        if (statusbarinstance) {
-            model && model.removeMessageTarget(statusbarinstance);
-            statusbarinstance.destroy();
-            instance._itsastatusbar = null;
-        }
-        clear || (html+=STATUSBAR_TEMPLATE);
+        clear || statusbarinstance || (html+=STATUSBAR_TEMPLATE);
 /*jshint expr:false */
     }
 
     container.setHTML(html);
+
     if (statusbar && !clear) {
         container.setAttribute(DATA_ITSASTATUSBAR, 'true');
-        Y.usePromise(GALLERY_ITSASTATUSBAR).then(
-            function() {
-                statusbarinstance = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
-                // to make targeting Y.ITSAMessages to this instance posible:
-                instance._viewName = statusbarinstance._viewName;
-                if (model) {
-                    Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), statusbarinstance.isReady()).then(
-                        function() {
-                            model.addMessageTarget(instance._itsastatusbar);
-                        }
-                    );
+        if (statusbarinstance) {
+            container.append(statusbarinstance.get('parentNode'));
+        }
+        else {
+            Y.usePromise(GALLERY_ITSASTATUSBAR).then(
+                function() {
+                    statusbarinstance = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
+                    // to make targeting Y.ITSAMessages to this instance posible:
+                    instance._viewName = statusbarinstance._viewName;
+                    if (model) {
+                        Y.batch(Y.usePromise(GALLERY_ITSAMODELSYNCPROMISE), statusbarinstance.isReady()).then(
+                            function() {
+                                model.addMessageTarget(instance._itsastatusbar);
+                            }
+                        );
+                    }
                 }
-            }
-        );
+            );
+        }
     }
     else {
         container.removeAttribute(DATA_ITSASTATUSBAR);
