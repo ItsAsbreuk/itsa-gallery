@@ -1129,11 +1129,9 @@ ITSAViewModel.prototype.render = function (clear) {
     (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
 /*jshint expr:false */
 
-    if (statusbar) {
 /*jshint expr:true */
-        clear || statusbarinstance || (html+=STATUSBAR_TEMPLATE);
+    statusbar && (clear || statusbarinstance || (html+=STATUSBAR_TEMPLATE));
 /*jshint expr:false */
-    }
 
     container.setHTML(html);
 
