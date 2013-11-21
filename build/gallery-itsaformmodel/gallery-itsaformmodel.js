@@ -1602,6 +1602,18 @@ ITSAFormModel.prototype.destructor = function() {
 // private methods
 //===============================================================================================
 
+Y.Node.prototype.displayInDoc = function() {
+    var node = this,
+        displayed = node.inDoc();
+    while (node && displayed) {
+        displayed = (node.getStyle('display')!=='none');
+/*jshint expr:true */
+        displayed && (node = node.get('parentNode'));
+/*jshint expr:false */
+    }
+    return displayed;
+};
+
 /**
  * Setting up eventlisteners
  *
@@ -1616,6 +1628,8 @@ ITSAFormModel.prototype._bindUI = function() {
         body = Y.one('body');
 
     // listening for a click on any 'datetimepicker'-button or a click on any 'form-element'-button in the dom
+    // CAUTIOUS: DO NOT try to create the first argument (selector), for that failed!, we check for 'formelement'
+    // inside the subscriber
     eventhandlers.push(
         body.delegate(
             [DATEPICKER_CLICK, TIMEPICKER_CLICK, DATETIMEPICKER_CLICK, BUTTON_CLICK, LOAD_CLICK,
@@ -1623,27 +1637,26 @@ ITSAFormModel.prototype._bindUI = function() {
             function(e) {
                var type = e.type,
                    node = e.target,
+                   formelement = instance._FORM_elements[node.get(ID)],
                    payload, value, datevalue;
-                e.preventDefault(); // prevent the form to be submitted
-                value = node.getAttribute(VALUE);
-                if (instance._datePickerClicks[type]) {
-                    datevalue = new Date();
-                    datevalue.setTime(parseInt(value, 10));
-                    value = datevalue;
+                if (formelement) {
+                    e.preventDefault(); // prevent the form to be submitted
+                    value = node.getAttribute(VALUE);
+                    if (instance._datePickerClicks[type]) {
+                        datevalue = new Date();
+                        datevalue.setTime(parseInt(value, 10));
+                        value = datevalue;
+                    }
+                    payload = {
+                        target: instance,
+                        value: value,
+                        formElement: instance._FORM_elements[node.get(ID)],
+                        buttonNode: node,
+                        type: type
+                    };
+                    // refireing, but now by the instance:
+                    instance.fire(type, payload);
                 }
-                payload = {
-                    target: instance,
-                    value: value,
-                    formElement: instance._FORM_elements[node.get(ID)],
-                    buttonNode: node,
-                    type: type
-                };
-                // refireing, but now by the instance:
-                instance.fire(type, payload);
-            },
-            function(delegatedNode, e){ // node === e.target
-                // only process if node's id is part of this ITSAFormModel-instance:
-                return e && e.target && instance._FORM_elements[e.target.get(ID)];
             }
         )
     );
@@ -1661,12 +1674,17 @@ ITSAFormModel.prototype._bindUI = function() {
 //    );
 
     // listening life for valuechanges
+    // CAUTIOUS: DO NOT try to create the first argument (selector), for that failed!, we check for 'formelement'
+    // inside the subscriber
     eventhandlers.push(
         body.delegate(
             'valuechange',
             function(e) {
                 var node = e.target,
                     type = UI_CHANGED,
+                    formelement = instance._FORM_elements[node.get(ID)],
+                    payload;
+                if (formelement) {
                     payload = {
                         target: instance,
                         value: node.get(VALUE),
@@ -1675,13 +1693,10 @@ ITSAFormModel.prototype._bindUI = function() {
                         nodeid: node.get(ID),
                         type: type
                     };
-                // refireing, but now by the instance:
-                instance.fire(type, payload);
-            },
-            function(delegatedNode, e){ // node === e.target
-                // only process if node's id is part of this ITSAFormModel-instance:
-                return e && e.target && instance._FORM_elements[e.target.get(ID)];
-            }
+                     // refireing, but now by the instance:
+                    instance.fire(type, payload);
+                }
+            }
         )
     );
 
