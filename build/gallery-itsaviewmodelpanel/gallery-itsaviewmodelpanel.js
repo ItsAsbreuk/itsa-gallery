@@ -751,8 +751,7 @@ ITSAViewModelPanel.prototype.focusInitialItem = function() {
 
     return contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
         function(itsatabkeymanager) {
-            instance.focus();
-            contentBox.addClass('itsa-focused');
+            contentBox.addClass(FOCUSED_CLASS);
             itsatabkeymanager.focusInitialItem();
         }
     );
