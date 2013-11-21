@@ -4,8 +4,9 @@
     width: 7em;
 }
 
-.itsaviewlogin.itsaviewlogin-loggedin .itsa-messagewrapper + button {
-    margin-left: 1em;
+.itsaviewlogin.itsaviewlogin-loggedin .itsa-buttonwrapper {
+    display: block;
+    width: 100%;
 }
 
 .itsaviewlogin.itsaviewlogin-loggedin {

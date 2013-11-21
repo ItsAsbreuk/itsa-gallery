@@ -141,13 +141,13 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
 
     myView = new Y.ITSAViewLogin({
         container: '#viewcont',
-        message: 'Please login to get full advantage of this awesome new platform!',
+        message: 'You need to login to get access',
         regain: 'username',
         imageButtons: true,
         showStayLoggedin: true,
         statusBar: true,
         iconLogin: 'itsaicon-dialog-user',
-        iconLogou: 'itsaicon-dialog-user',
+        iconLogout: 'itsaicon-dialog-user',
         sync: syncFn,
         createAccount: createAccountPromise
     });

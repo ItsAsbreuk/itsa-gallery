@@ -73,6 +73,7 @@ var Lang = Y.Lang,
     PLACEHOLDER = 'placeholder',
     CLASSNAME = 'classname',
     SPANWRAPPER = '<span class="itsa-messagewrapper">',
+    SPANBUTTONWRAPPER = '<span class="itsa-buttonwrapper">',
     FIELDSET_START = '<fieldset class="'+ITSA_LOGIN+'">',
     ENDSPAN = '</span>',
     DIVCLASS_PURECONTROLGROUP = '<div class="pure-control-group">',
@@ -1045,7 +1046,7 @@ ITSAViewLogin.prototype._defLogoutTempl = function() {
         loggedinUser = user || '',
         logoutBtn = '{'+BTNSUBMIT+'}';
 
-    return SPANWRAPPER + Lang.sub(message, {user: loggedinUser}) + ENDSPAN + logoutBtn;
+    return SPANWRAPPER + Lang.sub(message, {user: loggedinUser}) + ENDSPAN + SPANBUTTONWRAPPER+ logoutBtn + ENDSPAN;
 };
 
 /**
