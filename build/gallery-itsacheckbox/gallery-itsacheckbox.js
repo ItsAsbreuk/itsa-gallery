@@ -876,6 +876,7 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "dd-ddm",
         "node-base",
         "dom-screen",
         "widget",
