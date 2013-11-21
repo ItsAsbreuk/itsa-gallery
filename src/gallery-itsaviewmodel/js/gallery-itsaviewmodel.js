@@ -169,9 +169,11 @@ var ITSAViewModel,
     BUTTONTRANSFORM = BUTTON+'Transform',
     GALLERY_ITSASTATUSBAR = GALLERY+ITSA+STATUSBAR,
     GALLERY_ITSAMODELSYNCPROMISE = GALLERY+ITSA+MODEL+'syncpromise',
-    STATUSBAR_CLASS = 'itsaview-'+STATUSBAR,
-    STATUSBAR_TEMPLATE = '<div class="'+STATUSBAR_CLASS+'"></div>',
-
+    ITSAVIEW_ = 'itsaview-',
+    STATUSBAR_CLASS = ITSAVIEW_+STATUSBAR,
+    ENDDIV = '</div>',
+    STATUSBAR_TEMPLATE = '<div class="'+STATUSBAR_CLASS+'">'+ENDDIV,
+    WRAPPERDIV = '<div class="'+ITSAVIEW_+'wrapper">',
     /**
       * Fired when a UI-element needs to focus to the next element (in case of editable view).
       * The defaultFunc will refocus to the next field (when the view has focus).
@@ -1150,7 +1152,7 @@ ITSAViewModel.prototype.render = function (clear) {
 /*jshint expr:false */
 
 /*jshint expr:true */
-    statusbar && (clear || statusbarinstance || (html+=STATUSBAR_TEMPLATE));
+    statusbar && (clear || statusbarinstance || (html=WRAPPERDIV+html+ENDDIV+STATUSBAR_TEMPLATE));
 /*jshint expr:false */
 
     container.setHTML(html);
@@ -1163,7 +1165,8 @@ ITSAViewModel.prototype.render = function (clear) {
         else {
             Y.usePromise(GALLERY_ITSASTATUSBAR).then(
                 function() {
-                    statusbarinstance = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: container.one('.'+STATUSBAR_CLASS)});
+                    var node = container.one('.'+STATUSBAR_CLASS);
+                    statusbarinstance = instance._itsastatusbar = new Y.ITSAStatusbar({parentNode: node});
                     // to make targeting Y.ITSAMessages to this instance posible:
                     instance._viewName = statusbarinstance._viewName;
                     if (model) {
@@ -1173,6 +1176,7 @@ ITSAViewModel.prototype.render = function (clear) {
                             }
                         );
                     }
+                    instance._repositionStatusbar();
                 }
             );
         }
