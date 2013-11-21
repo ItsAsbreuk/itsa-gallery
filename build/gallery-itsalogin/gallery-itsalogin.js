@@ -169,7 +169,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
         intl = ITSADialogInstance._intl,
         params = instance._retrieveLoginParams(title, message, config, sync),
         MyITSAMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, regain, rememberValue,
-        imageButtons, footer, primaryButton, forgotButton, regainFn, createAccountPromise, required, showStayLoggedin, usernameIsEmail;
+        imageButtons, footer, primaryButton, forgotButton, createAccountPromise, required, showStayLoggedin, usernameIsEmail;
     title = params.title;
     message = params.message;
     config = params.config;
@@ -329,7 +329,6 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                 itsamessage.on(MESSAGERESOLVE, function(e) {
                     if (e.attrs && (e.attrs.button===FORGOT)) {
                         e.preventDefault(); // prevents the panel from resolving
-                        regainFn = (regain===USERNAME_OR_PASSWORD) ? ITSADialogInstance._regainFn_UnPw(config) : ITSADialogInstance._regainFn_Pw(config, syncPromise);
                         ITSADialogInstance._panels[INFO].focusInitialItem()
                         .then(
                             null,
@@ -339,21 +338,21 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                         )
                         .then(
                             function() {
-                                return regainFn;
+                                return (regain===USERNAME_OR_PASSWORD) ? ITSADialogInstance._regainFn_UnPw(config) : true;
                             }
                         )
                         .then(
                             function(result) {
-                                if (result.button===FORGOT_USERNAME) {
+                                if ((result.button===FORGOT_USERNAME) || (regain===USERNAME)) {
                                     return ITSADialogInstance._regainFn_Un(config, syncPromise);
                                 }
-                                else if ((result.button===FORGOT_PASSWORD) && !usernameIsEmail) { // !usernameIsEmail --> do duplicate panels
+                                else if ((result.button===FORGOT_PASSWORD) && (regain===PASSWORD)) {
                                     return ITSADialogInstance._regainFn_Pw(config, syncPromise);
                                 }
                             },
                             function(reason) {
 /*jshint expr:true */
-                                (reason instanceof Error) && Y.showError(reason);
+                                (reason instanceof Error) && Y.showError(reason.message);
 /*jshint expr:false */
                             }
                         );
@@ -722,6 +721,7 @@ ITSADialogClass.prototype._regainFn_UnPw = function(config) {
  *
 */
 ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
+console.log('_regainFn_Un');
     var formconfigForgotUsername, MyForgotUsername, message, forgotUsername, imageButtons, intl;
     intl = ITSADialogInstance._intl;
     // setting config for username:
@@ -782,6 +782,7 @@ ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
  *
 */
 ITSADialogClass.prototype._regainFn_Pw = function(config, syncPromise) {
+console.log('_regainFn_Pw');
     var formconfigForgotPassword, MyForgotPassword, message, forgotPassword, imageButtons, intl, usernameIsEmail;
     intl = ITSADialogInstance._intl;
     usernameIsEmail = ((typeof config.usernameIsEmail === BOOLEAN) && config.usernameIsEmail) || false;
