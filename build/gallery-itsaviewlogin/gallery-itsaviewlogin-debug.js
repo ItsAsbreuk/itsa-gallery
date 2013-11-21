@@ -583,6 +583,14 @@ ITSAViewLogin.prototype.initializer = function() {
         )
     );
     eventhandlers.push(
+        instance.on(
+            'buttonclick',
+            function(e) {
+                console.log('button clicked: '+e.value);
+            }
+        )
+    );
+    eventhandlers.push(
         Y.after(
             LOGGEDIN,
             function(e) {

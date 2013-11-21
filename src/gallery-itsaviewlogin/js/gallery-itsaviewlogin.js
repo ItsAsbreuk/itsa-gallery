@@ -111,8 +111,9 @@ var Lang = Y.Lang,
     GALLERYCSS_DIALOG = GALLERYCSS+DIALOG,
     GALLERYCSS_FORM = GALLERYCSS+'form',
     GALLERYCSS_ANIMATESPIN = GALLERYCSS+'animatespin',
-    GALLERYITSAI18NLOGIN = GALLERY+'-itsa-i18n-login',
-    GALLERYITSADIALOG = GALLERY+'-itsa'+DIALOG,
+    GALLERYITSAI18NLOGIN = GALLERY+'-'+ITSA+'-i18n-login',
+    GALLERYITSADIALOG = GALLERY+'-'+ITSA+DIALOG,
+    GALLERYITSALOGIN = GALLERY+'-'ITSA+LOGIN,
     ITSAVIEWLOGIN = ITSA+'view'+LOGIN,
     ITSAVIEWLOGIN_LOGGEDIN = ITSAVIEWLOGIN+'-'+LOGGED+'in',
     ITSAVIEWLOGIN_LOGGEDOUT = ITSAVIEWLOGIN+'-'+LOGGED+'out',
@@ -577,6 +578,22 @@ ITSAViewLogin.prototype.initializer = function() {
             SYNC+CHANGE,
             function(e) {
                 instance.get(MODEL)[SYNC+'Promise']=e.newVal;
+            }
+        )
+    );
+    eventhandlers.push(
+        instance.on(
+            'buttonclick',
+            function(e) {
+                var value = e.value;
+                if (value===FORGOT) {
+                    Y.usePromise(GALLERYITSADIALOG).then(
+                        Y.ITSADialog.
+                    );
+                }
+                else if (value===CREATEACCOUNT) {
+
+                }
             }
         )
     );
