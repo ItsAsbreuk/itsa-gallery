@@ -1,6 +1,7 @@
 {
     "gallery-itsaviewmodel": {
         "requires": [
+            "yui-base",
             "gallery-itsapluginpromise",
             "intl",
             "base-base",

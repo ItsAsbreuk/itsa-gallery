@@ -2409,6 +2409,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
 
 }, '@VERSION@', {
     "requires": [
+        "yui-base",
         "gallery-itsapluginpromise",
         "intl",
         "base-base",
