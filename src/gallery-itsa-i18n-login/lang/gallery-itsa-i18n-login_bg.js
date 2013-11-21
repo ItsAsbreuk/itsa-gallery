@@ -20,7 +20,7 @@
     iforgotpassword: 'Забравих си паролата',
     iforgotusername: 'Забравих потребителското си име',
     loggedin: 'Активен в',
-    loggedinas: 'Влезли сте като {user}',
+    loggedinas: 'Влезли сте като {displayname}',
     login: 'Влез',
     loginblocked: 'Вход е блокиран',
     loginrightlevel: 'Вие нямате права да видите тази страница, моля влезте с необходимото ниво вход',
@@ -67,5 +67,5 @@
     wrongpassword: 'Въвели сте грешна парола',
     wrongusernameorpassword: 'Въвели сте грешна електронна поща или парола',
     youareloggedin: 'Сте влезли в',
-    youareloggedinas: 'Вие сте влязъл като {user}'
+    youareloggedinas: 'Вие сте влязъл като {displayname}'
 }

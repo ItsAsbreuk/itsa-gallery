@@ -20,7 +20,7 @@
     iforgotpassword: 'שכחתי את הסיסמה שלי',
     iforgotusername: 'שכחתי את שם המשתמש שלי',
     loggedin: 'מחובר',
-    loggedinas: 'מחובר בשם {user}',
+    loggedinas: 'מחובר בשם {displayname}',
     login: 'התחברות',
     loginblocked: 'כניסה חסומה',
     loginrightlevel: 'אין לך הרשאות לראות את הדף הזה, אנא התחבר עם רמת הכניסה הנכונה',
@@ -67,5 +67,5 @@
     wrongpassword: 'אתה נכנס לסיסמה השגויה',
     wrongusernameorpassword: 'אתה נכנס לשם משתמש או סיסמא השגוי',
     youareloggedin: 'אתה מחובר',
-    youareloggedinas: 'אתה מחובר כ {user}'
+    youareloggedinas: 'אתה מחובר כ {displayname}'
 }

@@ -20,7 +20,7 @@
     iforgotpassword: 'Jag har glömt mitt lösenord',
     iforgotusername: 'Jag har glömt mitt användarnamn',
     loggedin: 'Loggade in',
-    loggedinas: 'Inloggad som {user}',
+    loggedinas: 'Inloggad som {displayname}',
     login: 'Inloggning',
     loginblocked: 'Inloggning är blockerad',
     loginrightlevel: 'Du har inte behörighet att se denna sida, vänligen logga in med rätt loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Du angav fel lösenord',
     wrongusernameorpassword: 'Du angav fel användarnamn eller lösenord',
     youareloggedin: 'Du är inloggad',
-    youareloggedinas: 'Du är inloggad som {user}'
+    youareloggedinas: 'Du är inloggad som {displayname}'
 }

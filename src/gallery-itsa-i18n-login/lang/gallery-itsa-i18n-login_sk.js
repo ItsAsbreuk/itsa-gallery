@@ -20,7 +20,7 @@
     iforgotpassword: 'Zabudol som svoje heslo',
     iforgotusername: 'Zabudol som užívateľské meno',
     loggedin: 'Prihlásený',
-    loggedinas: 'Prihlásený ako {user}',
+    loggedinas: 'Prihlásený ako {displayname}',
     login: 'Prihlásenie',
     loginblocked: 'Prihlásenie je blokovaný',
     loginrightlevel: 'Nemáte práva na zobrazenie tejto stránky, prosím prihláste sa s pravou loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Zadali ste nesprávne heslo',
     wrongusernameorpassword: 'Zadali ste nesprávnu e-mailovú adresu alebo heslo',
     youareloggedin: 'Ste prihlásený',
-    youareloggedinas: 'Ste prihlásený ako {user}'
+    youareloggedinas: 'Ste prihlásený ako {displayname}'
 }

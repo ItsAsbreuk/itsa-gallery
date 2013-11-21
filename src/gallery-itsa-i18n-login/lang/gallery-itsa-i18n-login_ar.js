@@ -20,7 +20,7 @@
     iforgotpassword: 'لقد نسيت كلمة المرور',
     iforgotusername: 'لقد نسيت اسم المستخدم الخاص بي',
     loggedin: 'تسجيل في',
-    loggedinas: 'مسجله في {user}',
+    loggedinas: 'مسجله في {displayname}',
     login: 'دخول',
     loginblocked: 'تم حظر الدخول',
     loginrightlevel: 'ليس لديك الحق في الاطلاع على هذه الصفحة، يرجى تسجيل الدخول مع مستوى دخول الحق',
@@ -67,5 +67,5 @@
     wrongpassword: 'كنت دخلت كلمة مرور خاطئة',
     wrongusernameorpassword: 'كنت دخلت اسم المستخدم أو كلمة مرور خاطئة',
     youareloggedin: 'قمت بتسجيل الدخول',
-    youareloggedinas: 'قمت بتسجيل الدخول في ك {user}'
+    youareloggedinas: 'قمت بتسجيل الدخول في ك {displayname}'
 }

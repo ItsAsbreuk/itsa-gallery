@@ -20,7 +20,7 @@
     iforgotpassword: 'Jeg har glemt passordet',
     iforgotusername: 'Jeg har glemt brukernavnet',
     loggedin: 'Logget inn',
-    loggedinas: 'Logget inn som {user}',
+    loggedinas: 'Logget inn som {displayname}',
     login: 'Innlogging',
     loginblocked: 'Logg blokkert',
     loginrightlevel: 'Du har ikke rettigheter til å se denne siden, kan du logge på med riktig login nivå',
@@ -67,5 +67,5 @@
     wrongpassword: 'Du har tastet inn feil passord',
     wrongusernameorpassword: 'Du har tastet inn feil brukernavn eller passord',
     youareloggedin: 'Du er logget inn',
-    youareloggedinas: 'Du er logget inn som {user}'
+    youareloggedinas: 'Du er logget inn som {displayname}'
 }

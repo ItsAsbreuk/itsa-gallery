@@ -20,7 +20,7 @@
     iforgotpassword: 'Заборавио сам шифру',
     iforgotusername: 'Заборавио сам корисничко име',
     loggedin: 'Сачувана у',
-    loggedinas: 'Пријављен као {user}',
+    loggedinas: 'Пријављен као {displayname}',
     login: 'Пријава',
     loginblocked: 'Пријава је блокиран',
     loginrightlevel: 'Ви немате права да видите ову страницу, молим вас пријавите са правом логинлевел',
@@ -67,5 +67,5 @@
     wrongpassword: 'Унели сте погрешну лозинку',
     wrongusernameorpassword: 'Унели сте погрешан корисничко име или лозинку',
     youareloggedin: 'Пријављени сте',
-    youareloggedinas: 'Пријављени сте као {user}'
+    youareloggedinas: 'Пријављени сте као {displayname}'
 }

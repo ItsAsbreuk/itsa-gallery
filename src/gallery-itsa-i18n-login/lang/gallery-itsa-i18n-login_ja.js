@@ -20,7 +20,7 @@
     iforgotpassword: '私は自分のパスワードを忘れてしまった',
     iforgotusername: '私は自分のユーザー名を忘れてしまった',
     loggedin: 'ログインして',
-    loggedinas: 'としてログイン、{user}',
+    loggedinas: 'としてログイン、{displayname}',
     login: 'ログイン',
     loginblocked: 'ログインがブロックされている',
     loginrightlevel: 'あなたはこのページを参照する権限を持っていない、右のログインレベルでログインしてください',
@@ -67,5 +67,5 @@
     wrongpassword: 'あなたが間違ったパスワードを入力',
     wrongusernameorpassword: 'あなたは、間違ったユーザー名またはパスワードを入力した',
     youareloggedin: 'あなたがログインしている',
-    youareloggedinas: 'あなたは、{user}、としてログインしている'
+    youareloggedinas: 'あなたは、{displayname}、としてログインしている'
 }

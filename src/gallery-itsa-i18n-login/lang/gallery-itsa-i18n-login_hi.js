@@ -20,7 +20,7 @@
     iforgotpassword: 'मैं अपना पासवर्ड भूल गया',
     iforgotusername: 'मैं अपना उपयोगकर्ता नाम भूल गया',
     loggedin: 'में लॉग',
-    loggedinas: 'के रूप में लॉग {user}',
+    loggedinas: 'के रूप में लॉग {displayname}',
     login: 'लॉगिन',
     loginblocked: 'लॉगइन अवरुद्ध है',
     loginrightlevel: 'आप इस पृष्ठ को देखने के लिए अधिकार नहीं है, सही loginlevel साथ लॉगिन करें',
@@ -67,5 +67,5 @@
     wrongpassword: 'आप गलत पासवर्ड दर्ज',
     wrongusernameorpassword: 'आप गलत उपयोगकर्ता नाम या पासवर्ड दर्ज',
     youareloggedin: 'तुम में लॉग इन कर रहे हैं',
-    youareloggedinas: 'आप {user} के रूप में लॉग इन किया है'
+    youareloggedinas: 'आप {displayname} के रूप में लॉग इन किया है'
 }

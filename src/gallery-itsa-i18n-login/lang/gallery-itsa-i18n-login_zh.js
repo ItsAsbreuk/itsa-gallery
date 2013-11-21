@@ -20,7 +20,7 @@
     iforgotpassword: '我忘記了密碼',
     iforgotusername: '我忘了我的用戶名',
     loggedin: '登錄',
-    loggedinas: '登入為，{user}',
+    loggedinas: '登入為，{displayname}',
     login: '註冊',
     loginblocked: '被封鎖登入',
     loginrightlevel: '你沒有看到這個頁面的權利，請登錄登陸水平',
@@ -67,5 +67,5 @@
     wrongpassword: '你輸入了錯誤的密碼',
     wrongusernameorpassword: '你輸入了錯誤的用戶名或密碼',
     youareloggedin: '您登錄',
-    youareloggedinas: '您登錄，{user}'
+    youareloggedinas: '您登錄，{displayname}'
 }

@@ -20,7 +20,7 @@
     iforgotpassword: 'Ho dimenticato la password',
     iforgotusername: 'Ho dimenticato il mio nome utente',
     loggedin: 'Registrato in',
-    loggedinas: 'Collegato come {user}',
+    loggedinas: 'Collegato come {displayname}',
     login: 'Accedi',
     loginblocked: 'Accedi bloccato',
     loginrightlevel: 'Non si dispone dei diritti per vedere questa pagina, per favore accedi con la loginlevel destra',
@@ -67,5 +67,5 @@
     wrongpassword: 'Hai inserito la password sbagliata',
     wrongusernameorpassword: 'Hai inserito il nome utente o la password sbagliata',
     youareloggedin: 'Siete collegati',
-    youareloggedinas: 'Sei stato registrato come {user}'
+    youareloggedinas: 'Sei stato registrato come {displayname}'
 }

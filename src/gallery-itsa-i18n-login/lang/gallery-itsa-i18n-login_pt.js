@@ -20,7 +20,7 @@
     iforgotpassword: 'Esqueci minha senha',
     iforgotusername: 'Eu esqueci meu nome de usuário',
     loggedin: 'Logado',
-    loggedinas: 'Logado como {user}',
+    loggedinas: 'Logado como {displayname}',
     login: 'Login',
     loginblocked: 'Entrar é bloqueado',
     loginrightlevel: 'Você não tem o direito de ver esta página, faça o login com o loginlevel direita',
@@ -67,5 +67,5 @@
     wrongpassword: 'Você digitou a senha errada',
     wrongusernameorpassword: 'Você digitou o nome de usuário ou senha errada',
     youareloggedin: 'Você está logado',
-    youareloggedinas: 'Você está logado como {user}'
+    youareloggedinas: 'Você está logado como {displayname}'
 }

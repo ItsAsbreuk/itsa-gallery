@@ -20,7 +20,7 @@
     iforgotpassword: 'Nie pamiętam nazwy hasła',
     iforgotusername: 'Nie pamiętam nazwy użytkownika',
     loggedin: 'Zalogowany',
-    loggedinas: 'Zalogowany jako {user}',
+    loggedinas: 'Zalogowany jako {displayname}',
     login: 'Login',
     loginblocked: 'Logowanie jest zablokowany',
     loginrightlevel: 'Nie masz uprawnień, aby zobaczyć tę stronę, zaloguj się w prawym loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Wprowadzono błędne hasło',
     wrongusernameorpassword: 'Wpisano niewłaściwy login i hasło',
     youareloggedin: 'Jesteś zalogowany',
-    youareloggedinas: 'Jesteś zalogowany jako {user}'
+    youareloggedinas: 'Jesteś zalogowany jako {displayname}'
 }

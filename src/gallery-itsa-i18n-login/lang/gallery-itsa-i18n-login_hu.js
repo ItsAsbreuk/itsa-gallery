@@ -20,7 +20,7 @@
     iforgotpassword: 'Elfelejtettem a jelszavam',
     iforgotusername: 'Elfelejtettem a felhasználónevemet',
     loggedin: 'Bejelentkezve a',
-    loggedinas: 'Belépve mint {user}',
+    loggedinas: 'Belépve mint {displayname}',
     login: 'Bejelentkezés',
     loginblocked: 'Bejelentkezés blokkolva',
     loginrightlevel: 'Nem kell a jogot, hogy ezt az oldalt, akkor jelentkezzen be a megfelelő loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Ön rossz jelszót',
     wrongusernameorpassword: 'Is hibásan felhasználónév vagy jelszó',
     youareloggedin: 'Be van jelentkezve',
-    youareloggedinas: 'Be van jelentkezve az {user}'
+    youareloggedinas: 'Be van jelentkezve az {displayname}'
 }

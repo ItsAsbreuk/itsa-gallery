@@ -20,7 +20,7 @@
     iforgotpassword: 'J\'ai oublié mon mot de passe',
     iforgotusername: 'J\'ai oublié mon nom d\'utilisateur',
     loggedin: 'Connecté',
-    loggedinas: 'Connecté en tant que {user}',
+    loggedinas: 'Connecté en tant que {displayname}',
     login: 'Connexion',
     loginblocked: 'Connexion est bloqué',
     loginrightlevel: 'Vous n\'avez pas le droit de voir cette page, s\'il vous plaît vous connecter avec le niveau de connexion à droite',
@@ -67,5 +67,5 @@
     wrongpassword: 'Vous avez entré le mauvais mot de passe',
     wrongusernameorpassword: 'Vous avez entré le mauvais nom d\'utilisateur ou mot de passe',
     youareloggedin: 'Vous êtes connecté',
-    youareloggedinas: 'Vous êtes connecté en tant {user}'
+    youareloggedinas: 'Vous êtes connecté en tant {displayname}'
 }

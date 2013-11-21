@@ -20,7 +20,7 @@
     iforgotpassword: 'Я забув свій пароль',
     iforgotusername: 'Я забув своє ім\'я користувача',
     loggedin: 'Зайшли',
-    loggedinas: 'Ви увійшли як {user}',
+    loggedinas: 'Ви увійшли як {displayname}',
     login: 'Увійти',
     loginblocked: 'Вхід заблоковано',
     loginrightlevel: 'У вас немає прав, щоб побачити цю сторінку, увійдіть з правом loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Ви ввели неправильний пароль',
     wrongusernameorpassword: 'Ви ввели неправильне ім\'я користувача або пароль',
     youareloggedin: 'Ви увійшли',
-    youareloggedinas: 'Ви увійшли як {user}'
+    youareloggedinas: 'Ви увійшли як {displayname}'
 }

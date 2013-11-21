@@ -20,7 +20,7 @@
     iforgotpassword: 'Olen unohtanut salasanani',
     iforgotusername: 'Olen unohtanut käyttäjätunnukseni',
     loggedin: 'Kirjautunut',
-    loggedinas: 'Kirjautunut nimellä {user}',
+    loggedinas: 'Kirjautunut nimellä {displayname}',
     login: 'Kirjaudu',
     loginblocked: 'Kirjautuminen on estetty',
     loginrightlevel: 'Sinulla ei ole oikeuksia nähdä tämän sivun, kirjaudu sisään oikean loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Annoit väärän salasanan',
     wrongusernameorpassword: 'Annoit väärän käyttäjätunnuksen tai salasanan',
     youareloggedin: 'Olet kirjautunut',
-    youareloggedinas: 'Olet kirjautunut sisään {user}'
+    youareloggedinas: 'Olet kirjautunut sisään {displayname}'
 }

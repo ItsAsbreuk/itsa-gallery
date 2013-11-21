@@ -20,7 +20,7 @@
     iforgotpassword: 'من رمز عبور را فراموش کرده ام',
     iforgotusername: 'نام کاربری خود را فراموش کرده ام',
     loggedin: 'خارج شده است در',
-    loggedinas: 'به عنوان خارج شده است {user}',
+    loggedinas: 'به عنوان خارج شده است {displayname}',
     login: 'ورود به سیستم',
     loginblocked: 'ورود مسدود شده است',
     loginrightlevel: 'شما حقوق برای دیدن این صفحه را نداشته باشند، لطفا با نام کاربری خود وارد شوید، یا ثبت نام با سطح ورود به راست',
@@ -67,5 +67,5 @@
     wrongpassword: 'شما وارد رمز عبور اشتباه است',
     wrongusernameorpassword: 'شما نام کاربری یا رمز عبور اشتباه وارد شده',
     youareloggedin: 'شما وارد',
-    youareloggedinas: 'شما به عنوان {user} وارد'
+    youareloggedinas: 'شما به عنوان {displayname} وارد'
 }

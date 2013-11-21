@@ -20,7 +20,7 @@
     iforgotpassword: 'Ik ben mijn wachtwoord vergeten',
     iforgotusername: 'Ik ben mijn gebruikersnaam vergeten',
     loggedin: 'Ingelogd',
-    loggedinas: 'Ingelogd als {user}',
+    loggedinas: 'Ingelogd als {displayname}',
     login: 'Inloggen',
     loginblocked: 'De login is geblokkeerd',
     loginrightlevel: 'U hebt geen rechten deze pagina te bekijken, log in met de juiste login-rechten',
@@ -67,5 +67,5 @@
     wrongpassword: 'U heeft een onjuist wachtwoord ingevoerd',
     wrongusernameorpassword: 'U heeft het verkeerde gebruikersnaam of wachtwoord ingevoerd',
     youareloggedin: 'U bent ingelogd',
-    youareloggedinas: 'U bent ingelogd als {user}'
+    youareloggedinas: 'U bent ingelogd als {displayname}'
 }

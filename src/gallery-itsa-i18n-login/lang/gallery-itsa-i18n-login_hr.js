@@ -20,7 +20,7 @@
     iforgotpassword: 'Zaboravio sam lozinku',
     iforgotusername: 'Zaboravio sam korisničko ime',
     loggedin: 'Prijavljen',
-    loggedinas: 'Prijavljen kao {user}',
+    loggedinas: 'Prijavljen kao {displayname}',
     login: 'Prijava',
     loginblocked: 'Prijava je blokiran',
     loginrightlevel: 'Vi nemate pravo da vidite ovu stranicu, molimo prijavite se s pravom loginlevel',
@@ -67,5 +67,5 @@
     wrongpassword: 'Vi ste unijeli pogrešnu lozinku',
     wrongusernameorpassword: 'Unijeli ste pogrešan korisničko ime i zaporku',
     youareloggedin: 'You are logged in',
-    youareloggedinas: 'Vi ste prijavljeni kao {user}'
+    youareloggedinas: 'Vi ste prijavljeni kao {displayname}'
 }
