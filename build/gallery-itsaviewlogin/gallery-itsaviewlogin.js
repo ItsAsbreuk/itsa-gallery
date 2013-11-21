@@ -92,6 +92,7 @@ var Lang = Y.Lang,
     CCOUNT = 'ccount',
     IMG = 'img',
     SUBMIT = 'submit',
+    FORGOT = 'forgot',
     BTN_ = 'btn_',
     BTNSUBMIT = BTN_+SUBMIT,
     IMGBTN_ = IMG+BTN_,
@@ -100,11 +101,14 @@ var Lang = Y.Lang,
     CAP_CREATEACCOUNT = CREATE+'A'+CCOUNT,
     REGAIN = 'regain',
     USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
-    FORGOT = 'forgot',
+    FORGOT_USERNAME = FORGOT+USERNAME,
+    FORGOT_PASSWORD = FORGOT+PASSWORD,
+    FORGOT_PASSWORD_EMAIL = FORGOT_PASSWORD+EMAIL,
+    FORGOT_USERNAMEORPASSWORD = FORGOT+USERNAMEORPASSWORD,
     DIALOG = 'dialog',
     DESTROYED = 'destroyed',
     IMAGEBUTTONS = 'imageButtons',
-    ICONTEMPLATE = '<i class="{icon}"></i>',
+    ICONTEMPLATE = '<i class="itsa-mainicon {icon}"></i>',
     ITSABUTTON_ICONLEFT = ITSA+'button-iconleft',
     I_CLASS_ITSADIALOG = '<i class="itsaicon-'+DIALOG,
     CONTAINER = 'container',
@@ -113,8 +117,9 @@ var Lang = Y.Lang,
     GALLERYCSS_DIALOG = GALLERYCSS+DIALOG,
     GALLERYCSS_FORM = GALLERYCSS+'form',
     GALLERYCSS_ANIMATESPIN = GALLERYCSS+'animatespin',
-    GALLERYITSAI18NLOGIN = GALLERY+'-itsa-i18n-login',
-    GALLERYITSADIALOG = GALLERY+'-itsa'+DIALOG,
+    GALLERYITSAI18NLOGIN = GALLERY+'-'+ITSA+'-i18n-login',
+    GALLERYITSADIALOG = GALLERY+'-'+ITSA+DIALOG,
+    GALLERYITSALOGIN = GALLERY+'-'+ITSA+LOGIN,
     ITSAVIEWLOGIN = ITSA+'view'+LOGIN,
     ITSAVIEWLOGIN_LOGGEDIN = ITSAVIEWLOGIN+'-'+LOGGED+'in',
     ITSAVIEWLOGIN_LOGGEDOUT = ITSAVIEWLOGIN+'-'+LOGGED+'out',
@@ -584,7 +589,51 @@ ITSAViewLogin.prototype.initializer = function() {
         instance.on(
             'buttonclick',
             function(e) {
-                console.log('button clicked: '+e.value);
+                var value = e.value;
+                if (value===FORGOT) {
+                    Y.usePromise(GALLERYITSALOGIN).then(
+                        function() {
+                            var ITSADialogInstance = Y.ITSADialog,
+                                regain = instance.get(REGAIN),
+                                config = {
+
+                                },
+                                syncPromise = instance.get(SYNC);
+                            instance.focusInitialItem()
+                            .then(
+                                null,
+                                function() {
+                                    return true; // fulfill the chain
+                                }
+                            )
+                            .then(
+                                function() {
+                                    return (regain===USERNAMEORPASSWORD) ?
+                                           ITSADialogInstance._regainFn_UnPw(config) :
+                                           true;
+                                }
+                            )
+                            .then(
+                                function(result) {
+                                    if ((result.button===FORGOT_USERNAME) || (regain===USERNAME)) {
+                                        return ITSADialogInstance._regainFn_Un(config, syncPromise);
+                                    }
+                                    else if ((result.button===FORGOT_PASSWORD) || (regain===PASSWORD)) {
+                                        return ITSADialogInstance._regainFn_Pw(config, syncPromise);
+                                    }
+                                },
+                                function(reason) {
+    /*jshint expr:true */
+                                    (reason instanceof Error) && Y.showError(reason.message);
+    /*jshint expr:false */
+                                }
+                            );
+                        }
+                    );
+                }
+                else if (value===CREATEACCOUNT) {
+
+                }
             }
         )
     );

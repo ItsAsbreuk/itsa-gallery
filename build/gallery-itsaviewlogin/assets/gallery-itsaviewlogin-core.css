@@ -57,3 +57,8 @@
 .itsaviewlogin .pure-form-aligned .pure-controls.itsa-login-checkbox {
     margin: 0.1em 0 1.5em;
 }
+
+.itsaviewlogin .itsa-mainicon {
+    margin-right: 0.4em;
+    font-size: 300%;
+}
