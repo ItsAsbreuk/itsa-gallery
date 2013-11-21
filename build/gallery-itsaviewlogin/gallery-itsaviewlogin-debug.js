@@ -538,7 +538,7 @@ ITSAViewLogin.prototype.initializer = function() {
                 instance._loggedin = true;
                 instance._user = e.user;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
-                Y.later(25, null, function() {
+//                Y.soon(function() {
                     if (!instance.get(DESTROYED)) {
     /*jshint expr:true */
                         messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
@@ -549,7 +549,7 @@ ITSAViewLogin.prototype.initializer = function() {
                         instance._setTemplateRenderer(false);
                         instance.render();
                     }
-                });
+  //              });
             }
         )
     );
@@ -563,7 +563,7 @@ console.log('event logout occured');
                 instance._loggedin = false;
                 instance._user = null;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
-                Y.later(5000, null, function() {
+//                Y.later(50, null, function() {
                     if (!instance.get(DESTROYED)) {
                         instance.setSubmitButtons(true);
                         model._set(BUTTON, GETLOGIN);
@@ -571,7 +571,7 @@ console.log('event logout occured');
                         instance._setTemplateRenderer(true);
                         instance.render();
                     }
-                });
+  //              });
             }
         )
     );
