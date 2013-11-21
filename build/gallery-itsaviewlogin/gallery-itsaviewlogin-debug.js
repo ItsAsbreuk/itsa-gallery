@@ -58,13 +58,19 @@ var Lang = Y.Lang,
     SYNC = 'sync',
     ITSA = 'itsa',
     OGIN = 'ogin',
+    OGOUT = 'ogout',
     GET = 'get',
     MESSAGELOGGEDIN = 'messageLoggedin',
     CAP_GETLOGIN = GET+'L'+OGIN,
     LOGIN = 'l'+OGIN,
-    LOGOUT = 'logout',
+    LOGOUT = 'l'+OGOUT,
+    ICONLOGIN = ICON+'L'+OGIN,
+    ICONLOGOUT = ICON+'L'+OGOUT,
     GETLOGIN = GET+LOGIN,
     ITSA_LOGIN = ITSA+'-'+LOGIN,
+    TEMPLATE = 'Template',
+    LOGINTEMPLATE = LOGIN+TEMPLATE,
+    LOGOUTTEMPLATE = LOGOUT+TEMPLATE,
     LABEL = 'label',
     PLACEHOLDER = 'placeholder',
     CLASSNAME = 'classname',
@@ -77,7 +83,6 @@ var Lang = Y.Lang,
     ENDFIELDSET = '</fieldset>',
     ENDDIV = '</div>',
     ERROR = 'error',
-    PUBLISHED_LOGGEDIN = '_pub_'+LOGGEDIN,
     CHANGE = 'Change',
     OBJECT = 'object',
     STRING = 'string',
@@ -92,7 +97,6 @@ var Lang = Y.Lang,
     IMGBTN_ = IMG+BTN_,
     CREATEACCOUNT = CREATE+'a'+CCOUNT,
     BTN_CREATEACCOUNT = 'btn_'+CREATEACCOUNT,
-    IMGBTN_CREATEACCOUNT = IMG+BTN_CREATEACCOUNT,
     CAP_CREATEACCOUNT = CREATE+'A'+CCOUNT,
     REGAIN = 'regain',
     USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
@@ -101,8 +105,9 @@ var Lang = Y.Lang,
     DESTROYED = 'destroyed',
     IMAGEBUTTONS = 'imageButtons',
     ICONTEMPLATE = '<i class="{icon}"></i>',
-    ITSABUTTON_ICONLEFT = 'itsabutton-iconleft',
+    ITSABUTTON_ICONLEFT = ITSA+'button-iconleft',
     I_CLASS_ITSADIALOG = '<i class="itsaicon-'+DIALOG,
+    CONTAINER = 'container',
     GALLERY = 'gallery',
     GALLERYCSS = GALLERY+'css-itsa-',
     GALLERYCSS_DIALOG = GALLERYCSS+DIALOG,
@@ -110,6 +115,9 @@ var Lang = Y.Lang,
     GALLERYCSS_ANIMATESPIN = GALLERYCSS+'animatespin',
     GALLERYITSAI18NLOGIN = GALLERY+'-itsa-i18n-login',
     GALLERYITSADIALOG = GALLERY+'-itsa'+DIALOG,
+    ITSAVIEWLOGIN = ITSA+'view'+LOGIN,
+    ITSAVIEWLOGIN_LOGGEDIN = ITSAVIEWLOGIN+'-'+LOGGED+'in',
+    ITSAVIEWLOGIN_LOGGEDOUT = ITSAVIEWLOGIN+'-'+LOGGED+'out',
     PARSED = function (response) {
         if (typeof response === 'string') {
             try {
@@ -209,20 +217,33 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             initOnly: true
         },
         /**
-         * Main icon created inside the view - above the fromfields, next to 'message'
+         * Main icon created inside the loginview - above the fromfields, next to 'message'
          *
-         * @attribute icon
+         * @attribute iconLogin
          * @type {String}
          * @default null
          * @since 0.1
          */
-        icon: {
+        iconLogin: {
             value: null,
             validator: function(v) {
-                return (typeof v === STRING);
+                return (v===null) || (typeof v === STRING);
             }
         },
-
+        /**
+         * Main icon created inside the logoutview - above the fromfields, next to 'message'
+         *
+         * @attribute iconLogout
+         * @type {String}
+         * @default null
+         * @since 0.1
+         */
+        iconLogout: {
+            value: null,
+            validator: function(v) {
+                return (v===null) || (typeof v === STRING);
+            }
+        },
         /**
          * Whether to have imagebuttons
          *
@@ -237,6 +258,37 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
                 return (typeof v === BOOLEAN);
             },
             initOnly: true
+        },
+        /**
+         * Set this for a custom logintemplate. Make sure it has {username}, {password}, {btn_submit}.<br>
+         * Optional you could may use {btn_createaccount} and {btn_forgot}.<br>
+         * By setting this attribute, you overrule the default logintemplate.
+         *
+         * @attribute loginTemplate
+         * @type {String}
+         * @default null
+         * @since 0.1
+         */
+        loginTemplate: {
+            value: null,
+            validator: function(v) {
+                return (v===null) || (typeof v === STRING);
+            }
+        },
+        /**
+         * Set this for a custom logouttemplate. Make sure it has {btn_submit}.<br>
+         * By setting this attribute, you overrule the default logouttemplate.
+         *
+         * @attribute logoutTemplate
+         * @type {String}
+         * @default null
+         * @since 0.1
+         */
+        logoutTemplate: {
+            value: null,
+            validator: function(v) {
+                return (v===null) || (typeof v === STRING);
+            }
         },
         /**
          * Message that appears above the formfields.
@@ -369,7 +421,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
         */
         template: {
             readOnly: true,
-            getter: '_getterTemplate'
+            getter: '_getterTempl'
         },
         /**
          * Username that passes through to the underlying model.
@@ -487,6 +539,7 @@ ITSAViewLogin.prototype.initializer = function() {
         eventhandlers = instance._eventhandlers,
         loginintl;
 
+    instance.get(CONTAINER).addClass(ITSAVIEWLOGIN);
     loginintl = instance._loginintl;
     instance.setSubmitButtons(true);
     if (instance.get(IMAGEBUTTONS)) {
@@ -540,10 +593,15 @@ ITSAViewLogin.prototype.initializer = function() {
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
 //                Y.soon(function() {
                     if (!instance.get(DESTROYED)) {
+                        instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDIN);
+                        instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDOUT);
     /*jshint expr:true */
                         messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
     /*jshint expr:false */
                         instance.setSubmitButtons(false);
+                        model._set(USERNAME, instance.get(USERNAME));
+                        model._set(PASSWORD, instance.get(PASSWORD));
+                        model._set(REMEMBER, instance.get(REMEMBER));
                         model._set(BUTTON, LOGOUT);
                         model.setSyncMessage(SUBMIT, loginintl.loggingout);
                         instance._setTemplateRenderer(false);
@@ -558,20 +616,21 @@ ITSAViewLogin.prototype.initializer = function() {
         Y.on(
             LOGGEDOUT,
             function(e) {
-console.log('event logout occured');
                 var model = instance.get(MODEL);
                 instance._loggedin = false;
                 instance._user = null;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
-//                Y.later(50, null, function() {
+                Y.soon(function() {
                     if (!instance.get(DESTROYED)) {
+                        instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDOUT);
+                        instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDIN);
                         instance.setSubmitButtons(true);
                         model._set(BUTTON, GETLOGIN);
                         model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
                         instance._setTemplateRenderer(true);
                         instance.render();
                     }
-  //              });
+                });
             }
         )
     );
@@ -580,10 +639,13 @@ console.log('event logout occured');
         instance.on('*:submit', function(e) {
             var formmodel = e.target,
                 logout = (formmodel.get('button')===LOGOUT);
-            e.promise._logout = logout; // flag for aftersubscriber;
-    /*jshint expr:true */
-            logout && Y.fire(LOGGEDOUT);
-    /*jshint expr:false */
+            if (e.currentTarget===instance) {
+                e.promise._logout = logout; // flag for aftersubscriber;
+    console.log('before submit, logout: '+e.promise._logout);
+        /*jshint expr:true */
+                logout && Y.fire(LOGGEDOUT);
+        /*jshint expr:false */
+            }
         })
     );
 
@@ -600,6 +662,7 @@ console.log('event logout occured');
                             loginintl = instance._loginintl,
                             messageType = formmodel.messageType,
                             message, facade;
+console.log('after submit, logout: '+promise._logout);
                         if (responseObj && responseObj.status && !promise._logout) {
                             if (responseObj.status==='ERROR') {
                                 message = responseObj.message || loginintl.unspecifiederror;
@@ -845,44 +908,50 @@ ITSAViewLogin.prototype._defineModel = function() {
 };
 
 /**
- * @method _getterTemplate
+ * @method _getterTempl
  * @private
  * @since 0.1
 */
-ITSAViewLogin.prototype._getterTemplate = function() {
-    Y.log('_getterTemplate', 'info', 'ITSAViewLogin');
-    var instance = this;
-    return instance._loggedin ? instance._loggedoutTemplate() : instance._loggedinTemplate();
+ITSAViewLogin.prototype._getterTempl = function() {
+    Y.log('_getterTempl', 'info', 'ITSAViewLogin');
+    var instance = this,
+        template = instance._loggedin ? instance._logoutTempl() : instance._loginTempl();
+
+    return instance.get(IMAGEBUTTONS) ? template.replace(/\{btn_/g, '{'+IMGBTN_) : template;
 };
 
 /**
- * @method _loggedinTemplate
+ * @method _loginTempl
  * @private
  * @since 0.1
 */
-ITSAViewLogin.prototype._loggedinTemplate = function() {
-    Y.log('_loggedinTemplate', 'info', 'ITSAViewLogin');
+ITSAViewLogin.prototype._loginTempl = function() {
+    Y.log('_loginTempl', 'info', 'ITSAViewLogin');
     var instance = this,
-        icon = instance.get(ICON),
-        imagebuttons = instance.get(IMAGEBUTTONS),
+        icon = instance.get(ICONLOGIN);
+
+    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
+           (instance.get(LOGINTEMPLATE) || instance._defLoginTempl());
+};
+
+/**
+ * The default login-template, when attribute 'loginTemplate' is null
+ *
+ * @method _defLoginTempl
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._defLoginTempl = function() {
+    Y.log('_defLoginTempl', 'info', 'ITSAViewLogin');
+    var instance = this,
         footer;
 
-    if (imagebuttons) {
-        footer = (instance.get(REGAIN) ? '{'+IMGBTN_+FORGOT+'}' : '');
-    /*jshint expr:true */
-        instance.get(CAP_CREATEACCOUNT) && (footer += '{'+IMGBTN_CREATEACCOUNT+'}');
-    /*jshint expr:false */
-        footer += '{'+IMGBTN_+SUBMIT+'}';
-    }
-    else {
-        footer = (instance.get(REGAIN) ? '{'+BTN_+FORGOT+'}' : '');
-    /*jshint expr:true */
-        instance.get(CAP_CREATEACCOUNT) && (footer += '{'+BTN_CREATEACCOUNT+'}');
-    /*jshint expr:false */
-        footer += '{'+BTNSUBMIT+'}';
-    }
-    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
-           SPANWRAPPER + (instance.get(MESSAGE) || '') + ENDSPAN+
+    footer = (instance.get(REGAIN) ? '{'+BTN_+FORGOT+'}' : '');
+/*jshint expr:true */
+    instance.get(CAP_CREATEACCOUNT) && (footer += '{'+BTN_CREATEACCOUNT+'}');
+/*jshint expr:false */
+    footer += '{'+BTNSUBMIT+'}';
+    return SPANWRAPPER + (instance.get(MESSAGE) || '') + ENDSPAN+
            FIELDSET_START+
                DIVCLASS_PURECONTROLGROUP+'{'+USERNAME+'}'+ENDDIV+
                DIVCLASS_PURECONTROLGROUP+'{'+PASSWORD+'}'+ENDDIV+
@@ -892,31 +961,36 @@ ITSAViewLogin.prototype._loggedinTemplate = function() {
 };
 
 /**
- * @method _loggedoutTemplate
+ * @method _logoutTempl
  * @private
  * @since 0.1
 */
-ITSAViewLogin.prototype._loggedoutTemplate = function() {
-    Y.log('_loggedoutTemplate', 'info', 'ITSAViewLogin');
+ITSAViewLogin.prototype._logoutTempl = function() {
+    Y.log('_logoutTempl', 'info', 'ITSAViewLogin');
+    Y.log('_loginTempl', 'info', 'ITSAViewLogin');
     var instance = this,
-        icon = instance.get(ICON),
-        imagebuttons = instance.get(IMAGEBUTTONS),
+        icon = instance.get(ICONLOGOUT);
+
+    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
+           (instance.get(LOGOUTTEMPLATE) || instance._defLogoutTempl());
+};
+
+/**
+ * The default logout-template, when attribute 'loginTemplate' is null
+ *
+ * @method _defLogoutTempl
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._defLogoutTempl = function() {
+    Y.log('_defLogoutTempl', 'info', 'ITSAViewLogin');
+    var instance = this,
         user = instance._user,
         message = (instance.get(MESSAGELOGGEDIN) || (user ? instance._loginintl.youareloggedinas : instance._loginintl.youareloggedin)),
         loggedinUser = user || '',
-        footer;
+        logoutBtn = '{'+BTNSUBMIT+'}';
 
-    if (imagebuttons) {
-        footer = '{'+IMGBTN_+SUBMIT+'}';
-    }
-    else {
-        footer = '{'+BTNSUBMIT+'}';
-    }
-    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon}) : '') +
-           SPANWRAPPER + Lang.sub(message, {user: loggedinUser}) + ENDSPAN+
-           FIELDSET_START+
-               DIVCLASS_PURECONTROLS+footer+ENDDIV+
-           ENDFIELDSET;
+    return SPANWRAPPER + Lang.sub(message, {user: loggedinUser}) + ENDSPAN + logoutBtn;
 };
 
 /**

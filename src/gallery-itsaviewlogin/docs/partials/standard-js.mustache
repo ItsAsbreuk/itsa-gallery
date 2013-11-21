@@ -92,7 +92,6 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
     };
 
     syncFn = function(action) {
-console.log('syncing');
         /*
          * typically you would use gallery-io-utils and create a promise like this:
          *
@@ -108,7 +107,6 @@ console.log('syncing');
                 function() {
                     var button = logininstance.get('button'),
                         status, username, password, verified, message, messageLoggedin;
-console.log('buttonvalue: '+button);
                     if (button==='getlogin') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
