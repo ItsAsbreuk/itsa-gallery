@@ -10,7 +10,7 @@
     "examples": [
         {
             "name"       : "standard",
-            "displayName": "standard login",
+            "displayName": "standard viewlogin",
             "description": "This example shows how to create a standard Y.login() promise",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
@@ -18,8 +18,8 @@
             "hideTableOfContents": true
         },
         {
-            "name"       : "nonrejectable",
-            "displayName": "non-rejectable login",
+            "name"       : "compressed",
+            "displayName": "compressed viewlogin",
             "description": "This example shows how to create a Y.login() promise that can be closed (thus rejected).",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],

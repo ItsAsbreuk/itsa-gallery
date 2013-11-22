@@ -59,7 +59,14 @@
     margin: 0.1em 0 1.5em;
 }
 
-.itsaviewlogin .itsa-mainicon {
+.itsaviewlogin .itsa-mainicon.itsa-iconsize-large {
     margin-right: 0.4em;
     font-size: 300%;
+}
+.itsaviewlogin .itsa-mainicon.itsa-iconsize-small {
+    margin-right: 0.5em;
+    font-size: 200%;
+}
+.itsaviewlogin .pure-button.itsabutton-textbottom {
+    vertical-align: text-bottom;
 }
