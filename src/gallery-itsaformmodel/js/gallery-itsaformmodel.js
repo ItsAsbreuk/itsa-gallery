@@ -1707,8 +1707,6 @@ ITSAFormModel.prototype._bindUI = function() {
 //    );
 
     // listening life for valuechanges
-    // CAUTIOUS: DO NOT try to create the first argument (selector), for that failed!, we check for 'formelement'
-    // inside the subscriber
     eventhandlers.push(
         body.delegate(
             'valuechange',
@@ -1716,9 +1714,6 @@ ITSAFormModel.prototype._bindUI = function() {
                 Y.log('delegatesubscriptor valuechange delegated to body.someformelement', 'info', 'ITSAFormModel');
                 var node = e.target,
                     type = UI_CHANGED,
-                    formelement = instance._FORM_elements[node.get(ID)],
-                    payload;
-                if (formelement) {
                     payload = {
                         target: instance,
                         value: node.get(VALUE),
@@ -1727,9 +1722,12 @@ ITSAFormModel.prototype._bindUI = function() {
                         nodeid: node.get(ID),
                         type: type
                     };
-                     // refireing, but now by the instance:
-                    instance.fire(type, payload);
-                }
+                // refireing, but now by the instance:
+                instance.fire(type, payload);
+            },
+            function(delegatedNode, e){ // node === e.target
+                // only process if node's id is part of this ITSAFormModel-instance:
+                return e && e.target && instance._FORM_elements[e.target.get(ID)];
             }
         )
     );
