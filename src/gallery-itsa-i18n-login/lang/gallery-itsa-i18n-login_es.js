@@ -6,7 +6,7 @@
     checkspambox: 'Si usted no encuentra cualquier correo de nosotros, compruebe el spam',
     confirmpassword: 'Confirmar contraseña',
     createaccount: 'Crear una cuenta',
-    email: 'Email',
+    email: 'Correo',
     emailaddress: 'Correo Electrónico',
     enterlogin: 'Entra acceder',
     entersignupaddress: 'Introduzca la dirección de correo electrónico que utilizó para registrarse',
