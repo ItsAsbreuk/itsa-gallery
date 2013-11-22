@@ -486,7 +486,7 @@ ITSAStatusbar.prototype._showBar = function(barnode, itsamessage) {
         messageObject;
         // on info-level, we don't want an icon by default, only when one is set manually by the config
 /*jshint expr:true */
-    (itsamessage.messageType==='showStatus') && (icon=instance.get('statusSpin')+' itsa-iconstandalone itsa-busy');
+    (itsamessage.messageType==='showBusy') && (icon=instance.get('statusSpin')+' itsa-iconstandalone itsa-busy');
 /*jshint expr:false */
     messageObject = {
         icontemplate: icon ? Lang.sub(ICON_TEMPLATE, {icon: icon}) : '',
