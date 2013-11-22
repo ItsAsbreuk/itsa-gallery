@@ -70,6 +70,24 @@
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage", "customize", "internationalized", "i18n"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "statusbar",
+            "displayName": "create viewlogin that messages a statusbar",
+            "description": "This example shows how to use the main statusbar for viewing messages.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsaviewlogin", "itsamessage", "statusbar"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "own-statusbar",
+            "displayName": "create viewlogin with own statusbar",
+            "description": "This example shows how create a view with its won statusbar.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
+            "tags"    : ["gallery-itsaviewlogin", "itsamessage", "statusbar"],
+            "hideTableOfContents": true
         }
     ]
 }
