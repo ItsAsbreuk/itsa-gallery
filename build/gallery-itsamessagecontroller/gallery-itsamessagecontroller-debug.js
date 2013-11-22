@@ -63,6 +63,7 @@ YUI.add('gallery-itsamessagecontroller', function (Y, NAME) {
         SHOW_WARNING = SHOW+'Warning',
         SHOW_ERROR = SHOW+'Error',
         SHOW_STATUS = SHOW+STATUS,
+        SHOW_BUSY = SHOW+'Busy',
         REMOVE_STATUS = REMOVE+STATUS,
         UNDERSCORE = '_',
         BASE_BUILD = 'base-build',
@@ -425,7 +426,7 @@ ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
                         // because multiple simultanious on-events will return only one after-event (is this an error?),
                         // we will take the promise's then() to remove the status lateron.
                         defSyncMessages = model._defSyncMessages;
-                        statushandle = instance._showStatus(e.syncmessage || (defSyncMessages && defSyncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype], {source: MODELSYNC});
+                        statushandle = instance._showStatus(e.syncmessage || (defSyncMessages && defSyncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype], {source: MODELSYNC, busy: true});
                         e.promise.then(
                             function() {
                                 instance._removeStatus(statushandle);
@@ -842,6 +843,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
  * @method _showStatus
  * @param message {String} The message
  * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.busy] {Boolean} set true to create a spinning icon in front of message.
      * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
      *                               By setting this, you the default setting of closeButton is overruled.
      * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
@@ -853,8 +855,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_ERROR] = function(title, me
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
      * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
-     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
-     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.timeout] {Number} Timeout after which the message should disappear (will actually make the messageinstance resolved)
  * @private
  * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
  * @since 0.1
@@ -876,12 +877,12 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(message,
             itsamessage.level = INFO;
             itsamessage.noButtons = true;
             itsamessage.priority = config.priority;
-            itsamessage.timeoutResolve = config.timeoutResolve;
-            itsamessage.timeoutReject = config.timeoutReject;
+            itsamessage.timeoutResolve = config.timeout;
             itsamessage.target = config.target;
             itsamessage.source = config.source || APP;
-            itsamessage.messageType = SHOW_STATUS;
+            itsamessage.messageType = config.busy ? SHOW_BUSY : SHOW_STATUS;
             instance.queueMessage(itsamessage);
+console.log('check '+itsamessage.messageType);
             return itsamessage;
         }
     );
