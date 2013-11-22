@@ -4,12 +4,16 @@
     width: 7em;
 }
 
-.itsaviewlogin.itsaviewlogin-loggedin .itsa-buttonwrapper {
+.itsaviewlogin.itsaviewlogin-loggedin .itsa-buttonwrapper.itsa-buttonwrappersize-small {
+    margin-left: 1em;
+}
+
+.itsaviewlogin.itsaviewlogin-loggedin .itsa-buttonwrapper.itsa-buttonwrappersize-large {
     display: block;
     width: 100%;
 }
 
-.itsaviewlogin.itsaviewlogin-loggedin {
+.itsaviewlogin.itsaviewlogin-loggedin .itsaviewlogin-noncompressed {
     text-align: center;
 }
 
@@ -67,6 +71,7 @@
     margin-right: 0.5em;
     font-size: 200%;
 }
-.itsaviewlogin .pure-button.itsabutton-textbottom {
+.itsaviewlogin .pure-button.itsabutton-textbottom ,
+.itsaviewlogin.itsaviewlogin-loggedin .pure-button {
     vertical-align: text-bottom;
 }

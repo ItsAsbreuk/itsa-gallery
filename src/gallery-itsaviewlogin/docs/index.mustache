@@ -5,8 +5,8 @@
         {{description}}
     </p>
     <p>
-         This module has no class itself, but adds Y.login() as a method that can be view through Y.ITSADialog - which is loaded automaticly.
-         Y.login() also has several config-options that are useful when retrieving login-data, like retrieving forgotten logindata or creating new accounts.
+         This module has no class itself, but adds Y.getLogin() as a method that can be view through Y.ITSADialog - which is loaded automaticly.
+         Y.getLogin() also has several config-options that are useful when retrieving login-data, like retrieving forgotten logindata or creating new accounts.
      </p>
 </div>
 
@@ -14,12 +14,12 @@
 
 <h2>Description</h2>
     <p>
-        This module comes with only one method: Y.login(), which is automaticly created at the YUI-instance. Once called, a modal panel rises that will retrieve the logindata from the user. To get that done, you need to setup the synclayer and make the server response the right way.
+        This module comes with only one method: Y.getLogin(), which is automaticly created at the YUI-instance. Once called, a modal panel rises that will retrieve the logindata from the user. To get that done, you need to setup the synclayer and make the server response the right way.
     </p>
 
 <h2>Usage</h2>
 <p>
-    Y.login should be used like: Y.login([title], [message], [config], sync), where only sync is a required parameter. sync calls a synclayer and <u>should return a Promise</u>. This is best be done by using gallery-io-utils.
+    Y.login should be used like: Y.getLogin([title], [message], [config], sync), where only sync is a required parameter. sync calls a synclayer and <u>should return a Promise</u>. This is best be done by using gallery-io-utils.
     ```js
     YUI(yuiconfig).use('gallery-itsalogin', 'gallery-io-utils', 'json', function(Y) {
 
@@ -28,7 +28,7 @@
             return Y.io.postJSON('http://mydomain.com/submitdata.php'+this.toJSON());
         };
 
-        var logindata = Y.login('Login', 'Please enter login', {
+        var logindata = Y.getLogin('Login', 'Please enter login', {
             imageButtons: true,
             showStayLoggedin: true
         }, syncFn);
@@ -68,7 +68,7 @@
     </p>
 
 <h2>The sync-Promise</h2>
-    <p>The only required parameter Y.login() has, is <code>sync</code>. This should be a function that does the syncing and returns a Promise. Setting up this function is really easy if you consider these rules:
+    <p>The only required parameter Y.getLogin() has, is <code>sync</code>. This should be a function that does the syncing and returns a Promise. Setting up this function is really easy if you consider these rules:
         <ul>
             <li>Set the sync-Promise up by using gallery-io-utils. See the example above. gallery-io-utils has multiple transfermethods to use, they all return a Promise.</li>
             <li>The context inside sync-Promise is a ITSAMessage-instance that is created under the hood by Y.login</li>
@@ -177,7 +177,7 @@
     </p>
 
 <h2>Using config to setup different functionalities</h2>
-    <p>There are many options posible, see the API. However, special notice should be taken to the config-properties that make the Y.login() behave differently:
+    <p>There are many options posible, see the API. However, special notice should be taken to the config-properties that make the Y.getLogin() behave differently:
     </p>
     <ul>
         <li><code>config.required</code> when true, there is no closebutton, so the enduser need to enter a valid login. Be aware though, that returning a serverresponse with status==='ERROR' or status='NOACCESS' <u>do close the login-panel</u> by making it rejected (and showing an errorMessage).</li>

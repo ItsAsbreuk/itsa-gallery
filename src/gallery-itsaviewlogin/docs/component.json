@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsaviewlogin",
     "displayName": "Gallery: gallery-itsaviewlogin",
-    "description": "supplies Y.login() through the Y.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.",
+    "description": "supplies Y.getLogin() through the Y.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsaviewlogin" ],
 
@@ -11,7 +11,7 @@
         {
             "name"       : "standard",
             "displayName": "standard viewlogin",
-            "description": "This example shows how to create a standard Y.login() promise",
+            "description": "This example shows how to create a standard Y.getLogin() promise",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage"],
@@ -20,7 +20,7 @@
         {
             "name"       : "compressed",
             "displayName": "compressed viewlogin",
-            "description": "This example shows how to create a Y.login() promise that can be closed (thus rejected).",
+            "description": "This example shows how to create a Y.getLogin() promise that can be closed (thus rejected).",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage", "rejectable"],
@@ -29,7 +29,7 @@
         {
             "name"       : "retrieve",
             "displayName": "retrieve username or password",
-            "description": "This example shows how setup the Y.login()-promise with retrieval of the username or password.",
+            "description": "This example shows how setup the Y.getLogin()-promise with retrieval of the username or password.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage", "forgot", "retrieve"],
@@ -38,7 +38,7 @@
         {
             "name"       : "usernameisemail",
             "displayName": "login with emailaddress as username",
-            "description": "This example shows how setup the Y.login()-promise with an emailaddress as username.",
+            "description": "This example shows how setup the Y.getLogin()-promise with an emailaddress as username.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage", "emailaddres", "username"],
@@ -47,7 +47,7 @@
         {
             "name"       : "resetpassword",
             "displayName": "force password-reset",
-            "description": "This example shows how setup the Y.login()-promise to force a passwordreset once loggedin.",
+            "description": "This example shows how setup the Y.getLogin()-promise to force a passwordreset once loggedin.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage", "force", "reset", "passwordreset"],
@@ -56,7 +56,7 @@
         {
             "name"       : "newaccount",
             "displayName": "login with create new account",
-            "description": "This example shows how setup the Y.login()-promise with the posibility of creating a new account.",
+            "description": "This example shows how setup the Y.getLogin()-promise with the posibility of creating a new account.",
             "author"     : [ "itsasbreuk" ],
             "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog", "gallery-lazy-promise"],
             "tags"    : ["gallery-itsaviewlogin", "itsamessage", "newaccount", "account"],

@@ -135,7 +135,7 @@ YUI(yuiconfig).use('base-build', 'gallery-itsaviewlogin', 'promise', 'gallery-la
         Y.ITSAMessageController.queueMessage(getAccountMessage(syncFn)).then(resolve, reject);
     });
 
-    Y.login('Login', 'Please enter login', {
+    Y.getLogin('Login', 'Please enter login', {
         imageButtons: true,
         showStayLoggedin: true,
         createAccount: createAccountPromise

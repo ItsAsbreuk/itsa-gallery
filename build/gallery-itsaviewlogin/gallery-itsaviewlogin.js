@@ -77,7 +77,7 @@ var Lang = Y.Lang,
     PLACEHOLDER = 'placeholder',
     CLASSNAME = 'classname',
     SPANWRAPPER = '<span class="itsa-messagewrapper">',
-    SPANBUTTONWRAPPER = '<span class="itsa-buttonwrapper">',
+    SPANBUTTONWRAPPER = '<span class="itsa-buttonwrapper itsa-buttonwrappersize-{size}">',
     FIELDSET_START = '<fieldset class="'+ITSA_LOGIN+'">',
     ENDSPAN = '</span>',
     DIVCLASS_PURECONTROLGROUP = '<div class="pure-control-group">',
@@ -545,9 +545,15 @@ ITSAViewLogin.prototype.setSubmitButtons = function(login) {
         loginintl = instance._loginintl;
 
     if (instance.get(IMAGEBUTTONS)) {
+    /*jshint expr:true */
+        instance._loggedin ? instance.removePrimaryButton() : instance.setPrimaryButton(IMGBTN_+SUBMIT);
+    /*jshint expr:false */
         instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-'+logging+'"></i>'+loginintl[logging]);
     }
     else {
+    /*jshint expr:true */
+        instance._loggedin ? instance.removePrimaryButton() : instance.setPrimaryButton(BTNSUBMIT);
+    /*jshint expr:false */
         instance.setButtonLabel(BTNSUBMIT, loginintl[logging]);
     }
 };
@@ -565,13 +571,9 @@ ITSAViewLogin.prototype.initializer = function() {
     instance.get(CONTAINER).addClass(ITSAVIEWLOGIN);
     loginintl = instance._loginintl;
     instance.setSubmitButtons(true);
-    if (instance.get(IMAGEBUTTONS)) {
-        instance.setPrimaryButton(IMGBTN_+SUBMIT);
-        Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
-    }
-    else {
-        instance.setPrimaryButton(BTNSUBMIT);
-    }
+    /*jshint expr:true */
+    (instance.get(IMAGEBUTTONS)) && Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
+    /*jshint expr:false */
     instance._defineModel();
     if (instance.get(COMPRESSED)) {
         Y.later(LOADTIMEOUT, null, function() {
@@ -663,9 +665,7 @@ console.log('value: '+value);
                 else if (value===LOGIN) {
                     Y.usePromise(GALLERYITSALOGIN).then(
                         function() {
-                            console.log('check 1');
-//                            console.log('check 2: '+x);
-//                            return x;
+                            return Y.getLogin('Login', 'Please enter login', instance.get(SYNC));
                         }
                     ).then(
                         function() {
@@ -1085,10 +1085,11 @@ ITSAViewLogin.prototype._defLoginTempl = function() {
 ITSAViewLogin.prototype._logoutTempl = function() {
     var instance = this,
         compressed = instance.get(COMPRESSED),
+        logouttemplate = instance.get(LOGOUTTEMPLATE),
         icon = instance.get(ICONLOGOUT);
 
-    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (compressed ? SMALL : LARGE)}) : '') +
-           (instance.get(LOGOUTTEMPLATE) || (compressed ? instance._defComprLogoutTempl() : instance._defLogoutTempl()));
+    return ((icon && logouttemplate) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (compressed ? SMALL : LARGE)}) : '') +
+           (logouttemplate || (compressed ? instance._defComprLogoutTempl() : instance._defLogoutTempl(' itsaviewlogin-noncompressed')));
 };
 
 /**
@@ -1099,7 +1100,7 @@ ITSAViewLogin.prototype._logoutTempl = function() {
  * @since 0.1
 */
 ITSAViewLogin.prototype._defComprLogoutTempl = function() {
-    return this._defLogoutTempl();
+    return this._defLogoutTempl('');
 };
 
 /**
@@ -1109,14 +1110,19 @@ ITSAViewLogin.prototype._defComprLogoutTempl = function() {
  * @private
  * @since 0.1
 */
-ITSAViewLogin.prototype._defLogoutTempl = function() {
+ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
     var instance = this,
         user = instance._user,
+        icon = instance.get(ICONLOGOUT),
         message = (instance.get(MESSAGELOGGEDIN) || (user ? instance._loginintl.youareloggedinas : instance._loginintl.youareloggedin)),
         loggedinUser = user || '',
         logoutBtn = '{'+BTNSUBMIT+'}';
 
-    return SPANWRAPPER + Lang.sub(message, {displayname: loggedinUser}) + ENDSPAN + SPANBUTTONWRAPPER+ logoutBtn + ENDSPAN;
+    return '<form class="pure-form'+formclass+'">'+
+               ((!instance.get(LOGOUTTEMPLATE)) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (instance.get(COMPRESSED) ? SMALL : LARGE)}) : '') +
+               SPANWRAPPER + Lang.sub(message, {displayname: loggedinUser}) + ENDSPAN +
+               Lang.sub(SPANBUTTONWRAPPER, {size: (instance.get(COMPRESSED) ? SMALL : LARGE)})+ logoutBtn + ENDSPAN +
+           '</form>';
 };
 
 /**

@@ -134,7 +134,6 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
             );
         });
     };
-
     createAccountPromise = new Y.LazyPromise(function (resolve, reject) {
         Y.ITSAMessageController.queueMessage(getAccountMessage(syncFn)).then(resolve, reject);
     });
@@ -145,7 +144,6 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         regain: 'username',
         imageButtons: true,
         showStayLoggedin: true,
-        statusBar: true,
         iconLogin: 'itsaicon-dialog-user',
         iconLogout: 'itsaicon-dialog-user',
         sync: syncFn,
