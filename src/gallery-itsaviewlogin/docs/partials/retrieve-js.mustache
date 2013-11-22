@@ -25,7 +25,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
                     }
                     else if (button==='forgotpassword') {
                         // IN THIS EXAMPLE, ONLY marco IS A KNOWN USERNAME
-                        username  = logininstance.get('username').toLowerCase(),
+                        username  = logininstance.get('username').toLowerCase();
                         valid = (username==='marco');
                         status = valid ? 'OK' : 'RETRY';
                     }
@@ -42,7 +42,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
                     resolve({
                         status: status,
                         message: message,
-                        user: (status==='OK') ? 'Marco Asbreuk' : ''
+                        displayname: (status==='OK') ? 'Marco Asbreuk' : undefined
                     });
                 }
             );
@@ -60,7 +60,6 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         iconLogout: 'itsaicon-dialog-user',
         sync: syncFn
     });
-    myView._set('editable', true);
 
     myView.renderOnReady().then(
         function(){

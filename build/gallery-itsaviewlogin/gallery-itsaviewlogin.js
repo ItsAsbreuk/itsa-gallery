@@ -106,8 +106,6 @@ var Lang = Y.Lang,
     USERNAMEORPASSWORD = USERNAME+'or'+PASSWORD,
     FORGOT_USERNAME = FORGOT+USERNAME,
     FORGOT_PASSWORD = FORGOT+PASSWORD,
-    FORGOT_PASSWORD_EMAIL = FORGOT_PASSWORD+EMAIL,
-    FORGOT_USERNAMEORPASSWORD = FORGOT+USERNAMEORPASSWORD,
     DIALOG = 'dialog',
     DESTROYED = 'destroyed',
     IMAGEBUTTONS = 'imageButtons',
@@ -170,18 +168,18 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             initOnly: true
         },
         /**
-         * Need to be a Y.LazyPromise-instance. Should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
-         * By fulfilling the queueMessage, the Y.LazyPromise should be fulfilled. See the examples how this works.
+         * Need to be a function that returns a new Promise. Should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
+         * See the examples how this works.
          *
          * @attribute createAccount
-         * @type {Y.LazyPromise}
+         * @type {function}
          * @default null
          * @since 0.1
          */
         createAccount: {
             value: null,
             validator: function(v) {
-                return (v instanceof Y.LazyPromise);
+                return (typeof v === FUNCTION);
             }
         },
         /**
@@ -617,7 +615,6 @@ ITSAViewLogin.prototype.initializer = function() {
             'buttonclick',
             function(e) {
                 var value = e.value;
-console.log('value: '+value);
                 if (value===FORGOT) {
                     Y.usePromise(GALLERYITSALOGIN).then(
                         function() {
@@ -660,16 +657,54 @@ console.log('value: '+value);
                     );
                 }
                 else if (value===CREATEACCOUNT) {
-
+                    instance.get(CAP_CREATEACCOUNT)(instance.get(SYNC)).then(
+                        function(response) {
+                            var responseObj = PARSED(response),
+                                facade, message;
+                            if (responseObj.status==='LOGIN') {
+                                facade = responseObj;
+                                // fire the login-event in case messageType===CAP_GETLOGIN
+                                // lazy publish the event
+                                /**
+                                * Event fired when a a user successfully logs in.<br>
+                                * Not preventable.
+                                *
+                                * @event loggedin
+                                * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
+                                *                        as an answer to the 'getlogin'-request.
+                                **/
+                                Y.fire(LOGGEDIN, facade);
+    /*jshint expr:true */
+                                (message=responseObj.message) && Y.showMessage(responseObj.title, message);
+    /*jshint expr:false */
+                            }
+                            else if (responseObj.status==='ERROR') {
+                                message = responseObj.message || loginintl.unspecifiederror;
+                                // production-errors will be shown through the messagecontroller
+                                Y.usePromise(GALLERYITSADIALOG).then(
+                                    function() {
+                                        Y.showError(responseObj.title || loginintl[ERROR], message);
+                                    }
+                                );
+                            }
+                            else if (responseObj.status!=='OK') {
+                                // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
+                                message = 'Wrong response.status x found: '+responseObj.status;
+                                facade = {src: 'Y.ITSAViewLogin.createAccount()', msg: message};
+                                instance.fire('warn', facade);
+                            }
+                        },
+                        function(reason) {
+/*jshint expr:true */
+                            (reason instanceof Error) && Y.showError(reason.message);
+/*jshint expr:false */
+                        }
+                    );
                 }
                 else if (value===LOGIN) {
                     Y.usePromise(GALLERYITSALOGIN).then(
                         function() {
                             return Y.getLogin('Login', 'Please enter login', instance.get(SYNC));
-                        }
-                    ).then(
-                        function() {
-                            console.log('logged in!');
                         }
                     );
                 }
@@ -683,7 +718,7 @@ console.log('value: '+value);
                 var messageLoggedin = e.messageLoggedin,
                     model = instance.get(MODEL);
                 instance._loggedin = true;
-                instance._user = e.user;
+                instance._displayname = e.displayname;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
 //                Y.soon(function() {
                     if (!instance.get(DESTROYED)) {
@@ -709,10 +744,10 @@ console.log('value: '+value);
     eventhandlers.push(
         Y.on(
             LOGGEDOUT,
-            function(e) {
+            function() {
                 var model = instance.get(MODEL);
                 instance._loggedin = false;
-                instance._user = null;
+                instance._displayname = null;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
                 Y.soon(function() {
                     if (!instance.get(DESTROYED)) {
@@ -758,9 +793,13 @@ console.log('value: '+value);
                             if (responseObj.status==='ERROR') {
                                 message = responseObj.message || loginintl.unspecifiederror;
                                 // production-errors will be shown through the messagecontroller
-                                Y.showError(responseObj.title || loginintl[ERROR], message);
+                                Y.usePromise(GALLERYITSADIALOG).then(
+                                    function() {
+                                        Y.showError(responseObj.title || loginintl[ERROR], message);
+                                    }
+                                );
                             }
-                            if (responseObj.status==='OK') {
+                            else if (responseObj.status==='OK') {
                                 facade = Y.merge(responseObj, formmodel.toJSON());
                                 // fire the login-event in case messageType===CAP_GETLOGIN
     // lazy publish the event
@@ -799,34 +838,53 @@ console.log('value: '+value);
                                 );
                             }
                             else if (responseObj.status==='CHANGEPASSWORD') {
-    /*
-                                changePwFn(itsamessage).then(
-                                    function(response) {
-                                        facade = Y.merge(responseObj, formmessage.toJSON());
-    /*                                    Y.fire(LOGGEDIN, facade);
-            /*jshint expr:true */
-    /*                                    (message=responseObj.message) && Y.showMessage(responseObj.title, message);
-            /*jshint expr:false */
-    /*                                },
+                                Y.usePromise(GALLERYITSALOGIN).then(
                                     function() {
-                                        message = loginintl.passwordnotchanged;
-                                        // production-errors will be shown through the messagecontroller
-                                        Y.showError(loginintl[ERROR], message);
+                                        var itsamessage = {
+                                            syncPromise: instance.get(SYNC),
+                                            _config: {}
+                                        };
+                                        Y.ITSADialog._changePwFn(itsamessage).then(
+                                            function(response) {
+                                                var newResponseObj = PARSED(response);
+                                                facade = Y.merge(responseObj, newResponseObj, formmodel.toJSON(), {password: response.password});
+                                                // overrule password, because the new password is appropriate
+
+                                                // fire the login-event
+                                                // lazy publish the event
+                                                /**
+                                                * Event fired when a a user successfully logs in.<br>
+                                                * Not preventable.
+                                                *
+                                                * @event loggedin
+                                                * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
+                                                *                        as an answer to the 'getlogin'-request.
+                                                **/
+                                                Y.fire(LOGGEDIN, facade);
+                    /*jshint expr:true */
+                                                (message=responseObj.message) && Y.showMessage(responseObj.title, message);
+                    /*jshint expr:false */
+                                            },
+                                            function(reason) {
+                                                message = loginintl.passwordnotchanged;
+                                                // production-errors will be shown through the messagecontroller
+                                                Y.showError(loginintl[ERROR], message);
+                                            }
+                                        );
                                     }
                                 );
-    */
                             }
                             else {
                                 // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
                                 message = 'Wrong response.status found: '+responseObj.status;
-                                facade = {src: 'Y.ITSALogin.submit()', msg: message};
+                                facade = {src: 'Y.ITSAViewLogin.submit()', msg: message};
                                 instance.fire('warn', facade);
                             }
                         }
                         else {
                             // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
                             message = 'Response returned without response.status';
-                            facade = {src: 'Y.ITSALogin.submit()', msg: message};
+                            facade = {src: 'Y.ITSAViewLogin.submit()', msg: message};
                             instance.fire('warn', facade);
                         }
                     }
@@ -1112,10 +1170,10 @@ ITSAViewLogin.prototype._defComprLogoutTempl = function() {
 */
 ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
     var instance = this,
-        user = instance._user,
+        displayname = instance._displayname,
         icon = instance.get(ICONLOGOUT),
-        message = (instance.get(MESSAGELOGGEDIN) || (user ? instance._loginintl.youareloggedinas : instance._loginintl.youareloggedin)),
-        loggedinUser = user || '',
+        message = (instance.get(MESSAGELOGGEDIN) || (displayname ? instance._loginintl.youareloggedinas : instance._loginintl.youareloggedin)),
+        loggedinUser = displayname || '',
         logoutBtn = '{'+BTNSUBMIT+'}';
 
     return '<form class="pure-form'+formclass+'">'+
@@ -1145,8 +1203,7 @@ ITSAViewLogin.prototype._loginintl = Y.Intl.get(GALLERYITSAI18NLOGIN);
         "gallery-itsacheckbox",
         "gallery-itsa-i18n-login",
         "gallery-itsamodelsyncpromise",
-        "gallery-itsamodulesloadedpromise",
-        "gallery-lazy-promise"
+        "gallery-itsamodulesloadedpromise"
     ],
     "skinnable": true
 });

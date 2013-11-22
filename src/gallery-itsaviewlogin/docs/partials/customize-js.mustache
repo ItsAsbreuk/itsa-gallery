@@ -1,17 +1,15 @@
 yuiconfig.lang = 'es';
 
-YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsadialog', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsalogin', function(Y) {
 
     var title, message, username, password, loggedin, changepassword;
 
-    title = Y.ITSADialog.translate('login');
-    message = Y.ITSADialog.translate('pleaseenterlogin');
     username = Y.ITSADialog.translate('username');
     password = Y.ITSADialog.translate('password');
     loggedin = Y.ITSADialog.translate('loggedin');
     changepassword = Y.ITSADialog.translate('changeyourpassword');
 
-    var syncFn = function(action) {
+    syncFn = function(action) {
         /*
          * typically you would use gallery-io-utils and create a promise like this:
          *
@@ -26,12 +24,18 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsadialog', fun
                 null,
                 function() {
                     var button = logininstance.get('button'),
-                        status, username, password, verified, message;
+                        status, username, password, verified, message, messageLoggedin;
                     if (button==='getlogin') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
                         verified = (username==='marco') && (password==='test');
                         status = verified ? 'OK' : 'RETRY';
+                        if (verified) {
+                          //  messageLoggedin = 'Ingelogd als Marco Asbreuk';
+                        }
+                    }
+                    else if (button==='logout') {
+                        status = 'OK';
                     }
                     else {
                         status = 'ERROR';
@@ -39,19 +43,25 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsadialog', fun
                     }
                     resolve({
                         status: status,
-                        message: message
+                        message: message,
+                        displayname: (status==='OK') ? 'Marco Asbreuk' : undefined,
+                        userImage: 'http://www.brongegeven.nl/itsasbreuk/uploads/balkjfoto1mid.jpg'
                     });
                 }
             );
         });
     };
 
-    // by setting both formconfigUsername.placeholder and formconfigPassword.placeholder,
-    // we eliminate the labels
-    Y.getLogin(title, message, {
+    myView = new Y.ITSAViewLogin({
+        container: '#viewcont',
+        compressed: false,
+        message: 'You need to login to get access',
+        regain: 'username',
         imageButtons: true,
         showStayLoggedin: true,
-        regain: 'usernameorpassword',
+        iconLogin: 'itsaicon-dialog-user',
+        iconLogout: 'itsaicon-dialog-user',
+        sync: syncFn,
         formconfigUsername: {
             placeholder: username
         },
@@ -59,13 +69,16 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsadialog', fun
             placeholder: password
         },
         messageForgotPassword: changepassword
-    }, syncFn).then(
-        function(result) {
-            Y.showMessage(loggedin+' '+username+'='+result.username+' | '+password+'='+result.password);
-        },
-        function(reason) {
-            Y.showMessage(reason);
+    });
+
+    myView.renderOnReady().then(
+        function(){
+           myView.focus();
         }
     );
+
+    Y.after('loggedin', function(e) {
+        Y.showMessage(loggedin+' '+username+'='+result.username+' | '+password+'='+result.password);
+    });
 
 });

@@ -1,95 +1,6 @@
 YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
 
-    var createAccountPromise, getAccountMessage, syncFn, myView;
-
-
-    getAccountMessage = function(syncPromise) {
-        var AccountMessage, newAccountMessage, message;
-        AccountMessage = Y.Base.create('accountmessage', Y.ITSAMessage, [], {
-            crossValidation: function() {
-                var instance = this,
-                    errorattrs = [];
-                if ((instance.get('password') !== instance.get('verifypassword'))) {
-                    errorattrs.push({
-                        attribute: 'password',
-                        validationerror: Y.ITSADialog.translate('verificationerror')
-                    });
-                    errorattrs.push({
-                        attribute: 'verifypassword',
-                        validationerror: Y.ITSADialog.translate('verificationerror')
-                    });
-                }
-                return errorattrs;
-            }
-        }, {
-            ATTRS: {
-                username: {
-                    formtype: 'text',
-                    formconfig: {
-                        label: Y.ITSADialog.translate('username'),
-                        fullselect: true
-                    },
-                    validator:  function(val) {
-                        return (typeof val === 'string') && (val.length>=5);
-                    },
-                    validationerror: 'Username should be at least 5 characters'
-                },
-                password: {
-                    formtype: 'password',
-                    formconfig: {
-                        label: Y.ITSADialog.translate('password'),
-                        fullselect: true
-                    },
-                    validator:  function(val) {
-                        return (typeof val === 'string') && (val.length>=5) && (val.indexOf(' ')===-1);
-                    },
-                    validationerror: 'Username should be at least 5 characters without whitespaces'
-                },
-                verifypassword: {
-                    formtype: 'password',
-                    formconfig: {
-                        label: Y.ITSADialog.translate('verifypassword'),
-                        fullselect: true,
-                        primarybtnonenter: true
-                    },
-                    validator:  function(val) {
-                        return (typeof val === 'string') && (val.length>=5) && (val.indexOf(' ')===-1);
-                    },
-                    validationerror: 'Username should be at least 5 characters without whitespaces'
-                }
-            }
-        });
-        message = '<div style="min-width: 300px">'+
-                       Y.ITSADialog.translate('createaccount')+
-                      '<fieldset>'+
-                           '<div class="pure-control-group">'+'{username}</div>'+
-                           '<div class="pure-control-group">'+'{password}</div>'+
-                           '<div class="pure-control-group">'+'{verifypassword}</div>'+
-                      '</fieldset>'+
-                  '</div>';
-        // set the attribute 'button' to 'createaccount' --> now we can read it in the syncFn
-        newAccountMessage = new AccountMessage({button: 'createaccount'});
-        newAccountMessage.syncPromise = Y.bind(syncPromise, newAccountMessage);
-        newAccountMessage.icon = 'itsaicon-dialog-info';
-        newAccountMessage.messageType = 'createaccount';
-        newAccountMessage.message = message;
-        newAccountMessage.footer = '{imgbtn_submit}';
-        newAccountMessage.primaryButton = 'imgbtn_submit';
-        newAccountMessage.closeButton = true;
-        newAccountMessage.buttonLabels = [
-            {
-                buttonType: 'imgbtn_submit',
-                labelHTML: '<i class="itsaicon-dialog-user"></i>'+Y.ITSADialog.translate('create')
-            }
-        ];
-        // in order to make crossvalidation work, we set crossvalidation true
-        newAccountMessage.setLifeUpdate(true);
-        // To make sure this dialog comes right after the logindialog
-        // - in case there be any more messages in the queue -
-        // we set priority = true
-        newAccountMessage.priority = true;
-        return newAccountMessage;
-    };
+    var syncFn, myView;
 
     syncFn = function(action) {
         /*
@@ -126,18 +37,12 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
                     resolve({
                         status: status,
                         message: message,
-                        messageLoggedin: messageLoggedin,
-                        user: 'Marco Asbreuk',
-                        userImage: 'http://www.brongegeven.nl/itsasbreuk/uploads/balkjfoto1mid.jpg'
+                        displayname: (status==='OK') ? 'Marco Asbreuk' : undefined
                     });
                 }
             );
         });
     };
-
-    createAccountPromise = new Y.LazyPromise(function (resolve, reject) {
-        Y.ITSAMessageController.queueMessage(getAccountMessage(syncFn)).then(resolve, reject);
-    });
 
     myView = new Y.ITSAViewLogin({
         container: '#viewcont',
@@ -148,16 +53,18 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
         showStayLoggedin: true,
         iconLogin: 'itsaicon-dialog-user',
         iconLogout: 'itsaicon-dialog-user',
-        sync: syncFn,
-        createAccount: createAccountPromise
+        sync: syncFn
     });
-    myView._set('editable', true);
 
     myView.renderOnReady().then(
         function(){
            myView.focus();
         }
     );
+
+    Y.after('loggedin', function(e) {
+        console.log('logged in with username: '+e.username+' | password: '+e.password+' | remember: '+e.remember);
+    });
 
 //    myView.addMessageTarget(statusbar);
 

@@ -9,8 +9,7 @@
             "gallery-itsacheckbox",
             "gallery-itsa-i18n-login",
             "gallery-itsamodelsyncpromise",
-            "gallery-itsamodulesloadedpromise",
-            "gallery-lazy-promise"
+            "gallery-itsamodulesloadedpromise"
         ],
         "skinnable": true
     }

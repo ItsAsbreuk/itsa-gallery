@@ -184,7 +184,7 @@
         <li><code>config.showStayLoggedin</code> when true, an iOS-stylisch checkbox-slider appears by which the login can be remembered. Its value is available in the resolved promise by result.remember (which is 'false' when the checkbox wasn't showed)</li>
         <li><code>config.regain</code> when set, it can be either 'username', 'password' or 'usernameorpassword'. Once set, a button appeasr on the login-panel by which the enduser can tereive his login-data.</li>
         <li><code>config.usernameIsEmail</code> when true, the login-pattern for the username is set to an email-pattern. And regain='usernameorpassword' will automaticly turned into regain='password'. <b>Note:</b> the request-properties and the resolved-result-properties still use <u>username</u> as property-name.</li>
-        <li><code>config.createAccount</code> when set a 'Create account' button is generated, which will call the createAccount-promise. The createAccount-panel is then responsible for fulfilling the original login-panel. This means, you need to create at least the UI-fields 'username' and 'password'.<b>Note:</b> config.createAccount needs to be a Y.LazYPromise-instance, see 'gallery-lazy-promise'.</li>
+        <li><code>config.createAccount</code> when set a 'Create account' button is generated, which will call the createAccount-promise. The createAccount-panel is then responsible for fulfilling the original login-panel. This means, you need to create at least the UI-fields 'username' and 'password'.<b>Note:</b> config.createAccount needs to be a function that returns a new created Promise.</li>
     </ul>
 
 <h2>Internationalization</h2>

@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('base-build', 'gallery-itsaviewlogin', 'promise', 'gallery-lazy-promise', 'gallery-itsadialog', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontroller', 'gallery-itsalogin', function(Y) {
 
     var syncFn, createAccountPromise, getAccountMessage;
 
@@ -116,7 +116,7 @@ YUI(yuiconfig).use('base-build', 'gallery-itsaviewlogin', 'promise', 'gallery-la
                     else if (button==='createaccount') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
-                        status = 'OK';
+                        status = 'RETRY';
                     }
                     else {
                         status = 'ERROR';
@@ -124,30 +124,38 @@ YUI(yuiconfig).use('base-build', 'gallery-itsaviewlogin', 'promise', 'gallery-la
                     }
                     resolve({
                         status: status,
-                        message: message
+                        message: message,
+                        displayname: ((status==='OK') || (status==='LOGIN')) ? 'Marco Asbreuk' : undefined
                     });
                 }
             );
         });
     };
 
-    createAccountPromise = new Y.LazyPromise(function (resolve, reject) {
-        Y.ITSAMessageController.queueMessage(getAccountMessage(syncFn)).then(resolve, reject);
-    });
+    createAccountPromise = function (sync) {
+        return Y.ITSAMessageController.queueMessage(getAccountMessage(sync));
+    };
 
-    Y.getLogin('Login', 'Please enter login', {
+    myView = new Y.ITSAViewLogin({
+        container: '#viewcont',
+        compressed: false,
+        message: 'You need to login to get access',
         imageButtons: true,
         showStayLoggedin: true,
+        iconLogin: 'itsaicon-dialog-user',
+        iconLogout: 'itsaicon-dialog-user',
+        sync: syncFn,
         createAccount: createAccountPromise
-    }, syncFn).then(
-        function(result) {
-            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+
-                ' | password='+result.password+' | stayloggedin: '+result.remember+
-                ' | button='+result.button);
-        },
-        function(reason) {
-            Y.alert(reason);
+    });
+
+    myView.renderOnReady().then(
+        function(){
+           myView.focus();
         }
     );
+
+    Y.after('loggedin', function(e) {
+        console.log('logged in with username: '+e.username+' | password: '+e.password+' | remember: '+e.remember);
+    });
 
 });
