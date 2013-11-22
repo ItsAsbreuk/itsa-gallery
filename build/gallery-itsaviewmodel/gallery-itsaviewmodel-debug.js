@@ -1150,11 +1150,11 @@ ITSAViewModel.prototype.render = function (clear) {
     }
     instance._rendered = true;
 /*jshint expr:true */
-    (html.length>0) && editMode && instance._viewNeedsForm && (html='<form class="'+DEF_FORM_CLASS+'">'+html+'</form>');
+    (html.length>0) && editMode && instance._viewNeedsForm && (html=(statusbar ? WRAPPERDIV : '')+'<form class="'+DEF_FORM_CLASS+'">'+html+'</form>'+(statusbar ? ENDDIV : ''));
 /*jshint expr:false */
 
 /*jshint expr:true */
-    statusbar && (clear || statusbarinstance || (html=WRAPPERDIV+html+ENDDIV+STATUSBAR_TEMPLATE));
+    statusbar && (clear || statusbarinstance || (html+=STATUSBAR_TEMPLATE));
 /*jshint expr:false */
 
     container.setHTML(html);
