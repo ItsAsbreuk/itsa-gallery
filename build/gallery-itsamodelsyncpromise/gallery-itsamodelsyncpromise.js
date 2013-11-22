@@ -147,7 +147,10 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
                             statushandle, syncMessages;
                         if ((subtype!==DESTROY) || remove) {
                             syncMessages = instance._defSyncMessages;
-                            statushandle = itsamessageviewer.showStatus(e.syncmessage || (syncMessages && syncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype], {source: MODELSYNC});
+                            statushandle = itsamessageviewer.showStatus(
+                                               e.syncmessage || (syncMessages && syncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype],
+                                               {source: MODELSYNC, busy: true}
+                                           );
                             e.promise.then(
                                 function() {
                                     itsamessageviewer.removeStatus(statushandle);
