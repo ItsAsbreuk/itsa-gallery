@@ -1,6 +1,7 @@
-YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
+    var syncFn, myView;
 
-    var syncFn = function(action) {
+    syncFn = function(action) {
         /*
          * typically you would use gallery-io-utils and create a promise like this:
          *
@@ -40,26 +41,35 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', functio
                     }
                     resolve({
                         status: status,
-                        message: message
+                        message: message,
+                        user: (status==='OK') ? 'Marco Asbreuk' : ''
                     });
                 }
             );
         });
     };
 
-    Y.getLogin('Login', 'Please enter login', {
+    myView = new Y.ITSAViewLogin({
+        container: '#viewcont',
+        compressed: false,
+        message: 'You need to login to get access',
+        regain: 'usernameorpassword',
         imageButtons: true,
         showStayLoggedin: true,
-        regain: 'usernameorpassword'
-    }, syncFn).then(
-        function(result) {
-            Y.showMessage('Resolved:', 'succesfully logged in with username='+result.username+
-                ' | password='+result.password+' | stayloggedin: '+result.remember+
-                ' | button='+result.button);
-        },
-        function(reason) {
-            Y.showMessage('Rejected:', reason);
+        iconLogin: 'itsaicon-dialog-user',
+        iconLogout: 'itsaicon-dialog-user',
+        sync: syncFn
+    });
+    myView._set('editable', true);
+
+    myView.renderOnReady().then(
+        function(){
+           myView.focus();
         }
     );
+
+    Y.after('loggedin', function(e) {
+        console.log('logged in with username: '+e.username+' | password: '+e.password+' | remember: '+e.remember);
+    });
 
 });
