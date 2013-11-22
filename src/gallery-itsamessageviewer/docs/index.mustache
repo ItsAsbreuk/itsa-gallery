@@ -34,7 +34,7 @@
         The Views will handle the messages from the queue, one by one. If there gets a message in the queue that has a higher <code>Y.ITSAMessage.level</code> (warn>info, error>warn), then previous 'lower-level' messages get suspended and the higher message shows up. The lower-message will resurrect once the higher-message disapears. Inside the same level, messages can be given a priority by setting ITSAMessage.priority=true. This wil not result into suspension, but makes the message being placed in its own queue (info, warn or error) just above the last 'non-priority'-message.
     </p>
     <p>
-        <b>Note:</b> there is also the module <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsalogin/">gallery-itsalogin</a>, which is not a messageviewer, but just introduces Y.login() which can be viewed through Y.ITSADialog.
+        <b>Note:</b> there is also the module <a href="http://gallerydocs.itsasbreuk.nl/gallery-itsalogin/">gallery-itsalogin</a>, which is not a messageviewer, but just introduces Y.getLogin() which can be viewed through Y.ITSADialog.
     </p>
 
 
