@@ -1138,12 +1138,12 @@ ITSAViewModel.prototype.render = function (clear) {
 /*jshint expr:false */
 
 /*jshint expr:true */
-    statusbar && (clear || statusbarinstance || (html+=STATUSBAR_TEMPLATE));
+    statusbar && (statusbarinstance || (html+=STATUSBAR_TEMPLATE));
 /*jshint expr:false */
 
     container.setHTML(html);
 
-    if (statusbar && !clear) {
+    if (statusbar) {
         container.setAttribute(DATA_ITSASTATUSBAR, 'true');
         if (statusbarinstance) {
             container.append(statusbarinstance.get('parentNode'));
