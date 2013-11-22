@@ -64,7 +64,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsastatusbar', 
     );
 
     Y.after('loggedin', function(e) {
-        Y.showStatus('You are successfully logged with username: '+e.username+', password: '+e.password+', remember: '+e.remember, {target: statusbar, timeout: 5000});
+        Y.showStatus('You are successfully logged in with username: '+e.username+', password: '+e.password+', remember: '+e.remember, {target: statusbar, timeout: 5000});
     });
 
     statusbar = new Y.ITSAStatusbar();

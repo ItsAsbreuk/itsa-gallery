@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessageviewer', function(Y) {
 
     var syncFn, myView;
 
@@ -65,7 +65,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
     );
 
     Y.after('loggedin', function(e) {
-        console.log('logged in with username: '+e.username+' | password: '+e.password+' | remember: '+e.remember);
+        Y.showStatus('Logged in with username: '+e.username+', password: '+e.password+', remember: '+e.remember, {target: myView, timeout: 5000});
     });
 
 });
