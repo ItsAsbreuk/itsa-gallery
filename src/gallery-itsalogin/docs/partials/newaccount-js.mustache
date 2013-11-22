@@ -1,4 +1,4 @@
-YUI(yuiconfig).use('base-build', 'gallery-itsalogin', 'promise', 'gallery-lazy-promise', 'gallery-itsadialog', function(Y) {
+YUI(yuiconfig).use('base-build', 'gallery-itsalogin', 'promise', 'gallery-itsadialog', function(Y) {
 
     var syncFn, createAccountPromise, getAccountMessage;
 
@@ -90,7 +90,7 @@ YUI(yuiconfig).use('base-build', 'gallery-itsalogin', 'promise', 'gallery-lazy-p
         return newAccountMessage;
     };
 
-    var syncFn = function(action) {
+    syncFn = function(action) {
         /*
          * typically you would use gallery-io-utils and create a promise like this:
          *
@@ -131,9 +131,9 @@ YUI(yuiconfig).use('base-build', 'gallery-itsalogin', 'promise', 'gallery-lazy-p
         });
     };
 
-    createAccountPromise = new Y.LazyPromise(function (resolve, reject) {
-        Y.ITSAMessageController.queueMessage(getAccountMessage(syncFn)).then(resolve, reject);
-    });
+    createAccountPromise = function (sync) {
+        return Y.ITSAMessageController.queueMessage(getAccountMessage(sync));
+    };
 
     Y.getLogin('Login', 'Please enter login', {
         imageButtons: true,

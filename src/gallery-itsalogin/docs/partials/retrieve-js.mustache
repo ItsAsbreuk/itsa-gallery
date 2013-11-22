@@ -24,7 +24,7 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', functio
                     }
                     else if (button==='forgotpassword') {
                         // IN THIS EXAMPLE, ONLY marco IS A KNOWN USERNAME
-                        username  = logininstance.get('username').toLowerCase(),
+                        username  = logininstance.get('username').toLowerCase();
                         valid = (username==='marco');
                         status = valid ? 'OK' : 'RETRY';
                     }

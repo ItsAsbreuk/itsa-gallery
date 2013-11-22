@@ -32,6 +32,7 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     MAIL = 'mail',
     EMAIL = 'e'+MAIL,
     ADDRESS = 'address',
+    FUNCTION = 'function',
     EMAILADDRESS = EMAIL+ADDRESS,
     USERNAME_OR_PASSWORD = USERNAME+'or'+PASSWORD,
     FORGOT_USERNAME = FORGOT+USERNAME,
@@ -141,8 +142,7 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
  * @param [title] {String} title of the login-panel.
  * @param [message] {String} message inside the login-panel.
  * @param [config] {Object} config (which that is also bound to Y.ITSAMessage._config which passes through to Y.ITSAMessageController).
- * @param [config.createAccount] {Y.LazyPromise} should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
- *                                By fulfilling the queueMessage, the Y.LazyPromise should be fulfilled.
+ * @param [config.createAccount] {function} should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
  * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
  * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.formconfigRemember] {Object} formconfig that passes through to the remember-attribute of the underlying Y.ITSAMessage-instance.
@@ -175,7 +175,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
     config = params.config;
     syncPromise = params.syncPromise;
 
-    createAccountPromise = (config.createAccount instanceof Y.LazyPromise) && config.createAccount;
+    createAccountPromise = (typeof config.createAccount === FUNCTION) && config.createAccount;
     primaryButton = BTNSUBMIT;
     required = ((typeof config.required === BOOLEAN) && config.required) || false;
     usernameIsEmail = ((typeof config.usernameIsEmail === BOOLEAN) && config.usernameIsEmail) || false;
@@ -362,8 +362,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
             // accountPromise MUST end with an empty then(), because that will make sure to execute the LazyPromise!!
             return createAccountPromise ? instance.queueMessage(itsamessage).then(
                 function(response) {
-                    // NEED to put an empty .then() to be sure the lazypromise always gets executed!
-                    return (response.button===CREATE_ACCOUNT) ? createAccountPromise.then() : response;
+                    return (response.button===CREATE_ACCOUNT) ? createAccountPromise(syncPromise) : response;
                 }
             ) : instance.queueMessage(itsamessage);
         }
@@ -406,7 +405,7 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
     }
     // when no syncPromise is defined, we need to reject the syncpromise.
 /*jshint expr:true */
-    (typeof syncPromise === 'function') || (syncPromise=function() {
+    (typeof syncPromise === FUNCTION) || (syncPromise=function() {
         var msg = 'no syncPromise defined';
         return new Y.Promise(function (resolve, reject) {
             reject(new Error(msg));
@@ -532,6 +531,7 @@ ITSADialogClass.prototype.translate = function(text) {
  *
 */
 ITSADialogClass.prototype._changePwFn = function(itsamessage) {
+console.log('_changePwFn');
     var config = itsamessage._config,
         verifyNewPassword = ((typeof config[VERIFYNEWPASSWORD] === BOOLEAN) && config[VERIFYNEWPASSWORD]) || true,
         intl = ITSADialogInstance._intl,
@@ -618,7 +618,7 @@ ITSADialogClass.prototype._changePwFn = function(itsamessage) {
     changePassword.target = ITSADIALOG; // widgetname that should handle this message
     changePassword.source = config.source || APP;
     changePassword.messageType = CHANGE_PASSWORD;
-    changePassword.closeButton = itsamessage._config.closeButton || true;
+    changePassword.closeButton = config.closeButton || true;
     changePassword.footer = '{'+(imageButtons ? IMG : '')+BTNSUBMIT+'}';
     changePassword.primaryButton = (imageButtons ? IMG : '')+BTNSUBMIT;
     changePassword._submitBtn = CHANGE_PASSWORD;
@@ -721,7 +721,6 @@ ITSADialogClass.prototype._regainFn_UnPw = function(config) {
  *
 */
 ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
-console.log('_regainFn_Un');
     var formconfigForgotUsername, MyForgotUsername, message, forgotUsername, imageButtons, intl;
     intl = ITSADialogInstance._intl;
     // setting config for username:
@@ -782,7 +781,6 @@ console.log('_regainFn_Un');
  *
 */
 ITSADialogClass.prototype._regainFn_Pw = function(config, syncPromise) {
-console.log('_regainFn_Pw');
     var formconfigForgotPassword, MyForgotPassword, message, forgotPassword, imageButtons, intl, usernameIsEmail;
     intl = ITSADialogInstance._intl;
     usernameIsEmail = ((typeof config.usernameIsEmail === BOOLEAN) && config.usernameIsEmail) || false;
@@ -869,7 +867,11 @@ ITSADialogInstance.isRendered().then(
                                         Y.showError(responseObj.title || intl[ERROR], message);
                                         itsamessage.reject(message);
                                     }
-                                    if (responseObj.status==='OK') {
+                                    else if ((messageType===CREATE_ACCOUNT) && (responseObj.status==='LOGIN')) {
+                                        facade = Y.merge(responseObj, itsamessage.toJSON());
+                                        itsamessage.resolve(facade);
+                                    }
+                                    else if (responseObj.status==='OK') {
                                         facade = Y.merge(responseObj, itsamessage.toJSON());
                                         itsamessage.resolve(facade);
                                         // fire the login-event in case messageType===GET_LOGIN
@@ -931,27 +933,33 @@ ITSADialogInstance.isRendered().then(
                                         itsamessage.reject(message);
                                     }
                                     else if ((responseObj.status==='RETRY') &&
-                                             ((messageType===GET_LOGIN) || (messageType===FORGOT_USERNAME) ||
+                                             ((messageType===GET_LOGIN) || (messageType===FORGOT_USERNAME) || (messageType===CREATE_ACCOUNT) ||
                                               (messageType===FORGOT_PASSWORD) || (messageType===FORGOT_PASSWORD_EMAIL) || (messageType===CHANGE_PASSWORD))) {
                         /*jshint expr:true */
-                                        responseObj.title && panel.set('title', responseObj.title);
-                                        (messageType===GET_LOGIN) && (message = responseObj.message || intl.unknownlogin);
-                                        (messageType===CHANGE_PASSWORD) && (message = responseObj.message || intl.passwordnotaccepted);
-                                        (messageType===FORGOT_PASSWORD) && (message = responseObj.message || intl.unknownusername);
-                                        (messageType===FORGOT_PASSWORD_EMAIL) && (message = responseObj.message || intl.unknownemail);
-                                        (messageType===FORGOT_USERNAME) && (message = responseObj.message || intl.unknownemail);
-                        /*jshint expr:false */
-                                        if (message) {
-                                            contentBox = panel.get(CONTENTBOX);
-                                            contentBox.one('.itsa-messagewrapper').setHTML(message);
+                                        if (messageType===CREATE_ACCOUNT) {
+                                            Y.alert(responseObj.title || intl.failed, responseObj.message || intl.failedcreateaccount);
+                                        }
+                                        else {
+                                            responseObj.title && panel.set('title', responseObj.title);
+                                            (messageType===GET_LOGIN) && (message = responseObj.message || intl.unknownlogin);
+                                            (messageType===CHANGE_PASSWORD) && (message = responseObj.message || intl.passwordnotaccepted);
+                                            (messageType===FORGOT_PASSWORD) && (message = responseObj.message || intl.unknownusername);
+                                            (messageType===FORGOT_PASSWORD_EMAIL) && (message = responseObj.message || intl.unknownemail);
+                                            (messageType===FORGOT_USERNAME) && (message = responseObj.message || intl.unknownemail);
+                            /*jshint expr:false */
+                                            if (message) {
+                                                contentBox = panel.get(CONTENTBOX);
+                                                contentBox.one('.itsa-messagewrapper').setHTML(message);
+                                            }
                                         }
                                     }
                                     else if ((messageType===GET_LOGIN) && (responseObj.status==='CHANGEPASSWORD')) {
                                         ITSADialogInstance._changePwFn(itsamessage).then(
                                             function(response) {
+                                                var newResponseObj = PARSED(response);
                                                 // itsamessage is the original getLogin-message with level===INFO
                                                 // the message that came from '_changePwFn' is submitted and is shown with status==='OK'
-                                                facade = Y.merge(responseObj, itsamessage.toJSON(), {password: response.password});
+                                                facade = Y.merge(responseObj, newResponseObj, itsamessage.toJSON(), {password: response.password});
                                                 // overrule password, because the new password is appropriate
                                                 itsamessage.resolve(facade);
                                                 // fire the login-event in case messageType===GET_LOGIN
@@ -971,7 +979,7 @@ ITSADialogInstance.isRendered().then(
                                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
 /*jshint expr:false */
                                             },
-                                            function() {
+                                            function(reason) {
                                                 message = intl.passwordnotchanged;
                                                 // production-errors will be shown through the messagecontroller
                                                 Y.showError(intl[ERROR], message);
@@ -1023,13 +1031,12 @@ ITSADialogInstance.isRendered().then(
  *          <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
  *      </ul>
  *
- * @method Y.getLogin
+ * @method Y.getLogin(
  *
  * @param [title] {String} title of the login-panel.
  * @param [message] {String} message inside the login-panel.
  * @param [config] {Object} config (which that is also bound to Y.ITSAMessage._config which passes through to Y.ITSAMessageController).
- * @param [config.createAccount] {Y.LazyPromise} should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
- *                                By fulfilling the queueMessage, the Y.LazyPromise should be fulfilled.
+ * @param [config.createAccount] {function} should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
  * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
  * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.formconfigRemember] {Object} formconfig that passes through to the remember-attribute of the underlying Y.ITSAMessage-instance.
@@ -1061,7 +1068,6 @@ Y[GET_LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAM
         "json-parse",
         "oop",
         "gallery-itsa-i18n-login",
-        "gallery-lazy-promise",
         "gallery-itsamessagecontroller",
         "gallery-itsacheckbox",
         "gallery-itsadialog",
