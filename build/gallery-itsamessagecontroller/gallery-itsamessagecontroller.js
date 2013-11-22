@@ -861,7 +861,6 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+SHOW_STATUS] = function(message,
             itsamessage.source = config.source || APP;
             itsamessage.messageType = config.busy ? SHOW_BUSY : SHOW_STATUS;
             instance.queueMessage(itsamessage);
-console.log('check '+itsamessage.messageType);
             return itsamessage;
         }
     );
