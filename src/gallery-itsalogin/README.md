@@ -2,7 +2,7 @@ gallery-itsalogin
 ========
 
 
-Supplies Y.login() through the Y.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.
+Supplies Y.getLogin() through the Y.ITSAMessageController. You get a promise that holds a username and password, which are retrieved through a synclayer.
 
 
 Landing Page

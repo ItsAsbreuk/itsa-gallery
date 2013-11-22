@@ -163,6 +163,7 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
  */
 
 ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, message, config, sync) {
+console.log('Y.login called');
     Y.log('_getLogin', 'info', 'ITSALogin');
     var instance = this,
         intl = ITSADialogInstance._intl,
@@ -1031,7 +1032,7 @@ ITSADialogInstance.isRendered().then(
  *          <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
  *      </ul>
  *
- * @method Y. login
+ * @method Y.getLogin(
  *
  * @param [title] {String} title of the login-panel.
  * @param [message] {String} message inside the login-panel.
@@ -1057,4 +1058,4 @@ ITSADialogInstance.isRendered().then(
  * @return {Y.Promise} Promise that holds valid logindata (if resolved) --> resolve(result) result={username, password, remember} OR reject(reason)
  * @since 0.1
  */
-Y[LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessageControllerInstance);
+Y[GET_LOGIN] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+GET_LOGIN], ITSAMessageControllerInstance);
