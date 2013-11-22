@@ -317,6 +317,7 @@ ITSAMessageViewer.prototype[SHOW_ERROR] = function(title, message, config) {
  * @method Y.showStatus
  * @param message {String} The message
  * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.busy] {Boolean} set true to create a spinning icon in front of message.
      * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
      *                               By setting this, you the default setting of closeButton is overruled.
      * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
@@ -328,8 +329,7 @@ ITSAMessageViewer.prototype[SHOW_ERROR] = function(title, message, config) {
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
      * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
-     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
-     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.timeout] {Number} Timeout after which the message should disappear (will actually make the messageinstance resolved)
  * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
  * @since 0.1
 */
@@ -1005,6 +1005,7 @@ Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITS
  * @method Y.showStatus
  * @param message {String} The message
  * @param [config] {Object} Config passed through to the Y.ITSAMessage instance and the next additional properties:
+     * @param [config.busy] {Boolean} set true to create a spinning icon in front of message.
      * @param [config.closeButton] {Boolean} whether the closebutton should be visible.
      *                               By setting this, you the default setting of closeButton is overruled.
      * @param [config.icon] {String} Classname of the iconfont, for instance 'itsaicon-dialog-info' --> see gallerycss-itsa-base for more info about iconfonts.
@@ -1016,8 +1017,7 @@ Y[SHOW_ERROR] = Y.bind(ITSAMessageControllerInstance[UNDERSCORE+SHOW_ERROR], ITS
      *                               By setting this, you the default primaryButton is overruled.
      * @param [config.source] {String} Identification of the source (sender) of the message, which is 'application' by default.
      * @param [config.target] {Y.ITSAMessageViewer} MessageViewer-instance that is targeted and should handle the message.
-     * @param [config.timeoutReject] {Number} Timeout after which the message's visiblilty should be rejected
-     * @param [config.timeoutResolve] {Number} Timeout after which the message's visiblilty should be resolved
+     * @param [config.timeout] {Number} Timeout after which the message should disappear (will actually make the messageinstance resolved)
  * @return {Y.Promise} handle with reference to the message, needs to be removed manually by Y.removeStatus(handle).
  * @since 0.1
 */
