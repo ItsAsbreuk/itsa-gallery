@@ -2407,7 +2407,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
                 type = buttonobject.type;
                 labelHTML = buttonobject.labelHTML(); // is a function!
                 config = buttonobject.config;
-                jsondata[propertykey] = model._renderBtnFns[type].call(model, labelHTML, config);
+                jsondata[propertykey] = model._renderBtnFns[type] && model._renderBtnFns[type].call(model, labelHTML, config);
             }
         );
         // now add the custom buttons
@@ -2416,7 +2416,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
             function(buttonobject, propertykey) {
                 labelHTML = buttonobject.labelHTML; // is a property
                 config = buttonobject.config;
-                jsondata[propertykey] = model._renderBtnFns[BUTTON].call(model, labelHTML, config);
+                jsondata[propertykey] = model._renderBtnFns[BUTTON] && model._renderBtnFns[BUTTON].call(model, labelHTML, config);
             }
         );
     };
