@@ -27,7 +27,7 @@ YUI.add('gallery-itsaviewlogin', function (Y, NAME) {
 //
 //===============================================================================================
 var Lang = Y.Lang,
-    LOADTIMEOUT = 500, // for loading gallery-itsalogin (in case compressed===true)
+    LOADTIMEOUT = 500, // for loading gallery-itsalogin (in case simplified===true)
     ICON = 'icon',
     MESSAGE = 'message',
     MODEL = 'model',
@@ -45,7 +45,7 @@ var Lang = Y.Lang,
     LOGGED = 'logged',
     LOGGEDIN = LOGGED+'in',
     LOGGEDOUT = LOGGED+'out',
-    COMPRESSED = 'compressed',
+    SIMPLIFIED = 'simplified',
     STAYLOGGEDIN = 'stay'+LOGGEDIN,
     SERNAME = 'sername',
     ASSWORD = 'assword',
@@ -152,21 +152,6 @@ ITSAViewLogin.NAME = 'itsaviewlogin';
 
 Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
     ATTRS: {
-        /**
-         * Whether to use the compressed templates
-         *
-         * @attribute compressed
-         * @type {Boolean}
-         * @default true
-         * @since 0.1
-         */
-        compressed: {
-            value: true,
-            validator: function(v) {
-                return (typeof v === BOOLEAN);
-            },
-            initOnly: true
-        },
         /**
          * Need to be a function that returns a new Promise. Should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
          * See the examples how this works.
@@ -417,6 +402,21 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             initOnly: true
         },
         /**
+         * Whether to use the simplified templates
+         *
+         * @attribute simplified
+         * @type {Boolean}
+         * @default false
+         * @since 0.1
+         */
+        simplified: {
+            value: false,
+            validator: function(v) {
+                return (typeof v === BOOLEAN);
+            },
+            initOnly: true
+        },
+        /**
          * Reference to the synclayer. Should be a function that returns a Y.Promise. Best way is to set up the synclayer using gallery-io-utils.
          *
          * @attribute sync
@@ -573,7 +573,7 @@ ITSAViewLogin.prototype.initializer = function() {
     (instance.get(IMAGEBUTTONS)) && Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
     /*jshint expr:false */
     instance._defineModel();
-    if (instance.get(COMPRESSED)) {
+    if (instance.get(SIMPLIFIED)) {
         Y.later(LOADTIMEOUT, null, function() {
             Y.use(GALLERYITSALOGIN);
         });
@@ -1015,7 +1015,7 @@ ITSAViewLogin.prototype._defineModel = function() {
                                                 }
                                             }
                                         );
-    instance.get(COMPRESSED) && extrabuttons.push(imagebuttons ?
+    instance.get(SIMPLIFIED) && extrabuttons.push(imagebuttons ?
                                             {
                                                 buttonId: IMGBTN_+LOGIN,
                                                 labelHTML: I_CLASS_ITSADIALOG+'-login"></i>'+loginintl[LOGIN],
@@ -1092,15 +1092,15 @@ ITSAViewLogin.prototype._getterTempl = function() {
 */
 ITSAViewLogin.prototype._loginTempl = function() {
     var instance = this,
-        compressed = instance.get(COMPRESSED),
+        simplified = instance.get(SIMPLIFIED),
         icon = instance.get(ICONLOGIN);
 
-    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (compressed ? SMALL : LARGE)}) : '') +
-           (instance.get(LOGINTEMPLATE) || (instance.get(COMPRESSED) ? instance._defComprLoginTempl() : instance._defLoginTempl()));
+    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
+           (instance.get(LOGINTEMPLATE) || (simplified ? instance._defComprLoginTempl() : instance._defLoginTempl()));
 };
 
 /**
- * The default compressed login-template, when attribute 'loginTemplate' is null
+ * The default simplified login-template, when attribute 'loginTemplate' is null
  *
  * @method _defComprLoginTempl
  * @private
@@ -1142,16 +1142,16 @@ ITSAViewLogin.prototype._defLoginTempl = function() {
 */
 ITSAViewLogin.prototype._logoutTempl = function() {
     var instance = this,
-        compressed = instance.get(COMPRESSED),
+        simplified = instance.get(SIMPLIFIED),
         logouttemplate = instance.get(LOGOUTTEMPLATE),
         icon = instance.get(ICONLOGOUT);
 
-    return ((icon && logouttemplate) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (compressed ? SMALL : LARGE)}) : '') +
-           (logouttemplate || (compressed ? instance._defComprLogoutTempl() : instance._defLogoutTempl(' itsaviewlogin-noncompressed')));
+    return ((icon && logouttemplate) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
+           (logouttemplate || (simplified ? instance._defComprLogoutTempl() : instance._defLogoutTempl(' itsaviewlogin-non'+SIMPLIFIED)));
 };
 
 /**
- * The default compressed logout-template, when attribute 'loginTemplate' is null
+ * The default simplified logout-template, when attribute 'loginTemplate' is null
  *
  * @method _defComprLogoutTempl
  * @private
@@ -1172,14 +1172,15 @@ ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
     var instance = this,
         displayname = instance._displayname,
         icon = instance.get(ICONLOGOUT),
+        simplified = instance.get(SIMPLIFIED),
         message = (instance.get(MESSAGELOGGEDIN) || (displayname ? instance._loginintl.youareloggedinas : instance._loginintl.youareloggedin)),
         loggedinUser = displayname || '',
         logoutBtn = '{'+BTNSUBMIT+'}';
 
     return '<form class="pure-form'+formclass+'">'+
-               ((!instance.get(LOGOUTTEMPLATE)) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (instance.get(COMPRESSED) ? SMALL : LARGE)}) : '') +
+               ((!instance.get(LOGOUTTEMPLATE)) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
                SPANWRAPPER + Lang.sub(message, {displayname: loggedinUser}) + ENDSPAN +
-               Lang.sub(SPANBUTTONWRAPPER, {size: (instance.get(COMPRESSED) ? SMALL : LARGE)})+ logoutBtn + ENDSPAN +
+               Lang.sub(SPANBUTTONWRAPPER, {size: (simplified ? SMALL : LARGE)})+ logoutBtn + ENDSPAN +
            '</form>';
 };
 

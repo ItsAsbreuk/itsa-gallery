@@ -59,7 +59,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
             }
         });
         message = '<div style="min-width: 300px">'+
-                       Y.ITSADialog.translate('createaccount')+
+                       Y.ITSADialog.translate('createnewaccount')+
                       '<fieldset>'+
                            '<div class="pure-control-group">'+'{username}</div>'+
                            '<div class="pure-control-group">'+'{password}</div>'+
@@ -105,7 +105,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
                 null,
                 function() {
                     var button = logininstance.get('button'),
-                        status, username, password, verified, message;
+                        status, username, password, verified, message, title;
                     if (button==='getlogin') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
@@ -116,7 +116,9 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
                     else if (button==='createaccount') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
-                        status = 'RETRY';
+                        status = 'LOGIN';
+                        message = 'Dear '+username+' have fun with our new site!';
+                        title = 'Welcome';
                     }
                     else {
                         status = 'ERROR';
@@ -125,6 +127,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
                     resolve({
                         status: status,
                         message: message,
+                        title: title,
                         displayname: ((status==='OK') || (status==='LOGIN')) ? 'Marco Asbreuk' : undefined
                     });
                 }
@@ -138,7 +141,6 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
 
     myView = new Y.ITSAViewLogin({
         container: '#viewcont',
-        compressed: false,
         message: 'You need to login to get access',
         imageButtons: true,
         showStayLoggedin: true,
@@ -155,7 +157,8 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
     );
 
     Y.after('loggedin', function(e) {
-        console.log('logged in with username: '+e.username+' | password: '+e.password+' | remember: '+e.remember);
+        console.log('logged in with username: '+e.username+' | password: '+e.password+
+                    ' | remember: '+e.remember);
     });
 
 });

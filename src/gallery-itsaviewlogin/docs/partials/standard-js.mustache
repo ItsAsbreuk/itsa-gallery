@@ -47,9 +47,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
 
     myView = new Y.ITSAViewLogin({
         container: '#viewcont',
-        compressed: false,
         message: 'You need to login to get access',
-        regain: 'username',
         imageButtons: true,
         showStayLoggedin: true,
         iconLogin: 'itsaicon-dialog-user',
@@ -64,7 +62,8 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
     );
 
     Y.after('loggedin', function(e) {
-        console.log('logged in with username: '+e.username+' | password: '+e.password+' | remember: '+e.remember);
+        console.log('logged in with username: '+e.username+' | password: '+e.password+
+                    ' | remember: '+e.remember);
     });
 
 //    myView.addMessageTarget(statusbar);

@@ -1,6 +1,6 @@
 yuiconfig.lang = 'es';
 
-YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsalogin', function(Y) {
+YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', function(Y) {
 
     var title, message, username, password, loggedin, changepassword;
 
@@ -54,7 +54,6 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsalogin', func
 
     myView = new Y.ITSAViewLogin({
         container: '#viewcont',
-        compressed: false,
         message: 'You need to login to get access',
         regain: 'username',
         imageButtons: true,
@@ -78,7 +77,8 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsalogin', func
     );
 
     Y.after('loggedin', function(e) {
-        Y.showMessage(loggedin+' '+username+'='+result.username+' | '+password+'='+result.password);
+        console.log('logged in with username: '+e.username+' | password: '+e.password+
+                    ' | remember: '+e.remember);
     });
 
 });
