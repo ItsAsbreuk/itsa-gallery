@@ -105,12 +105,13 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
                 null,
                 function() {
                     var button = logininstance.get('button'),
-                        status, username, password, verified, message, title;
+                        status, username, password, verified, message, title, displayname;
                     if (button==='getlogin') {
                         username = logininstance.get('username').toLowerCase();
                         password = logininstance.get('password');
                         verified = (username==='marco') && (password==='test');
                         status = verified ? 'OK' : 'RETRY';
+                        (status==='OK') && (displayname='Marco Asbreuk');
                     }
                     // the default buttontype of the createaccount dialog === 'createaccount'
                     else if (button==='createaccount') {
@@ -119,6 +120,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
                         status = 'LOGIN';
                         message = 'Dear '+username+' have fun with our new site!';
                         title = 'Welcome';
+                        displayname = username;
                     }
                     else {
                         status = 'ERROR';
@@ -128,7 +130,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
                         status: status,
                         message: message,
                         title: title,
-                        displayname: ((status==='OK') || (status==='LOGIN')) ? 'Marco Asbreuk' : undefined
+                        displayname: displayname
                     });
                 }
             );

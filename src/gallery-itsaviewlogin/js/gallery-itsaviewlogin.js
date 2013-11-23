@@ -29,7 +29,12 @@ var Lang = Y.Lang,
     ICON = 'icon',
     MESSAGE = 'message',
     MODEL = 'model',
-    FORMCONFIG = 'formconfig',
+    CONFIG = 'config',
+    FORMCONFIG = 'form'+CONFIG,
+    CAP_REGAIN = 'Regain',
+    REGAINUN = CAP_REGAIN+'Un',
+    REGAINPW = CAP_REGAIN+'Pw',
+    REGAINUNPW = REGAINUN+'Pw',
     VALIDATOR = 'validator',
     VALIDATIONERROR = 'validationerror',
     MAIL = 'mail',
@@ -151,11 +156,108 @@ ITSAViewLogin.NAME = 'itsaviewlogin';
 Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
     ATTRS: {
         /**
+         * Config that passes through to the 'change-password'-dialogpanel. See gallery-itsalogin.<br>
+         * May consist of the following properties:<br>
+         * <ul>
+         * <li>formconfigPassword {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>formconfigShowPassword {Object} formconfig that passes through to the ''show password'-ITSACheckbox when users retrieve their password</li>
+         * <li>iconQuestion {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)</li>
+         * <li>imageButtons {Boolean} creates panel-buttons with image-icons</li>
+         * <li>messageChangePassword {String} Message that appears on the 'change-password'-form (overrules the default)</li>
+         * <li>showNewPassword {Boolean} When password-change: input can be made visible by an Y.ITSACheckbox</li>
+         * <li>titleChangePassword] {String} Title that appears on the 'change-password'-form (overrules the default)</li>
+         * <li>validationerrorPassword] {String} validationerror that passes through to the password-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>validatorPassword] {Function} validator that passes through to the password-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>verifyNewPassword] {Boolean} When password-change: need to verify new password</li>
+         * </ul>
+         *
+         * @attribute configChangePassword
+         * @type {Object}
+         * @default null
+         * @since 0.1
+         */
+        configChangePassword: {
+            value: {},
+            validator: function(v) {
+                return (typeof v === OBJECT);
+            }
+        },
+        /**
+         * Config that passes through to the 'regain-password'-dialogpanel. See gallery-itsalogin.<br>
+         * May consist of the following properties:<br>
+         * <ul>
+         * <li>formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)</li>
+         * <li>imageButtons] {Boolean} creates panel-buttons with image-icons</li>
+         * <li>messageForgotPassword] {String} Message that appears on the 'forgot-password'-form (overrules the default)</li>
+         * <li>titleForgotPassword] {String} Title that appears on the 'forgot-password'-form (overrules the default)</li>
+         * <li>usernameIsEmail] {Boolean} when set, the email-pattern will be active</li>
+         * <li>validationerrorEmail] {String} validationerror that passes through to the username-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>validatorEmail] {Function} validator that passes through to the email-attribute of the underlying Y.ITSAMessage-instance</li>
+         * </ul>
+         *
+         * @attribute configChangePassword
+         * @type {Object}
+         * @default null
+         * @since 0.1
+         */
+        configRegainPw: {
+            value: {},
+            validator: function(v) {
+                return (typeof v === OBJECT);
+            }
+        },
+        /**
+         * Config that passes through to the 'regain-username'-dialogpanel. See gallery-itsalogin.<br>
+         * May consist of the following properties:<br>
+         * <ul>
+         * <li>formconfigUsername] {Object} formconfig that passes through to the username-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)</li>
+         * <li>imageButtons] {Boolean} creates panel-buttons with image-icons</li>
+         * <li>messageForgotUsername] {String} Message that appears on the 'forgot-username'-form (overrules the default)</li>
+         * <li>titleForgotUsername] {String} Title that appears on the 'forgot-username'-form (overrules the default)</li>
+         * <li>validationerrorEmail] {String} validationerror that passes through to the username-attribute of the underlying Y.ITSAMessage-instance</li>
+         * <li>validatorEmail] {Function} validator that passes through to the email-attribute of the underlying Y.ITSAMessage-instance</li>
+         * </ul>
+         *
+         * @attribute configChangePassword
+         * @type {Object}
+         * @default null
+         * @since 0.1
+         */
+        configRegainUn: {
+            value: {},
+            validator: function(v) {
+                return (typeof v === OBJECT);
+            }
+        },
+        /**
+         * Config that passes through to the 'regain-password-or-password'-dialogpanel. See gallery-itsalogin.<br>
+         * May consist of the following properties:<br>
+         * <ul>
+         * <li>iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)</li>
+         * <li>imageButtons] {Boolean} creates panel-buttons with image-icons</li>
+         * <li>messageForgotUsernameOrPassword] {String} Message that appears on the 'forgot-username-or-password'-form (overrules the default)</li>
+         * <li>titleForgotUsernameOrPassword] {String} Title that appears on the 'orgot-username-or-password'-form (overrules the default)</li>
+         * </ul>
+         *
+         * @attribute configChangePassword
+         * @type {Object}
+         * @default null
+         * @since 0.1
+         */
+        configRegainUnPw: {
+            value: {},
+            validator: function(v) {
+                return (typeof v === OBJECT);
+            }
+        },
+        /**
          * Need to be a function that returns a new Promise. Should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
          * See the examples how this works.
          *
          * @attribute createAccount
-         * @type {function}
+         * @type {Function}
          * @default null
          * @since 0.1
          */
@@ -543,13 +645,13 @@ ITSAViewLogin.prototype.setSubmitButtons = function(login) {
 
     if (instance.get(IMAGEBUTTONS)) {
     /*jshint expr:true */
-        instance._loggedin ? instance.removePrimaryButton() : instance.setPrimaryButton(IMGBTN_+SUBMIT);
+        instance.isLoggedin() ? instance.removePrimaryButton() : instance.setPrimaryButton(IMGBTN_+SUBMIT);
     /*jshint expr:false */
         instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-'+logging+'"></i>'+loginintl[logging]);
     }
     else {
     /*jshint expr:true */
-        instance._loggedin ? instance.removePrimaryButton() : instance.setPrimaryButton(BTNSUBMIT);
+        instance.isLoggedin() ? instance.removePrimaryButton() : instance.setPrimaryButton(BTNSUBMIT);
     /*jshint expr:false */
         instance.setButtonLabel(BTNSUBMIT, loginintl[logging]);
     }
@@ -620,9 +722,6 @@ ITSAViewLogin.prototype.initializer = function() {
                         function() {
                             var ITSADialogInstance = Y.ITSADialog,
                                 regain = instance.get(REGAIN),
-                                config = {
-
-                                },
                                 syncPromise = instance.get(SYNC);
                             instance.focusInitialItem()
                             .then(
@@ -634,17 +733,17 @@ ITSAViewLogin.prototype.initializer = function() {
                             .then(
                                 function() {
                                     return (regain===USERNAMEORPASSWORD) ?
-                                           ITSADialogInstance._regainFn_UnPw(config) :
+                                           ITSADialogInstance._regainFn_UnPw(instance.get(CONFIG+REGAINUNPW)) :
                                            true;
                                 }
                             )
                             .then(
                                 function(result) {
                                     if ((result.button===FORGOT_USERNAME) || (regain===USERNAME)) {
-                                        return ITSADialogInstance._regainFn_Un(config, syncPromise);
+                                        return ITSADialogInstance._regainFn_Un(instance.get(CONFIG+REGAINUN), syncPromise);
                                     }
                                     else if ((result.button===FORGOT_PASSWORD) || (regain===PASSWORD)) {
-                                        return ITSADialogInstance._regainFn_Pw(config, syncPromise);
+                                        return ITSADialogInstance._regainFn_Pw(instance.get(CONFIG+REGAINPW), syncPromise);
                                     }
                                 },
                                 function(reason) {
@@ -664,7 +763,6 @@ ITSAViewLogin.prototype.initializer = function() {
                             if (responseObj.status==='LOGIN') {
                                 facade = responseObj;
                                 // fire the login-event in case messageType===CAP_GETLOGIN
-                                // lazy publish the event
                                 /**
                                 * Event fired when a a user successfully logs in.<br>
                                 * Not preventable.
@@ -689,7 +787,7 @@ ITSAViewLogin.prototype.initializer = function() {
                             }
                             else if (responseObj.status!=='OK') {
                                 // program-errors will be shown by fireing events. They can be seen by using Y.ITSAErrorReporter
-                                message = 'Wrong response.status x found: '+responseObj.status;
+                                message = 'Wrong response.status found: '+responseObj.status;
                                 facade = {src: 'Y.ITSAViewLogin.createAccount()', msg: message};
                                 instance.fire('warn', facade);
                             }
@@ -803,18 +901,15 @@ ITSAViewLogin.prototype.initializer = function() {
                             else if (responseObj.status==='OK') {
                                 facade = Y.merge(responseObj, formmodel.toJSON());
                                 // fire the login-event in case messageType===CAP_GETLOGIN
-    // lazy publish the event
-    /**
-    * Event fired when a a user successfully logs in.<br>
-    * Not preventable.
-    *
-    * @event loggedin
-    * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
-    *                        as an answer to the 'getlogin'-request.
-    **/
+                                /**
+                                * Event fired when a a user successfully logs in.<br>
+                                * Not preventable.
+                                *
+                                * @event loggedin
+                                * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
+                                *                        as an answer to the 'getlogin'-request.
+                                **/
                                 Y.fire(LOGGEDIN, facade);
-
-
     /*jshint expr:true */
                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
     /*jshint expr:false */
@@ -841,11 +936,7 @@ ITSAViewLogin.prototype.initializer = function() {
                             else if (responseObj.status==='CHANGEPASSWORD') {
                                 Y.usePromise(GALLERYITSALOGIN).then(
                                     function() {
-                                        var itsamessage = {
-                                            syncPromise: instance.get(SYNC),
-                                            _config: {}
-                                        };
-                                        Y.ITSADialog._changePwFn(itsamessage).then(
+                                        Y.ITSADialog._changePwFn(instance.get(CONFIG+CHANGE+CAP_PASSWORD), instance.get(SYNC)).then(
                                             function(response) {
                                                 var newResponseObj = PARSED(response);
                                                 facade = Y.merge(responseObj, newResponseObj, formmodel.toJSON(), {password: response.password});
@@ -910,25 +1001,23 @@ ITSAViewLogin.prototype.initializer = function() {
 
 /**
  *
- * Renderes a login-panel where the user can fill in a username and password. Using config, the behaviour of the panel can be extended
- * by introducing several sub-panels:<br>
+ * Whether a user is logged in. Use this method when you use the module as standalone.
+ * Better usage is to include the module gallery-itsacurrentuser, because that one holds the loginstage at a centel point. In fact, this method
+ * tries to retrieve loginstatus from that module first,
  *
- *      <ul>
- *          <li><code>changepassword-panel</code> will show up when the server responses to button==='getlogin' with {status: 'CHANGEPASSWORD'}</li>
- *          <li><code>forgot-username-or-password-panel</code> is available when config.regain==='usernameorpassword'</li>
- *          <li><code>forgotusername-panel</code> is available when config.regain==='usernameorpassword' || 'username'</li>
- *          <li><code>forgotpassword-panel</code> is available when config.regain==='usernameorpassword' || 'password'</li>
- *          <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
- *      </ul>
- *
- * @method getLogin
- * @return {Y.Promise} Promise that holds valid logindata (if resolved) --> resolve(result) result={username, password, remember} OR reject(reason)
+ * @method isLoggedin
+ * @return {Boolean} loggedin or not
  * @since 0.1
  */
-ITSAViewLogin.prototype.getLogin = function() {
+ITSAViewLogin.prototype.isLoggedin = function() {
+    Y.log('isLoggedin', 'info', 'ITSAViewLogin');
+    // Y.ITSACurrentUser is an instance of Y.ITSACurrentUserClass
+    var currentuser;
+    return (currentuser=Y.ITSACurrentUser) ? currentuser.isLoggedin() : this._loggedin;
 };
 
 ITSAViewLogin.prototype.renderOnReady = function() {
+    Y.log('renderOnReady', 'info', 'ITSAViewLogin');
     var instance = this;
     return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
         function() {
@@ -1084,7 +1173,7 @@ ITSAViewLogin.prototype._defineModel = function() {
 ITSAViewLogin.prototype._getterTempl = function() {
     Y.log('_getterTempl', 'info', 'ITSAViewLogin');
     var instance = this,
-        template = instance._loggedin ? instance._logoutTempl() : instance._loginTempl();
+        template = instance.isLoggedin() ? instance._logoutTempl() : instance._loginTempl();
 
     return instance.get(IMAGEBUTTONS) ? template.replace(/\{btn_/g, '{'+IMGBTN_) : template;
 };
