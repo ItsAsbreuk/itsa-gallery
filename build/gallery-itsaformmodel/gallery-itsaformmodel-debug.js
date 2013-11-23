@@ -36,7 +36,7 @@ var YArray = Y.Array,
     INPUT_REQUIRED = 'inputrequired',
     INVISIBLE_CLASS = 'itsa-invisible',
     DUPLICATE_NODE = '<span style="background-color:F00; color:#FFF">DUPLICATED FORMELEMENT is not allowed</span>',
-    MS_TIME_TO_INSERT = 10000, // time to insert the nodes, we set this time to avoid unnecessary onavailable listeners.
+    MS_TIME_TO_INSERT = 5000, // time to insert the nodes, we set this time to avoid unnecessary onavailable listeners.
     MS_MIN_TIME_FORMELEMENTS_INDOM_BEFORE_REMOVE = 172800000, // for GC --> 2 days in ms
     MS_BEFORE_CLEANUP = 86400000, // for GC: timer that periodic runs _garbageCollect
     TRUE = 'true',
@@ -1513,8 +1513,8 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
 */
 ITSAFormModel.prototype.UIToModel = function(nodeid) {
     var instance = this,
-        formElement, formElements, options, node, value, attribute, widget, type;
-
+        formElement, formElements, options, node, value, attribute, widget, type, attributenodes;
+console.log('UIToModel '+nodeid+'  --> size nodes: '+Y.Object.size(Y.Node._instances));
     Y.log('UItoModel', 'info', 'ITSAFormModel');
     formElements = instance._FORM_elements;
     formElement = nodeid && formElements[nodeid];
@@ -1534,12 +1534,15 @@ ITSAFormModel.prototype.UIToModel = function(nodeid) {
     }
     else if (!nodeid) {
         // save all attributes
-        YObject.each(
-            instance._FORM_elements,
-            function(formelement, nodeid) {
-                instance.UIToModel(nodeid);
-            }
-        );
+        attributenodes = attribute && instance._ATTRS_nodes[attribute];
+        if (attributenodes) {
+            YArray.each(
+                attributenodes,
+                function(nodeid) {
+                    instance.UIToModel(nodeid);
+                }
+            );
+        }
     }
     return instance;
 };
@@ -2344,7 +2347,7 @@ ITSAFormModel.prototype._renderBtn = function(labelHTML, config, buttontype) {
     formelements[nodeid] = formbutton;
     // make sure elements gets removed from instance._FORM_elements
     // when the element is inserted in the dom and gets removed from the dom again
-    YNode.availablePromise('#'+nodeid).then(
+    YNode.availablePromise('#'+nodeid, MS_TIME_TO_INSERT).then(
         function(node) {
             if (knownNodeIds[nodeid]) {
                 // was rendered before --> we need to replace it by an errornode
