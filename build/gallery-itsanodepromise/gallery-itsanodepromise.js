@@ -123,6 +123,7 @@ YNode.fireAvailabilities = function(nodeid) {
  * @since 0.1
 */
 YNode.availablePromise = function (selector, timeout) {
+    var instance = this;
     return new Y.Promise(function (resolve, reject) {
         var resolved = false,
             subscription = Y.once('available', function () {
@@ -135,8 +136,7 @@ YNode.availablePromise = function (selector, timeout) {
             timer = timeout && Y.later(timeout, null, function () {
                 if (!resolved) {
                     reject(new Error(selector + ' was not available within ' + timeout + ' ms'));
-// detaching leads to error in the tests???
-//                    subscription.detach();
+                    subscription.detach.call(instance);
                 }
             });
     });
@@ -155,6 +155,7 @@ YNode.availablePromise = function (selector, timeout) {
  * @since 0.1
 */
 YNode.contentreadyPromise = function(selector, timeout) {
+    var instance = this;
     return new Y.Promise(function (resolve, reject) {
         var resolved = false,
             subscription = Y.once('available', function () {
@@ -167,8 +168,7 @@ YNode.contentreadyPromise = function(selector, timeout) {
             timer = timeout && Y.later(timeout, null, function () {
                 if (!resolved) {
                     reject(new Error(selector + ' was not ready within ' + timeout + ' ms'));
-// detaching leads to error in the tests???
-//                    subscription.detach();
+                    subscription.detach.call(instance);
                 }
             });
     });
