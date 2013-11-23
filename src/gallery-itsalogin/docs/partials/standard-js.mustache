@@ -46,4 +46,7 @@ YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', functio
         }
     );
 
+var d = Y.once('available', function() {}, '#test');
+d.detach();
+
 });

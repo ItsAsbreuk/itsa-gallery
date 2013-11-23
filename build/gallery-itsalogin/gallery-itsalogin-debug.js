@@ -53,12 +53,13 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
     VERIFY_PASSWORD = VERIFY+PASSWORD,
     VERIFICATIONERROR = 'verification'+ERROR,
     CHANGE_YOUR_PASSWORD = CHANGE+'your'+PASSWORD,
-    VERIFYNEWPASSWORD = 'verifyNewPassword',
+    NEWPASSWORD = 'NewPassword',
+    VERIFYNEWPASSWORD = 'verify'+NEWPASSWORD,
+    SHOWNEWPASSWORD = 'show'+NEWPASSWORD,
     MESSAGE = 'message',
     MESSAGERESOLVE = MESSAGE+'resolve',
     LOGGEDIN = 'loggedin',
     STAYLOGGEDIN = 'stay'+LOGGEDIN,
-    PUBLISHED_LOGGEDIN = '_pub_'+LOGGEDIN,
     GALLERYITSAI18NLOGIN = 'gallery-itsa-i18n-login',
     CHECK = 'check',
     RECIEVEDMAILWITHINSTRUCTIONS = 'receivedmailwithinstructions',
@@ -143,21 +144,34 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
  * @param [message] {String} message inside the login-panel.
  * @param [config] {Object} config (which that is also bound to Y.ITSAMessage._config which passes through to Y.ITSAMessageController).
  * @param [config.createAccount] {function} should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
+ * @param [config.icon] {String} icon-classname of the login-dialog (see gallerycss-itsa-dialog for icon classnames)
+ * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
  * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
  * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.formconfigRemember] {Object} formconfig that passes through to the remember-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.formconfigShowPassword] {Object} formconfig that passes through to the ''show password'-ITSACheckbox when users retrieve their password.
  * @param [config.formconfigUsername] {Object} formconfig that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.messageChangePassword] {String} Message that appears on the 'change-password'-form (overrules the default)
+ * @param [config.messageForgotPassword] {String} Message that appears on the 'forgot-password'-form (overrules the default)
+ * @param [config.messageForgotUsername] {String} Message that appears on the 'forgot-username'-form (overrules the default)
+ * @param [config.messageForgotUsernameOrPassword] {String} Message that appears on the 'forgot-username-or-password'-form (overrules the default)
  * @param [config.regain] {String} to be used to regain username or password. Should be either 'usernameorpassword' || 'username' || 'password'.
  * @param [config.required] {Boolean} removes the closebutton.
  * @param [config.showStayLoggedin] {Boolean} shows an iOS-stylisch checkbox that is bound to the result.remember-property of the resolve-callback.
+ * @param [config.showNewPassword] {Boolean} When password-change: input can be made visible by an Y.ITSACheckbox.
+ * @param [config.titleChangePassword] {String} Title that appears on the 'change-password'-form (overrules the default)
+ * @param [config.titleForgotPassword] {String} Title that appears on the 'forgot-password'-form (overrules the default)
+ * @param [config.titleForgotUsername] {String} Title that appears on the 'forgot-username'-form (overrules the default)
+ * @param [config.titleForgotUsernameOrPassword] {String} Title that appears on the 'orgot-username-or-password'-form (overrules the default)
  * @param [config.usernameIsEmail] {Boolean} when set, the email-pattern will be active
  * @param [config.validatorPassword] {Function} validator that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
- * @param [config.validatorUsername] {Function} validator that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.validatorUsername] {Function} validator that passes through to the username/email-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.valuePassword] {String} the default value for 'password' that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.valueRemember] {String} the default value for 'remember' that passes through to the remember-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.valueUsername] {String} the default value for 'username' that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.validationerrorPassword] {String} validationerror that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.validationerrorUsername] {String} validationerror that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.verifyNewPassword] {Boolean} When password-change: need to verify new password.
  * @param sync {Y.Promise} sync-layer that communicates with the server
  * @return {Y.Promise} Promise that holds valid logindata (if resolved) --> resolve(result) result={username, password, remember} OR reject(reason)
  * @private
@@ -169,10 +183,10 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
     var instance = this,
         intl = ITSADialogInstance._intl,
         params = instance._retrieveLoginParams(title, message, config, sync),
-        MyITSAMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, regain, rememberValue,
+        MyITSAMessage, formconfigUsername, formconfigPassword, formconfigRemember, syncPromise, regain, rememberValue, newmessage, createAccountPromiseLoop,
         imageButtons, footer, primaryButton, forgotButton, createAccountPromise, required, showStayLoggedin, usernameIsEmail;
     title = params.title;
-    message = params.message;
+    newmessage = params.message;
     config = params.config;
     syncPromise = params.syncPromise;
 
@@ -257,7 +271,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                                       }
                                   }
                               });
-            message = SPANWRAPPER + message + ENDSPAN+
+            newmessage = SPANWRAPPER + newmessage + ENDSPAN+
                       FIELDSET_START+
                            DIVCLASS_PURECONTROLGROUP+'{'+USERNAME+'}'+ENDDIV+
                            DIVCLASS_PURECONTROLGROUP+'{'+PASSWORD+'}'+ENDDIV+
@@ -267,9 +281,9 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
             itsamessage.syncPromise = syncPromise;
             itsamessage._config = config;
             itsamessage.icon = config.icon || ICON_INFO;
-            itsamessage.target = ITSADIALOG; // widgetname that should handle this message
+            itsamessage.target = ITSADIALOG; // widgetname that should handle this newmessage
             itsamessage.title = title;
-            itsamessage.message = message;
+            itsamessage.message = newmessage;
             itsamessage.footer = footer;
             itsamessage.setSyncMessage(SUBMIT, intl.attemptlogin);
             itsamessage.imageButtons = imageButtons;
@@ -360,12 +374,34 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                     }
                 });
             }
+
+/*jshint expr:true */
+            createAccountPromise && (createAccountPromiseLoop=function(syncFn) {
+                return createAccountPromise(syncFn)
+                .then(
+                    function(response) {
+                        var responseObj = PARSED(response),
+                            returnValue;
+                        (newmessage=responseObj.message) && Y.showMessage(responseObj.title, newmessage, {priority: true});
+                        (response.status==='RETRY') && (returnValue=createAccountPromiseLoop(syncFn));
+                        (response.status==='LOGIN') && (returnValue=response);
+                        return returnValue || instance[UNDERSCORE+GET_LOGIN](title, message, (config.priority=true) && config, sync);
+                    },
+                    function() {
+                        return instance[UNDERSCORE+GET_LOGIN](title, message, (config.priority=true) && config, sync);
+                    }
+                );
+            });
+/*jshint expr:false */
+
             // accountPromise MUST end with an empty then(), because that will make sure to execute the LazyPromise!!
-            return createAccountPromise ? instance.queueMessage(itsamessage).then(
-                function(response) {
-                    return (response.button===CREATE_ACCOUNT) ? createAccountPromise(syncPromise) : response;
-                }
-            ) : instance.queueMessage(itsamessage);
+            return createAccountPromise ?
+                instance.queueMessage(itsamessage).then(
+                    function(response) {
+                        return (response.button===CREATE_ACCOUNT) ? createAccountPromiseLoop(syncPromise) : response;
+                    }
+                ) :
+                instance.queueMessage(itsamessage);
         }
     );
 };
@@ -449,67 +485,80 @@ ITSADialogClass.prototype._intl = YIntl.get(GALLERYITSAI18NLOGIN);
 /**
   * Translates the given 'text; through Y.Int of this module. Possible text's that can be translated are:
   * <ul>
-  *   <li>changepassword</li>
-  *   <li>changeyourpassword</li>
-  *   <li>checkmail</li>
-  *   <li>checkspambox</li>
-  *   <li>confirmpassword</li>
-  *   <li>createaccount</li>
-  *   <li>email</li>
-  *   <li>emailaddress</li>
-  *   <li>enterlogin</li>
-  *   <li>entersignupaddress</li>
-  *   <li>error</li>
-  *   <li>forgot</li>
-  *   <li>forgotlogin</li>
-  *   <li>forgotpassword</li>
-  *   <li>forgotusername</li>
-  *   <li>forgotusernameorpassword</li>
-  *   <li>forgotwhat</li>
-  *   <li>iforgotpassword</li>
-  *   <li>iforgotusername</li>
-  *   <li>loggedin</li>
-  *   <li>login</li>
-  *   <li>loginblocked</li>
-  *   <li>loginrightlevel</li>
-  *   <li>needchangepassword</li>
-  *   <li>noaccess</li>
-  *   <li>password</li>
-  *   <li>passwordchange</li>
-  *   <li>passwordchanged</li>
-  *   <li>passwordnotaccepted</li>
-  *   <li>passwordnotchanged</li>
-  *   <li>passwordwassend</li>
-  *   <li>pleaseenterlogin</li>
-  *   <li>remember</li>
-  *   <li>rememberme</li>
-  *   <li>resetpassword</li>
-  *   <li>receivedmail</li>
-  *   <li>receivedmailwithinstructions</li>
-  *   <li>retrievedirectpasswordinstructions</li>
-  *   <li>retrievepasswordinstructions</li>
-  *   <li>retrievedirectpasswordinstructionsmaillogin</li>
-  *   <li>retrievepasswordinstructionsmaillogin</li>
-  *   <li>sendusername</li>
-  *   <li>show</li>
-  *   <li>showinput</li>
-  *   <li>showpassword</li>
-  *   <li>signup</li>
-  *   <li>stayloggedin</li>
-  *   <li>successfully</li>
-  *   <li>toomanyattempts</li>
-  *   <li>unknownemail</li>
-  *   <li>unknownlogin</li>
-  *   <li>unknownusername</li>
-  *   <li>unspecifiederror</li>
-  *   <li>username</li>
-  *   <li>usernamewassend</li>
-  *   <li>verificationerror</li>
-  *   <li>verify</li>
-  *   <li>verifypassword</li>
-  *   <li>wrongemailorpassword</li>
-  *   <li>wrongpassword</li>
-  *   <li>wrongusernameorpassword</li>
+  *     <li>attemplogin</li>
+  *     <li>changepassword</li>
+  *     <li>changeyourpassword</li>
+  *     <li>checkmail</li>
+  *     <li>checkspambox</li>
+  *     <li>confirmpassword</li>
+  *     <li>createaccount</li>
+  *     <li>createnewaccount</li>
+  *     <li>email</li>
+  *     <li>emailaddress</li>
+  *     <li>emailalreadytaken</li>
+  *     <li>enterlogin</li>
+  *     <li>entersignupaddress</li>
+  *     <li>error</li>
+  *     <li>failed</li>
+  *     <li>failedcreateaccount</li>
+  *     <li>forgot</li>
+  *     <li>forgotlogin</li>
+  *     <li>forgotpassword</li>
+  *     <li>forgotusername</li>
+  *     <li>forgotusernameorpassword</li>
+  *     <li>forgotwhat</li>
+  *     <li>iforgotpassword</li>
+  *     <li>iforgotusername</li>
+  *     <li>loggedin</li>
+  *     <li>loggedinas</li>
+  *     <li>loggedout</li>
+  *     <li>loggingout</li>
+  *     <li>login</li>
+  *     <li>loginblocked</li>
+  *     <li>loginrightlevel</li>
+  *     <li>logout</li>
+  *     <li>needchangepassword</li>
+  *     <li>noaccess</li>
+  *     <li>password</li>
+  *     <li>passwordchange</li>
+  *     <li>passwordchanged</li>
+  *     <li>passwordnotaccepted</li>
+  *     <li>passwordnotchanged</li>
+  *     <li>passwordwassend</li>
+  *     <li>pleaseenterlogin</li>
+  *     <li>remember</li>
+  *     <li>rememberme</li>
+  *     <li>resetpassword</li>
+  *     <li>receivedmail</li>
+  *     <li>receivedmailwithinstructions</li>
+  *     <li>retrievedirectpasswordinstructions</li>
+  *     <li>retrievepasswordinstructions</li>
+  *     <li>retrievedirectpasswordinstructionsmaillogin</li>
+  *     <li>retrievepasswordinstructionsmaillogin</li>
+  *     <li>sendusername</li>
+  *     <li>show</li>
+  *     <li>showinput</li>
+  *     <li>showpassword</li>
+  *     <li>signup</li>
+  *     <li>stayloggedin</li>
+  *     <li>successfully</li>
+  *     <li>successlogin</li>
+  *     <li>toomanyattempts</li>
+  *     <li>unknownemail</li>
+  *     <li>unknownlogin</li>
+  *     <li>unknownusername</li>
+  *     <li>unspecifiederror</li>
+  *     <li>username</li>
+  *     <li>usernamealreadytaken</li>
+  *     <li>usernamewassend</li>
+  *     <li>verificationerror</li>
+  *     <li>verify</li>
+  *     <li>verifypassword</li>
+  *     <li>wrongemailorpassword</li>
+  *     <li>wrongpassword</li>
+  *     <li>wrongusernameorpassword</li>
+  *     <li>youareloggedin</li>
+  *     <li>youareloggedinas</li>
   * </ul>
   *
   * @method translate
@@ -529,18 +578,29 @@ ITSADialogClass.prototype.translate = function(text) {
  *
  * @method _changePwFn
  * @private
- * @param itsamessage {Y.ITSAMessage} the original Y.ITSAMEssage-instance that was generated by the login-panel
+ * @param [config] {Object}
+ * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.formconfigShowPassword] {Object} formconfig that passes through to the ''show password'-ITSACheckbox when users retrieve their password.
+ * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
+ * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
+ * @param [config.messageChangePassword] {String} Message that appears on the 'change-password'-form (overrules the default)
+ * @param [config.showNewPassword] {Boolean} When password-change: input can be made visible by an Y.ITSACheckbox.
+ * @param [config.titleChangePassword] {String} Title that appears on the 'change-password'-form (overrules the default)
+ * @param [config.validationerrorPassword] {String} validationerror that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.validatorPassword] {Function} validator that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.verifyNewPassword] {Boolean} When password-change: need to verify new password.
+ * @param syncPromise {Y.Promise} the same sync-Promise that was passed through when calling login()
  * @return {Y.Promise} going through Y.ITSAMessageController
  * @since 0.1
  *
 */
-ITSADialogClass.prototype._changePwFn = function(itsamessage) {
+ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
 console.log('_changePwFn');
     Y.log('_changePwFn', 'info', 'ITSALogin');
-    var config = itsamessage._config,
-        verifyNewPassword = ((typeof config[VERIFYNEWPASSWORD] === BOOLEAN) && config[VERIFYNEWPASSWORD]) || true,
+    var verifyNewPassword = ((typeof config[VERIFYNEWPASSWORD] === BOOLEAN) && config[VERIFYNEWPASSWORD]) || true,
+        showNewPassword = ((typeof config[SHOWNEWPASSWORD] === BOOLEAN) && config[SHOWNEWPASSWORD]) || true,
         intl = ITSADialogInstance._intl,
-        changePassword, formconfigPassword, formconfigVerifyPassword, formconfigShowPassword, MyChangePassword, message, imageButtons;
+        changePassword, formconfigPassword, formconfigShowPassword, MyChangePassword, message, imageButtons;
     // setting config for username:
     formconfigPassword = config.formconfigPassword || {};
 /*jshint expr:true */
@@ -550,17 +610,6 @@ console.log('_changePwFn');
     formconfigPassword[PRIMARYBTNONENTER] = !verifyNewPassword;
     formconfigPassword[CLASSNAME] = ITSA_LOGIN + (formconfigPassword[CLASSNAME] ? ' '+formconfigPassword[CLASSNAME] : '');
     formconfigPassword[REQUIRED] = true;
-
-    if (verifyNewPassword) {
-        formconfigVerifyPassword = config.formconfigVerifyPassword || {};
-    /*jshint expr:true */
-        formconfigVerifyPassword[LABEL] || formconfigVerifyPassword[PLACEHOLDER] || (formconfigVerifyPassword[LABEL]=intl[VERIFY]);
-    /*jshint expr:false */
-        formconfigVerifyPassword[FULLSELECT] = true;
-        formconfigVerifyPassword[PRIMARYBTNONENTER] = true;
-        formconfigVerifyPassword[CLASSNAME] = ITSA_LOGIN + (formconfigPassword[CLASSNAME] ? ' '+formconfigPassword[CLASSNAME] : '');
-        formconfigVerifyPassword[REQUIRED] = true;
-    }
 
     formconfigShowPassword = config.formconfigShowPassword || {};
     formconfigShowPassword.widgetconfig = {
@@ -596,7 +645,7 @@ console.log('_changePwFn');
                                 },
                                 verifypassword: {
                                     formtype: PASSWORD,
-                                    formconfig: formconfigVerifyPassword,
+                                    formconfig: formconfigPassword,
                                     validator: config.validatorPassword,
                                     validationerror: config.validationerrorPassword
                                 },
@@ -610,12 +659,13 @@ console.log('_changePwFn');
     message = SPANWRAPPER + (config.messageChangePassword || intl.needchangepassword) + ENDSPAN+
               FIELDSET_START+
                    DIVCLASS_PURECONTROLGROUP+'{'+PASSWORD+'}'+ENDDIV+
-                   (verifyNewPassword ? DIVCLASS_PURECONTROLGROUP+'{'+VERIFY_PASSWORD+'}'+ENDDIV+DIVCLASS_ITSA+'login-checkbox">{'+SHOW_PASSWORD+'}'+ENDDIV : '')+
+                   (verifyNewPassword ? DIVCLASS_PURECONTROLGROUP+'{'+VERIFY_PASSWORD+'}'+ENDDIV : '')+
+                   (showNewPassword ? DIVCLASS_ITSA+'login-checkbox">{'+SHOW_PASSWORD+'}'+ENDDIV : '')+
               ENDFIELDSET;
     changePassword = new MyChangePassword();
-    changePassword.syncPromise = itsamessage.syncPromise;
+    changePassword.syncPromise = syncPromise;
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
-    changePassword.icon = config.iconquestion || ICON_INFO;
+    changePassword.icon = config.iconQuestion || ICON_INFO;
     changePassword.title = config.titleChangePassword || intl[CHANGE_YOUR_PASSWORD];
     changePassword.message = message;
     changePassword.level = WARN;
@@ -623,14 +673,14 @@ console.log('_changePwFn');
     changePassword.target = ITSADIALOG; // widgetname that should handle this message
     changePassword.source = config.source || APP;
     changePassword.messageType = CHANGE_PASSWORD;
-    changePassword.closeButton = config.closeButton || true;
+    changePassword.closeButton = true;
     changePassword.footer = '{'+(imageButtons ? IMG : '')+BTNSUBMIT+'}';
     changePassword.primaryButton = (imageButtons ? IMG : '')+BTNSUBMIT;
     changePassword._submitBtn = CHANGE_PASSWORD;
     changePassword.buttonLabels = [
         {buttonType: (imageButtons ? IMG : '')+BTNSUBMIT, labelHTML: (imageButtons ? I_CLASS_ITSADIALOG+'-switch"></i>' : '')+intl[CHANGE_PASSWORD]}
     ];
-    if (verifyNewPassword) {
+    if (showNewPassword) {
         changePassword.setLifeUpdate(true);
         changePassword.after('showpasswordChange', function(e) {
             var panelwarn = ITSADialogInstance._panels[WARN],
@@ -649,7 +699,11 @@ console.log('_changePwFn');
  *
  * @method _regainFn_UnPw
  * @private
- * @param config {object} config of the original Y.ITSAMEssage-instance that was generated by the login-panel
+ * @param config {object} config of the original Y.ITSAMessage-instance that was generated by the login-panel
+ * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
+ * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
+ * @param [config.messageForgotUsernameOrPassword] {String} Message that appears on the 'forgot-username-or-password'-form (overrules the default)
+ * @param [config.titleForgotUsernameOrPassword] {String} Title that appears on the 'orgot-username-or-password'-form (overrules the default)
  * @return {Y.Promise} going through Y.ITSAMessageController
  * @since 0.1
  *
@@ -664,7 +718,7 @@ ITSADialogClass.prototype._regainFn_UnPw = function(config) {
                   DIVCLASS_ITSA+DIALOG_FORGOTBUTTON+'">{'+(imageButtons ? IMG : '')+BTN_+FORGOT_PASSWORD+'}'+ENDDIV+
                   '</form>',
         forgotMessage = new Y.ITSAMessage();
-    forgotMessage.icon = config.iconquestion || ICON_QUESTION;
+    forgotMessage.icon = config.iconQuestion || ICON_QUESTION;
     forgotMessage.title = config.titleForgotUsernameOrPassword || intl[FORGOT_USERNAME_OR_PASSWORD];
     forgotMessage.level = WARN;
     forgotMessage.footer = null;
@@ -721,7 +775,14 @@ ITSADialogClass.prototype._regainFn_UnPw = function(config) {
  * @method _regainFn_Un
  * @private
  * @param config {object} config of the original Y.ITSAMEssage-instance that was generated by the login-panel
- * @param syncPromise {Y.Promise} the same sync-Promise that was passed through wen calling login()
+ * @param [config.formconfigUsername] {Object} formconfig that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
+ * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
+ * @param [config.messageForgotUsername] {String} Message that appears on the 'forgot-username'-form (overrules the default)
+ * @param [config.titleForgotUsername] {String} Title that appears on the 'forgot-username'-form (overrules the default)
+ * @param [config.validationerrorEmail] {String} validationerror that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.validatorEmail] {Function} validator that passes through to the email-attribute of the underlying Y.ITSAMessage-instance.
+ * @param syncPromise {Y.Promise} the same sync-Promise that was passed through when calling login()
  * @return {Y.Promise} going through Y.ITSAMessageController
  * @since 0.1
  *
@@ -745,8 +806,8 @@ ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
                                emailaddress: {
                                    formtype: EMAIL,
                                    formconfig: formconfigForgotUsername,
-                                   validator: config.validatorForgotUsername,
-                                   validationerror: config.validationerrorForgotUsername
+                                   validator: config.validatorEmail || config.validatorUsername,
+                                   validationerror: config.validationerrorEmail || config.validationerrorUsername
                                }
                            }
                        });
@@ -757,7 +818,7 @@ ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
     forgotUsername = new MyForgotUsername();
     forgotUsername.syncPromise = syncPromise;
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
-    forgotUsername.icon = config.iconquestion || ICON_QUESTION;
+    forgotUsername.icon = config.iconQuestion || ICON_QUESTION;
     forgotUsername.title = config.titleForgotUsername || intl[FORGOT_USERNAME];
     forgotUsername.message = message;
     forgotUsername.level = WARN;
@@ -782,6 +843,14 @@ ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
  * @method _regainFn_Pw
  * @private
  * @param config {object} config of the original Y.ITSAMEssage-instance that was generated by the login-panel
+ * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
+ * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
+ * @param [config.messageForgotPassword] {String} Message that appears on the 'forgot-password'-form (overrules the default)
+ * @param [config.titleForgotPassword] {String} Title that appears on the 'forgot-password'-form (overrules the default)
+ * @param [config.usernameIsEmail] {Boolean} when set, the email-pattern will be active
+ * @param [config.validationerrorEmail] {String} validationerror that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.validatorEmail] {Function} validator that passes through to the email-attribute of the underlying Y.ITSAMessage-instance.
  * @param syncPromise {Y.Promise} the same sync-Promise that was passed through when calling login()
  * @return {Y.Promise} going through Y.ITSAMessageController
  * @since 0.1
@@ -793,7 +862,7 @@ ITSADialogClass.prototype._regainFn_Pw = function(config, syncPromise) {
     intl = ITSADialogInstance._intl;
     usernameIsEmail = ((typeof config.usernameIsEmail === BOOLEAN) && config.usernameIsEmail) || false;
     // setting config for username:
-    formconfigForgotPassword = config.formconfigForgotPassword || {};
+    formconfigForgotPassword = config.formconfigPassword || {};
 /*jshint expr:true */
     formconfigForgotPassword.label || formconfigForgotPassword[PLACEHOLDER] || (formconfigForgotPassword.label=intl[usernameIsEmail ? EMAILADDRESS : USERNAME]);
 /*jshint expr:false */
@@ -807,8 +876,8 @@ ITSADialogClass.prototype._regainFn_Pw = function(config, syncPromise) {
                                username: {
                                    formtype: usernameIsEmail? 'email' : 'text',
                                    formconfig: formconfigForgotPassword,
-                                   validator: config.validatorUsername,
-                                   validationerror: config.validationerrorUsername
+                                   validator: config.validatorEmail || config.validatorUsername,
+                                   validationerror: config.validationerrorEmail || config.validationerrorUsername
                                }
                            }
                        });
@@ -819,7 +888,7 @@ ITSADialogClass.prototype._regainFn_Pw = function(config, syncPromise) {
     forgotPassword = new MyForgotPassword();
     forgotPassword.syncPromise = syncPromise;
     imageButtons = (typeof config.imageButtons === BOOLEAN) && config.imageButtons;
-    forgotPassword.icon = config.iconquestion || ICON_QUESTION;
+    forgotPassword.icon = config.iconQuestion || ICON_QUESTION;
     forgotPassword.title = config.titleForgotPassword || intl[FORGOT_PASSWORD];
     forgotPassword.message = message;
     forgotPassword.level = WARN;
@@ -886,25 +955,6 @@ ITSADialogInstance.isRendered().then(
                                         itsamessage.resolve(facade);
                                         // fire the login-event in case messageType===GET_LOGIN
                                         if (messageType===GET_LOGIN) {
-    // lazy publish the event
-    /**
-      * Event fired when a a user successfully logs in.<br>
-      * Not preventable.
-      *
-      * @event loggedin
-      * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
-      *                        as an answer to the 'getlogin'-request.
-    **/
-/*jshint expr:true */
-                                            ITSADialogInstance[PUBLISHED_LOGGEDIN] || (ITSADialogInstance[PUBLISHED_LOGGEDIN]=Y.publish(LOGGEDIN,
-                                                                        {
-                                                                          defaultTargetOnly: true,
-                                                                          emitFacade: true,
-                                                                          broadcast: 2,
-                                                                          preventable: false
-                                                                        }
-                                                                       ));
-/*jshint expr:false */
                                             Y.fire(LOGGEDIN, facade);
 /*jshint expr:true */
                                             (message=responseObj.message) && Y.showMessage(responseObj.title, message);
@@ -964,7 +1014,7 @@ ITSADialogInstance.isRendered().then(
                                         }
                                     }
                                     else if ((messageType===GET_LOGIN) && (responseObj.status==='CHANGEPASSWORD')) {
-                                        ITSADialogInstance._changePwFn(itsamessage).then(
+                                        ITSADialogInstance._changePwFn(itsamessage._config, itsamessage.syncPromise).then(
                                             function(response) {
                                                 var newResponseObj = PARSED(response);
                                                 // itsamessage is the original getLogin-message with level===INFO
@@ -973,17 +1023,6 @@ ITSADialogInstance.isRendered().then(
                                                 // overrule password, because the new password is appropriate
                                                 itsamessage.resolve(facade);
                                                 // fire the login-event in case messageType===GET_LOGIN
-    // lazy publish the event
-/*jshint expr:true */
-                                                ITSADialogInstance[PUBLISHED_LOGGEDIN] || (ITSADialogInstance[PUBLISHED_LOGGEDIN]=Y.publish(LOGGEDIN,
-                                                                        {
-                                                                          defaultTargetOnly: true,
-                                                                          emitFacade: true,
-                                                                          broadcast: 2,
-                                                                          preventable: false
-                                                                        }
-                                                                       ));
-/*jshint expr:false */
                                                 Y.fire(LOGGEDIN, facade);
 /*jshint expr:true */
                                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
@@ -1048,21 +1087,34 @@ ITSADialogInstance.isRendered().then(
  * @param [message] {String} message inside the login-panel.
  * @param [config] {Object} config (which that is also bound to Y.ITSAMessage._config which passes through to Y.ITSAMessageController).
  * @param [config.createAccount] {function} should internally generate a Y.ITSAMessageController.queueMessage with level==='warn'.
+ * @param [config.icon] {String} icon-classname of the login-dialog (see gallerycss-itsa-dialog for icon classnames)
+ * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
  * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
  * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.formconfigRemember] {Object} formconfig that passes through to the remember-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.formconfigShowPassword] {Object} formconfig that passes through to the ''show password'-ITSACheckbox when users retrieve their password.
  * @param [config.formconfigUsername] {Object} formconfig that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.messageChangePassword] {String} Message that appears on the 'change-password'-form (overrules the default)
+ * @param [config.messageForgotPassword] {String} Message that appears on the 'forgot-password'-form (overrules the default)
+ * @param [config.messageForgotUsername] {String} Message that appears on the 'forgot-username'-form (overrules the default)
+ * @param [config.messageForgotUsernameOrPassword] {String} Message that appears on the 'forgot-username-or-password'-form (overrules the default)
  * @param [config.regain] {String} to be used to regain username or password. Should be either 'usernameorpassword' || 'username' || 'password'.
  * @param [config.required] {Boolean} removes the closebutton.
  * @param [config.showStayLoggedin] {Boolean} shows an iOS-stylisch checkbox that is bound to the result.remember-property of the resolve-callback.
+ * @param [config.showNewPassword] {Boolean} When password-change: input can be made visible by an Y.ITSACheckbox.
+ * @param [config.titleChangePassword] {String} Title that appears on the 'change-password'-form (overrules the default)
+ * @param [config.titleForgotPassword] {String} Title that appears on the 'forgot-password'-form (overrules the default)
+ * @param [config.titleForgotUsername] {String} Title that appears on the 'forgot-username'-form (overrules the default)
+ * @param [config.titleForgotUsernameOrPassword] {String} Title that appears on the 'orgot-username-or-password'-form (overrules the default)
  * @param [config.usernameIsEmail] {Boolean} when set, the email-pattern will be active
  * @param [config.validatorPassword] {Function} validator that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
- * @param [config.validatorUsername] {Function} validator that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.validatorUsername] {Function} validator that passes through to the username/email-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.valuePassword] {String} the default value for 'password' that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.valueRemember] {String} the default value for 'remember' that passes through to the remember-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.valueUsername] {String} the default value for 'username' that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.validationerrorPassword] {String} validationerror that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.validationerrorUsername] {String} validationerror that passes through to the username-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.verifyNewPassword] {Boolean} When password-change: need to verify new password.
  * @param sync {Y.Promise} sync-layer that communicates with the server
  * @return {Y.Promise} Promise that holds valid logindata (if resolved) --> resolve(result) result={username, password, remember} OR reject(reason)
  * @since 0.1

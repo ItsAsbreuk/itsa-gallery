@@ -63,6 +63,15 @@
             "hideTableOfContents": true
         },
         {
+            "name"       : "newaccountbutton",
+            "displayName": "just a button for new account",
+            "description": "This example shows how to create a new account without Y.ITSALogin, but just a button.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsalogin", "promise", "gallery-itsadialog", "gallery-lazy-promise"],
+            "tags"    : ["gallery-itsalogin", "itsamessage", "newaccount", "account", "button"],
+            "hideTableOfContents": true
+        },
+        {
             "name"       : "customize",
             "displayName": "customize internationalized messages",
             "description": "This example shows how to customize internationalized messages.",
