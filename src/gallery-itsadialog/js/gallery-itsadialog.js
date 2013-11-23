@@ -334,6 +334,8 @@ ITSADialog.prototype._renderPanels = function() {
                         rejectButton = itsamessage.rejectButton,
                         closedByClosebutton = buttonNode && buttonNode.hasClass(ITSA_PANELCLOSEBTN) && (buttonValue=CLOSEBUTTON),
                         rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp(BTN_+buttonValue+'$')).test(rejectButton));
+console.log('UItoModel itsadialog');
+
                         itsamessage.UIToModel();
                         itsamessage._set(BUTTON, buttonValue);
 /*jshint expr:true */
