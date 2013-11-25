@@ -1,7 +1,8 @@
 gallery-itsapanel
 ========
 
-17-11-2013 version 0.2:
+25-11-2013 version 0.2:
+Made show() and hide() with transitions
 Added attribute footerSize
 Added attribute footerOnTop
 Added attribute labelTransform

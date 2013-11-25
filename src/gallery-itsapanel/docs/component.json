@@ -63,6 +63,15 @@
             "hideTableOfContents": true
         },
         {
+            "name"       : "transition",
+            "displayName": "Showing a panel using transition",
+            "description": "This example shows how to show a panel using a fade-in of 2 seconds.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : [ "gallery-itsapanel"],
+            "tags"    : ["gallery-itsapanel", "panel", "itsapanel", "fade", "transition"],
+            "hideTableOfContents": true
+        },
+        {
             "name"       : "footertop",
             "displayName": "Panel with footer on top as a buttonbar",
             "description": "This example shows how to create a panel with the footer on top (above the body-section). The buttons are passive.",

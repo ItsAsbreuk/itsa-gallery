@@ -669,6 +669,9 @@ ITSAPanel.prototype.initializer = function() {
     // asynchroniously loading fonticons:
     Y.use(GALLERYCSS_ITSA+'base', GALLERYCSS_ITSA+'form');
 
+    // make it posible to start with transistions
+    instance._showTransition = new Y.Promise(function (resolve) { resolve(); });
+
     // publishing event 'button:hide'
     instance.publish(
         BUTTON_HIDE_EVENT,
@@ -755,7 +758,8 @@ ITSAPanel.prototype.initializer = function() {
 
     instance.readyPromise().then(
         function() {
-            if (instance.get(VISIBLE)) {
+            boundingBox.setStyle('opacity', visible ? 1 : 0); // to make transition work right away
+            if (visible) {
                 boundingBox.removeClass(HIDDENPANELCLASS);
                 if (instance.get(MODAL)) {
                     instance._getTabkeyManagerNode();
@@ -826,10 +830,41 @@ ITSAPanel.prototype.bindUI = function() {
             Y.log('aftersubscriptor '+VISIBLE+CHANGE, 'info', 'ITSAPanel');
             var visible = e.newVal,
                 modal = instance.get(MODAL),
+                transname = e.transname,
+                transconfig = e.transconfig,
                 prevFocussed;
             instance.readyPromise().then( // not too soon, the statusbar might not be rendered
                 function() {
-                    boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
+                    if (transconfig) {
+                        if (visible) {
+                            // be sure you don't transition while previous is busy
+                            instance._showTransition.then(
+                                function() {
+                                    boundingBox.toggleClass(HIDDENPANELCLASS, false);
+                                    instance._showTransition = boundingBox.showPromise(transname, transconfig);
+                                }
+                            );
+                        }
+                        else {
+                            instance._showTransition.then(
+                                function() {
+                                    instance._showTransition = boundingBox.hidePromise(transname, transconfig).then(
+                                        function() {
+                                            boundingBox.toggleClass(HIDDENPANELCLASS, true);
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    }
+                    else {
+                        instance._showTransition.then(
+                            function() {
+                                boundingBox.setStyle('opacity', visible ? 1 : 0); // for future transitions
+                                boundingBox.toggleClass(HIDDENPANELCLASS, !visible);
+                            }
+                        );
+                    }
                 }
             );
             contentBox.toggleClass(FOCUSED_CLASS, visible); // to make tabkeymanager work
@@ -1114,7 +1149,7 @@ ITSAPanel.prototype.bindUI = function() {
                     closeButton = (type===CLOSEBUTTON+CHANGE) ? value : instance.get(CLOSEBUTTON),
                     headerView = instance.get(HEADERVIEW);
                 if (!headerView || (typeof headerView===STRING)) {
-                    instance._header.empty();
+//                    instance._header.empty();
                     instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
                 }
             }
@@ -1237,7 +1272,43 @@ ITSAPanel.prototype.bindUI = function() {
 
 };
 
-Y.Widget.prototype.promiseBeforeReady = function() {
+/**
+ * Hides the Widget by setting the "visible" attribute to "false".<br>
+ * Optional hides the node using a transition.
+ * Animates the hiding of the node using either the default
+ * transition effect ('fadeOut'), or the given named effect.
+ * @method hide
+ * @param {String} name A named Transition effect to use as the show effect.
+ * @param {Object} config Options to use with the transition.
+ * @chainable
+ */
+ITSAPanel.prototype.hide = function(name, config) {
+/*jshint expr:true */
+    Lang.isObject(name) && (config=name) && (name=null);
+    config && (!config.duration || (config.duration===0)) && (config=null);
+/*jshint expr:false */
+    return this.set(VISIBLE, false, {transname: name, transconfig: config});
+},
+
+/**
+ * Shows the Widget by setting the "visible" attribute to "true".<br>
+ * Optional shows the node using a transition.
+ * Animates the showing of the node using either the default
+ * transition effect ('fadeIn'), or the given named effect.
+ * @method show
+ * @param {String} name A named Transition effect to use as the show effect.
+ * @param {Object} config Options to use with the transition.
+ * @chainable
+ */
+ITSAPanel.prototype.show = function(name, config) {
+/*jshint expr:true */
+    Lang.isObject(name) && (config=name) && (name=null);
+    config && (!config.duration || (config.duration===0)) && (config=null);
+/*jshint expr:false */
+    return this.set(VISIBLE, true, {transname: name, transconfig: config});
+},
+
+ITSAPanel.prototype.promiseBeforeReady = function() {
     return this._statusbarReady;
 };
 
@@ -1474,7 +1545,7 @@ ITSAPanel.prototype._renderBody = function() {
 
     Y.log('_renderBody ', 'info', 'ITSAPanel');
     if (!bodyView || (typeof bodyView===STRING)) {
-        instance._header.empty();
+        instance._body.empty();
         instance._body.setHTML(Lang.sub((bodyView || DEFAULT_BODYVIEW), {body: (body || '')}));
     }
     else if (bodyView instanceof Y.View) {
@@ -1510,7 +1581,7 @@ ITSAPanel.prototype._renderFooter = function() {
     Y.log('_renderFooter ', 'info', 'ITSAPanel');
     if (!hideFooter) {
         if (!footerView || (typeof footerView===STRING)) {
-            instance._header.empty();
+            instanceFooter.empty();
             instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {footer: (footer || ''), footerRight: (footerRight || '')}));
         }
         else if (footerView instanceof Y.View) {

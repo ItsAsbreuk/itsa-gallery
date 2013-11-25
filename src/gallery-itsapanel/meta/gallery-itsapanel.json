@@ -21,7 +21,8 @@
             "timers",
             "event-custom-base",
             "yui-later",
-            "gallery-itsawidgetrenderpromise"
+            "gallery-itsawidgetrenderpromise",
+            "gallery-itsanodepromise"
         ],
         "skinnable": true
     }
