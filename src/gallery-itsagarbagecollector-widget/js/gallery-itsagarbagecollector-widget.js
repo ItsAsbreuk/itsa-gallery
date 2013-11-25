@@ -6,36 +6,6 @@ Y.Widget.prototype.destroy = function(destroyAllNodes) {
 };
 
 /**
- * Repositions the mask in the DOM for nested modality cases.
- *
- * @method _repositionMask
- * @param {Widget} nextElem The Y.Widget instance that will be visible in the stack once the current widget is closed.
- */
- Y.WidgetModality.prototype._repositionMask = function(nextElem) {
-   var currentModal = this.get('modal'),
-        nextModal    = nextElem.get('modal'),
-        maskNode     = this.get('maskNode'),
-        bb, bbParent;
-    //if this is modal and host is not modal
-    if (currentModal && !nextModal) {
-        //leave the mask where it is, since the host is not modal.
-        maskNode.remove(true);
-        this.fire(MaskHide);
-    }
-    //if the main widget is not modal but the host is modal, or both of them are modal
-    else if ((!currentModal && nextModal) || (currentModal && nextModal)) {
-
-        //then remove the mask off DOM, reposition it, and reinsert it into the DOM
-        maskNode.remove(true);
-        this.fire(MaskHide);
-        bb = nextElem.get(BOUNDING_BOX);
-        bbParent = bb.get('parentNode') || Y.one('body');
-        bbParent.insert(maskNode, bbParent.get('firstChild'));
-        this.fire(MaskShow);
-    }
-};
-
-/**
  * Returns the mask if it exists on the page - otherwise creates a mask. There's only
  * one mask on a page at a given time.
  * <p>
