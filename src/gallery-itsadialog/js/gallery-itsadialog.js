@@ -10,7 +10,7 @@
  * @constructor
  * @since 0.2
  *
- * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
+ * Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
