@@ -5,6 +5,7 @@ YUI.add('module-tests', function(Y) {
     suite.add(new Y.Test.Case({
         name: 'Automated Tests',
         'test is empty': function() {
+            var d = new Y.Dial();
             Y.Assert.fail('No Tests Provided For This Module');
         }
     }));
@@ -12,4 +13,4 @@ YUI.add('module-tests', function(Y) {
     Y.Test.Runner.add(suite);
 
 
-},'', { requires: [ 'test' ] });
+},'', { requires: [ 'test', 'dial' ] });
