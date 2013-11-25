@@ -1255,6 +1255,8 @@ ITSAPanel.prototype.destructor = function() {
         footerView = instance.get(FOOTERVIEW),
         prevFocussed = instance._prevFocussed;
 
+    instance._destroyAllNodes = true; // making always destroy nodes,
+                                      // independent whether developer calls destroy(true) or destroy(false)
     instance._clearEventhandlers();
     instance.blur();
     if (prevFocussed) {

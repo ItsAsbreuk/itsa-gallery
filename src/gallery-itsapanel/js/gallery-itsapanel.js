@@ -1278,6 +1278,8 @@ ITSAPanel.prototype.destructor = function() {
         prevFocussed = instance._prevFocussed;
 
     Y.log('destructor ', 'info', 'ITSAPanel');
+    instance._destroyAllNodes = true; // making always destroy nodes,
+                                      // independent whether developer calls destroy(true) or destroy(false)
     instance._clearEventhandlers();
     instance.blur();
     if (prevFocussed) {
