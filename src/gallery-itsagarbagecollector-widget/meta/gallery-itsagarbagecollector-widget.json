@@ -1,7 +1,10 @@
 {
     "gallery-itsagarbagecollector-widget": {
         "requires": [
-            "yui-base"
+            "yui-base",
+            "yui-later",
+            "widget-modality",
+            "widget"
         ]
     }
 }
