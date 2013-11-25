@@ -14,6 +14,7 @@
 */
 
 var YNode = Y.Node,
+    Lang = Y.Lang,
     YArray = Y.Array,
     // To check DOMNodeRemoved-event, the browser must support 'mutation events'. To check this:
     supportsMutationEvents = document.implementation.hasFeature("MutationEvents", "2.0"),
@@ -196,9 +197,13 @@ YNode.contentreadyPromise = function(selector, timeout) {
 YArray.each(
     ['show', 'hide'],
     function(type) {
-        YNode[type+'Promise'] = function (name, config) {
+        YNode.prototype[type+'Promise'] = function (name, config) {
             Y.log(type, 'info', 'node');
             var instance = this;
+/*jshint expr:true */
+            Lang.isObject(name) && (config=name) && (name=null) && console.log('reshift name to config');
+            config && (!config.duration || (config.duration===0)) && (config=null) && console.log('making config null');
+/*jshint expr:false */
             return Y.usePromise('transition').then(
                 function() {
                     return new Y.Promise(function (resolve) {
@@ -317,5 +322,3 @@ if (supportsMutationEvents) {
 Y.Node.prototype.availablePromise = YNode.availablePromise;
 Y.Node.prototype.contentreadyPromise = YNode.contentreadyPromise;
 Y.Node.prototype.unavailablePromise = YNode.unavailablePromise;
-Y.Node.prototype.showPromise = YNode.showPromise;
-Y.Node.prototype.hidePromise = YNode.hidePromise;
