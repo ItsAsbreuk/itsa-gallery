@@ -1142,6 +1142,7 @@ ITSAViewModel.prototype.render = function (clear) {
     statusbar && (statusbarinstance || (html+=STATUSBAR_TEMPLATE));
 /*jshint expr:false */
 
+    container.empty();
     container.setHTML(html);
 
     if (statusbar) {
