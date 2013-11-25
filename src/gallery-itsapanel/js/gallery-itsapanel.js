@@ -1114,6 +1114,7 @@ ITSAPanel.prototype.bindUI = function() {
                     closeButton = (type===CLOSEBUTTON+CHANGE) ? value : instance.get(CLOSEBUTTON),
                     headerView = instance.get(HEADERVIEW);
                 if (!headerView || (typeof headerView===STRING)) {
+                    instance._header.empty();
                     instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
                 }
             }
@@ -1473,6 +1474,7 @@ ITSAPanel.prototype._renderBody = function() {
 
     Y.log('_renderBody ', 'info', 'ITSAPanel');
     if (!bodyView || (typeof bodyView===STRING)) {
+        instance._header.empty();
         instance._body.setHTML(Lang.sub((bodyView || DEFAULT_BODYVIEW), {body: (body || '')}));
     }
     else if (bodyView instanceof Y.View) {
@@ -1486,7 +1488,6 @@ ITSAPanel.prototype._renderBody = function() {
 /*jshint expr:true */
         bodyView.render && bodyView.render();
 /*jshint expr:false */
-console.log('check 2: '+instance._body+' '+instance._body.inDoc());
     }
 };
 
@@ -1509,6 +1510,7 @@ ITSAPanel.prototype._renderFooter = function() {
     Y.log('_renderFooter ', 'info', 'ITSAPanel');
     if (!hideFooter) {
         if (!footerView || (typeof footerView===STRING)) {
+            instance._header.empty();
             instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {footer: (footer || ''), footerRight: (footerRight || '')}));
         }
         else if (footerView instanceof Y.View) {
@@ -1547,6 +1549,7 @@ ITSAPanel.prototype._renderHeader = function() {
 
     Y.log('_renderHeader ', 'info', 'ITSAPanel');
     if (!headerView || (typeof headerView===STRING)) {
+        instance._header.empty();
         instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
     }
     else if (headerView instanceof Y.View) {
