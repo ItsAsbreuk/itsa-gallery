@@ -1,4 +1,5 @@
 var itsagallerydir = (itsagalleryversion ? itsagalleryversion+'/' : ''),
+    itsaprivatedir = (itsaprivateversion ? itsaprivateversion+'/' : ''),
     filter = (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'raw',
     yuiconfig = {
         base     : loaderdomain+'/combo?yui3/'+yui3version+'/build/',
@@ -18,6 +19,19 @@ var itsagallerydir = (itsagalleryversion ? itsagalleryversion+'/' : ''),
                 'gallery-itsa':      { },
                 'lang/gallery-itsa': { },
                 'gallerycss-itsa':   { type: 'css' }
+             },
+             update: function() { }
+          },
+          itsaprivate : {
+             combine  : combine,
+             base     : loaderdomain+'/combo?itsa-private/' + itsaprivatedir + 'build/',
+             comboBase: loaderdomain+'/combo?',
+             root     : 'itsa-private/' + itsaprivatedir + 'build/',
+             patterns:
+             {
+                'itsa-':      { },
+                'lang/itsa-': { },
+                'itsacss-':   { type: 'css' }
              },
              update: function() { }
           },

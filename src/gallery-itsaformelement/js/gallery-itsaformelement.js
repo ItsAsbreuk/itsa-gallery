@@ -23,6 +23,7 @@ var ITSAFormElement,
     INTL = Y.Intl,
     ZINDEX_TIPSY = 5,
     BODY = Y.one('body'),
+    MS_TIME_TO_INSERT = 5000, // time to render the inserted widgets, we set this time to avoid unnecessary onavailable listeners.
     ACTION_FROMTAB = ACTION_FROMTAB,
     DATA        = 'data',
     HOTKEY = 'hotkey',
@@ -364,12 +365,12 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
             // when it is inserted in the dom: render it
             if (type.NAME===EDITOR+'Base') {
                 Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, function() {
-                    widget.renderOnAvailable('#'+nodeid);
+                    widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
                 });
             }
             else {
                 Y.use(GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
-                    widget.renderOnAvailable('#'+nodeid);
+                    widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
                 });
             }
         }
