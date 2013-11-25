@@ -34,6 +34,7 @@ var ITSAViewModel,
     IMAGE_BUTTON_TEMPLATE = '<i class="itsaicon-form-{type}"></i>',
     YTemplateMicro = Y.Template.Micro,
     FORM_CAPITALIZED = 'FORM',
+    TEMPLATE = 'template',
     CHANGE = 'Change',
     TAGNAME = 'tagName',
     GALLERY = 'gallery-',
@@ -766,9 +767,9 @@ ITSAViewModel.prototype.initializer = function() {
 
     instance._contIsForm = (instance.get(CONTAINER).get(TAGNAME)===FORM_CAPITALIZED);
 
-    instance._setTemplateRenderer(instance.get(EDITABLE));
 /*jshint expr:true */
     model && model.addTarget && model.addTarget(instance);
+    model && instance.get(TEMPLATE) && instance._setTemplateRenderer();
 /*jshint expr:false */
 
     /**
@@ -1141,7 +1142,7 @@ ITSAViewModel.prototype.render = function (clear) {
     // Append the container element to the DOM if it's not on the page already.
     if (!instance._rendered) {
 /*jshint expr:true */
-        container.inDoc() || Y.one('body').append(container);
+        container.inDoc() || ((instance._newContainer=true) && Y.one('body').append(container));
 /*jshint expr:false */
         container.addClass(ITSAVIEWMODEL);
         container.toggleClass(ITSAVIEWMODEL+'-'+STYLED, instance.get(STYLED));
@@ -1552,10 +1553,15 @@ ITSAViewModel.prototype.destructor = function() {
     instance._customBtnLabels = {};
     instance._hotkeys = {};
 
-/*jshint expr:true */
-    container.hasPlugin(ITSATABKEYMANAGER) && container.unplug(ITSATABKEYMANAGER);
-/*jshint expr:false */
-};
+    container.empty();
+    if (instance._newContainer) {
+        container.remove(true);
+    }
+    else {
+        container.removeClass(ITSAVIEWMODEL+'-'+STYLED);
+        container.destroy(true);
+    }
+  };
 
 //===============================================================================================
 // private methods
@@ -1599,7 +1605,7 @@ ITSAViewModel.prototype._bindUI = function() {
                     }
                 }
 
-                (prevFormModel !== newFormModel) && instance._setTemplateRenderer(newFormModel && instance.get(EDITABLE));
+                (prevFormModel !== newFormModel) && newFormModel && instance.get(TEMPLATE) && instance._setTemplateRenderer();
 /*jshint expr:false */
                 instance.render();
             }
@@ -1607,10 +1613,12 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            'template'+CHANGE,
+            TEMPLATE+CHANGE,
             function() {
-                instance._setTemplateRenderer(instance.get(EDITABLE));
-                instance.render();
+                if (instance.get(MODEL)) {
+                    instance._setTemplateRenderer();
+                    instance.render();
+                }
             }
         )
     );
@@ -1641,12 +1649,11 @@ ITSAViewModel.prototype._bindUI = function() {
     eventhandlers.push(
         instance.after(
             EDITABLE+CHANGE,
-            function(e) {
-                var newEditable = e.newVal,
-                    model = instance.get(MODEL);
+            function() {
+                var model = instance.get(MODEL);
                 // if model.toJSONUI exists, then we need to rerender
-                if (model && model.toJSONUI) {
-                    instance._setTemplateRenderer(newEditable);
+                if (instance.get(TEMPLATE) && model && model.toJSONUI) {
+                    instance._setTemplateRenderer();
                     instance.render();
                 }
             }
@@ -2391,9 +2398,10 @@ ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
  * @since 0.3
  *
 */
-ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
+ITSAViewModel.prototype._setTemplateRenderer = function() {
     var instance = this,
-        template = instance.get('template'),
+        template = instance.get(TEMPLATE),
+        editTemplate = instance.get(EDITABLE),
         isMicroTemplate, ismicrotemplate, compiledModelEngine, buttonsToJSON;
     Y.log('_clearEventhandlers', 'info', 'ITSA-ViewModel');
     isMicroTemplate = function() {
@@ -2401,24 +2409,30 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
         return microTemplateRegExp.test(template);
     };
     buttonsToJSON = function(jsondata, model) {
-        var propertykey, type, labelHTML, config;
+        var propertykey, type, labelHTML, config, propertyEmbraced;
         YArray.each(
             instance._buttons,
             function(buttonobject) {
                 propertykey = buttonobject.propertykey;
-                type = buttonobject.type;
-                labelHTML = buttonobject.labelHTML(); // is a function!
-                config = buttonobject.config;
-                jsondata[propertykey] = model._renderBtnFns[type] && model._renderBtnFns[type].call(model, labelHTML, config);
+                propertyEmbraced = new RegExp('{'+propertykey+'}');
+                if (propertyEmbraced.test(template)) {
+                    type = buttonobject.type;
+                    labelHTML = buttonobject.labelHTML(); // is a function!
+                    config = buttonobject.config;
+                    jsondata[propertykey] = model._renderBtnFns[type] && model._renderBtnFns[type].call(model, labelHTML, config);
+                }
             }
         );
         // now add the custom buttons
         YObject.each(
             instance._customBtns,
             function(buttonobject, propertykey) {
-                labelHTML = buttonobject.labelHTML; // is a property
-                config = buttonobject.config;
-                jsondata[propertykey] = model._renderBtnFns[BUTTON] && model._renderBtnFns[BUTTON].call(model, labelHTML, config);
+                propertyEmbraced = new RegExp('{'+propertykey+'}');
+                if (propertyEmbraced.test(template)) {
+                    labelHTML = buttonobject.labelHTML; // is a property
+                    config = buttonobject.config;
+                    jsondata[propertykey] = model._renderBtnFns[BUTTON] && model._renderBtnFns[BUTTON].call(model, labelHTML, config);
+                }
             }
         );
     };
@@ -2426,7 +2440,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
     if (ismicrotemplate) {
         compiledModelEngine = YTemplateMicro.compile(template);
         instance._modelRenderer = function(model) {
-            var jsondata = editTemplate ? model.toJSONUI() : instance.toJSON();
+            var jsondata = editTemplate ? model.toJSONUI(null, template) : instance.toJSON();
             // if model is instance of Y.ITSAFormModel, then add the btn_buttontype-properties:
 /*jshint expr:true */
             model.toJSONUI && buttonsToJSON(jsondata, model);
@@ -2436,7 +2450,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function(editTemplate) {
     }
     else {
         instance._modelRenderer = function(model) {
-            var jsondata = editTemplate ? model.toJSONUI() : instance.toJSON();
+            var jsondata = editTemplate ? model.toJSONUI(null, template) : instance.toJSON();
 /*jshint expr:true */
             model.toJSONUI && buttonsToJSON(jsondata, model);
 /*jshint expr:false */
