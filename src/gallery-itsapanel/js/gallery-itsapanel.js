@@ -32,6 +32,7 @@ var ITSAPanel,
     ERROR = 'error',
     WARN = 'warn',
     DESTROYED = 'destroyed',
+    CONTAINER = 'container',
     STRING = 'string',
     BOOLEAN = 'boolean',
     VISIBLE = 'visible',
@@ -204,7 +205,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
         /**
          * Template of the bodysection. Can be either a Y.Lang.sub-template or a Y.View.<br />
          * When a String-template is set, the template can make use of {body}, which will automaticly be replaced by the body-attribute under the hood.<br />
-         * When an Y.View instance is set, the View's 'container' will be bound to the bodysection-div automaticly and the View's render() method
+         * When an Y.View instance is set, the View's CONTAINER will be bound to the bodysection-div automaticly and the View's render() method
          * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
          *
          * @attribute bodyView
@@ -349,7 +350,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
         /**
          * Template of the footersection. Can be either a Y.Lang.sub-template or a Y.View.<br />
          * When a String-template is set, the template can make use of {footer} and {footerRight}, which will automaticly be replaced by the footer and footerRight-attributes under the hood.<br />
-         * When an Y.View instance is set, the View's 'container' will be bound to the footersection-div automaticly and the View's render() method
+         * When an Y.View instance is set, the View's CONTAINER will be bound to the footersection-div automaticly and the View's render() method
          * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
          *
          * @attribute footerView
@@ -394,7 +395,7 @@ ITSAPanel = Y.ITSAPanel = Y.Base.create('itsapanel', Y.Widget, [
          * Template of the headersection. Can be either a Y.Lang.sub-template or a Y.View.<br />
          * When a String-template is set, the template can make use of {title} and {titleRight}, which will automaticly be replaced by the title and titleRight-attributes
          * under the hood. You need {titleRight} if you want the 'close-button' to render when the attribute 'titleRight' keeps undefined.<br />
-         * When an Y.View instance is set, the View's 'container' will be bound to the headersection-div automaticly and the View's render() method
+         * When an Y.View instance is set, the View's CONTAINER will be bound to the headersection-div automaticly and the View's render() method
          * will be executed to fill the section with content. If the View is designed well, the panel-content will automaticly be updated when needed.
          *
          * @attribute headerView
@@ -990,9 +991,9 @@ ITSAPanel.prototype.bindUI = function() {
                 Y.log('aftersubscriptor *:viewrendered', 'info', 'ITSA-ViewModelPanel');
                 if (footerView) {
                     footercont = instance._footercont;
-                    container = footerView.get('container');
+                    container = footerView.get(CONTAINER);
                     footercont.toggleClass('itsa-inlinefooter', true);
-                    container = footerView.get('container');
+                    container = footerView.get(CONTAINER);
                     container.setStyle('paddingLeft', '1.2em');
                     footercont.setStyle('overflow', 'visible');
                     // reset previous width, otherwise the width keeps expanding
@@ -1294,6 +1295,12 @@ ITSAPanel.prototype.destructor = function() {
     contentBox.hasPlugin[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox.unplug(RESIZE);
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
     (instance._escapeHandler && instance._escapeHandler.detach());
+    // because the next properties might not have been bounded to a node, we need to destroy them ourselves!
+//    instance._header.inDoc() || instance._header.destroy(true);
+//    instance._body.inDoc() || instance._body.destroy(true);
+//    instance._footer.inDoc() || instance._footer.destroy(true);
+//    instance._footercont.inDoc() || instance._footercont.destroy(true);
+ //   instance._statusbar.inDoc() || instance._statusbar.destroy(true);
 /*jshint expr:false */
 };
 
@@ -1461,17 +1468,25 @@ ITSAPanel.prototype._getWidth = function() {
 ITSAPanel.prototype._renderBody = function() {
     var instance = this,
         body = instance.get(BODY),
-        bodyView = instance.get(BODYVIEW);
+        bodyView = instance.get(BODYVIEW),
+        oldContainer;
 
     Y.log('_renderBody ', 'info', 'ITSAPanel');
     if (!bodyView || (typeof bodyView===STRING)) {
         instance._body.setHTML(Lang.sub((bodyView || DEFAULT_BODYVIEW), {body: (body || '')}));
     }
     else if (bodyView instanceof Y.View) {
-        bodyView._set('container', instance._body);
+        oldContainer = bodyView.get(CONTAINER);
+        bodyView._set(CONTAINER, instance._body);
+        if (!oldContainer.inDoc()) {
+            // cleanup
+            oldContainer.empty();
+            oldContainer.destroy(true);
+        }
 /*jshint expr:true */
         bodyView.render && bodyView.render();
 /*jshint expr:false */
+console.log('check 2: '+instance._body+' '+instance._body.inDoc());
     }
 };
 
@@ -1488,7 +1503,8 @@ ITSAPanel.prototype._renderFooter = function() {
         footerRight = instance.get(FOOTER+RIGHT),
         footerView = instance.get(FOOTERVIEW),
         instanceFooter = instance._footer,
-        hideFooter = !footerView && !footer && !footerRight;
+        hideFooter = !footerView && !footer && !footerRight,
+        oldContainer;
 
     Y.log('_renderFooter ', 'info', 'ITSAPanel');
     if (!hideFooter) {
@@ -1496,7 +1512,13 @@ ITSAPanel.prototype._renderFooter = function() {
             instanceFooter.setHTML(Lang.sub((footerView || DEFAULT_FOOTERVIEW), {footer: (footer || ''), footerRight: (footerRight || '')}));
         }
         else if (footerView instanceof Y.View) {
-            footerView._set('container', instance._footer);
+            oldContainer = footerView.get(CONTAINER);
+            footerView._set(CONTAINER, instance._footer);
+            if (!oldContainer.inDoc()) {
+                // cleanup
+                oldContainer.empty();
+                oldContainer.destroy(true);
+            }
 /*jshint expr:true */
             footerView.render && footerView.render();
 /*jshint expr:false */
@@ -1520,14 +1542,21 @@ ITSAPanel.prototype._renderHeader = function() {
         title = instance.get(TITLE),
         titleRight = instance.get(TITLERIGHT),
         closeButton = instance.get(CLOSEBUTTON),
-        headerView = instance.get(HEADERVIEW);
+        headerView = instance.get(HEADERVIEW),
+        oldContainer;
 
     Y.log('_renderHeader ', 'info', 'ITSAPanel');
     if (!headerView || (typeof headerView===STRING)) {
         instance._header.setHTML(Lang.sub((headerView || DEFAULT_HEADERVIEW), {title: (title || ''), titleRight: ((titleRight===null) ? (closeButton ? CLOSE_BUTTON : '') : titleRight)}));
     }
     else if (headerView instanceof Y.View) {
-        headerView._set('container', instance._header);
+        oldContainer = headerView.get(CONTAINER);
+        headerView._set(CONTAINER, instance._header);
+        if (!oldContainer.inDoc()) {
+            // cleanup
+            oldContainer.empty();
+            oldContainer.destroy(true);
+        }
 /*jshint expr:true */
         headerView.render && headerView.render();
 /*jshint expr:false */
