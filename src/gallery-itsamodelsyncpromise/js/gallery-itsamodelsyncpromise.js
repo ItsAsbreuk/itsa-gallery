@@ -18,6 +18,7 @@
 */
 
 var YModel = Y.Model,
+    Lang = Y.Lang,
     YObject = Y.Object,
     YArray = Y.Array,
     DESTROY = 'destroy',
@@ -423,7 +424,7 @@ YModel.prototype._createPromise = function(type, options) {
         options: Y.merge(options) // making passing only options to other events possible
     };
 /*jshint expr:true */
-    (typeof options==='object') && YObject.each(
+    Lang.isObject(options) && YObject.each(
         options,
         function(value, key) {
             extraOptions[key] = value;
