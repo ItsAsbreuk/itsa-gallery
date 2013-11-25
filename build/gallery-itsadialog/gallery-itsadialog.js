@@ -25,6 +25,7 @@ var YArray = Y.Array,
     SUSPENDED = '_suspended',
     BOOLEAN = 'boolean',
     STRING = 'string',
+    NUMBER = 'number',
     MODEL = 'model',
     TITLE = 'title',
     FOOTER = 'footer',
@@ -35,6 +36,7 @@ var YArray = Y.Array,
     UPPERCASE = 'uppercase',
     LOWERCASE = 'lowercase',
     CAPITALIZE = 'capitalize',
+    FADEDELAY = 'fadeDelay',
     ITSA = 'itsa',
     DIALOG = 'dialog',
     ITSADIALOG = ITSA+DIALOG,
@@ -79,6 +81,19 @@ Y.ITSADialogClass = Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
             value: null,
             validator: function(val) {
                 return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
+            }
+        },
+        /**
+         * Duration of panels popup fading-transition in seconds. Set to zero for no transition.
+         *
+         * @attribute fadeDelay
+         * @type {Boolean}
+         * @default 0.1
+         */
+        fadeDelay : {
+            value: 0.1,
+            validator: function(val) {
+                return (typeof val===NUMBER) && (val>=0);
             }
         },
         /**
@@ -185,7 +200,7 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
         function() {
             var panel = instance._panels[itsamessage.level];
         /*jshint expr:true */
-            panel && panel.set(VISIBLE, true, {silent: true});
+            panel && panel.set(VISIBLE, true, {silent: true, transconfig: {duration: instance.get(FADEDELAY)}});
         /*jshint expr:false */
         }
     );
@@ -421,7 +436,7 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
     panel._body.toggleClass('itsa-hasicon', showIcon);
     panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
 /*jshint expr:true */
-    itsamessage[SUSPENDED] || panel.show();
+    itsamessage[SUSPENDED] || panel.show({duration: instance.get(FADEDELAY)});
 /*jshint expr:false */
 };
 

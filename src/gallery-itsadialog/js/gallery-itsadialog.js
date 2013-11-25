@@ -23,6 +23,7 @@ var YArray = Y.Array,
     SUSPENDED = '_suspended',
     BOOLEAN = 'boolean',
     STRING = 'string',
+    NUMBER = 'number',
     MODEL = 'model',
     TITLE = 'title',
     FOOTER = 'footer',
@@ -33,6 +34,7 @@ var YArray = Y.Array,
     UPPERCASE = 'uppercase',
     LOWERCASE = 'lowercase',
     CAPITALIZE = 'capitalize',
+    FADEDELAY = 'fadeDelay',
     ITSA = 'itsa',
     DIALOG = 'dialog',
     ITSADIALOG = ITSA+DIALOG,
@@ -77,6 +79,19 @@ Y.ITSADialogClass = Y.extend(ITSADialog, Y.ITSAMessageViewer, {}, {
             value: null,
             validator: function(val) {
                 return (val===null) || (val===UPPERCASE) || (val===LOWERCASE) || (val===CAPITALIZE);
+            }
+        },
+        /**
+         * Duration of panels popup fading-transition in seconds. Set to zero for no transition.
+         *
+         * @attribute fadeDelay
+         * @type {Boolean}
+         * @default 0.1
+         */
+        fadeDelay : {
+            value: 0.1,
+            validator: function(val) {
+                return (typeof val===NUMBER) && (val>=0);
             }
         },
         /**
@@ -187,7 +202,7 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
             var panel = instance._panels[itsamessage.level];
         /*jshint expr:true */
             Y.log('viewmessage level '+itsamessage.level+' about to show by resurrect', 'info', 'ITSA-MessageViewer');
-            panel && panel.set(VISIBLE, true, {silent: true});
+            panel && panel.set(VISIBLE, true, {silent: true, transconfig: {duration: instance.get(FADEDELAY)}});
         /*jshint expr:false */
         }
     );
@@ -334,8 +349,6 @@ ITSADialog.prototype._renderPanels = function() {
                         rejectButton = itsamessage.rejectButton,
                         closedByClosebutton = buttonNode && buttonNode.hasClass(ITSA_PANELCLOSEBTN) && (buttonValue=CLOSEBUTTON),
                         rejected = (e.type===ESCAPE_HIDE_EVENT) || closedByClosebutton || (rejectButton && (new RegExp(BTN_+buttonValue+'$')).test(rejectButton));
-console.log('UItoModel itsadialog');
-
                         itsamessage.UIToModel();
                         itsamessage._set(BUTTON, buttonValue);
 /*jshint expr:true */
@@ -436,7 +449,7 @@ ITSADialog.prototype._showPanel = function(panel, itsamessage) {
     panel.set('template', (showIcon ? Lang.sub(ICON_TEMPLATE, {icon: messageIcon}) : '')+itsamessage.message);
     Y.log(itsamessage[SUSPENDED] ? ('viewmessage level '+itsamessage.level+' not shown: SUSPENDED') : ('viewmessage about to show level '+itsamessage.level), 'info', 'ITSA-MessageViewer');
 /*jshint expr:true */
-    itsamessage[SUSPENDED] || panel.show();
+    itsamessage[SUSPENDED] || panel.show({duration: instance.get(FADEDELAY)});
 /*jshint expr:false */
 };
 
