@@ -19,6 +19,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
  *
 */
    var YModelList = Y.ModelList,
+       Lang = Y.Lang,
        YArray = Y.Array,
        YObject = Y.Object,
        PUBLISHED = '_pub_',
@@ -535,7 +536,7 @@ YModelList.prototype._createPromise = function(type, options) {
         options: Y.merge(options) // making passing only optins to other events possible
     };
 /*jshint expr:true */
-    (typeof options==='object') && YObject.each(
+    Lang.isObject(options) && YObject.each(
         options,
         function(value, key) {
             extraOptions[key] = value;
