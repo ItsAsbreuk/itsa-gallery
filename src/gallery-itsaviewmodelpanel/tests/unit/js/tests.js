@@ -16,11 +16,26 @@ test3: is a form NOT generated when editable elements and the container is a for
     suite.add(new Y.Test.Case({
         name: 'Memory Tests',
         setUp : function () {
-            this.viewmodel = new Y.ITSAPanel();
-            this.viewmodel2 = new Y.ITSAPanel();
-            this.viewmodel3 = new Y.ITSAPanel();
-            this.viewmodel4 = new Y.ITSAPanel();
-            this.viewmodel5 = new Y.ITSAPanel();
+            this.viewmodel = new Y.ITSAViewModelPanel();
+            this.viewmodel2 = new Y.ITSAViewModelPanel();
+            this.viewmodel3 = new Y.ITSAViewModelPanel();
+            this.viewmodel4 = new Y.ITSAViewModelPanel();
+            this.viewmodel5 = new Y.ITSAViewModelPanel();
+            this.viewmodel6 = new Y.ITSAViewModelPanel();
+            this.viewmodel7 = new Y.ITSAViewModelPanel();
+            this.viewmodel8 = new Y.ITSAViewModelPanel();
+            this.viewmodel9 = new Y.ITSAViewModelPanel();
+            this.viewmodel10 = new Y.ITSAViewModelPanel();
+            this.viewmodel11 = new Y.ITSAViewModelPanel();
+            this.viewmodel12 = new Y.ITSAViewModelPanel();
+            this.viewmodel13 = new Y.ITSAViewModelPanel();
+            this.viewmodel14 = new Y.ITSAViewModelPanel();
+            this.viewmodel15 = new Y.ITSAViewModelPanel();
+            this.viewmodel16 = new Y.ITSAViewModelPanel();
+            this.viewmodel17 = new Y.ITSAViewModelPanel();
+            this.viewmodel18 = new Y.ITSAViewModelPanel();
+            this.viewmodel19 = new Y.ITSAViewModelPanel();
+            this.viewmodel20 = new Y.ITSAViewModelPanel();
         },
         tearDown : function () {
             this.viewmodel.destroy();
@@ -28,6 +43,21 @@ test3: is a form NOT generated when editable elements and the container is a for
             this.viewmodel3.destroy();
             this.viewmodel4.destroy();
             this.viewmodel5.destroy();
+            this.viewmodel6.destroy();
+            this.viewmodel7.destroy();
+            this.viewmodel8.destroy();
+            this.viewmodel9.destroy();
+            this.viewmodel10.destroy();
+            this.viewmodel11.destroy();
+            this.viewmodel12.destroy();
+            this.viewmodel13.destroy();
+            this.viewmodel14.destroy();
+            this.viewmodel15.destroy();
+            this.viewmodel16.destroy();
+            this.viewmodel17.destroy();
+            this.viewmodel18.destroy();
+            this.viewmodel19.destroy();
+            this.viewmodel20.destroy();
         },
         'test GC': function() {
             this.viewmodel.render();
@@ -35,6 +65,21 @@ test3: is a form NOT generated when editable elements and the container is a for
             // no rendering viewmodel3, because that leads to different destruction
             this.viewmodel4.render();
             this.viewmodel5.render();
+            this.viewmodel6.render();
+            this.viewmodel7.render();
+            this.viewmodel8.render();
+            this.viewmodel9.render();
+            this.viewmodel10.render();
+            this.viewmodel11.render();
+            this.viewmodel12.render();
+            this.viewmodel13.render();
+            this.viewmodel14.render();
+            this.viewmodel15.render();
+            this.viewmodel16.render();
+            this.viewmodel17.render();
+            this.viewmodel18.render();
+            this.viewmodel19.render();
+            this.viewmodel20.render();
             Y.Assert.pass();
         }
     }));
@@ -144,4 +189,4 @@ test3: is a form NOT generated when editable elements and the container is a for
     Y.Test.Runner.add(suite);
 
 
-},'', { requires: [ 'test', 'gallery-itsapanel', 'gallery-itsaformmodel' , 'base-build'] });
+},'', { requires: [ 'test', 'gallery-itsaviewmodelpanel', 'gallery-itsaformmodel' , 'base-build'] });

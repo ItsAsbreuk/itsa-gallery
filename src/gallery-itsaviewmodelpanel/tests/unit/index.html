@@ -7,6 +7,7 @@
     <meta charset="utf-8" />
 </head>
 <body class="yui3-skin-sam">
+<div id="viewcont"></div>
 <div id="logger"></div>
 
 <!-- ******************************** -->
@@ -21,7 +22,7 @@
 <script>
 YUI(yuiconfig).use('base-core', 'test', 'itsa-leakutils', function(Y) {
 
-    Y.Test.Runner.setDOMIgnore('#logger', 'script', '.yui3-tipsy', '.itsa-datetimepicker-panel');
+    Y.Test.Runner.setDOMIgnore('#logger', 'script', '.yui3-tipsy', '.itsa-datetimepicker-panel', '#viewcont');
     Y.Test.Runner.enableLeakDetector();
 
     Y.use('test-console', 'module-tests', function (Y) {
