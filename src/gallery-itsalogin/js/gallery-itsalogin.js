@@ -114,9 +114,10 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
 //===========================================================================================================
 
 /**
+ * Provides extra Y.getLogin() to Y.ITSADialog. See ITSADialog.
  *
  * @module gallery-itsalogin
- * @class ITSAMessageController
+ * @for ITSAMessageController
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -463,7 +464,8 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
 
 /**
  *
- * @class ITSADialog
+ * @module gallery-itsalogin
+ * @for ITSADialog
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -1079,7 +1081,7 @@ ITSADialogInstance.isRendered().then(
  *          <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
  *      </ul>
  *
- * @method Y.getLogin(
+ * @method Y.getLogin
  *
  * @param [title] {String} title of the login-panel.
  * @param [message] {String} message inside the login-panel.
