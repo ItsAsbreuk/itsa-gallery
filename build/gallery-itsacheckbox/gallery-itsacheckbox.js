@@ -445,6 +445,8 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 dd = instance.dd,
                 createdSrc = instance._createdSrc,
                 src = instance._src;
+            instance._destroyAllNodes = true; // making always destroy nodes,
+                                              // independent whether developer calls destroy(true) or destroy(false)
             if (dd) {
                 dd.destroy();
             }
@@ -453,9 +455,10 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 createdSrc.destroy();
             }
             else {
-                src.removeClass(HIDDEN_CLASS);
+/*jshint expr:true */
+                src && src.removeClass(HIDDEN_CLASS);
+/*jshint expr:false */
             }
-            instance._wrapperNode.remove(true);
             if (instance._parentNode) {
                 instance._parentNode.removeClass(PARENT_CLASS);
             }
