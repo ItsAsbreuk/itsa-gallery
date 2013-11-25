@@ -1410,22 +1410,23 @@ ITSAFormModel.prototype[SUBMIT+PROMISE] = function(options) {
  * The buttons-object is used to call the related 'renderBtn' method.
  *
  * @method toJSONUI
- * @param buttons {Array|Object} button object, or array of buttonobjects. The objects whould consist of this structure:<br />
+ * @param [buttons] {Array|Object} button object, or array of buttonobjects. The objects whould consist of this structure:<br />
  * <ul>
  * <li>propertykey --> reference-key which will be part (a property) of the result</li>
  * <li>type --> 'button', 'destroy', 'remove', 'reset', 'save', 'load' or 'submit'</li>
  * <li>labelHTML --> text rendered on the button</li>
  * <li>config --> config-object that is passed through the renderBtn-function</li>
  * </ul>
+ * @param [template] {String} template in which it will render: if you know the template on forehand, you better pass it through: this makes the method cpu-efficitient.
  * @return {Object} Copy of this model's attributes.
  * @since 0.1
  */
-ITSAFormModel.prototype.toJSONUI = function(buttons) {
+ITSAFormModel.prototype.toJSONUI = function(buttons, template) {
     var instance = this,
         UIattrs = {},
         allAttrs = instance.getAttrs(),
         renderBtnFns = instance._renderBtnFns,
-        propertykey, type, labelHTML, config, originalJSON;
+        propertykey, type, labelHTML, config, originalJSON, propertyEmbraced, needProccess;
 
     delete allAttrs.clientId;
     delete allAttrs.destroyed;
@@ -1436,7 +1437,14 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
     YObject.each(
         allAttrs,
         function(value, key) {
-            UIattrs[key] = instance.renderFormElement(key);
+            if (template) {
+                // renderFormElement is heavy: we don't want to call it for attributes that will not be rendered
+                propertyEmbraced = new RegExp('{'+key+'}');
+                needProccess = propertyEmbraced.test(template);
+            }
+/*jshint expr:true */
+            (!template || needProccess) && (UIattrs[key]=instance.renderFormElement(key));
+/*jshint expr:false */
         }
     );
     if (Lang.isObject(buttons)) {
@@ -1485,8 +1493,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons) {
 */
 ITSAFormModel.prototype.UIToModel = function(nodeid) {
     var instance = this,
-        formElement, formElements, options, node, value, attribute, widget, type, attributenodes;
-console.log('UIToModel '+nodeid+'  --> size nodes: '+Y.Object.size(Y.Node._instances));
+        formElement, formElements, options, node, value, attribute, widget, type;
     formElements = instance._FORM_elements;
     formElement = nodeid && formElements[nodeid];
     if (formElement && (node=Y.one('#'+nodeid)) && node.getAttribute(DATA_MODELATTRIBUTE)) {
@@ -1505,15 +1512,17 @@ console.log('UIToModel '+nodeid+'  --> size nodes: '+Y.Object.size(Y.Node._insta
     }
     else if (!nodeid) {
         // save all attributes
-        attributenodes = attribute && instance._ATTRS_nodes[attribute];
-        if (attributenodes) {
-            YArray.each(
-                attributenodes,
-                function(nodeid) {
-                    instance.UIToModel(nodeid);
-                }
-            );
-        }
+        YObject.each(
+            instance._ATTRS_nodes,
+            function(attributenodes) {
+                YArray.each(
+                    attributenodes,
+                    function(nodeid) {
+                        instance.UIToModel(nodeid);
+                    }
+                );
+            }
+        );
     }
     return instance;
 };
