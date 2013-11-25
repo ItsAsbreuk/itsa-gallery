@@ -75,7 +75,7 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          *
          * @attribute fadeDelay
          * @type {Boolean}
-         * @default 1
+         * @default 0.15
          */
         fadeDelay : {
             value: 0.15,
@@ -508,12 +508,14 @@ ITSAStatusbar.prototype._showBar = function(barnode, itsamessage) {
         "promise",
         "timers",
         "yui-later",
+        "transition",
         "escape",
         "node-event-delegate",
         "node-style",
         "oop",
         "node-core",
         "gallery-itsamessageviewer",
+        "gallery-itsanodepromise",
         "gallery-itsamodulesloadedpromise"
     ],
     "skinnable": true

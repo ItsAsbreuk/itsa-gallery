@@ -7,12 +7,14 @@
             "promise",
             "timers",
             "yui-later",
+            "transition",
             "escape",
             "node-event-delegate",
             "node-style",
             "oop",
             "node-core",
             "gallery-itsamessageviewer",
+            "gallery-itsanodepromise",
             "gallery-itsamodulesloadedpromise"
         ],
         "skinnable": true

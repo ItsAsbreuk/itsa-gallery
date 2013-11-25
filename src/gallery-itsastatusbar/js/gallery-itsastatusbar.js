@@ -73,7 +73,7 @@ Y.ITSAStatusbar = Y.extend(ITSAStatusbar, Y.ITSAMessageViewer, {}, {
          *
          * @attribute fadeDelay
          * @type {Boolean}
-         * @default 1
+         * @default 0.15
          */
         fadeDelay : {
             value: 0.15,
