@@ -508,11 +508,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             }
         },
        /**
-        * Template for the bodysection to render the Model. The attribute MUST be a template that can be processed by either <i>Y.Lang.sub or Y.Template.Micro</i>,
-        * where Y.Lang.sub is more lightweight. If you use Y.ITSAFormModel as 'model' and 'editable' is set true, be aware that all property-values are <u>html-strings</u>.
-        * Should you templating with micro-templates <b>you need to look for the docs</b> what is the right way to do.
-        *
-        * <u>If you set this attribute after the view is rendered, the view will be re-rendered.</u>
+        * <u>Overridden, do not set this, but you could set 'loginTemplate' and 'logoutTemplate'.</u>
         *
         * @attribute template
         * @type {String}
@@ -757,8 +753,7 @@ ITSAViewLogin.prototype.initializer = function() {
             LOGGEDIN,
             function(e) {
                 if (!instance.get(DESTROYED)) {
-console.log('CHECK '+e.displayname);
-                    instance._buildOutlog(e.displayname, e.messageLoggedin);
+                    instance._buildLogoutView(e.displayname, e.messageLoggedin);
                     instance.render();
                 }
             }
@@ -770,7 +765,7 @@ console.log('CHECK '+e.displayname);
             LOGGEDOUT,
             function() {
                 if (!instance.get(DESTROYED)) {
-                    instance._buildInlog();
+                    instance._buildLoginView();
                     instance.render();
                 }
             }
@@ -915,16 +910,53 @@ console.log('CHECK '+e.displayname);
 };
 
 /**
+ * Promise that gets fulfilled as soon as the instance is ready. That is as soon as iconfonts are loaded and Y.ITSACurrentuser is read.
+ *
+ * @method isReady
+ * @since 0.1
+*/
+ITSAViewLogin.prototype.isReady = function() {
+    Y.log('isReady', 'info', 'ITSAViewLogin');
+    var instance = this;
+    return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
+        function() {
+            // we might need to wait for the current user to load its data
+            var currentuser = Y.ITSACurrentUser,
+                currentuserKnownLoggedin;
+            if (currentuser) {
+                currentuserKnownLoggedin = currentuser.isLoggedin().then(
+                    function(response) {
+                        var model = instance.get(MODEL);
+                        model.set(USERNAME, response[USERNAME], {silent: true});
+                        model.set(PASSWORD, response[PASSWORD], {silent: true});
+                        model.set(REMEMBER, response[REMEMBER], {silent: true});
+                        instance._buildLogoutView(response.displayname, response.messageLoggedin);
+                    },
+                    function() {
+                        instance._buildLoginView();
+                    }
+                );
+            }
+            else {
+                instance._buildLoginView();
+            }
+            return currentuser ? currentuserKnownLoggedin : true;
+        }
+    );
+};
+
+/**
  * Method that is responsible for rendering the Model into the view.
  * Overrules Y.ITSAViewModel's render() because it has to wait for isReady().
  *
  * @method render
  * @private
  * @chainable
- * @since 0.3
+ * @since 0.1
  *
 */
 ITSAViewLogin.prototype.render = function () {
+    Y.log('render', 'info', 'ITSAViewLogin');
     var instance = this;
     instance.isReady().then(
         null,
@@ -934,7 +966,6 @@ ITSAViewLogin.prototype.render = function () {
         }
     ).then(
         function() {
-            console.log('rendering: yes');
             instance.constructor.superclass.render.call(instance);
         }
     );
@@ -942,43 +973,44 @@ ITSAViewLogin.prototype.render = function () {
     return instance;
 };
 
+//===============================================================================================
+// private methods
+//===============================================================================================
+
 /**
- * Renderes the view
- * @method renderOnReady
- * @private
+ * Rebuild the view with the 'login-view', that is, when the user is logged uut.
+ *
+ * @method _buildLoginView
+ & @private
  * @since 0.1
 */
-ITSAViewLogin.prototype.isReady = function() {
-    Y.log('renderOnReady', 'info', 'ITSAViewLogin');
-    var instance = this;
-    return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
-        function() {
-            // we might need to wait for the current user to load its data
-            var currentuser = Y.ITSACurrentUser,
-                currentuserKnownLoggedin;
-            if (currentuser) {
-                currentuserKnownLoggedin = currentuser.isLoggedin().then(
-                    function() {
-                        var model = instance.get(MODEL);
-                        model.set(USERNAME, currentuser[USERNAME], {silent: true});
-                        model.set(PASSWORD, currentuser[PASSWORD], {silent: true});
-                        model.set(REMEMBER, currentuser[REMEMBER], {silent: true});
-                        instance._buildOutlog(currentuser.displayname, currentuser.messageLoggedin);
-                    },
-                    function() {
-                        instance._buildInlog();
-                    }
-                );
-            }
-            else {
-                instance._buildInlog();
-            }
-            return currentuser ? currentuserKnownLoggedin : true;
-        }
-    );
+ITSAViewLogin.prototype._buildLoginView = function() {
+    Y.log('_buildLoginView', 'info', 'ITSAViewLogin');
+    var instance = this,
+        loginintl = instance._loginintl,
+        model = instance.get(MODEL);
+
+    instance._loggedin = false;
+    instance._displayname = null;
+    instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDOUT);
+    instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDIN);
+    instance._setSubmitButtons(true);
+    model._set(BUTTON, GETLOGIN);
+    model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
+    instance._setTemplateRenderer(true);
 };
 
-ITSAViewLogin.prototype._buildOutlog = function(displayname, messageLoggedin) {
+/**
+ * Rebuild the view with the 'logout-view', that is, when the user is logged in.
+ *
+ * @method _buildLogoutView
+ * @param displayname {String} The displayname that appears in the template at position {displayname}
+ * @param messageLoggedin {String} The loginmessage to be shown. Is templated, so you may use '{displayname}' to show the displayname
+ & @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._buildLogoutView = function(displayname, messageLoggedin) {
+    Y.log('_buildLogoutView', 'info', 'ITSAViewLogin');
     var instance = this,
         loginintl = instance._loginintl,
         model = instance.get(MODEL);
@@ -999,27 +1031,40 @@ ITSAViewLogin.prototype._buildOutlog = function(displayname, messageLoggedin) {
     instance._setTemplateRenderer(false);
 };
 
-ITSAViewLogin.prototype._buildInlog = function() {
-    var instance = this,
-        loginintl = instance._loginintl,
-        model = instance.get(MODEL);
-
-    instance._loggedin = false;
-    instance._displayname = null;
-    instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDOUT);
-    instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDIN);
-    instance._setSubmitButtons(true);
-    model._set(BUTTON, GETLOGIN);
-    model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
-    instance._setTemplateRenderer(true);
-};
-
 /**
- * @method _defineModel
+ * The default simplified login-template, when attribute 'loginTemplate' is null
+ *
+ * @method _defComprLoginTempl
  * @private
  * @since 0.1
 */
+ITSAViewLogin.prototype._defComprLoginTempl = function() {
+    Y.log('_defComprLoginTempl', 'info', 'ITSAViewLogin');
+    return '{'+BTN_+LOGIN+'}';
+};
+
+/**
+ * The default simplified logout-template, when attribute 'loginTemplate' is null
+ *
+ * @method _defComprLogoutTempl
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._defComprLogoutTempl = function() {
+    Y.log('_defComprLogoutTempl', 'info', 'ITSAViewLogin');
+    return this._defLogoutTempl('');
+};
+
+/**
+ * Creates the internal Model that is used by the view.
+ *
+ * @method _defineModel
+ * @private
+ * @protected
+ * @since 0.1
+*/
 ITSAViewLogin.prototype._defineModel = function() {
+    Y.log('_defineModel', 'info', 'ITSAViewLogin');
     var instance = this,
         loginintl = instance._loginintl,
         usernameIsEmail = instance.get(USERNAMEISEMAIL),
@@ -1027,7 +1072,6 @@ ITSAViewLogin.prototype._defineModel = function() {
         extrabuttons = [],
         MyLoginModel, formconfigUsername, formconfigPassword, formconfigRemember, model;
 
-    Y.log('initializer', 'info', 'ITSAViewLogin');
     formconfigUsername = instance.get(FORMCONFIG+CAP_USERNAME);
 /*jshint expr:true */
     formconfigUsername[LABEL] || formconfigUsername[PLACEHOLDER] || (formconfigUsername[LABEL]=loginintl[usernameIsEmail ? EMAILADDRESS : USERNAME]);
@@ -1154,46 +1198,6 @@ ITSAViewLogin.prototype._defineModel = function() {
 };
 
 /**
- * @method _getterTempl
- * @private
- * @since 0.1
-*/
-ITSAViewLogin.prototype._getterTempl = function() {
-    Y.log('_getterTempl', 'info', 'ITSAViewLogin');
-    var instance = this,
-        template = instance._loggedin ? instance._logoutTempl() : instance._loginTempl();
-
-    return instance.get(IMAGEBUTTONS) ? template.replace(/\{btn_/g, '{'+IMGBTN_) : template;
-};
-
-/**
- * @method _loginTempl
- * @private
- * @since 0.1
-*/
-ITSAViewLogin.prototype._loginTempl = function() {
-    Y.log('_loginTempl', 'info', 'ITSAViewLogin');
-    var instance = this,
-        simplified = instance.get(SIMPLIFIED),
-        icon = instance.get(ICONLOGIN);
-
-    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
-           (instance.get(LOGINTEMPLATE) || (simplified ? instance._defComprLoginTempl() : instance._defLoginTempl()));
-};
-
-/**
- * The default simplified login-template, when attribute 'loginTemplate' is null
- *
- * @method _defComprLoginTempl
- * @private
- * @since 0.1
-*/
-ITSAViewLogin.prototype._defComprLoginTempl = function() {
-    Y.log('_defComprLoginTempl', 'info', 'ITSAViewLogin');
-    return '{'+BTN_+LOGIN+'}';
-};
-
-/**
  * The default login-template, when attribute 'loginTemplate' is null
  *
  * @method _defLoginTempl
@@ -1217,35 +1221,6 @@ ITSAViewLogin.prototype._defLoginTempl = function() {
                (instance.get('showStayLoggedin') ? DIVCLASS_ITSA+'login-checkbox pure-controls">'+'{remember}'+ENDDIV : '')+
                DIVCLASS_PURECONTROLS+footer+ENDDIV+
            ENDFIELDSET;
-};
-
-/**
- * @method _logoutTempl
- * @private
- * @since 0.1
-*/
-ITSAViewLogin.prototype._logoutTempl = function() {
-    Y.log('_logoutTempl', 'info', 'ITSAViewLogin');
-    Y.log('_loginTempl', 'info', 'ITSAViewLogin');
-    var instance = this,
-        simplified = instance.get(SIMPLIFIED),
-        logouttemplate = instance.get(LOGOUTTEMPLATE),
-        icon = instance.get(ICONLOGOUT);
-
-    return ((icon && logouttemplate) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
-           (logouttemplate || (simplified ? instance._defComprLogoutTempl() : instance._defLogoutTempl(' itsaviewlogin-non'+SIMPLIFIED)));
-};
-
-/**
- * The default simplified logout-template, when attribute 'loginTemplate' is null
- *
- * @method _defComprLogoutTempl
- * @private
- * @since 0.1
-*/
-ITSAViewLogin.prototype._defComprLogoutTempl = function() {
-    Y.log('_defComprLogoutTempl', 'info', 'ITSAViewLogin');
-    return this._defLogoutTempl('');
 };
 
 /**
@@ -1273,6 +1248,21 @@ ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
 };
 
 /**
+ * Getter for the attribute 'template'
+ *
+ * @method _getterTempl
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._getterTempl = function() {
+    Y.log('_getterTempl', 'info', 'ITSAViewLogin');
+    var instance = this,
+        template = instance._loggedin ? instance._logoutTempl() : instance._loginTempl();
+
+    return instance.get(IMAGEBUTTONS) ? template.replace(/\{btn_/g, '{'+IMGBTN_) : template;
+};
+
+/**
  * Internal objects with internationalized login-messages
  *
  * @property _loginintl
@@ -1280,6 +1270,45 @@ ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
  * @type Object
 */
 ITSAViewLogin.prototype._loginintl = Y.Intl.get(GALLERYITSAI18NLOGIN);
+
+/**
+ * The template-creator for the loginview. May make use of the attribute 'loginTemplate', if it is set.
+ * Otherwise, it uses its default template, either simplified or not.
+ *
+ * @method _loginTempl
+ * @private
+ * @protected
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._loginTempl = function() {
+    Y.log('_loginTempl', 'info', 'ITSAViewLogin');
+    var instance = this,
+        simplified = instance.get(SIMPLIFIED),
+        icon = instance.get(ICONLOGIN);
+
+    return (icon ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
+           (instance.get(LOGINTEMPLATE) || (simplified ? instance._defComprLoginTempl() : instance._defLoginTempl()));
+};
+
+/**
+ * The template-creator for the logoutview. May make use of the attribute 'logoutTemplate', if it is set.
+ * Otherwise, it uses its default template, either simplified or not.
+ *
+ * @method _logoutTempl
+ * @private
+ * @protected
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._logoutTempl = function() {
+    Y.log('_logoutTempl', 'info', 'ITSAViewLogin');
+    var instance = this,
+        simplified = instance.get(SIMPLIFIED),
+        logouttemplate = instance.get(LOGOUTTEMPLATE),
+        icon = instance.get(ICONLOGOUT);
+
+    return ((icon && logouttemplate) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
+           (logouttemplate || (simplified ? instance._defComprLogoutTempl() : instance._defLogoutTempl(' itsaviewlogin-non'+SIMPLIFIED)));
+};
 
 /**
  * Re-sets the submitbuttons of the form to the right buttons.
