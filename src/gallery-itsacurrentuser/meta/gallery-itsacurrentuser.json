@@ -1,0 +1,8 @@
+{
+    "gallery-itsacurrentuser": {
+        "requires": [
+            "yui-base",
+            "promise"
+        ]
+    }
+}

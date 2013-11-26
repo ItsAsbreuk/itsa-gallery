@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsacurrentuser",
+    "builds": {
+        "gallery-itsacurrentuser": {
+            "jsfiles": [
+                "js/gallery-itsacurrentuser.js"
+            ]
+        }
+    }
+}
