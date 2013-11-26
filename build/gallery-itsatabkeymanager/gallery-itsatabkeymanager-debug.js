@@ -520,9 +520,9 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             Y.log('first', 'info', 'Itsa-TabKeyManager');
             while (item && ((disabledSelector && item.test(disabledSelector)) || (item.getStyle('visibility')==='hidden') || !item.displayInDoc())) {
                 allItems = allItems || (container && container.all(itemSelector));
-                item = (++i<allItems.size()) ? allItems.item(i) : null;
+                item = allItems && ((++i<allItems.size()) ? allItems.item(i) : null);
             }
-            if (!options.silent) {
+            if (!options.silent && item) {
                 instance.set('activeItem', item, {src: 'first'});
             }
             return item;
@@ -538,19 +538,20 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
         */
         focusInitialItem : function() {
             var instance = this,
+                host = instance.host,
                 focusitem, panelheader, panelbody, panelfooter;
 
             Y.log('focusInitialItem', 'info', 'Itsa-TabKeyManager');
-            if (instance.host.hasClass(FOCUSED_CLASS)) {
+            if (host.hasClass(FOCUSED_CLASS)) {
                 focusitem = instance.first({selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
-                            ((panelbody=instance.host.one('.itsa-panelbody')) ? instance.first({container: panelbody}) : null) ||
+                            ((panelbody=host.one('.itsa-panelbody')) ? instance.first({container: panelbody}) : null) ||
                             instance.first({selector: '.'+PRIMARYBUTTON_CLASS}) ||
-                            ((panelfooter=instance.host.one('.itsa-panelfooter')) ? instance.last({container: panelfooter}) : null) ||
-                            ((panelheader=instance.host.one('.itsa-panelheader')) ? instance.first({container: panelheader}) : null) ||
+                            ((panelfooter=host.one('.itsa-panelfooter')) ? instance.last({container: panelfooter}) : null) ||
+                            ((panelheader=host.one('.itsa-panelheader')) ? instance.first({container: panelheader}) : null) ||
                             instance.first();
-                if (focusitem) {
-                    focusitem.focus();
-                }
+    /*jshint expr:true */
+                focusitem && focusitem.focus && focusitem.focus();
+    /*jshint expr:false */
             }
         },
 
@@ -571,7 +572,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 disabledSelector = instance.get('disabledSelector'),
                 allItems         = container && container.all(instance.get('itemSelector')),
                 i                = allItems ? (allItems.size() - 1) : 0,
-                item             = allItems.pop();
+                item             = allItems && allItems.pop();
 
             Y.log('last', 'info', 'Itsa-TabKeyManager');
             options = options || {};
@@ -579,7 +580,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 item = (--i>=0) ? allItems.item(i) : null;
             }
 
-            if (!options.silent) {
+            if (!options.silent && item) {
                 instance.set('activeItem', item, {src: 'last'});
             }
 
@@ -612,8 +613,8 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             disabledSelector = instance.get('disabledSelector');
             allItems = container && container.all(instance.get('itemSelector'));
             itemSize = allItems ? allItems.size() : 0;
-            index = allItems.indexOf(activeItem);
-            nextItem = (++index<itemSize) ? allItems.item(index) : null;
+            index = allItems && allItems.indexOf(activeItem);
+            nextItem = allItems && ((++index<itemSize) ? allItems.item(index) : null);
             // Get the next item that matches the itemSelector and isn't
             // disabled.
             while (nextItem && ((disabledSelector && nextItem.test(disabledSelector)) || (nextItem.getStyle('visibility')==='hidden') || !nextItem.displayInDoc())) {
