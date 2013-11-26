@@ -31,12 +31,54 @@ ITSACurrentUserClass.NAME = 'itsacurrentuser';
 
 Y.ITSACurrentUserClass = Y.extend(ITSACurrentUserClass, Y.Model);
 
+/**
+ * Current username of the logged in user
+ * @property username
+ * @type String
+ * @since 0.1
+ */
 ITSACurrentUserClass.prototype.username = null;
+
+/**
+ * Current password of the logged in user
+ * @property password
+ * @type String
+ * @since 0.1
+ */
 ITSACurrentUserClass.prototype.password = null;
+
+/**
+ * Current value of 'remember' of the logged in user
+ * @property remember
+ * @type Boolean
+ * @since 0.1
+ */
 ITSACurrentUserClass.prototype.remember = null;
-ITSACurrentUserClass.prototype._isLoggedin = false;
+
+/**
+ * Current displayname of the logged in user
+ * @property displayname
+ * @type String
+ * @since 0.1
+ */
 ITSACurrentUserClass.prototype.displayname = null;
+
+/**
+ * Current messageLoggedin of the logged in user
+ * @property messageLoggedin
+ * @type String
+ * @since 0.1
+ */
 ITSACurrentUserClass.prototype.messageLoggedin = null;
+
+/**
+ * Current logged-in status
+ * @property _isLoggedin
+ * @type Boolean
+ * @private
+ * @since 0.1
+ */
+ITSACurrentUserClass.prototype._isLoggedin = false;
 
 /**
  * @method initializer
@@ -82,12 +124,14 @@ ITSACurrentUserClass.prototype.initializer = function() {
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Registeres the user by setting all internal properties to the logged-in user. If 'remember' is set true, the data is saved by localstorage,
+ * otherwise localstorage will be emptied.
  *
  * @method dologin
  * @param login {Boolean} whether to set the submitbuttons to 'login' - or 'logout'
  * @private
  * @protected
+ * @return {Y.Promise} resolved when save or cleanup through the localstorage is finished
  * @since 0.1
 */
 ITSACurrentUserClass.prototype.dologin = function(username, password, remember, displayname, messageLoggedin, userdata) {
@@ -104,12 +148,12 @@ ITSACurrentUserClass.prototype.dologin = function(username, password, remember, 
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Unregisteres the user by cleaning up all internal user-properties. Localstorage will be emptied.
  *
  * @method dologout
- * @param login {Boolean} whether to set the submitbuttons to 'login' - or 'logout'
  * @private
  * @protected
+ * @return {Y.Promise} resolved when save or cleanup through the localstorage is finished
  * @since 0.1
 */
 ITSACurrentUserClass.prototype.dologout = function() {
@@ -122,10 +166,18 @@ ITSACurrentUserClass.prototype.dologout = function() {
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Returns the current login-state. If resolved (loggedin), the uservalues are available by this object:
+ * <ul>
+ *    <li>username</li>
+ *    <li>password</li>
+ *    <li>remember</li>
+ *    <li>displayname</li>
+ *    <li>messageLoggedin</li>
+ *    <li>userdata</li>
+ * </ul>
  *
  * @method isLoggedin
- * @return {Y.Promise} loggedin or not: a resolved promise means: loggedin, rejected means: loggedout
+ * @return {Y.Promise} loggedin or not: a resolved promise means: loggedin (response holds the data), rejected means: loggedout
  * @since 0.1
 */
 ITSACurrentUserClass.prototype.isLoggedin = function() {
@@ -136,12 +188,22 @@ ITSACurrentUserClass.prototype.isLoggedin = function() {
             if (!instance._isLoggedin) {
                 throw new Error('not loggedin');
             }
+            else {
+                return {
+                    username: instance.username,
+                    password: instance.password,
+                    remember: instance.remember,
+                    displayname: instance.displayname,
+                    messageLoggedin: instance.messageLoggedin,
+                    userdata: instance.toJSON()
+                };
+            }
         }
     );
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Promise that the instance is ready and has all its properties loaded (from localstorage)
  *
  * @method isReady
  * @return {Y.Promise}
@@ -154,9 +216,10 @@ ITSACurrentUserClass.prototype.isReady = function() {
 
 /**
  * Cleans up bindings
+ *
  * @method destructor
  * @protected
- * @since 0.3
+ * @since 0.1
 */
 ITSACurrentUserClass.prototype.destructor = function() {
     this._clearEventhandlers();
@@ -171,8 +234,7 @@ ITSACurrentUserClass.prototype.destructor = function() {
  *
  * @method _clearEventhandlers
  * @private
- * @since 0.3
- *
+ * @since 0.1
 */
 ITSACurrentUserClass.prototype._clearEventhandlers = function() {
     Y.log('_clearEventhandlers', 'info', 'ITSACurrentUser');
@@ -185,10 +247,9 @@ ITSACurrentUserClass.prototype._clearEventhandlers = function() {
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Cleans the localstorage (refences of the currentuser)
  *
  * @method _clearUser
- * @param login {Boolean} whether to set the submitbuttons to 'login' - or 'logout'
  * @private
  * @protected
  * @return {Y.Promise}
@@ -196,7 +257,7 @@ ITSACurrentUserClass.prototype._clearEventhandlers = function() {
 */
 ITSACurrentUserClass.prototype._clearUser = function() {
     Y.log('_clearUser', 'info', 'ITSACurrentUser');
-    // should load through localstorage, but that has to be done yet
+    // should cleanup localstorage, but that has to be done yet
     return new Y.Promise(function (resolve) {
         // also is responsible for setting the login-status
         resolve();
@@ -204,10 +265,9 @@ ITSACurrentUserClass.prototype._clearUser = function() {
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Loads the userdata from the localstorage into this model.
  *
  * @method _loadUser
- * @param login {Boolean} whether to set the submitbuttons to 'login' - or 'logout'
  * @private
  * @protected
  * @return {Y.Promise}
@@ -219,18 +279,15 @@ ITSACurrentUserClass.prototype._loadUser = function() {
     // should load through localstorage, but that has to be done yet
     return new Y.Promise(function (resolve) {
         // also is responsible for setting the login-status
-        instance._isLoggedin = true;
-instance.displayname = 'this is the displayname';
-instance.messageLoggedin = 'Logged in as {displayname}';
+        instance._isLoggedin = false;
         resolve();
     });
 };
 
 /**
- * Re-sets the submitbuttons of the form to the right buttons.
+ * Save the userdata of this model to the localstorage.
  *
  * @method _saveUser
- * @param login {Boolean} whether to set the submitbuttons to 'login' - or 'logout'
  * @private
  * @protected
  * @return {Y.Promise}
@@ -238,7 +295,7 @@ instance.messageLoggedin = 'Logged in as {displayname}';
 */
 ITSACurrentUserClass.prototype._saveUser = function() {
     Y.log('_loadUser', 'info', 'ITSACurrentUser');
-    // should load through localstorage, but that has to be done yet
+    // should save to localstorage, but that has to be done yet
     return new Y.Promise(function (resolve) {
         resolve();
     });
