@@ -24,7 +24,8 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'gallerycss-itsa-base', func
         Y.showError('this is error '+(++counterror));
     });
     btnShowStatus.on('click', function() {
-        statushandle = Y.showStatus('this is statusmessage '+(++countwarn)+' will remove after 3 seconds', {busy: true});
+        statushandle = Y.showStatus('this is statusmessage '+(++countwarn)+
+                       ' will remove after 3 seconds', {busy: true});
         Y.later(3000, null, function() {
             Y.removeStatus(statushandle);
         });
