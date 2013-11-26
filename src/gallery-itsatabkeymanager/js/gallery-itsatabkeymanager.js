@@ -287,13 +287,12 @@ Y.extend(FocusManager, Y.Plugin.Base, {
         var newVal  = e.newVal,
             prevVal = e.prevVal;
 
-        if (prevVal) {
+        if (prevVal && this.host.one('#'+prevVal._yuid)) {
             prevVal.set('tabIndex', -1);
         }
 
         if (newVal) {
             newVal.set('tabIndex', 0);
-
             if (this.get('focused')) {
                 newVal.focus();
             }
@@ -515,12 +514,14 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 i                = 0,
                 allItems;
 
+
             Y.log('first', 'info', 'Itsa-TabKeyManager');
             while (item && ((disabledSelector && item.test(disabledSelector)) || (item.getStyle('visibility')==='hidden') || !item.displayInDoc())) {
                 allItems = allItems || (container && container.all(itemSelector));
                 item = allItems && ((++i<allItems.size()) ? allItems.item(i) : null);
             }
-            if (!options.silent && item) {
+
+            if (!options.silent) {
                 instance.set('activeItem', item, {src: 'first'});
             }
             return item;
@@ -574,11 +575,16 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
 
             Y.log('last', 'info', 'Itsa-TabKeyManager');
             options = options || {};
-            while (item && ((disabledSelector && item.test(disabledSelector)) || (item.getStyle('visibility')==='hidden') || !item.displayInDoc())) {
-                item = (--i>=0) ? allItems.item(i) : null;
+            try {
+                while (item && ((disabledSelector && item.test(disabledSelector)) || (item.getStyle('visibility')==='hidden') || !item.displayInDoc())) {
+                    item = (--i>=0) ? allItems.item(i) : null;
+                }
+            }
+            catch (err) {
+                item = null;
             }
 
-            if (!options.silent && item) {
+            if (!options.silent) {
                 instance.set('activeItem', item, {src: 'last'});
             }
 
@@ -615,8 +621,13 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             nextItem = allItems && ((++index<itemSize) ? allItems.item(index) : null);
             // Get the next item that matches the itemSelector and isn't
             // disabled.
-            while (nextItem && ((disabledSelector && nextItem.test(disabledSelector)) || (nextItem.getStyle('visibility')==='hidden') || !nextItem.displayInDoc())) {
-                nextItem = (++index<itemSize) ? allItems.item(index) : null;
+            try {
+                while (nextItem && ((disabledSelector && nextItem.test(disabledSelector)) || (nextItem.getStyle('visibility')==='hidden') || !nextItem.displayInDoc())) {
+                    nextItem = (++index<itemSize) ? allItems.item(index) : null;
+                }
+            }
+            catch (err) {
+                nextItem = null;
             }
             if (nextItem) {
                 if (!options.silent) {
@@ -662,8 +673,13 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
             prevItem = (--index>=0) ? allItems.item(index) : null;
             // Get the next item that matches the itemSelector and isn't
             // disabled.
-            while (prevItem && ((disabledSelector && prevItem.test(disabledSelector)) || (prevItem.getStyle('visibility')==='hidden') || !prevItem.displayInDoc())) {
-                prevItem = (--index>=0) ? allItems.item(index) : null;
+            try {
+                while (prevItem && ((disabledSelector && prevItem.test(disabledSelector)) || (prevItem.getStyle('visibility')==='hidden') || !prevItem.displayInDoc())) {
+                    prevItem = (--index>=0) ? allItems.item(index) : null;
+                }
+            }
+            catch (err) {
+                prevItem = null;
             }
             if (prevItem) {
                 if (!options.silent) {
