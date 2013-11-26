@@ -791,12 +791,9 @@ ITSAViewLogin.prototype.initializer = function() {
         Y.after(
             LOGGEDIN,
             function(e) {
-                // need to delay, because automatic refocussing would fail if previous template disappeared to soon
                 if (!instance.get(DESTROYED)) {
-                    Y.soon(function() {
-                        instance._buildOutlog(e.displayname, e.messageLoggedin);
-                        instance.render();
-                    });
+                    instance._buildOutlog(e.displayname, e.messageLoggedin);
+                    instance.render();
                 }
             }
         )
@@ -806,12 +803,9 @@ ITSAViewLogin.prototype.initializer = function() {
         Y.on(
             LOGGEDOUT,
             function() {
-                // need to delay, because automatic refocussing would fail if previous template disappeared to soon
                 if (!instance.get(DESTROYED)) {
-                    Y.soon(function() {
-                        instance._buildInlog();
-                        instance.render();
-                    });
+                    instance._buildInlog();
+                    instance.render();
                 }
             }
         )
@@ -996,7 +990,7 @@ ITSAViewLogin.prototype._buildOutlog = function(displayname, messageLoggedin) {
     var instance = this,
         loginintl = instance._loginintl,
         model = instance.get(MODEL);
-Y.later(1000,null, function() {
+
     instance._loggedin = true;
     instance._displayname = displayname;
     instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDIN);
@@ -1011,14 +1005,12 @@ Y.later(1000,null, function() {
     model._set(BUTTON, LOGOUT);
     model.setSyncMessage(SUBMIT, loginintl.loggingout);
     instance._setTemplateRenderer(false);
-});
 };
 
 ITSAViewLogin.prototype._buildInlog = function() {
     var instance = this,
         loginintl = instance._loginintl,
         model = instance.get(MODEL);
-Y.later(1000,null, function() {
 
     instance._loggedin = false;
     instance._displayname = null;
@@ -1028,7 +1020,6 @@ Y.later(1000,null, function() {
     model._set(BUTTON, GETLOGIN);
     model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
     instance._setTemplateRenderer(true);
-});
 };
 
 /**
