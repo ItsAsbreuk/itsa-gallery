@@ -395,11 +395,14 @@ Y.mix(ITSANodeCleanup.prototype, {
     // @since 0.3
     //
     //
-    cleanup: function() {
+    cleanup: function(widgets) {
         var node = this;
 
-        node.cleanupWidgets(true);
-        node.empty();
+/*jshint expr:true */
+        widgets && node.cleanupWidgets(true);
+/*jshint expr:false */
+        // NOT node.empty, for that will remove each and separate node from the dom which make it flickr!
+        node.get('childNodes').destroy(true);
     }
 
 }, true);
@@ -1103,6 +1106,7 @@ ITSAViewModel.prototype.removePrimaryButton = function() {
  *
 */
 ITSAViewModel.prototype.render = function (clear) {
+console.log('ITSAVIEWMODEL start render');
     var instance = this,
         container = instance.get(CONTAINER),
         model = instance.get(MODEL),
@@ -1118,9 +1122,10 @@ ITSAViewModel.prototype.render = function (clear) {
         if (editMode) {
             instance._initialEditAttrs = model.getAttrs();
         }
-/*jshint expr:true */
-        instance._rendered && container.cleanupWidgets(true);
-/*jshint expr:false */
+        container.cleanup(instance._rendered);
+    }
+    else {
+        container.cleanup(false);
     }
     // Append the container element to the DOM if it's not on the page already.
     if (!instance._rendered) {
@@ -1141,7 +1146,6 @@ ITSAViewModel.prototype.render = function (clear) {
     statusbar && (statusbarinstance || (html+=STATUSBAR_TEMPLATE));
 /*jshint expr:false */
 
-    container.empty();
     container.setHTML(html);
     if (statusbar) {
         container.setAttribute(DATA_ITSASTATUSBAR, 'true');
@@ -1190,7 +1194,6 @@ ITSAViewModel.prototype.render = function (clear) {
     if (itsaDateTimePicker && itsaDateTimePicker.panel.get('visible')) {
         itsaDateTimePicker.hide(true);
     }
-
     return instance;
 };
 
@@ -2285,11 +2288,7 @@ ITSAViewModel.prototype._setFocusManager = function(activate) {
                     instance.addTarget(itsatabkeymanager);
                 }
                 if (container.hasClass(FOCUSED_CLASS)) {
-                    Y.soon(
-                        function() {
-                            container.itsatabkeymanager.focusInitialItem();
-                        }
-                    );
+                    container.itsatabkeymanager.focusInitialItem();
                 }
             }
         });
