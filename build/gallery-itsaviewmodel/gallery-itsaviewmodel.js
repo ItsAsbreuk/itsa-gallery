@@ -875,7 +875,7 @@ ITSAViewModel.prototype.addMessageTarget = function(itsamessageviewer) {
  *
 */
 ITSAViewModel.prototype.blur = function() {
-    this.get('container').removeClass(FOCUSED_CLASS);
+    this.get(CONTAINER).removeClass(FOCUSED_CLASS);
 };
 
 /**
@@ -887,12 +887,17 @@ ITSAViewModel.prototype.blur = function() {
 */
 ITSAViewModel.prototype.focus = function() {
 
-    var container = this.get('container');
+    var instance = this,
+        container = instance.get(CONTAINER);
 
-    container.addClass(FOCUSED_CLASS);
-    container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
-        function(itsatabkeymanager) {
-            itsatabkeymanager._retreiveFocus();
+    instance.isRendered().then(
+        function() {
+            container.addClass(FOCUSED_CLASS);
+            container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+                function(itsatabkeymanager) {
+                    itsatabkeymanager._retreiveFocus();
+                }
+            );
         }
     );
 };
@@ -1106,7 +1111,6 @@ ITSAViewModel.prototype.removePrimaryButton = function() {
  *
 */
 ITSAViewModel.prototype.render = function (clear) {
-console.log('ITSAVIEWMODEL start render');
     var instance = this,
         container = instance.get(CONTAINER),
         model = instance.get(MODEL),
@@ -1494,7 +1498,7 @@ ITSAViewModel.prototype.unlockView = function() {
         canEnableModel = (instance.get(EDITABLE) && model && model.toJSONUI);
 
 /*jshint expr:true */
-    canEnableModel ? model.enableUI() : instance.get('container').all('button').removeClass(PURE_BUTTON_DISABLED);
+    canEnableModel ? model.enableUI() : instance.get(CONTAINER).all('button').removeClass(PURE_BUTTON_DISABLED);
 /*jshint expr:false */
     instance._locked = false;
 };
@@ -2341,7 +2345,7 @@ ITSAViewModel.prototype._setModel = function(v) {
 */
 ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
     var instance = this,
-        buttonicons = instance.get('container').all('[data-buttonsubtype="'+buttonType+'"] i');
+        buttonicons = instance.get(CONTAINER).all('[data-buttonsubtype="'+buttonType+'"] i');
     buttonicons.toggleClass('itsaicon-form-loading', spin);
     buttonicons.toggleClass('itsa-busy', spin);
 };
