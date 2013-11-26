@@ -81,7 +81,7 @@ function ITSAMessageControllerClass() {
     ITSAMessageControllerClass.superclass.constructor.apply(this, arguments);
 }
 
-ITSAMessageControllerClass.NAME = 'ITSAMessageControllerClass';
+ITSAMessageControllerClass.NAME = 'itsamessagecontroller';
 
 Y.ITSAMessageControllerClass = Y.extend(ITSAMessageControllerClass, Y.Base);
 
