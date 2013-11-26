@@ -122,10 +122,10 @@ var Lang = Y.Lang,
     SMALL = 'small',
     LARGE = 'large',
     GALLERY = 'gallery',
-    GALLERYCSS = GALLERY+'css-itsa-',
-    GALLERYCSS_DIALOG = GALLERYCSS+DIALOG,
-    GALLERYCSS_FORM = GALLERYCSS+'form',
-    GALLERYCSS_ANIMATESPIN = GALLERYCSS+'animatespin',
+    GALLERYCSS_ITSA_ = GALLERY+'css-itsa-',
+    GALLERYCSS_DIALOG = GALLERYCSS_ITSA_+DIALOG,
+    GALLERYCSS_FORM = GALLERYCSS_ITSA_+'form',
+    GALLERYCSS_ANIMATESPIN = GALLERYCSS_ITSA_+'animatespin',
     GALLERYITSAI18NLOGIN = GALLERY+'-'+ITSA+'-i18n-login',
     GALLERYITSADIALOG = GALLERY+'-'+ITSA+DIALOG,
     GALLERYITSALOGIN = GALLERY+'-'+ITSA+LOGIN,
@@ -639,42 +639,18 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
  * @protected
  * @since 0.1
 */
-ITSAViewLogin.prototype.setSubmitButtons = function(login) {
-    Y.log('initializer', 'info', 'ITSAViewLogin');
-    var instance = this,
-        logging = login ? LOGIN : LOGOUT,
-        loginintl = instance._loginintl;
-
-    if (instance.get(IMAGEBUTTONS)) {
-    /*jshint expr:true */
-        instance.isLoggedin() ? instance.removePrimaryButton() : instance.setPrimaryButton(IMGBTN_+SUBMIT);
-    /*jshint expr:false */
-        instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-'+logging+'"></i>'+loginintl[logging]);
-    }
-    else {
-    /*jshint expr:true */
-        instance.isLoggedin() ? instance.removePrimaryButton() : instance.setPrimaryButton(BTNSUBMIT);
-    /*jshint expr:false */
-        instance.setButtonLabel(BTNSUBMIT, loginintl[logging]);
-    }
-};
-
-/**
- * @method initializer
- * @protected
- * @since 0.1
-*/
 ITSAViewLogin.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSAViewLogin');
     var instance = this,
         eventhandlers = instance._eventhandlers,
         loginintl;
 
+    instance._loggedin = false; // initialize
     instance.get(CONTAINER).addClass(ITSAVIEWLOGIN);
     loginintl = instance._loginintl;
-    instance.setSubmitButtons(true);
+    instance._setSubmitButtons(true);
     /*jshint expr:true */
-    (instance.get(IMAGEBUTTONS)) && Y.usePromise('gallerycss-itsa-dialog', 'gallerycss-itsa-form', 'gallerycss-itsa-animatespin');
+    (instance.get(IMAGEBUTTONS)) && Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN);
     /*jshint expr:false */
     instance._defineModel();
     if (instance.get(SIMPLIFIED)) {
@@ -815,28 +791,13 @@ ITSAViewLogin.prototype.initializer = function() {
         Y.after(
             LOGGEDIN,
             function(e) {
-                var messageLoggedin = e.messageLoggedin,
-                    model = instance.get(MODEL);
-                instance._loggedin = true;
-                instance._displayname = e.displayname;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
-//                Y.soon(function() {
-                    if (!instance.get(DESTROYED)) {
-                        instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDIN);
-                        instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDOUT);
-    /*jshint expr:true */
-                        messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
-    /*jshint expr:false */
-                        instance.setSubmitButtons(false);
-                        model._set(USERNAME, instance.get(USERNAME));
-                        model._set(PASSWORD, instance.get(PASSWORD));
-                        model._set(REMEMBER, instance.get(REMEMBER));
-                        model._set(BUTTON, LOGOUT);
-                        model.setSyncMessage(SUBMIT, loginintl.loggingout);
-                        instance._setTemplateRenderer(false);
+                if (!instance.get(DESTROYED)) {
+                    Y.soon(function() {
+                        instance._buildOutlog(e.displayname, e.messageLoggedin);
                         instance.render();
-                    }
-  //              });
+                    });
+                }
             }
         )
     );
@@ -845,21 +806,13 @@ ITSAViewLogin.prototype.initializer = function() {
         Y.on(
             LOGGEDOUT,
             function() {
-                var model = instance.get(MODEL);
-                instance._loggedin = false;
-                instance._displayname = null;
                 // need to delay, because automatic refocussing would fail if previous template disappeared to soon
-                Y.soon(function() {
-                    if (!instance.get(DESTROYED)) {
-                        instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDOUT);
-                        instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDIN);
-                        instance.setSubmitButtons(true);
-                        model._set(BUTTON, GETLOGIN);
-                        model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
-                        instance._setTemplateRenderer(true);
+                if (!instance.get(DESTROYED)) {
+                    Y.soon(function() {
+                        instance._buildInlog();
                         instance.render();
-                    }
-                });
+                    });
+                }
             }
         )
     );
@@ -1001,31 +954,81 @@ ITSAViewLogin.prototype.initializer = function() {
 
 };
 
-/**
- *
- * Whether a user is logged in. Use this method when you use the module as standalone.
- * Better usage is to include the module gallery-itsacurrentuser, because that one holds the loginstage at a centel point. In fact, this method
- * tries to retrieve loginstatus from that module first,
- *
- * @method isLoggedin
- * @return {Boolean} loggedin or not
- * @since 0.1
- */
-ITSAViewLogin.prototype.isLoggedin = function() {
-    Y.log('isLoggedin', 'info', 'ITSAViewLogin');
-    // Y.ITSACurrentUser is an instance of Y.ITSACurrentUserClass
-    var currentuser;
-    return (currentuser=Y.ITSACurrentUser) ? currentuser.isLoggedin() : this._loggedin;
-};
-
 ITSAViewLogin.prototype.renderOnReady = function() {
     Y.log('renderOnReady', 'info', 'ITSAViewLogin');
     var instance = this;
     return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
         function() {
+            // we might need to wait for the current user to load its data
+            var currentuser = Y.ITSACurrentUser,
+                currentuserKnownLoggedin;
+            if (currentuser) {
+                currentuserKnownLoggedin = currentuser.isLoggedin().then(
+                    function() {
+console.log('current user is logged in');
+                        instance.set(USERNAME, currentuser[USERNAME], {silent: true});
+                        instance.set(PASSWORD, currentuser[PASSWORD], {silent: true});
+                        instance.set(REMEMBER, currentuser[REMEMBER], {silent: true});
+                        instance._buildOutlog(currentuser.displayname, currentuser.messageLoggedin);
+                    },
+                    function() {
+console.log('current user is logged out');
+                        instance._buildInlog();
+                    }
+                );
+            }
+            else {
+                instance._buildInlog();
+            }
+            return currentuser ? currentuserKnownLoggedin : true;
+        }
+    ).then(
+        function() {
+            instance.render();
+        },
+        function() {
             instance.render();
         }
     );
+};
+
+ITSAViewLogin.prototype._buildOutlog = function(displayname, messageLoggedin) {
+    var instance = this,
+        loginintl = instance._loginintl,
+        model = instance.get(MODEL);
+Y.later(1000,null, function() {
+    instance._loggedin = true;
+    instance._displayname = displayname;
+    instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDIN);
+    instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDOUT);
+/*jshint expr:true */
+    messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
+/*jshint expr:false */
+    instance._setSubmitButtons(false);
+    model._set(USERNAME, instance.get(USERNAME));
+    model._set(PASSWORD, instance.get(PASSWORD));
+    model._set(REMEMBER, instance.get(REMEMBER));
+    model._set(BUTTON, LOGOUT);
+    model.setSyncMessage(SUBMIT, loginintl.loggingout);
+    instance._setTemplateRenderer(false);
+});
+};
+
+ITSAViewLogin.prototype._buildInlog = function() {
+    var instance = this,
+        loginintl = instance._loginintl,
+        model = instance.get(MODEL);
+Y.later(1000,null, function() {
+
+    instance._loggedin = false;
+    instance._displayname = null;
+    instance.get(CONTAINER).addClass(ITSAVIEWLOGIN_LOGGEDOUT);
+    instance.get(CONTAINER).removeClass(ITSAVIEWLOGIN_LOGGEDIN);
+    instance._setSubmitButtons(true);
+    model._set(BUTTON, GETLOGIN);
+    model.setSyncMessage(SUBMIT, loginintl.attemptlogin);
+    instance._setTemplateRenderer(true);
+});
 };
 
 /**
@@ -1175,7 +1178,7 @@ ITSAViewLogin.prototype._defineModel = function() {
 ITSAViewLogin.prototype._getterTempl = function() {
     Y.log('_getterTempl', 'info', 'ITSAViewLogin');
     var instance = this,
-        template = instance.isLoggedin() ? instance._logoutTempl() : instance._loginTempl();
+        template = instance._loggedin ? instance._logoutTempl() : instance._loginTempl();
 
     return instance.get(IMAGEBUTTONS) ? template.replace(/\{btn_/g, '{'+IMGBTN_) : template;
 };
@@ -1295,12 +1298,41 @@ ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
 */
 ITSAViewLogin.prototype._loginintl = Y.Intl.get(GALLERYITSAI18NLOGIN);
 
+/**
+ * Re-sets the submitbuttons of the form to the right buttons.
+ *
+ * @method _setSubmitButtons
+ * @param login {Boolean} whether to set the submitbuttons to 'login' - or 'logout'
+ * @private
+ * @protected
+ * @since 0.1
+*/
+ITSAViewLogin.prototype._setSubmitButtons = function(login) {
+    Y.log('_setSubmitButtons', 'info', 'ITSAViewLogin');
+    var instance = this,
+        logging = login ? LOGIN : LOGOUT,
+        loginintl = instance._loginintl;
+
+    if (instance.get(IMAGEBUTTONS)) {
+    /*jshint expr:true */
+        instance._loggedin ? instance.removePrimaryButton() : instance.setPrimaryButton(IMGBTN_+SUBMIT);
+    /*jshint expr:false */
+        instance.setButtonLabel(IMGBTN_+SUBMIT, I_CLASS_ITSADIALOG+'-'+logging+'"></i>'+loginintl[logging]);
+    }
+    else {
+    /*jshint expr:true */
+        instance._loggedin ? instance.removePrimaryButton() : instance.setPrimaryButton(BTNSUBMIT);
+    /*jshint expr:false */
+        instance.setButtonLabel(BTNSUBMIT, loginintl[logging]);
+    }
+};
 
 }, '@VERSION@', {
     "requires": [
         "yui-base",
         "intl",
         "base-build",
+        "promise",
         "gallery-itsaformmodel",
         "gallery-itsaviewmodel",
         "gallery-itsacheckbox",

@@ -4,6 +4,7 @@
             "yui-base",
             "intl",
             "base-build",
+            "promise",
             "gallery-itsaformmodel",
             "gallery-itsaviewmodel",
             "gallery-itsacheckbox",
