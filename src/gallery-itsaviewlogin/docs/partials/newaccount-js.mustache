@@ -152,11 +152,8 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsamessagecontr
         createAccount: createAccountPromise
     });
 
-    myView.renderOnReady().then(
-        function(){
-           myView.focus();
-        }
-    );
+    myView.render();
+    myView.focus();
 
     Y.after('loggedin', function(e) {
         console.log('logged in with username: '+e.username+' | password: '+e.password+

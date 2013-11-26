@@ -427,8 +427,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             }
         },
         /**
-         * The Y.Model that will be rendered in the view. May also be an Object, which is handy in case the source is an
-         * item of a Y.LazyModelList. If you pass a String-value, then the text is rendered as it is, assuming no model-instance.
+         * The Y.Model that will be rendered in the view.
          *
          * @attribute model
          * @type {Y.Model|Object|String}
@@ -453,17 +452,6 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             readOnly: true
         },
         /**
-         * Password that passes through to the underlying model.
-         *
-         * @attribute password
-         * @type {String}
-         * @default ''
-         * @since 0.1
-         */
-        password: {
-            value: ''
-        },
-        /**
          * Set this attribute to make it possible to regain username or password. Should be either 'usernameorpassword' || 'username' || 'password'.
          *
          * @attribute regain
@@ -477,17 +465,6 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
                 return (v===null) || (v===USERNAMEORPASSWORD) || (v===USERNAME) || (v===PASSWORD);
             },
             initOnly: true
-        },
-        /**
-         * Value of 'remember' that passes through to the underlying model.
-         *
-         * @attribute remember
-         * @type {Boolean}
-         * @default false
-         * @since 0.1
-         */
-        remember: {
-            value: false
         },
         /**
          * Whether to show the 'stay logged in' checkbox.
@@ -545,17 +522,6 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
         template: {
             readOnly: true,
             getter: '_getterTempl'
-        },
-        /**
-         * Username that passes through to the underlying model.
-         *
-         * @attribute username
-         * @type {String}
-         * @default ''
-         * @since 0.1
-         */
-        username: {
-            value: ''
         },
         /**
          * Whether an emailaddress is used as username. This will activate the email-pattern validation.
@@ -684,7 +650,8 @@ ITSAViewLogin.prototype.initializer = function() {
         instance.after(
             SYNC+CHANGE,
             function(e) {
-                instance.get(MODEL)[SYNC+'Promise']=e.newVal;
+                var model = instance.get(MODEL);
+                model[SYNC+'Promise']=Y.bind(e.newVal, model);
             }
         )
     );
@@ -790,6 +757,7 @@ ITSAViewLogin.prototype.initializer = function() {
             LOGGEDIN,
             function(e) {
                 if (!instance.get(DESTROYED)) {
+console.log('CHECK '+e.displayname);
                     instance._buildOutlog(e.displayname, e.messageLoggedin);
                     instance.render();
                 }
@@ -946,7 +914,41 @@ ITSAViewLogin.prototype.initializer = function() {
 
 };
 
-ITSAViewLogin.prototype.renderOnReady = function() {
+/**
+ * Method that is responsible for rendering the Model into the view.
+ * Overrules Y.ITSAViewModel's render() because it has to wait for isReady().
+ *
+ * @method render
+ * @private
+ * @chainable
+ * @since 0.3
+ *
+*/
+ITSAViewLogin.prototype.render = function () {
+    var instance = this;
+    instance.isReady().then(
+        null,
+        function() {
+            // also render when loggedout:
+            return true;
+        }
+    ).then(
+        function() {
+            console.log('rendering: yes');
+            instance.constructor.superclass.render.call(instance);
+        }
+    );
+    // for compatibility, make it chainable
+    return instance;
+};
+
+/**
+ * Renderes the view
+ * @method renderOnReady
+ * @private
+ * @since 0.1
+*/
+ITSAViewLogin.prototype.isReady = function() {
     Y.log('renderOnReady', 'info', 'ITSAViewLogin');
     var instance = this;
     return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
@@ -957,14 +959,13 @@ ITSAViewLogin.prototype.renderOnReady = function() {
             if (currentuser) {
                 currentuserKnownLoggedin = currentuser.isLoggedin().then(
                     function() {
-console.log('current user is logged in');
-                        instance.set(USERNAME, currentuser[USERNAME], {silent: true});
-                        instance.set(PASSWORD, currentuser[PASSWORD], {silent: true});
-                        instance.set(REMEMBER, currentuser[REMEMBER], {silent: true});
+                        var model = instance.get(MODEL);
+                        model.set(USERNAME, currentuser[USERNAME], {silent: true});
+                        model.set(PASSWORD, currentuser[PASSWORD], {silent: true});
+                        model.set(REMEMBER, currentuser[REMEMBER], {silent: true});
                         instance._buildOutlog(currentuser.displayname, currentuser.messageLoggedin);
                     },
                     function() {
-console.log('current user is logged out');
                         instance._buildInlog();
                     }
                 );
@@ -973,13 +974,6 @@ console.log('current user is logged out');
                 instance._buildInlog();
             }
             return currentuser ? currentuserKnownLoggedin : true;
-        }
-    ).then(
-        function() {
-            instance.render();
-        },
-        function() {
-            instance.render();
         }
     );
 };
@@ -997,9 +991,9 @@ ITSAViewLogin.prototype._buildOutlog = function(displayname, messageLoggedin) {
     messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
 /*jshint expr:false */
     instance._setSubmitButtons(false);
-    model._set(USERNAME, instance.get(USERNAME));
-    model._set(PASSWORD, instance.get(PASSWORD));
-    model._set(REMEMBER, instance.get(REMEMBER));
+    model._set(USERNAME, '');
+    model._set(PASSWORD, '');
+    model._set(REMEMBER, false);
     model._set(BUTTON, LOGOUT);
     model.setSyncMessage(SUBMIT, loginintl.loggingout);
     instance._setTemplateRenderer(false);
@@ -1125,21 +1119,21 @@ ITSAViewLogin.prototype._defineModel = function() {
     MyLoginModel = Y.Base.create('itsaviewloginmodel', Y.ITSAFormModel, [], null, {
                       ATTRS: {
                           username: {
-                              value: instance.get(USERNAME),
+                              value: '',
                               formtype: usernameIsEmail ? 'email' : 'text',
                               formconfig: formconfigUsername,
                               validator: instance.get(VALIDATOR+CAP_USERNAME),
                               validationerror: instance.get(VALIDATIONERROR+CAP_USERNAME)
                           },
                           password: {
-                              value: instance.get(PASSWORD),
+                              value: '',
                               formtype: PASSWORD,
                               formconfig: formconfigPassword,
                               validator: instance.get(VALIDATOR+CAP_PASSWORD),
                               validationerror: instance.get(VALIDATIONERROR+CAP_PASSWORD)
                           },
                           remember: {
-                              value: instance.get(REMEMBER),
+                              value: false,
                               formtype: Y.ITSACheckbox,
                               formconfig: formconfigRemember
                           },
@@ -1154,7 +1148,7 @@ ITSAViewLogin.prototype._defineModel = function() {
     instance._set(MODEL, model);
     // need to set target manually, for the subscribers (_bindUI) aren't loaded yet:
     model.addTarget(instance);
-    model.syncPromise = instance.get(SYNC);
+    model.syncPromise = Y.bind(instance.get(SYNC), model);
     // redefine, because the templaterenderer was set with editable=false for there was no model
     instance._setTemplateRenderer(true);
 };

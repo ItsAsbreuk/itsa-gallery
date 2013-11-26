@@ -55,11 +55,7 @@ YUI(yuiconfig).use('gallery-itsaviewlogin', 'promise', 'gallery-itsastatusbar', 
         sync: syncFn
     });
 
-    myView.renderOnReady().then(
-        function(){
-           myView.focus();
-        }
-    );
+    myView.render().focus();
 
     Y.after('loggedin', function(e) {
         Y.showStatus('You are successfully logged in with username: '+e.username+', password: '+e.password+
