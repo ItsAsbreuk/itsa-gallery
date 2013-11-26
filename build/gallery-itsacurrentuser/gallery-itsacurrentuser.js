@@ -31,6 +31,13 @@ ITSACurrentUserClass.NAME = 'itsacurrentuser';
 
 Y.ITSACurrentUserClass = Y.extend(ITSACurrentUserClass, Y.Model);
 
+ITSACurrentUserClass.prototype.username = null;
+ITSACurrentUserClass.prototype.password = null;
+ITSACurrentUserClass.prototype.remember = null;
+ITSACurrentUserClass.prototype._isLoggedin = false;
+ITSACurrentUserClass.prototype.displayname = null;
+ITSACurrentUserClass.prototype.messageLoggedin = null;
+
 /**
  * @method initializer
  * @protected
@@ -47,10 +54,12 @@ ITSACurrentUserClass.prototype.initializer = function() {
                 var username = e.username,
                     password = e.password,
                     remember = e.remember || false,
+                    displayname = e.displayname,
+                    messageLoggedin = e.messageLoggedin,
                     userdata = e.userdata;
                 if ((typeof username === STRING) && (typeof password === STRING) && (username.length>0) && (password.length>0)) {
                     // suppose valid login
-                    instance.dologin(username, password, remember, userdata);
+                    instance.dologin(username, password, remember, displayname, messageLoggedin, userdata);
                 }
                 else {
                     instance.dologout(); // wrong login
@@ -80,10 +89,13 @@ ITSACurrentUserClass.prototype.initializer = function() {
  * @protected
  * @since 0.1
 */
-ITSACurrentUserClass.prototype.dologin = function(username, password, remember, userdata) {
+ITSACurrentUserClass.prototype.dologin = function(username, password, remember, displayname, messageLoggedin, userdata) {
     var instance = this;
     instance.username = username;
     instance.password = password;
+    instance.remember = remember;
+    instance.displayname = displayname;
+    instance.messageLoggedin = messageLoggedin;
     instance.setAttrs(userdata);
     instance._isLoggedin = true;
     return remember ? instance._saveUser() : instance._clearUser();
@@ -199,7 +211,9 @@ ITSACurrentUserClass.prototype._loadUser = function() {
     // should load through localstorage, but that has to be done yet
     return new Y.Promise(function (resolve) {
         // also is responsible for setting the login-status
-        instance._isLoggedin = false;
+        instance._isLoggedin = true;
+instance.displayname = 'this is the displayname';
+instance.messageLoggedin = 'Logged in as {displayname}';
         resolve();
     });
 };
