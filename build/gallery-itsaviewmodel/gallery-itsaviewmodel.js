@@ -1114,7 +1114,6 @@ ITSAViewModel.prototype.render = function (clear) {
         withfocusmanager;
     // Render this view's HTML into the container element.
     // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
-
     if (editMode || instance._isMicroTemplate) {
         if (editMode) {
             instance._initialEditAttrs = model.getAttrs();
@@ -1144,7 +1143,6 @@ ITSAViewModel.prototype.render = function (clear) {
 
     container.empty();
     container.setHTML(html);
-
     if (statusbar) {
         container.setAttribute(DATA_ITSASTATUSBAR, 'true');
         if (statusbarinstance) {
@@ -1705,7 +1703,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             '*:destroy',
             function(e) {
-                if (e.target!==instance) {
+                if (e.target instanceof Y.Model) {
                     instance.render(true);
                 }
             }
@@ -2274,7 +2272,6 @@ ITSAViewModel.prototype._setFocusManager = function(activate) {
     var instance = this,
         container = instance.get(CONTAINER),
         itsatabkeymanager = container.itsatabkeymanager;
-
     if (activate) {
         // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
         Y.use(GALLERY+ITSATABKEYMANAGER, function() {
@@ -2288,7 +2285,11 @@ ITSAViewModel.prototype._setFocusManager = function(activate) {
                     instance.addTarget(itsatabkeymanager);
                 }
                 if (container.hasClass(FOCUSED_CLASS)) {
-                    itsatabkeymanager.focusInitialItem();
+                    Y.soon(
+                        function() {
+                            container.itsatabkeymanager.focusInitialItem();
+                        }
+                    );
                 }
             }
         });
