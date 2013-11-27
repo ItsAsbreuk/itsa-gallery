@@ -7,5 +7,15 @@
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "simple-app",
+            "displayName": "Simple App",
+            "description": "This example shows a simple usage of Y.ITSA_App.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsa-app"],
+            "tags"    : ["gallery-itsa-app", "app"],
+            "hideTableOfContents": true
+        }
+    ]
 }
