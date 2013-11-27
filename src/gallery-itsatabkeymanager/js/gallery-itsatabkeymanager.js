@@ -766,7 +766,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                                 node.focus();
                             }
                             else {
-                                instance._retreiveFocus();
+                                instance._retrieveFocus();
                             }
                         }
                     }
@@ -818,32 +818,27 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          * Retreive the focus again on the 'activeItem', or -when none- on the initial Item.
          * Is called when the host-node gets focus.
          *
-         * @method _retreiveFocus
+         * @method _retrieveFocus
          * @private
          * @since 0.1
         */
-        _retreiveFocus : function() {
+        _retrieveFocus : function() {
             var instance   = this,
                 activeItem = instance.get('activeItem');
             if (instance.host.hasClass(FOCUSED_CLASS)) {
-                Y.log('_retreiveFocus', 'info', 'Itsa-TabKeyManager');
+                Y.log('_retrieveFocus', 'info', 'Itsa-TabKeyManager');
                 // first check if active item is still in the dom!
-console.log('start _retreiveFocus');
                 if (!Y.one(activeItem)) {
-console.log('_retreiveFocus no activeItem found in dom '+activeItem);
                     instance.set('activeItem', null);
                     activeItem = null;
                 }
                 if (activeItem) {
-console.log('_retreiveFocus to active item');
                     activeItem.focus();
                 }
                 else {
-console.log('fase _retreiveFocus focusInitialItem');
                     instance.focusInitialItem();
                 }
             }
-console.log('END _retreiveFocus');
         }
 
     }, {
