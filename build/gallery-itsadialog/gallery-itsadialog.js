@@ -21,7 +21,6 @@ var YArray = Y.Array,
     Lang = Y.Lang,
     MINWIDTHPANEL = 335,
     RENDERDELAY = 5000,
-    PLUGIN_TIMEOUT = 4000, // timeout within the plugin of itsatabkeymanager should be loaded
     ICON_TEMPLATE = '<i class="itsa-dialogicon {icon}"></i>',
     SUSPENDED = '_suspended',
     BOOLEAN = 'boolean',
@@ -39,7 +38,6 @@ var YArray = Y.Array,
     CAPITALIZE = 'capitalize',
     FADEDELAY = 'fadeDelay',
     ITSA = 'itsa',
-    FOCUSED_CLASS = ITSA+'-focussed',
     DIALOG = 'dialog',
     ITSADIALOG = ITSA+DIALOG,
     ITSA_DIALOG = ITSA+'-'+DIALOG,
@@ -200,12 +198,9 @@ ITSADialog.prototype.resurrect = function(itsamessage) {
     var instance = this;
     instance.isRendered().then(
         function() {
-            var panel = instance._panels[itsamessage.level],
-                contentBox;
+            var panel = instance._panels[itsamessage.level];
         /*jshint expr:true */
-console.log('resurrect');
             if (panel) {
-console.log('resurrect: panel found');
                 panel.set(VISIBLE, true, {transconfig: {duration: instance.get(FADEDELAY)}});
             }
         }
@@ -226,7 +221,7 @@ ITSADialog.prototype.suspend = function(itsamessage) {
         function() {
             var panel = instance._panels[itsamessage.level];
         /*jshint expr:true */
-            panel && panel.set(VISIBLE, false, {silent: true});
+            panel && panel.set(VISIBLE, false);
         /*jshint expr:false */
         }
     );
@@ -251,10 +246,10 @@ ITSADialog.prototype.viewMessage = function(itsamessage) {
                 instance._showPanel(panel, itsamessage);
                 itsamessage._promise.then(
                     function() {
-                        return panel.set(VISIBLE, false, {silent: true});
+                        return panel.set(VISIBLE, false);
                     },
                     function() {
-                        return panel.set(VISIBLE, false, {silent: true});
+                        return panel.set(VISIBLE, false);
                     }
                 ).then(
                     resolve
