@@ -1,5 +1,8 @@
-YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', function(Y) {
-
+YUI(yuiconfig).use('gallery-itsalogin', 'promise', 'gallery-itsadialog', 'console-filters', function(Y) {
+Y.one('body').addClass('yui3-skin-sam');
+var yconsole = new Y.Console({height: 800});
+yconsole.plug(Y.Plugin.ConsoleFilters);
+yconsole.render();
     var syncFn = function(action) {
         /*
          * typically you would use gallery-io-utils and create a promise like this:

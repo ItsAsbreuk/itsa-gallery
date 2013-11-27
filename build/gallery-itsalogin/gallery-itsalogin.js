@@ -116,9 +116,10 @@ var ITSAMessageControllerClass = Y.ITSAMessageControllerClass,
 //===========================================================================================================
 
 /**
+ * Provides extra Y.getLogin() to Y.ITSADialog. See ITSADialog.
  *
  * @module gallery-itsalogin
- * @class ITSAMessageController
+ * @for ITSAMessageController
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -360,7 +361,7 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                                 if ((result.button===FORGOT_USERNAME) || (regain===USERNAME)) {
                                     return ITSADialogInstance._regainFn_Un(config, syncPromise);
                                 }
-                                else if ((result.button===FORGOT_PASSWORD) && (regain===PASSWORD)) {
+                                else if ((result.button===FORGOT_PASSWORD) || (regain===PASSWORD)) {
                                     return ITSADialogInstance._regainFn_Pw(config, syncPromise);
                                 }
                             },
@@ -462,7 +463,8 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
 
 /**
  *
- * @class ITSADialog
+ * @module gallery-itsalogin
+ * @for ITSADialog
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -591,7 +593,6 @@ ITSADialogClass.prototype.translate = function(text) {
  *
 */
 ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
-console.log('_changePwFn');
     var verifyNewPassword = ((typeof config[VERIFYNEWPASSWORD] === BOOLEAN) && config[VERIFYNEWPASSWORD]) || true,
         showNewPassword = ((typeof config[SHOWNEWPASSWORD] === BOOLEAN) && config[SHOWNEWPASSWORD]) || true,
         intl = ITSADialogInstance._intl,
@@ -664,6 +665,7 @@ console.log('_changePwFn');
     changePassword.title = config.titleChangePassword || intl[CHANGE_YOUR_PASSWORD];
     changePassword.message = message;
     changePassword.level = WARN;
+    changePassword.noAudio = true;
     changePassword.config = config;
     changePassword.target = ITSADIALOG; // widgetname that should handle this message
     changePassword.source = config.source || APP;
@@ -715,6 +717,7 @@ ITSADialogClass.prototype._regainFn_UnPw = function(config) {
     forgotMessage.icon = config.iconQuestion || ICON_QUESTION;
     forgotMessage.title = config.titleForgotUsernameOrPassword || intl[FORGOT_USERNAME_OR_PASSWORD];
     forgotMessage.level = WARN;
+    forgotMessage.noAudio = true;
     forgotMessage.footer = null;
     forgotMessage._config = config;
     forgotMessage.target = ITSADIALOG; // widgetname that should handle this message
@@ -815,6 +818,7 @@ ITSADialogClass.prototype._regainFn_Un = function(config, syncPromise) {
     forgotUsername.title = config.titleForgotUsername || intl[FORGOT_USERNAME];
     forgotUsername.message = message;
     forgotUsername.level = WARN;
+    forgotUsername.noAudio = true;
     forgotUsername.config = config;
     forgotUsername.target = ITSADIALOG; // widgetname that should handle this message
     forgotUsername.source = config.source || APP;
@@ -884,6 +888,7 @@ ITSADialogClass.prototype._regainFn_Pw = function(config, syncPromise) {
     forgotPassword.title = config.titleForgotPassword || intl[FORGOT_PASSWORD];
     forgotPassword.message = message;
     forgotPassword.level = WARN;
+    forgotPassword.noAudio = true;
     forgotPassword.config = config;
     forgotPassword.target = ITSADIALOG; // widgetname that should handle this message
     forgotPassword.source = config.source || APP;
@@ -955,6 +960,7 @@ ITSADialogInstance.isRendered().then(
                                             message = itsamessageconfig.instructionMessage || (intl[RECIEVEDMAILWITHINSTRUCTIONS] + ', ' + intl[CHECKSPAMBOX]);
                                             config = {
                                                 level: WARN,
+                                                noAudio: true,
                                                 target: ITSADIALOG, // widgetname that should handle this message
                                                 source: itsamessageconfig.source || APP,
                                                 messageType: 'instructions'
@@ -967,6 +973,7 @@ ITSADialogInstance.isRendered().then(
                                               message = itsamessageconfig.passwordChangedMessage || (intl[PASSWORD_CHANGED]);
                                               config = {
                                                   level: WARN,
+                                                  noAudio: true,
                                                   target: ITSADIALOG, // widgetname that should handle this message
                                                   source: itsamessageconfig.source || APP,
                                                   messageType: PASSWORD_CHANGED
@@ -1070,7 +1077,7 @@ ITSADialogInstance.isRendered().then(
  *          <li><code>createaccount-panel</code> needs to be set-up by the developer, using config.createAccount: createAccountPromise --> see examples</li>
  *      </ul>
  *
- * @method Y.getLogin(
+ * @method Y.getLogin
  *
  * @param [title] {String} title of the login-panel.
  * @param [message] {String} message inside the login-panel.
