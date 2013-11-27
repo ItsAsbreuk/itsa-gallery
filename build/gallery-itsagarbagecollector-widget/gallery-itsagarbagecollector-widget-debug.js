@@ -1,3 +1,5 @@
+YUI.add('gallery-itsagarbagecollector-widget', function (Y, NAME) {
+
 
 Y.Widget.prototype.destroy = function(destroyAllNodes) {
     // setting _destroyAllNodes true by default
@@ -46,3 +48,6 @@ Y.WidgetModality.prototype._GET_MASK = function() {
 
     return mask;
 };
+
+
+}, '@VERSION@', {"requires": ["yui-base", "yui-later", "widget-modality", "widget"]});
