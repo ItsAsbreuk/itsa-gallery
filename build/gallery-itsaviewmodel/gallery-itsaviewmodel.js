@@ -895,7 +895,7 @@ ITSAViewModel.prototype.focus = function() {
             container.addClass(FOCUSED_CLASS);
             container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
-                    itsatabkeymanager._retreiveFocus();
+                    itsatabkeymanager._retrieveFocus();
                 }
             );
         }
