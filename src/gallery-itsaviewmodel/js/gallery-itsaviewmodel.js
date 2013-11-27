@@ -1588,6 +1588,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             MODEL+CHANGE,
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 var prevVal = e.prevVal,
                     newVal = e.newVal,
                     prevFormModel = prevVal && prevVal.toJSONUI,
@@ -1619,6 +1620,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             TEMPLATE+CHANGE,
             function() {
+                Y.log('aftersubscriptor templateChange', 'info', 'ITSA-ViewModelPanel');
                 if (instance.get(MODEL)) {
                     instance._setTemplateRenderer();
                     instance.render();
@@ -1636,6 +1638,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             RESET,
             function() {
+                Y.log('aftersubscriptor reset', 'info', 'ITSA-ViewModelPanel');
                 if (instance._isMicroTemplate) {
                     // need to re-render because the code might have made items visible/invisible based on their value
                     instance.render();
@@ -1654,6 +1657,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             EDITABLE+CHANGE,
             function() {
+                Y.log('aftersubscriptor editableChange', 'info', 'ITSA-ViewModelPanel');
                 var model = instance.get(MODEL);
                 // if model.toJSONUI exists, then we need to rerender
                 if (instance.get(TEMPLATE) && model && model.toJSONUI) {
@@ -1667,6 +1671,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             '*:change',
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 if ((e.target instanceof Y.Model) && !instance.get(EDITABLE)) {
                     instance.render();
                 }
@@ -1679,6 +1684,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.on(
             '*:datepickerclick',
             function() {
+                Y.log('onsubscriptor *:datepickerclick', 'info', 'ITSA-ViewModelPanel');
                 instance.lockView();
                 instance.once('*:'+FOCUS_NEXT, function() {
                     instance.unlockView();
@@ -1691,6 +1697,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
+                Y.log('onsubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 var promise = e.promise,
                     model = e.target,
                     eventType = e.type.split(':')[1],
@@ -1736,6 +1743,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             '*:destroy',
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 if (e.target instanceof Y.Model) {
                     instance.render(true);
                 }
@@ -1746,6 +1754,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             CONTAINER+CHANGE,
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 instance._contIsForm = (e.newVal.get(TAGNAME)===FORM_CAPITALIZED);
             }
         )
@@ -1754,6 +1763,7 @@ ITSAViewModel.prototype._bindUI = function() {
         container.after(
             CLICK,
             function() {
+                Y.log('container aftersubscriptor click', 'info', 'ITSA-ViewModelPanel');
                 container.addClass(FOCUSED_CLASS); // do not call focus(), because the tabkeymanager will set focus to UI itself: don't do this twice
             }
         )
@@ -1762,6 +1772,7 @@ ITSAViewModel.prototype._bindUI = function() {
         container.after(
             CLICKOUTSIDE,
             function() {
+                Y.log('container aftersubscriptor clickoutsie', 'info', 'ITSA-ViewModelPanel');
                 container.removeClass(FOCUSED_CLASS);
             }
         )
@@ -1770,6 +1781,7 @@ ITSAViewModel.prototype._bindUI = function() {
         Y.Intl.after( // subscribe to the after event, so the formmodel gets updated sooner: that one is subscribing the on-event
             'intl:lang'+CHANGE,
             function() {
+                Y.log('Y.Intl aftersubscriptor intl:langChange', 'info', 'ITSA-ViewModelPanel');
                 instance._intl = Y.Intl.get(GALLERY+ITSAVIEWMODEL);
                 instance.render();
             }
@@ -1779,6 +1791,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             STYLED+CHANGE,
             function(e) {
+                Y.log('aftersubscriptor styledChange', 'info', 'ITSA-ViewModelPanel');
                 container.toggleClass(ITSAVIEWMODEL+'-'+STYLED, e.newVal);
             }
         )
@@ -1787,6 +1800,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             FOCUSMANAGED+CHANGE,
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 instance._setFocusManager(e.newVal);
             }
         )
@@ -1796,6 +1810,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             BUTTONTRANSFORM+CHANGE,
             function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 instance._setButtonTransform(e.newVal);
             }
         )
@@ -1807,6 +1822,7 @@ ITSAViewModel.prototype._bindUI = function() {
                 instance.on(
                     '*:'+event,
                     function(e) {
+                        Y.log('onsubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                         var validEvent = true,
                             newevent = event,
                             payload, button;
@@ -2264,7 +2280,7 @@ ITSAViewModel.prototype[DEF_PREV_FN+VALIDATION_ERROR] = function(e) {
  * @private
 */
 ITSAViewModel.prototype[DEF_FN+VALIDATION_ERROR] = function(e) {
-    var node = e.nodelist.item(0);
+    var node = e.nodelist && e.nodelist.item(0);
 
     Y.log('defaultFn of '+VALIDATION_ERROR, 'info', 'ITSA-ViewModel');
     //focus first item that misses validation

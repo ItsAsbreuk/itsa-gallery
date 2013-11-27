@@ -2229,7 +2229,7 @@ ITSAViewModel.prototype[DEF_PREV_FN+VALIDATION_ERROR] = function(e) {
  * @private
 */
 ITSAViewModel.prototype[DEF_FN+VALIDATION_ERROR] = function(e) {
-    var node = e.nodelist.item(0);
+    var node = e.nodelist && e.nodelist.item(0);
 
     //focus first item that misses validation
     if (node) {
