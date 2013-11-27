@@ -1025,7 +1025,7 @@ ITSAPanel.prototype.bindUI = function() {
                     container, footercont;
                 // BECAUSE we do not have a promise yet that tells when all formelements are definitely rendered on the screen,
                 // we need to timeout
-                Y.log('aftersubscriptor *:viewrendered', 'info', 'ITSA-ViewModelPanel');
+                Y.log('aftersubscriptor *:viewrendered', 'info', 'ITSAPanel');
                 if (footerView) {
                     footercont = instance._footercont;
                     container = footerView.get(CONTAINER);
@@ -1121,6 +1121,7 @@ ITSAPanel.prototype.bindUI = function() {
         instance.on(
             READYTEXT+CHANGE,
             function(e) {
+                Y.log('onsubscriptor '+e.type, 'info', 'ITSAPanel');
 /*jshint expr:true */
                 instance._itsastatusbar && instance._itsastatusbar.set(READYTEXT, e.newVal);
 /*jshint expr:false */
@@ -1132,6 +1133,7 @@ ITSAPanel.prototype.bindUI = function() {
         instance.on(
             STATUSBARTRANSFORM+CHANGE,
             function(e) {
+                Y.log('onsubscriptor '+e.type, 'info', 'ITSAPanel');
 /*jshint expr:true */
                 instance._itsastatusbar && instance._itsastatusbar.set('text'+TRANSFORM, e.newVal);
 /*jshint expr:false */
@@ -1143,6 +1145,7 @@ ITSAPanel.prototype.bindUI = function() {
         instance.on(
             [TITLE+CHANGE, TITLERIGHT+CHANGE, CLOSEBUTTON+CHANGE],
             function(e) {
+                Y.log('onsubscriptor '+e.type, 'info', 'ITSAPanel');
                 var value = e.newVal,
                     types = e.type.split(':'),
                     type = types[types.length-1],
@@ -1195,6 +1198,7 @@ ITSAPanel.prototype.bindUI = function() {
         instance._header.delegate(
             CLICK,
             function(e) {
+                Y.log('header onsubscriptor '+e.type, 'info', 'ITSAPanel');
                 var button = e.target;
                 if (!button.hasClass(PURE_BUTTON_DISABLED)) {
                     Y.log('delegatesubscriptor panelheader delegated to itsaclosebtn', 'info', 'ITSAPanel');
@@ -1225,7 +1229,7 @@ ITSAPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        boundingBox.on(CLICK, function() {
+        boundingBox.after(CLICK, function() {
             Y.log('onsubscriptor boundingBox.click', 'info', 'ITSAPanel');
             // NEED to check visibility! the panel might have been hidden by now
             // always blur --> when 'just' do focus, then there is no focusChange-event
@@ -1258,9 +1262,9 @@ ITSAPanel.prototype.bindUI = function() {
 
     eventhandlers.push(
         instance.after(FOCUSED+CHANGE, function(e) {
-            Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
+            Y.log('aftersubscriptor '+e.type, 'info', 'ITSAPanel');
             var focusclassed = e.newVal && instance.get(VISIBLE);
-            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, focusclassed);
+            contentBox.toggleClass(FOCUSED_CLASS, focusclassed);
         /*jshint expr:true */
             focusclassed && contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
@@ -1467,15 +1471,15 @@ ITSAPanel.prototype._defFn_focusnext = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX);
 
-    Y.log('_defFn_focusnext', 'info', 'ITSA-ViewModelPanel');
+    Y.log('_defFn_focusnext', 'info', 'ITSAPanel');
 /*jshint expr:true */
     contentBox.hasClass(FOCUSED_CLASS) && contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
         function(itsatabkeymanager) {
-            Y.log('focus to next field', 'info', 'ITSA-ViewModelPanel');
+            Y.log('focus to next field', 'info', 'ITSAPanel');
             itsatabkeymanager.next();
         },
         function() {
-            Y.log('No focus to next field: Y.Plugin.ITSATabKeyManager not plugged in', 'info', 'ITSA-ViewModelPanel');
+            Y.log('No focus to next field: Y.Plugin.ITSATabKeyManager not plugged in', 'info', 'ITSAPanel');
         }
     );
 /*jshint expr:false */
@@ -1725,7 +1729,7 @@ ITSAPanel.prototype._setFocusManager = function() {
         contentBox = instance.get(CONTENTBOX),
         itsatabkeymanager = contentBox.itsatabkeymanager;
 
-    Y.log('_setFocusManager', 'info', 'ITSA-ViewModelPanel');
+    Y.log('_setFocusManager', 'info', 'ITSAPanel');
     // If Y.Plugin.ITSATabKeyManager is plugged in, then refocus to the first item
     Y.use(GALLERY+'-'+ITSATABKEYMANAGER, function() {
         if (!instance.get(DESTROYED)) {

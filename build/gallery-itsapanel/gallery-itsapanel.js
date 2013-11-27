@@ -1205,7 +1205,7 @@ ITSAPanel.prototype.bindUI = function() {
     );
 
     eventhandlers.push(
-        boundingBox.on(CLICK, function() {
+        boundingBox.after(CLICK, function() {
             // NEED to check visibility! the panel might have been hidden by now
             // always blur --> when 'just' do focus, then there is no focusChange-event
         /*jshint expr:true */
@@ -1237,7 +1237,7 @@ ITSAPanel.prototype.bindUI = function() {
     eventhandlers.push(
         instance.after(FOCUSED+CHANGE, function(e) {
             var focusclassed = e.newVal && instance.get(VISIBLE);
-            instance.get(CONTENTBOX).toggleClass(FOCUSED_CLASS, focusclassed);
+            contentBox.toggleClass(FOCUSED_CLASS, focusclassed);
         /*jshint expr:true */
             focusclassed && contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
