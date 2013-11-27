@@ -289,14 +289,13 @@ Y.extend(FocusManager, Y.Plugin.Base, {
         var newVal  = e.newVal,
             prevVal = e.prevVal;
 
-        if (prevVal && this.host.one('#'+prevVal._yuid)) {
+        if (Y.one(prevVal)) {
             prevVal.set('tabIndex', -1);
         }
-
         if (newVal) {
             newVal.set('tabIndex', 0);
             if (this.get('focused')) {
-                newVal.focus();
+                newVal.focus(); // this will lead to come inside the aftersetter one more time unfortunatly
             }
         }
     },
@@ -538,20 +537,22 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
          *
         */
         focusInitialItem : function() {
+//alert(1);
             var instance = this,
                 host = instance.host,
                 focusitem, panelheader, panelbody, panelfooter;
 
-            Y.log('focusInitialItem', 'info', 'Itsa-TabKeyManager');
+            Y.log('Start focusInitialItem', 'info', 'Itsa-TabKeyManager');
             if (host.hasClass(FOCUSED_CLASS)) {
-                focusitem = instance.first({selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
-                            ((panelbody=host.one('.itsa-panelbody')) ? instance.first({container: panelbody}) : null) ||
-                            instance.first({selector: '.'+PRIMARYBUTTON_CLASS}) ||
-                            ((panelfooter=host.one('.itsa-panelfooter')) ? instance.last({container: panelfooter}) : null) ||
-                            ((panelheader=host.one('.itsa-panelheader')) ? instance.first({container: panelheader}) : null) ||
-                            instance.first();
+                focusitem = instance.first({silent: true, selector: '['+ITSAFORMELEMENT_FIRSTFOCUS+']'}) ||
+                            ((panelbody=host.one('.itsa-panelbody')) ? instance.first({silent: true, container: panelbody}) : null) ||
+                            instance.first({silent: true, selector: '.'+PRIMARYBUTTON_CLASS}) ||
+                            ((panelfooter=host.one('.itsa-panelfooter')) ? instance.last({silent: true, container: panelfooter}) : null) ||
+                            ((panelheader=host.one('.itsa-panelheader')) ? instance.first({silent: true, container: panelheader}) : null) ||
+                            instance.first({silent: true});
     /*jshint expr:true */
-                focusitem && focusitem.focus && focusitem.focus();
+        // focussing will set the value of attribute 'activeItem'
+                focusitem && focusitem.focus();
     /*jshint expr:false */
             }
         },
@@ -760,6 +761,7 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 host.after(
                     'click',
                     function(e) {
+                        Y.log('onsubscriptor '+e.type, 'info', 'Itsa-TabKeyManager');
                         var node = e.target;
                         if (host.hasClass(FOCUSED_CLASS)) {
                             if ((node.get('tagName')==='BUTTON') && instance._nodeIsFocusable(node)) {
@@ -827,13 +829,23 @@ Y.namespace('Plugin').ITSATabKeyManager = Y.Base.create('itsatabkeymanager', Y.P
                 activeItem = instance.get('activeItem');
             if (instance.host.hasClass(FOCUSED_CLASS)) {
                 Y.log('_retreiveFocus', 'info', 'Itsa-TabKeyManager');
+                // first check if active item is still in the dom!
+console.log('start _retreiveFocus');
+                if (!Y.one(activeItem)) {
+console.log('_retreiveFocus no activeItem found in dom '+activeItem);
+                    instance.set('activeItem', null);
+                    activeItem = null;
+                }
                 if (activeItem) {
+console.log('_retreiveFocus to active item');
                     activeItem.focus();
                 }
                 else {
+console.log('fase _retreiveFocus focusInitialItem');
                     instance.focusInitialItem();
                 }
             }
+console.log('END _retreiveFocus');
         }
 
     }, {
