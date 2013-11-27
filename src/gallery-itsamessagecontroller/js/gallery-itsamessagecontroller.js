@@ -286,7 +286,7 @@ ITSAMessageControllerClass.prototype.sound = function(itsamessage) {
             else if (itsamessage.level===ERROR)  {
                 instance.soundError && (soundfile=instance.errorMidi);
             }
-            soundfile && instance._playMidi(soundfile);
+            itsamessage.noAudio || (soundfile && instance._playMidi(soundfile));
 /*jshint expr:false */
         }
     );
@@ -1021,6 +1021,7 @@ ITSAMessageControllerClass.prototype._queueMessage = function(title, message, co
             itsamessage._simpleMessage = simpleMsg;
             itsamessage.footer = footer;
             itsamessage.icon = config.icon || icon;
+            itsamessage.noAudio = config.noAudio || false;
             itsamessage.closeButton = required ? false : (config.closeButton || closeButton);
             itsamessage.priority = config.priority;
             itsamessage.imageButtons = imageButtons;
