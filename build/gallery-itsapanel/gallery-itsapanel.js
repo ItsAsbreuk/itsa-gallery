@@ -872,6 +872,7 @@ ITSAPanel.prototype.bindUI = function() {
                 // Cautious: also need to blur first, or you might miss the focusChange-event !
                 if (modal || instance.get('focusOnShow')) {
                     // must make it asynchronous, because otherwise the eventqueue regains focus to the panel
+
                     Y.soon(function() {
                         instance.blur();
                         instance.focus();
@@ -886,7 +887,7 @@ ITSAPanel.prototype.bindUI = function() {
                     Y.soon(function() {
                         prevFocussed.addClass(FOCUSED_CLASS);
 /*jshint expr:true */
-                        prevFocussed.itsatabkeymanager._retreiveFocus();
+                        prevFocussed.itsatabkeymanager._retrieveFocus();
 /*jshint expr:false */
                         instance._prevFocussed = null;
                     });
@@ -1242,7 +1243,7 @@ ITSAPanel.prototype.bindUI = function() {
             focusclassed && contentBox.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                 function(itsatabkeymanager) {
                     // NEED to check visibility! the panel might have been hidden by now
-                    instance.get(VISIBLE) && itsatabkeymanager._retreiveFocus();
+                    instance.get(VISIBLE) && itsatabkeymanager._retrieveFocus();
                 }
             );
         /*jshint expr:false */
@@ -1334,7 +1335,7 @@ ITSAPanel.prototype.destructor = function() {
     instance.blur();
     if (prevFocussed) {
         prevFocussed.addClass(FOCUSED_CLASS);
-        prevFocussed.itsatabkeymanager._retreiveFocus();
+        prevFocussed.itsatabkeymanager._retrieveFocus();
     }
 /*jshint expr:true */
     (headerView instanceof Y.View) && headerView.removeTarget(instance);
@@ -1344,12 +1345,6 @@ ITSAPanel.prototype.destructor = function() {
     contentBox.hasPlugin[RESIZE] && contentBox[RESIZE].removeTarget(instance) && contentBox.unplug(RESIZE);
     contentBox.hasPlugin(ITSATABKEYMANAGER) && contentBox.unplug(ITSATABKEYMANAGER);
     (instance._escapeHandler && instance._escapeHandler.detach());
-    // because the next properties might not have been bounded to a node, we need to destroy them ourselves!
-//    instance._header.inDoc() || instance._header.destroy(true);
-//    instance._body.inDoc() || instance._body.destroy(true);
-//    instance._footer.inDoc() || instance._footer.destroy(true);
-//    instance._footercont.inDoc() || instance._footercont.destroy(true);
- //   instance._statusbar.inDoc() || instance._statusbar.destroy(true);
 /*jshint expr:false */
 };
 
@@ -1463,11 +1458,11 @@ ITSAPanel.prototype._getHeight = function() {
 };
 
 /**
- * Retrieves the container-node -if any- that holds the tabkeymanager of the currently focussed node.
+ * Makes a backup of the container-node -if any- that holds the tabkeymanager of the currently focussed node.
+ * Is stored locally inside this._prevFocussed
  *
  * @method _getTabkeyManagerNode
  * @private
- * @return {Number} height in pixels
  * @since 0.1
 */
 ITSAPanel.prototype._getTabkeyManagerNode = function() {
