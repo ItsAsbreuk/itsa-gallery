@@ -676,13 +676,13 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 editable = instance.get(EDITABLE),
                 btnNode = e.buttonNode,
                 buttonValue = btnNode.get(VALUE),
-                unvalidNodes,
-                payload = {
-                              target: model,
-                              nodelist: unvalidNodes,
-                              src: e.type
-                          };
+                unvalidNodes, payload;
             if (VALIDATED_BTN_TYPES[buttonValue] && editable && model && model.getUnvalidatedUI && (unvalidNodes=model.getUnvalidatedUI()) && !unvalidNodes.isEmpty()) {
+                payload = {
+                    target: model,
+                    nodelist: unvalidNodes,
+                    src: e.type
+                };
                 e.preventDefault();
                 model.fire(VALIDATION_ERROR, payload);
             }
@@ -693,6 +693,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
+                Y.log('onsubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 var promise = e.promise,
                     model = e.target,
                     messageController = Y.ITSAMessageController,
@@ -742,6 +743,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
         instance.on(
             '*:datepickerclick',
             function() {
+                Y.log('onsubscriptor *:datepickerclick', 'info', 'ITSA-ViewModelPanel');
                 instance.lockPanel();
                 instance._pickerVis = true;
                 instance.once('*:'+FOCUS_NEXT, function() {
