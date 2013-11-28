@@ -4,6 +4,7 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
     var countrymodel1, countrymodel2,
         loadbutton1 = Y.one('#loaddata1'),
         loadbutton2 = Y.one('#loaddata2'),
+        loadbutton3 = Y.one('#loaddata3'),
         mystatusbar = new Y.ITSAStatusbar({textTransform: 'lowercase'});
 
     mystatusbar.handleModelSync();
@@ -31,6 +32,7 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
 
     countrymodel1 = new Y.CountryModel();
     countrymodel2 = new Y.CountryModel();
+    countrymodel3 = new Y.CountryModel();
 
     // to show differencies between the 2 models, we set a 'non-default' syncmessage for countrymodel2:
     countrymodel2.setSyncMessage('load', '2nd countrymodel is loading...');
@@ -45,7 +47,14 @@ YUI(yuiconfig).use('node', 'gallery-itsastatusbar', 'model', 'gallery-itsamodels
     loadbutton2.on(
         'click',
         function(e) {
-            countrymodel2.load('oeps');
+            countrymodel2.load();
+        }
+    );
+
+    loadbutton3.on(
+        'click',
+        function(e) {
+            countrymodel2.load({syncmessage: 'loading 3th countrymodel...'});
         }
     );
 
