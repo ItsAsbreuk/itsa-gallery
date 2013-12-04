@@ -2,7 +2,8 @@
     "gallery-itsacurrentuser": {
         "requires": [
             "yui-base",
-            "promise"
+            "promise",
+            "gallery-itsastorage"
         ]
     }
 }

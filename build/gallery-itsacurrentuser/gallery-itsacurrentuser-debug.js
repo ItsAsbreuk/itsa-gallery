@@ -21,7 +21,13 @@ var YArray = Y.Array,
     LOGGED = 'logged',
     LOGGEDIN = LOGGED+'in',
     LOGGEDOUT = LOGGED+'out',
-    STRING = 'string';
+    STRING = 'string',
+    DEFAULT_EXPIRE_AFTER = 60,
+    DEFAULT_EXPIRE_WHEN_REMEMBERED = 256320, // half a year
+    CURRENT_USER = 'currentuser',
+    dateAddMinutes = function (oDate, numMinutes) {
+                         oDate.setTime(oDate.getTime() + 60000*numMinutes);
+                     };
 
 function ITSACurrentUserClass() {
     ITSACurrentUserClass.superclass.constructor.apply(this, arguments);
@@ -54,6 +60,24 @@ ITSACurrentUserClass.prototype.password = null;
  * @since 0.1
  */
 ITSACurrentUserClass.prototype.remember = null;
+
+/**
+ * Date.getTime() in ms when the loggin should expire
+ * @property expire
+ * @type Number
+ * @private
+ * @since 0.1
+ */
+ITSACurrentUserClass.prototype._expire = 0;
+
+/**
+ * Minutes after which a succesfull login should expire. by default is 60 minutes
+ * @property expireAfter
+ * @default 60
+ * @type Number
+ * @since 0.1
+ */
+ITSACurrentUserClass.prototype.expireAfter = DEFAULT_EXPIRE_AFTER;
 
 /**
  * Current displayname of the logged in user
@@ -97,12 +121,13 @@ ITSACurrentUserClass.prototype.initializer = function() {
                 var username = e.username,
                     password = e.password,
                     remember = e.remember || false,
+                    expireAfter = e.expireAfter,
                     displayname = e.displayname,
                     messageLoggedin = e.messageLoggedin,
                     userdata = e.userdata;
                 if ((typeof username === STRING) && (typeof password === STRING) && (username.length>0) && (password.length>0)) {
                     // suppose valid login
-                    instance.dologin(username, password, remember, displayname, messageLoggedin, userdata);
+                    instance.dologin(username, password, remember, expireAfter, displayname, messageLoggedin, userdata);
                 }
                 else {
                     instance.dologout(); // wrong login
@@ -134,17 +159,23 @@ ITSACurrentUserClass.prototype.initializer = function() {
  * @return {Y.Promise} resolved when save or cleanup through the localstorage is finished
  * @since 0.1
 */
-ITSACurrentUserClass.prototype.dologin = function(username, password, remember, displayname, messageLoggedin, userdata) {
+ITSACurrentUserClass.prototype.dologin = function(username, password, remember, expireAfter, displayname, messageLoggedin, userdata) {
     Y.log('dologin', 'info', 'ITSACurrentUser');
-    var instance = this;
+    var instance = this,
+        expire;
     instance.username = username;
     instance.password = password;
     instance.remember = remember;
     instance.displayname = displayname;
     instance.messageLoggedin = messageLoggedin;
     instance.setAttrs(userdata);
+    instance.expireAfter = expireAfter || (remember ? DEFAULT_EXPIRE_WHEN_REMEMBERED : DEFAULT_EXPIRE_AFTER);
     instance._isLoggedin = true;
-    return remember ? instance._saveUser() : instance._clearUser();
+    // ALWAYS remember with expire time
+    expire = new Date();
+    dateAddMinutes(expire, instance.expireAfter);
+    instance._expire = expire.getTime();
+    instance._saveUser(expire);
 };
 
 /**
@@ -161,6 +192,13 @@ ITSACurrentUserClass.prototype.dologout = function() {
     var instance = this;
     instance.reset();
     instance.set('id', undefined);
+    instance.username = null;
+    instance.password = null;
+    instance.remember = false;
+    instance.displayname = null;
+    instance.messageLoggedin = null;
+    instance._expire = 0;
+    instance.expireAfter = DEFAULT_EXPIRE_AFTER;
     instance._isLoggedin = false;
     return instance._clearUser();
 };
@@ -168,31 +206,38 @@ ITSACurrentUserClass.prototype.dologout = function() {
 /**
  * Returns the current login-state. If resolved (loggedin), the uservalues are available by this object:
  * <ul>
- *    <li>username</li>
- *    <li>password</li>
- *    <li>remember</li>
- *    <li>displayname</li>
- *    <li>messageLoggedin</li>
- *    <li>userdata</li>
+ *    <li>username {String}</li>
+ *    <li>password {String}</li>
+ *    <li>remember {Boolean}</li>
+ *    <li>expire {Date}</li>
+ *    <li>displayname {String}</li>
+ *    <li>messageLoggedin {String}</li>
+ *    <li>userdata {Object}</li>
  * </ul>
  *
- * @method isLoggedin
+ * @method getCurrent
  * @return {Y.Promise} loggedin or not: a resolved promise means: loggedin (response holds the data), rejected means: loggedout
  * @since 0.1
 */
-ITSACurrentUserClass.prototype.isLoggedin = function() {
-    Y.log('isLoggedin', 'info', 'ITSACurrentUser');
-    var instance = this;
+ITSACurrentUserClass.prototype.getCurrent = function() {
+    Y.log('getCurrent', 'info', 'ITSACurrentUser');
+    var instance = this,
+        expire;
     return instance.isReady().then(
         function() {
             if (!instance._isLoggedin) {
                 throw new Error('not loggedin');
             }
             else {
+                expire = new Date();
+                dateAddMinutes(expire, instance.expireAfter);
+                instance._expire = expire.getTime();
+                instance._saveUser(expire);
                 return {
                     username: instance.username,
                     password: instance.password,
                     remember: instance.remember,
+                    expire: expire,
                     displayname: instance.displayname,
                     messageLoggedin: instance.messageLoggedin,
                     userdata: instance.toJSON()
@@ -257,11 +302,7 @@ ITSACurrentUserClass.prototype._clearEventhandlers = function() {
 */
 ITSACurrentUserClass.prototype._clearUser = function() {
     Y.log('_clearUser', 'info', 'ITSACurrentUser');
-    // should cleanup localstorage, but that has to be done yet
-    return new Y.Promise(function (resolve) {
-        // also is responsible for setting the login-status
-        resolve();
-    });
+    return Y.ITSAStorage.removeItem(CURRENT_USER);
 };
 
 /**
@@ -276,12 +317,20 @@ ITSACurrentUserClass.prototype._clearUser = function() {
 ITSACurrentUserClass.prototype._loadUser = function() {
     Y.log('_loadUser', 'info', 'ITSACurrentUser');
     var instance = this;
-    // should load through localstorage, but that has to be done yet
-    return new Y.Promise(function (resolve) {
-        // also is responsible for setting the login-status
-        instance._isLoggedin = false;
-        resolve();
-    });
+    return Y.ITSAStorage.getItem(CURRENT_USER).then(
+        function(response) {
+            instance.username = response.username;
+            instance.password = response.password;
+            instance.remember = response.remember;
+            instance.displayname = response.displayname;
+            instance.messageLoggedin = response.messageLoggedin;
+            instance.setAttrs(response.userdata);
+            instance._isLoggedin = true;
+        },
+        function() {
+            return instance.dologout();
+        }
+    );
 };
 
 /**
@@ -293,15 +342,23 @@ ITSACurrentUserClass.prototype._loadUser = function() {
  * @return {Y.Promise}
  * @since 0.1
 */
-ITSACurrentUserClass.prototype._saveUser = function() {
-    Y.log('_loadUser', 'info', 'ITSACurrentUser');
+ITSACurrentUserClass.prototype._saveUser = function(expire) {
+
+    Y.log('_saveUser', 'info', 'ITSACurrentUser');
     // should save to localstorage, but that has to be done yet
-    return new Y.Promise(function (resolve) {
-        resolve();
-    });
+    var instance = this,
+        userdata = {
+        username: instance.username,
+        password: instance.password,
+        remember: instance.remember,
+        displayname: instance.displayname,
+        messageLoggedin: instance.messageLoggedin,
+        userdata: instance.toJSON()
+    };
+    return Y.ITSAStorage.setItem(CURRENT_USER, userdata, expire);
 };
 
 
 Y.ITSACurrentUser = new Y.ITSACurrentUserClass();
 
-}, '@VERSION@', {"requires": ["yui-base", "promise"]});
+}, '@VERSION@', {"requires": ["yui-base", "promise", "gallery-itsastorage"]});
