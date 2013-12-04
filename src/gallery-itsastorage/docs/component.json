@@ -7,5 +7,15 @@
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "saving",
+            "displayName": "saving data",
+            "description": "This example shows hows how to create a statusbar at the bottom of the window and make it to show messages.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsastatusbar"],
+            "tags"    : ["gallery-itsastatusbar", "alert", "formelement", "form", "confirm", "prompt", "Y.alert", "Y.prompt", "Y.confirm"],
+            "hideTableOfContents": true
+        }
+    ]
 }

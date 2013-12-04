@@ -1,0 +1,16 @@
+{
+    "gallery-itsastorage": {
+        "requires": [
+            "yui-base",
+            "base-build",
+            "base-base",
+            "event-base",
+            "event-custom",
+            "event-custom-complex",
+            "json",
+            "jsonp",
+            "cookie",
+            "parallel"
+        ]
+    }
+}

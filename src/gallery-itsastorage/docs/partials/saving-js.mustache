@@ -1,0 +1,28 @@
+YUI(yuiconfig).use('gallery-itsastorage', function(Y) {
+
+    Y.ITSAStorage.setItem('name', 'Marco Asbreuk');
+
+console.log(Y.StorageLite);
+console.log(Y.StorageLite.data);
+
+    Y.ITSAStorage.getItem('name').then(
+        function(response) {
+            console.log('response of name: '+response);
+        },
+        function(reason) {
+            console.log('getItem failed: '+reason);
+        }
+    ).then(
+        function() {
+            Y.ITSAStorage.clear().then(
+                function(response) {
+                    console.log('emptied the storage');
+                },
+                function(reason) {
+                    console.log('emptying storage failed: '+reason);
+                }
+            );
+        }
+    );
+
+});
