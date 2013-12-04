@@ -67,7 +67,7 @@
             "displayName": "customize internationalized messages",
             "description": "This example shows how to customize internationalized messages.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsaviewlogin", "promise"],
+            "modules"    : ["gallery-itsaviewlogin", "promise", "gallery-itsadialog"],
             "tags"    : ["gallery-itsaviewlogin", "view", "login", "customize", "internationalized", "i18n"],
             "hideTableOfContents": true
         },

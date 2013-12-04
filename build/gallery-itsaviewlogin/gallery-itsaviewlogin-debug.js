@@ -198,7 +198,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          * <li>validatorEmail] {Function} validator that passes through to the email-attribute of the underlying Y.ITSAMessage-instance</li>
          * </ul>
          *
-         * @attribute configChangePassword
+         * @attribute configRegainPw
          * @type {Object}
          * @default null
          * @since 0.1
@@ -207,6 +207,9 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             value: {},
             validator: function(v) {
                 return (typeof v === OBJECT);
+            },
+            getter: function(v) {
+                return Y.merge(v, {usernameIsEmail: this.get(USERNAMEISEMAIL)});
             }
         },
         /**
@@ -222,7 +225,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          * <li>validatorEmail] {Function} validator that passes through to the email-attribute of the underlying Y.ITSAMessage-instance</li>
          * </ul>
          *
-         * @attribute configChangePassword
+         * @attribute configRegainUn
          * @type {Object}
          * @default null
          * @since 0.1
@@ -231,6 +234,9 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             value: {},
             validator: function(v) {
                 return (typeof v === OBJECT);
+            },
+            getter: function(v) {
+                return Y.merge(v, {usernameIsEmail: this.get(USERNAMEISEMAIL)});
             }
         },
         /**
@@ -243,7 +249,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          * <li>titleForgotUsernameOrPassword] {String} Title that appears on the 'orgot-username-or-password'-form (overrules the default)</li>
          * </ul>
          *
-         * @attribute configChangePassword
+         * @attribute configRegainUnPw
          * @type {Object}
          * @default null
          * @since 0.1
@@ -704,14 +710,6 @@ ITSAViewLogin.prototype.initializer = function() {
                             if (responseObj.status==='LOGIN') {
                                 facade = responseObj;
                                 // fire the login-event in case messageType===CAP_GETLOGIN
-                                /**
-                                * Event fired when a a user successfully logs in.<br>
-                                * Not preventable.
-                                *
-                                * @event loggedin
-                                * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
-                                *                        as an answer to the 'getlogin'-request.
-                                **/
                                 Y.fire(LOGGEDIN, facade);
     /*jshint expr:true */
                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
@@ -780,6 +778,12 @@ ITSAViewLogin.prototype.initializer = function() {
                 logout = (formmodel.get('button')===LOGOUT);
             if (e.currentTarget===instance) {
                 e.promise._logout = logout; // flag for aftersubscriber;
+                /**
+                * Event fired when a a user logs out.<br>
+                * Not preventable.
+                *
+                * @event loggedout
+                **/
         /*jshint expr:true */
                 logout && Y.fire(LOGGEDOUT);
         /*jshint expr:false */
@@ -853,17 +857,6 @@ ITSAViewLogin.prototype.initializer = function() {
                                                 var newResponseObj = PARSED(response);
                                                 facade = Y.merge(responseObj, newResponseObj, formmodel.toJSON(), {password: response.password});
                                                 // overrule password, because the new password is appropriate
-
-                                                // fire the login-event
-                                                // lazy publish the event
-                                                /**
-                                                * Event fired when a a user successfully logs in.<br>
-                                                * Not preventable.
-                                                *
-                                                * @event loggedin
-                                                * @param e {EventFacade} Event Facade including 'username', 'password', 'remember' and all properties that were responsed by the server
-                                                *                        as an answer to the 'getlogin'-request.
-                                                **/
                                                 Y.fire(LOGGEDIN, facade);
                     /*jshint expr:true */
                                                 (message=responseObj.message) && Y.showMessage(responseObj.title, message);
@@ -926,7 +919,7 @@ ITSAViewLogin.prototype.isReady = function() {
             var currentuser = Y.ITSACurrentUser,
                 currentuserKnownLoggedin;
             if (currentuser) {
-                currentuserKnownLoggedin = currentuser.isLoggedin().then(
+                currentuserKnownLoggedin = currentuser.getCurrent().then(
                     function(response) {
                         var model = instance.get(MODEL);
                         model.set(USERNAME, response[USERNAME], {silent: true});
@@ -983,7 +976,7 @@ ITSAViewLogin.prototype.render = function () {
  * Rebuild the view with the 'login-view', that is, when the user is logged uut.
  *
  * @method _buildLoginView
- & @private
+ * @private
  * @since 0.1
 */
 ITSAViewLogin.prototype._buildLoginView = function() {
@@ -1008,7 +1001,7 @@ ITSAViewLogin.prototype._buildLoginView = function() {
  * @method _buildLogoutView
  * @param displayname {String} The displayname that appears in the template at position {displayname}
  * @param messageLoggedin {String} The loginmessage to be shown. Is templated, so you may use '{displayname}' to show the displayname
- & @private
+ * @private
  * @since 0.1
 */
 ITSAViewLogin.prototype._buildLogoutView = function(displayname, messageLoggedin) {
@@ -1243,7 +1236,7 @@ ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
         logoutBtn = '{'+BTNSUBMIT+'}';
 
     return '<form class="pure-form'+formclass+'">'+
-               ((!instance.get(LOGOUTTEMPLATE)) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
+               (((!instance.get(LOGOUTTEMPLATE)) && icon) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
                SPANWRAPPER + Lang.sub(message, {displayname: loggedinUser}) + ENDSPAN +
                Lang.sub(SPANBUTTONWRAPPER, {size: (simplified ? SMALL : LARGE)})+ logoutBtn + ENDSPAN +
            '</form>';

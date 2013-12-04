@@ -205,6 +205,9 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             value: {},
             validator: function(v) {
                 return (typeof v === OBJECT);
+            },
+            getter: function(v) {
+                return Y.merge(v, {usernameIsEmail: this.get(USERNAMEISEMAIL)});
             }
         },
         /**
@@ -229,6 +232,9 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
             value: {},
             validator: function(v) {
                 return (typeof v === OBJECT);
+            },
+            getter: function(v) {
+                return Y.merge(v, {usernameIsEmail: this.get(USERNAMEISEMAIL)});
             }
         },
         /**
@@ -911,7 +917,7 @@ ITSAViewLogin.prototype.isReady = function() {
             var currentuser = Y.ITSACurrentUser,
                 currentuserKnownLoggedin;
             if (currentuser) {
-                currentuserKnownLoggedin = currentuser.isLoggedin().then(
+                currentuserKnownLoggedin = currentuser.getCurrent().then(
                     function(response) {
                         var model = instance.get(MODEL);
                         model.set(USERNAME, response[USERNAME], {silent: true});
@@ -1228,7 +1234,7 @@ ITSAViewLogin.prototype._defLogoutTempl = function(formclass) {
         logoutBtn = '{'+BTNSUBMIT+'}';
 
     return '<form class="pure-form'+formclass+'">'+
-               ((!instance.get(LOGOUTTEMPLATE)) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
+               (((!instance.get(LOGOUTTEMPLATE)) && icon) ? Lang.sub(ICONTEMPLATE, {icon: icon, size: (simplified ? SMALL : LARGE)}) : '') +
                SPANWRAPPER + Lang.sub(message, {displayname: loggedinUser}) + ENDSPAN +
                Lang.sub(SPANBUTTONWRAPPER, {size: (simplified ? SMALL : LARGE)})+ logoutBtn + ENDSPAN +
            '</form>';
