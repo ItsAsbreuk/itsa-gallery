@@ -2420,7 +2420,7 @@ ITSAViewModel.prototype._setSpin = function(buttonType, spin) {
 ITSAViewModel.prototype._setTemplateRenderer = function() {
     var instance = this,
         template = instance.get(TEMPLATE),
-        editTemplate = instance.get(EDITABLE),
+        editMode = instance.get(EDITABLE),
         isMicroTemplate, ismicrotemplate, compiledModelEngine, buttonsToJSON;
     Y.log('_clearEventhandlers', 'info', 'ITSA-ViewModel');
     isMicroTemplate = function() {
@@ -2459,7 +2459,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
     if (ismicrotemplate) {
         compiledModelEngine = YTemplateMicro.compile(template);
         instance._modelRenderer = function(model) {
-            var jsondata = editTemplate ? model.toJSONUI(null, template) : instance.toJSON();
+            var jsondata = editMode ? model.toJSONUI(null, template) : instance.toJSON();
             // if model is instance of Y.ITSAFormModel, then add the btn_buttontype-properties:
 /*jshint expr:true */
             model.toJSONUI && buttonsToJSON(jsondata, model);
@@ -2469,7 +2469,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
     }
     else {
         instance._modelRenderer = function(model) {
-            var jsondata = editTemplate ? model.toJSONUI(null, template) : instance.toJSON();
+            var jsondata = editMode ? model.toJSONUI(null, template) : instance.toJSON();
 /*jshint expr:true */
             model.toJSONUI && buttonsToJSON(jsondata, model);
 /*jshint expr:false */
