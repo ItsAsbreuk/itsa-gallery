@@ -1453,7 +1453,7 @@ ITSAFormModel.prototype.toJSONUI = function(buttons, template) {
         UIattrs = {},
         allAttrs = instance.getAttrs(),
         renderBtnFns = instance._renderBtnFns,
-        propertykey, type, labelHTML, config, originalJSON, propertyEmbraced, needProccess;
+        propertykey, type, labelHTML, config, originalJSON, propertyEmbraced, propertyEmbracedMicro, needProccess;
 
     Y.log('toJSONUI', 'info', 'ITSAFormModel');
     delete allAttrs.clientId;
@@ -1468,7 +1468,8 @@ ITSAFormModel.prototype.toJSONUI = function(buttons, template) {
             if (template) {
                 // renderFormElement is heavy: we don't want to call it for attributes that will not be rendered
                 propertyEmbraced = new RegExp('{'+key+'}');
-                needProccess = propertyEmbraced.test(template);
+                propertyEmbracedMicro = new RegExp('<%==? (data|this).'+key+' %>');
+                needProccess = propertyEmbraced.test(template) || propertyEmbracedMicro.test(template);
             }
 /*jshint expr:true */
             (!template || needProccess) && (UIattrs[key]=instance.renderFormElement(key));
