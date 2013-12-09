@@ -471,6 +471,8 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 if (model.toJSONUI) {
                     ITSAFORMELEMENT.tipsyOK._lastnode && model._FORM_elements[ITSAFORMELEMENT.tipsyOK._lastnode.get(ID)] && ITSAFORMELEMENT.tipsyOK.hideTooltip();
                     ITSAFORMELEMENT.tipsyInvalid._lastnode && model._FORM_elements[ITSAFORMELEMENT.tipsyInvalid._lastnode.get(ID)] && ITSAFORMELEMENT.tipsyInvalid.hideTooltip();
+                    ITSAFORMELEMENT.tipsyOK._lastnode = null;
+                    ITSAFORMELEMENT.tipsyInvalid._lastnode = null;
                 }
             }
 /*jshint expr:false */
