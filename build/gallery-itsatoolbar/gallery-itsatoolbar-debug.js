@@ -425,7 +425,9 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance._bindUI();
                 // first time: fire a statusChange with a e.changedNode to sync the toolbox with the editors-event object
                 // be sure the editor has focus already focus, otherwise safari cannot inserthtml at cursorposition!
-                instance.editor.frame.focus(Y.bind(instance.sync, instance));
+                if (instance.get('initialFocus')) {
+                    instance.editor.frame.focus(Y.bind(instance.sync, instance));
+                }
             }
         },
 
@@ -672,7 +674,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 Y.later(250, instance, instance._removeCursorRef);
             }
 //            if (instance.toolbarNode) {instance.toolbarNode.fire('itsatoolbar:statusChange', e);}
-            instance.fire('itsatoolbar:statusChange', e);
+            instance.fire('statusChange', e);
         },
 
         /**
@@ -741,18 +743,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
             var instance = this,
                 buttonNode = instance.addButton(iconClass, execCommand, indent, position);
             if (!isToggleButton) {buttonNode.addClass(ITSA_BTNSYNC);}
-            // be aware of that addButton might get called when the editor isn't rendered yet. In that case instance.toolbarNode does not exist
-
-
-instance.addTarget(buttonNode);
-/*
-            if (instance.toolbarNode) {instance.toolbarNode.addTarget(buttonNode);}
-            else {
-                // do not subscribe to the frame:ready, but to the ready-event
-                // Iliyan Peychev made an editor that doesn't use Frame, so this way it works on all editors
-                instance.editor.on('ready', function(e, buttonNode){instance.toolbarNode.addTarget(buttonNode);}, instance, buttonNode);
-            }
-*/
+            instance.addTarget(buttonNode);
             if (Lang.isFunction(syncFunc)) {buttonNode.on('*:statusChange', Y.bind(syncFunc, context || instance));}
             return buttonNode;
         },
@@ -837,11 +828,8 @@ instance.addTarget(buttonNode);
                     buttonNode.addClass(ITSA_BTNGROUP);
                     buttonNode.addClass(ITSA_BTNGROUP+'-'+buttonGroup);
                     buttonNode.setData('buttongroup', buttonGroup);
-
-instance.addTarget(buttonNode);
-     //               instance.toolbarNode.addTarget(buttonNode);
-
-                    if (Lang.isFunction(button.syncFunc)) {buttonNode.on('itsatoolbar:statusChange', Y.bind(button.syncFunc, button.context || instance));}
+                    instance.addTarget(buttonNode);
+                    if (Lang.isFunction(button.syncFunc)) {buttonNode.on('*:statusChange', Y.bind(button.syncFunc, button.context || instance));}
                     if (!returnNode) {returnNode = buttonNode;}
                 }
             }
@@ -894,10 +882,12 @@ instance.addTarget(buttonNode);
                 }
                 if (indent) {selectlist.get('boundingBox').addClass('itsa-button-indent');}
                 // instance.toolbarNode should always exist here
-   //             instance.toolbarNode.addTarget(buttonNode);
+                instance.addTarget(selectlist);
                 selectlist.on('show', instance._createBackupCursorRef, instance);
                 selectlist.on('selectChange', instance._handleSelectChange, instance);
-                if (Lang.isFunction(syncFunc)) {buttonNode.on('itsatoolbar:statusChange', Y.rbind(syncFunc, context || instance));}
+                if (Lang.isFunction(syncFunc)) {
+                    selectlist.on('*:statusChange', Y.rbind(syncFunc, context || instance));
+                }
                 instance.editor.on('nodeChange', selectlist.hideListbox, selectlist);
             }, instance, execCommand, syncFunc, context, indent);
             // be aware of that addButton might get called when the editor isn't rendered yet. In that case instance.toolbarNode does not exist
@@ -1028,6 +1018,11 @@ instance.addTarget(buttonNode);
             );
             eventhandlers.push(
                 instance.toolbarNode.delegate('click', instance._handleBtnClick, 'button', instance)
+            );
+            eventhandlers.push(
+                instance.toolbarNode.on('click', function(e) {
+                    e.stopPropagation();
+                })
             );
             // TODO: shortcutfunctions
             //instance.editorY.on('keydown', Y.bind(instance._handleShortcutFn, instance));
@@ -1650,7 +1645,7 @@ instance.addTarget(buttonNode);
 //************************************************
 // just for temporary local use ITS Asbreuk
 // should NOT be part of the gallery
-            if (true) {
+            if (false) {
 //                instance.addButton(instance.ICON_EURO, {command: 'inserthtml', value: '&#8364;'}, true);
                 instance.addSyncButton(
                     instance.ICON_FILE,
@@ -3000,6 +2995,19 @@ instance.addTarget(buttonNode);
              * @type Boolean
             */
             confirmClear : {
+                value: true,
+                validator: function(val) {
+                    return Lang.isBoolean(val);
+                }
+            },
+
+            /**
+             * @description Whether to set the focus on the editor once plugged in.
+             * Default = true
+             * @attribute initialFocus
+             * @type Boolean
+            */
+            initialFocus : {
                 value: true,
                 validator: function(val) {
                     return Lang.isBoolean(val);
