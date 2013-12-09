@@ -346,7 +346,7 @@ ITSAFormElement = Y.ITSAFormElement = {};
 */
 ITSAFormElement.getElement = function(type, config, nodeid) {
     Y.log('getElement', 'info', 'ITSAFormElement');
-    var element, iswidget, WidgetClass, widget;
+    var element, iswidget, WidgetClass, widget, widgetconfig;
     nodeid = nodeid || Y.guid();
     config = config || {};
     iswidget = ((typeof type === 'function') && type.NAME);
@@ -362,13 +362,25 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
     };
     if (iswidget) {
         WidgetClass = type;
+        widgetconfig = config.widgetconfig;
         try {
-            widget = element.widget = new WidgetClass(config.widgetconfig);
+            if (widgetconfig.toolbar && (!widgetconfig.extracss || (widgetconfig.extracss===''))) {
+                widgetconfig.extracss = '.itsdummyclass: {}'; // to prevent an error when rendering and removing #extracss by Y.Frame
+            }
+            widget = element.widget = new WidgetClass(widgetconfig);
             // when it is inserted in the dom: render it
             if (type.NAME===EDITOR+'Base') {
-                Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, function() {
-                    widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
-                });
+                if (widgetconfig.toolbar) {
+                    Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, GALLERY+ITSA+'toolbar', function() {
+                        widget.plug(Y.Plugin.ITSAToolbar, widgetconfig.toolbarconfig);
+                        widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
+                    });
+                }
+                else {
+                    Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, function() {
+                        widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
+                    });
+                }
             }
             else {
                 Y.use(GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
