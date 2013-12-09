@@ -28,7 +28,7 @@ var Lang = Y.Lang,
     ITSA_SHIM_TEMPLATE = '<iframe frameborder="0" tabindex="-1" class="itsa-shim" title="' + ITSA_SHIM_TEMPLATE_TITLE +
                                            '" src="javascript:false;"></iframe>',
     ITSA_SELECTEDMAIN_TEMPLATE = "<span class='itsa-selectlist-selectedmain' unselectable='on'></span>",
-    ITSA_BUTTON_TEMPLATE = "<button class='yui3-button'></button>",
+    ITSA_BUTTON_TEMPLATE = "<button type='button' class='yui3-button'></button>",
     ITSA_DOWNBUTTON_TEMPLATE = "<span class='itsa-button-icon itsa-icon-selectdown'></span>",
     ITSA_SELECTBOX_TEMPLATE = "<div class='itsa-selectlist-basediv " + ITSA_CLASSHIDDEN + "'><div class='itsa-selectlist-scrolldiv'>"+
                                                      "<ul class='itsa-selectlist-ullist'></ul></div></div>";
