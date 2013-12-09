@@ -1,3 +1,5 @@
+/*csslint adjoining-classes: false, star-property-hack: false */
+
 #itsatoolbar-ref {
     display: none;
 }
