@@ -1,5 +1,5 @@
 YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelpanel',
-                   'gallery-itsacheckbox', 'transition', function(Y) {
+                   'gallery-itsacheckbox', 'editor', 'transition', function(Y) {
     var panel, user, template, spinnericon, firsterror = true;
 
     // adding skin sam to body for getting the right skin for the widgets
@@ -54,6 +54,12 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
                 },
                 validationerror: 'Enter a valid name'
             },
+            notes: {
+                formtype: Y.EditorBase,
+                formconfig: {
+                    label: 'Notes'
+                }
+            },
             maried: {
                 value: false,
                 formtype: Y.ITSACheckbox,
@@ -105,6 +111,7 @@ YUI(yuiconfig).use('node-base', 'gallery-itsaformmodel', 'gallery-itsaviewmodelp
             '<fieldset>'+
                 '<div class="pure-control-group"><%== data.firstname %></div>'+
                 '<div class="pure-control-group"><%== data.lastname %></div>'+
+                '<div class="pure-control-group"><%== data.notes %></div>'+
                 '<div class="pure-control-group"><%== data.maried %></div>'+
             '</fieldset>'+
         '<div id="partnerdata"<% if (data._maried===false) { %>style="display: none; height: 0;"<% } %>>'+
