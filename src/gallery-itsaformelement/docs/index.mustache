@@ -152,9 +152,11 @@ YUI({gallery: '...'}).use('node-base', 'gallery-itsaformelement', 'itsacheckbox'
       <li><code>submitonenter</code> {Boolean} (defaults false) in case of text-fields: on enter-press submit. Will just add the data-attribute data-submitonenter="true" --> it is up to other modules to handle the submission.</li>
       <li><code>switchlabel</code> {Boolean} (defaults false) --> switch the label behind the element</li>
       <li><code>switchdatetime</code> {Boolean} (defaults false) --> switch the datetime-value behind the element: only valid for date/time</li>
+      <li><code>toolbarconfig</code> {Object} passing through to T.ITSAToolbar when using Y.EditorBase as a formtype.</li>
       <li><code>tooltip</code> {String} not valid for date/time</li>
       <li><code>tooltipinvalid</code> {String} External routine should set this data (available as 'data-contentinvalid') into 'data-content' once invalid and replace it with 'data-contentvalid' once valid again. Not valid for date/time</li>
       <li><code>value</code> {String}</li>
+      <li><code>widgetconfig</code> {Object} passing through to the Widget during its initialization.</li>
     </ul>
 <h2>Different behaviour reset and submit</h2>
   <p>

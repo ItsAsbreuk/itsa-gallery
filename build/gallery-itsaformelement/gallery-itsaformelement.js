@@ -363,23 +363,38 @@ ITSAFormElement.getElement = function(type, config, nodeid) {
         WidgetClass = type;
         widgetconfig = config.widgetconfig;
         try {
-            if (widgetconfig.toolbar && (!widgetconfig.extracss || (widgetconfig.extracss===''))) {
-                widgetconfig.extracss = '.itsdummyclass: {}'; // to prevent an error when rendering and removing #extracss by Y.Frame
+            if (!widgetconfig.extracss || (widgetconfig.extracss==='')) {
+                // to prevent an error when rendering and removing #extracss by Y.Frame
+                // and to prettify a bit
+                widgetconfig.extracss = 'body: {padding: 0.5em 0.6em; font-size: 0.8em;}';
             }
             widget = element.widget = new WidgetClass(widgetconfig);
             // when it is inserted in the dom: render it
             if (type.NAME===EDITOR+'Base') {
-                if (widgetconfig.toolbar) {
-                    Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, GALLERY+ITSA+'toolbar', function() {
-                        widget.plug(Y.Plugin.ITSAToolbar, widgetconfig.toolbarconfig);
-                        widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
-                    });
-                }
-                else {
-                    Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, function() {
-                        widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
-                    });
-                }
+                Y.use(GALLERY+ITSA+EDITOR+RENDERPROMISE, GALLERY+ITSA+'toolbar', function() {
+                    var toolbarconfig = config.toolbarconfig || {
+                        btnEmail: false,
+                        btnHeader: false,
+                        btnFontsize: false,
+                        btnFontfamily: false,
+                        btnTextcolor: false,
+                        btnHyperlink: false,
+                        btnMarkcolor: false,
+                        grpAlign: false,
+                        grpIndent: false,
+                        grpLists: false,
+                        grpSubsuper: false,
+                        grpUndoredo: false,
+                        btnRemoveHyperlink: false,
+                        btnImage: false,
+                        btnVideo: false,
+                        btnIframe: false,
+                        btnSize: 1
+                    };
+                    toolbarconfig.initialFocus = false;
+                    widget.plug(Y.Plugin.ITSAToolbar, toolbarconfig);
+                    widget.renderOnAvailable('#'+nodeid, MS_TIME_TO_INSERT);
+                });
             }
             else {
                 Y.use(GALLERY+ITSA+WIDGET+RENDERPROMISE, function() {
