@@ -147,6 +147,7 @@ Y.ITSADIALOGBOX = Y.Base.create('itsadialogbox', Y.Panel, [], {
                 focusClass: 'focus'
             });
             instance._initiatePanels();
+            Y.one('body').addClass('yui3-skin-sam');
         },
 
         /**
