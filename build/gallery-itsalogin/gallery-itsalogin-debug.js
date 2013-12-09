@@ -432,9 +432,10 @@ ITSAMessageControllerClass.prototype._retrieveLoginParams = function(title, mess
     }
     withMessage = (typeof message === STRING);
     if (!withMessage) {
+        //  oops, just passed an object --> perhaps it is an error-object?
         syncPromise = config;
-        config = message;
-        message = '';
+        config = {};
+        message = (message && (message.message || ''));
         title = null;
     }
     withConfig = (typeof config === 'object');
