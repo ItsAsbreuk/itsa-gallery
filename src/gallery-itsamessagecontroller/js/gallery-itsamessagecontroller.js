@@ -378,9 +378,9 @@ ITSAMessageControllerClass.prototype._retrieveParams = function(title, message, 
     }
     withMessage = (typeof message === STRING);
     if (!withMessage) {
-        config = message;
-        message = '';
-        title = null;
+        //  oops, just passed an object --> perhaps it is an error-object?
+        config = {};
+        message = (message && (message.message || ''));
     }
 /*jshint expr:true */
     config || (config={});
