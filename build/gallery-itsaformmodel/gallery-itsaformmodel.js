@@ -51,7 +51,8 @@ var YArray = Y.Array,
     PURE_BUTTON_DISABLED = 'pure-'+BUTTON+'-'+DISABLED,
     DISABLED_BEFORE = '-before',
     SPAN_DATA_FOR_IS = 'span[data-for="',
-    YUI3_SLIDER = 'yui3-slider',
+    SLIDER = 'slider',
+    EDITORBASE = 'editorBase',
     ASK_TO_CLICK_EVENT = 'itsabutton-asktoclick',
     ONENTER = 'onenter',
     SUBMITONENTER = 'submit'+ONENTER,
@@ -576,9 +577,11 @@ ITSAFormModel.prototype.disableUI = function() {
                 if (widget) {
                     wasDisabled = widget.get(DISABLED) && !node.getData(DISABLED_CHECK);
                     if (!wasDisabled) {
-                        widget.disable();
+        /*jshint expr:true */
+                        (formelement.type.NAME===EDITORBASE) ? widget.hide() : widget.disable();
+        /*jshint expr:false */
                         // if the widget is slider, then also disable the valuespan
-                        if (widget.getClassName()===YUI3_SLIDER) {
+                        if (formelement.type.NAME===SLIDER) {
                             labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
         /*jshint expr:true */
                             labelnode && labelnode.setAttribute(DISABLED, DISABLED);
@@ -639,9 +642,11 @@ ITSAFormModel.prototype.enableUI = function() {
                 }
                 else {
                     if (widget) {
-                        widget.enable();
+        /*jshint expr:true */
+                        (formelement.type.NAME===EDITORBASE) ? widget.show() : widget.enable();
+        /*jshint expr:false */
                         // if the widget is slider, then also disable the valuespan
-                        if (widget.getClassName()===YUI3_SLIDER) {
+                            if (formelement.type.NAME===SLIDER) {
                             labelnode = Y.one(SPAN_DATA_FOR_IS+nodeid+'"]');
         /*jshint expr:true */
                             labelnode && labelnode.removeAttribute(DISABLED);
@@ -1133,7 +1138,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
             // The last thing we need to do is, set some action when the node gets into the dom: We need to
             // make sure the UI-element gets synced with the current attribute-value once it gets into the dom
             // and after that we make it visible and store it internally, so we know the node has been inserted
-            iseditorbase = (formtype.NAME==='editorBase');
+            iseditorbase = (formtype.NAME===EDITORBASE);
             Y.use(iseditorbase ? GALLERY_ITSA+'editor'+RENDERPROMISE : GALLERY_ITSA+'widget'+RENDERPROMISE, function() {
                 widget.renderPromise().then(
                     function() {
@@ -1733,14 +1738,14 @@ ITSAFormModel.prototype._bindUI = function() {
                         var intl = instance._intl;
                         if (instance._lifeUpdate) {
                             // the first parameter in the response needs to be 'null' and not the promise result
-                            Y.confirm(intl[NOTIFICATION], intl[DATACHANGED]+'<br />'+intl[WANTRELOAD]+'? ('+intl[NORELOADMSG]+').').then(
+                            Y.confirm(intl[NOTIFICATION], intl[DATACHANGED]+'.<br />'+intl[WANTRELOAD]+'? ('+intl[NORELOADMSG]+').').then(
                                 Y.bind(instance._modelToUI, instance, null),
                                 Y.bind(instance.UIToModel, instance, null)
                             );
                         }
                         else {
                             // the first parameter in the response needs to be 'null' and not the promise result
-                            Y.confirm(intl[NOTIFICATION], intl[DATACHANGED]+'<br />'+intl[WANTRELOAD]+'?').then(
+                            Y.confirm(intl[NOTIFICATION], intl[DATACHANGED]+'.<br />'+intl[WANTRELOAD]+'?').then(
                                 Y.bind(instance._modelToUI, instance, null)
                             );
                         }
@@ -2450,7 +2455,7 @@ ITSAFormModel.prototype._updateSimularWidgetUI = function(changedNodeId, attribu
 /*jshint expr:false */
                 }
                 // in case of slider: update valueattribute --> do this for ALL sliders
-                if (widget && (widget.getClassName()===YUI3_SLIDER)) {
+                if (widget && (formelement.type.NAME===SLIDER)) {
                     var labelnode = Y.one('span[data-for="'+nodeid+'"]');
 /*jshint expr:true */
                     labelnode && labelnode.set('text', value);
