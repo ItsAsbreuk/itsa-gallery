@@ -259,7 +259,7 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
  *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
- * @return {Y.Promise} promised response --> resolve(response) OR reject(reason) (examine reason.message).
+ * @return {Y.Promise} promised response --> resolve(response) where response is an object with all model-attributes as properties OR reject(reason) (examine reason.message).
 **/
 
 /**
