@@ -2147,6 +2147,9 @@ ITSAFormModel.prototype._garbageCollect = function() {
  * @since 0.1
  */
 ITSAFormModel.prototype._getWidgetValue = function(widget, type) {
+    if (widget && (type.NAME===EDITORBASE) && widget.itsatoolbar) {
+        return widget.itsatoolbar.getContent(); // better cleanedup content
+    }
     var field = this._getWidgetValueField(type);
     // In case of multiple fields, they all should be thes same, so we can take the first item of the array.
     return (widget && widget.get((typeof field === STRING) ? field : field[0]));
