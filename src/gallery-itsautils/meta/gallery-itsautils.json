@@ -2,7 +2,9 @@
     "gallery-itsautils": {
         "requires": [
             "yui-base",
-            "json-parse"
+            "json",
+            "jsonp",
+            "gallery-io-utils"
         ]
     }
 }
