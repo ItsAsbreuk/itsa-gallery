@@ -3,7 +3,7 @@
 /**
  * The ItsaStorage module.
  *
- * @module itsa-storage
+ * @module gallery-itsastorage
  */
 
 /**
