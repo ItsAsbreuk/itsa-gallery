@@ -1,0 +1,8 @@
+{
+    "gallery-itsautils": {
+        "requires": [
+            "yui-base",
+            "json-parse"
+        ]
+    }
+}

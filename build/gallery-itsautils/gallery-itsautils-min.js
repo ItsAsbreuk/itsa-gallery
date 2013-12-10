@@ -1,0 +1,1 @@
+YUI.add("gallery-itsautils",function(e,t){"use strict";var n=/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;e.JSON.fullparse=function(e){var t=function(e,t){return n.test(t)?new Date(t):t};try{return this.parse(e,t)}catch(r){throw r}}},"@VERSION@",{requires:["yui-base","json-parse"]});
