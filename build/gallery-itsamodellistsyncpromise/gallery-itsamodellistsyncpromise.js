@@ -116,7 +116,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
     PARSED = function (response) {
         if (typeof response === 'string') {
             try {
-                return Y.JSON.parse(response);
+                return Y.JSON.fullparse(response);
             } catch (ex) {
                 this.fire(ERROR, {
                     error   : ex,
@@ -1021,6 +1021,7 @@ YModelList.prototype.destroyPromise = YModelList.prototype.destroyModelPromise;
         "model",
         "model-list",
         "gallery-itsamodelsyncpromise",
-        "gallery-itsamodulesloadedpromise"
+        "gallery-itsamodulesloadedpromise",
+        "gallery-itsautils"
     ]
 });

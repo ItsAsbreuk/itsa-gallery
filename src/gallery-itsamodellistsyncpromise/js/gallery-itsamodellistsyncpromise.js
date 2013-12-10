@@ -114,7 +114,7 @@
     PARSED = function (response) {
         if (typeof response === 'string') {
             try {
-                return Y.JSON.parse(response);
+                return Y.JSON.fullparse(response);
             } catch (ex) {
                 this.fire(ERROR, {
                     error   : ex,
