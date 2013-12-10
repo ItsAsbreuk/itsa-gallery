@@ -4,7 +4,6 @@
             "yui-base",
             "base-base",
             "promise",
-            "gallery-storage-lite",
             "gallery-itsautils"
         ]
     }
