@@ -48,11 +48,12 @@
     ```
 </p>
 <p>
-    Once resolved, this means the user loggedin successfully. A resolved promise calls back with an object with three parameters:
+    Once resolved, this means the user loggedin successfully. A resolved promise calls back with an object with at least four parameters (which should be send by the server):
     <ul>
         <li><code>username</code></li>
         <li><code>password</code></li>
         <li><code>remember</code></li>
+        <li><code>userdata</code></li>
     </ul>
     It is up to the developer to take further action. Typically by adding the username and password to the headers of future ssl-requests.
 </p>
