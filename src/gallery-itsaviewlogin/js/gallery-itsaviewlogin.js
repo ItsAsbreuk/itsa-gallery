@@ -911,31 +911,35 @@ ITSAViewLogin.prototype.initializer = function() {
 ITSAViewLogin.prototype.isReady = function() {
     Y.log('isReady', 'info', 'ITSAViewLogin');
     var instance = this;
-    return Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
-        function() {
-            // we might need to wait for the current user to load its data
-            var currentuser = Y.ITSACurrentUser,
-                currentuserKnownLoggedin;
-            if (currentuser) {
-                currentuserKnownLoggedin = currentuser.getCurrent().then(
-                    function(response) {
-                        var model = instance.get(MODEL);
-                        model.set(USERNAME, response[USERNAME], {silent: true});
-                        model.set(PASSWORD, response[PASSWORD], {silent: true});
-                        model.set(REMEMBER, response[REMEMBER], {silent: true});
-                        instance._buildLogoutView(response.displayname, response.messageLoggedin);
-                    },
-                    function() {
-                        instance._buildLoginView();
-                    }
-                );
-            }
-            else {
-                instance._buildLoginView();
-            }
-            return currentuser ? currentuserKnownLoggedin : true;
-        }
-    );
+/*jshint expr:true */
+    instance._isReady || (instance._isReady=Y.usePromise(GALLERYCSS_DIALOG, GALLERYCSS_FORM, GALLERYCSS_ANIMATESPIN).then(
+                                function() {
+                                    // we might need to wait for the current user to load its data
+                                    var currentuser = Y.ITSACurrentUser,
+                                        currentuserKnownLoggedin;
+                                    if (currentuser) {
+                                        currentuserKnownLoggedin = currentuser.getCurrent().then(
+                                            function(response) {
+                                                var model = instance.get(MODEL);
+                                                model.set(USERNAME, response[USERNAME], {silent: true});
+                                                model.set(PASSWORD, response[PASSWORD], {silent: true});
+                                                model.set(REMEMBER, response[REMEMBER], {silent: true});
+                                                instance._buildLogoutView(response.displayname, response.messageLoggedin);
+                                            },
+                                            function() {
+                                                instance._buildLoginView();
+                                            }
+                                        );
+                                    }
+                                    else {
+                                        instance._buildLoginView();
+                                    }
+                                    return currentuser ? currentuserKnownLoggedin : true;
+                                }
+                            )
+                        );
+/*jshint expr:false */
+    return instance._isReady;
 };
 
 /**
