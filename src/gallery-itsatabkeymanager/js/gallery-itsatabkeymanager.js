@@ -205,6 +205,10 @@ Y.extend(FocusManager, Y.Plugin.Base, {
             disabledSelector = this.get('disabledSelector'),
             itemSelector     = this.get(container ? 'anchoredItemSelector' : 'itemSelector');
 
+        if (!Y.one(activeItem)) {
+            this.set('activeItem', null);
+            activeItem = null;
+        }
         (container || this._host).all(itemSelector).each(function (node) {
             if (disabledSelector && node.test(disabledSelector)) {
                 node.removeAttribute('tabIndex');
@@ -287,8 +291,11 @@ Y.extend(FocusManager, Y.Plugin.Base, {
         var newVal  = e.newVal,
             prevVal = e.prevVal;
 
-        if (Y.one(prevVal)) {
-            prevVal.set('tabIndex', -1);
+        if (prevVal) {
+            try {
+                prevVal.set('tabIndex', -1);
+            }
+            catch (err) {}
         }
         if (newVal) {
             newVal.set('tabIndex', 0);
