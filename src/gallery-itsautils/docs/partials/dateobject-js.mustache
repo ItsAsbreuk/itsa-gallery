@@ -1,12 +1,4 @@
 YUI(yuiconfig).use('gallery-itsautils', 'json-stringify', 'json', function(Y) {
-
-
-
-
-
-
-
-
     var myobject, newobject, stringified;
     myobject = {
         a: new Date(),
@@ -16,15 +8,6 @@ YUI(yuiconfig).use('gallery-itsautils', 'json-stringify', 'json', function(Y) {
     };
     stringified = Y.JSON.stringify(myobject);
     console.log('stringified: '+stringified);
-
-
-
-
-
-
-
-
-
     try {
 
         newobject = Y.JSON.fullparse(stringified);
