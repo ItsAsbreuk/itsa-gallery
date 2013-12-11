@@ -581,6 +581,7 @@ ITSADialogClass.prototype.translate = function(text) {
  * @private
  * @param [config] {Object}
  * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
+ * @param [config.formconfigVerifyPassword] {Object} formconfig that passes through to the verify-assword-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.formconfigShowPassword] {Object} formconfig that passes through to the ''show password'-ITSACheckbox when users retrieve their password.
  * @param [config.iconQuestion] {String} icon-classname of the retrieve username/password-dialogs (see gallerycss-itsa-dialog for icon classnames)
  * @param [config.imageButtons] {Boolean} creates panel-buttons with image-icons.
@@ -600,7 +601,7 @@ ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
     var verifyNewPassword = ((typeof config[VERIFYNEWPASSWORD] === BOOLEAN) && config[VERIFYNEWPASSWORD]) || true,
         showNewPassword = ((typeof config[SHOWNEWPASSWORD] === BOOLEAN) && config[SHOWNEWPASSWORD]) || true,
         intl = ITSADialogInstance._intl,
-        changePassword, formconfigPassword, formconfigShowPassword, MyChangePassword, message, imageButtons;
+        changePassword, formconfigPassword, formconfigVerifyPassword, formconfigShowPassword, MyChangePassword, message, imageButtons;
     // setting config for username:
     formconfigPassword = config.formconfigPassword || {};
 /*jshint expr:true */
@@ -610,6 +611,17 @@ ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
     formconfigPassword[PRIMARYBTNONENTER] = !verifyNewPassword;
     formconfigPassword[CLASSNAME] = ITSA_LOGIN + (formconfigPassword[CLASSNAME] ? ' '+formconfigPassword[CLASSNAME] : '');
     formconfigPassword[REQUIRED] = true;
+
+    // setting config for username:
+    formconfigVerifyPassword = config.formconfigVerifyPassword || {};
+/*jshint expr:true */
+    formconfigVerifyPassword[LABEL] || formconfigVerifyPassword[PLACEHOLDER] || (formconfigVerifyPassword[LABEL]=intl['verify'+PASSWORD]);
+console.log(formconfigVerifyPassword[LABEL]);
+/*jshint expr:false */
+    formconfigVerifyPassword[FULLSELECT] = true;
+    formconfigVerifyPassword[PRIMARYBTNONENTER] = true;
+    formconfigVerifyPassword[CLASSNAME] = ITSA_LOGIN + (formconfigVerifyPassword[CLASSNAME] ? ' '+formconfigVerifyPassword[CLASSNAME] : '');
+    formconfigVerifyPassword[REQUIRED] = true;
 
     formconfigShowPassword = config.formconfigShowPassword || {};
     formconfigShowPassword.widgetconfig = {
@@ -645,7 +657,7 @@ ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
                                 },
                                 verifypassword: {
                                     formtype: PASSWORD,
-                                    formconfig: formconfigPassword,
+                                    formconfig: formconfigVerifyPassword,
                                     validator: config.validatorPassword,
                                     validationerror: config.validationerrorPassword
                                 },
