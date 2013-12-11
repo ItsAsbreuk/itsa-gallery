@@ -1191,6 +1191,8 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                                 field+'Change',
                                 function(e) {
                                     var type = UI_CHANGED,
+                                        payload;
+                                    if (!e.fromInternal) {
                                         payload = {
                                             target: instance,
                                             value: e.newVal,
@@ -1199,8 +1201,9 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                                             nodeid: nodeid,
                                             type: type
                                         };
-                                    // refireing, but now by the instance:
-                                    instance.fire(type, payload);
+                                        // refireing, but now by the instance:
+                                        instance.fire(type, payload);
+                                    }
                                 }
                             )
                         );
@@ -1213,6 +1216,8 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                         valuefield+'Change',
                         function(e) {
                             var type = UI_CHANGED,
+                                payload;
+                            if (!e.fromInternal) {
                                 payload = {
                                     target: instance,
                                     value: e.newVal,
@@ -1221,8 +1226,9 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                                     nodeid: nodeid,
                                     type: type
                                 };
-                            // refireing, but now by the instance:
-                            instance.fire(type, payload);
+                                // refireing, but now by the instance:
+                                instance.fire(type, payload);
+                            }
                         }
                     )
                 );
@@ -1354,7 +1360,7 @@ ITSAFormModel.prototype.setResetAttrs = function() {
  * @since 0.1
  */
 ITSAFormModel.setWidgetValueField = function(widgetClassname, valueField) {
-    Y.log('_getWidgetValueField', 'info', 'ITSAFormModel');
+    Y.log('setWidgetValueField', 'info', 'ITSAFormModel');
     this._widgetValueFields[widgetClassname] = valueField;
 };
 
@@ -2244,7 +2250,7 @@ ITSAFormModel.prototype._modelToUI = function(nodeid) {
         value = instance.get(attribute, value) || '';
         if (widget) {
             field = this._getWidgetValueField(formElement.type);
-            widget.set(((typeof field === STRING) ? field : field[0]), value);
+            widget.set(((typeof field === STRING) ? field : field[0]), value, {fromInternal: true});
         }
         else {
             type = formElement.type;
