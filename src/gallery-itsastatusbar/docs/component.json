@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsastatusbar",
     "displayName": "Gallery: gallery-itsastatusbar",
-    "description": "A View for the ITSA-MVC-message system which uses modal panels.",
+    "description": "A View for the ITSA-MVC-message system which uses a statusbar.",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsastatusbar" ],
 
