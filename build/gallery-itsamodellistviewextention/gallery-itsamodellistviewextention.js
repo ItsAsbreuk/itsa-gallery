@@ -357,7 +357,7 @@ ITSAModellistViewExtention.ATTRS = {
     * Whether the Models is styled using the css of this module.
     * In fact, just the classname 'itsa-modellistview-styled' is added to the boundingBox
     * and the css-rules do all the rest. The developer may override these rules, or set this value to false
-    * while creatiung their own css. In the latter case it is advisable to take a look at all the css-rules
+    * while creatiung their own css. In the latter case it is advizable to take a look at all the css-rules
     * that are supplied by this module. In either cases, the modelList (is available) will add classes to all li-elements
     * thus the developer can style it at own will.
     *
