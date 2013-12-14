@@ -665,7 +665,10 @@ YArray.each(
                 parsed = PARSED(response);
                 if (parsed.responseText) {
                     // XMLHttpRequest
-                    parsed = parsed.responseText;
+                    if (parsed.responseText) {
+                        // XMLHttpRequest
+                        parsed = PARSED(parsed.responseText);
+                    }
                 }
                 e.parsed = parsed;
                 //options.append is for compatiblility with previous versions
