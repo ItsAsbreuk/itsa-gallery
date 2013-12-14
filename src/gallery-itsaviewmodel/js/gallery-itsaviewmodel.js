@@ -1123,7 +1123,7 @@ ITSAViewModel.prototype.removePrimaryButton = function() {
  * @since 0.3
  *
 */
-ITSAViewModel.prototype.render = function (clear) {
+ITSAViewModel.prototype.render = function (clear, modelchange) {
     var instance = this,
         container = instance.get(CONTAINER),
         model = instance.get(MODEL),
@@ -1134,6 +1134,9 @@ ITSAViewModel.prototype.render = function (clear) {
         html = (clear || !model) ? '' : instance._modelRenderer(model),
         withfocusmanager;
     Y.log('render', 'info', 'ITSA-ViewModel');
+/*jshint expr:true */
+    modelchange && !instance.get('partOfMultiView') && model && model.toJSONUI && model.cleanup();
+/*jshint expr:false */
     // Render this view's HTML into the container element.
     // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
     if (editMode || instance._isMicroTemplate) {
@@ -1143,7 +1146,13 @@ ITSAViewModel.prototype.render = function (clear) {
         container.cleanup(instance._rendered);
     }
     else {
-        container.cleanup(false);
+        // we should do a cleanup always, BUT
+        // due to a bug that we haven't found yet, cleanup is no good when using itsaviewmodelpanel, where the footer
+        // gets rerendered --> some node in the footer gets referenced while it doesn;t exists anymore.
+        // that's why the conditional is created.
+        if (!modelchange || !instance.get('partOfMultiView')) {
+            container.cleanup(false);
+        }
     }
     // Append the container element to the DOM if it's not on the page already.
     if (!instance._rendered) {
@@ -1674,7 +1683,7 @@ ITSAViewModel.prototype._bindUI = function() {
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
                 if ((e.target instanceof Y.Model) && !instance.get(EDITABLE)) {
-                    instance.render();
+                    instance.render(false, true);
                 }
             }
         )
