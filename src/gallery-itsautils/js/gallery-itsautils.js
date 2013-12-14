@@ -65,18 +65,6 @@ Y.io.json = function (uri, options) {
     }, true);
 };
 
-// next is patch for gallery-io-utils whe postJSON and putJSON need to kave a 'key' specified in the config.data
-Y.Array.each(['post', 'put'], function (verb) {
-    Y.io[verb + 'JSON'] = function (uri, data, config) {
-        config = config || {};
-        config.method = verb.toUpperCase();
-        config.data = {data: Y.JSON.stringify(data)};
-
-        return Y.io.json(uri, config);
-    };
-});
-
-
 Y.JSONPRequest.prototype.send = function () {
         var self   = this,
             args   = Y.Array(arguments, 0, true),
