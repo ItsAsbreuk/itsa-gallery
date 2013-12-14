@@ -1135,6 +1135,10 @@ ITSAViewModel.prototype.render = function (clear, modelchange) {
         withfocusmanager;
     Y.log('render', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
+    // we should do a cleanup always, BUT
+    // due to a bug that we haven't found yet, cleanup is no good when using itsaviewmodelpanel, where the footer
+    // gets rerendered --> some node in the footer gets referenced while it doesn;t exists anymore.
+    // that's why the conditional is created.
     modelchange && !instance.get('partOfMultiView') && model && model.toJSONUI && model.cleanup();
 /*jshint expr:false */
     // Render this view's HTML into the container element.
@@ -1723,34 +1727,36 @@ ITSAViewModel.prototype._bindUI = function() {
                     statusbar = model._itsamessageListener || (messageController && messageController._targets[MODEL+'sync']),
                     destroyWithoutRemove = ((eventType===DESTROY) && options && (options.remove || options[DELETE])),
                     prevAttrs;
-                if (!destroyWithoutRemove && (model instanceof Y.Model) && ((eventType!==SAVE) || (model.isModified()))) {
-                    instance._lockedBefore = instance._locked;
-                    instance.lockView(true);
+                if (!destroyWithoutRemove && (model instanceof Y.Model)) {
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
                         model.UIToModel();
                     }
-                    statusbar || instance._setSpin(eventType, true);
-                    (eventType===DESTROY) || promise.then(
-                        function() {
-                            ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
-                        },
-                        function() {
-                            ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs, {fromInternal: true});
-                            return true; // make promise fulfilled
+                    if ((eventType!==SAVE) || (model.isModified())) {
+                        instance._lockedBefore = instance._locked;
+                        instance.lockView(true);
+                        statusbar || instance._setSpin(eventType, true);
+                        (eventType===DESTROY) || promise.then(
+                            function() {
+                                ((eventType===LOAD) || (eventType===SUBMIT) || (eventType===SAVE)) && model.setResetAttrs();
+                            },
+                            function() {
+                                ((eventType===SUBMIT) || (eventType===SAVE)) && model.setAttrs(prevAttrs, {fromInternal: true});
+                                return true; // make promise fulfilled
+                            }
+                        ).then(
+                            function() {
+                                statusbar || instance._setSpin(eventType, false);
+                                instance._lockedBefore || instance.unlockView();
+                                (eventType===SUBMIT) || instance._disableSaveBtns();
+                                container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
+                                    function(itsatabkeymanager) {
+                                        itsatabkeymanager.focusInitialItem();
+                                    }
+                                );
+                            }
+                        );
                         }
-                    ).then(
-                        function() {
-                            statusbar || instance._setSpin(eventType, false);
-                            instance._lockedBefore || instance.unlockView();
-                            (eventType===SUBMIT) || instance._disableSaveBtns();
-                            container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
-                                function(itsatabkeymanager) {
-                                    itsatabkeymanager.focusInitialItem();
-                                }
-                            );
-                        }
-                    );
                 }
                 else {
                     (eventType===SAVE) && instance._disableSaveBtns();
