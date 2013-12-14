@@ -1845,13 +1845,16 @@ ITSAFormModel.prototype._bindUI = function() {
             [SAVE_CLICK, SUBMIT_CLICK],
             function(e) {
                 Y.log('onsubscriptor '+SUBMIT_CLICK, 'info', 'ITSAFormModel');
-                var unvalidNodes = instance.getUnvalidatedUI();
-                if (!unvalidNodes.isEmpty()) {
-                    e.preventDefault();
-                    instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
-                }
-                else {
-                    instance.UIToModel();
+                var unvalidNodes;
+                if ((e.type===SUBMIT_CLICK) && (instance.isModified())) {
+                    unvalidNodes = instance.getUnvalidatedUI();
+                    if (!unvalidNodes.isEmpty()) {
+                        e.preventDefault();
+                        instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
+                    }
+                    else {
+                        instance.UIToModel();
+                    }
                 }
             }
         )

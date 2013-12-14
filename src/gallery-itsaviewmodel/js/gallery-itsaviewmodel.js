@@ -1584,6 +1584,7 @@ ITSAViewModel.prototype._bindUI = function() {
         container = instance.get(CONTAINER),
         eventhandlers = instance._eventhandlers;
     Y.log('_bindUI', 'info', 'ITSA-ViewModel');
+
     eventhandlers.push(
         instance.after(
             MODEL+CHANGE,
@@ -1636,7 +1637,7 @@ ITSAViewModel.prototype._bindUI = function() {
     );
     eventhandlers.push(
         instance.after(
-            RESET,
+            '*:'+RESET,
             function() {
                 Y.log('aftersubscriptor reset', 'info', 'ITSA-ViewModelPanel');
                 if (instance._isMicroTemplate) {
@@ -1695,6 +1696,13 @@ ITSAViewModel.prototype._bindUI = function() {
 
     instance.get('partOfMultiView') || eventhandlers.push(
         instance.on(
+            '*:'+RESET,
+            Y.bind(instance._disableSaveBtns, instance)
+        )
+    );
+
+    instance.get('partOfMultiView') || eventhandlers.push(
+        instance.on(
             ['*:'+SUBMIT, '*:'+SAVE, '*:'+LOAD, '*:'+DESTROY],
             function(e) {
                 Y.log('onsubscriptor '+e.type, 'info', 'ITSA-ViewModelPanel');
@@ -1706,7 +1714,7 @@ ITSAViewModel.prototype._bindUI = function() {
                     statusbar = model._itsamessageListener || (messageController && messageController._targets[MODEL+'sync']),
                     destroyWithoutRemove = ((eventType===DESTROY) && options && (options.remove || options[DELETE])),
                     prevAttrs;
-                if (!destroyWithoutRemove && (model instanceof Y.Model)) {
+                if (!destroyWithoutRemove && (model instanceof Y.Model) && ((eventType!==SAVE) || (model.isModified()))) {
                     instance._lockedBefore = instance._locked;
                     instance.lockView(true);
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
@@ -1726,6 +1734,7 @@ ITSAViewModel.prototype._bindUI = function() {
                         function() {
                             statusbar || instance._setSpin(eventType, false);
                             instance._lockedBefore || instance.unlockView();
+                            (eventType===SUBMIT) || instance._disableSaveBtns();
                             container.pluginReady(ITSATABKEYMANAGER, PLUGIN_TIMEOUT).then(
                                 function(itsatabkeymanager) {
                                     itsatabkeymanager.focusInitialItem();
@@ -1733,6 +1742,9 @@ ITSAViewModel.prototype._bindUI = function() {
                             );
                         }
                     );
+                }
+                else {
+                    (eventType===SAVE) && instance._disableSaveBtns();
                 }
             }
         )
@@ -1815,6 +1827,14 @@ ITSAViewModel.prototype._bindUI = function() {
             }
         )
     );
+
+    eventhandlers.push(
+        instance.after(
+            UI_CHANGED,
+            Y.bind(instance._enableSaveBtns, instance)
+        )
+    );
+
     YArray.each(
         [CLICK, VALIDATION_ERROR, UI_CHANGED, FOCUS_NEXT],
         function(event) {
@@ -2116,7 +2136,7 @@ ITSAViewModel.prototype._createButtons = function() {
         {
             propertykey: BTN_SAVE,
             type: SAVE,
-            config: {value: SAVE, hotkey: hotkeys[BTN_SAVE]},
+            config: {classname: PURE_BUTTON_DISABLED, value: SAVE, hotkey: hotkeys[BTN_SAVE]},
             labelHTML: function() { return customBtnLabels[BTN_SAVE] ? Lang.sub(customBtnLabels[BTN_SAVE], {label: instance._intl[SAVE]}) : instance._intl[SAVE]; }
         },
         {
@@ -2200,7 +2220,7 @@ ITSAViewModel.prototype._createButtons = function() {
         {
             propertykey: IMGBTN_SAVE,
             type: SAVE,
-            config: {classname: BUTTON_ICON_LEFT, value: SAVE, hotkey: hotkeys[IMGBTN_SAVE]},
+            config: {classname: PURE_BUTTON_DISABLED+' '+BUTTON_ICON_LEFT, value: SAVE, hotkey: hotkeys[IMGBTN_SAVE]},
             labelHTML: function() { return customBtnLabels[IMGBTN_SAVE] ? Lang.sub(customBtnLabels[IMGBTN_SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE]); }
         },
         {
@@ -2230,7 +2250,7 @@ ITSAViewModel.prototype._createButtons = function() {
         {
             propertykey: SPINBTN_SAVE,
             type: SAVE,
-            config: {spinbusy: true, classname: BUTTON_ICON_LEFT, value: SAVE, hotkey: hotkeys[SPINBTN_SAVE]},
+            config: {spinbusy: true, classname: PURE_BUTTON_DISABLED+' '+BUTTON_ICON_LEFT, value: SAVE, hotkey: hotkeys[SPINBTN_SAVE]},
             labelHTML: function() { return customBtnLabels[SPINBTN_SAVE] ? Lang.sub(customBtnLabels[SPINBTN_SAVE], {label: instance._intl[SAVE]}) : (Lang.sub(IMAGE_BUTTON_TEMPLATE, {type: SAVE})+instance._intl[SAVE]); }
         },
         {
@@ -2293,6 +2313,32 @@ ITSAViewModel.prototype[DEF_FN+VALIDATION_ERROR] = function(e) {
 /*jshint expr:false */
         node.scrollIntoView();
     }
+};
+
+/**
+ * Disables 'save-buttons' when the model UI-elements gets in initial state
+ *
+ * @method _disableSaveBtns
+ * @private
+ * @since 0.4
+*/
+ITSAViewModel.prototype._disableSaveBtns = function() {
+    var instance = this,
+        saveButtons = instance.get(CONTAINER).all('button[data-buttonsubtype="save"]');
+    saveButtons.addClass(PURE_BUTTON_DISABLED);
+};
+
+/**
+ * Enables 'save-buttons' that were disabled when the model UI-elements were in initial state
+ *
+ * @method _enableSaveBtns
+ * @private
+ * @since 0.4
+*/
+ITSAViewModel.prototype._enableSaveBtns = function() {
+    var instance = this,
+        saveButtons = instance.get(CONTAINER).all('button[data-buttonsubtype="save"]');
+    saveButtons.removeClass(PURE_BUTTON_DISABLED);
 };
 
 /**
