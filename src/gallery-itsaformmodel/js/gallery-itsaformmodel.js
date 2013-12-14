@@ -619,6 +619,21 @@ ITSAFormModel.prototype.disableUI = function() {
 };
 
 /**
+ * Cleans up internal references of everything the formmodel has inserted in the dom.
+ * Only to be used when destroyed - or when a containernode gets empty.
+ *
+ * @method cleanup
+ * @protected
+ * @since 0.1
+*/
+ITSAFormModel.prototype.cleanup = function() {
+    var instance = this;
+    instance._FORM_elements = {};
+    instance._ATTRS_nodes = {};
+    instance._knownNodeIds = {};
+};
+
+/**
  * Enables all UI-elements so that there is userinteraction possible again. For usage in conjunction with disableUI().
  *
  * @method enableUI
@@ -1327,7 +1342,6 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
 ITSAFormModel.prototype.setResetAttrs = function() {
     var instance = this,
         allAttrs = instance.getAttrs();
-
     Y.log('setResetAttrs', 'info', 'ITSAFormModel');
     delete allAttrs.clientId;
     delete allAttrs.destroyed;
@@ -1646,10 +1660,8 @@ ITSAFormModel.prototype.destructor = function() {
     Y.log('destructor', 'info', 'ITSAFormModel');
     instance._clearEventhandlers();
     instance._removeTargets();
-    instance._FORM_elements = {};
-    instance._ATTRS_nodes = {};
+    instance.cleanup();
     instance._widgetValueFields = {};
-    instance._knownNodeIds = {};
     instance._gcTimer.cancel();
 };
 

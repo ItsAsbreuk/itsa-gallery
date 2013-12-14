@@ -618,6 +618,21 @@ ITSAFormModel.prototype.disableUI = function() {
 };
 
 /**
+ * Cleans up internal references of everything the formmodel has inserted in the dom.
+ * Only to be used when destroyed - or when a containernode gets empty.
+ *
+ * @method cleanup
+ * @protected
+ * @since 0.1
+*/
+ITSAFormModel.prototype.cleanup = function() {
+    var instance = this;
+    instance._FORM_elements = {};
+    instance._ATTRS_nodes = {};
+    instance._knownNodeIds = {};
+};
+
+/**
  * Enables all UI-elements so that there is userinteraction possible again. For usage in conjunction with disableUI().
  *
  * @method enableUI
@@ -1306,7 +1321,6 @@ ITSAFormModel.prototype.setLifeUpdate = function(value) {
 ITSAFormModel.prototype.setResetAttrs = function() {
     var instance = this,
         allAttrs = instance.getAttrs();
-
     delete allAttrs.clientId;
     delete allAttrs.destroyed;
     delete allAttrs.initialized;
@@ -1615,10 +1629,8 @@ ITSAFormModel.prototype.destructor = function() {
     var instance = this;
     instance._clearEventhandlers();
     instance._removeTargets();
-    instance._FORM_elements = {};
-    instance._ATTRS_nodes = {};
+    instance.cleanup();
     instance._widgetValueFields = {};
-    instance._knownNodeIds = {};
     instance._gcTimer.cancel();
 };
 
@@ -1808,13 +1820,16 @@ ITSAFormModel.prototype._bindUI = function() {
         instance.on(
             [SAVE_CLICK, SUBMIT_CLICK],
             function(e) {
-                var unvalidNodes = instance.getUnvalidatedUI();
-                if (!unvalidNodes.isEmpty()) {
-                    e.preventDefault();
-                    instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
-                }
-                else {
-                    instance.UIToModel();
+                var unvalidNodes;
+                if ((e.type===SUBMIT_CLICK) && (instance.isModified())) {
+                    unvalidNodes = instance.getUnvalidatedUI();
+                    if (!unvalidNodes.isEmpty()) {
+                        e.preventDefault();
+                        instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
+                    }
+                    else {
+                        instance.UIToModel();
+                    }
                 }
             }
         )
