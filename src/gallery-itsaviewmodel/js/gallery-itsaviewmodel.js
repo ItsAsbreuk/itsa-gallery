@@ -1756,10 +1756,10 @@ ITSAViewModel.prototype._bindUI = function() {
                                 );
                             }
                         );
-                        }
-                }
-                else {
-                    (eventType===SAVE) && instance._disableSaveBtns();
+                    }
+                    else {
+                        (eventType===SAVE) && instance._disableSaveBtns();
+                    }
                 }
             }
         )
