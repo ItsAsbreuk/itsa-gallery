@@ -550,7 +550,10 @@ YModel.prototype._defFn_load = function(e) {
         parsed = PARSED(response);
         if (parsed.responseText) {
             // XMLHttpRequest
-            parsed = parsed.responseText;
+            if (parsed.responseText) {
+                // XMLHttpRequest
+                parsed = PARSED(parsed.responseText);
+            }
         }
         e.parsed = parsed;
         instance.setAttrs(parsed, options);
@@ -601,6 +604,10 @@ YModel.prototype._defFn_save = function(e) {
         };
 
     Y.log('_defFn_save', 'info', 'ITSA-ModelSyncPromise');
+    if (!instance.isModified()) {
+        promiseReject(new Error('Model will not be saved: not modified'));
+    }
+    else {
         instance._validate(instance.toJSON(), function (validateErr) {
             if (validateErr) {
                 facade.error = validateErr;
@@ -621,9 +628,11 @@ YModel.prototype._defFn_save = function(e) {
                     parsed = PARSED(response);
                     if (parsed.responseText) {
                         // XMLHttpRequest
-                        parsed = parsed.responseText;
+                        parsed = PARSED(parsed.responseText);
                     }
                     if (YObject.keys(parsed).length>0) {
+
+
                         e.parsed = parsed;
                         // if removed then fire destroy-event (not through synclayer), else update data
 /*jshint expr:true */
@@ -661,6 +670,7 @@ YModel.prototype._defFn_save = function(e) {
                 }
             }
         });
+    }
     return e.promise;
 };
 
