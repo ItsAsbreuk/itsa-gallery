@@ -10,8 +10,16 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
         // define 'syncPromise' instead of 'sync'.
         // when 'syncPromise' is defined, Y.ITSAFormModel will use this method instead of 'sync'
         syncPromise: function (action, options) {
-            if (action==='submit') {
-                return Y.io.post('http://mydomain.com/senddata.php?model='+Y.JSON.stringify(this.toJSON()));
+            if (action==='save') {
+//            if (action==='submit') {
+// The code should look like this:
+//
+// return Y.io.post('http://mydomain.com/senddata.php', {data: this.toJSON()});
+//
+// But now we simulate through a timeout:
+                return new Y.Promise(function (resolve, reject) {
+                    Y.later(1000, null, resolve);
+                });
             }
             // do not forget to reject the promise in case an invalid 'action' is defined
             return new Y.Promise(function (resolve, reject) {
@@ -72,7 +80,8 @@ YUI(yuiconfig).use('gallery-itsaformmodel', 'gallery-itsaviewmodelpanel', 'slide
                     '<div class="pure-control-group">{release}</div>';
                 '</fieldset>';
 
-    footertemplate = '{btn_close}{spinbtn_submit}';
+//    footertemplate = '{btn_close}{spinbtn_submit}';
+    footertemplate = '{btn_close}{spinbtn_save}';
 
     panel = new Y.ITSAViewModelPanel({
         title: 'Enter data',

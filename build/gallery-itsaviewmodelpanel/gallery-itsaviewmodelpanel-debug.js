@@ -582,6 +582,7 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                         // first enable the UI again, this is done within the submit-defaultfunc of the model as well, but that code comes LATER.
                         // and we need enabled element to set the focus
                         model.enableUI();
+                        model._disableSaveBtns();
                         if (contentBox.hasClass(FOCUSED_CLASS)) {
                             itsatabkeymanager.focusInitialItem();
                         }
@@ -658,13 +659,17 @@ ITSAViewModelPanel.prototype.bindUI = function() {
                 var node = e.target,
                     value = node.get(VALUE),
                     panelCloseButton = node.hasClass(ITSA_PANELCLOSEBTN); // this node must not fire the event, because it already is done by ITSAPanel
-/*jshint expr:true */
                 // value===CLOSE will be handled by the '*:'+CLOSE_CLICK eventlistener
-                !panelCloseButton && instance.get('hideOnBtn') && (value!==CLOSE) &&
-                     (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) &&
-                     (!instance.get(NO_HIDE_ON_SUBMIT) || (value!==SUBMIT)) && (!instance.get(NO_HIDE_ON_SAVE) || (value!==SAVE)) &&
-                     instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
+                if (!panelCloseButton && instance.get('hideOnBtn') && (value!==CLOSE) &&
+                        (!instance.get(NO_HIDE_ON_RESET) || (value!==RESET)) && (!instance.get(NO_HIDE_ON_LOAD) || (value!==LOAD)) &&
+                        (!instance.get(NO_HIDE_ON_SUBMIT) || (value!==SUBMIT)) && (!instance.get(NO_HIDE_ON_SAVE) || (value!==SAVE))) {
+                    instance.fire(BUTTON_HIDE_EVENT, {buttonNode: node});
+                }
+                else {
+/*jshint expr:true */
+                    (value===SAVE) && instance.get(MODEL)._disableSaveBtns();
 /*jshint expr:false */
+                }
             },
             BUTTON
         )
