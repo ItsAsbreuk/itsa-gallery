@@ -3157,7 +3157,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                     }
                 }
                 items++;
-                modelNode = instance._createModelNode(model, renderedModel);
+                modelNode = instance._createModelNode(model, renderedModel, modelList);
                 // modelNode is an ARRAY of Y.Node !!!
                 for (j=0; j<modelNode.length; j++) {
                     if (options.incrementbuild) {
@@ -3285,7 +3285,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * @return {Array} array of Y.Node --> the last element is always the ModelNode, but it can be precede with headerNodes.
      * @since 0.1
     */
-    _createModelNode : function(model, renderedModel) {
+    _createModelNode : function(model, renderedModel, modellist) {
         var instance = this,
             modelClientId = instance.getModelAttr(model, 'clientId'),
             nodes = [],
@@ -3352,6 +3352,9 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         modelNode.addClass(MODEL_CLASS);
         modelNode.addClass(modelClientId);
         modelNode.addClass(instance._even ? SVML_EVEN_CLASS : SVML_ODD_CLASS);
+/*jshint expr:true */
+        (typeof modellist.classnameRenderer==='function') && modelNode.addClass(modellist.classnameRenderer(model));
+/*jshint expr:false */
         if (itsacmtemplate && (itsacmtemplate._getMode(model)===3) && !modelNode.itsatabkeymanager) {
             Y.use('gallery-itsatabkeymanager', function(Y) {
                 modelNode.plug(Y.Plugin.ITSATabKeyManager);
