@@ -777,15 +777,6 @@ ITSAViewLogin.prototype.initializer = function() {
                 logout = (formmodel.get('button')===LOGOUT);
             if (e.currentTarget===instance) {
                 e.promise._logout = logout; // flag for aftersubscriber;
-                /**
-                * Event fired when a a user logs out.<br>
-                * Not preventable.
-                *
-                * @event loggedout
-                **/
-        /*jshint expr:true */
-                logout && Y.fire(LOGGEDOUT);
-        /*jshint expr:false */
             }
         })
     );
@@ -802,6 +793,15 @@ ITSAViewLogin.prototype.initializer = function() {
                             loginintl = instance._loginintl,
                             messageType = formmodel.messageType,
                             message, facade;
+/*jshint expr:true */
+                        /**
+                        * Event fired when a a user logs out.<br>
+                        * Not preventable.
+                        *
+                        * @event loggedout
+                        **/
+                        promise._logout && Y.fire(LOGGEDOUT);
+/*jshint expr:false */
                         if (responseObj && responseObj.status && !promise._logout) {
                             if (responseObj.status==='ERROR') {
                                 message = responseObj.message || loginintl.unspecifiederror;
