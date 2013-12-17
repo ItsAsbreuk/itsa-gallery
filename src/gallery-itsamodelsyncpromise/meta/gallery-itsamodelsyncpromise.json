@@ -7,7 +7,6 @@
             "base-build",
             "node-base",
             "json-parse",
-            "oop",
             "promise",
             "model",
             "gallery-itsamodulesloadedpromise",
