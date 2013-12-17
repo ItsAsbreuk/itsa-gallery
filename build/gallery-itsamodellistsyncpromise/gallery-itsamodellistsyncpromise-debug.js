@@ -130,6 +130,16 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
     };
 
 /**
+ * Define this property if you want default 'options' to be applied when syncing.
+ * This object is passed through to the synclayer, merged with the options-object passed throug the syncmethod.
+ *
+ * @method defSyncOptions
+ * @property defSyncOptions
+ * @type Object
+ * @default null
+**/
+
+/**
  * Makes sync-messages to target the specified messageViewer. You can only target to 1 MessageViewer at the same time.<br>
  * See gallery-itsamessageviewer for more info.
  *
@@ -192,6 +202,20 @@ YModelList.prototype.addMessageTarget = function(itsamessageviewer) {
             }
         }
     );
+};
+
+/**
+ * Promise that returns the default-options (object) that will be passed through the synclayer.
+ * Is used as the syncoptions, along with manual syncoptions that could be supplied. Both objects are merged (actually cloned).
+ *
+ * @method defSyncOptions
+ * @return {Y.Promise} --> resolve(defaultOptionsObject) NEVER reject
+**/
+YModelList.prototype.defSyncOptions = function() {
+    Y.log('defSyncOptions', 'info', 'ITSA-ModellistSyncPromise');
+    return new Y.Promise(function (resolve) {
+        resolve({});
+    });
 };
 
 /**
@@ -1016,19 +1040,21 @@ YModelList.prototype._prevDefFn = function(e) {
  * @since 0.2
 */
 YModelList.prototype._syncTimeoutPromise = function(action, options) {
-    var instance = this,
-          syncpromise;
+    var instance = this;
 
-    Y.log('_syncTimeoutPromise', 'info', 'widget');
-    syncpromise = instance.syncPromise(action, options);
-    if (!(syncpromise instanceof Y.Promise)) {
-        syncpromise = new Y.Promise(function (resolve, reject) {
+    Y.log('_syncTimeoutPromise', 'info', 'ITSA-ModellistSyncPromise');
+    if (!(instance.syncPromise instanceof Y.Promise)) {
+        return new Y.Promise(function (resolve, reject) {
             var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
-            Y.log('_syncTimeoutPromise: '+errormessage, 'warn', 'widget');
+            Y.log('_syncTimeoutPromise: '+errormessage, 'warn', 'ITSA-ModellistSyncPromise');
             reject(new Error(errormessage));
         });
     }
-    return syncpromise;
+    return instance.defSyncOptions().then(
+        function(defoptions) {
+            return instance.syncPromise(action, Y.clone(defoptions, options));
+        }
+    );
 };
 
 // for backwards compatibility:
@@ -1041,6 +1067,7 @@ YModelList.prototype.destroyPromise = YModelList.prototype.destroyModelPromise;
         "base-build",
         "node-base",
         "json-parse",
+        "oop",
         "promise",
         "model",
         "model-list",

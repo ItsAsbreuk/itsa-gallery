@@ -6,6 +6,7 @@
             "base-build",
             "node-base",
             "json-parse",
+            "oop",
             "promise",
             "model",
             "model-list",
