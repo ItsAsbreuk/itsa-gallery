@@ -18,11 +18,12 @@ YUI.add('gallery-itsacurrentuser', function (Y, NAME) {
 */
 
 var YArray = Y.Array,
+    ITSACurrentUser,
     LOGGED = 'logged',
     LOGGEDIN = LOGGED+'in',
     LOGGEDOUT = LOGGED+'out',
     STRING = 'string',
-    DEFAULT_EXPIRE_AFTER = 60,
+    DEFAULT_EXPIRE_AFTER = 30, //  half uur
     DEFAULT_EXPIRE_WHEN_REMEMBERED = 256320, // half a year
     CURRENT_USER = 'currentuser',
     dateAddMinutes = function (oDate, numMinutes) {
@@ -38,20 +39,12 @@ ITSACurrentUserClass.NAME = 'itsacurrentuser';
 Y.ITSACurrentUserClass = Y.extend(ITSACurrentUserClass, Y.Model);
 
 /**
- * Current username of the logged in user
- * @property username
+ * Current sessionid of the logged in user
+ * @property sessionid
  * @type String
  * @since 0.1
  */
-ITSACurrentUserClass.prototype.username = null;
-
-/**
- * Current password of the logged in user
- * @property password
- * @type String
- * @since 0.1
- */
-ITSACurrentUserClass.prototype.password = null;
+ITSACurrentUserClass.prototype.sessionid = null;
 
 /**
  * Current value of 'remember' of the logged in user
@@ -117,16 +110,15 @@ ITSACurrentUserClass.prototype.initializer = function() {
         Y.after(
             LOGGEDIN,
             function(e) {
-                var username = e.username,
-                    password = e.password,
+                var sessionid = e.sessionid,
                     remember = e.remember || false,
                     expireAfter = e.expireAfter,
                     displayname = e.displayname,
                     messageLoggedin = e.messageLoggedin,
                     userdata = e.userdata;
-                if ((typeof username === STRING) && (typeof password === STRING) && (username.length>0) && (password.length>0)) {
+                if ((typeof sessionid === STRING) && (sessionid.length>0)) {
                     // suppose valid login
-                    instance.dologin(username, password, remember, expireAfter, displayname, messageLoggedin, userdata);
+                    instance.dologin(sessionid, remember, expireAfter, displayname, messageLoggedin, userdata);
                 }
                 else {
                     instance.dologout(); // wrong login
@@ -139,6 +131,13 @@ ITSACurrentUserClass.prototype.initializer = function() {
         Y.after(
             LOGGEDOUT,
             Y.bind(instance.dologout, instance)
+        )
+    );
+
+    eventhandlers.push(
+        Y.after(
+            ['keydown', 'orientationchange', 'mousemove', 'mousedown', 'mousewheel'],
+            Y.bind(instance.refreshState, instance)
         )
     );
 
@@ -158,11 +157,10 @@ ITSACurrentUserClass.prototype.initializer = function() {
  * @return {Y.Promise} resolved when save or cleanup through the localstorage is finished
  * @since 0.1
 */
-ITSACurrentUserClass.prototype.dologin = function(username, password, remember, expireAfter, displayname, messageLoggedin, userdata) {
+ITSACurrentUserClass.prototype.dologin = function(sessionid, remember, expireAfter, displayname, messageLoggedin, userdata) {
     var instance = this,
         expire;
-    instance.username = username;
-    instance.password = password;
+    instance.sessionid = sessionid;
     instance.remember = remember;
     instance.displayname = displayname;
     instance.messageLoggedin = messageLoggedin;
@@ -189,8 +187,7 @@ ITSACurrentUserClass.prototype.dologout = function() {
     var instance = this;
     instance.reset();
     instance.set('id', undefined);
-    instance.username = null;
-    instance.password = null;
+    instance.sessionid = null;
     instance.remember = false;
     instance.displayname = null;
     instance.messageLoggedin = null;
@@ -203,8 +200,7 @@ ITSACurrentUserClass.prototype.dologout = function() {
 /**
  * Returns the current login-state. If resolved (loggedin), the uservalues are available by this object:
  * <ul>
- *    <li>username {String}</li>
- *    <li>password {String}</li>
+ *    <li>sessionid {String}</li>
  *    <li>remember {Boolean}</li>
  *    <li>expire {Date}</li>
  *    <li>displayname {String}</li>
@@ -218,20 +214,28 @@ ITSACurrentUserClass.prototype.dologout = function() {
 */
 ITSACurrentUserClass.prototype.getCurrent = function() {
     var instance = this,
-        expire;
+        expire, lastlogin;
     return instance.isReady().then(
         function() {
+            // maybe we need to logou by timeexpire!
+            if (instance._isLoggedin) {
+                lastlogin = instance._lastActiveTime ? instance._lastActiveTime.getTime() : 0;
+                lastlogin += (60000*instance.expireAfter);
+                expire = new Date();
+/*jshint expr:true */
+                (lastlogin > expire.getTime()) || instance.dologout();
+/*jshint expr:false */
+            }
             if (!instance._isLoggedin) {
                 throw new Error('not loggedin');
             }
             else {
-                expire = new Date();
+                expire = expire || new Date();
                 dateAddMinutes(expire, instance.expireAfter);
                 instance._expire = expire.getTime();
                 instance._saveUser(expire);
                 return {
-                    username: instance.username,
-                    password: instance.password,
+                    sessionid: instance.sessionid,
                     remember: instance.remember,
                     expire: expire,
                     displayname: instance.displayname,
@@ -252,6 +256,19 @@ ITSACurrentUserClass.prototype.getCurrent = function() {
 */
 ITSACurrentUserClass.prototype.isReady = function() {
     return this._isReady;
+};
+
+/**
+ * Refreshes the active-state to the current time. So we have again max expiretime.
+ *
+ * @method refreshActivate
+ * @protected
+ * @since 0.1
+*/
+ITSACurrentUserClass.prototype.refreshState = function() {
+/*jshint expr:true */
+    this._isLoggedin && (this._lastActiveTime=new Date());
+/*jshint expr:false */
 };
 
 /**
@@ -299,6 +316,29 @@ ITSACurrentUserClass.prototype._clearUser = function() {
 };
 
 /**
+ * Returns the header for the syncoptions as an object, which hold the sessionid.
+ * Will be used by the synclayers of gallery-itsamodelsyncpromise and gallery-itsamodellistsyncpromise
+ *
+ * @method _getSyncHeader
+ * @private
+ * @protected
+ * @return {Y.Promise}
+ * @since 0.2
+*/
+ITSACurrentUserClass.prototype._getSyncHeader = function() {
+    return this.getCurrent().then(
+        function(response) {
+            return {
+                headers: { 'X-Access-Token' : response.sessionid }
+            };
+        },
+        function() {
+            return {};
+        }
+    );
+};
+
+/**
  * Loads the userdata from the localstorage into this model.
  *
  * @method _loadUser
@@ -311,13 +351,13 @@ ITSACurrentUserClass.prototype._loadUser = function() {
     var instance = this;
     return Y.ITSAStorage.getItem(CURRENT_USER).then(
         function(response) {
-            instance.username = response.username;
-            instance.password = response.password;
+            instance.sessionid = response.sessionid;
             instance.remember = response.remember;
             instance.displayname = response.displayname;
             instance.messageLoggedin = response.messageLoggedin;
             instance.setAttrs(response.userdata);
             instance._isLoggedin = true;
+            instance.refreshState();
         },
         function() {
             return instance.dologout();
@@ -339,8 +379,7 @@ ITSACurrentUserClass.prototype._saveUser = function(expire) {
     // should save to localstorage, but that has to be done yet
     var instance = this,
         userdata = {
-        username: instance.username,
-        password: instance.password,
+        sessionid: instance.sessionid,
         remember: instance.remember,
         displayname: instance.displayname,
         messageLoggedin: instance.messageLoggedin,
@@ -349,7 +388,9 @@ ITSACurrentUserClass.prototype._saveUser = function(expire) {
     return Y.ITSAStorage.setItem(CURRENT_USER, userdata, expire);
 };
 
+ITSACurrentUser = Y.ITSACurrentUser = new Y.ITSACurrentUserClass();
 
-Y.ITSACurrentUser = new Y.ITSACurrentUserClass();
+Y.Model.prototype.defSyncOptions = Y.bind(ITSACurrentUser._getSyncHeader, ITSACurrentUser);
+Y.ModelList.prototype.defSyncOptions = Y.bind(ITSACurrentUser._getSyncHeader, ITSACurrentUser);
 
-}, '@VERSION@', {"requires": ["yui-base", "promise", "gallery-itsastorage"]});
+}, '@VERSION@', {"requires": ["yui-base", "node-base", "promise", "gallery-itsastorage", "model", "model-list"]});

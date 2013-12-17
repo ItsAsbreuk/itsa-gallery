@@ -2,8 +2,11 @@
     "gallery-itsacurrentuser": {
         "requires": [
             "yui-base",
+            "node-base",
             "promise",
-            "gallery-itsastorage"
+            "gallery-itsastorage",
+            "model",
+            "model-list"
         ]
     }
 }
