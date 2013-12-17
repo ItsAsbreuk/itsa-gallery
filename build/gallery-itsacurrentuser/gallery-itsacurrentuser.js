@@ -272,6 +272,27 @@ ITSACurrentUserClass.prototype.refreshState = function() {
 };
 
 /**
+ * Returns the header for the syncoptions as an object, which hold the sessionid.
+ * Will be used by the synclayers of gallery-itsamodelsyncpromise and gallery-itsamodellistsyncpromise
+ *
+ * @method getSyncHeader
+ * @return {Y.Promise}
+ * @since 0.2
+*/
+ITSACurrentUserClass.prototype.getSyncHeader = function() {
+    return this.getCurrent().then(
+        function(response) {
+            return {
+                headers: { 'X-Access-Token' : response.sessionid }
+            };
+        },
+        function() {
+            return {};
+        }
+    );
+};
+
+/**
  * Cleans up bindings
  *
  * @method destructor
@@ -313,29 +334,6 @@ ITSACurrentUserClass.prototype._clearEventhandlers = function() {
 */
 ITSACurrentUserClass.prototype._clearUser = function() {
     return Y.ITSAStorage.removeItem(CURRENT_USER);
-};
-
-/**
- * Returns the header for the syncoptions as an object, which hold the sessionid.
- * Will be used by the synclayers of gallery-itsamodelsyncpromise and gallery-itsamodellistsyncpromise
- *
- * @method _getSyncHeader
- * @private
- * @protected
- * @return {Y.Promise}
- * @since 0.2
-*/
-ITSACurrentUserClass.prototype._getSyncHeader = function() {
-    return this.getCurrent().then(
-        function(response) {
-            return {
-                headers: { 'X-Access-Token' : response.sessionid }
-            };
-        },
-        function() {
-            return {};
-        }
-    );
 };
 
 /**
@@ -390,7 +388,7 @@ ITSACurrentUserClass.prototype._saveUser = function(expire) {
 
 ITSACurrentUser = Y.ITSACurrentUser = new Y.ITSACurrentUserClass();
 
-Y.Model.prototype.defSyncOptions = Y.bind(ITSACurrentUser._getSyncHeader, ITSACurrentUser);
-Y.ModelList.prototype.defSyncOptions = Y.bind(ITSACurrentUser._getSyncHeader, ITSACurrentUser);
+Y.Model.prototype.defSyncOptions = Y.bind(ITSACurrentUser.getSyncHeader, ITSACurrentUser);
+Y.ModelList.prototype.defSyncOptions = Y.bind(ITSACurrentUser.getSyncHeader, ITSACurrentUser);
 
 }, '@VERSION@', {"requires": ["yui-base", "node-base", "promise", "gallery-itsastorage", "model", "model-list"]});
