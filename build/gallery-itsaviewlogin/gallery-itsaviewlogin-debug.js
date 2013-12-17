@@ -852,7 +852,7 @@ ITSAViewLogin.prototype.initializer = function() {
                             else if (responseObj.status==='CHANGEPASSWORD') {
                                 Y.usePromise(GALLERYITSALOGIN).then(
                                     function() {
-                                        Y.ITSADialog._changePwFn(instance.get(CONFIG+CHANGE+CAP_PASSWORD), instance.get(SYNC)).then(
+                                        Y.ITSADialog._changePwFn(formmodel.get(USERNAME), formmodel.get(PASSWORD), instance.get(CONFIG+CHANGE+CAP_PASSWORD), instance.get(SYNC)).then(
                                             function(response) {
                                                 var newResponseObj = PARSED(response);
                                                 facade = Y.merge(responseObj, newResponseObj, formmodel.toJSON(), {password: response.password});
