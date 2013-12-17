@@ -392,8 +392,6 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                 );
             });
 /*jshint expr:false */
-
-            // accountPromise MUST end with an empty then(), because that will make sure to execute the LazyPromise!!
             return createAccountPromise ?
                 instance.queueMessage(itsamessage).then(
                     function(response) {
