@@ -394,8 +394,6 @@ ITSAMessageControllerClass.prototype[UNDERSCORE+GET_LOGIN] = function(title, mes
                 );
             });
 /*jshint expr:false */
-
-            // accountPromise MUST end with an empty then(), because that will make sure to execute the LazyPromise!!
             return createAccountPromise ?
                 instance.queueMessage(itsamessage).then(
                     function(response) {
@@ -581,6 +579,8 @@ ITSADialogClass.prototype.translate = function(text) {
  *
  * @method _changePwFn
  * @private
+ * @param username {String} current valid username/emailaddress
+ * @param password {String} current valid password
  * @param [config] {Object}
  * @param [config.formconfigPassword] {Object} formconfig that passes through to the password-attribute of the underlying Y.ITSAMessage-instance.
  * @param [config.formconfigVerifyPassword] {Object} formconfig that passes through to the verify-assword-attribute of the underlying Y.ITSAMessage-instance.
@@ -598,7 +598,7 @@ ITSADialogClass.prototype.translate = function(text) {
  * @since 0.1
  *
 */
-ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
+ITSADialogClass.prototype._changePwFn = function(username, password, config, syncPromise) {
     Y.log('_changePwFn', 'info', 'ITSALogin');
     var verifyNewPassword = ((typeof config[VERIFYNEWPASSWORD] === BOOLEAN) && config[VERIFYNEWPASSWORD]) || true,
         showNewPassword = ((typeof config[SHOWNEWPASSWORD] === BOOLEAN) && config[SHOWNEWPASSWORD]) || true,
@@ -618,7 +618,6 @@ ITSADialogClass.prototype._changePwFn = function(config, syncPromise) {
     formconfigVerifyPassword = config.formconfigVerifyPassword || {};
 /*jshint expr:true */
     formconfigVerifyPassword[LABEL] || formconfigVerifyPassword[PLACEHOLDER] || (formconfigVerifyPassword[LABEL]=intl['verify'+PASSWORD]);
-console.log(formconfigVerifyPassword[LABEL]);
 /*jshint expr:false */
     formconfigVerifyPassword[FULLSELECT] = true;
     formconfigVerifyPassword[PRIMARYBTNONENTER] = true;
@@ -651,6 +650,12 @@ console.log(formconfigVerifyPassword[LABEL]);
                           }
                        }, {
                            ATTRS: {
+                                username: {
+                                    value: username
+                                },
+                                oldpassword: {
+                                    value: password
+                                },
                                 password: {
                                     formtype: PASSWORD,
                                     formconfig: formconfigPassword,
@@ -1034,7 +1039,7 @@ ITSADialogInstance.isRendered().then(
                                         }
                                     }
                                     else if ((messageType===GET_LOGIN) && (responseObj.status==='CHANGEPASSWORD')) {
-                                        ITSADialogInstance._changePwFn(itsamessage._config, itsamessage.syncPromise).then(
+                                        ITSADialogInstance._changePwFn(itsamessage.get(USERNAME), itsamessage.get(PASSWORD), itsamessage._config, itsamessage.syncPromise).then(
                                             function(response) {
                                                 var newResponseObj = PARSED(response);
                                                 // itsamessage is the original getLogin-message with level===INFO
