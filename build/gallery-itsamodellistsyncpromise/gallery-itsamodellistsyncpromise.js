@@ -1024,7 +1024,7 @@ YModelList.prototype._syncTimeoutPromise = function(action, options) {
 
     return instance.defSyncOptions().then(
         function(defoptions) {
-            var syncpromise = instance.syncPromise(action, Y.clone(defoptions, options));
+            var syncpromise = instance.syncPromise(action, Y.merge(defoptions, options));
             if (!(syncpromise instanceof Y.Promise)) {
                 return new Y.Promise(function (resolve, reject) {
                     var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
@@ -1046,7 +1046,6 @@ YModelList.prototype.destroyPromise = YModelList.prototype.destroyModelPromise;
         "base-build",
         "node-base",
         "json-parse",
-        "oop",
         "promise",
         "model",
         "model-list",

@@ -1043,7 +1043,7 @@ YModelList.prototype._syncTimeoutPromise = function(action, options) {
     Y.log('_syncTimeoutPromise', 'info', 'ITSA-ModellistSyncPromise');
     return instance.defSyncOptions().then(
         function(defoptions) {
-            var syncpromise = instance.syncPromise(action, Y.clone(defoptions, options));
+            var syncpromise = instance.syncPromise(action, Y.merge(defoptions, options));
             if (!(syncpromise instanceof Y.Promise)) {
                 return new Y.Promise(function (resolve, reject) {
                     var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
