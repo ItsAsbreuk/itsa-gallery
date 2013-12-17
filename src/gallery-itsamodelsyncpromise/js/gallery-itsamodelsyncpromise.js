@@ -177,6 +177,20 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
 };
 
 /**
+ * Promise that returns the default-options (object) that will be passed through the synclayer.
+ * Is used as the syncoptions, along with manual syncoptions that could be supplied. Both objects are merged (actually cloned).
+ *
+ * @method defSyncOptions
+ * @return {Y.Promise} --> resolve(defaultOptionsObject) NEVER reject
+**/
+YModel.prototype.defSyncOptions = function() {
+    Y.log('defSyncOptions', 'info', 'ITSA-ModelSyncPromise');
+    return new Y.Promise(function (resolve) {
+        resolve({});
+    });
+};
+
+/**
   * Destroys this model instance and removes it from its containing lists, if any. The 'callback', if one is provided,
   * will be called after the model is destroyed.<br /><br />
   * If `options.remove` is `true`, then this method delegates to the `sync()` method to delete the model from the persistence layer, which is an
@@ -864,10 +878,10 @@ YModel.prototype._publishAsync = function(type, opts) {
 };
 
 /**
-* Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
-* Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
-*
-* @method _lazyFireErrorEvent
+ * Fires the ERROR-event and -if not published yet- publish it broadcasted to Y.
+ * Because the error-event is broadcasted to Y, it can be catched by gallery-itsaerrorreporter.
+ *
+ * @method _lazyFireErrorEvent
  * @param {Object} [facade] eventfacade.
  * @private
 **/
@@ -897,17 +911,19 @@ YModel.prototype._lazyFireErrorEvent = function(facade) {
  * @since 0.2
 */
 YModel.prototype._syncTimeoutPromise = function(action, options) {
-    var instance = this,
-          syncpromise;
+    var instance = this;
 
-    Y.log('_syncTimeoutPromise', 'info', 'widget');
-    syncpromise = instance.syncPromise(action, options);
-    if (!(syncpromise instanceof Y.Promise)) {
-        syncpromise = new Y.Promise(function (resolve, reject) {
+    Y.log('_syncTimeoutPromise', 'info', 'ITSA-ModelSyncPromise');
+    if (!(instance.syncPromise instanceof Y.Promise)) {
+        return new Y.Promise(function (resolve, reject) {
             var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
-            Y.log('_syncTimeoutPromise: '+errormessage, 'warn', 'widget');
+            Y.log('_syncTimeoutPromise: '+errormessage, 'warn', 'ITSA-ModelSyncPromise');
             reject(new Error(errormessage));
         });
     }
-    return syncpromise;
+    return instance.defSyncOptions().then(
+        function(defoptions) {
+            return instance.syncPromise(action, Y.clone(defoptions, options));
+        }
+    );
 };
