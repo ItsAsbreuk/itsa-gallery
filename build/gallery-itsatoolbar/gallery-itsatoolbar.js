@@ -1592,10 +1592,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 instance.addButton(instance.ICON_CANCEL, {command: 'mysetcontent', value: instance.initialContent}, true);
             }
 
-//************************************************
-// just for temporary local use ITS Asbreuk
-// should NOT be part of the gallery
-            if (false) {
+            if (instance.get('btnFileSelect') && Y.ItsaFilePicker) {
 //                instance.addButton(instance.ICON_EURO, {command: 'inserthtml', value: '&#8364;'}, true);
                 instance.addSyncButton(
                     instance.ICON_FILE,
@@ -1603,7 +1600,7 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                             function() {
                                 Y.ItsaFilePicker.getFile().then(
                                     function(response) {
-                                        instance.execCommand('itsacreatehyperlink', 'http://files.brongegevens.nl/' + Y.config.cmas2plusdomain + '/' + response.file.filename);
+                                        instance.execCommand('itsacreatehyperlink', instance.get('baseFileDir') + response.file.filename);
                                     }
                                 );
                             },
@@ -1639,7 +1636,6 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                     }
                 );
             }
-//************************************************
 
             if (instance.get('grpUndoredo')) {
                 instance.addButton(instance.ICON_UNDO, 'undo', true);
@@ -2837,6 +2833,30 @@ Y.namespace('Plugin').ITSAToolbar = Y.Base.create('itsatoolbar', Y.Plugin.Base, 
                 value: false,
                 validator: function(val) {
                     return Lang.isBoolean(val);
+                }
+            },
+
+            /**
+             * @description Whether the button 'filebrowser' is available<br>
+             * Only visible if gallery-itsafilepicker is included.
+             * Default = false
+             * @attribute btnFileSelect
+             * @type Boolean
+            */
+            btnFileSelect : {
+                value: false,
+                validator: function(val) {
+                    return Lang.isBoolean(val);
+                }
+            },
+
+            baseFileDir : {
+                value : '',
+                validator: function(val) {
+                    return typeof val==='string';
+                },
+                getter: function(v) {
+                    return (/\/$/).test(v) ? v : (v + '/');
                 }
             },
 
