@@ -1041,16 +1041,17 @@ YModelList.prototype._syncTimeoutPromise = function(action, options) {
     var instance = this;
 
     Y.log('_syncTimeoutPromise', 'info', 'ITSA-ModellistSyncPromise');
-    if (!(instance.syncPromise instanceof Y.Promise)) {
-        return new Y.Promise(function (resolve, reject) {
-            var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
-            Y.log('_syncTimeoutPromise: '+errormessage, 'warn', 'ITSA-ModellistSyncPromise');
-            reject(new Error(errormessage));
-        });
-    }
     return instance.defSyncOptions().then(
         function(defoptions) {
-            return instance.syncPromise(action, Y.clone(defoptions, options));
+            var syncpromise = instance.syncPromise(action, Y.clone(defoptions, options));
+            if (!(syncpromise instanceof Y.Promise)) {
+                return new Y.Promise(function (resolve, reject) {
+                    var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
+                    Y.log('_syncTimeoutPromise: '+errormessage, 'warn', 'ITSA-ModellistSyncPromise');
+                    reject(new Error(errormessage));
+                });
+            }
+            return syncpromise;
         }
     );
 };

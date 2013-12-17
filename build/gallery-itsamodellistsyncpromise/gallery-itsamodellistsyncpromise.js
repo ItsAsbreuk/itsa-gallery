@@ -1022,15 +1022,16 @@ YModelList.prototype._prevDefFn = function(e) {
 YModelList.prototype._syncTimeoutPromise = function(action, options) {
     var instance = this;
 
-    if (!(instance.syncPromise instanceof Y.Promise)) {
-        return new Y.Promise(function (resolve, reject) {
-            var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
-            reject(new Error(errormessage));
-        });
-    }
     return instance.defSyncOptions().then(
         function(defoptions) {
-            return instance.syncPromise(action, Y.clone(defoptions, options));
+            var syncpromise = instance.syncPromise(action, Y.clone(defoptions, options));
+            if (!(syncpromise instanceof Y.Promise)) {
+                return new Y.Promise(function (resolve, reject) {
+                    var errormessage = 'syncPromise is rejected --> '+action+' not defined as a Promise inside syncPromise()';
+                    reject(new Error(errormessage));
+                });
+            }
+            return syncpromise;
         }
     );
 };
