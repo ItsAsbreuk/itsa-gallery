@@ -250,6 +250,27 @@ ITSACurrentUserClass.prototype.getCurrent = function() {
 };
 
 /**
+ * Returns the header for the syncoptions as an object, which hold the sessionid.
+ * Will be used by the synclayers of gallery-itsamodelsyncpromise and gallery-itsamodellistsyncpromise
+ *
+ * @method getSyncHeader
+ * @return {Y.Promise}
+ * @since 0.2
+*/
+ITSACurrentUserClass.prototype.getSyncHeader = function() {
+    return this.getCurrent().then(
+        function(response) {
+            return {
+                headers: { 'X-Access-Token' : response.sessionid }
+            };
+        },
+        function() {
+            return {};
+        }
+    );
+};
+
+/**
  * Promise that the instance is ready and has all its properties loaded (from localstorage)
  *
  * @method isReady
@@ -272,27 +293,6 @@ ITSACurrentUserClass.prototype.refreshState = function() {
 /*jshint expr:true */
     this._isLoggedin && (this._lastActiveTime=new Date());
 /*jshint expr:false */
-};
-
-/**
- * Returns the header for the syncoptions as an object, which hold the sessionid.
- * Will be used by the synclayers of gallery-itsamodelsyncpromise and gallery-itsamodellistsyncpromise
- *
- * @method getSyncHeader
- * @return {Y.Promise}
- * @since 0.2
-*/
-ITSACurrentUserClass.prototype.getSyncHeader = function() {
-    return this.getCurrent().then(
-        function(response) {
-            return {
-                headers: { 'X-Access-Token' : response.sessionid }
-            };
-        },
-        function() {
-            return {};
-        }
-    );
 };
 
 /**
