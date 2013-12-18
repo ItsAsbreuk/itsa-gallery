@@ -1734,6 +1734,14 @@ ITSAViewModel.prototype._bindUI = function() {
 /*jshint expr:false */
 
     eventhandlers.push(
+        instance.on(
+            '*:nodeChange', // cones from EditorBase
+            function(e) {
+                instance._enableSaveBtns();
+            }
+        )
+    );
+    eventhandlers.push(
         instance.after(
             '*:destroy',
             function(e) {
