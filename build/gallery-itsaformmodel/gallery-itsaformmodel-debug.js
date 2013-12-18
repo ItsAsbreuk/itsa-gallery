@@ -1176,6 +1176,7 @@ ITSAFormModel.prototype.renderFormElement = function(attribute) {
                 widget.renderPromise().then(
                     function() {
                         var node = Y.one('#'+nodeid);
+                        widget.addTarget(instance);
                         if (knownNodeIds[nodeid]) {
                             // was rendered before --> we need to replace it by an errornode
                             Y.log('renderFormElement --> nodeid '+nodeid+' for attribute '+attribute+' was already inserted in the dom: won\'t be rendered again', 'warn', 'ITSAFormModel');
