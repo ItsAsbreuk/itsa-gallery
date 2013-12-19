@@ -1,42 +1,42 @@
 /*csslint adjoining-classes: false, star-property-hack: false, important: false */
 
 body .yui3-widget-mask {
-    z-index: 1000 !important;
+    z-index: 1010 !important;
     zoom: 1;
     filter: alpha(opacity=25);
     opacity: 0.25;
 }
 
 body.itsa-dialogwarnup .yui3-widget-mask {
-    z-index: 1010 !important;
+    z-index: 1210 !important;
 }
 
 body.itsa-dialogerrorup .yui3-widget-mask {
-    z-index: 1020 !important;
+    z-index: 1220 !important;
 }
 
 .itsa-panel.itsa-dialog {
-    z-index: 1001 !important;
+    z-index: 1201 !important;
 }
 
 .itsa-dialogwarnup .itsa-panel.itsa-dialog {
-    z-index: 1011 !important;
+    z-index: 1211 !important;
 }
 
 .itsa-dialogerrorup .itsa-panel.itsa-dialog {
-    z-index: 1021 !important;
+    z-index: 1221 !important;
 }
 
 .itsa-dialoginfoup .tipsy-formelement-ok,
 .itsa-dialoginfoup .tipsy-formelement-invalid {
-    z-index: 1005 !important;
+    z-index: 1205 !important;
 }
 
 .itsa-dialogwarnup .tipsy-formelement-ok,
 .itsa-dialogwarnup .tipsy-formelement-invalid,
 .itsa-dialoginfoup.itsa-dialogwarnup .tipsy-formelement-ok,
 .itsa-dialoginfoup.itsa-dialogwarnup .tipsy-formelement-invalid {
-    z-index: 1015 !important;
+    z-index: 1215 !important;
 }
 
 .itsa-dialogerrorup .tipsy-formelement-ok,
@@ -47,7 +47,7 @@ body.itsa-dialogerrorup .yui3-widget-mask {
 .itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-invalid,
 .itsa-dialoginfoup.itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-ok,
 .itsa-dialoginfoup.itsa-dialogwarnup.itsa-dialogerrorup .tipsy-formelement-invalid {
-    z-index: 1025 !important;
+    z-index: 1225 !important;
 }
 
 .itsa-dialog fieldset,
