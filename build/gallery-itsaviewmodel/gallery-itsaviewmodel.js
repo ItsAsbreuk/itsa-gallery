@@ -1596,7 +1596,6 @@ ITSAViewModel.prototype._bindUI = function() {
                         );
                     }
                 }
-
                 (prevFormModel !== newFormModel) && newFormModel && instance.get(TEMPLATE) && instance._setTemplateRenderer();
 /*jshint expr:false */
                 instance.render();
@@ -1655,7 +1654,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             '*:change',
             function(e) {
-                if ((e.target instanceof Y.Model) && !instance.get(EDITABLE)) {
+                if (e.target instanceof Y.Model) {
                     instance.render(false, true);
                 }
             }
@@ -1697,7 +1696,7 @@ ITSAViewModel.prototype._bindUI = function() {
                 if (!destroyWithoutRemove && (model instanceof Y.Model)) {
                     if ((eventType===SUBMIT) || (eventType===SAVE)) {
                         prevAttrs = model.getAttrs();
-                        model.UIToModel();
+                        instance.get(EDITABLE) && model.UIToModel();
                     }
                     if ((eventType!==SAVE) || (model.isModified())) {
                         instance._lockedBefore = instance._locked;
@@ -2441,13 +2440,13 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
         var microTemplateRegExp = /<%(.+)%>/;
         return microTemplateRegExp.test(template);
     };
-    buttonsToJSON = function(jsondata, model) {
+    buttonsToJSON = function(jsondata, model, micro) {
         var propertykey, type, labelHTML, config, propertyEmbraced;
         YArray.each(
             instance._buttons,
             function(buttonobject) {
                 propertykey = buttonobject.propertykey;
-                propertyEmbraced = new RegExp('{'+propertykey+'}');
+                propertyEmbraced = micro ? (new RegExp('<%==? (data|this).'+propertykey+' %>')) : (new RegExp('{'+propertykey+'}'));
                 if (propertyEmbraced.test(template)) {
                     type = buttonobject.type;
                     labelHTML = buttonobject.labelHTML(); // is a function!
@@ -2460,7 +2459,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
         YObject.each(
             instance._customBtns,
             function(buttonobject, propertykey) {
-                propertyEmbraced = new RegExp('{'+propertykey+'}');
+                propertyEmbraced = micro ? (new RegExp('<%==? (data|this).'+propertykey+' %>')) : (new RegExp('{'+propertykey+'}'));
                 if (propertyEmbraced.test(template)) {
                     labelHTML = buttonobject.labelHTML; // is a property
                     config = buttonobject.config;
@@ -2476,7 +2475,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
             var jsondata = editMode ? model.toJSONUI(null, template) : instance.toJSON();
             // if model is instance of Y.ITSAFormModel, then add the btn_buttontype-properties:
 /*jshint expr:true */
-            model.toJSONUI && buttonsToJSON(jsondata, model);
+            model.toJSONUI && buttonsToJSON(jsondata, model, true);
 /*jshint expr:false */
             return compiledModelEngine(jsondata);
         };
@@ -2485,7 +2484,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
         instance._modelRenderer = function(model) {
             var jsondata = editMode ? model.toJSONUI(null, template) : instance.toJSON();
 /*jshint expr:true */
-            model.toJSONUI && buttonsToJSON(jsondata, model);
+            model.toJSONUI && buttonsToJSON(jsondata, model, false);
 /*jshint expr:false */
             return Lang.sub(template, jsondata);
         };
@@ -2513,6 +2512,7 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
         "event-custom-base",
         "oop",
         "promise",
+        "json",
         "pluginhost-base",
         "gallery-itsamodulesloadedpromise",
         "gallerycss-itsa-base"
