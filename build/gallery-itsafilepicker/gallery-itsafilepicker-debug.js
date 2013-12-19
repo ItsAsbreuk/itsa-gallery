@@ -120,7 +120,7 @@ if (!Y.Global.ItsaFilePicker) {
     config = {
         width: defaultWidth,
         height: defaultHeight,
-        zIndex: 15000,
+        zIndex: 1050,
         centered: true,
         modal: true,
         visible: false,
