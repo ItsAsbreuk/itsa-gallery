@@ -1141,7 +1141,15 @@ ITSAViewModel.prototype.render = function (clear, modelchange) {
     // due to a bug that we haven't found yet, cleanup is no good when using itsaviewmodelpanel, where the footer
     // gets rerendered --> some node in the footer gets referenced while it doesn;t exists anymore.
     // that's why the conditional is created.
-    modelchange && !instance.get('partOfMultiView') && model && model.toJSONUI && model.cleanup();
+
+    // WELL: it seems we cannot call cleanup in no cases at all --> after *:change the view will be rerendered and
+    // this seems to lead into buttons not listening to click (empty model-internals)
+    // THUS: commented next line:
+
+//    modelchange && !instance.get('partOfMultiView') && model && model.toJSONUI && model.cleanup();
+
+
+
 /*jshint expr:false */
     // Render this view's HTML into the container element.
     // Because Y.Node.setHTML DOES NOT destroy its nodes (!) but only remove(), we destroy them ourselves first
