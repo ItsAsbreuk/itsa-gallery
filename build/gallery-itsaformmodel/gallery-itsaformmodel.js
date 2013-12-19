@@ -578,7 +578,11 @@ ITSAFormModel.prototype.disableUI = function() {
                     wasDisabled = widget.get(DISABLED) && !node.getData(DISABLED_CHECK);
                     if (!wasDisabled) {
         /*jshint expr:true */
-                        (formelement.type.NAME===EDITORBASE) ? widget.hide() : widget.disable();
+                        try {
+                            (formelement.type.NAME===EDITORBASE) ? widget.hide() : widget.disable();
+                        }
+                        catch (err) {
+                        }
         /*jshint expr:false */
                         // if the widget is slider, then also disable the valuespan
                         if (formelement.type.NAME===SLIDER) {
