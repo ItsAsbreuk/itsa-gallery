@@ -2578,7 +2578,6 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
         "event-custom-base",
         "oop",
         "promise",
-        "json",
         "pluginhost-base",
         "gallery-itsamodulesloadedpromise",
         "gallerycss-itsa-base"
