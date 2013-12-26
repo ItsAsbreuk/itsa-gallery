@@ -1133,6 +1133,7 @@ ITSAViewModel.prototype.render = function (clear, modelchange) {
         itsaDateTimePicker = Y.Global.ItsaDateTimePicker,
         html = (clear || !model) ? '' : instance._modelRenderer(model),
         withfocusmanager;
+
     Y.log('render', 'info', 'ITSA-ViewModel');
 /*jshint expr:true */
     // we should do a cleanup always, BUT
@@ -1155,7 +1156,11 @@ ITSAViewModel.prototype.render = function (clear, modelchange) {
         if (editMode) {
             instance._initialEditAttrs = model.getAttrs();
         }
-        container.cleanup(instance._rendered);
+// STILL there is a bug that we see when using gallery-itsaviewlogin: container.cleanup messes thing up.
+// that is why temporarely commented clenaup:
+
+//        container.cleanup(instance._rendered);
+
     }
     else {
         // we should do a cleanup always, BUT
@@ -1163,7 +1168,10 @@ ITSAViewModel.prototype.render = function (clear, modelchange) {
         // gets rerendered --> some node in the footer gets referenced while it doesn;t exists anymore.
         // that's why the conditional is created.
         if (!modelchange || !instance.get('partOfMultiView')) {
-            container.cleanup(false);
+// STILL there is a bug that we see when using gallery-itsaviewlogin: container.cleanup messes thing up.
+// that is why temporarely commented clenaup:
+
+//            container.cleanup(false);
         }
     }
     // Append the container element to the DOM if it's not on the page already.
