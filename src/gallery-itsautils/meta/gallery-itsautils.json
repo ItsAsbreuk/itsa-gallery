@@ -4,6 +4,7 @@
             "yui-base",
             "json",
             "jsonp",
+            "promise",
             "gallery-io-utils"
         ]
     }

@@ -9,7 +9,83 @@ var DATEPATTERN = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/,
     REVIVER = function(key, value) {
         return DATEPATTERN.test(value) ? new Date(value) : value;
     },
+    Lang = Y.Lang,
+    YPromise = Y.Promise,
     MIME_JSON = 'application/json';
+
+
+
+//============================================================================
+// remove this temporarely function of cast as soo as it is availabe in Y.Promise
+//============================================================================
+YPromise.cast = function (value) {
+    return Y.Promise.isPromise(value) && value.constructor === this ? value :
+        /*jshint newcap: false */
+        new this(function (resolve) {
+        /*jshint newcap: true */
+            resolve(value);
+        });
+};
+YPromise.prototype.cast = YPromise.cast;
+//============================================================================
+
+
+/*
+Returns a promise that is resolved or rejected when all values are resolved or
+any is rejected. This is useful for waiting for the resolution of multiple
+promises, such as reading multiple files in Node.js or making multiple XHR
+requests in the browser.
+
+@method all
+@param {Any[]} values An array of any kind of values, promises or not. If a value is not
+@return [Promise] A promise for an array of all the fulfillment values
+@static
+*/
+YPromise.allFulfilled = function (values) {
+    var Promise = this;
+    return new Promise(function (resolve, reject) {
+        if (!Lang.isArray(values)) {
+            reject(new TypeError('Promise.all expects an array of values or promises'));
+            return;
+        }
+
+        var remaining       = values.length,
+            i               = 0,
+            length          = values.length,
+            resolvedresults = [],
+            rejectedresults = [];
+
+        function oneDone(index, resolved) {
+            return function (value) {
+                resolvedresults[index] = resolved ? value : null;
+                rejectedresults[index] = resolved ? null : value;
+
+                remaining--;
+
+                if (!remaining) {
+                    resolve({
+                        resolved: resolvedresults,
+                        rejected: rejectedresults
+                    });
+                }
+            };
+        }
+
+        if (length < 1) {
+            return resolve({
+                        resolved: resolvedresults,
+                        rejected: rejectedresults
+                    });
+        }
+
+        for (; i < length; i++) {
+            Promise.cast(values[i]).then(oneDone(i, true), oneDone(i, false));
+        }
+    });
+};
+
+YPromise.prototype.allFulfilled = YPromise.allFulfilled;
+
 
 /**
  * Parse a JSON string, returning the native JavaScript representation.
