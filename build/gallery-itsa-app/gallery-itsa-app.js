@@ -68,6 +68,7 @@ ITSA_App.prototype.initializer = function() {
         "gallery-itsaerrorreporter",
         "gallery-itsacurrentuser",
         "gallery-itsadialog",
-        "gallery-itsastatusbar"
+        "gallery-itsastatusbar",
+        "gallerycss-itsa-purecss"
     ]
 });
