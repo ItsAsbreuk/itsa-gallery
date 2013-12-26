@@ -1,0 +1,8 @@
+a:focus {
+    outline: 0;
+}
+a[target="_blank"]:focus {
+    outline: 1px solid #129fea;
+}
+/* YUI CSS Detection Stamp */
+#yui3-css-stamp.gallerycss-itsa-purecss { display: none; }

@@ -1,0 +1,277 @@
+a:focus {
+    outline: 0;
+}
+a[target="_blank"]:focus {
+    outline: 1px solid #129fea;
+}
+
+/* ---- here are all the colors defined by Y.ITSACheckbox. Change them if you want other colors ----
+
+.yui3-itsacheckbox .optionon {
+    background-color: #6AA7F6;
+    color: #FFF;
+}
+
+.yui3-itsacheckbox .optionoff {
+    background-color: #FFF;
+    color: #444;
+}
+
+.yui3-itsacheckbox .optionbtn {
+    background-color: #fff;
+    border-color: #AAA;
+}
+.yui3-itsacheckbox {
+    border-color: #CCC;
+}
+
+.yui3-itsacheckbox:focus,
+.itsa-widget-parent[data-type="itsacheckbox"]:focus .yui3-itsacheckbox {
+    border-color: #129FEA;
+}
+
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled .optionon,
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled .optionoff,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled .optionon,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled .optionoff {
+    background-color: #EAEDED;
+    color: #909596;
+}
+
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled:focus,
+.itsa-widget-parent[data-type="itsacheckbox"]:focus .yui3-itsacheckbox.yui3-itsacheckbox-disabled,
+.yui3-itsacheckbox.yui3-itsacheckbox-disabled:focus .optionbtn,
+.yui3-itsacheckbox.yui3-itsacheckbox-readonly:focus,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-readonly,
+.yui3-itsacheckbox.yui3-itsacheckbox-focused.yui3-itsacheckbox-disabled .optionbtn {
+    border-color: #CCC;
+}
+
+----------------------------------------------------------------------------------- */
+
+/* ---- here are all the colors defined by purecss. Change them if you want other colors ----
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+fieldset {
+    border-color: #c0c0c0;
+}
+
+.pure-button {
+    color: #444;
+    color: rgba(0, 0, 0, 0.80);
+    *color: #444;
+    border-color: #999;
+    border: none rgba(0, 0, 0, 0);
+    background-color: #E6E6E6;
+}
+
+.pure-button-hover,
+.pure-button:hover,
+.pure-button:focus {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#1a000000',GradientType=0);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(transparent), color-stop(40%, rgba(0,0,0, 0.05)), to(rgba(0,0,0, 0.10)));
+    background-image: -webkit-linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.10));
+    background-image: -moz-linear-gradient(top, rgba(0,0,0, 0.05) 0%, rgba(0,0,0, 0.10));
+    background-image: -o-linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.10));
+    background-image: linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.10));
+}
+
+.pure-button-primary,
+.pure-button-selected,
+a.pure-button-primary,
+a.pure-button-selected {
+    background-color: rgb(0, 120, 231);
+    color: #fff;
+}
+
+.pure-form input[type="text"]:focus,
+.pure-form input[type="password"]:focus,
+.pure-form input[type="email"]:focus,
+.pure-form input[type="url"]:focus,
+.pure-form input[type="date"]:focus,
+.pure-form input[type="month"]:focus,
+.pure-form input[type="time"]:focus,
+.pure-form input[type="datetime"]:focus,
+.pure-form input[type="datetime-local"]:focus,
+.pure-form input[type="week"]:focus,
+.pure-form input[type="number"]:focus,
+.pure-form input[type="search"]:focus,
+.pure-form input[type="tel"]:focus,
+.pure-form input[type="color"]:focus,
+.pure-form select:focus,
+.pure-form textarea:focus {
+    border-color: #129FEA;
+}
+
+.pure-form input[type="file"]:focus,
+.pure-form input[type="radio"]:focus,
+.pure-form input[type="checkbox"]:focus {
+    outline-color: #129FEA;
+}
+
+.pure-form input[type="text"][disabled],
+.pure-form input[type="password"][disabled],
+.pure-form input[type="email"][disabled],
+.pure-form input[type="url"][disabled],
+.pure-form input[type="date"][disabled],
+.pure-form input[type="month"][disabled],
+.pure-form input[type="time"][disabled],
+.pure-form input[type="datetime"][disabled],
+.pure-form input[type="datetime-local"][disabled],
+.pure-form input[type="week"][disabled],
+.pure-form input[type="number"][disabled],
+.pure-form input[type="search"][disabled],
+.pure-form input[type="tel"][disabled],
+.pure-form input[type="color"][disabled],
+.pure-form select[disabled],
+.pure-form textarea[disabled] {
+    background-color: #eaeded;
+    color: #cad2d3;
+}
+.pure-form input[readonly],
+.pure-form select[readonly],
+.pure-form textarea[readonly] {
+    background: #eee;
+    color: #777;
+    border-color: #ccc;
+}
+
+.pure-form input:focus:invalid,
+.pure-form textarea:focus:invalid,
+.pure-form select:focus:invalid {
+    color: #b94a48;
+    border-color: #ee5f5b;
+}
+.pure-form input:focus:invalid:focus,
+.pure-form textarea:focus:invalid:focus,
+.pure-form select:focus:invalid:focus {
+    border-color: #e9322d;
+}
+.pure-form input[type="file"]:focus:invalid:focus,
+.pure-form input[type="radio"]:focus:invalid:focus,
+.pure-form input[type="checkbox"]:focus:invalid:focus {
+    outline-color: #e9322d;
+}
+.pure-form select {
+    border-color: #ccc;
+    background-color: white;
+}
+
+.pure-form legend {
+    color: #333;
+    border-bottom-color: #e5e5e5;
+}
+
+.pure-form .pure-help-inline,
+.pure-form-message-inline {
+    color: #666;
+}
+
+.pure-form-message {
+    color: #666;
+}
+
+.pure-menu-separator {
+    background-color: #dfdfdf;
+}
+
+.pure-menu.pure-menu-open,
+.pure-menu.pure-menu-horizontal li .pure-menu-children {
+    background: #fff;
+    border-color: #b7b7b7;
+}
+
+.pure-menu a,
+.pure-menu .pure-menu-can-have-children > li:after {
+    color: #777;
+}
+
+.pure-menu .pure-menu-can-have-children > li:hover:after {
+    color: #fff;
+}
+
+.pure-menu .pure-menu-open {
+    background: #dedede;
+}
+
+
+.pure-menu li a:hover,
+.pure-menu li a:focus {
+    background: #eee;
+}
+
+.pure-menu li.pure-menu-disabled a:hover,
+.pure-menu li.pure-menu-disabled a:focus {
+    background: #fff;
+    color: #bfbfbf;
+}
+
+.pure-menu .pure-menu-disabled > a,
+.pure-menu .pure-menu-can-have-children.pure-menu-disabled > a:after {
+    color: #bfbfbf;
+}
+
+.pure-menu .pure-menu-heading {
+    color: #565d64;
+    border-bottom-color: #dfdfdf;
+}
+
+.pure-menu .pure-menu-selected a {
+    color: #000;
+}
+
+.pure-menu.pure-menu-open.pure-menu-fixed {
+    border-bottom-color: #b7b7b7;
+}
+
+.pure-paginator .prev,
+.pure-paginator .next {
+    color: #C0C1C3;
+}
+
+@media (max-width: 480px) {
+    .pure-menu-children li {
+        border-bottom-color: black;
+    }
+}
+
+.pure-table {
+    border-color: #cbcbcb;
+}
+
+.pure-table caption {
+    color: #000;
+}
+
+.pure-table td,
+.pure-table th {
+    border-left-color: #cbcbcb;
+}
+
+.pure-table thead {
+    background: #e0e0e0;
+    color: #000;
+}
+
+.pure-table-odd td {
+    background-color: #f2f2f2;
+}
+
+.pure-table-striped tr:nth-child(2n-1) td {
+    background-color: #f2f2f2;
+}
+
+.pure-table-bordered td {
+    border-bottom-color: #cbcbcb;
+}
+
+.pure-table-horizontal td,
+.pure-table-horizontal th {
+    border-bottom-color: #cbcbcb;
+}
+
+----------------------------------------------------------------------------------- */
