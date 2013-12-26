@@ -965,6 +965,11 @@ ITSAViewLogin.prototype.render = function () {
         function() {
             instance.constructor.superclass.render.call(instance);
         }
+    ).then(
+        null,
+        function(reason) {
+            instance.fire(reason);
+        }
     );
     // for compatibility, make it chainable
     return instance;

@@ -573,7 +573,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          * The validator that passes through to model.password during initialization.
          *
          * @attribute validatorPassword
-         * @type {String}
+         * @type {Function}
          * @default null
          * @since 0.1
          */
@@ -588,7 +588,7 @@ Y.ITSAViewLogin = Y.extend(ITSAViewLogin, Y.ITSAViewModel, {}, {
          * The validator that passes through to model.username during initialization.
          *
          * @attribute validatorUsername
-         * @type {String}
+         * @type {Function}
          * @default null
          * @since 0.1
          */
@@ -961,6 +961,11 @@ ITSAViewLogin.prototype.render = function () {
     ).then(
         function() {
             instance.constructor.superclass.render.call(instance);
+        }
+    ).then(
+        null,
+        function(reason) {
+            instance.fire(reason);
         }
     );
     // for compatibility, make it chainable
