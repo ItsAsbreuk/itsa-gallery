@@ -64,8 +64,6 @@ ITSA_App.prototype.initializer = function() {
     "requires": [
         "yui-base",
         "app",
-        "gallery-itsagarbagecollector-node",
-        "gallery-itsagarbagecollector-widget",
         "gallery-itsaerrorreporter",
         "gallery-itsacurrentuser",
         "gallery-itsadialog",
