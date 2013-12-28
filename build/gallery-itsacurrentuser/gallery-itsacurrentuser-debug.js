@@ -400,4 +400,13 @@ ITSACurrentUser = Y.ITSACurrentUser = new Y.ITSACurrentUserClass();
 Y.Model.prototype.defSyncOptions = Y.bind(ITSACurrentUser.getSyncHeader, ITSACurrentUser);
 Y.ModelList.prototype.defSyncOptions = Y.bind(ITSACurrentUser.getSyncHeader, ITSACurrentUser);
 
-}, '@VERSION@', {"requires": ["yui-base", "node-base", "promise", "gallery-itsastorage", "model", "model-list"]});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "node-base",
+        "promise",
+        "gallery-itsastorage",
+        "gallery-itsamodelsyncpromise",
+        "gallery-itsamodellistsyncpromise"
+    ]
+});
