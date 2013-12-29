@@ -263,7 +263,7 @@ ITSAMessage = Y.ITSAMessage = Y.Base.create('itsamessage', Y.ITSAFormModel, [], 
         instance.priority = false; // messages with priority===true appear before messages with priority===false
         instance.source = 'application';
 
-        instance._config = {}; // orriginal config passed through
+        instance._config = {}; // original config passed through
         instance._processing = false;
         instance._simpleMessage = false;
         instance._statusMessage = false;
