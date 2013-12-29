@@ -294,9 +294,12 @@ ITSAStatusbar.prototype.viewMessage = function(itsamessage) {
                 ).then(
                     function() {
                         resolve();
-/*jshint expr:true */
-                        (instance.countMessages(true)===0) && bars[EMPTY].show() && bars[EMPTY].setStyle('opacity', 1); // without delay for better userexperience
-/*jshint expr:false */
+                        // NEED to async because there seem to be 2x the same messages put in the queue???
+                        Y.soon(function() {
+                        /*jshint expr:true */
+                            (instance.countMessages(true)===0) && bars[EMPTY].show() && bars[EMPTY].setStyle('opacity', 1); // without delay for better userexperience
+                        /*jshint expr:false */
+                        });
                     }
                 ).then(
                     null,
