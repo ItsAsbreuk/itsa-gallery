@@ -1670,7 +1670,7 @@ ITSAViewModel.prototype._bindUI = function() {
         instance.after(
             '*:change',
             function(e) {
-                if (e.target instanceof Y.Model) {
+                if ((e.target instanceof Y.Model) && !e.formelement) {
                     instance.render(false, true);
                 }
             }
@@ -2527,7 +2527,6 @@ ITSAViewModel.prototype._setTemplateRenderer = function() {
         "event-outside",
         "event-custom-base",
         "oop",
-        "json",
         "promise",
         "pluginhost-base",
         "gallery-itsamodulesloadedpromise",

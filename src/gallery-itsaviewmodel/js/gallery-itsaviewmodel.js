@@ -1701,7 +1701,7 @@ ITSAViewModel.prototype._bindUI = function() {
             '*:change',
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSA-ViewModel');
-                if (e.target instanceof Y.Model) {
+                if ((e.target instanceof Y.Model) && !e.formelement) {
                     instance.render(false, true);
                 }
             }
