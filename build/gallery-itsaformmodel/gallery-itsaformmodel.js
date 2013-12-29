@@ -1826,15 +1826,13 @@ ITSAFormModel.prototype._bindUI = function() {
             [SAVE_CLICK, SUBMIT_CLICK],
             function(e) {
                 var unvalidNodes;
-                if ((e.type===SUBMIT_CLICK) && (instance.isModified())) {
-                    unvalidNodes = instance.getUnvalidatedUI();
-                    if (!unvalidNodes.isEmpty()) {
-                        e.preventDefault();
-                        instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
-                    }
-                    else {
-                        instance.UIToModel();
-                    }
+                unvalidNodes = instance.getUnvalidatedUI();
+                if (!unvalidNodes.isEmpty()) {
+                    e.preventDefault();
+                    instance.fire(VALIDATION_ERROR, {target: instance, nodelist: unvalidNodes, src: e.type});
+                }
+                else {
+                    instance.UIToModel();
                 }
             }
         )
@@ -2210,7 +2208,6 @@ ITSAFormModel.prototype._getWidgetValueField = function(type) {
 ITSAFormModel.prototype._modelToUI = function(nodeid) {
     var instance = this,
         formElement, formElements, node, value, attribute, widget, type, dateformat, field;
-
     formElements = instance._FORM_elements;
     formElement = nodeid && formElements[nodeid];
     if (formElement && (node=Y.one('#'+nodeid)) && node.getAttribute(DATA_MODELATTRIBUTE)) {
