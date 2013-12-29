@@ -123,6 +123,7 @@ PARSED = function (response) {
 */
 YModel.prototype.addMessageTarget = function(itsamessageviewer) {
     Y.log('addMessageTarget', 'info', 'ITSA-ModelSyncPromise');
+console.log('MODELSYNCPROMISE addMessageTarget '+itsamessageviewer._viewName);
     var instance = this;
     Y.usePromise(GALLERY_ITSA+'messagecontroller', GALLERY_ITSA+'messageviewer', GALLERY_ITSA+'panel', GALLERY_ITSA+'viewmodel').then(
         function() {
@@ -149,6 +150,7 @@ YModel.prototype.addMessageTarget = function(itsamessageviewer) {
                             statushandle, syncMessages;
                         if ((subtype!==DESTROY) || remove) {
                             syncMessages = instance._defSyncMessages;
+console.log('MODELSYNCPROMISE showStatus !! ');
                             statushandle = itsamessageviewer.showStatus(
                                                e.syncmessage || (syncMessages && syncMessages[subtype]) || Y.Intl.get(GALLERYITSAMODELSYNCPROMISE)[subtype],
                                                {source: MODELSYNC, busy: true}
@@ -647,8 +649,6 @@ YModel.prototype._defFn_save = function(e) {
                         parsed = PARSED(parsed.responseText);
                     }
                     if (YObject.keys(parsed).length>0) {
-
-
                         e.parsed = parsed;
                         // if removed then fire destroy-event (not through synclayer), else update data
 /*jshint expr:true */

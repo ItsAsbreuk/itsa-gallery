@@ -645,8 +645,6 @@ YModel.prototype._defFn_save = function(e) {
                         parsed = PARSED(parsed.responseText);
                     }
                     if (YObject.keys(parsed).length>0) {
-
-
                         e.parsed = parsed;
                         // if removed then fire destroy-event (not through synclayer), else update data
 /*jshint expr:true */
