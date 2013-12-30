@@ -1,0 +1,10 @@
+{
+    "gallery-itsacheckboxgroup": {
+        "requires": [
+            "yui-base",
+            "oop",
+            "widget-base",
+            "gallery-itsacheckbox"
+        ]
+    }
+}
