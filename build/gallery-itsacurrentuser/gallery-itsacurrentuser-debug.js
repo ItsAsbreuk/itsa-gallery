@@ -169,6 +169,7 @@ ITSACurrentUserClass.prototype.dologin = function(sessionid, remember, expireAft
     instance.setAttrs(userdata);
     instance.expireAfter = expireAfter || (remember ? DEFAULT_EXPIRE_WHEN_REMEMBERED : DEFAULT_EXPIRE_AFTER);
     instance._isLoggedin = true;
+    instance.refreshState();
     // ALWAYS remember with expire time
     expire = new Date();
     dateAddMinutes(expire, instance.expireAfter);
