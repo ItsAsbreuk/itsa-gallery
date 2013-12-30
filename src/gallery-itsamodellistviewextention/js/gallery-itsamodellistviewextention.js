@@ -1963,7 +1963,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                             modellist.free();
                         }
                         //======================================================
-                        instance._renderView();
+                        instance._renderView(null, {keepstyles: false, initbuild: true});
                     }
                 }
             )
