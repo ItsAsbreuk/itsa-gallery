@@ -415,7 +415,7 @@ ITSAMessageControllerClass.prototype._setupModelSyncListeners = function() {
             var model = e.target,
                 type = e.type,
                 options = e.options,
-                remove = options.remove || options[DELETE],
+                remove = options && (options.remove || options[DELETE]),
                 subtype = type.split(':')[1],
                 statushandle, defSyncMessages;
             // cannot check Y.Model or Y.ModelList until we are sure the model-module is loaded
