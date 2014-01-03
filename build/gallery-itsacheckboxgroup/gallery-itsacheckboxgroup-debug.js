@@ -36,7 +36,8 @@ function ITSACheckboxGroup() {
 
 ITSACheckboxGroup.NAME = 'itsacheckboxgroup';
 
-ITSACheckboxGroup.CHECKBOX_TEMPLATE = '<div class="pure-control-group"><label data-widgetlabel="true">{option}</label>{checkbox}</div>';
+ITSACheckboxGroup.CHECKBOX_TEMPLATE = '<div class="pure-control-group" data-focusable="true" data-type="itsacheckbox" data-modelattribute="true" data-formelement="true">'+
+                                      '<label data-widgetlabel="true">{option}</label>{checkbox}</div>';
 
 ITSACheckboxGroup.ATTRS = {
 
@@ -77,8 +78,7 @@ ITSACheckboxGroup.ATTRS = {
      */
     checked: {
         value: [],
-        validator: function(v){ return Lang.isArray(v); },
-        getter: '_getChecked'
+        validator: function(v){ return Lang.isArray(v); }
     }
 
 };
@@ -106,11 +106,9 @@ ITSACheckboxGroup.prototype.renderUI = function() {
         options = instance.get(OPTIONS),
         contentBox = instance.get(CONTENTBOX),
         checkboxConfig = instance.get('checkboxConfig') || {},
-        checkboxNode, nodestring, checked;
+        checkboxNode, nodestring, checked, checkbox;
 
-    instance._originalChecked = true;
     checked = instance.get(CHECKED);
-    instance._originalChecked = false;
     // first set all array-values inside an object for quicker codehandling:
     instance._options = {};
     instance._checked = {};
@@ -125,12 +123,15 @@ ITSACheckboxGroup.prototype.renderUI = function() {
     YArray.each(
         options,
         function(option) {
-            nodestring = Lang.sub(instance.constructor.CHECKBOX_TEMPLATE, {option: option, checkbox: '<div class="'+ITSA_WIDGET_PARENT+'"></div>'});
+            nodestring = Lang.sub(instance.constructor.CHECKBOX_TEMPLATE,
+                                  {option: option, checkbox: '<div class="'+ITSA_WIDGET_PARENT+'"></div>'});
             checkboxNode = Y.Node.create(nodestring);
             contentBox.append(checkboxNode);
             checkboxConfig.boundingBox = checkboxNode.one('.'+ITSA_WIDGET_PARENT);
             checkboxConfig.checked = instance._checked[option] ? true : false;
-            instance._options[option] = (new Y.ITSACheckbox(checkboxConfig)).render();
+            instance._options[option] = checkbox = new Y.ITSACheckbox(checkboxConfig);
+            checkbox.render();
+            checkbox.addTarget(instance);
         }
     );
 };
@@ -151,6 +152,12 @@ ITSACheckboxGroup.prototype.bindUI = function() {
         instance.after(
             CHECKED+CHANGE,
             Y.bind(instance._resetChecked, instance)
+        )
+    );
+    instance._eventhandlers.push(
+        instance.after(
+            '*:'+CHECKED+CHANGE,
+            Y.bind(instance._setChecked, instance)
         )
     );
 };
@@ -191,26 +198,26 @@ ITSACheckboxGroup.prototype._clearEventhandlers = function() {
 };
 
 /**
- * @method _getChecked
+ * @method _setChecked
  * @private
  * @since 0.1
 */
-ITSACheckboxGroup.prototype._getChecked = function(v) {
-    Y.log('_getChecked', 'info', 'ITSACheckboxGroup');
+ITSACheckboxGroup.prototype._setChecked = function(e) {
+    Y.log('_setChecked', 'info', 'ITSACheckboxGroup');
     var instance = this,
         checked = [];
-    if (instance._originalChecked) {
-        return v;
+    if (e.target!==this && !instance._fromReset) {
+        YObject.each(
+            instance._options,
+            function(checkbox, option) {
+    /*jshint expr:true */
+                checkbox.get(CHECKED) && checked.push(option);
+    /*jshint expr:false */
+            }
+        );
+        instance._fromInternal = true;
+        instance.set(CHECKED, checked);
     }
-    YObject.each(
-        instance._options,
-        function(checkbox, option) {
-/*jshint expr:true */
-            checkbox.get(CHECKED) && checked.push(option);
-/*jshint expr:false */
-        }
-    );
-    return checked;
 };
 
 /**
@@ -222,25 +229,32 @@ ITSACheckboxGroup.prototype._resetChecked = function() {
     Y.log('_resetChecked', 'info', 'ITSACheckboxGroup');
     var instance = this,
         checked;
-    instance._originalChecked = true;
-    checked = instance.get(CHECKED);
-    instance._originalChecked = false;
-    instance._checked = {};
-    YArray.each(
-        checked,
-        function(onechecked) {
-/*jshint expr:true */
-            onechecked && (instance._checked[onechecked]=true);
-/*jshint expr:false */
-        }
-    );
-    YObject.each(
-        instance._options,
-        function(checkbox, option) {
-            var newchecked = instance._checked[option] ? true : false;
-            checkbox.set(CHECKED, newchecked);
-        }
-    );
+    if (instance._fromInternal) {
+        instance._fromInternal = null;
+    }
+    else {
+        checked = instance.get(CHECKED);
+        instance._checked = {};
+        YArray.each(
+            checked,
+            function(onechecked) {
+    /*jshint expr:true */
+                onechecked && (instance._checked[onechecked]=true);
+    /*jshint expr:false */
+            }
+        );
+        instance._fromReset = true;
+        YObject.each(
+            instance._options,
+            function(checkbox, option) {
+                var newchecked = instance._checked[option] ? true : false;
+                checkbox.set(CHECKED, newchecked);
+            }
+        );
+        Y.soon(function() {
+            instance._fromReset = null;
+        });
+    }
 };
 
 /**
@@ -275,4 +289,4 @@ ITSACheckboxGroup.prototype._emptyContentBox = function() {
 };
 
 
-}, '@VERSION@', {"requires": ["yui-base", "oop", "widget-base", "gallery-itsacheckbox"]});
+}, '@VERSION@', {"requires": ["yui-base", "oop", "widget-base", "timers", "gallery-itsacheckbox"]});

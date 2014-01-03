@@ -4,6 +4,7 @@
             "yui-base",
             "oop",
             "widget-base",
+            "timers",
             "gallery-itsacheckbox"
         ]
     }
