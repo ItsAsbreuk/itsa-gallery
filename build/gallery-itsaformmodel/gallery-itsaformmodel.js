@@ -321,6 +321,17 @@ var YArray = Y.Array,
         return response || {};
     },
 
+    BROADCAST = "broadcast",
+    PUBLISHED = "published",
+    MODIFIABLE_NEWDEF = {
+        readOnly:1,
+        writeOnce:1,
+        getter:1,
+        broadcast:1,
+        formtype:1,
+        formconfig:1
+    },
+
 ITSAFormModel = Y.ITSAFormModel = Y.Base.create('itsaformmodel', Y.Model, [], {}, {
     _ATTR_CFG: ['formtype', 'formconfig', 'validationerror']
 });
@@ -862,6 +873,45 @@ ITSAFormModel.prototype.getUnvalidatedUI  = function() {
         );
     }
     return new Y.NodeList(unvalidNodes);
+};
+
+/**
+ * Updates the configuration of an attribute which has already been added.
+ * rewritten because we need to be able to change formtype and formconfig.
+ * <p>
+ * The properties which can be modified through this interface are limited
+ * to the following subset of attributes, which can be safely modified
+ * after a value has already been set on the attribute: readOnly, writeOnce,
+ * broadcast and getter.
+ * </p>
+ * @method modifyAttr
+ * @param {String} name The name of the attribute whose configuration is to be updated.
+ * @param {Object} config An object with configuration property/value pairs, specifying the configuration properties to modify.
+ */
+ITSAFormModel.prototype.modifyAttr = function(name, config) {
+    var host = this, // help compression
+        prop, state;
+
+    if (host.attrAdded(name)) {
+
+        if (host._isLazyAttr(name)) {
+            host._addLazyAttr(name);
+        }
+
+        state = host._state;
+        for (prop in config) {
+            if (MODIFIABLE_NEWDEF[prop] && config.hasOwnProperty(prop)) {
+                state.add(name, prop, config[prop]);
+
+                // If we reconfigured broadcast, need to republish
+                if (prop === BROADCAST) {
+                    state.remove(name, PUBLISHED);
+                }
+            }
+        }
+    }
+    /*jshint maxlen:200*/
+    /*jshint maxlen:150 */
 };
 
 /**
@@ -2615,6 +2665,7 @@ YArray.each(
         "intl",
         "base-base",
         "attribute-base",
+        "attribute-extras",
         "base-build",
         "selector-css2",
         "model",
