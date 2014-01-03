@@ -200,8 +200,9 @@ ITSACheckboxGroup.prototype._clearEventhandlers = function() {
 */
 ITSACheckboxGroup.prototype._setChecked = function(e) {
     var instance = this,
+        typesplit = e.type.split(':'),
         checked = [];
-    if (e.target!==this && !instance._fromReset) {
+    if ((typesplit[0]!==ITSACheckboxGroup.NAME) && !instance._fromReset) {
         YObject.each(
             instance._options,
             function(checkbox, option) {
