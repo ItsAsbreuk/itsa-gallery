@@ -2587,7 +2587,6 @@ ITSAFormModel.prototype._validValue = function(node, formelement, attribute, val
 
 ITSAFormModel.prototype._widgetValueFields.itsacheckbox = 'checked';
 ITSAFormModel.prototype._widgetValueFields.itsacheckboxgroup = 'checked';
-ITSAFormModel.prototype._widgetValueFields.itsaselectlist = 'index';
 ITSAFormModel.prototype._widgetValueFields.toggleButton = ['checked','pressed'];
 ITSAFormModel.prototype._widgetValueFields.editorBase = 'content';
 
