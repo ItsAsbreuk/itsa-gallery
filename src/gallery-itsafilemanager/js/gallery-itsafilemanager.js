@@ -905,6 +905,13 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             instance._createDDFiles();
             // now we create the toolbar
             instance._renderToolbar();
+            eventhandlers.push(
+                instance.after(
+                    'uploadURLChange',
+                    instance._createUploader,
+                    instance
+                )
+            );
         },
 
         /**
@@ -1172,13 +1179,15 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
          * @private
          * @since 0.1
         */
-        _createUploader : function() {
+        _createUploader : function(e) {
             var instance = this,
-                  uploadURL = instance.get('uploadURL'),
+                  uploadURL = (e && e.newVal) || instance.get('uploadURL'),
                   eventhandlers = instance._eventhandlers,
                   createUploadNode, uploaderType, uploader, shadowNode, createInstallFlashNode;
-
-            if (uploadURL) {
+            if (instance.uploader) {
+                instance.uploader.set('uploadURL', uploadURL);
+            }
+            else if (uploadURL) {
                 uploaderType = Y.Uploader.TYPE;
                 if (uploaderType === 'flash') {
                     // because the flashbutton seems not to be disabled (when told to),
