@@ -133,7 +133,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
             if (btnSize===1) {boundingBox.addClass('itsa-buttonsize-small');}
             else {if (btnSize===2) {boundingBox.addClass('itsa-buttonsize-medium');}}
             boundingBox.append(instance._itemsContainerNode);
-            instance._itemsChange({newVal: instance.get('items')});
+            instance._itemsChange({newVal: instance.get('items'), fromInit: true});
             // forcing to set the value into defaultItem
             instance.get('value');
         },
@@ -159,8 +159,8 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                instance.on('disabledChange', instance._disabledChange, instance)
             );
             instance._eventhandlers.push(
-                instance.after('itemsChange', function() {
-                    instance._itemsChange();
+                instance.after('itemsChange', function(e) {
+                    instance._itemsChange(e);
                     instance.syncUI();
                 })
             );
@@ -243,7 +243,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
         selectItem : function(index, softMatch, softButtonText, fromSetter) {
             var instance = this,
                 nodelist;
-            if (!instance.get('disabled') && index) {
+            if (!instance.get('disabled') && (typeof index==='number')) {
                 nodelist = instance._itemsContainerNode.all('li');
                 if ((index>=0) && (index<nodelist.size())) {instance._selectItem(nodelist.item(index), null, fromSetter);}
                 else {
@@ -279,7 +279,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
             var instance = this,
                 index;
 /*jshint expr:true */
-            itemText || (itemText='');
+            Lang.isValue(itemText) || (itemText='');
 /*jshint expr:false */
             index = Y.Array.indexOf(instance._itemValues, itemText.toString().toLowerCase());
             instance.selectItem(index, softMatch, defaultButtonText ? instance.get('defaultButtonText') : itemText);
@@ -471,19 +471,26 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
         */
         _itemsChange : function(e) {
             var instance = this,
+                fromInit = e.fromInit,
+                currentSelected = !fromInit && instance.get('value'),
                 val = e.newVal,
-                item,
-                i;
+                newindex = null,
+                item, i, trueItemValue;
             instance._itemValues = [];
             instance._trueItemValues = [];
             for (i=0; i<val.length; i++) {
                 item = val[i];
                 // Make sure to fill the array with Strings. User might supply other types like numbers:
                 // you don't want to miss the hit when you search the array by value.
-                instance._itemValues.push(item.returnValue ? item.returnValue.toString().toLowerCase() : item.toString().toLowerCase());
+                instance._itemValues.push(Lang.isValue(item.returnValue) ? item.returnValue.toString().toLowerCase() : item.toString().toLowerCase());
                 // also fill the true values, because the attribute 'value' should keep its type
-                instance._trueItemValues.push(item.returnValue ? item.returnValue : item);
+                trueItemValue = Lang.isValue(item.returnValue) ? item.returnValue : item;
+                instance._trueItemValues.push(trueItemValue);
+/*jshint expr:true */
+                !fromInit && (trueItemValue===currentSelected) && (newindex=i);
+/*jshint expr:false */
             }
+            instance.set('index', newindex, {silent: true});
         },
 
         /**
@@ -625,7 +632,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
             index : {
                 value: null,
                 validator: function(val) {
-                    return (typeof val === 'number');
+                    return (val===null) || (typeof val === 'number');
                 },
                 setter: function(val) {
                     this.selectItem(val, null, null, true);
@@ -644,7 +651,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                 getter: function(val) {
                     var instance = this,
                         current = instance.currentIndex();
-                    if ((typeof current!=='number') && val) {
+                    if ((typeof current!=='number') && (val!==null)) {
                         current = Y.Array.indexOf(instance._itemValues, val.toString().toLowerCase());
 /*jshint expr:true */
                         (current>=0) && instance.set('index', current, {silent: true});
