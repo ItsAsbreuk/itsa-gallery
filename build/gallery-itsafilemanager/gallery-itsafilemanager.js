@@ -1064,7 +1064,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             // duplicate file(s)
                             selectedModels = filescrollview.getSelectedModels();
                             multipleFiles = selectedModels && (selectedModels.length>1);
-                            originalFilename = selectedModels && selectedModels[0].filename;
+                            originalFilename = selectedModels && selectedModels[0] && selectedModels[0].filename;
                             Y.confirm(
                                 'Duplicate file'+(multipleFiles ? 's' : (' '+ originalFilename)),
                                 'Are you sure you want to duplicate the selected file'+(multipleFiles ? 's' : '')+'?')
@@ -1078,7 +1078,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             // rename file(s)
                             selectedModels = filescrollview.getSelectedModels();
                             multipleFiles = selectedModels && (selectedModels.length>1);
-                            originalFilename = selectedModels && selectedModels[0].filename;
+                            originalFilename = selectedModels && selectedModels[0] && selectedModels[0].filename;
                             Y.prompt(
                                 'Rename file'+(multipleFiles ? 's' : (' '+ originalFilename)),
                                 'Enter new filename:',
@@ -1093,7 +1093,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             // delete file(s)
                             selectedModels = filescrollview.getSelectedModels();
                             multipleFiles = selectedModels && (selectedModels.length>1);
-                            originalFilename = selectedModels && selectedModels[0].filename;
+                            originalFilename = selectedModels && selectedModels[0] && selectedModels[0].filename;
                             Y.confirm(
                                 'Delete file'+(multipleFiles ? 's' : (' '+ originalFilename)),
                                 'Are you sure you want to delete ' + (multipleFiles ? 'the selected files' : originalFilename) + '?')
@@ -2067,7 +2067,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
 
             if (instance._resizeApprovedX) {
                 instance._busyResize = true;
-                nodeX = nodeFilemanTree.getX(),
+                nodeX = nodeFilemanTree.getX();
                 nodeWidth = nodeFilemanTree.get('offsetWidth');
                 instance._mouseOffset = e.pageX-(nodeX+nodeWidth);
                 // always clear instance._resizeEvent, even if it should have been cleared by _stopResize
@@ -2083,7 +2083,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
             }
             else if (instance._resizeApprovedY) {
                 instance._busyResize = true;
-                nodeY = nodeFilemanFlow.getY(),
+                nodeY = nodeFilemanFlow.getY();
                 nodeHeight = nodeFilemanFlow.get('offsetHeight');
                 instance._mouseOffset = e.pageY-(nodeY+nodeHeight);
                 // always clear instance._resizeEvent, even if it should have been cleared by _stopResize
