@@ -34,6 +34,24 @@
             "modules"    : ["gallery-itsadialog"],
             "tags"    : ["gallery-itsadialog", "preventDefault"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "simple-custommessage",
+            "displayName": "Create a simple custom message",
+            "description": "This example shows how to create a simple custom message (which is handled by Y.ITSADialog).",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "custommessage", "custom", "message"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "custommessage",
+            "displayName": "Create an advanced custom message",
+            "description": "This example shows how to create an advanced custom message (which is handled by Y.ITSADialog).",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "custommessage", "custom", "message"],
+            "hideTableOfContents": true
         }
     ]
 }

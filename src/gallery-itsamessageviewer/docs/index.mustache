@@ -46,8 +46,8 @@
     <p>
         When creating a subClass, it is essential to override these three methods:
         <ul>
-            <li>resurrect(itsamessage) --> method that renderes the Y.ITSAMessage-instance in the dom</li>
-            <li>suspend(itsamessage) --> method that renderes the Y.ITSAMessage-instance in the dom</li>
+            <li>suspend(itsamessage) --> method that hides the Y.ITSAMessage-instance</li>
+            <li>resurrect(itsamessage) --> method that makes the Y.ITSAMessage-instance visible after being suspended</li>
             <li>viewMessage(itsamessage) --> does the actual view of the Y.ITSAMessage-instance. Should return a Y.Promise that resolves when Y.ITSAMessage._promise gets fulfilled. The subClass also should take care of removing its message-view once the viewMessage-promise is fulfilled.</li>
         </ul>
         <b>Note:</b> it is important that viewMessage returns a Promise that resolves as soon as itsamessage._promise resolves or rejects. Only this way, the queue will get its next message right in time.
