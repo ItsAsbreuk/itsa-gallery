@@ -301,7 +301,7 @@ ITSAStatusbar.prototype.viewMessage = function(itsamessage) {
                 ).then(
                     function() {
                         resolve();
-                        // NEED to async because there seem to be 2x the same messages put in the queue???
+                        // TODO: check why we need Y.Soon: without it, countMessages might fail
                         Y.soon(function() {
                         /*jshint expr:true */
                             (instance.countMessages(true)===0) && bars[EMPTY].show() && bars[EMPTY].setStyle('opacity', 1); // without delay for better userexperience
