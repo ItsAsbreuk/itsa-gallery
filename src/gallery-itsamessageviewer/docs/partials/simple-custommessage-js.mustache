@@ -1,0 +1,20 @@
+YUI(yuiconfig).use('gallery-itsamessage', 'gallery-itsadialog', function(Y) {
+    var message, userresponse;
+
+    message = new Y.ITSAMessage();
+    message.title = 'login';
+    message.message = 'This is how a simple dialog could look like.';
+    message.footer = '{btn_ok}';
+    message.primaryButton = 'btn_ok';
+
+    userresponse = Y.ITSAMessageController.queueMessage(message);
+    userresponse.then(
+        function(response) {
+            console.log('FULFILLED: '+response.button);
+        },
+        function(reason) {
+            console.log('REJECTED: '+reason);
+        }
+    );
+
+});

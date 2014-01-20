@@ -1,0 +1,59 @@
+YUI(yuiconfig).use('base-build', 'gallery-itsamessage', 'gallery-itsadialog', 'gallery-itsacheckbox', function(Y) {
+    var MyITSAMessage, message, userresponse;
+
+    MyITSAMessage = Y.Base.create('itsamessageinput', Y.ITSAMessage, [], null, {
+                          ATTRS: {
+                              username: {
+                                  formtype: 'text',
+                                  formconfig: {
+                                      label: 'username',
+                                      required: true,
+                                      fullselect: true
+                                  }
+                              },
+                              password: {
+                                  formtype: 'password',
+                                  formconfig: {
+                                      label: 'password',
+                                      required: true,
+                                      primarybtnonenter: true,
+                                      fullselect: true
+                                  },
+                                  validator: function(val) {
+                                      return (/\S{4,}$/).test(val);
+                                  }
+                              },
+                              remember: {
+                                  value: true,
+                                  formtype: Y.ITSACheckbox,
+                                  formconfig: {
+                                      label: 'remember me'
+                                  }
+                              }
+                          }
+                      });
+
+    message = new MyITSAMessage();
+    message.title = 'login';
+    message.message = '<fieldset>'+
+                          '<legend>Userdata</legend>'+
+                          '<div class="pure-control-group">{username}</div>'+
+                          '<div class="pure-control-group">{password}</div>'+
+                          '<div class="pure-control-group">{remember}</div>'+
+                      '</fieldset>';
+    message.footer = '{btn_cancel}{imgbtn_ok}';
+    message.closeButton = false;
+    message.primaryButton = 'imgbtn_ok';
+    message.rejectButton = 'btn_cancel';
+
+    userresponse = Y.ITSAMessageController.queueMessage(message);
+    userresponse.then(
+        function(response) {
+            console.log('FULFILLED: '+response.username+ ' | '+response.password+' | '+response.remember+' | '+response.button);
+        },
+        function(reason) {
+            console.log('REJECTED: '+reason);
+        }
+    );
+
+});
