@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsamapmarker",
+    "builds": {
+        "gallery-itsamapmarker": {
+            "jsfiles": [
+                "js/gallery-itsamapmarker.js"
+            ]
+        }
+    }
+}

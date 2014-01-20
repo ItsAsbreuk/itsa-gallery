@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-itsamapmarker",
+    "displayName": "Gallery: gallery-itsamapmarker",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsamapmarker" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}

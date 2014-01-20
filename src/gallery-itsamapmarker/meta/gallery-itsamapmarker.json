@@ -1,0 +1,10 @@
+{
+    "gallery-itsamapmarker": {
+        "requires": [
+            "widget",
+            "base-build",
+            "event"
+        ],
+        "skinnable": true
+    }
+}
