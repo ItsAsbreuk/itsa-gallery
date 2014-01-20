@@ -1,0 +1,21 @@
+{
+    "name"       : "gallery-itsaopenstreetmap",
+    "displayName": "Gallery: gallery-itsaopenstreetmap",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsaopenstreetmap" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "simplemap",
+            "displayName": "Creating a map",
+            "description": "This example shows how a descendant Class (Y.ITSADialog) handles a simple message.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "showmessage"],
+            "hideTableOfContents": true
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsaopenstreetmap",
+    "builds": {
+        "gallery-itsaopenstreetmap": {
+            "jsfiles": [
+                "js/gallery-itsaopenstreetmap.js"
+            ]
+        }
+    }
+}

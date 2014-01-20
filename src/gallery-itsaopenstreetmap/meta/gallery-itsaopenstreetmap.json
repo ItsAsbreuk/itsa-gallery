@@ -1,0 +1,15 @@
+{
+    "gallery-itsaopenstreetmap": {
+        "requires": [
+            "widget",
+            "dd-drag",
+            "dd-constrain",
+            "event",
+            "async-queue",
+            "transition",
+            "event-resize",
+            "node"
+        ],
+        "skinnable": true
+    }
+}
