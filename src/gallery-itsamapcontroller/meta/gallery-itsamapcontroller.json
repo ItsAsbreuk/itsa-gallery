@@ -1,0 +1,8 @@
+{
+    "gallery-itsamapcontroller": {
+        "requires": [
+            "widget"
+        ],
+        "skinnable": true
+    }
+}

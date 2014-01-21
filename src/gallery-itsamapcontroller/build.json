@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsamapcontroller",
+    "builds": {
+        "gallery-itsamapcontroller": {
+            "jsfiles": [
+                "js/gallery-itsamapcontroller.js"
+            ]
+        }
+    }
+}
