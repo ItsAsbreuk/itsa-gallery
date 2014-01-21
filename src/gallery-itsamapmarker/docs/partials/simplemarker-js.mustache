@@ -1,0 +1,31 @@
+YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', function(Y) {
+    var clicktracemap, marker;
+
+    clicktracemap = new Y.ITSAOpenStreetMap({
+        boundingBox:'#mymap'
+    });
+    clicktracemap.render();
+
+    followNr = 1;
+
+    marker = {
+        markerid: '31624321690',
+        zIndex: followNr,
+        markerText: followNr,
+        title: 'devicename',
+        lat: 52.80,
+        lon: 4.78,
+        position: 'position',
+        size: 1,
+        gmt: 'gmt',
+        battery: 'battery',
+        accu: 'accu',
+        gsm: 'signal',
+        speed: 'speed',
+        md1: 'md1',
+        md2: 'md2',
+        status: 'devicestatus',
+        distance: 'distance'
+    };
+    clicktracemap.addMarker(marker);
+});

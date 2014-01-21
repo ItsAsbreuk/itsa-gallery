@@ -1,9 +1,10 @@
 {
     "gallery-itsamapmarker": {
         "requires": [
-            "widget",
-            "base-build",
-            "event"
+            "yui-base",
+            "oop",
+            "plugin-base",
+            "node-style"
         ],
         "skinnable": true
     }

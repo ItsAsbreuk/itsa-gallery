@@ -7,5 +7,15 @@
 
     "tags": [ "gallery" ],
 
-    "examples": []
+    "examples": [
+        {
+            "name"       : "simplemarker",
+            "displayName": "Creating a marker on a map",
+            "description": "This example shows how a descendant Class (Y.ITSADialog) handles a simple message.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "showmessage"],
+            "hideTableOfContents": true
+        }
+    ]
 }
