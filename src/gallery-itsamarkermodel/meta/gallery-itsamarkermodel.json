@@ -1,0 +1,9 @@
+{
+    "gallery-itsamarkermodel": {
+        "requires": [
+            "yui-base",
+            "oop",
+            "model"
+        ]
+    }
+}

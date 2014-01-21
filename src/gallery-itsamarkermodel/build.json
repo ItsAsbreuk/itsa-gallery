@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsamarkermodel",
+    "builds": {
+        "gallery-itsamarkermodel": {
+            "jsfiles": [
+                "js/gallery-itsamarkermodel.js"
+            ]
+        }
+    }
+}
