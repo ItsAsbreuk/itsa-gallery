@@ -82,17 +82,18 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
         },
 
         addMarker : function(config) {
-            // config is an object --> posible parameters are the attibutes of Y.CMASMAPMARKER, except from 'host', that one will be generated in this function
+            // config is an object --> posible parameters are the attibutes of Y.ITSAMapMarker, except from 'host', that one will be generated in this function
             var instance = this;
             if (!config) {config = {};}
-            Y.on('contentready', function(config) {
-                var instance, nextIndex;
-                instance = this;
-                config.host = Y.one('#map_markers_' + instance.mapid);
-                nextIndex = instance.markers.length;
-                instance.markers[nextIndex] = new Y.CMASMAPMARKER(config);
-                instance.markers[nextIndex].render(instance.currentZoomLevel);
-            }, '#map_'+instance.mapid, instance, config);
+            Y.use('gallery-itsamapmarker', function(Y) {
+                Y.on('contentready', function(config) {
+                    var nextIndex;
+                    config.host = Y.one('#map_markers_' + instance.mapid);
+                    nextIndex = instance.markers.length;
+                    instance.markers[nextIndex] = new Y.ITSAMapMarker(config);
+                    instance.markers[nextIndex].render(instance.currentZoomLevel);
+                }, '#map_'+instance.mapid, instance, config);
+            });
         },
 
         centerLayerBasedUponMarkers : function(autozoom, deepestZoomlevelWhenCentered, deviceid) {
@@ -248,7 +249,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
         },
 
         updateMarker : function(config) {
-            // config is an object --> posible parameters are the attibutes of Y.CMASMAPMARKER, except from 'host', that one will be generated in this function
+            // config is an object --> posible parameters are the attibutes of Y.ITSAMapMarker, except from 'host', that one will be generated in this function
             var instance = this,
                 markerObject;
             if (config && config.markerid) {
