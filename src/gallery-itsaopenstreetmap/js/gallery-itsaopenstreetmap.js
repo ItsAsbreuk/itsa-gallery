@@ -362,7 +362,6 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             newContent = "<div class='cmasmapshadowleft' style='left:" + indentx + "px; top:" + indenty + "px;'></div>";
             newContent += "<div class='cmasmapshadowtop' style='left:" + indentx + "px; top:" + indenty + "px;'></div>";
             newContent += "<div id='map_" + instance.mapid + "' class='cmasmap'>";
-            newContent += "<div id='map_markers_" + instance.mapid + "' class='cmasmapmarkerscontainer'></div>";
             for (i=0;i<=17; i++) {newContent += "<div id='map_zoom" + i + "_" + instance.mapid + "' class='cmasmap'></div>";}
             newContent += "</div>";
             indentx += 15;
@@ -607,13 +606,10 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 
         _moveLayerMarkerToActiveZoomMap : function() {
             Y.log('_moveLayerMarkerToActiveZoomMap', 'cmaserror', 'CMASMAPS');
-            var instance, markLayer, i;
-            instance = this;
-            markLayer = Y.one('#map_markers_' + instance.mapid);
-            markLayer.setStyle('visibility', 'hidden');
-            instance.currentZoomedMap().prepend(markLayer);
-            for (i=0; i<instance.markers.length; i++) {instance.markers[i].syncUI(instance.currentZoomLevel);}
-            markLayer.setStyle('visibility', 'inherit');
+            var instance = this;
+/*jshint expr:true */
+            instance.itsamapmarker && instance.itsamapmarker.repositionMarkers();
+/*jshint expr:false */
         },
 
         _handleMoveUp : function() {
@@ -950,6 +946,10 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                 node = Y.one('#map_zoom' + zoomLevel + '_' + instance.mapid);
             node.setStyle('left', xPos+'px');
             node.setStyle('top', yPos+'px');
+            if (instance.itsamapmarker) {
+                instance.itsamapmarker._markerlayer.setStyle('left', xPos+'px');
+                instance.itsamapmarker._markerlayer.setStyle('top', yPos+'px');
+            }
             Y.log('repositionLayer to '+xPos+';'+yPos, 'cmas', 'CMASMAPS');
         },
 
