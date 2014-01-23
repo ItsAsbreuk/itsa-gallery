@@ -8,8 +8,8 @@ YUI.add('gallery-itsamapmarker', function (Y, NAME) {
  * This module adds some static methods to the Y.Node class that can be used to controll node-availabilities.<br />
  *
  * @module gallery-itsanodepromise
- * @extends Node
- * @class Y.Node
+ * @extends Plugin.Base
+ * @class Y.Plugin.ITSAMapMarker
  * @since 0.1
  *
  * <i>Copyright (c) 2013 Marco Asbreuk - http://theinternetwizard.net</i>
@@ -17,362 +17,689 @@ YUI.add('gallery-itsamapmarker', function (Y, NAME) {
  *
 */
 
-Y.ITSAMapMarker = Y.Base.create('itsamapmarker', Y.Base, [], {
-/*
-* use is very easy:
-* 1) get a nodeinstance fi:  myNode=Y.one('#div1');
-* 2) myNode.plug(Y.Plugin.CMASMAPS);
-* 3) myNode.cmaseditor.saveContent({success: handleaftersuccess}); // or any other functioncall
-*
-* Important: plug it in the master node (example: #obj1), not in the nestnode!
+var TILE_SIZE = 256, // standard 256 pixels
+    Lang = Y.Lang,
+    Node = Y.Node,
+    YArray = Y.Array,
+    YObject = Y.Object,
+    MARKERS = 'markers',
+    CAP_CHANGE = 'Change',
+    TEMPLATE = 'template',
+    MARKER = 'marker',
+    CAP_VISIBLE = 'Visible',
+    CAP_HEADER = 'Header',
+    CAP_BODY = 'Body',
+    CAP_FOOTER = 'Footer',
+    CAP_CLASSNAME = 'Classname',
+    CAP_COLORCLASS = 'ColorClass',
+    HTML = 'HTML',
+    CLIENTID = 'clientId',
+    DATA_ = 'DATA_',
+    DATA_HEADER = DATA_+'header',
+    DATA_BODY = DATA_+'body',
+    DATA_FOOTER = DATA_+'footer',
+    PX = 'px',
+    HIDDEN = 'hidden',
+    LAT = 'lat',
+    LON = 'lon',
+    MARKER_COLORCLASS = MARKER+'ColorClass',
+    MARKER_SIZE = MARKER+'Size',
+    OFFSETWIDTH = 'offsetWidth',
+    OFFSETHEIGHT = 'offsetHeight',
+    HIDDEN_MARKERS = 'itsa-all-markers-hidden',
+    MARKER_TEMPLATE = '<div data-id="{mapid}_{clientid}" class="{colorclass} itsa-mapmarker {classname}" {hidden}style="z-index:{zindex}">'+
+                          '<div class="itsa-markerballoon {markersize}">{markerhtml}</div>'+
+                          '<div class="itsa-markerpin"></div>'+
+                          '<div class="itsa-markerdetails">'+
+                              '<div class="itsa-markerheaderdetails">{header}</div>'+
+                              '<div class="itsa-markerbodydetails">{body}</div>'+
+                              '<div class="itsa-markerfooterdetails">{footer}</div>'+
+                          '</div>'+
+                      '</div>',
+    MARKER_LAYER_TEMPLATE = '<div id="map_markers_{mapid}" class="{markersize} itsa-mapmarker-container {colorclass}"></div>';
+
+function ITSAMapMarker() {
+    ITSAMapMarker.superclass.constructor.apply(this, arguments);
+}
+
+ITSAMapMarker.NAME = 'itsamapmarker';
+ITSAMapMarker.NS = 'itsamapmarker';
+
+ITSAMapMarker.ATTRS = {
+
+    /**
+     * Array with all the checked options. The Array is an Array of String-types which are present in 'options' and checked.
+     *
+     * @attribute checked
+     * @type {null|Array|ModelList}
+     * @default null
+     * @since 0.1
+     */
+    markers: {
+        value: null,
+        validator: function(v){ return (v===null) || (v instanceof Y.ModelList); }
+    },
+
+    /**
+     * Default colorclass. These are predefined css-classnames you could use (or define one of your own):
+     * 'red'  'blue'
+     *
+     * @attribute markerColorClass
+     * @type {String}
+     * @default null
+     * @since 0.1
+     */
+    markerColorClass: {
+        value: null,
+        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+    },
+
+    /**
+     * Default colorclass. These are predefined css-classnames you could use (or define one of your own):
+     * 'red'  'blue'
+     *
+     * @attribute markerColorClass
+     * @type {String}
+     * @default null
+     * @since 0.1
+     */
+    markerSize: {
+        value: null,
+        validator: function(v){ return (v===null) || (v==='small') || (v==='large') || (v==='extralarge'); }
+    }
+
+};
+
+Y.Plugin.ITSAMapMarker = Y.extend(ITSAMapMarker, Y.Plugin.Base);
+
+/**
+ * @method initializer
+ * @protected
+ * @since 0.1
 */
-        TILE_SIZE: 256, // standard 256 pixels
+ITSAMapMarker.prototype.initializer = function() {
+    var instance = this;
+    instance.host = instance.get('host');
+    instance._renderer();
+};
 
-        initializer : function() {
-            var instance = this;
-            if (!instance.get('markerid')) {instance.set('markerid', Y.guid());}
-        },
+/**
+ * @method renderer
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._renderer = function() {
+    var instance = this;
+    instance.renderUI();
+    instance.bindUI();
+    instance.syncUI(true);
+};
 
-        render : function(zoomlevel) {
-            var instance = this;
-            instance.renderUI();
-            Y.on('contentready', function(zoomlevel) {
-                var instance = this;
-                instance.bindUI();
-                instance.syncUI(zoomlevel);
-            }, '#marker_'+instance.get('markerid'), instance, zoomlevel);
-        },
+/**
+ * Creates the containerdiv that holds all the markers
+ *
+ * @method renderUI
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.renderUI = function() {
+    var instance = this,
+        mapid = instance.host.mapid,
+        mapNode = Y.one('#map_'+mapid),
+        markerlayer, currentZoomedMapnode,
+        markerColorClass = instance.get(MARKER_COLORCLASS) || '',
+        markersize = instance.get(MARKER_SIZE) || '';
+    if (mapNode) {
+        markerlayer = instance._markerlayer = Node.create(Lang.sub(MARKER_LAYER_TEMPLATE, {mapid: mapid, colorclass: markerColorClass, markersize: markersize}));
 
-        renderUI : function() {
-            var instance, hostnode, markerNode;
-            instance = this;
-            hostnode = instance.get('host');
-            markerNode = "<div id='marker_"+instance.get('markerid')+"' class='cmasmapmarker'><div class='cmasmapmarkercontent'></div>"+
-                         "<div class='cmasmapmarkerclickarea'></div><div class='cmasmapmarkerinfo cmasnodisplay'><div class='cmasmapmarkerinfocontent'></div>"+
-                         "<div class='cmasmapmarkerinfoclose'>x</div><div class='cmasmapmarkerinfolabel'></div></div></div>";
-            hostnode.appendChild(markerNode);
-        },
+        // at this moment we use the 'old' openstreetmap-module, so we need to reposition the layer:
+        currentZoomedMapnode = instance.host.currentZoomedMap();
+        markerlayer.setStyle('left', currentZoomedMapnode.getStyle('left'));
+        markerlayer.setStyle('top', currentZoomedMapnode.getStyle('top'));
+        mapNode.prepend(markerlayer);
+    }
+};
 
-        bindUI : function() {
-            var instance, markerNode, onclick, closeInfoNode, openInfoNode;
-            instance = this;
-            markerNode = Y.one('#marker_'+ instance.get('markerid'));
-            closeInfoNode = markerNode.one('.cmasmapmarkerinfoclose');
-            openInfoNode = markerNode.one('.cmasmapmarkerclickarea');
-            if (closeInfoNode) {closeInfoNode.on('click', instance._hideInfoByEvent, instance);}
-            onclick = instance.get('onclick');
-            if (onclick && openInfoNode) {
-               openInfoNode.on('click', onclick);
-               openInfoNode.setStyle('cursor','help');
-            }
-        },
+/**
+ * Creates eventlistens
+ *
+ * @method bindUI
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.bindUI = function() {
+    var instance = this,
+        markers = instance.get(MARKERS),
+        eventhandlers;
 
-        syncUI : function(zoomlevel) {
-            var instance, markerNode, contentNode, infocontentNode, statusbit, newInfo, accu, md1, md2, position, positiontruncated,
-                maxpositionlength=18, km, forcedMarkerColor, createColor, titleText;
-            instance = this;
-            markerNode = Y.one('#marker_'+ instance.get('markerid'));
-            contentNode = markerNode.one('.cmasmapmarkercontent');
-            infocontentNode = markerNode.one('.cmasmapmarkerinfocontent');
-            if (!zoomlevel) {zoomlevel = instance._getZoomLevel();}
-            markerNode.setStyle('left', instance._getX(zoomlevel)+'px');
-            markerNode.setStyle('top', instance._getY(zoomlevel)+'px');
-            switch (this.get('size')) {
-                case 0:
-                    markerNode.addClass('markersizelarge');
-                    markerNode.removeClass('markersizemedium');
-                    markerNode.removeClass('markersizesmall');
-                break;
-                case 1:
-                    markerNode.removeClass('markersizelarge');
-                    markerNode.addClass('markersizemedium');
-                    markerNode.removeClass('markersizesmall');
-                break;
-                case 2:
-                    markerNode.removeClass('markersizelarge');
-                    markerNode.removeClass('markersizemedium');
-                    markerNode.addClass('markersizesmall');
-                break;
-            }
-            if (instance.get('selected')) {markerNode.addClass('markerstatusselected');}
-            else {markerNode.removeClass('markerstatusselected');}
-            statusbit = parseInt(instance.get('status'), 10);
-            forcedMarkerColor = instance.get('forcedMarkerColor');
-            if (forcedMarkerColor) {
-                markerNode.removeClass('markerstatusmanipulated');
-                markerNode.removeClass('markerstatuserror');
-                markerNode.removeClass('markerstatusmotion');
-                markerNode.removeClass('markerstatusforced1');
-                markerNode.removeClass('markerstatusforced2');
-                markerNode.removeClass('markerstatusforced3');
-                markerNode.removeClass('markerstatusforced4');
-                markerNode.removeClass('markerstatusforced5');
-                markerNode.removeClass('markerstatusforced6');
-                createColor = ((forcedMarkerColor-1) % 6) + 1; // returns values between 1 - 6
-                markerNode.addClass('markerstatusforced' + createColor);
-            }
-            else {
-                if (statusbit===4) { // manipulated marker --> mostly first point of Route which is inserted
-                    markerNode.addClass('markerstatusmanipulated');
-                    markerNode.removeClass('markerstatuserror');
-                    markerNode.removeClass('markerstatusmotion');
+    eventhandlers = instance._eventhandlers = [];
+/*jshint expr:true */
+    markers && markers.addTarget(instance);
+/*jshint expr:false */
+    eventhandlers.push(
+        instance.after(
+            MARKER+CAP_CHANGE,
+            function(e) {
+                var prevVal = e.prevVal,
+                    newVal = e.newVal;
+                if (prevVal) {
+                    prevVal.removeTarget(instance);
+/*jshint expr:true */
+                    newVal || instance._clearMarkers(); // if newVal exists, then syncUI() clear all prev
+/*jshint expr:false */
                 }
-                else {
-                    markerNode.removeClass('markerstatusmanipulated');
-                    if (instance.get('error') || (statusbit===2) || (statusbit===3)) { // 3=nofix --> must be marked as error. 2=npfix and last marker. We decided to mark this one as an error as well
-                        markerNode.addClass('markerstatuserror');
-                        markerNode.removeClass('markerstatusmotion');
-                    }
-                    else { // no error
-                        markerNode.removeClass('markerstatuserror');
-                        if (statusbit===1) { // 1=motion
-                            markerNode.addClass('markerstatusmotion');
+                if (newVal) {
+                    instance.syncUI();
+                    newVal.addTarget(instance);
+                }
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            [MARKER_COLORCLASS+CAP_CHANGE, MARKER_SIZE+CAP_CHANGE],
+            function(e) {
+                var markerlayer = instance._markerlayer,
+                    newVal = e.newVal,
+                    prevVal = e.prevVal;
+/*jshint expr:true */
+                prevVal && markerlayer.removeClass(prevVal);
+                newVal && markerlayer.addClass(newVal);
+/*jshint expr:false */
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            '*:add',
+            function(e) {
+                instance._addMarker(e.model);
+            }
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            '*:change',
+            function(e) {
+                var marker = e.target,
+                    changed = e.changed,
+                    noLatLon;
+                if (marker instanceof Y.ITSAMarkerModel) {
+                    YObject.some(
+                        changed,
+                        function(val, key) {
+                            noLatLon = ((key!==LAT) && (key!==LON));
+                            return noLatLon;
                         }
-                        else {markerNode.removeClass('markerstatusmotion');}
-                    }
+                    );
+                    instance.syncMarker(marker, {positiononly: !noLatLon});
                 }
             }
-            contentNode.setContent(instance.get('markerText'));
-            position = instance.get('position');
-            accu = instance.get('accu');
-            md1 = instance.get('md1');
-            md2 = instance.get('md2');
-            titleText = instance.get('title');
-            if (titleText && (titleText!=='')) {newInfo = '<span class="clicktrace-markerhead">' + titleText + '</span>';}
-            else {newInfo = '<span class="clicktrace-markerhead">Marker ' + instance.get('markerText') + '</span>';}
-            newInfo += '<br>' + instance.get('gmt');
-            if (position && (position.length>0)) {
-                if (position.length>maxpositionlength) {positiontruncated=position.substring(0, maxpositionlength)+'...';}
-                else {positiontruncated=position;}
-                newInfo += '<br>' + positiontruncated;
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            '*:remove',
+            function(e) {
+                instance._removeMarker(e.model);
             }
-            newInfo += '<br>Battery: '+instance.get('battery') + '%';
-            if (accu && (accu.length>0)) {
-                accu = parseInt(accu, 10)/10;
-                newInfo += '<br>Accu: '+accu+' Volt';
+        )
+    );
+
+    eventhandlers.push(
+        instance.after(
+            '*:reset',
+            function(e) {
+                instance.syncUI();
             }
-            newInfo += '<br>GSM: '+instance.get('gsm')+'%';
-            newInfo += '<br>Status: '+instance.get('status');
-            newInfo += '<br>Speed: '+instance.get('speed')+' km/u';
-                km = Math.round(parseInt(instance.get('distance'), 10)/100)/10;
-            newInfo += '<br>Distance: '+km+' km';
-            if (md1 && (md1.length>0)) {newInfo += '<br>Mode 1: '+md1;}
-            if (md2 && (md2.length>0)) {newInfo += '<br>Mode 2: '+md2;}
-            infocontentNode.setContent(newInfo);
-            markerNode.setStyle('visibility', 'inherit');
-        },
+        )
+    );
 
-        showMarker : function() {
-            var instance, markerNode;
-            instance = this;
-            markerNode = Y.one('#marker_'+ instance.get('markerid'));
-            markerNode.removeClass('cmasnodisplay');
-        },
+};
 
-        hideMarker : function() {
-            var instance, markerNode;
-            instance = this;
-            markerNode = Y.one('#marker_'+ instance.get('markerid'));
-            markerNode.addClass('cmasnodisplay');
-        },
-
-        showInfo : function() {
-            var instance, markerNode, infoNode;
-            instance = this;
-            markerNode = Y.one('#marker_'+ instance.get('markerid'));
-            infoNode = markerNode.one('.cmasmapmarkerinfo');
-            infoNode.removeClass('cmasnodisplay');
-        },
-
-        hideInfo : function() {
-            var instance, markerNode, infoNode;
-            instance = this;
-            markerNode = Y.one('#marker_'+ instance.get('markerid'));
-            infoNode = markerNode.one('.cmasmapmarkerinfo');
-            infoNode.addClass('cmasnodisplay');
-//            instance.set('zIndex', 0);
-        },
-
-        _hideInfoByEvent : function(e) {
-            var instance = this;
-            e.stopPropagation();
-            instance.hideInfo();
-        },
-
-        _getZoomLevel : function() {
-            var instance, hostnode, zoomlevel, zoomedmapnode;
-            instance = this;
-            hostnode = instance.get('host');
-            zoomedmapnode = hostnode.get('parentNode');
-            zoomlevel = parseInt(zoomedmapnode.get('id').substring(8,10), 10);
-            return zoomlevel;
-        },
-
-        _getX : function(zoomlevel) {
-            var instance = this,
-                xNotRounded = instance._long2tileNOTROUNDED(instance.get('lon'), zoomlevel),
-                leftPos = Math.round((xNotRounded-1)*instance.TILE_SIZE);
-            return leftPos - instance.get('xOffsetMarker');
-        },
-
-        _getY : function(zoomlevel) {
-            var instance = this,
-                yNotRounded = instance._lat2tileNOTROUNDED(instance.get('lat'), zoomlevel),
-                topPos = Math.round((yNotRounded-1)*instance.TILE_SIZE);
-            return topPos - instance.get('yOffsetMarker');
-        },
-
-        _long2tileNOTROUNDED : function(lon, zoom) {
-            return ((lon+180)/360*Math.pow(2,zoom));
-        },
-
-        _lat2tileNOTROUNDED : function(lat, zoom) {
-            return ((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom));
-        },
+/**
+ * @method markerOnTop
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.getMarkerNode = function(marker) {
+    var instance = this,
+        clientid = (marker instanceof Y.ITSAMarkerModel) ? marker.get(CLIENTID) : marker[CLIENTID];
+    return instance._markerlayer.one('[data-id="'+instance.host.mapid+'_'+clientid+'"]');
+};
 
 
-        destructor : function() {
-            var instance, markerNode;
-            instance = this;
-            markerNode = Y.one('#marker_'+instance.get('markerid'));
-            markerNode.remove(true);
+/**
+ * @method hidePopup
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.hidePopup = function(marker) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker);
+/*jshint expr:true */
+    markerNode && markerNode.setStyle('zIndex', marker._originalZindex);
+/*jshint expr:false */
+};
+
+/**
+ * @method markerOnTop
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.markerOnTop = function(marker) {
+    var instance = this,
+        newzindex = instance._getHighestZ()+1,
+        markerNode = instance.getMarkerNode(marker);
+    marker._zIndex = newzindex;
+/*jshint expr:true */
+    markerNode && markerNode.setStyle('zIndex', newzindex);
+/*jshint expr:false */
+};
+
+/**
+ * @method markerOnTop
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.markerRestoreZ = function(marker) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker);
+    marker._zIndex = null;
+/*jshint expr:true */
+    markerNode && markerNode.setStyle('zIndex', marker._originalZindex);
+/*jshint expr:false */
+};
+
+/**
+ * @method showPopup
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.showPopup = function(marker) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker);
+/*jshint expr:true */
+    markerNode && markerNode.setStyle('zIndex', marker._originalZindex);
+/*jshint expr:false */
+};
+
+/**
+ * @method repositionMarkers
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.repositionMarkers = function() {
+console.log('repositionMarkers');
+    var instance = this,
+        markers = instance.get(MARKERS);
+    instance._markerlayer.addClass(HIDDEN_MARKERS);
+    markers.each(
+        Y.rbind(instance.syncMarker, instance, {positiononly: true})
+    );
+    instance._markerlayer.removeClass(HIDDEN_MARKERS);
+};
+
+/**
+ * @method syncMarker
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.syncMarker = function(marker, options) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker),
+        markervisible,
+        positiononly = options && options.positiononly;
+console.log('syncMarker');
+    if (markerNode) {
+        if (marker instanceof Y.ITSAMarkerModel) {
+            instance._syncMarkerNode(
+                markerNode,
+                marker.get(LAT),
+                marker.get(LON),
+                positiononly || marker.get(MARKER+CAP_HEADER+TEMPLATE),
+                positiononly || marker.get(MARKER+CAP_BODY+TEMPLATE),
+                positiononly || marker.get(MARKER+CAP_FOOTER+TEMPLATE),
+                positiononly || marker.get(MARKER+CAP_CLASSNAME),
+                positiononly || marker.get(MARKER+CAP_COLORCLASS),
+                positiononly || marker.get(MARKER_SIZE),
+                positiononly || marker.get(MARKER+HTML),
+                positiononly || marker.get(MARKER+CAP_VISIBLE),
+                positiononly ? null : marker.toJSON()
+            );
         }
-
-    }, {
-        ATTRS : {
-            //-----------------------
-            host: {
-                value: null
-            },
-            markerid: {
-                value: null
-            },
-            zIndex : {
-                setter: function(val) {
-                    var markerid = this.get('markerid'),
-                        markernode;
-                    if (markerid) {
-                        markernode = Y.one('#marker_'+markerid);
-                        if (markernode) {markernode.setStyle('zIndex', val);}
-                    }
-                    return val;
-                },
-                validator: function(val) {
-                    return Y.Lang.isNumber(val);
-                }
-            },
-            markerSet: {
-                value: 'http://brongegevens.cmas2plus.nl/global/images/markers1.png'
-            },
-            xOffsetMarker: {
-                value: 10,
-                validator: Y.Lang.isNumber
-            },
-            yOffsetMarker: {
-                value: 35,
-                validator: Y.Lang.isNumber
-            },
-            defaultMarker: {
-                value: 1
-            },
-            showOnMouseover: {
-                value: false
-            },
-            shadow: {
-                value: false
-            },
-            labelSymbol: {
-                value: true
-            },
-            width: {
-                value: 200
-            },
-            height: {
-                value: 500
-            },
-            autoHeight: {
-                value: false
-            },
-            overflow: {
-                value: 'scroll'
-            },
-            title: {
-                value: ''
-            },
-            body: {
-                value: ''
-            },
-            lat: {
-                value: 52.149
-            },
-            lon: {
-                value: 5.645
-            },
-            position: {
-                value: ''
-            },
-            size: { // 0=large, 1=default, 2=small
-                value: 1
-            },
-            markerText: {
-                value: ''
-            },
-            status: { // 0=stopped, 1=motion
-                value: 0
-            },
-            gmt: {
-                value: ''
-            },
-            battery: {
-                value: 0
-            },
-            accu: {
-                value: ''
-            },
-            gsm: {
-                value: 0
-            },
-            speed: {
-                value: 0
-            },
-            distance: {
-                value: 0
-            },
-            md1: {
-                value:''
-            },
-            md2: {
-                value: ''
-            },
-            selected: {
-                value: false
-            },
-            forcedMarkerColor: {
-                value: null
-            },
-            showInfo: {
-                value: false,
-                setter: function(val) {
-                    if (val) {this.showInfo();}
-                    else {this.hideInfo();}
-                    return val;
-                },
-                validator: function(val) {
-                   return Y.Lang.isBoolean(val);
-                }
-            },
-            error: {
-                value: false
-            },
-            onclick: {
-                value: null
-            }
-
-
-            //-----------------------
+        else {
+            markervisible = marker[MARKER+CAP_VISIBLE];
+            instance._syncMarkerNode(
+                markerNode,
+                marker[LAT],
+                marker[LON],
+                positiononly || marker[MARKER+CAP_HEADER+TEMPLATE],
+                positiononly || marker[MARKER+CAP_BODY+TEMPLATE],
+                positiononly || marker[MARKER+CAP_FOOTER+TEMPLATE],
+                positiononly || marker[MARKER+CAP_CLASSNAME],
+                positiononly || marker[MARKER+CAP_COLORCLASS],
+                positiononly || marker[MARKER_SIZE],
+                positiononly || marker[MARKER+HTML],
+                positiononly || (typeof markervisible === 'boolean') ? markervisible : true,
+                positiononly ? null : marker
+            );
         }
     }
-);
+};
+
+/**
+ * syncs the whole modellist into
+ * @method syncUI
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.syncUI = function(initialize) {
+    var instance = this,
+        markers = instance.get(MARKERS),
+        processMarkerML, processMarkerLML;
+    processMarkerML = function(marker, index) {
+        // marker is an instance of Y.ITSAMarkerModel
+        var zindex = index+1;
+        marker._originalZindex = zindex;
+        instance._renderMarker(
+            marker.toJSON(),
+            marker.get(CLIENTID),
+            marker.get(MARKER+CAP_HEADER+TEMPLATE),
+            marker.get(MARKER+CAP_BODY+TEMPLATE),
+            marker.get(MARKER+CAP_FOOTER+TEMPLATE),
+            marker.get(MARKER+CAP_CLASSNAME),
+            marker.get(MARKER+CAP_COLORCLASS),
+            marker.get(MARKER_SIZE),
+            marker.get(MARKER+HTML),
+            marker.get(MARKER+CAP_VISIBLE),
+            zindex
+        );
+    };
+    processMarkerLML = function(marker, index) {
+        // marker is an object
+        var zindex = index+1,
+            markervisible = marker[MARKER+CAP_VISIBLE];
+        marker._originalZindex = zindex;
+        instance._renderMarker(
+            marker,
+            marker[CLIENTID],
+            marker[MARKER+CAP_HEADER+TEMPLATE],
+            marker[MARKER+CAP_BODY+TEMPLATE],
+            marker[MARKER+CAP_FOOTER+TEMPLATE],
+            marker[MARKER+CAP_CLASSNAME],
+            marker[MARKER+CAP_COLORCLASS],
+            marker[MARKER_SIZE],
+            marker[MARKER+HTML],
+            (typeof markervisible === 'boolean') ? markervisible : true,
+            zindex
+        );
+    };
+/*jshint expr:true */
+    initialize || instance._clearMarkers();
+/*jshint expr:false */
+    instance._markerlayer.addClass(HIDDEN_MARKERS);
+    // how to process the list will depend on the fact whether 'markers' is a ModelList or a LazyModelList
+    markers.each((markers instanceof Y.LazyModelList) ? processMarkerLML : processMarkerML);
+    instance._markerlayer.removeClass(HIDDEN_MARKERS);
+};
+
+/**
+ * Cleans up bindings
+ *
+ * @method destructor
+ * @protected
+ * @since 0.3
+*/
+ITSAMapMarker.prototype.destructor = function() {
+    var instance = this,
+        markers = instance.get(MARKERS);
+
+/*jshint expr:true */
+    markers && markers.removeTarget(instance);
+/*jshint expr:false */
+    instance._markerlayer.destroy(true);
+    instance._clearEventhandlers();
+};
+
+/**
+ * @method _addMarker
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._addMarker = function(marker) {
+    var instance = this,
+        zindex = instance._getHighestZ()+1,
+        markervisible;
+    marker._originalZindex = zindex;
+    if (marker instanceof Y.ITSAMarkerModel) {
+        instance._renderMarker(
+            marker.toJSON(),
+            marker.get(CLIENTID),
+            marker.get(MARKER+CAP_HEADER+TEMPLATE),
+            marker.get(MARKER+CAP_BODY+TEMPLATE),
+            marker.get(MARKER+CAP_FOOTER+TEMPLATE),
+            marker.get(MARKER+CAP_CLASSNAME),
+            marker.get(MARKER+CAP_COLORCLASS),
+            marker.get(MARKER_SIZE),
+            marker.get(MARKER+HTML),
+            marker.get(MARKER+CAP_VISIBLE),
+            zindex
+        );
+    }
+    else {
+        markervisible = marker[MARKER+CAP_VISIBLE];
+        instance._renderMarker(
+            marker,
+            marker[CLIENTID],
+            marker[MARKER+CAP_HEADER+TEMPLATE],
+            marker[MARKER+CAP_BODY+TEMPLATE],
+            marker[MARKER+CAP_FOOTER+TEMPLATE],
+            marker[MARKER+CAP_CLASSNAME],
+            marker[MARKER+CAP_COLORCLASS],
+            marker[MARKER_SIZE],
+            marker[MARKER+HTML],
+            (typeof markervisible === 'boolean') ? markervisible : true,
+            zindex
+        );
+    }
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _clearEventhandlers
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._clearEventhandlers = function() {
+    YArray.each(
+        this._eventhandlers,
+        function(item){
+            item.detach();
+        }
+    );
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _clearMarkers
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._clearMarkers = function() {
+    var markerlayer = this._markerlayer;
+    markerlayer.get('childNodes').destroy(true);
+    markerlayer.empty(); // also call empty, for else the nodes are still in the DOM
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _getHighestZ
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._getHighestZ = function() {
+    var instance = this,
+        markers = instance.get(MARKERS),
+        highestIndex = 0;
+    markers.each(
+        function(marker) {
+            var markerindex = marker._zIndex || marker._originalZindex || 1;
+/*jshint expr:true */
+            (markerindex > highestIndex) && (highestIndex=markerindex);
+/*jshint expr:false */
+        }
+    );
+    return highestIndex;
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _getMarkerX
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._getMarkerX = function(lon, zoomlevel) {
+    var instance = this,
+        xNotRounded = instance._long2tileNOTROUNDED(lon, zoomlevel);
+    return Math.round((xNotRounded-1)*TILE_SIZE);
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _getMarkerY
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._getMarkerY = function(lat, zoomlevel) {
+    var instance = this,
+        yNotRounded = instance._lat2tileNOTROUNDED(lat, zoomlevel);
+    return Math.round((yNotRounded-1)*TILE_SIZE);
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _clearMarkers
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._long2tileNOTROUNDED = function(lon, zoomlevel) {
+    return ((lon+180)/360*Math.pow(2,zoomlevel));
+};
+
+/**
+ * Cleaning up all eventlisteners
+ *
+ * @method _clearMarkers
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._lat2tileNOTROUNDED = function(lat, zoomlevel) {
+    return ((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoomlevel));
+};
+
+/**
+ * @method _removeMarker
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._removeMarker = function(marker) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker);
+/*jshint expr:true */
+    markerNode && markerNode.remove(true);
+/*jshint expr:false */
+};
+
+/**
+ * @method _renderMarker
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._renderMarker = function(properties, clientid, headertemplate, bodytemplate, footertemplate, classname, colorclass, size, markerhtml, visible, zindex) {
+    var instance = this,
+        left, top, markerNode;
+    markerNode = Node.create(
+        Lang.sub(
+            MARKER_TEMPLATE,
+            {
+                mapid: instance.host.mapid,
+                clientid: clientid,
+                classname: classname || '',
+                colorclass: colorclass || '',
+                markersize: size || '',
+                markerhtml: markerhtml,
+                header: headertemplate ? Lang.sub(headertemplate, properties) : '',
+                body:  bodytemplate ? Lang.sub(bodytemplate, properties) : '',
+                footer:  footertemplate ? Lang.sub(footertemplate, properties) : '',
+                left: left,
+                top: top,
+                hidden: visible ? '' : (HIDDEN+'="'+HIDDEN+'" '),
+                zindex: zindex
+            }
+        )
+    );
+    instance._markerlayer.append(markerNode);
+    instance._syncMarkerNode(markerNode, properties[LAT], properties[LON]);
+};
+
+/**
+ * @method _syncMarkerNode
+ * @protected
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, headertemplate, bodytemplate, footertemplate, classname, colorclass, size, markerhtml, visible, properties) {
+    var instance = this,
+        left, top, zoomlevel;
+
+    zoomlevel = instance.host.currentZoomLevel;
+console.log('_syncMarkerNode zoomlevel '+zoomlevel);
+    left = instance._getMarkerX(lon, zoomlevel); // returns the left-position what it would have been when marker-width === 0
+    top = instance._getMarkerY(lat, zoomlevel); // returns the top-position what it would have been when marker-height === 0
+    left -= (Math.round(markerNode.get(OFFSETWIDTH)/2));
+    top -= ((Math.round(markerNode.get(OFFSETHEIGHT)/2))+markerNode.one('.itsa-markerpin').get(OFFSETHEIGHT));
+    markerNode.setStyle('left', left+PX);
+    markerNode.setStyle('top', top+PX);
+    if (properties) {
+        markerNode.one('.itsa-markerheaderdetails').setHTML(headertemplate ? markerNode.setAttribute(DATA_HEADER, Lang.sub(headertemplate, properties)) : '');
+        markerNode.one('.itsa-markerbodydetails').setHTML(bodytemplate ? markerNode.setAttribute(DATA_BODY, Lang.sub(bodytemplate, properties)) : '');
+        markerNode.one('.itsa-markerfooterdetails').setHTML(footertemplate ? markerNode.setAttribute(DATA_FOOTER, Lang.sub(footertemplate, properties)) : '');
+        markerNode.set('class', (size ? size+' ' : '')+(colorclass || '')+' itsa-mapmarker '+(classname || ''));
+        markerNode.one('.itsa-markerballoon').setHTML(markerhtml);
+/*jshint expr:true */
+        visible ? markerNode.removeAttribute(HIDDEN) : markerNode.setAttribute(HIDDEN, HIDDEN);
+/*jshint expr:false */
+    }
+};
 
 
-}, '@VERSION@', {"requires": ["widget", "base-build", "event"], "skinnable": true});
+}, '@VERSION@', {
+    "requires": [
+        "yui-base",
+        "oop",
+        "model-list",
+        "lazy-model-list",
+        "plugin",
+        "node-core",
+        "node-style",
+        "gallery-itsamarkermodel"
+    ],
+    "skinnable": true
+});

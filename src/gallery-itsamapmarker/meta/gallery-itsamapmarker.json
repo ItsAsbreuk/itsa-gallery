@@ -3,8 +3,12 @@
         "requires": [
             "yui-base",
             "oop",
-            "plugin-base",
-            "node-style"
+            "model-list",
+            "lazy-model-list",
+            "plugin",
+            "node-core",
+            "node-style",
+            "gallery-itsamarkermodel"
         ],
         "skinnable": true
     }
