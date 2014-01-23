@@ -1,3 +1,5 @@
+YUI.add('gallery-itsamarkermodel', function (Y, NAME) {
+
 'use strict';
 /*jshint maxlen:200 */
 
@@ -99,3 +101,5 @@ ITSAMarkerModel.prototype.toJSON = function() {
     delete tojson.markerSize;
     return tojson;
 };
+
+}, '@VERSION@', {"requires": ["yui-base", "oop", "model"]});
