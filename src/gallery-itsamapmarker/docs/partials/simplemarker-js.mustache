@@ -11,7 +11,7 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
     marker = {
         markerid: '31624321690',
         markerHTML: followNr,
-        title: 'devicename',
+        title: 'De Bob',
         lat: 52.80,
         lon: 4.78,
         position: 'position',
@@ -24,17 +24,21 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
         md1: 'md1',
         md2: 'md2',
         status: 'devicestatus',
-        distance: 'distance',
-        markerColorClass: 'red',
-        markerSize: 'extralarge'
+//        markerColorClass: 'red',
+//        markerSize: 'extralarge',
+        markerHeaderTemplate: '{title}',
+        markerBodyTemplate: 'Mob:&nbsp;{markerid}',
+        markerFooterTemplate: '{status}',
+        markerDetailsClosable: false,
+        distance: 'distance'
     };
 
     marker2 = {
         markerid: '31630730112',
         markerHTML: '23',
         title: 'devicename Marco',
-        lat: 52.83,
-        lon: 4.78,
+        lat: 54.83,
+        lon: 4.88,
         position: 'position',
         size: 1,
         gmt: 'gmt',
@@ -45,20 +49,32 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
         md1: 'md1',
         md2: 'md2',
         status: 'devicestatus',
+        markerHeaderTemplate: 'header',
+        markerBodyTemplate: 'body',
+        markerFooterTemplate: 'footer',
+//        markerDetailsClosable: true,
         distance: 'distance'
     };
 
     markerlist = new Y.LazyModelList({items: [marker, marker2]});
     markerlist.model = Y.ITSAMarkerModel;
 
-    clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, markerColorClass: 'blue', markerSize: 'small'});
+    clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, markerDetailsClosable: false});
+
+    clicktracemap.itsamapmarker.markersInView({zoomin: 9, continuous: true});
+
 
     Y.later(1000, null, function() {
-        clicktracemap.itsamapmarker.markerOnTop(marker);
+        clicktracemap.itsamapmarker.showPopup(marker);
+        clicktracemap.itsamapmarker.showPopup(marker2);
     });
 
-    Y.later(2000, null, function() {
-        clicktracemap.itsamapmarker.markerRestoreZ(marker);
+    Y.later(3000, null, function() {
+        var m1 = markerlist.revive(0);
+        m1.set('lon', 20);
+//marker.title='OHOH';
+//clicktracemap.itsamapmarker.syncMarker(marker);
+        //clicktracemap.itsamapmarker.hidePopup(marker);
     });
 
 });

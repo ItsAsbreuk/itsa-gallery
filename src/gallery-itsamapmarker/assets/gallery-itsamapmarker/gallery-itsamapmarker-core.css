@@ -7,18 +7,90 @@
     z-index:10;
 }
 
+.itsa-mapmarker-container .itsa-markerdetails {
+    position: absolute;
+    left: 100%;
+    bottom: 0;
+    margin-left: 0.45em;
+    margin-bottom: 0.55em;
+    -webkit-border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
+    border-radius: 0.5em;
+    line-height: normal;
+    z-index: 9999;
+    padding: 0.4em;
+    background: #000;
+    color: #FFF;
+    min-width: 6em;
+}
+
+.itsa-mapmarker-container .itsa-markerdetails.details-outofrange {
+    top: -9999px;
+    left: -9999px;
+}
+
+.itsa-mapmarker-container .itsa-markerdetails .itsa-markerbodydetails {
+    background-color: #FFF;
+    color: #000;
+}
+
+.itsa-mapmarker-container .itsa-markerdetails.details-fade {
+    -webkit-transition: opacity 0.2s ease-out;
+    -moz-transition: opacity 0.2s ease-out;
+    -ms-transition: opacity 0.2s ease-out;
+    -o-transition: opacity 0.2s ease-out;
+    transition: opacity 0.2s ease-out;
+    filter: alpha(opacity=0);
+    -khtml-opacity: 0;
+    -moz-opacity: 0;
+    opacity: 0;
+}
+
+.itsa-mapmarker-container .itsa-markerdetails.details-fade.details-visible {
+    filter: alpha(opacity=100);
+    -khtml-opacity: 1;
+    -moz-opacity: 1;
+    opacity: 1;
+}
+
+.itsa-markerheaderdetails {
+    padding: 0.3em 1.5em;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    white-space: nowrap;
+}
+
+.itsa-markerbodydetails {
+    padding: 0.8em 0.5em;
+}
+
+.itsa-markerfooterdetails {
+    text-align: center;
+    padding: 0.3em 0.5em 0 0.5em;
+    white-space: nowrap;
+}
+
+.itsa-markerheaderdetails:empty,
+.itsa-markerfooterdetails:empty {
+    padding: 0;
+}
+
 .itsa-mapmarker {
     position:absolute;
 }
 
 .itsa-markerballoon {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
     border-radius: 50%;
     text-align: center;
     min-width: 0.8em;
     padding: 0.35em 0.6em 0.25em;
     font-size: 80%;
-    color: #000;
-    background-color: #0F0;
+    color: #FFF;
+    background-color: #F0F;
+    border: solid 1px #DF00DF;
 }
 
 .itsa-markerpin {
@@ -45,6 +117,25 @@
     top: 50%;
     height: 0;
     width: 0;
+}
+
+.itsa-mapmarker-container .itsa-details-pin {
+    position: relative;
+    float: left;
+    border-bottom: 5px solid rgba(0, 0, 0, 0);
+    border-right: 5px solid #000000;
+    border-top: 5px solid rgba(0, 0, 0, 0);
+    margin-right: -5px;
+    margin-top: -16px;
+    left: -10px;
+    top: 0;
+}
+
+.itsa-mapmarker-container .itsa-closedetails {
+    padding: 0 0.4em;
+    position: absolute;
+    top: 0.5em;
+    right: 7px;
 }
 
 .itsa-mapmarker-container.small .itsa-markerballoon,
@@ -75,14 +166,141 @@
     font-size: 150%;
 }
 
+/* suported colors
+white
+silver
+gray
+black
+red
+orange
+maroon
+yellow
+olive
+lime
+green
+aque
+teal
+blue
+navy
+fuchsia
+purple
+*/
+
+.itsa-mapmarker-container.white .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.white .itsa-markerballoon {
+    color: #000;
+    background-color: #FFF;
+    border: solid 1px #D0D0D0;
+}
+
+.itsa-mapmarker-container.silver .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.silver .itsa-markerballoon {
+    color: #000;
+    background-color: #C0C0C0;
+    border: solid 1px #A0A0A0;
+}
+
+.itsa-mapmarker-container.gray .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.gray .itsa-markerballoon {
+    color: #FFF;
+    background-color: #808080;
+    border: solid 1px #606060;
+}
+
+.itsa-mapmarker-container.black .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.black .itsa-markerballoon {
+    color: #FFF;
+    background-color: #000;
+    border: solid 1px #444;
+}
+
 .itsa-mapmarker-container.red .itsa-markerballoon,
 .itsa-mapmarker-container .itsa-mapmarker.red .itsa-markerballoon {
-    color: #000;
+    color: #FFF;
     background-color: #F00;
+    border: solid 1px #DF0000;
+}
+
+.itsa-mapmarker-container.orange .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.orange .itsa-markerballoon {
+    color: #000;
+    background-color: #FFA500;
+    border: solid 1px #FF8500;
+}
+
+.itsa-mapmarker-container.maroon .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.maroon .itsa-markerballoon {
+    color: #FFF;
+    background-color: #800000;
+    border: solid 1px #700000;
+}
+
+.itsa-mapmarker-container.yellow .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.yellow .itsa-markerballoon {
+    color: #000;
+    background-color: #FF0;
+    border: solid 1px #FFDF00;
+}
+
+.itsa-mapmarker-container.olive .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.olive .itsa-markerballoon {
+    color: #FFF;
+    background-color: #808000;
+    border: solid 1px #A0A000;
+}
+
+.itsa-mapmarker-container.lime .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.lime .itsa-markerballoon {
+    color: #000;
+    background-color: #0F0;
+    border: solid 1px #00DF00;
+}
+
+.itsa-mapmarker-container.green .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.green .itsa-markerballoon {
+    color: #FFF;
+    background-color: #008000;
+    border: solid 1px #00A000;
+}
+
+.itsa-mapmarker-container.aqua .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.aqua .itsa-markerballoon {
+    color: #000;
+    background-color: #0FF;
+    border: solid 1px #00DFDF;
+}
+
+.itsa-mapmarker-container.teal .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.teal .itsa-markerballoon {
+    color: #FFF;
+    background-color: #008080;
+    border: solid 1px #00A0A0;
 }
 
 .itsa-mapmarker-container.blue .itsa-markerballoon,
 .itsa-mapmarker-container .itsa-mapmarker.blue .itsa-markerballoon {
-    color: #000;
+    color: #FFF;
     background-color: #00F;
+    border: solid 1px #00D;
+}
+
+.itsa-mapmarker-container.navy .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.navy .itsa-markerballoon {
+    color: #FFF;
+    background-color: #000080;
+    border: solid 1px #00F;
+}
+
+.itsa-mapmarker-container.fuchsia .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.fuchsia .itsa-markerballoon {
+    color: #FFF;
+    background-color: #F0F;
+    border: solid 1px #DF00DF;
+}
+
+.itsa-mapmarker-container.purple .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.purple .itsa-markerballoon {
+    color: #FFF;
+    background-color: #800080;
+    border: solid 1px #A000A0;
 }
