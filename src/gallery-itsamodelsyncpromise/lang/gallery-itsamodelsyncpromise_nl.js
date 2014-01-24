@@ -1,6 +1,7 @@
 {
     load: 'Laden gegevens ...',
+    update: 'Updatingdata',
     submit: 'Versturen gegevens ...',
-    save: 'Bijwerken gegevens ...',
+    save: 'Bewaren gegevens ...',
     destroy: 'Bijwerken gegevens ...'
 }
