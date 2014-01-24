@@ -53,24 +53,25 @@ ITSAMarkerModel.ATTRS = {
         validator: function(v){ return (v===null) || (typeof v === 'string'); }
     },
 
-    markerHeaderTemplate: {
+    markerDetailsClosable: {
         value: null,
-        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+        validator: function(v){ return (v===null) || (typeof v === 'boolean'); }
+    },
+
+    markerHeaderTemplate: {
+        value: null
     },
 
     markerBodyTemplate: {
-        value: null,
-        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+        value: null
     },
 
     markerFooterTemplate: {
-        value: null,
-        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+        value: null
     },
 
     markerHTML: {
-        value: null,
-        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+        value: null
     },
 
     markerVisible: {
