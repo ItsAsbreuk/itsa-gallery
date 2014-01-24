@@ -17,6 +17,7 @@ YUI.add('gallery-itsaopenstreetmap', function (Y, NAME) {
  * YUI BSD License - http://developer.yahoo.com/yui/license.html
  *
 */
+var TILE_SIZE = 256; // standard 256 pixels
 
 Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 /*
@@ -27,7 +28,6 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 *
 * Important: plug it in the master node (example: #obj1), not in the nestnode!
 */
-
         doLoadImagesOutsieViewPort : false, // should be TRUE, but during buildup imagesserver, it should remain false --> because tiles will mostly come from openstreetmaps and we do not want delays
         autoresizeLayer : true,
         mapid : null,
@@ -344,7 +344,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 
         renderUI : function() {
             Y.log('renderUI', 'cmaserror', 'CMASMAPS');
-            var instance, i, newContent, indentx, indenty, halfindentx, halfindenty, metaviewport;
+            var instance, i, newContent, metaviewport;
             instance = this;
             instance._hideMap();
             // first of all: disable user from zoomin with mobile devices --> for they might not get zoomed-out because the map supports drag and drop
@@ -353,39 +353,31 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                 if (metaviewport) {metaviewport.set('content', 'user-scalable=0');}
                 else {Y.one('head').prepend('<meta name="viewport" content="user-scalable=0" />');}
             }
-            indentx = parseInt(instance.get('xpos'), 10);
-            indenty = parseInt(instance.get('ypos'), 10);
-            halfindentx = Math.round(indentx/2);
-            halfindenty = Math.round(indenty/2);
             instance.currentLatitude = instance.get('lat');
             instance.currentLongitude = instance.get('lon');
             instance.currentZoomLevel = instance.get('zoomLevel');
             instance.get('boundingBox').setStyle('overflow', 'hidden');
-            newContent = "<div class='cmasmapshadowleft' style='left:" + indentx + "px; top:" + indenty + "px;'></div>";
-            newContent += "<div class='cmasmapshadowtop' style='left:" + indentx + "px; top:" + indenty + "px;'></div>";
+            newContent = "<div class='cmasmapshadowleft'></div>";
+            newContent += "<div class='cmasmapshadowtop'></div>";
             newContent += "<div id='map_" + instance.mapid + "' class='cmasmap'>";
             for (i=0;i<=17; i++) {newContent += "<div id='map_zoom" + i + "_" + instance.mapid + "' class='cmasmap'></div>";}
             newContent += "</div>";
-            indentx += 15;
-            indenty += 30;
             if (instance.mobiledevice) {
-                newContent += "<div id='movecontainer_" + instance.mapid + "' class='cmasmovecontainer cmasmobile' style='left:" + indentx + "px; top:" + indenty + "px;'>";
+                newContent += "<div id='movecontainer_" + instance.mapid + "' class='cmasmovecontainer cmasmobile'>";
                     newContent += "<div id='movehome_" + instance.mapid + "' class='cmasmapcontrol cmasmobile' style='top:1px;'></div>";
                     newContent += "<div id='zoomin_" + instance.mapid + "' class='cmasmapcontrol cmasmobile' style='top:66px;'></div>";
                     newContent += "<div id='zoomout_" + instance.mapid + "' class='cmasmapcontrol cmasmobile' style='top:132px;'></div>";
                 newContent += "</div>";
             }
             else {
-                newContent += "<div id='movecontainer_" + instance.mapid + "' class='cmasmovecontainer' style='left:" + indentx + "px; top:" + indenty + "px;'>";
+                newContent += "<div id='movecontainer_" + instance.mapid + "' class='cmasmovecontainer'>";
                     newContent += "<div id='moveup_" + instance.mapid + "' class='cmasmapcontrol' style='left:22px; top:4px;'></div>";
                     newContent += "<div id='movedown_" + instance.mapid + "' class='cmasmapcontrol' style='left:22px; top:40px;'></div>";
                     newContent += "<div id='moveleft_" + instance.mapid + "' class='cmasmapcontrol' style='left:4px; top:22px;'></div>";
                     newContent += "<div id='moveright_" + instance.mapid + "' class='cmasmapcontrol' style='left:40px; top:22px;'></div>";
                     newContent += "<div id='movehome_" + instance.mapid + "' class='cmasmapcontrol' style='left:22px; top:22px;'></div>";
                 newContent += "</div>";
-                indentx += 17;
-                indenty += 80;
-                newContent += "<div id='zoomcontainer_" + instance.mapid + "' class='cmaszoomcontainer' style='left:" + indentx + "px; top:" + indenty + "px;'>";
+                newContent += "<div id='zoomcontainer_" + instance.mapid + "' class='cmaszoomcontainer'>";
                     newContent += "<div id='zoomin_" + instance.mapid + "' class='cmasmapcontrol' style='left:5px; top:6px;'></div>";
                     newContent += "<div id='zoomout_" + instance.mapid + "' class='cmasmapcontrol' style='left:5px; top:205px;'></div>";
                     newContent += "<div id='zoomhandleconstraint_" + instance.mapid + "' class='cmaszoomhandleconstraint'>";
@@ -393,7 +385,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                     newContent += "</div>";
                 newContent += "</div>";
             }
-            newContent += "<div id='busywait_" + instance.mapid + "' class='cmaswait' style='left:" + halfindentx + "px; top:" + halfindenty + "px;'></div>";
+            newContent += "<div id='busywait_" + instance.mapid + "' class='cmaswait'></div>";
             newContent += "<div id='busyfade_" + instance.mapid + "' class='cmasfade'></div>";
             instance.get('contentBox').setContent(newContent);
         },
@@ -414,6 +406,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             Y.on('click', instance.moveHome, '#movehome_'+instance.mapid, instance);
             Y.on('click', instance._handleZoomIn, '#zoomin_'+instance.mapid, instance);
             Y.on('click', instance._handleZoomOut, '#zoomout_'+instance.mapid, instance);
+            instance.after(['latChange', 'lonChange'], Y.bind(instance.moveHome, instance));
             if (!instance.mobiledevice) {
                 zoomhandledd = new Y.DD.Drag({
                     node: '#zoomhandle_'+ instance.mapid
@@ -442,9 +435,8 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             instance._repositionZoomHandle();
             instance.loadImagesActiveLayer(instance.get('showWaitDuringStartup'), true);
             Y.log('syncUI long: '+instance.currentLongitude+' - lat: '+instance.currentLatitude, 'cmaserror', 'CMASMAPS');
-
-            // volgend statement wellicht niet nodig: ???
-            instance._handleMapDragEnd();
+            // volgend statement NIET doen:
+//            instance._handleMapDragEnd();
         },
 
         loadImagesActiveLayer: function(showlayerwait, loadimagesarround) {
@@ -691,8 +683,14 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
         moveHome : function() {
             Y.log('moveHome', 'cmas', 'CMASMAPS');
             var instance = this;
-            instance.currentLatitude = instance.get('lat');
-            instance.currentLongitude = instance.get('lon');
+            instance.gotoPos(instance.get('lat'), instance.get('lon'));
+        },
+
+        gotoPos : function(lat, lon) {
+            Y.log('gotoPos', 'cmas', 'CMASMAPS');
+            var instance = this;
+            instance.currentLatitude = lat;
+            instance.currentLongitude = lon;
             instance.viewZoomLayer(instance.get('zoomLevel'));
         },
 
@@ -702,6 +700,10 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 
         getLon : function() {
             return this.currentLongitude;
+        },
+
+        getZoomLevel : function() {
+            return this.currentZoomLevel;
         },
 
         _handleMouseScroll : function(e) {
@@ -955,14 +957,21 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             Y.log('repositionLayer to '+xPos+';'+yPos, 'cmas', 'CMASMAPS');
         },
 
+        zoom : function(zoomLevel) {
+            this.viewZoomLayer(zoomLevel);
+        },
+
+        getMaxZoomLevel : function() {
+            return (Y.UA.ie>0) ? 13 : 17;
+        },
+
         viewZoomLayer : function(zoomLevel) {
             Y.log('viewZoomLayer zoomlevel '+zoomLevel, 'cmas', 'CMASMAPS');
             // when mousePos is defnied, it will be an array with mouseposition --> this has to be fixed
             // otherwise fix on centre
             var instance = this,
                 showLayerWait;
-            if ((zoomLevel<0) || (zoomLevel>17)) {return;}
-            if ((Y.UA.ie>0) && (zoomLevel>13)) {return;} // from zoomlevel14: IE cant handle large left and top values....
+            if ((zoomLevel<0) || (zoomLevel>instance.getMaxZoomLevel())) {return;}
             showLayerWait = (zoomLevel!==instance.currentZoomLevel);
             instance.currentZoomLevel = zoomLevel;
             instance._repositionZoomHandle();
@@ -1120,6 +1129,18 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                 yNotRounded = instance._lat2tileNOTROUNDED(latitude, zoomlevel),
                 yRounded = Math.floor(yNotRounded);
             return Math.round(instance.TILE_SIZE*(yNotRounded-yRounded));
+        },
+
+        _getX : function(lon, zoomlevel) {
+            var instance = this,
+                xNotRounded = instance._long2tileNOTROUNDED(lon, zoomlevel);
+            return Math.round((xNotRounded-1)*TILE_SIZE);
+        },
+
+        _getY : function(lat, zoomlevel) {
+            var instance = this,
+                yNotRounded = instance._lat2tileNOTROUNDED(lat, zoomlevel);
+            return Math.round((yNotRounded-1)*TILE_SIZE);
         },
 
         _long2tileNOTROUNDED : function(lon, zoom) {
