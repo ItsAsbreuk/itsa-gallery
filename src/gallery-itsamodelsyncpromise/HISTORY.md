@@ -2,7 +2,7 @@ gallery-itsamodelsyncpromise
 ========
 
 24-01-2014
-* added intl property 'update'
+* added intl property 'update' and 'reload'
 
 14-11-2013 - version 0.4:
 * added addMessageTarget() to target sync-messages to Y.ITSAMessageViewer instances - see gallery-itsamessageviewer
