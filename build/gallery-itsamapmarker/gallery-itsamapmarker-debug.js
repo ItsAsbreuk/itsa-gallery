@@ -153,9 +153,10 @@ Y.Plugin.ITSAMapMarker = Y.extend(ITSAMapMarker, Y.Plugin.Base);
 */
 ITSAMapMarker.prototype.initializer = function() {
     Y.log('initializer', 'info', 'ITSAMapMarker');
-    var instance = this;
-    instance.host = instance.get('host');
-    instance._renderer();
+    var instance = this,
+        host;
+    host = instance.host = instance.get('host');
+    host.renderPromise().then(Y.bind(instance._renderer, instance));
 };
 
 /**
@@ -221,7 +222,9 @@ ITSAMapMarker.prototype.bindUI = function() {
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSAMapMarker');
                 var prevVal = e.prevVal,
-                    newVal = e.newVal;
+                    newVal = e.newVal,
+                    centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 if (prevVal) {
                     prevVal.removeTarget(instance);
 /*jshint expr:true */
@@ -231,6 +234,10 @@ ITSAMapMarker.prototype.bindUI = function() {
                 if (newVal) {
                     instance.syncUI();
                     newVal.addTarget(instance);
+/*jshint expr:true */
+                    centerview && instance.centerView(centerview);
+                    markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
                 }
             }
         )
@@ -257,7 +264,13 @@ ITSAMapMarker.prototype.bindUI = function() {
             '*:add',
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSAMapMarker');
+                var centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 instance._addMarker(e.model);
+/*jshint expr:true */
+                centerview && instance.centerView(centerview);
+                markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
             }
         )
     );
@@ -298,7 +311,13 @@ ITSAMapMarker.prototype.bindUI = function() {
             '*:remove',
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSAMapMarker');
+                var centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 instance._removeMarker(e.model);
+/*jshint expr:true */
+                centerview && instance.centerView(centerview);
+                markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
             }
         )
     );
@@ -308,17 +327,13 @@ ITSAMapMarker.prototype.bindUI = function() {
             '*:reset',
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ITSAMapMarker');
+                var centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 instance.syncUI();
-            }
-        )
-    );
-
-    eventhandlers.push(
-        instance.after(
-            '*:reset',
-            function(e) {
-                Y.log('aftersubscriptor '+e.type, 'info', 'ITSAMapMarker');
-                instance.syncUI();
+/*jshint expr:true */
+                centerview && instance.centerView(centerview);
+                markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
             }
         )
     );
@@ -1003,7 +1018,8 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
         "plugin",
         "node-core",
         "node-style",
-        "gallery-itsamarkermodel"
+        "gallery-itsamarkermodel",
+        "gallery-itsawidgetrenderpromise"
     ],
     "skinnable": true
 });

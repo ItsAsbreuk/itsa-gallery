@@ -152,9 +152,10 @@ Y.Plugin.ITSAMapMarker = Y.extend(ITSAMapMarker, Y.Plugin.Base);
  * @since 0.1
 */
 ITSAMapMarker.prototype.initializer = function() {
-    var instance = this;
-    instance.host = instance.get('host');
-    instance._renderer();
+    var instance = this,
+        host;
+    host = instance.host = instance.get('host');
+    host.renderPromise().then(Y.bind(instance._renderer, instance));
 };
 
 /**
@@ -216,7 +217,9 @@ ITSAMapMarker.prototype.bindUI = function() {
             MARKER+CAP_CHANGE,
             function(e) {
                 var prevVal = e.prevVal,
-                    newVal = e.newVal;
+                    newVal = e.newVal,
+                    centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 if (prevVal) {
                     prevVal.removeTarget(instance);
 /*jshint expr:true */
@@ -226,6 +229,10 @@ ITSAMapMarker.prototype.bindUI = function() {
                 if (newVal) {
                     instance.syncUI();
                     newVal.addTarget(instance);
+/*jshint expr:true */
+                    centerview && instance.centerView(centerview);
+                    markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
                 }
             }
         )
@@ -250,7 +257,13 @@ ITSAMapMarker.prototype.bindUI = function() {
         instance.after(
             '*:add',
             function(e) {
+                var centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 instance._addMarker(e.model);
+/*jshint expr:true */
+                centerview && instance.centerView(centerview);
+                markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
             }
         )
     );
@@ -289,7 +302,13 @@ ITSAMapMarker.prototype.bindUI = function() {
         instance.after(
             '*:remove',
             function(e) {
+                var centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 instance._removeMarker(e.model);
+/*jshint expr:true */
+                centerview && instance.centerView(centerview);
+                markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
             }
         )
     );
@@ -298,16 +317,13 @@ ITSAMapMarker.prototype.bindUI = function() {
         instance.after(
             '*:reset',
             function(e) {
+                var centerview = instance._centerview,
+                    markersinview = instance._markersinview;
                 instance.syncUI();
-            }
-        )
-    );
-
-    eventhandlers.push(
-        instance.after(
-            '*:reset',
-            function(e) {
-                instance.syncUI();
+/*jshint expr:true */
+                centerview && instance.centerView(centerview);
+                markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
             }
         )
     );
@@ -984,7 +1000,8 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
         "plugin",
         "node-core",
         "node-style",
-        "gallery-itsamarkermodel"
+        "gallery-itsamarkermodel",
+        "gallery-itsawidgetrenderpromise"
     ],
     "skinnable": true
 });

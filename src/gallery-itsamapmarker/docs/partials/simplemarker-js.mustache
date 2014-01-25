@@ -1,11 +1,6 @@
 YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', function(Y) {
     var clicktracemap, marker, markerlist;
 
-    clicktracemap = new Y.ITSAOpenStreetMap({
-        boundingBox:'#mymap'
-    });
-    clicktracemap.render();
-
     followNr = 1;
 
     marker = {
@@ -59,9 +54,13 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
     markerlist = new Y.LazyModelList({items: [marker, marker2]});
     markerlist.model = Y.ITSAMarkerModel;
 
+    clicktracemap = new Y.ITSAOpenStreetMap({
+        boundingBox:'#mymap'
+    });
     clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, markerDetailsClosable: false});
+    clicktracemap.render();
 
-    clicktracemap.itsamapmarker.markersInView({zoomin: 9, continuous: true});
+    clicktracemap.itsamapmarker.markersInView({zoomin: 16, continuous: true});
 
 
     Y.later(1000, null, function() {
