@@ -34,7 +34,7 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
        REMOVABLE_BY_SYNCPROMISE = '_removableby'+LOW_PROMISE,
        AVAILABLESYNCMESSAGES = {
            load: true,
-           update: true,
+           reload: true,
            save: true,
            submit: true,
            destroy: true
@@ -93,15 +93,15 @@ YUI.add('gallery-itsamodellistsyncpromise', function (Y, NAME) {
     LOAD = 'load',
 
    /**
-     * Fired when models are updated from the ModelList-sync layer.
-     * @event update
+     * Fired when models are reloaded from the ModelList-sync layer.
+     * @event reload
      * @param e {EventFacade} Event Facade including:
      * @param e.promise {Y.Promise} promise passed by with the eventobject
      * @param e.promiseReject {Function} handle to the reject-method
      * @param e.promiseResolve {Function} handle to the resolve-method
      * @since 0.5
     **/
-    UPDATE = 'update',
+    RELOAD = 'reload',
 
    /**
      * Fired when models are appended to the ModelList by the ModelList-sync layer.
@@ -489,17 +489,17 @@ YModelList.prototype.defSyncOptions = function() {
   * This method delegates to the `sync()` method to perform the actual read-operation, which is an asynchronous action. Specify a 'callback' function to
   * be notified of success or failure.
   * <br /><br />
-  * An unsuccessful update operation will fire an `error` event with the `src` value "update".
+  * An unsuccessful reload operation will fire an `error` event with the `src` value "reload".
   * <br /><br />
-  * If the update operation succeeds and one or more of the loaded attributes
+  * If the reload operation succeeds and one or more of the loaded attributes
   * differ from this model's current attributes, a `change` event will be fired.
   * <br /><br />
-  * To keep track of the proccess, it is preferable to use <b>updatePromise()</b>.<br />
-  * This method will fire the events: 'update' or ERROR after syncing.
+  * To keep track of the proccess, it is preferable to use <b>reloadPromise()</b>.<br />
+  * This method will fire the events: 'reload' or ERROR after syncing.
   * <br /><br />
   * <b>CAUTION</b> The sync-method with action 'read' <b>must call its callback-function</b> in order to work as espected!
   *
-  * @method update
+  * @method reload
   * @param {Object} [options] Options to be passed to `sync()` and to `set()` when setting the loaded attributes.
   *                           It's up to the custom sync implementation to determine what options it supports or requires, if any.
   *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
@@ -514,15 +514,15 @@ YModelList.prototype.defSyncOptions = function() {
  * Loads models from the server, but does not add the new models through 'reset'. Instead, all individual models are updated/removed/added.<br />
  * This is useful in situations where you have the modellist bound to a view and you don't want a complete re-render of the view, but only of the changed models.
  * <br /><br />
- * This method delegates to the `sync()` method to perform the actual update-operation, which is an asynchronous action.
+ * This method delegates to the `sync()` method to perform the actual reload-operation, which is an asynchronous action.
  * <br /><br />
- * An unsuccessful update operation will fire an `error` event with the `src` value "update".
+ * An unsuccessful reload operation will fire an `error` event with the `src` value "reload".
  * <br /><br />
- * If the update operation succeeds and one or more of the loaded attributes differ from this model's current attributes, a `change` event will be fired.
+ * If the reload operation succeeds and one or more of the loaded attributes differ from this model's current attributes, a `change` event will be fired.
  * <br /><br />
  * <b>CAUTION</b> The sync-method with action 'read' <b>must call its callback-function</b> in order to work as espected!
  *
- * @method updatePromise
+ * @method reloadPromise
  * @param {Object} [options] Options to be passed to `sync()`. It's up to the custom sync
  *                 implementation to determine what options it supports or requires, if any.
  *   @param {String} [options.syncmessage] Message that should appear on a Y.ITSAMessageViewer during asynchronious loading. Will overrule the default message. See gallery-itsamessageviewer.
@@ -531,7 +531,7 @@ YModelList.prototype.defSyncOptions = function() {
 **/
 
 YArray.each(
-    [LOAD, LOADAPPEND, UPDATE, SAVE, SUBMIT, DESTROYMODELS],
+    [LOAD, LOADAPPEND, RELOAD, SAVE, SUBMIT, DESTROYMODELS],
     function(Fn) {
         YModelList.prototype[Fn] = function(options, callback) {
             var instance = this,
@@ -727,12 +727,12 @@ YModelList.prototype[DEFFN+DESTROYMODELS] = function(e) {
  * This is an asynchronous action. You <b>must</b> specify a _callback_ function to
  * make the promise work.
  *
- * An unsuccessful load operation will fire an `error` event with the `src` value "update".
+ * An unsuccessful load operation will fire an `error` event with the `src` value "reload".
  *
  * If the load operation succeeds and one or more of the loaded attributes
  * differ from this model's current attributes, a `change` event will be fired for every Model.
  *
- * @method _defFn_update
+ * @method _defFn_reload
  * @param {Object} [options] Options to be passed to `sync()`. The custom sync
  *                 implementation can determine what options it supports or requires, if any.
  * @private
@@ -740,7 +740,7 @@ YModelList.prototype[DEFFN+DESTROYMODELS] = function(e) {
  * @since 0.5
 **/
 YArray.each(
-    [LOAD, LOADAPPEND, UPDATE],
+    [LOAD, LOADAPPEND, RELOAD],
     function(eventType) {
         YModelList.prototype[DEFFN+eventType] = function (e) {
             var instance = this,
@@ -779,7 +779,7 @@ YArray.each(
                 else if (eventType===LOAD) {
                     instance.reset(parsed, options);
                 }
-                else { // (eventType===UPDATE)
+                else { // (eventType===RELOAD)
                     // process the whole modellist: update/delete/add
                     // first: mark all current models so that they can be removed when no longer needed
                     instance.each(
