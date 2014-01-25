@@ -802,15 +802,16 @@ YArray.each(
                     YArray.each(
                         parsed,
                         function(modelobj) {
-                            var key = parsed[idAttribute],
-                                availableModel = key && instance.getById(key);
+                            var key = modelobj[idAttribute],
+                                availableModelOrObject, availableModel;
+                            availableModelOrObject = availableModel = key && instance.getById(key);
                             // in case of LML --> revive the object into a model to activate model's change-event
                             if (availableModel) {
 /*jshint expr:true */
-                                instance.revive && (availableModel=availableModel.revive(availableModel));
+                                instance.revive && (availableModel=instance.revive(availableModel));
 /*jshint expr:false */
                                 availableModel.setAttrs(modelobj, options);
-                                delete availableModel[REMOVABLE_BY_SYNCPROMISE];
+                                delete availableModelOrObject[REMOVABLE_BY_SYNCPROMISE];
                             }
                             else {
                                 instance.add(modelobj, options);
