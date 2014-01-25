@@ -702,7 +702,7 @@ ITSAMapMarker.prototype.syncMarker = function(marker, options) {
                 positiononly || marker.get(MARKER+CAP_CLASSNAME),
                 positiononly || marker.get(MARKER+CAP_COLORCLASS),
                 positiononly || marker.get(MARKER_SIZE),
-                positiononly || marker.get(MARKER+HTML),
+                positiononly || marker.get(MARKER+HTML) || '',
                 positiononly || marker.get(MARKER+CAP_DETAILS_CLOSABLE),
                 positiononly || marker.get(MARKER+CAP_VISIBLE),
                 positiononly ? null : marker.toJSON()
@@ -721,7 +721,7 @@ ITSAMapMarker.prototype.syncMarker = function(marker, options) {
                 positiononly || marker[MARKER+CAP_CLASSNAME],
                 positiononly || marker[MARKER+CAP_COLORCLASS],
                 positiononly || marker[MARKER_SIZE],
-                positiononly || marker[MARKER+HTML],
+                positiononly || marker[MARKER+HTML] || '',
                 positiononly || marker[MARKER+CAP_DETAILS_CLOSABLE],
                 positiononly || (typeof markervisible === 'boolean') ? markervisible : true,
                 positiononly ? null : marker
@@ -936,7 +936,7 @@ ITSAMapMarker.prototype._renderMarker = function(properties, clientid, headertem
                 classname: classname || '',
                 colorclass: colorclass || '',
                 markersize: size || '',
-                markerhtml: markerhtml,
+                markerhtml: markerhtml || '',
                 closebutton: withclosebutton ? Lang.sub(CLOSEBUTTON_TEMPLATE, {clientid: clientid}) : '',
                 header: headertemplate ? Lang.sub(headertemplate, properties) : '',
                 body:  bodytemplate ? Lang.sub(bodytemplate, properties) : '',
