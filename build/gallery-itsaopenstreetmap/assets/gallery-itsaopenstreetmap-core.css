@@ -149,15 +149,17 @@
 }
 .cmasfade {
 display:none;
-position:fixed;
+position:absolute;
 left:0px;
 top:0px;
 width:100%;
 height:100%;
+/*
 background-color:#FFF;
 filter:alpha(opacity=60);
 opacity:0.6;
-z-index:10000;
+*/
+z-index:15;
 }
 
 .cmaswait {
@@ -165,13 +167,15 @@ display:none;
 position:absolute;
 left:0px;
 top:0px;
+/*
 width:100%;
 height:100%;
 background-image: url('http://files.brongegevens.nl/global/images/cmas2plus-loading.gif');
 background-repeat: no-repeat;
 background-attachment:scroll;
 background-position:center;
-z-index:10010;
+z-index:16;
+*/
 }
 
 .cmasmovecontainer {
@@ -180,7 +184,7 @@ z-index:10010;
     width:64px;
     height:64px;
     position:relative;
-    z-index:10050;
+    z-index: 11;
     background-image: url('http://files.brongegevens.nl/global/images/map_buttons.png');
     background-repeat: no-repeat;
 }
@@ -192,7 +196,7 @@ z-index:10010;
     width:30px;
     height:230px;
     position:relative;
-    z-index:10051;
+    z-index:11;
     left:32px;
     top:46px;
     background-image: url('http://files.brongegevens.nl/global/images/map_buttons.png');
@@ -237,7 +241,7 @@ z-index:10010;
     height: 100%;
     left: 0;
     top: 0;
-    z-index: 2;
+    z-index: 1;
     background-image: url('http://files.brongegevens.nl/global/images/shadow10leftright.png');
     background-repeat: repeat-y;
     background-position: -16px 0;
