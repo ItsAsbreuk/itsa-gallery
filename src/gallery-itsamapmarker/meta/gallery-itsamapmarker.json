@@ -8,7 +8,10 @@
             "plugin",
             "node-core",
             "node-style",
+            "json-stringify",
+            "promise",
             "gallery-itsamarkermodel",
+            "gallery-itsapluginpromise",
             "gallery-itsawidgetrenderpromise"
         ],
         "skinnable": true

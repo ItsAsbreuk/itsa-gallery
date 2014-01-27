@@ -43,7 +43,6 @@ var Lang = Y.Lang,
     CAP_DETAILS_CLOSABLE = 'DetailsClosable',
     MARKER_DETAILS_CLASS = ITSA_+'marker'+DETAILS,
     VISIBLE_DETAILS_CLASS = DETAILS+'-visible',
-    DETAILS_OUTOFRANGE_CLASS = DETAILS+'-outofrange',
     HEADER_DETAILS_CLASS = ITSA_+'markerheader'+DETAILS,
     BODY_DETAILS_CLASS = ITSA_+'markerbody'+DETAILS,
     FOOTER_DETAILS_CLASS = ITSA_+'markerfooter'+DETAILS,
@@ -53,6 +52,8 @@ var Lang = Y.Lang,
     OFFSETHEIGHT = 'offsetHeight',
     MARKERMARGIN = 'markerMargin',
     DESTROYED = 'destroyed',
+    AUTONUMBER = 'autoNumber',
+    MARKERNUMBER = 'markerNumber',
     HIDDEN_MARKERS = 'itsa-all-markers-hidden',
     CLOSEBUTTON_TEMPLATE = '<button class="pure-button itsa-closedetails" data-markerid="{clientid}">x</button>',
     MARKER_TEMPLATE = '<div data-id="{mapid}_{clientid}" class="{colorclass} itsa-mapmarker {classname}" {hidden}style="z-index:{zindex}">'+
@@ -75,6 +76,19 @@ ITSAMapMarker.NAME = 'itsamapmarker';
 ITSAMapMarker.NS = 'itsamapmarker';
 
 ITSAMapMarker.ATTRS = {
+
+    /**
+     * Auto-number the marker-html - when no markerHTML is specified.
+     *
+     * @attribute autoNumber
+     * @type {String}
+     * @default false
+     * @since 0.1
+     */
+    autoNumber: {
+        value: false,
+        validator: function(v){ return (typeof v === 'boolean'); }
+    },
 
     /**
      *
@@ -154,6 +168,9 @@ Y.Plugin.ITSAMapMarker = Y.extend(ITSAMapMarker, Y.Plugin.Base);
 ITSAMapMarker.prototype.initializer = function() {
     var instance = this,
         host;
+    instance._renderedPromise = new Y.Promise(function (resolve) {
+        instance._resolveHandler = resolve;
+    });
     host = instance.host = instance.get('host');
     host.renderPromise().then(Y.bind(instance._renderer, instance));
 };
@@ -167,7 +184,11 @@ ITSAMapMarker.prototype._renderer = function() {
     var instance = this;
     instance.renderUI();
     instance.bindUI();
+/*jshint expr:true */
+    instance.get(AUTONUMBER) && instance._calcPosMarkers();
+/*jshint expr:false */
     instance.syncUI(true);
+    instance._resolveHandler(); // resolving rendered-promise
 };
 
 /**
@@ -214,7 +235,7 @@ ITSAMapMarker.prototype.bindUI = function() {
 /*jshint expr:false */
     eventhandlers.push(
         instance.after(
-            MARKER+CAP_CHANGE,
+            MARKERS+CAP_CHANGE,
             function(e) {
                 var prevVal = e.prevVal,
                     newVal = e.newVal,
@@ -227,6 +248,9 @@ ITSAMapMarker.prototype.bindUI = function() {
 /*jshint expr:false */
                 }
                 if (newVal) {
+/*jshint expr:true */
+                    instance.get(AUTONUMBER) && instance._calcPosMarkers();
+/*jshint expr:false */
                     instance.syncUI();
                     newVal.addTarget(instance);
 /*jshint expr:true */
@@ -259,6 +283,9 @@ ITSAMapMarker.prototype.bindUI = function() {
             function(e) {
                 var centerview = instance._centerview,
                     markersinview = instance._markersinview;
+/*jshint expr:true */
+                instance.get(AUTONUMBER) && instance._calcPosMarkers();
+/*jshint expr:false */
                 instance._addMarker(e.model);
 /*jshint expr:true */
                 centerview && instance.centerView(centerview);
@@ -276,23 +303,34 @@ ITSAMapMarker.prototype.bindUI = function() {
                     changed = e.changed,
                     centerview = instance._centerview,
                     markersinview = instance._markersinview,
-                    latLon, noLatLon;
+                    atLeatOneValueChanged, noLatLon;
                 if (marker instanceof Y.ITSAMarkerModel) {
                     YObject.some(
                         changed,
                         function(val, key) {
-                            var islatlon = ((key===LAT) || (key===LON));
+                            var islatlon = ((key===LAT) || (key===LON)),
+                                // need to stringify, because they might be objects and therefor never tripple-equal
+                                valueChanged = (Y.JSON.stringify(val.newVal) !== Y.JSON.stringify(val.prevVal));
+                            if (valueChanged) {
+
+                                atLeatOneValueChanged = valueChanged;
 /*jshint expr:true */
-                            islatlon ? (latLon=true) : (noLatLon=true);
+                                !islatlon && (noLatLon=true);
 /*jshint expr:false */
-                            return (typeof latLon==='boolean') && (typeof noLatLon==='boolean');
+                            }
+                            return valueChanged && noLatLon;
                         }
                     );
-                    instance.syncMarker(marker, {positiononly: !noLatLon});
+                    if (atLeatOneValueChanged) {
 /*jshint expr:true */
-                    centerview && instance.centerView(centerview);
-                    markersinview && !centerview && instance.markersInView(markersinview);
+                        instance.get(AUTONUMBER) && instance._calcPosMarkers();
 /*jshint expr:false */
+                        instance.syncMarker(marker, {positiononly: !noLatLon});
+/*jshint expr:true */
+                        centerview && instance.centerView(centerview);
+                        markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
+                    }
                 }
             }
         )
@@ -308,6 +346,10 @@ ITSAMapMarker.prototype.bindUI = function() {
 /*jshint expr:true */
                 centerview && instance.centerView(centerview);
                 markersinview && !centerview && instance.markersInView(markersinview);
+                if (instance.get(AUTONUMBER)) {
+                    instance._calcPosMarkers();
+                    instance.syncUI();
+                }
 /*jshint expr:false */
             }
         )
@@ -319,11 +361,16 @@ ITSAMapMarker.prototype.bindUI = function() {
             function(e) {
                 var centerview = instance._centerview,
                     markersinview = instance._markersinview;
-                instance.syncUI();
+                if (e.src==='reset') {
 /*jshint expr:true */
-                centerview && instance.centerView(centerview);
-                markersinview && !centerview && instance.markersInView(markersinview);
+                    instance.get(AUTONUMBER) && instance._calcPosMarkers();
 /*jshint expr:false */
+                    instance.syncUI();
+/*jshint expr:true */
+                    centerview && instance.centerView(centerview);
+                    markersinview && !centerview && instance.markersInView(markersinview);
+/*jshint expr:false */
+                }
             }
         )
     );
@@ -360,109 +407,119 @@ ITSAMapMarker.prototype.bindUI = function() {
  * @since 0.1
 */
 ITSAMapMarker.prototype.centerView = function(options) {
-    var instance = this,
-        host = instance.host,
-        markers = options && options.markers,
-        zoomin = options && options.zoomin,
-        zoomout = options && options.zoomout,
-        continuous = options && options.continuous,
-        instancemarkers = instance.get(MARKERS),
-        markerMargin = instance.get(MARKERMARGIN),
-        newLat, newLon, minlat, maxlat, minlon, maxlon, lml, findMinMax, currentZoomLevel, contentbox, width, height,
-        rangex, rangey, optimizeScale, newZoomLevel, maxZoomLevel, minx, maxx, miny, maxy, factorx, factory;
-    findMinMax = function(marker) {
-        // marker can be both an object as well as a Model.
-        // based on LML or ML
-        var lat, lon;
-        if (marker && (lml || !marker.get(DESTROYED))) {
-            lat = lml ? marker[LAT] : marker.get(LAT);
-            lon = lml ? marker[LON] : marker.get(LON);
-/*jshint expr:true */
-            (!minlat || (lat<minlat)) && (minlat=lat);
-            (!maxlat || (lat>maxlat)) && (maxlat=lat);
-            (!minlon || (lat<minlon)) && (minlon=lon);
-            (!maxlon || (lat>maxlon)) && (maxlon=lon);
-/*jshint expr:false */
-        }
-    };
-/*jshint expr:true */
-    markers || (markers=instancemarkers);
-/*jshint expr:false */
-    if (markers instanceof Y.ITSAMarkerModel) {
-        newLat = markers.get(LAT);
-        newLon = markers.get(LON);
-    }
-    else if (Lang.isArray(markers)) {
-        lml = (instancemarkers instanceof Y.LazyModelList);
-        YArray.each(markers, findMinMax);
-    }
-    else if (markers instanceof Y.ModelList) {
-        lml = (instancemarkers instanceof Y.LazyModelList);
-        markers.each(findMinMax);
-    }
-    else if (typeof markers === 'object') {
-        newLat = markers[LAT];
-        newLon = markers[LON];
-    }
-    if (minlat) {
-        newLat = (minlat + maxlat)/2;
-        newLon = (minlon + maxlon)/2;
-    }
-    if (newLat) {
-        host.gotoPos(newLat, newLon);
-        if (zoomin || zoomout) {
-            if (!minlon) {
-                // appearantly only 1 marker
-                minlon = maxlon = newLon;
-                minlat = maxlat = newLat;
-            }
-            newZoomLevel = currentZoomLevel = host.getZoomLevel();
-            maxZoomLevel = host.getMaxZoomLevel();
-            contentbox = host.get(CONTENTBOX);
-            width = contentbox.get(OFFSETWIDTH)-(2*markerMargin);
-            height = contentbox.get(OFFSETHEIGHT)-(2*markerMargin);
-            minx = host._getX(minlon, currentZoomLevel);
-            maxx = host._getX(maxlon, currentZoomLevel);
-            miny = host._getY(minlat, currentZoomLevel);
-            maxy = host._getY(maxlat, currentZoomLevel);
-            rangex = Math.abs(maxx - minx);
-            rangey = Math.abs(maxy - miny);
-            factorx = rangex/width;
-            factory = rangey/height;
-            optimizeScale = Math.max(factorx, factory);
-            if (zoomin) {
-/*jshint expr:true */
-                (typeof zoomin==='number') && (zoomin<maxZoomLevel) && (maxZoomLevel=zoomin);
-/*jshint expr:false */
-                while ((optimizeScale<0.5) && (newZoomLevel<maxZoomLevel)) {
-                    optimizeScale = 2*optimizeScale;
-                    newZoomLevel++;
+    var instance = this;
+    instance.readyPromise().then(
+        function() {
+            var host = instance.host,
+                markers = options && options.markers,
+                zoomin = options && options.zoomin,
+                zoomout = options && options.zoomout,
+                continuous = options && options.continuous,
+                instancemarkers = instance.get(MARKERS),
+                markerMargin = instance.get(MARKERMARGIN),
+                newLat, newLon, minlat, maxlat, minlon, maxlon, lml, findMinMax, currentZoomLevel, contentbox, width, height,
+                rangex, rangey, optimizeScale, newZoomLevel, maxZoomLevel, minx, maxx, miny, maxy, factorx, factory;
+            findMinMax = function(marker) {
+                // marker can be both an object as well as a Model.
+                // based on LML or ML
+                var lat, lon;
+                if (marker && (lml || !marker.get(DESTROYED))) {
+                    lat = lml ? marker[LAT] : marker.get(LAT);
+                    lon = lml ? marker[LON] : marker.get(LON);
+        /*jshint expr:true */
+                    (!minlat || (lat<minlat)) && (minlat=lat);
+                    (!maxlat || (lat>maxlat)) && (maxlat=lat);
+                    (!minlon || (lat<minlon)) && (minlon=lon);
+                    (!maxlon || (lat>maxlon)) && (maxlon=lon);
+        /*jshint expr:false */
                 }
-            }
-            else if (zoomout) {
-                while ((optimizeScale>1) && (newZoomLevel>0)) {
-                    optimizeScale = optimizeScale/2;
-                    newZoomLevel--;
-                }
-            }
-/*jshint expr:true */
-            (newZoomLevel!==currentZoomLevel) && host.zoom(newZoomLevel);
-/*jshint expr:false */
-        }
-    }
-    if (!options.fromInternal) {
-        if (continuous) {
-            instance._centerview = {
-                markers: markers,
-                zoomin: zoomin,
-                zoomout: zoomout,
-                fromInternal: true
             };
+        /*jshint expr:true */
+            markers || (markers=instancemarkers);
+        /*jshint expr:false */
+            if (markers instanceof Y.ITSAMarkerModel) {
+                newLat = markers.get(LAT);
+                newLon = markers.get(LON);
+            }
+            else if (Lang.isArray(markers)) {
+                lml = (instancemarkers instanceof Y.LazyModelList);
+                if (markers.length===0) {
+                    markers = instancemarkers;
+                    markers.each(findMinMax);
+                }
+                else {
+                    YArray.each(markers, findMinMax);
+                }
+            }
+            else if (markers instanceof Y.ModelList) {
+                lml = (instancemarkers instanceof Y.LazyModelList);
+                markers.each(findMinMax);
+            }
+            else if (typeof markers === 'object') {
+                newLat = markers[LAT];
+                newLon = markers[LON];
+            }
+            if (minlat) {
+                newLat = (minlat + maxlat)/2;
+                newLon = (minlon + maxlon)/2;
+            }
+            if (newLat) {
+                host.gotoPos(newLat, newLon);
+                if (zoomin || zoomout) {
+                    if (!minlon) {
+                        // appearantly only 1 marker
+                        minlon = maxlon = newLon;
+                        minlat = maxlat = newLat;
+                    }
+                    newZoomLevel = currentZoomLevel = host.getZoomLevel();
+                    maxZoomLevel = host.getMaxZoomLevel();
+                    contentbox = host.get(CONTENTBOX);
+                    width = contentbox.get(OFFSETWIDTH)-(2*markerMargin);
+                    height = contentbox.get(OFFSETHEIGHT)-(2*markerMargin);
+                    minx = host._getX(minlon, currentZoomLevel);
+                    maxx = host._getX(maxlon, currentZoomLevel);
+                    miny = host._getY(minlat, currentZoomLevel);
+                    maxy = host._getY(maxlat, currentZoomLevel);
+                    rangex = Math.abs(maxx - minx);
+                    rangey = Math.abs(maxy - miny);
+                    factorx = rangex/width;
+                    factory = rangey/height;
+                    optimizeScale = Math.max(factorx, factory);
+                    if (zoomin) {
+        /*jshint expr:true */
+                        (typeof zoomin==='number') && (zoomin<maxZoomLevel) && (maxZoomLevel=zoomin);
+        /*jshint expr:false */
+                        while ((optimizeScale<0.5) && (newZoomLevel<maxZoomLevel)) {
+                            optimizeScale = 2*optimizeScale;
+                            newZoomLevel++;
+                        }
+                    }
+                    else if (zoomout) {
+                        while ((optimizeScale>1) && (newZoomLevel>0)) {
+                            optimizeScale = optimizeScale/2;
+                            newZoomLevel--;
+                        }
+                    }
+        /*jshint expr:true */
+                    (newZoomLevel!==currentZoomLevel) && host.zoom(newZoomLevel);
+        /*jshint expr:false */
+                }
+            }
+            if (!options.fromInternal) {
+                if (continuous) {
+                    instance._centerview = {
+                        markers: markers,
+                        zoomin: zoomin,
+                        zoomout: zoomout,
+                        fromInternal: true
+                    };
+                }
+                else {
+                    instance.stopContCenterView();
+                }
+            }
         }
-        else {
-            instance._centerview = null;
-        }
-    }
+    );
 };
 
 /**
@@ -479,24 +536,19 @@ ITSAMapMarker.prototype.getMarkerNode = function(marker) {
 
 /**
  * @method hidePopup
- * @protected
+ * @param markers {null|Array|Object|Y.ITSAMarkerModel} in case of Array, the items may be both objects or Y.ITSAMarkerModels
  * @since 0.1
 */
-ITSAMapMarker.prototype.hidePopup = function(marker) {
-    var instance = this,
-        markerNode = instance.getMarkerNode(marker),
-        detailsNode;
-    if (markerNode) {
-        detailsNode = markerNode.one('.'+MARKER_DETAILS_CLASS);
-        detailsNode.removeClass(VISIBLE_DETAILS_CLASS);
-        markerNode.setStyle('zIndex', marker._originalZindex);
-        Y.later(300, null, function() {
-            // use try-catch for the node might have been removed from the dom
-            try {
-                detailsNode.addClass(DETAILS_OUTOFRANGE_CLASS);
-            }
-            catch(err) {}
-        });
+ITSAMapMarker.prototype.hidePopup = function(markers) {
+    var instance = this;
+/*jshint expr:true */
+    markers || (markers=instance.get(MARKERS).toArray());
+/*jshint expr:false */
+    if (Lang.isArray(markers)) {
+        YArray.each(markers, Y.bind(instance._hidePopup, instance));
+    }
+    else if ((markers instanceof Y.ITSAMarkerModel) || (typeof markers === 'object')) {
+        instance._hidePopup(markers);
     }
 };
 
@@ -544,122 +596,172 @@ ITSAMapMarker.prototype.markerRestoreZ = function(marker) {
  * @since 0.1
 */
 ITSAMapMarker.prototype.markersInView = function(options) {
-    var instance = this,
-        host = instance.host,
-        markers = options && options.markers,
-        zoomin = options && options.zoomin,
-        continuous = options && options.continuous,
-        instancemarkers = instance.get(MARKERS),
-        markerMargin = instance.get(MARKERMARGIN),
-        minlat, maxlat, minlon, maxlon, lml, findMinMax, currentZoomLevel, contentbox, halfwidth, halfheight, zoomedout,
-        newZoomLevel, maxZoomLevel, minx, maxx, miny, maxy, currentlon, currentlat, allMarkersInside;
-    findMinMax = function(marker) {
-        // marker can be both an object as well as a Model.
-        // based on LML or ML
-        var lat, lon;
-        if (marker && (lml || !marker.get(DESTROYED))) {
-            lat = lml ? marker[LAT] : marker.get(LAT);
-            lon = lml ? marker[LON] : marker.get(LON);
-/*jshint expr:true */
-            (!minlat || (lat<minlat)) && (minlat=lat);
-            (!maxlat || (lat>maxlat)) && (maxlat=lat);
-            (!minlon || (lat<minlon)) && (minlon=lon);
-            (!maxlon || (lat>maxlon)) && (maxlon=lon);
-/*jshint expr:false */
-        }
-    };
-    allMarkersInside = function(zoomlevel) {
-        var centerx, centery, lowerBoundaryX, lowerBoundaryY, upperBoundaryX, upperBoundaryY;
-        centerx = host._getX(currentlon, zoomlevel);
-        centery = host._getY(currentlat, zoomlevel);
-        lowerBoundaryX = centerx - halfwidth + markerMargin;
-        upperBoundaryX = centerx + halfwidth - markerMargin;
-        lowerBoundaryY = centery - halfheight + markerMargin;
-        upperBoundaryY = centery + halfheight - markerMargin;
-        minx = host._getX(minlon, zoomlevel);
-        maxx = host._getX(maxlon, zoomlevel);
-        miny = host._getY(minlat, zoomlevel);
-        maxy = host._getY(maxlat, zoomlevel);
-        // cautious: miny and maxy might be the other way arround (due to negative lat-values)
-        // thus always check if all values are within the range
-        return (minx>lowerBoundaryX) && (minx<upperBoundaryX) &&
-               (maxx>lowerBoundaryX) && (maxx<upperBoundaryX) &&
-               (miny>lowerBoundaryY) && (miny<upperBoundaryY) &&
-               (maxy>lowerBoundaryY) && (maxy<upperBoundaryY);
-    };
-/*jshint expr:true */
-    markers || (markers=instancemarkers);
-/*jshint expr:false */
-    if (markers instanceof Y.ITSAMarkerModel) {
-        minlat = maxlat = markers.get(LAT);
-        minlon = maxlon = markers.get(LON);
-    }
-    else if (Lang.isArray(markers)) {
-        lml = (instancemarkers instanceof Y.LazyModelList);
-        YArray.each(markers, findMinMax);
-    }
-    else if (markers instanceof Y.ModelList) {
-        lml = (instancemarkers instanceof Y.LazyModelList);
-        markers.each(findMinMax);
-    }
-    else if (typeof markers === 'object') {
-        minlat = maxlat = markers[LAT];
-        minlon = maxlon = markers[LON];
-    }
-    if (minlat) {
-        newZoomLevel = currentZoomLevel = host.getZoomLevel();
-        maxZoomLevel = host.getMaxZoomLevel();
-        contentbox = host.get(CONTENTBOX);
-        halfwidth = Math.round(contentbox.get(OFFSETWIDTH)/2);
-        halfheight = Math.round(contentbox.get(OFFSETHEIGHT)/2);
-        currentlon = host.getLon();
-        currentlat = host.getLat();
-        // always zoomout when needed
-        while (!allMarkersInside(newZoomLevel) && (newZoomLevel>0)) {
-            zoomedout = true;
-            newZoomLevel--;
-        }
-        if (zoomin && !zoomedout) {
-/*jshint expr:true */
-            (typeof zoomin==='number') && (zoomin<maxZoomLevel) && (maxZoomLevel=zoomin);
-/*jshint expr:false */
-            while (allMarkersInside(newZoomLevel+1) && ((newZoomLevel+1)<maxZoomLevel)) {
-                newZoomLevel++;
+    var instance = this;
+    instance.readyPromise().then(
+        function() {
+                var host = instance.host,
+                markers = options && options.markers,
+                zoomin = options && options.zoomin,
+                continuous = options && options.continuous,
+                instancemarkers = instance.get(MARKERS),
+                markerMargin = instance.get(MARKERMARGIN),
+                minlat, maxlat, minlon, maxlon, lml, findMinMax, currentZoomLevel, contentbox, halfwidth, halfheight, zoomedout,
+                newZoomLevel, maxZoomLevel, minx, maxx, miny, maxy, currentlon, currentlat, allMarkersInside;
+            findMinMax = function(marker) {
+                // marker can be both an object as well as a Model.
+                // based on LML or ML
+                var lat, lon;
+                if (marker && (lml || !marker.get(DESTROYED))) {
+                    lat = lml ? marker[LAT] : marker.get(LAT);
+                    lon = lml ? marker[LON] : marker.get(LON);
+        /*jshint expr:true */
+                    (!minlat || (lat<minlat)) && (minlat=lat);
+                    (!maxlat || (lat>maxlat)) && (maxlat=lat);
+                    (!minlon || (lat<minlon)) && (minlon=lon);
+                    (!maxlon || (lat>maxlon)) && (maxlon=lon);
+        /*jshint expr:false */
+                }
+            };
+            allMarkersInside = function(zoomlevel) {
+                var centerx, centery, lowerBoundaryX, lowerBoundaryY, upperBoundaryX, upperBoundaryY;
+                centerx = host._getX(currentlon, zoomlevel);
+                centery = host._getY(currentlat, zoomlevel);
+                lowerBoundaryX = centerx - halfwidth + markerMargin;
+                upperBoundaryX = centerx + halfwidth - markerMargin;
+                lowerBoundaryY = centery - halfheight + markerMargin;
+                upperBoundaryY = centery + halfheight - markerMargin;
+                minx = host._getX(minlon, zoomlevel);
+                maxx = host._getX(maxlon, zoomlevel);
+                miny = host._getY(minlat, zoomlevel);
+                maxy = host._getY(maxlat, zoomlevel);
+                // cautious: miny and maxy might be the other way arround (due to negative lat-values)
+                // thus always check if all values are within the range
+                return (minx>lowerBoundaryX) && (minx<upperBoundaryX) &&
+                       (maxx>lowerBoundaryX) && (maxx<upperBoundaryX) &&
+                       (miny>lowerBoundaryY) && (miny<upperBoundaryY) &&
+                       (maxy>lowerBoundaryY) && (maxy<upperBoundaryY);
+            };
+        /*jshint expr:true */
+            markers || (markers=instancemarkers);
+        /*jshint expr:false */
+            if (markers instanceof Y.ITSAMarkerModel) {
+                minlat = maxlat = markers.get(LAT);
+                minlon = maxlon = markers.get(LON);
+            }
+            else if (Lang.isArray(markers)) {
+                lml = (instancemarkers instanceof Y.LazyModelList);
+                if (markers.length===0) {
+                    markers = instancemarkers;
+                    markers.each(findMinMax);
+                }
+                else {
+                    YArray.each(markers, findMinMax);
+                }
+            }
+            else if (markers instanceof Y.ModelList) {
+                lml = (instancemarkers instanceof Y.LazyModelList);
+                markers.each(findMinMax);
+            }
+            else if (typeof markers === 'object') {
+                minlat = maxlat = markers[LAT];
+                minlon = maxlon = markers[LON];
+            }
+            if (minlat) {
+                newZoomLevel = currentZoomLevel = host.getZoomLevel();
+                maxZoomLevel = host.getMaxZoomLevel();
+                contentbox = host.get(CONTENTBOX);
+                halfwidth = Math.round(contentbox.get(OFFSETWIDTH)/2);
+                halfheight = Math.round(contentbox.get(OFFSETHEIGHT)/2);
+                currentlon = host.getLon();
+                currentlat = host.getLat();
+                // always zoomout when needed
+                while (!allMarkersInside(newZoomLevel) && (newZoomLevel>0)) {
+                    zoomedout = true;
+                    newZoomLevel--;
+                }
+                if (zoomin && !zoomedout) {
+        /*jshint expr:true */
+                    (typeof zoomin==='number') && (zoomin<maxZoomLevel) && (maxZoomLevel=zoomin);
+        /*jshint expr:false */
+                    while (allMarkersInside(newZoomLevel+1) && ((newZoomLevel+1)<maxZoomLevel)) {
+                        newZoomLevel++;
+                    }
+                }
+        /*jshint expr:true */
+                (newZoomLevel!==currentZoomLevel) && host.zoom(newZoomLevel);
+        /*jshint expr:false */
+            }
+            if (!options.fromInternal) {
+                if (continuous) {
+                    instance._markersinview = {
+                        markers: markers,
+                        zoomin: zoomin,
+                        fromInternal: true
+                    };
+                }
+                else {
+                    instance.stopContMarkersInView();
+                }
             }
         }
-/*jshint expr:true */
-        (newZoomLevel!==currentZoomLevel) && host.zoom(newZoomLevel);
-/*jshint expr:false */
-    }
-    if (!options.fromInternal) {
-        if (continuous) {
-            instance._markersinview = {
-                markers: markers,
-                zoomin: zoomin,
-                fromInternal: true
-            };
-        }
-        else {
-            instance._markersinview = null;
-        }
-    }
+    );
+};
+
+/**
+ * Promise that holds any stuff that should be done before the plugin is defined as 'ready'.
+ * By default this promise is resolved right away. The intention is that it can be overridden in Plugin.Base extentions.<br /><br />
+ * <b>Notion</b>It is not the intention to make a dircet call an promiseBeforeReady --> use readyPromise () instead,
+ * because that promise if more efficient.
+ *
+ * @method promiseBeforeReady
+ * @param [timeout] {int} Timeout in ms, after which the promise will be rejected. Set to 0 to de-activate.<br />
+ *                                      If omitted, a timeout of 20 seconds (20000ms) will be used.<br />
+ *                                      The timeout-value can only be set at the first time the Promise is called.
+ * @return {Y.Promise} promised response --> resolve() OR reject(reason).
+ * @since 0.2
+*/
+ITSAMapMarker.promiseBeforeReady = function() {
+    return this._renderedPromise;
 };
 
 /**
  * @method showPopup
- * @protected
+ * @param markers {null|Array|Object|Y.ITSAMarkerModel} in case of Array, the items may be both objects or Y.ITSAMarkerModels
+ * @params [hideOthers] {Boolean} hide other -currently visible- popups.
  * @since 0.1
 */
-ITSAMapMarker.prototype.showPopup = function(marker) {
-    var instance = this,
-        markerNode = instance.getMarkerNode(marker),
-        newz = instance._getHighestZ()+1,
-        detailsNode;
-    if (markerNode) {
-        detailsNode = markerNode.one('.'+MARKER_DETAILS_CLASS);
-        detailsNode.removeClass(DETAILS_OUTOFRANGE_CLASS).addClass(VISIBLE_DETAILS_CLASS);
-        markerNode.setStyle('zIndex', newz);
+ITSAMapMarker.prototype.showPopup = function(markers, hideOthers) {
+    var instance = this;
+/*jshint expr:true */
+    hideOthers && instance.hidePopup();
+    markers || (markers=instance.get(MARKERS).toArray());
+/*jshint expr:false */
+    if (Lang.isArray(markers)) {
+        YArray.each(markers, Y.bind(instance._showPopup, instance));
     }
+    else if ((markers instanceof Y.ITSAMarkerModel) || (typeof markers === 'object')) {
+        instance._showPopup(markers);
+    }
+};
+
+/**
+ * Stops positions the map on the the center that was initiated by 'centerView({continuous: true})'.
+ *
+ * @method stopContCenterView
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.stopContCenterView = function() {
+    this._centerview = null;
+};
+
+/**
+ * Stops positions the map on the the center that was initiated by 'markersInView({continuous: true})'.
+ *
+ * @method stopContCenterView
+ * @since 0.1
+*/
+ITSAMapMarker.prototype.stopContMarkersInView = function() {
+    this._markersinview = null;
 };
 
 /**
@@ -687,6 +789,7 @@ ITSAMapMarker.prototype.repositionMarkers = function() {
 ITSAMapMarker.prototype.syncMarker = function(marker, options) {
     var instance = this,
         markerNode = instance.getMarkerNode(marker),
+        autonumber = instance.get(AUTONUMBER),
         markervisible,
         positiononly = options && options.positiononly;
     if (markerNode) {
@@ -702,7 +805,7 @@ ITSAMapMarker.prototype.syncMarker = function(marker, options) {
                 positiononly || marker.get(MARKER+CAP_CLASSNAME),
                 positiononly || marker.get(MARKER+CAP_COLORCLASS),
                 positiononly || marker.get(MARKER_SIZE),
-                positiononly || marker.get(MARKER+HTML) || '',
+                positiononly || marker.get(MARKER+HTML) || (autonumber ? marker.get(MARKERNUMBER) : ''),
                 positiononly || marker.get(MARKER+CAP_DETAILS_CLOSABLE),
                 positiononly || marker.get(MARKER+CAP_VISIBLE),
                 positiononly ? null : marker.toJSON()
@@ -721,7 +824,7 @@ ITSAMapMarker.prototype.syncMarker = function(marker, options) {
                 positiononly || marker[MARKER+CAP_CLASSNAME],
                 positiononly || marker[MARKER+CAP_COLORCLASS],
                 positiononly || marker[MARKER_SIZE],
-                positiononly || marker[MARKER+HTML] || '',
+                positiononly || marker[MARKER+HTML] || (autonumber ? marker[MARKERNUMBER] : ''),
                 positiononly || marker[MARKER+CAP_DETAILS_CLOSABLE],
                 positiononly || (typeof markervisible === 'boolean') ? markervisible : true,
                 positiononly ? null : marker
@@ -739,6 +842,7 @@ ITSAMapMarker.prototype.syncMarker = function(marker, options) {
 ITSAMapMarker.prototype.syncUI = function(initialize) {
     var instance = this,
         markers = instance.get(MARKERS),
+        autonumber = instance.get(AUTONUMBER),
         processMarkerML, processMarkerLML;
     processMarkerML = function(marker, index) {
         // marker is an instance of Y.ITSAMarkerModel
@@ -753,7 +857,7 @@ ITSAMapMarker.prototype.syncUI = function(initialize) {
             marker.get(MARKER+CAP_CLASSNAME),
             marker.get(MARKER+CAP_COLORCLASS),
             marker.get(MARKER_SIZE),
-            marker.get(MARKER+HTML),
+            marker.get(MARKER+HTML) || (autonumber ? marker.get(MARKERNUMBER) : ''),
             marker.get(MARKER+CAP_DETAILS_CLOSABLE),
             marker.get(MARKER+CAP_VISIBLE),
             zindex
@@ -773,7 +877,7 @@ ITSAMapMarker.prototype.syncUI = function(initialize) {
             marker[MARKER+CAP_CLASSNAME],
             marker[MARKER+CAP_COLORCLASS],
             marker[MARKER_SIZE],
-            marker[MARKER+HTML],
+            marker[MARKER+HTML] || (autonumber ? marker[MARKERNUMBER] : ''),
             marker[MARKER+CAP_DETAILS_CLOSABLE],
             (typeof markervisible === 'boolean') ? markervisible : true,
             zindex
@@ -814,6 +918,7 @@ ITSAMapMarker.prototype.destructor = function() {
 ITSAMapMarker.prototype._addMarker = function(marker) {
     var instance = this,
         zindex = instance._getHighestZ()+1,
+        autonumber = instance.get(AUTONUMBER),
         markervisible;
     marker._originalZindex = zindex;
     if (marker instanceof Y.ITSAMarkerModel) {
@@ -826,7 +931,7 @@ ITSAMapMarker.prototype._addMarker = function(marker) {
             marker.get(MARKER+CAP_CLASSNAME),
             marker.get(MARKER+CAP_COLORCLASS),
             marker.get(MARKER_SIZE),
-            marker.get(MARKER+HTML),
+            marker.get(MARKER+HTML) || (autonumber ? marker.get(MARKERNUMBER) : ''),
             marker.get(MARKER+CAP_DETAILS_CLOSABLE),
             marker.get(MARKER+CAP_VISIBLE),
             zindex
@@ -843,13 +948,39 @@ ITSAMapMarker.prototype._addMarker = function(marker) {
             marker[MARKER+CAP_CLASSNAME],
             marker[MARKER+CAP_COLORCLASS],
             marker[MARKER_SIZE],
-            marker[MARKER+HTML],
+            marker[MARKER+HTML] || (autonumber ? marker[MARKERNUMBER] : ''),
             marker[MARKER+CAP_DETAILS_CLOSABLE],
             (typeof markervisible === 'boolean') ? markervisible : true,
             zindex
         );
     }
 };
+
+/**
+ * Calculates the markerposition of all markers and adds it to an internal marker-property.
+ * This property can be used when rendering the markerHTML.
+ *
+ * @method _calcPosMarkers
+ * @private
+ * @since 0.3
+ *
+*/
+ITSAMapMarker.prototype._calcPosMarkers = function() {
+    var instance = this,
+        markers = instance.get(MARKERS),
+        lml = (markers.revive);
+    instance.get(MARKERS).each(
+        function(marker, i){
+            if (lml) {
+                marker[MARKERNUMBER] = i+1;
+            }
+            else {
+                marker.set(MARKERNUMBER, i+1, {silent: true});
+            }
+        }
+    );
+};
+
 
 /**
  * Cleaning up all eventlisteners
@@ -906,6 +1037,23 @@ ITSAMapMarker.prototype._getHighestZ = function() {
 };
 
 /**
+ * @method _hidePopup
+ * @param markers {Object|Y.ITSAMarkerModel}
+ * @private
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._hidePopup = function(marker) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker),
+        detailsNode;
+    if (markerNode) {
+        detailsNode = markerNode.one('.'+MARKER_DETAILS_CLASS);
+        detailsNode.removeClass(VISIBLE_DETAILS_CLASS);
+        markerNode.setStyle('zIndex', marker._originalZindex);
+    }
+};
+
+/**
  * @method _removeMarker
  * @protected
  * @since 0.1
@@ -936,7 +1084,7 @@ ITSAMapMarker.prototype._renderMarker = function(properties, clientid, headertem
                 classname: classname || '',
                 colorclass: colorclass || '',
                 markersize: size || '',
-                markerhtml: markerhtml || '',
+                markerhtml: markerhtml,
                 closebutton: withclosebutton ? Lang.sub(CLOSEBUTTON_TEMPLATE, {clientid: clientid}) : '',
                 header: headertemplate ? Lang.sub(headertemplate, properties) : '',
                 body:  bodytemplate ? Lang.sub(bodytemplate, properties) : '',
@@ -950,6 +1098,29 @@ ITSAMapMarker.prototype._renderMarker = function(properties, clientid, headertem
     );
     instance._markerlayer.append(markerNode);
     instance._syncMarkerNode(markerNode, properties[LAT], properties[LON]);
+};
+
+/**
+ * @method _showPopup
+ * @param marker {Object|Y.ITSAMarkerModel}
+ * @params [hideOthers] {Boolean} hide other -currently visible- popups.
+ * @private
+ * @since 0.1
+*/
+ITSAMapMarker.prototype._showPopup = function(marker, hideOthers) {
+    var instance = this,
+        markerNode = instance.getMarkerNode(marker),
+        newz = instance._getHighestZ()+1,
+        detailsNode;
+/*jshint expr:true */
+    // carefull --> when called through Y.Array's ref-func, hideOthers is the index and should be ignored
+    (typeof hideOthers==='boolean') && hideOthers && instance.hidePopup();
+/*jshint expr:false */
+    if (markerNode) {
+        detailsNode = markerNode.one('.'+MARKER_DETAILS_CLASS);
+        detailsNode.addClass(VISIBLE_DETAILS_CLASS);
+        markerNode.setStyle('zIndex', newz);
+    }
 };
 
 /**
@@ -1000,7 +1171,10 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
         "plugin",
         "node-core",
         "node-style",
+        "json-stringify",
+        "promise",
         "gallery-itsamarkermodel",
+        "gallery-itsapluginpromise",
         "gallery-itsawidgetrenderpromise"
     ],
     "skinnable": true

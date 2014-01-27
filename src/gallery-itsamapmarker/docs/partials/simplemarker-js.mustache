@@ -30,7 +30,7 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
 
     marker2 = {
         markerid: '31630730112',
-        markerHTML: '23',
+//        markerHTML: '23',
         title: 'devicename Marco',
         lat: 54.83,
         lon: 4.88,
@@ -57,23 +57,28 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
     clicktracemap = new Y.ITSAOpenStreetMap({
         boundingBox:'#mymap'
     });
-    clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, markerDetailsClosable: false});
+    clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, markerDetailsClosable: false, autoNumber: true});
     clicktracemap.render();
 
-    clicktracemap.itsamapmarker.markersInView({zoomin: 16, continuous: true});
+    clicktracemap.itsamapmarker.centerView({zoomin: 8, continuous: true});
 
 
-    Y.later(1000, null, function() {
-        clicktracemap.itsamapmarker.showPopup(marker);
-        clicktracemap.itsamapmarker.showPopup(marker2);
+    Y.later(2000, null, function() {
+       clicktracemap.itsamapmarker.centerView({markers: marker, zoomin: 10, continuous: true});
+        //clicktracemap.itsamapmarker.showPopup(marker);
+   //     clicktracemap.itsamapmarker.showPopup(marker2);
     });
 
-    Y.later(3000, null, function() {
-        var m1 = markerlist.revive(0);
-        m1.set('lon', 20);
+    Y.later(4000, null, function() {
+
+       clicktracemap.itsamapmarker.centerView({markers: null, zoomin: 9, continuous: true});
+
+
+//        var m1 = markerlist.revive(0);
+//        m1.set('lon', 20);
 //marker.title='OHOH';
 //clicktracemap.itsamapmarker.syncMarker(marker);
-        //clicktracemap.itsamapmarker.hidePopup(marker);
+//        clicktracemap.itsamapmarker.hidePopup(marker);
     });
 
 });

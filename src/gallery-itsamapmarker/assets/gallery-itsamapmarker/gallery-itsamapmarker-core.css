@@ -24,11 +24,6 @@
     min-width: 6em;
 }
 
-.itsa-mapmarker-container .itsa-markerdetails.details-outofrange {
-    top: -9999px;
-    left: -9999px;
-}
-
 .itsa-mapmarker-container .itsa-markerdetails .itsa-markerbodydetails {
     background-color: #FFF;
     color: #000;
@@ -59,6 +54,7 @@
     font-weight: bold;
     font-size: 1.2em;
     white-space: nowrap;
+    min-height: 1em;
 }
 
 .itsa-markerbodydetails {
@@ -74,6 +70,7 @@
 .itsa-markerheaderdetails:empty,
 .itsa-markerfooterdetails:empty {
     padding: 0;
+    min-height: auto;
 }
 
 .itsa-mapmarker {
@@ -85,9 +82,9 @@
     -moz-border-radius: 50%;
     border-radius: 50%;
     text-align: center;
-    min-width: 0.8em;
-    min-height: 1.4em;
-    padding: 0.35em 0.6em 0.25em;
+    min-width: 1.2em;
+    min-height: 1.6em;
+    padding: 0.1em 0.3em;
     font-size: 80%;
     color: #FFF;
     background-color: #F0F;
