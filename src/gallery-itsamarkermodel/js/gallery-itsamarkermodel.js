@@ -72,6 +72,10 @@ ITSAMarkerModel.ATTRS = {
         value: null
     },
 
+    markerNumber: {
+        value: null
+    },
+
     markerVisible: {
         value: true,
         validator: function(v){ return (typeof v === 'boolean'); }
@@ -89,6 +93,7 @@ Y.ITSAMarkerModel = Y.extend(ITSAMarkerModel, Y.Model);
 ITSAMarkerModel.prototype.toJSON = function() {
     var instance = this,
         tojson = instance.constructor.superclass.toJSON.apply(instance, arguments);
+    // Attribute 'markerNumber' must be part of toJSON!
     delete tojson.markerClassname;
     delete tojson.markerColorClass;
     delete tojson.markerHeaderTemplate;
