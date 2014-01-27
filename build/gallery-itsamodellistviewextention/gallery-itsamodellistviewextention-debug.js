@@ -1876,30 +1876,41 @@ Y.mix(ITSAModellistViewExtention.prototype, {
             instance.after(
                 '*:change',
                 function(e) {
-                    var model = e.target;
+                    var model = e.target,
+                       valueChanged;
                     if (model instanceof Y.Model) {
-                        if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
-                            //========================================================
-                            //
-                            // LACK IN ModelList --> make resort after model:change
-                            //
-                            //=======================================================
-                            if (modellist && modellist.comparator) {
-                                modellist.sort();
-                                //====================================================
-                                //
-                                // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
-                                // As soon as issue is resolved, remove modellist.free() command
-                                //
-                                if (instance._listLazy) {
-                                    modellist.free();
-                                }
-                                //======================================================
+                        YObject.some(
+                            e.changed,
+                            function(val) {
+                                // need to stringify, because they might be objects and therefor never tripple-equal
+                                valueChanged = (Y.JSON.stringify(val.newVal) !== Y.JSON.stringify(val.prevVal));
+                                return valueChanged;
                             }
-                            instance._repositionModel(model);
-                        }
-                        if (instance.modelIsSelected(model)) {
-                            instance._fireSelectedModels();
+                        );
+                        if (valueChanged) {
+                            if (!e.fromEditModel || !instance.itsacmtemplate || !instance.itsacmtemplate.get('modelsEditable')) {
+                                //========================================================
+                                //
+                                // LACK IN ModelList --> make resort after model:change
+                                //
+                                //=======================================================
+                                if (modellist && modellist.comparator) {
+                                    modellist.sort();
+                                    //====================================================
+                                    //
+                                    // Next is a bugfix for LazyModelList --> see issue https://github.com/yui/yui3/issues/634
+                                    // As soon as issue is resolved, remove modellist.free() command
+                                    //
+                                    if (instance._listLazy) {
+                                        modellist.free();
+                                    }
+                                    //======================================================
+                                }
+                                instance._repositionModel(model);
+                            }
+                            if (instance.modelIsSelected(model)) {
+                                instance._fireSelectedModels();
+                            }
                         }
                     }
                 }
@@ -3641,6 +3652,7 @@ Y.ITSAModellistViewExtention = ITSAModellistViewExtention;
         "model",
         "model-list",
         "lazy-model-list",
+        "json-stringify",
         "template-base",
         "template-micro",
         "event-tap",

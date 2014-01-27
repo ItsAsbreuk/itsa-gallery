@@ -17,6 +17,7 @@
             "model",
             "model-list",
             "lazy-model-list",
+            "json-stringify",
             "template-base",
             "template-micro",
             "event-tap",
