@@ -2,9 +2,13 @@ YUI(yuiconfig).use('gallery-itsalevelbarrel', function(Y) {
     var barrel1, barrel2, barrel3;
 
     barrel1 = new Y.ITSALevelBarrel({value: 0}).render('#barrel1');
-    barrel2 = new Y.ITSALevelBarrel({value: 20}).render('#barrel2');
-    barrel3 = new Y.ITSALevelBarrel({value: 50}).render('#barrel3');
+    barrel2 = new Y.ITSALevelBarrel({value: 20, unity: '%'}).render('#barrel2');
+    barrel3 = new Y.ITSALevelBarrel({value: 50, unity: 'liter'}).render('#barrel3');
     barrel4 = new Y.ITSALevelBarrel({value: 80}).render('#barrel4');
     barrel5 = new Y.ITSALevelBarrel({value: 100}).render('#barrel5');
+
+    Y.later(2000, null, function() {
+        barrel2.set('value', 65);
+    });
 
 });

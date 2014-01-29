@@ -30,7 +30,7 @@ var Lang = Y.Lang,
     BOUNDINGBOX = 'boundingBox',
     CONTENTBOX = 'contentBox',
     LEVEL_INDICATOR = 'level-indicator',
-    CONTENT_INNER_TEMPLATE = '<div class="barrelvalue">{value}</div><div class="'+LEVEL_INDICATOR+'"></div>',
+    CONTENT_INNER_TEMPLATE = '<div class="barrelvalue"></div><div class="'+LEVEL_INDICATOR+'"></div>',
     ITSA_BARREL_CLASS = 'itsa-barrel-container';
 
 
@@ -76,6 +76,19 @@ ITSALevelBarrel.ATTRS = {
      * @since 0.1
      */
     color: {
+        value: null,
+        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+    },
+
+    /**
+     * Unity after the value
+     *
+     * @attribute unity
+     * @type {String}
+     * @default null
+     * @since 0.1
+     */
+    unity: {
         value: null,
         validator: function(v){ return (v===null) || (typeof v === 'string'); }
     },
@@ -132,7 +145,7 @@ ITSALevelBarrel.prototype.renderUI = function() {
         boundingBox = instance.get(BOUNDINGBOX),
         contentBox = instance.get(CONTENTBOX);
     boundingBox.addClass(ITSA_BARREL_CLASS);
-    contentBox.setHTML(Lang.sub(CONTENT_INNER_TEMPLATE, {value: instance.get(VALUE)}));
+    contentBox.setHTML(CONTENT_INNER_TEMPLATE);
 };
 
 /**
@@ -178,14 +191,16 @@ ITSALevelBarrel.prototype.bindUI = function() {
  * @protected
  * @since 0.1
 */
-ITSALevelBarrel.prototype.syncUI = function(initialize) {
+ITSALevelBarrel.prototype.syncUI = function() {
     var instance = this,
         contentBox = instance.get(CONTENTBOX),
         levelBox = contentBox.one('.'+LEVEL_INDICATOR),
         value = instance.get(VALUE),
         maxvalue = instance.get(MAXVALUE),
-        percentedHeight = Math.round(100*(maxvalue-value)/maxvalue);
+        percentedHeight = Math.round(100*(maxvalue-value)/maxvalue),
+        valuenode = contentBox.one('.'+'barrelvalue');
     levelBox.setStyle('top', percentedHeight+'%');
+    valuenode.set('text', instance.get('value')+' '+(instance.get('unity') || ''));
 };
 
 /**
