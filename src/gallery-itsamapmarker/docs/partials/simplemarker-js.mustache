@@ -64,18 +64,20 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
 
 
     Y.later(2000, null, function() {
-       clicktracemap.itsamapmarker.centerView({markers: marker, zoomin: 10, continuous: true});
+        var m1 = markerlist.revive(0);
+        m1.set('markerColorClass', 'blue');
+//       clicktracemap.itsamapmarker.centerView({markers: marker, zoomin: 10, continuous: true});
         //clicktracemap.itsamapmarker.showPopup(marker);
    //     clicktracemap.itsamapmarker.showPopup(marker2);
     });
 
     Y.later(4000, null, function() {
 
-       clicktracemap.itsamapmarker.centerView({markers: null, zoomin: 9, continuous: true});
+//       clicktracemap.itsamapmarker.centerView({markers: null, zoomin: 9, continuous: true});
 
 
-//        var m1 = markerlist.revive(0);
-//        m1.set('lon', 20);
+        var m1 = markerlist.revive(0);
+        m1.set('markerColorClass', 'red');
 //marker.title='OHOH';
 //clicktracemap.itsamapmarker.syncMarker(marker);
 //        clicktracemap.itsamapmarker.hidePopup(marker);

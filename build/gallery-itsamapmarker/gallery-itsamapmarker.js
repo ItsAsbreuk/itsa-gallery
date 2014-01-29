@@ -1153,7 +1153,7 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
         headerdetails.setHTML((headertemplate ? Lang.sub(headertemplate, properties) : '')+(withclosebutton ? Lang.sub(CLOSEBUTTON_TEMPLATE, {clientid: clientid}) : ''));
         bodydetails.setHTML(bodytemplate ? Lang.sub(bodytemplate, properties) : '');
         footerdetails.setHTML(footertemplate ? Lang.sub(footertemplate, properties) : '');
-        markerNode.set('class', (size ? size+' ' : '')+(colorclass || '')+' itsa-mapmarker '+(classname || ''));
+        markerNode.setAttribute('class', (size ? size+' ' : '')+(colorclass || '')+' itsa-mapmarker '+(classname || ''));
         balloon.setHTML(markerhtml);
 /*jshint expr:true */
         visible ? markerNode.removeAttribute(HIDDEN) : markerNode.setAttribute(HIDDEN, HIDDEN);
