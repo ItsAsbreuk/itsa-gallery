@@ -184,7 +184,7 @@ z-index:16;
     width:64px;
     height:64px;
     position:relative;
-    z-index: 11;
+    z-index: 1;
     background-image: url('http://files.brongegevens.nl/global/images/map_buttons.png');
     background-repeat: no-repeat;
 }
@@ -196,7 +196,7 @@ z-index:16;
     width:30px;
     height:230px;
     position:relative;
-    z-index:11;
+    z-index:1;
     left:32px;
     top:46px;
     background-image: url('http://files.brongegevens.nl/global/images/map_buttons.png');
