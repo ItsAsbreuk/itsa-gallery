@@ -1,0 +1,8 @@
+{
+    "gallery-itsalevelbarrel": {
+        "requires": [
+            "widget"
+        ],
+        "skinnable": true
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "name"       : "gallery-itsalevelbarrel",
+    "displayName": "Gallery: gallery-itsalevelbarrel",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallery-itsalevelbarrel" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "simplebarrel",
+            "displayName": "Creating levelbarrel",
+            "description": "This example shows how a descendant Class (Y.ITSADialog) handles a simple message.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsadialog"],
+            "tags"    : ["gallery-itsadialog", "showmessage"],
+            "hideTableOfContents": true
+        }
+    ]
+}

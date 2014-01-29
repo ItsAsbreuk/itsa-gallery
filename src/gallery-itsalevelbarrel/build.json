@@ -1,0 +1,10 @@
+{
+    "name": "gallery-itsalevelbarrel",
+    "builds": {
+        "gallery-itsalevelbarrel": {
+            "jsfiles": [
+                "js/gallery-itsalevelbarrel.js"
+            ]
+        }
+    }
+}
