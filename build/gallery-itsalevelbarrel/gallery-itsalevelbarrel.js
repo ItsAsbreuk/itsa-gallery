@@ -19,9 +19,11 @@ YUI.add('gallery-itsalevelbarrel', function (Y, NAME) {
 
 var Lang = Y.Lang,
     YArray = Y.Array,
+    LABEL = 'label',
     VALUE = 'value',
     MAXVALUE = 'maxValue',
     CAP_CHANGE = 'Change',
+    CLASSNAME = 'className',
     OLOR = 'olor',
     COLOR = 'c'+OLOR,
     CAP_COLOR = 'C'+OLOR,
@@ -30,7 +32,8 @@ var Lang = Y.Lang,
     BOUNDINGBOX = 'boundingBox',
     CONTENTBOX = 'contentBox',
     LEVEL_INDICATOR = 'level-indicator',
-    CONTENT_INNER_TEMPLATE = '<div class="barrelvalue"></div><div class="'+LEVEL_INDICATOR+'"></div>',
+    LINE_COLOR_TEMPLATE = '1px 1px {color}, -1px 1px {color}, 1px -1px {color}, -1px -1px {color}',
+    CONTENT_INNER_TEMPLATE = '<div class="barrelvalue"></div><div class="barrellabel"><span>{label}</span></div><div class="'+LEVEL_INDICATOR+'"></div>',
     ITSA_BARREL_CLASS = 'itsa-barrel-container';
 
 
@@ -65,6 +68,32 @@ ITSALevelBarrel.ATTRS = {
     maxValue: {
         value: 100,
         validator: function(v){ return (typeof v === 'number'); }
+    },
+
+    /**
+     * Array with all the checked options. The Array is an Array of String-types which are present in 'options' and checked.
+     *
+     * @attribute className
+     * @type {String}
+     * @default null
+     * @since 0.1
+     */
+    className: {
+        value: null,
+        validator: function(v){ return (v===null) || (typeof v === 'string'); }
+    },
+
+    /**
+     * Label on the barrel
+     *
+     * @attribute label
+     * @type {String}
+     * @default null
+     * @since 0.1
+     */
+    label: {
+        value: null,
+        validator: function(v){ return (v===null) || (typeof v === 'string'); }
     },
 
     /**
@@ -130,7 +159,6 @@ Y.ITSALevelBarrel = Y.extend(ITSALevelBarrel, Y.Widget);
  * @since 0.1
 */
 ITSALevelBarrel.prototype.initializer = function() {
-    var instance = this;
 };
 
 /**
@@ -143,9 +171,21 @@ ITSALevelBarrel.prototype.initializer = function() {
 ITSALevelBarrel.prototype.renderUI = function() {
     var instance = this,
         boundingBox = instance.get(BOUNDINGBOX),
-        contentBox = instance.get(CONTENTBOX);
+        contentBox = instance.get(CONTENTBOX),
+        className = instance.get(CLASSNAME),
+        color = instance.get(COLOR),
+        backgroundcolor = instance.get(BACKGROUNDCOLOR),
+        linecolor = instance.get(LINECOLOR);
     boundingBox.addClass(ITSA_BARREL_CLASS);
-    contentBox.setHTML(CONTENT_INNER_TEMPLATE);
+/*jshint expr:true */
+    className && boundingBox.addClass(className);
+/*jshint expr:false */
+    contentBox.setHTML(Lang.sub(CONTENT_INNER_TEMPLATE, {label: instance.get(LABEL) || ''}));
+/*jshint expr:true */
+    color && instance._setColor({newVal: color});
+    backgroundcolor && instance._setBackgroundColor({newVal: backgroundcolor});
+    linecolor && instance._setLineColor({newVal: linecolor});
+/*jshint expr:false */
 };
 
 /**
@@ -183,6 +223,18 @@ ITSALevelBarrel.prototype.bindUI = function() {
             Y.bind(instance._setBackgroundColor, instance)
         )
     );
+    eventhandlers.push(
+        instance.after(
+            [CLASSNAME+CAP_CHANGE],
+            Y.bind(instance._changeClassName, instance)
+        )
+    );
+    eventhandlers.push(
+        instance.after(
+            [LABEL+CAP_CHANGE],
+            Y.bind(instance._changeLabel, instance)
+        )
+    );
 };
 
 /**
@@ -198,9 +250,10 @@ ITSALevelBarrel.prototype.syncUI = function() {
         value = instance.get(VALUE),
         maxvalue = instance.get(MAXVALUE),
         percentedHeight = Math.round(100*(maxvalue-value)/maxvalue),
+        unity = instance.get('unity'),
         valuenode = contentBox.one('.'+'barrelvalue');
     levelBox.setStyle('top', percentedHeight+'%');
-    valuenode.set('text', instance.get('value')+' '+(instance.get('unity') || ''));
+    valuenode.setHTML(instance.get('value')+(unity ? ('<span class="barrelunity">'+instance.get('unity')+'</span>') : ''));
 };
 
 /**
@@ -215,6 +268,36 @@ ITSALevelBarrel.prototype.destructor = function() {
     instance._clearEventhandlers();
 };
 
+/**
+ * changes the label
+ * @method _changeLabel
+ * @private
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype._changeLabel = function(e) {
+    var instance = this,
+        newlabel = e.newVal || '',
+        contentBox = instance.get(CONTENTBOX),
+        labelNode = contentBox.one('.'+'barrellabel'+' span');
+    labelNode.set('text', newlabel);
+};
+
+/**
+ * changes the className
+ * @method _changeClassName
+ * @private
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype._changeClassName = function(e) {
+    var instance = this,
+        newclass = e.newVal,
+        prevclass = e.prevVal,
+        boundingBox = instance.get(BOUNDINGBOX);
+/*jshint expr:true */
+    prevclass && boundingBox.removeClass(prevclass);
+    newclass && boundingBox.addClass(newclass);
+/*jshint expr:false */
+};
 
 /**
  * Cleaning up all eventlisteners
@@ -234,20 +317,46 @@ ITSALevelBarrel.prototype._clearEventhandlers = function() {
 };
 
 /**
- * Sets the backgroundcolor of the marker
- *
- * @method _setBackgroundColor
+ * Sets the inline style-color of the value
+ * @method _setColor
  * @private
- * @since 0.3
- *
+ * @since 0.1
 */
-ITSALevelBarrel.prototype._setBackgroundColor = function() {
-    YArray.each(
-        this._eventhandlers,
-        function(item){
-            item.detach();
-        }
-    );
+ITSALevelBarrel.prototype._setColor = function(e) {
+    var instance = this,
+        color = e.newVal || '',
+        contentBox = instance.get(CONTENTBOX),
+        valueNode = contentBox.one('.'+'barrelvalue');
+    valueNode.setStyle('color', color);
 };
 
-}, '@VERSION@', {"requires": ["widget"], "skinnable": true});
+/**
+ * Sets the inline style-line-color of the value
+ * @method _setLineColor
+ * @private
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype._setLineColor = function(e) {
+    var instance = this,
+        color = e.newVal,
+        contentBox = instance.get(CONTENTBOX),
+        valueNode = contentBox.one('.'+'barrelvalue'),
+        newlinecolor = (color && (color!=='')) ? Lang.sub(LINE_COLOR_TEMPLATE, {color: color}) : '';
+    valueNode.setStyle('textShadow', newlinecolor);
+};
+
+/**
+ * Sets the inline style-backgroundcolor of the barrellevel
+ * @method _setBackgroundColor
+ * @private
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype._setBackgroundColor = function(e) {
+    var instance = this,
+        color = e.newVal || '',
+        contentBox = instance.get(CONTENTBOX),
+        levelNode = contentBox.one('.'+LEVEL_INDICATOR);
+    levelNode.setStyle('backgroundColor', color);
+};
+
+}, '@VERSION@', {"requires": ["widget", "node-base", "node-style"], "skinnable": true});

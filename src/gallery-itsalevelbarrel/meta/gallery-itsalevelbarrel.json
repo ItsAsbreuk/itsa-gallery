@@ -1,7 +1,9 @@
 {
     "gallery-itsalevelbarrel": {
         "requires": [
-            "widget"
+            "widget",
+            "node-base",
+            "node-style"
         ],
         "skinnable": true
     }
