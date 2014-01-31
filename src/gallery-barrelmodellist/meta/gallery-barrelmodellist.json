@@ -1,0 +1,12 @@
+{
+    "gallery-barrelmodellist": {
+        "requires": [
+            "view",
+            "widget-base",
+            "node-base",
+            "model-list",
+            "gallery-itsawidgetrenderpromise",
+            "gallery-itsalevelbarrel"
+        ]
+    }
+}

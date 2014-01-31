@@ -1,0 +1,195 @@
+YUI(yuiconfig).use('gallery-itsalevelbarrel', 'gallery-barrelmodellist', 'model-list', function(Y) {
+    var barrelcont, modellist, data;
+
+    data = [
+    {
+        "customerid" : 2283,
+        "devicealarms" : [
+
+        ],
+        "serialid" : 31600000001,
+        "name" : "Testpomp 1",
+        "description" : "niet actieve pomp voor testen",
+        "devicetype" : 2,
+        "latitude" : 40.5,
+        "longitude" : 5.677,
+        "groupids" : [
+            15,
+            22
+        ],
+        "activated" : true,
+        "alarmactivated" : true,
+        "devicetime" : true,
+        "lastsample" : {
+            "port" : 7080,
+            "lat" : 52.22258166666667,
+            "lon" : 6.680581666666667,
+            "p1" : "1600",
+            "p2" : "048",
+            "p3" : "000",
+            "p4" : "000",
+            "p5" : "152",
+            "p6" : "015",
+            "p7" : "123"
+        },
+        "lastalarms" : {
+            "25" : 1
+        },
+        "className" : "alarm",
+        "visible" : true,
+        "value" : 160,
+        "maxValue" : 200,
+        "unity" : "m",
+        "id" : 2
+    },
+    {
+        "customerid" : 2288,
+        "devicealarms" : [
+
+        ],
+        "serialid" : 31683485254,
+        "name" : "Pomp 4563",
+        "description" : "pompsysteem",
+        "devicetype" : 2,
+        "latitude" : null,
+        "longitude" : null,
+        "groupids" : [
+            21,
+            22
+        ],
+        "activated" : true,
+        "alarmactivated" : true,
+        "devicetime" : true,
+        "lastsample" : {
+            "port" : 7085,
+            "lat" : 53.324083333333334,
+            "lon" : 6.281886666666667,
+            "p1" : "100",
+            "p2" : "033",
+            "p3" : "000",
+            "p4" : "06603",
+            "p5" : "127",
+            "p6" : "040",
+            "p7" : "00165",
+            "p8" : "0",
+            "p9" : "0",
+            "p10" : "0",
+            "p11" : "6",
+            "p12" : "0",
+            "p13" : "7",
+            "p14" : "9"
+        },
+        "lastalarms" : {
+
+        },
+        "className" : null,
+        "visible" : true,
+        "value" : 398,
+        "maxValue" : 400,
+        "unity" : "m3",
+        "id" : 16
+    },
+    {
+        "customerid" : 2283,
+        "devicealarms" : [
+
+        ],
+        "serialid" : 31600000001,
+        "name" : "Testpomp 1",
+        "description" : "niet actieve pomp voor testen",
+        "devicetype" : 2,
+        "latitude" : 40.5,
+        "longitude" : 5.677,
+        "groupids" : [
+            15,
+            22
+        ],
+        "activated" : true,
+        "alarmactivated" : true,
+        "devicetime" : true,
+        "lastsample" : {
+            "port" : 7080,
+            "lat" : 52.22258166666667,
+            "lon" : 6.680581666666667,
+            "p1" : "1600",
+            "p2" : "048",
+            "p3" : "000",
+            "p4" : "000",
+            "p5" : "152",
+            "p6" : "015",
+            "p7" : "123"
+        },
+        "lastalarms" : {
+            "25" : 1
+        },
+        "className" : "alarm",
+        "visible" : true,
+        "value" : 160,
+        "maxValue" : 200,
+        "unity" : "m",
+        "id" : 2
+    },
+    {
+        "customerid" : 2283,
+        "devicealarms" : [
+
+        ],
+        "serialid" : 31600000002,
+        "name" : "Testpomp 2",
+        "description" : "zomaar voor testen - niet actief",
+        "devicetype" : 2,
+        "latitude" : 40.5,
+        "longitude" : 5.677,
+        "groupids" : [
+            18,
+            22
+        ],
+        "activated" : true,
+        "alarmactivated" : true,
+        "devicetime" : true,
+        "lastsample" : {
+            "port" : 7080,
+            "lat" : 52.244726666666665,
+            "lon" : 6.697173333333334,
+            "p1" : "60000",
+            "p2" : "057",
+            "p3" : "000",
+            "p4" : "000",
+            "p5" : "152",
+            "p6" : "015",
+            "p7" : "128"
+        },
+        "lastalarms" : {
+
+        },
+        "className" : null,
+        "visible" : true,
+        "value" : 112,
+        "maxValue" : 299.9956,
+        "unity" : "m3",
+        "id" : 14
+    }
+]
+
+
+
+    modellist = new Y.ModelList({items: data});
+    barrelcont = new Y.ClicktraceBarrelModellist({container: '#cont', modelList: modellist});
+    barrelcont.barrelsGroupNames = ['Emmen', 'Emmen', 'Nijmegen'];
+    barrelcont.render();
+
+    Y.later(2000, null, function() {
+        var item = modellist.item(1);
+        item.set('value', 10000);
+//modellist.reset();
+console.log('item changed');
+    });
+/*
+    Y.later(3000, null, function() {
+        barrel5.set('color', '');
+        barrel5.set('lineColor', '');
+        barrel5.set('backgroundColor', '');
+    });
+*/
+
+});
