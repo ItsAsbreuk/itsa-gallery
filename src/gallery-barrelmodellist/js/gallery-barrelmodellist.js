@@ -19,12 +19,14 @@
 */
 
 var ClicktraceBarrelModellist,
+    Lang = Y.Lang,
     YArray = Y.Array,
     YObject = Y.Object,
+    LOADING_ICON = '<i class="itsaicon itsaicon-controll-spin4"></i>',
     CHANGE = 'Change',
     CONTAINER = 'container',
-    RESET = 'reset',
-    MODELLIST = 'modelList';
+    BARRELDETAILS = 'barrelDetails',
+    BARRELLIST = 'barrelList';
 
 //===============================================================================================
 //
@@ -99,14 +101,26 @@ ClicktraceBarrelModellist = Y.ClicktraceBarrelModellist = Y.Base.create('clicktr
     {
         ATTRS : {
             /**
-             * @attribute modelList
-             * @type {Y.ModelList}
+             * When 'false' then the details are determined for every single barrel!
+             * @attribute barrelDetails
+             * @type {Boolean}
              * @default null
              * @since 0.1
              */
-            modelList: {
+            barrelDetails: {
+                value: false,
+                validator: function(v){ return (typeof v === 'boolean'); }
+            },
+
+            /**
+             * @attribute barrelList
+             * @type {Array}
+             * @default null
+             * @since 0.1
+             */
+            barrelList: {
                 value: null,
-                validator: function(v){ return ((v===null) || (v instanceof Y.ModelList)); }
+                validator: function(v){ return ((v===null) || Lang.isArray(v)); }
             }
         }
     }
@@ -119,11 +133,8 @@ ClicktraceBarrelModellist = Y.ClicktraceBarrelModellist = Y.Base.create('clicktr
 */
 ClicktraceBarrelModellist.prototype.initializer = function() {
     var instance = this,
-        modellist = instance.get(MODELLIST);
+        barrellist = instance.get(BARRELLIST);
     Y.log('initializer', 'info', 'ClicktraceBarrelModellist');
-/*jshint expr:true */
-    modellist && modellist.addTarget(instance);
-/*jshint expr:false */
     /**
      * Internal list of all eventhandlers bound by this widget.
      * @property _eventhandlers
@@ -133,8 +144,18 @@ ClicktraceBarrelModellist.prototype.initializer = function() {
     */
     instance._eventhandlers = [];
 
-    // instance.barrelsGroupNames is an array with the same length as modelList athat tels what items of the modellist came from which barrelgroup
-    instance.barrelsGroupNames = [];
+    /**
+     * Internal list of all attached models.
+     * @property _items
+     * @private
+     * @default []
+     * @type Array
+    */
+    instance._items = [];
+
+/*jshint expr:true */
+    barrellist && instance._addModelTargets(barrellist);
+/*jshint expr:false */
 };
 
 /**
@@ -149,7 +170,8 @@ ClicktraceBarrelModellist.prototype.initializer = function() {
 ClicktraceBarrelModellist.prototype.render = function () {
     var instance = this,
         container = instance.get(CONTAINER),
-        modellist = instance.get(MODELLIST),
+        barrellist = instance.get(BARRELLIST),
+        barrelDetails = instance.get(BARRELDETAILS),
         html = '',
         groupname, prevGroupname, barrelguid;
     Y.log('render', 'info', 'ClicktraceBarrelModellist');
@@ -161,27 +183,27 @@ ClicktraceBarrelModellist.prototype.render = function () {
         instance._bindUI();
         instance._rendered = true;
     }
-console.log('size: '+modellist.size());
-    modellist.each(
-        function(device, index) {
-console.log('rendering item '+index);
-            groupname = instance.barrelsGroupNames[index];
+
+/*jshint expr:true */
+    barrellist && YArray.each(
+        barrellist,
+        function(item) {
+            var device = item.device;
+            groupname = item.groupname;
             if (groupname !== prevGroupname) {
                 html += '<h2>'+groupname+'</h2>';
                 prevGroupname = groupname;
             }
             barrelguid = Y.guid();
-/*jshint expr:true */
             device._barrelguids || (device._barrelguids = []);
-/*jshint expr:false */
             device._barrelguids.push(barrelguid);
             html+='<div id="'+barrelguid+'" class="itsa-barrel-parentcontainer"></div>';
-/*jshint expr:true */
             device._barrels || (device._barrels = []);
-/*jshint expr:false */
             device._barrels.push(new Y.ITSALevelBarrel({
                                          value: device.get('value'),
-                                         label: device.get('name'),
+                                         label: LOADING_ICON+device.get('name'),
+                                         details: device.get('details'),
+                                         showDetails: barrelDetails,
                                          maxValue: device.get('maxValue'),
                                          className: device.get('className'),
                                          unity: device.get('unity'),
@@ -191,6 +213,7 @@ console.log('rendering item '+index);
                                      }).renderOnAvailable('#'+barrelguid));
         }
     );
+/*jshint expr:false */
     container.setHTML(html);
     return instance;
 };
@@ -203,14 +226,11 @@ console.log('rendering item '+index);
 */
 ClicktraceBarrelModellist.prototype.destructor = function() {
     var instance = this,
-        modellist = instance.get(MODELLIST),
         container = instance.get(CONTAINER);
 
     Y.log('destructor', 'info', 'ClicktraceBarrelModellist');
-/*jshint expr:true */
-    modellist && modellist.removeTarget && modellist.removeTarget(instance);
-/*jshint expr:false */
     instance._clearEventhandlers();
+    instance._removeModelTargets();
 
     if (instance._rendered) {
         container.cleanup(true);
@@ -221,6 +241,30 @@ ClicktraceBarrelModellist.prototype.destructor = function() {
 //===============================================================================================
 // private methods
 //===============================================================================================
+
+/**
+ * Sets targets of all models to the instance
+ *
+ * @method _addModelTargets
+ * @params models {Array}
+ * @private
+ * @protected
+ * @since 0.3
+*/
+ClicktraceBarrelModellist.prototype._addModelTargets = function(models) {
+    var instance = this;
+    Y.log('_addModelTargets', 'info', 'ClicktraceBarrelModellist');
+/*jshint expr:true */
+    models && YArray.each(
+        models,
+        function(item) {
+            var model = item.device;
+            model.addTarget(instance);
+            instance._items.push(model);
+        }
+    );
+/*jshint expr:false */
+};
 
 /**
  * Sets up DOM and CustomEvent listeners for the view.
@@ -238,24 +282,15 @@ ClicktraceBarrelModellist.prototype._bindUI = function() {
 
     eventhandlers.push(
         instance.after(
-            MODELLIST+CHANGE,
+            BARRELLIST+CHANGE,
             function(e) {
                 Y.log('aftersubscriptor '+e.type, 'info', 'ClicktraceBarrelModellist');
                 var prevVal = e.prevVal,
                     newVal = e.newVal;
 /*jshint expr:true */
-                prevVal && prevVal.removeTarget && prevVal.removeTarget(instance);
-                newVal && newVal.addTarget && newVal.addTarget(instance);
+                prevVal && instance._removeModelTargets();
+                newVal && instance._addModelTargets(newVal);
 /*jshint expr:false */
-                instance.render();
-            }
-        )
-    );
-    eventhandlers.push(
-        instance.after(
-            '*:'+RESET,
-            function() {
-                Y.log('aftersubscriptor reset', 'info', 'ClicktraceBarrelModellist');
                 instance.render();
             }
         )
@@ -306,6 +341,25 @@ ClicktraceBarrelModellist.prototype._bindUI = function() {
             }
         )
     );
+    eventhandlers.push(
+        instance.after(
+            BARRELDETAILS+CHANGE,
+            function(e) {
+                Y.log('aftersubscriptor '+e.type, 'info', 'ClicktraceBarrelModellist');
+                var visible = e.newVal,
+                    barrellist = instance.get(BARRELLIST);
+/*jshint expr:true */
+                barrellist && YArray.each(
+                    barrellist,
+                    function(item) {
+                        // the model === item.device
+                        item.device.set('showDetails', visible);
+                    }
+                );
+/*jshint expr:false */
+            }
+        )
+    );
 };
 
 /**
@@ -324,4 +378,24 @@ ClicktraceBarrelModellist.prototype._clearEventhandlers = function() {
             item.detach();
         }
     );
+};
+
+/**
+ * Removes all modeltargets to the instance
+ *
+ * @method _removeModelTargets
+ * @private
+ * @protected
+  * @since 0.3
+*/
+ClicktraceBarrelModellist.prototype._removeModelTargets = function() {
+    var instance = this;
+    Y.log('_removeModelTargets', 'info', 'ClicktraceBarrelModellist');
+    YArray.each(
+        instance._items,
+        function(model) {
+            model.removeTarget(instance);
+        }
+    );
+    instance._items.length = 0;
 };

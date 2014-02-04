@@ -4,9 +4,9 @@
             "view",
             "widget-base",
             "node-base",
-            "model-list",
             "gallery-itsawidgetrenderpromise",
-            "gallery-itsalevelbarrel"
+            "gallery-itsalevelbarrel",
+            "gallerycss-itsa-controll"
         ]
     }
 }
