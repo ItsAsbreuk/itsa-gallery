@@ -257,7 +257,9 @@ ITSACurrentUserClass.prototype.getCurrent = function() {
  * @since 0.2
 */
 ITSACurrentUserClass.prototype.getSyncHeader = function() {
-    return this.getCurrent().then(
+    var instance = this;
+    instance.refreshState();
+    return instance.getCurrent().then(
         function(response) {
             return {
                 headers: { 'X-Access-Token' : response.sessionid }
