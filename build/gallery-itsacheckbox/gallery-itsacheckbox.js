@@ -20,7 +20,9 @@ YUI.add('gallery-itsacheckbox', function (Y, NAME) {
 
 var LANG = Y.Lang,
     YARRAY = Y.Array,
-    WIDGET_CLASS = 'yui3-itsacheckbox',
+    Node = Y.Node,
+    YUI3_ = 'yui3-',
+    WIDGET_CLASS = YUI3_+'itsacheckbox',
     READONLY = 'readonly',
     READONLY_CLASS = WIDGET_CLASS + '-' + READONLY,
     PARENT_CLASS = 'itsa-widget-parent',
@@ -66,6 +68,7 @@ var LANG = Y.Lang,
     DATA_SUBMITONENTER = DATA_+SUBMITONENTER,
     DATA_PRIMARYBTNONENTER = DATA_+PRIMARYBTNONENTER,
     DATA_FOCUSNEXTONENTER = DATA_+'focusnext'+ONENTER,
+    BOUNDINGBOX_TEMPLATE_NEWVERSION = DIVCLASS+YUI3_+'widget '+WIDGET_CLASS+' '+WIDGET_CLASS+'-content">'+ENDDIV,
     HTML_CHECKBOX_TEMPLATE = '<input id="{id}" type="checkbox" class="'+CREATED_CHECKBOX+'"{'+READONLY+'}{'+CHECKED+'}{'+DISABLED+'}>',
     TEMPLATE = '{htmlcheckbox}'+
                DIVCLASS+OPTION_WRAPPER+'">'+
@@ -185,7 +188,27 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             if (src && (src.get('tagName')==='INPUT') && (src.getAttribute('type')==='checkbox')) {
                 instance._src = Y.one(src);
                 src.addClass(HIDDEN_CLASS);
-                boundingBox.insert(src, 'before');
+                // in yui before 3.13.0 the boundingBox was created as a DIV behind srcNode
+                // as from 3.13.0, boundingBox===srcNode
+                if (boundingBox.get('tagName')==='INPUT') {
+                    // as from 3.13.0
+                    // no insert, because srcNode already is in the DOM
+                    clonedNode = Node.create(BOUNDINGBOX_TEMPLATE_NEWVERSION);
+                    src.insert(clonedNode, 'after');
+                    instance._set(BOUNDINGBOX, clonedNode); // redefine the boudingbox --> it has to be a node separate from srcNode
+                    // Next, correct the classes that were added to the input-tag during initialization
+                    src.removeClass(LOADING_CLASS);
+                    src.removeClass(YUI3_+'widget');
+                    src.removeClass(WIDGET_CLASS);
+                    src.removeClass(WIDGET_CLASS+'-content');
+                    if (instance.get(READONLY)) {
+                        src.removeClass(READONLY_CLASS);
+                    }
+                }
+                else {
+                    // before 3.13.0
+                    boundingBox.insert(src, 'before');
+                }
             }
             if (instance._parentNode) {
                 instance._parentNode.addClass(PARENT_CLASS);
@@ -324,9 +347,17 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
             );
 
             instance._eventhandlers.push(
-                parentNode.on('blur', function() {
-                    instance.blur();
-                })
+                parentNode.on(
+                    'blur',
+                    Y.bind(instance.blur, instance)
+                )
+            );
+
+            instance._eventhandlers.push(
+                Y.after(
+                    'rerenderCheckbox',
+                    Y.bind(instance.syncUI, instance)
+                )
             );
 
             instance._eventhandlers.push(
@@ -446,7 +477,6 @@ Y.ITSACheckbox = Y.Base.create('itsacheckbox', Y.Widget, [], {
                 createdSrc = instance._createdSrc,
                 src = instance._src;
             instance._destroyAllNodes = true; // making always destroy nodes,
-                                              // independent whether developer calls destroy(true) or destroy(false)
             if (dd) {
                 dd.destroy();
             }

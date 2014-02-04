@@ -43,15 +43,6 @@
             "modules"    : ["gallery-itsacheckbox"],
             "tags"    : ["gallery-itsacheckbox"],
             "hideTableOfContents": true
-        },
-        {
-            "name"       : "test",
-            "displayName": "test",
-            "description": "This example shows how change the checkbox-value programmatically",
-            "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsacheckbox"],
-            "tags"    : ["gallery-itsacheckbox"],
-            "hideTableOfContents": true
         }
     ]
 
