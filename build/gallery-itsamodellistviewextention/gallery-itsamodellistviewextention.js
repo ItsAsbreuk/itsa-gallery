@@ -1881,7 +1881,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                                 instance._repositionModel(model);
                             }
                             if (instance.modelIsSelected(model)) {
-                                instance._fireSelectedModels();
+                                instance._fireSelectedModels({modelChanged: true});
                             }
                         }
                     }
@@ -1958,7 +1958,7 @@ Y.mix(ITSAModellistViewExtention.prototype, {
                 ['*:reset'],
                 function(e) {
                     if (e.target instanceof Y.ModelList) {
-                        instance._renderView(null, {keepstyles: false, initbuild: true});
+                        instance._renderView(null, {keepstyles: true, initbuild: true});
                     }
                 }
             )
@@ -3516,10 +3516,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
      * A utility method that fires the selected Models.
      *
      * @method _fireSelectedModels
+     * @param options {Object} options that goes along with the event-payload
      * @private
      * @since 0.1
      */
-    _fireSelectedModels : function () {
+    _fireSelectedModels : function (options) {
         var instance = this,
             selectedModels, originalModels;
 
@@ -3538,14 +3539,14 @@ Y.mix(ITSAModellistViewExtention.prototype, {
          * (Objects in case of LazyModelList) that are selected. These Models/Objects also exists in the original (Lazy)ModelList.
          * @since 0.1
         **/
+/*jshint expr:true */
+        options || (options={});
+/*jshint expr:false */
         selectedModels = instance.getSelectedModels();
         originalModels = instance._abModelList ? instance.getSelectedModels(true) : selectedModels;
         instance.fire(
             'modelSelectionChange',
-            {
-                newModelSelection: selectedModels,
-                originalModelSelection: originalModels
-            }
+            Y.merge(options, {newModelSelection: selectedModels, originalModelSelection: originalModels})
         );
     },
 
