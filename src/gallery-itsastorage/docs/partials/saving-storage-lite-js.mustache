@@ -1,0 +1,19 @@
+YUI(yuiconfig).use('gallery-storage-lite', 'gallery-itsadialog', function(Y) {
+
+    var name;
+    Y.showMessage('Press OK to start the code').then(
+        function() {
+            try {
+                Y.StorageLite.setItem('name', 'Marco Asbreuk');
+                name = Y.StorageLite.getItem('name');
+                Y.showMessage('response of name: '+name);
+                Y.StorageLite.clear();
+                Y.showMessage('emptied the storage');
+            }
+            catch(err) {
+                Y.showError(err);
+            }
+        }
+    );
+
+});

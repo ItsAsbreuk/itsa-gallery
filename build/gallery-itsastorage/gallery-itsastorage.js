@@ -520,4 +520,4 @@ Y.Global.ITSAStorage || (Y.Global.ITSAStorage=new ITSAStorageClass());
 /*jshint expr:false */
 Y.ITSAStorage = Y.Global.ITSAStorage;
 
-}, '@VERSION@', {"requires": ["yui-base", "base-base", "promise", "gallery-itsautils"]});
+}, '@VERSION@', {"requires": ["yui-base", "base-base", "node", "promise", "gallery-itsautils"]});

@@ -3,6 +3,7 @@
         "requires": [
             "yui-base",
             "base-base",
+            "node",
             "promise",
             "gallery-itsautils"
         ]

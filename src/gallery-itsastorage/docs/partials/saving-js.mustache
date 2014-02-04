@@ -1,25 +1,25 @@
-YUI(yuiconfig).use('gallery-itsastorage', function(Y) {
+YUI(yuiconfig).use('gallery-itsastorage', 'gallery-itsadialog', function(Y) {
 
     Y.ITSAStorage.setItem('name', 'Marco Asbreuk');
 
-console.log(Y.StorageLite);
-console.log(Y.StorageLite.data);
+console.log(Y.ITSAStorage);
+console.log(Y.ITSAStorage.data);
 
     Y.ITSAStorage.getItem('name').then(
         function(response) {
-            console.log('response of name: '+response);
+            Y.showMessage('response of name: '+response);
         },
         function(reason) {
-            console.log('getItem failed: '+reason);
+            Y.showError('getItem failed: '+reason);
         }
     ).then(
         function() {
             Y.ITSAStorage.clear().then(
                 function(response) {
-                    console.log('emptied the storage');
+                    Y.showMessage('emptied the storage');
                 },
                 function(reason) {
-                    console.log('emptying storage failed: '+reason);
+                    Y.showError('emptying storage failed: '+reason);
                 }
             );
         }

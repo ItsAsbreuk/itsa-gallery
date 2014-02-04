@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-itsastorage",
     "displayName": "Gallery: gallery-itsastorage",
-    "description": "*Summary Goes Here*",
+    "description": "Redefinition of Y.StorageLite but using promises and ably to (re)store Date-objects",
     "author"     : [ "itsasbreuk" ],
     "use"        : [ "gallery-itsastorage" ],
 
@@ -13,7 +13,16 @@
             "displayName": "saving data",
             "description": "This example shows hows how to create a statusbar at the bottom of the window and make it to show messages.",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsastatusbar"],
+            "modules"    : ["gallery-itsastorage"],
+            "tags"    : ["gallery-itsastatusbar", "alert", "formelement", "form", "confirm", "prompt", "Y.alert", "Y.prompt", "Y.confirm"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "saving-storage-lite",
+            "displayName": "saving data with storage-lite",
+            "description": "This example shows hows how to create a statusbar at the bottom of the window and make it to show messages.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-storage-;ite"],
             "tags"    : ["gallery-itsastatusbar", "alert", "formelement", "form", "confirm", "prompt", "Y.alert", "Y.prompt", "Y.confirm"],
             "hideTableOfContents": true
         }
