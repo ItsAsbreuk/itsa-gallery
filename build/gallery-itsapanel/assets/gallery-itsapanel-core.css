@@ -3,7 +3,7 @@
 .itsa-panel.itsa-hiddenpanel,
 .itsa-panel.itsa-inlinepanel.itsa-hiddenpanel {
     position: absolute !important;
-    visibility: hidden;
+    visibility: hidden !important;
     left: -9999px !important;
     top: -9999px !important;
 }
