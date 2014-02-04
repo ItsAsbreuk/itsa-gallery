@@ -1,11 +1,26 @@
 YUI(yuiconfig).use('gallery-itsalevelbarrel', function(Y) {
     var barrel1, barrel2, barrel3;
 
-    barrel1 = new Y.ITSALevelBarrel({value: 0, label: 'Barrel 1'}).render('#barrel1');
+    barrel1 = new Y.ITSALevelBarrel({value: 0, label: 'Barrel 1', showDetails: false, details: 'some<br>details'}).render('#barrel1');
     barrel2 = new Y.ITSALevelBarrel({value: 20, label: 'Barrel 2', unity: '%'}).render('#barrel2');
     barrel3 = new Y.ITSALevelBarrel({value: 50, label: 'Barrel 3', unity: 'liter'}).render('#barrel3');
     barrel4 = new Y.ITSALevelBarrel({value: 80, label: 'Barrel 4', className: 'red'}).render('#barrel4');
     barrel5 = new Y.ITSALevelBarrel({value: 100, label: 'Barrel 5', backgroundColor: '#0F0', color: '#F00', lineColor: '#F0F'}).render('#barrel5');
+
+    Y.later(1500, null, function() {
+        barrel1.set('details', '');
+    //    barrel1.set('showDetails', false);
+    });
+
+    Y.later(2000, null, function() {
+        barrel1.set('details', 'asd');
+//        barrel1.set('showDetails', true);
+    });
+
+    Y.later(2500, null, function() {
+        // barrel1.set('details', 'asd');
+       barrel1.set('showDetails', true);
+    });
 
     Y.later(2000, null, function() {
         barrel2.set('value', 65);

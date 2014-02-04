@@ -28,13 +28,25 @@ var Lang = Y.Lang,
     COLOR = 'c'+OLOR,
     CAP_COLOR = 'C'+OLOR,
     LINECOLOR = 'line'+CAP_COLOR,
+    BARREL = 'barrel',
     BACKGROUNDCOLOR = 'background'+CAP_COLOR,
+    ETAILS = 'etails',
+    DETAILS = 'd'+ETAILS,
+    SHOWDETAILS = 'showD'+ETAILS,
+    BARRELDETAILS = BARREL+DETAILS,
+    HIDDEN_CLASS = 'itsa-'+BARREL+'-hidden',
     BOUNDINGBOX = 'boundingBox',
     CONTENTBOX = 'contentBox',
     LEVEL_INDICATOR = 'level-indicator',
+    INFO_ICON = '<i class="itsaicon-dialog-info"></i>',
+    CLOSE_ICON = '<i class="itsaicon-dialog-error"></i>',
     LINE_COLOR_TEMPLATE = '1px 1px {color}, -1px 1px {color}, 1px -1px {color}, -1px -1px {color}',
-    CONTENT_INNER_TEMPLATE = '<div class="barrelvalue"></div><div class="barrellabel"><span>{label}</span></div><div class="'+LEVEL_INDICATOR+'"></div>',
-    ITSA_BARREL_CLASS = 'itsa-barrel-container';
+    CONTENT_INNER_TEMPLATE = '<button class="pure-button itsabutton-bordered itsabutton-onlyicon itsa-'+BARRELDETAILS+'-button {buttonvisible}">{'+DETAILS+'button}</button>'+
+                             '<div class="'+BARRELDETAILS+' {'+DETAILS+'class}"><div>{'+DETAILS+'}</div></div>'+
+                             '<div class="'+BARREL+'label"><span>{label}</span></div>'+
+                             '<div class="'+BARREL+'value"></div>'+
+                             '<div class="'+LEVEL_INDICATOR+'"></div>',
+    ITSA_BARREL_CLASS = 'itsa-'+BARREL+'-container';
 
 
 function ITSALevelBarrel() {
@@ -44,6 +56,32 @@ function ITSALevelBarrel() {
 ITSALevelBarrel.NAME = 'itsalevelbarrel';
 
 ITSALevelBarrel.ATTRS = {
+
+    /**
+     * Whether to show the details.
+     *
+     * @attribute value
+     * @type {number}
+     * @default 0
+     * @since 0.1
+     */
+    showDetails: {
+        value: false,
+        validator: function(v){ return (typeof v === 'boolean'); }
+    },
+
+    /**
+     * Auto-number the marker-html - when no markerHTML is specified.
+     *
+     * @attribute value
+     * @type {number}
+     * @default 0
+     * @since 0.1
+     */
+    details: {
+        value: null,
+        validator: function(v){ return ((v===null) || (typeof v === 'string')); }
+    },
 
     /**
      * Auto-number the marker-html - when no markerHTML is specified.
@@ -175,6 +213,8 @@ ITSALevelBarrel.prototype.renderUI = function() {
         boundingBox = instance.get(BOUNDINGBOX),
         contentBox = instance.get(CONTENTBOX),
         className = instance.get(CLASSNAME),
+        showDetails = instance.get(SHOWDETAILS),
+        details = instance.get(DETAILS) || '',
         color = instance.get(COLOR),
         backgroundcolor = instance.get(BACKGROUNDCOLOR),
         linecolor = instance.get(LINECOLOR);
@@ -182,7 +222,13 @@ ITSALevelBarrel.prototype.renderUI = function() {
 /*jshint expr:true */
     className && boundingBox.addClass(className);
 /*jshint expr:false */
-    contentBox.setHTML(Lang.sub(CONTENT_INNER_TEMPLATE, {label: instance.get(LABEL) || ''}));
+    contentBox.setHTML(Lang.sub(CONTENT_INNER_TEMPLATE, {
+        label: instance.get(LABEL) || '',
+        buttonvisible: (details==='') ? HIDDEN_CLASS : '',
+        detailsbutton: showDetails ? CLOSE_ICON : INFO_ICON,
+        details: details,
+        detailsclass: showDetails ? '' : HIDDEN_CLASS
+    }));
 /*jshint expr:true */
     color && instance._setColor({newVal: color});
     backgroundcolor && instance._setBackgroundColor({newVal: backgroundcolor});
@@ -200,6 +246,7 @@ ITSALevelBarrel.prototype.renderUI = function() {
 ITSALevelBarrel.prototype.bindUI = function() {
     Y.log('bindUI', 'info', 'ITSALevelBarrel');
     var instance = this,
+        buttonNode = instance.get(CONTENTBOX).one('.itsa-'+BARRELDETAILS+'-button'),
         eventhandlers;
     eventhandlers = instance._eventhandlers = [];
     eventhandlers.push(
@@ -238,6 +285,24 @@ ITSALevelBarrel.prototype.bindUI = function() {
             Y.bind(instance._changeLabel, instance)
         )
     );
+    eventhandlers.push(
+        instance.after(
+            [DETAILS+CAP_CHANGE],
+            Y.bind(instance._changeDetails, instance)
+        )
+    );
+    eventhandlers.push(
+        instance.after(
+            [SHOWDETAILS+CAP_CHANGE],
+            Y.bind(instance._changeShowDetails, instance)
+        )
+    );
+    eventhandlers.push(
+        buttonNode.on(
+            'click',
+            Y.bind(instance.toggleDetails, instance)
+        )
+    );
 };
 
 /**
@@ -261,6 +326,18 @@ ITSALevelBarrel.prototype.syncUI = function() {
 };
 
 /**
+ * Toggles visibility of the details
+ *
+ * @method toggleDetails
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype.toggleDetails = function() {
+    Y.log('toggleDetails', 'info', 'ITSALevelBarrel');
+    var instance = this;
+    instance.set(SHOWDETAILS, !instance.get(SHOWDETAILS));
+};
+
+/**
  * Cleans up bindings
  *
  * @method destructor
@@ -271,6 +348,40 @@ ITSALevelBarrel.prototype.destructor = function() {
     Y.log('destructor', 'info', 'ITSALevelBarrel');
     var instance = this;
     instance._clearEventhandlers();
+};
+
+/**
+ * changes the details. Details are only visible when 'showDetails' is set true.
+ * @method _changeDetails
+ * @private
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype._changeDetails = function(e) {
+    Y.log('_changeDetails', 'info', 'ITSALevelBarrel');
+    var instance = this,
+        newDetails = e.newVal || '',
+        contentBox = instance.get(CONTENTBOX),
+        detailsNode = contentBox.one('.'+'barreldetails'+' div'),
+        buttonNode = contentBox.one('.itsa-'+BARRELDETAILS+'-button');
+    detailsNode.setHTML(newDetails);
+    buttonNode.toggleClass(HIDDEN_CLASS, (newDetails===''));
+};
+
+/**
+ * changes the visibility of 'details'
+ * @method _changeDetails
+ * @private
+ * @since 0.1
+*/
+ITSALevelBarrel.prototype._changeShowDetails = function(e) {
+    Y.log('_changeShowDetails', 'info', 'ITSALevelBarrel');
+    var instance = this,
+        showDetails = e.newVal,
+        contentBox = instance.get(CONTENTBOX),
+        detailsCont = contentBox.one('.'+'barreldetails'),
+        buttonNode = contentBox.one('.itsa-'+BARRELDETAILS+'-button');
+    detailsCont.toggleClass(HIDDEN_CLASS, !showDetails);
+    buttonNode.setHTML(showDetails ? CLOSE_ICON : INFO_ICON);
 };
 
 /**
@@ -285,7 +396,7 @@ ITSALevelBarrel.prototype._changeLabel = function(e) {
         newlabel = e.newVal || '',
         contentBox = instance.get(CONTENTBOX),
         labelNode = contentBox.one('.'+'barrellabel'+' span');
-    labelNode.set('text', newlabel);
+    labelNode.setHTML(newlabel);
 };
 
 /**
@@ -370,4 +481,13 @@ ITSALevelBarrel.prototype._setBackgroundColor = function(e) {
     levelNode.setStyle('backgroundColor', color);
 };
 
-}, '@VERSION@', {"requires": ["widget", "node-base", "node-style"], "skinnable": true});
+}, '@VERSION@', {
+    "requires": [
+        "widget",
+        "node-base",
+        "node-style",
+        "gallerycss-itsa-base",
+        "gallerycss-itsa-dialog"
+    ],
+    "skinnable": true
+});

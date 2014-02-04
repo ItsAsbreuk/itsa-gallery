@@ -3,7 +3,9 @@
         "requires": [
             "widget",
             "node-base",
-            "node-style"
+            "node-style",
+            "gallerycss-itsa-base",
+            "gallerycss-itsa-dialog"
         ],
         "skinnable": true
     }
