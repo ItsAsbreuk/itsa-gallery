@@ -806,7 +806,9 @@ YModel.prototype._publishAsync = function(type, opts) {
                 args2 = [],
                 e, i, len;
 
-                args2.push.apply(args2, data);
+/*jshint expr:true */
+                data && args2.push.apply(args2, data);
+/*jshint expr:false */
                 e = asyncEvent._createFacade(args2);
 
             e.target = e.target || instance;
