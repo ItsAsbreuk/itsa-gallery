@@ -55,7 +55,8 @@ var Lang = Y.Lang,
     AUTONUMBER = 'autoNumber',
     MARKERNUMBER = 'markerNumber',
     HIDDEN_MARKERS = 'itsa-all-markers-hidden',
-    CLOSEBUTTON_TEMPLATE = '<button class="pure-button itsa-closedetails" data-markerid="{clientid}">x</button>',
+    CLOSE_ICON = '<i class="itsaicon-dialog-error"></i>',
+    CLOSEBUTTON_TEMPLATE = '<button class="pure-button itsa-closedetails" data-markerid="{clientid}">'+CLOSE_ICON+'</button>',
     MARKER_TEMPLATE = '<div data-id="{mapid}_{clientid}" class="{colorclass} itsa-mapmarker {classname}" {hidden}style="z-index:{zindex}">'+
                           '<div class="itsa-markerballoon {markersize}">{markerhtml}</div>'+
                           '<div class="itsa-markerpin"></div>'+
@@ -168,6 +169,7 @@ Y.Plugin.ITSAMapMarker = Y.extend(ITSAMapMarker, Y.Plugin.Base);
 ITSAMapMarker.prototype.initializer = function() {
     var instance = this,
         host;
+    Y.use('gallerycss-itsa-dialog'); // asynchronously load iconfont
     instance._renderedPromise = new Y.Promise(function (resolve) {
         instance._resolveHandler = resolve;
     });
@@ -1173,6 +1175,7 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
         "node-style",
         "json-stringify",
         "promise",
+        "gallerycss-itsa-base",
         "gallery-itsamarkermodel",
         "gallery-itsapluginpromise",
         "gallery-itsawidgetrenderpromise"

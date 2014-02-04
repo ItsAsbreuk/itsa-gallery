@@ -10,6 +10,7 @@
             "node-style",
             "json-stringify",
             "promise",
+            "gallerycss-itsa-base",
             "gallery-itsamarkermodel",
             "gallery-itsapluginpromise",
             "gallery-itsawidgetrenderpromise"

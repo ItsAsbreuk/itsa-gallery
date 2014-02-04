@@ -131,10 +131,10 @@
 }
 
 .itsa-mapmarker-container .itsa-closedetails {
-    padding: 0 0.4em;
+    padding: 0.22em 0.26em;
     position: absolute;
     top: 0.5em;
-    right: 7px;
+    right: 10px;
 }
 
 .itsa-mapmarker-container.small .itsa-markerballoon,
@@ -238,6 +238,13 @@ purple
 .itsa-mapmarker-container .itsa-mapmarker.yellow .itsa-markerballoon {
     color: #000;
     background-color: #FF0;
+    border: solid 1px #FFDF00;
+}
+
+.itsa-mapmarker-container.yellow-broken .itsa-markerballoon,
+.itsa-mapmarker-container .itsa-mapmarker.yellow-broken .itsa-markerballoon {
+    color: #000;
+    background-color: #FFF500;
     border: solid 1px #FFDF00;
 }
 
