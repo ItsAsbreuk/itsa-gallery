@@ -151,6 +151,12 @@
 </script>
 ```
 
+<h2>Notes</h2>
+<p><u>Never</u> wrap the checkbox by a <code>label</code>-element! ITSACheckBox renderes a widget and it is invalid HTML to have nodes -other than a <code>input-element</code> inside a <code>label</code>-element. It also will lead to unexpected behaviour when clicking on the widget.
+</p>
+<p>In case you use progressive enhancement (rendering using <code>srcNode</code>), the widget will take care of being rendered outside any <code>label</code>-element by itself.
+</p>
+
 <h2>Known issues</h2>
 <p class= 'intro'>
     You cannot render the widget when it lies inside a container-node that has the css <code>display: none;</code>. This is because the widget renderes by calculating sizes. Never hide a containernode using <code>display: none;</code>, but by setting it out of the view:
