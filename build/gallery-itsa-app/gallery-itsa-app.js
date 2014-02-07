@@ -53,7 +53,7 @@ ITSA_App.prototype.initializer = function() {
     statusbar = new Y.ITSAStatusbar();
     statusbar.handleLevel('info');
     statusbar.handleLevel('warn');
-    statusbar.handleLevel('error');
+//    statusbar.handleLevel('error');
     statusbar.handleStatus();
     statusbar.handleModelSync();
     instance._set('statusBar', statusbar);
