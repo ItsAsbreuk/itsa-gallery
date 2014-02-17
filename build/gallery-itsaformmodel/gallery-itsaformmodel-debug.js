@@ -644,6 +644,7 @@ ITSAFormModel.prototype.disableUI = function() {
  * @since 0.1
 */
 ITSAFormModel.prototype.cleanup = function() {
+    // TODO: also destroy the widgets in case their nodeid's are in the dom
     var instance = this;
     instance._FORM_elements = {};
     instance._ATTRS_nodes = {};
