@@ -1,3 +1,8 @@
+/*csslint adjoining-classes: false, star-property-hack: false, important: false, outline-none: false, display-property-grouping: false */
+
+body .pure-menu.pure-menu-open {
+    z-index: 3; /* prevent graph from crossing the menuarea */
+}
 a:focus {
     outline: 0;
 }
