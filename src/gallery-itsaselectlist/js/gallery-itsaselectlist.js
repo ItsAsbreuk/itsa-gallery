@@ -202,7 +202,7 @@ Y.ITSASelectList = Y.Base.create('itsaselectlist', Y.Widget, [], {
                     nodeclass = item.className || '';
                     newNode = Y.Node.create('<li' + ((isDefaultItem || (startindex===i)) ? ' class="'+instance._selectedItemClass+' '+nodeclass+'"' :
                                             ((nodeclass!=='') ? ' class="'+nodeclass+'"' : ''))+'>' + itemText +'</li>');
-                    if (item.returnValue) {newNode.setData('returnValue', item.returnValue);}
+                    if (Lang.isValue(item.returnValue)) {newNode.setData('returnValue', item.returnValue);}
                     ullist.append(newNode);
                 }
                 instance._selectedMainItemNode.setHTML(
