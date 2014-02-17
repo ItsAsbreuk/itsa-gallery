@@ -45,6 +45,12 @@
     width: 100%;
 }
 
+.yui3-itsaviewmodellist ul,
+.yui3-itsascrollviewmodellist ul {
+    padding: 0;
+    margin: 0;
+}
+
 .yui3-itsaviewmodellist,
 .yui3-itsascrollviewmodellist td {
     border: none;
