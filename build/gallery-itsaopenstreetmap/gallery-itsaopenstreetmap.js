@@ -543,7 +543,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                         imgNode = newNode.one('#' + imgId);
 
                         imgNode.on('load', instance._checkRestartQue, instance);
-                        imgNode.on('error', instance. _errorImageLoad, instance, instance.getTileBackupServer(x) + zoom + '/' + x + '/' + y + '.png' +
+                        imgNode.on('error', instance._errorImageLoad, instance, instance.getTileBackupServer(x) + zoom + '/' + x + '/' + y + '.png' +
                                                                                  instance._getTimeStamp(true, instance.get('tilebackupserver')));
 
                         mapNode.append(newNode);
@@ -1128,32 +1128,38 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
         },
 
         _getTileServer : function(xLocMap, server) {
-            var instance = this,
-                tilelevel, tileserver, tileserver1, tileserver2, tileserver3, tileserver4, timestamp;
+            var tilelevel, tileserver, tileserver1, tileserver2, tileserver3, tileserver4;
+
             if (server ==='brongegevens') {
+                /*
                 timestamp = instance._getTimeStamp(false, server);
                 tileserver1 = 'http://a.' + timestamp + '.tile.mapnik.brongegevens.nl/';
                 tileserver2 = 'http://b.' + timestamp + '.tile.mapnik.brongegevens.nl/';
                 tileserver3 = 'http://c.' + timestamp + '.tile.mapnik.brongegevens.nl/';
                 tileserver4 = 'http://d.' + timestamp + '.tile.mapnik.brongegevens.nl/';
+                */
+                tileserver1 = 'https://mapnika.clicktrace.eu/';
+                tileserver2 = 'https://mapnikb.clicktrace.eu/';
+                tileserver3 = 'https://mapnikc.clicktrace.eu/';
+                tileserver4 = 'https://mapnikd.clicktrace.eu/';
             }
             if (server ==='mapnik') {
-                tileserver1 = 'http://a.tile.openstreetmap.org/';
-                tileserver2 = 'http://b.tile.openstreetmap.org/';
-                tileserver3 = 'http://c.tile.openstreetmap.org/';
-                tileserver4 = 'http://a.tile.openstreetmap.org/';
+                tileserver1 = 'https://a.tile.openstreetmap.org/';
+                tileserver2 = 'https://b.tile.openstreetmap.org/';
+                tileserver3 = 'https://c.tile.openstreetmap.org/';
+                tileserver4 = 'https://a.tile.openstreetmap.org/';
             }
             if (server ==='osma') {
-                tileserver1 = 'http://a.tah.openstreetmap.org/Tiles/tile/';
-                tileserver2 = 'http://b.tah.openstreetmap.org/Tiles/tile/';
-                tileserver3 = 'http://c.tah.openstreetmap.org/Tiles/tile/';
-                tileserver4 = 'http://a.tah.openstreetmap.org/Tiles/tile/';
+                tileserver1 = 'https://a.tah.openstreetmap.org/Tiles/tile/';
+                tileserver2 = 'https://b.tah.openstreetmap.org/Tiles/tile/';
+                tileserver3 = 'https://c.tah.openstreetmap.org/Tiles/tile/';
+                tileserver4 = 'https://a.tah.openstreetmap.org/Tiles/tile/';
             }
             if (server ==='mapquest') {
-                tileserver1 = 'http://otile1.mqcdn.com/tiles/1.0.0/osm/';
-                tileserver2 = 'http://otile2.mqcdn.com/tiles/1.0.0/osm/';
-                tileserver3 = 'http://otile3.mqcdn.com/tiles/1.0.0/osm/';
-                tileserver4 = 'http://otile4.mqcdn.com/tiles/1.0.0/osm/';
+                tileserver1 = 'https://otile1.mqcdn.com/tiles/1.0.0/osm/';
+                tileserver2 = 'https://otile2.mqcdn.com/tiles/1.0.0/osm/';
+                tileserver3 = 'https://otile3.mqcdn.com/tiles/1.0.0/osm/';
+                tileserver4 = 'https://otile4.mqcdn.com/tiles/1.0.0/osm/';
             }
             if (tileserver1 === '') {
                 return '';  // no valid tileserver
