@@ -1,0 +1,34 @@
+YUI(yuiconfig).use('gallery-itsacheckboxgroup', 'gallery-itsaviewmodel', 'gallery-itsaformmodel', 'base-build', function(Y) {
+
+    var MyModel, initialselected, mymodel, mymodel2, view;
+    MyModel = Y.Base.create('mymodel', Y.ITSAFormModel, [], {}, {
+        ATTRS: {
+            selecteditems: {
+                formtype: Y.ITSACheckboxGroup,
+                formconfig: {
+                    label: 'Selection',
+                    widgetconfig: {
+                        options: ['item 1', 'item 2', 'item 3', 'item 4', 'item 5']
+                    }
+                }
+            }
+        }
+    }),
+
+    initialselected = ['item 0', 'item 1', 'item 2'];
+    mymodel = new MyModel({selecteditems: initialselected});
+    mymodel2 = new MyModel();
+
+    view = new Y.ITSAViewModel({
+        container: '#viewcont',
+        model: mymodel,
+        editable: true,
+        template: '{selecteditems}'
+    });
+    view.render();
+
+Y.later(3000, null, function() {
+    view.set('model', mymodel2);
+});
+
+});

@@ -13,7 +13,16 @@
             "displayName": "Rendering using html",
             "description": "This example shows how to render ITSACheckBox using progressive enhancement",
             "author"     : [ "itsasbreuk" ],
-            "modules"    : ["gallery-itsacheckbox", "progressive enhancement"],
+            "modules"    : ["gallery-itsacheckbox"],
+            "tags"    : ["gallery-itsacheckbox", "progressive enhancement"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "itsacheckboxgroup-with-itsaviewmodel",
+            "displayName": "Rendering with Y.ITSAViewModel",
+            "description": "This example shows how to render ITSACheckBoxGroup using Y.ITSAViewModel",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsacheckbox", "gallery-itsaviewmodel"],
             "tags"    : ["gallery-itsacheckbox"],
             "hideTableOfContents": true
         }

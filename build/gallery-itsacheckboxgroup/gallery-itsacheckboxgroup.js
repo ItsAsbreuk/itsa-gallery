@@ -103,19 +103,17 @@ ITSACheckboxGroup.prototype.renderUI = function() {
     var instance = this,
         options = instance.get(OPTIONS),
         contentBox = instance.get(CONTENTBOX),
+        checkedObj = {},
         checkboxConfig = instance.get('checkboxConfig') || {},
         checkboxNode, nodestring, checked, checkbox;
 
     checked = instance.get(CHECKED);
     // first set all array-values inside an object for quicker codehandling:
     instance._options = {};
-    instance._checked = {};
     YArray.each(
         checked,
         function(onechecked) {
-/*jshint expr:true */
-            onechecked && (instance._checked[onechecked]=true);
-/*jshint expr:false */
+            checkedObj[onechecked] = true;
         }
     );
     YArray.each(
@@ -126,10 +124,19 @@ ITSACheckboxGroup.prototype.renderUI = function() {
             checkboxNode = Y.Node.create(nodestring);
             contentBox.append(checkboxNode);
             checkboxConfig.boundingBox = checkboxNode.one('.'+ITSA_WIDGET_PARENT);
-            checkboxConfig.checked = instance._checked[option] ? true : false;
+            checkboxConfig.checked = checkedObj[option] ? true : false;
             instance._options[option] = checkbox = new Y.ITSACheckbox(checkboxConfig);
             checkbox.render();
             checkbox.addTarget(instance);
+        }
+    );
+    // now remove items from 'checked' that are not part of 'options'
+    YArray.each(
+        checked,
+        function(onechecked, item) {
+/*jshint expr:true */
+            instance._options[onechecked] || checked.splice(item, 1);
+/*jshint expr:false */
         }
     );
 };
@@ -155,7 +162,11 @@ ITSACheckboxGroup.prototype.bindUI = function() {
     instance._eventhandlers.push(
         instance.after(
             '*:'+CHECKED+CHANGE,
-            Y.bind(instance._setChecked, instance)
+            function(e) {
+/*jshint expr:true */
+                e.internalChanged || instance._setChecked(e);
+/*jshint expr:false */
+            }
         )
     );
 };
@@ -170,6 +181,12 @@ ITSACheckboxGroup.prototype.destructor = function() {
     var instance = this;
 
     instance._clearEventhandlers();
+    YObject.each(
+        instance._options,
+        function(checkbox) {
+            checkbox.destroy(true);
+        }
+    );
     instance._emptyContentBox();
 };
 
@@ -202,7 +219,7 @@ ITSACheckboxGroup.prototype._setChecked = function(e) {
     var instance = this,
         typesplit = e.type.split(':'),
         checked = [];
-    if ((typesplit[0]!==ITSACheckboxGroup.NAME) && !instance._fromReset) {
+    if ((typesplit[0]!==ITSACheckboxGroup.NAME) && !e.fromReset) {
         YObject.each(
             instance._options,
             function(checkbox, option) {
@@ -211,8 +228,7 @@ ITSACheckboxGroup.prototype._setChecked = function(e) {
     /*jshint expr:false */
             }
         );
-        instance._fromInternal = true;
-        instance.set(CHECKED, checked);
+        instance.set(CHECKED, checked, {internalChanged: true}); // DO NOT use 'fromInternal' for that prevents the uichanged event!
     }
 };
 
@@ -222,34 +238,24 @@ ITSACheckboxGroup.prototype._setChecked = function(e) {
  * @since 0.1
 */
 ITSACheckboxGroup.prototype._resetChecked = function() {
+console.log('_resetChecked');
     var instance = this,
+        checkedObj = {},
         checked;
-    if (instance._fromInternal) {
-        instance._fromInternal = null;
-    }
-    else {
-        checked = instance.get(CHECKED);
-        instance._checked = {};
-        YArray.each(
-            checked,
-            function(onechecked) {
-    /*jshint expr:true */
-                onechecked && (instance._checked[onechecked]=true);
-    /*jshint expr:false */
-            }
-        );
-        instance._fromReset = true;
-        YObject.each(
-            instance._options,
-            function(checkbox, option) {
-                var newchecked = instance._checked[option] ? true : false;
-                checkbox.set(CHECKED, newchecked);
-            }
-        );
-        Y.soon(function() {
-            instance._fromReset = null;
-        });
-    }
+    checked = instance.get(CHECKED);
+    YArray.each(
+        checked,
+        function(onechecked) {
+            checkedObj[onechecked]=true;
+        }
+    );
+    YObject.each(
+        instance._options,
+        function(checkbox, option) {
+            var newchecked = checkedObj[option] ? true : false;
+            checkbox.set(CHECKED, newchecked, {fromReset: true});
+        }
+    );
 };
 
 /**
@@ -258,6 +264,7 @@ ITSACheckboxGroup.prototype._resetChecked = function() {
  * @since 0.1
 */
 ITSACheckboxGroup.prototype._resetOptions = function() {
+console.log('_resetOptions');
     var instance = this;
     YObject.each(
         instance._options,

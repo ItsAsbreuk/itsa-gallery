@@ -18,4 +18,9 @@ YUI(yuiconfig).use('gallery-itsacheckboxgroup', 'json-stringify', 'gallery-itsad
         Y.alert('selected values:', Y.JSON.stringify(checkboxgroup.get('checked')));
     });
 
+Y.later(2000, null, function() {
+    checkboxgroup.set('options', ['event 1','event 3', 'event 4', 'event 5', 'event 6']);
+});
+
+
 });
