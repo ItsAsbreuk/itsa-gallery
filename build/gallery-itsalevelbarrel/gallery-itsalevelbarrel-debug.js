@@ -322,7 +322,7 @@ ITSALevelBarrel.prototype.syncUI = function() {
         unity = instance.get('unity'),
         valuenode = contentBox.one('.'+'barrelvalue');
     levelBox.setStyle('top', percentedHeight+'%');
-    valuenode.setHTML(instance.get('value')+(unity ? ('<span class="barrelunity">'+instance.get('unity')+'</span>') : ''));
+    valuenode.setHTML(value+(unity ? ('<span class="barrelunity">'+instance.get('unity')+'</span>') : ''));
 };
 
 /**
