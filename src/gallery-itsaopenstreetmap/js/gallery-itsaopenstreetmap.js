@@ -948,7 +948,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                 node = Y.one('#map_zoom' + zoomLevel + '_' + instance.mapid);
             node.setStyle('left', xPos+'px');
             node.setStyle('top', yPos+'px');
-            if (instance.itsamapmarker) {
+            if (instance.itsamapmarker && instance.itsamapmarker._markerlayer) {
                 instance.itsamapmarker._markerlayer.setStyle('left', xPos+'px');
                 instance.itsamapmarker._markerlayer.setStyle('top', yPos+'px');
             }
