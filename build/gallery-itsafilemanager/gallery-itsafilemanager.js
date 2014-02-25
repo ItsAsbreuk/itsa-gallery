@@ -1438,7 +1438,11 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                           rootnode = instance._nodeFilemanTreeRoot;
                     rootnode.set('tabIndex', 0);
                     rootnode.addClass(TREEVIEW_SELECTED_CLASS);
-                    rootnode.focus();
+                    try {
+                        // ALWAYS focus nodes using try/catch to prevent js-error when node not in the dom
+                        rootnode.focus();
+                    }
+                    catch(err) {}
                     instance._currentDir = '/';
                     instance._currentDirTreeNode = tree.rootNode;
                     if (!withoutFileLoad) {
