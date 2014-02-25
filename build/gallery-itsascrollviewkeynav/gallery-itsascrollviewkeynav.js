@@ -665,7 +665,11 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsascrollviewkeynav
             var host = this.host;
 
             if (host && host.focus) {
-                host.focus();
+                try {
+                    // ALWAYS focus nodes using try/catch to prevent js-error when node not in the dom
+                    host.focus();
+                }
+                catch(err) {}
             }
             else {
             }

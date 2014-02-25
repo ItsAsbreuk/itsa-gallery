@@ -674,7 +674,11 @@ Y.namespace('Plugin').ITSAScrollViewKeyNav = Y.Base.create('itsascrollviewkeynav
 
             Y.log('_focusHostSave', 'info', 'Itsa-ScrollViewKeyNav');
             if (host && host.focus) {
-                host.focus();
+                try {
+                    // ALWAYS focus nodes using try/catch to prevent js-error when node not in the dom
+                    host.focus();
+                }
+                catch(err) {}
             }
             else {
                 Y.log('_focusHostSave cannot focus! host.focus() is not a function', 'warn', 'Itsa-ScrollViewKeyNav');
