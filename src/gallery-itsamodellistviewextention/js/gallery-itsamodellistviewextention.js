@@ -1749,7 +1749,11 @@ Y.mix(ITSAModellistViewExtention.prototype, {
         if (modelNode) {
             this._viewNode.all('.'+SVML_FOCUS_CLASS).removeClass(SVML_FOCUS_CLASS);
             modelNode.addClass(SVML_FOCUS_CLASS);
-            modelNode.focus();
+            try {
+                // ALWAYS focus nodes using try/catch to prevent js-error when node not in the dom
+                modelNode.focus();
+            }
+            catch(err) {}
         }
     },
 
