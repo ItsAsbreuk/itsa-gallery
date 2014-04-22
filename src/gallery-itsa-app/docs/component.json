@@ -16,6 +16,15 @@
             "modules"    : ["gallery-itsa-app"],
             "tags"    : ["gallery-itsa-app", "app"],
             "hideTableOfContents": true
+        },
+        {
+            "name"       : "testchart",
+            "displayName": "testchart",
+            "description": "This example shows a simple usage of Y.ITSA_App.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallery-itsa-app"],
+            "tags"    : ["gallery-itsa-app", "app"],
+            "hideTableOfContents": true
         }
     ]
 }
