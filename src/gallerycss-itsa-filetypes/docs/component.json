@@ -1,0 +1,30 @@
+{
+    "name"       : "gallerycss-itsa-filetypes",
+    "displayName": "Gallery: gallerycss-itsa-filetypes",
+    "description": "This module supplies beautiful stylable iconfonts from the category 'filetypes', which can be used by classname.",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "gallerycss-itsa-base", "gallerycss-itsa-filetypes" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": [
+        {
+            "name"       : "simple-usage",
+            "displayName": "Creating imagebuttons",
+            "description": "This is a summary of all available icon-fonts this module offers, applied to purecss-buttons.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallerycss-itsa-filetypes"],
+            "tags"       : ["gallerycss-itsa-filetypes", "iconfonts", "icons", "filetypes"],
+            "hideTableOfContents": true
+        },
+        {
+            "name"       : "custom-style",
+            "displayName": "Custom styling",
+            "description": "This example shows how to customize an icon.",
+            "author"     : [ "itsasbreuk" ],
+            "modules"    : ["gallerycss-itsa-filetypes"],
+            "tags"       : ["gallerycss-itsa-filetypes", "iconfonts", "icons", "filetypes", "customize", "styling"],
+            "hideTableOfContents": true
+        }
+    ]
+}

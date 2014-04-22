@@ -1,0 +1,11 @@
+{
+    "name": "gallerycss-itsa-filetypes",
+    "builds": {
+        "gallerycss-itsa-filetypes": {
+            "cssfiles": [
+                "css/filetypes-ie7.css",
+                "css/filetypes.css"
+            ]
+        }
+    }
+}

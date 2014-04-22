@@ -1,0 +1,11 @@
+i.itsaicon-filetypes-text { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe600;&nbsp;'); }
+i.itsaicon-filetypes-file { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe601;&nbsp;'); }
+i.itsaicon-filetypes-libreoffice { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe60a;&nbsp;'); }
+i.itsaicon-filetypes-pdf { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe602;&nbsp;'); }
+i.itsaicon-filetypes-openoffice { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#603;&nbsp;'); }
+i.itsaicon-filetypes-word { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe604;&nbsp;'); }
+i.itsaicon-filetypes-excel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe605;&nbsp;'); }
+i.itsaicon-filetypes-zip { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe606;&nbsp;'); }
+i.itsaicon-filetypes-powerpoint { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe607;&nbsp;'); }
+i.itsaicon-filetypes-xml { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe608;&nbsp;'); }
+i.itsaicon-filetypes-css { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&nbsp;&#xe609;&nbsp;'); }
