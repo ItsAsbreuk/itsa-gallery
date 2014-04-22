@@ -21,6 +21,7 @@ var Lang = Y.Lang,
     YArray = Y.Array,
     LABEL = 'label',
     VALUE = 'value',
+    UNITY = 'unity',
     MAXVALUE = 'maxValue',
     CAP_CHANGE = 'Change',
     CLASSNAME = 'className',
@@ -93,7 +94,7 @@ ITSALevelBarrel.ATTRS = {
      */
     value: {
         value: 0,
-        validator: function(v){ return (typeof v === 'number'); }
+        validator: function(v){ return (typeof v === 'number') || (v===''); }
     },
 
     /**
@@ -251,7 +252,7 @@ ITSALevelBarrel.prototype.bindUI = function() {
     eventhandlers = instance._eventhandlers = [];
     eventhandlers.push(
         instance.after(
-            [VALUE+CAP_CHANGE, MAXVALUE+CAP_CHANGE],
+            [VALUE+CAP_CHANGE, MAXVALUE+CAP_CHANGE, UNITY+CAP_CHANGE],
             Y.bind(instance.syncUI, instance)
         )
     );
@@ -318,11 +319,11 @@ ITSALevelBarrel.prototype.syncUI = function() {
         levelBox = contentBox.one('.'+LEVEL_INDICATOR),
         value = instance.get(VALUE),
         maxvalue = instance.get(MAXVALUE),
-        percentedHeight = Math.round(100*(maxvalue-value)/maxvalue),
-        unity = instance.get('unity'),
+        percentedHeight = Math.round(100*(maxvalue-(value || 0))/maxvalue),
+        unity = instance.get(UNITY),
         valuenode = contentBox.one('.'+'barrelvalue');
     levelBox.setStyle('top', percentedHeight+'%');
-    valuenode.setHTML(value+(unity ? ('<span class="barrelunity">'+instance.get('unity')+'</span>') : ''));
+    valuenode.setHTML(value+(unity ? ('<span class="barrelunity">'+instance.get(UNITY)+'</span>') : ''));
 };
 
 /**
