@@ -43,6 +43,10 @@ i[class^="itsaicon-"]:before, i[class*=" itsaicon-"]:before {
   font-weight: normal;
   speak: none;
 
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
