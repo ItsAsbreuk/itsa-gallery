@@ -1,4 +1,7 @@
 'use strict';
+
+/*jshint maxlen:160 */
+
 /**
  * The ItsaUtils module.
  *
@@ -11,7 +14,8 @@ var DATEPATTERN = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/,
     },
     Lang = Y.Lang,
     YPromise = Y.Promise,
-    MIME_JSON = 'application/json';
+    MIME_JSON = 'application/json',
+    NO_ARGS = [];
 
 
 
@@ -28,6 +32,72 @@ YPromise.cast = function (value) {
 };
 YPromise.prototype.cast = YPromise.cast;
 //============================================================================
+
+// re-definition of Y.later, enabling periodic function with a differetn first interval
+
+/**
+ * Executes the supplied function in the context of the supplied object 'when' milliseconds later.  Executes the function a
+ * single time unless periodic is set to true.
+ * @for YUI
+ * @method later
+ * @param when {Number} the number of milliseconds to wait until the fn is executed.
+ * @param o the context object.
+ * @param fn {Function|String} the function to execute or the name of the method in the 'o' object to execute.
+ * @param data [Array] data that is provided to the function.  This accepts either a single item or an array.  If an array is provided,
+ * the function is executed with one parameter for each array item. If you need to pass a single array parameter, it needs to be wrapped in an array [myarray].
+ *
+ * Note: native methods in IE may not have the call and apply methods. In this case, it will work, but you are limited to four arguments.
+ *
+ * @param periodic {boolean|Number} if true, executes continuously at supplied, if number, then periodic is considered 'true' but with a perdiod
+ * defined by 'periodic', which means: the first timer executes after 'when' and next timers after 'period'.
+ * interval executes until canceled.
+ * @return {object} a timer object. Call the cancel() method on this object to stop the timer.
+ */
+Y.later = function(when, o, fn, data, periodic) {
+    when = when || 0;
+    data = (!Y.Lang.isUndefined(data)) ? Y.Array(data) : NO_ARGS;
+    o = o || Y.config.win || Y;
+
+    var cancelled = false,
+        periodshift = (typeof periodic==='number'),
+        method = (o && Y.Lang.isString(fn)) ? o[fn] : fn,
+        secondairId,
+        wrapper = function() {
+            // IE 8- may execute a setInterval callback one last time
+            // after clearInterval was called, so in order to preserve
+            // the cancel() === no more runny-run, we have to jump through
+            // an extra hoop.
+            if (!cancelled) {
+                if (!method.apply) {
+                    method(data[0], data[1], data[2], data[3]);
+                } else {
+                    method.apply(o, data || NO_ARGS);
+                }
+/*jshint expr:true */
+                periodshift && !secondairId && (secondairId=setInterval(wrapper, periodic));
+/*jshint expr:false */
+            }
+        },
+        id = ((typeof periodic==='boolean') && periodic) ? setInterval(wrapper, when) : setTimeout(wrapper, when);
+
+    return {
+        id: id,
+        interval: periodic,
+        shift: periodshift,
+        cancel: function() {
+            cancelled = true;
+            if (this.interval) {
+                clearInterval(id);
+            } else {
+                clearTimeout(id);
+/*jshint expr:true */
+                this.shift && secondairId && clearInterval(secondairId);
+/*jshint expr:false */
+            }
+        }
+    };
+};
+
 
 
 /*

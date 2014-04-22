@@ -5,6 +5,7 @@
             "json",
             "jsonp",
             "promise",
+            "yui-later",
             "gallery-io-utils"
         ]
     }
