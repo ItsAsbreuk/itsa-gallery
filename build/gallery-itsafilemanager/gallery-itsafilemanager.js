@@ -1085,7 +1085,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                 {value: originalFilename})
                             .then(
                                 function(response) {
-                                    instance.renameFiles(Y.Escape.html(response.value));
+                                    instance.renameFiles(Y.Escape.html(response.input));
                                 }
                             );
                         break;
@@ -1110,7 +1110,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                                             {value: currentName+'-copy'})
                             .then(
                                 function(response) {
-                                    instance.cloneDir(Y.Escape.html(response.value));
+                                    instance.cloneDir(Y.Escape.html(response.input));
                                 }
                             );
                         break;
@@ -1120,7 +1120,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                             Y.prompt('Rename directory '+currentName, 'Enter new directoryname:', {value: currentName})
                             .then(
                                 function(response) {
-                                    instance.renameDir(Y.Escape.html(response.value));
+                                    instance.renameDir(Y.Escape.html(response.input));
                                 }
                             );
                         break;
@@ -1150,7 +1150,7 @@ Y.ITSAFileManager = Y.Base.create('itsafilemanager', Y.Panel, [], {
                     Y.prompt('Create sub-directory of '+currentName, 'Enter new directory-name:', {value: 'New Directory'})
                     .then(
                         function(response) {
-                            instance.createDir(Y.Escape.html(response.value));
+                            instance.createDir(Y.Escape.html(response.input));
                         }
                     );
                 })
