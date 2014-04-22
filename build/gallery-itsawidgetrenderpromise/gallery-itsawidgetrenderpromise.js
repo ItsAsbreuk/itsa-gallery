@@ -43,7 +43,10 @@ Y.Widget.prototype.renderOnAvailable = function(containerNodeid, timeout) {
 };
 
 /**
- * Same as 'renderOnAvailable', with the exception that rendering is done <b>every time</b> parentNode gets inserted in the DOM,
+ * Same as 'renderOnAvailable', with the exception that rendering is done <b>every time</b> parentNode gets inserted in the DOM.<br />
+ * <br />
+ * <b>Cautious:</b> even if this method is available, it is advised to use it with care. Even native dom-available-node-events cause
+ * a true performacehit.
  *
  * @method renderWhenAvailable
  * @param [containerNodeid] {String} Node-selector by id. You must include the '#'. If not defined, then the widget will be rendered at once
@@ -213,7 +216,7 @@ Y.Widget.prototype.renderWhenAvailablePromise = function(containerNodeid, option
 Y.Widget.prototype.renderPromise = function(timeout) {
     var instance = this;
     return new Y.Promise(function (resolve, reject) {
-        instance.after(
+        instance.onceAfter(
             'render',
             resolve
         );
@@ -246,7 +249,7 @@ Y.Widget.prototype.renderPromise = function(timeout) {
  * @return {Y.Promise} promised response --> resolve() OR reject(reason).
  * @since 0.2
 */
-Y.Widget.prototype.promiseBeforeReady = function() {
+Y.Widget.prototype.promiseBeforeReady = function(/* timeout */) {
     return new Y.Promise(function (resolve) {
         resolve();
     });

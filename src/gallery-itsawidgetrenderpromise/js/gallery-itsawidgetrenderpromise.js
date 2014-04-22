@@ -219,7 +219,7 @@ Y.Widget.prototype.renderPromise = function(timeout) {
     Y.log('renderPromise', 'info', 'widget');
     var instance = this;
     return new Y.Promise(function (resolve, reject) {
-        instance.after(
+        instance.onceAfter(
             'render',
             resolve
         );
