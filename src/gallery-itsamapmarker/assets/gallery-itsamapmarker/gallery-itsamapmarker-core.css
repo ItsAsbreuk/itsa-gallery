@@ -1,10 +1,11 @@
 /*csslint adjoining-classes: false, star-property-hack: false */
 
 .itsa-mapmarker-container {
-    position:relative;
-    left:0;
-    top:0;
-    z-index:1;
+    position: relative;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    cursor: default;
 }
 
 .itsa-mapmarker-container .itsa-markerdetails {
@@ -48,12 +49,17 @@
     opacity: 1;
 }
 
+.itsa-mapmarker-container .itsa-markerdetails.details-outofrange {
+    left: -9999px;
+    top: -9999px;
+}
+
 .itsa-markerheaderdetails {
     padding: 0.3em 1.8em;
     text-align: center;
     font-weight: bold;
     font-size: 1.2em;
-    white-space: nowrap;
+    white-space: pre;
     min-height: 1em;
 }
 
@@ -64,13 +70,13 @@
 .itsa-markerfooterdetails {
     text-align: center;
     padding: 0.3em 0.5em 0 0.5em;
-    white-space: nowrap;
+    white-space: pre;
 }
 
 .itsa-markerheaderdetails:empty,
 .itsa-markerfooterdetails:empty {
     padding: 0;
-    min-height: auto;
+    min-height: inherit;
 }
 
 .itsa-mapmarker {

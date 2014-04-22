@@ -57,7 +57,7 @@ YUI(yuiconfig).use('gallery-itsaopenstreetmap', 'gallery-itsamapmarker', functio
     clicktracemap = new Y.ITSAOpenStreetMap({
         boundingBox:'#mymap'
     });
-    clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, markerDetailsClosable: false, autoNumber: true});
+    clicktracemap.plug(Y.Plugin.ITSAMapMarker, {markers: markerlist, detailsOnClick: true, markerDetailsClosable: false, autoNumber: true});
     clicktracemap.render();
 
     clicktracemap.itsamapmarker.centerView({zoomin: 8, continuous: true});

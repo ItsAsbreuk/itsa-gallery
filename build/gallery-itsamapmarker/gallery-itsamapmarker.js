@@ -43,6 +43,7 @@ var Lang = Y.Lang,
     CAP_DETAILS_CLOSABLE = 'DetailsClosable',
     MARKER_DETAILS_CLASS = ITSA_+'marker'+DETAILS,
     VISIBLE_DETAILS_CLASS = DETAILS+'-visible',
+    OUTOFRANGE_DETAILS_CLASS = DETAILS+'-outofrange',
     HEADER_DETAILS_CLASS = ITSA_+'markerheader'+DETAILS,
     BODY_DETAILS_CLASS = ITSA_+'markerbody'+DETAILS,
     FOOTER_DETAILS_CLASS = ITSA_+'markerfooter'+DETAILS,
@@ -58,9 +59,9 @@ var Lang = Y.Lang,
     CLOSE_ICON = '<i class="itsaicon-dialog-error"></i>',
     CLOSEBUTTON_TEMPLATE = '<button class="pure-button itsa-closedetails" data-markerid="{clientid}">'+CLOSE_ICON+'</button>',
     MARKER_TEMPLATE = '<div data-id="{mapid}_{clientid}" class="{colorclass} itsa-mapmarker {classname}" {hidden}style="z-index:{zindex}">'+
-                          '<div class="itsa-markerballoon {markersize}">{markerhtml}</div>'+
+                          '<div class="itsa-markerballoon {markersize}" data-markerid="{clientid}">{markerhtml}</div>'+
                           '<div class="itsa-markerpin"></div>'+
-                          '<div class="'+DETAILS+'-fade '+DETAILS+'-outofrange '+MARKER_DETAILS_CLASS+'">'+
+                          '<div class="'+DETAILS+'-fade '+OUTOFRANGE_DETAILS_CLASS+' '+MARKER_DETAILS_CLASS+'">'+
                                   '<div class="'+HEADER_DETAILS_CLASS+'">{header}{closebutton}</div>'+
                                   '<div class="'+BODY_DETAILS_CLASS+'">{body}</div>'+
                                   '<div class="'+FOOTER_DETAILS_CLASS+'">{footer}</div>'+
@@ -89,6 +90,20 @@ ITSAMapMarker.ATTRS = {
     autoNumber: {
         value: false,
         validator: function(v){ return (typeof v === 'boolean'); }
+    },
+
+    /**
+     * Shows and hides details-popup when the marker is clicked.
+     * set true for single popup, det to 'multiple' for enabling multiple popups
+     *
+     * @attribute detailsOnClick
+     * @type {Boolean|'multiple'}
+     * @default false
+     * @since 0.1
+     */
+    detailsOnClick: {
+        value: false,
+        validator: function(v){ return (typeof v === 'boolean') || (v==='multiple'); }
     },
 
     /**
@@ -184,13 +199,16 @@ ITSAMapMarker.prototype.initializer = function() {
 */
 ITSAMapMarker.prototype._renderer = function() {
     var instance = this;
-    instance.renderUI();
-    instance.bindUI();
-/*jshint expr:true */
-    instance.get(AUTONUMBER) && instance._calcPosMarkers();
-/*jshint expr:false */
-    instance.syncUI(true);
-    instance._resolveHandler(); // resolving rendered-promise
+    instance.renderUI().then(
+        function() {
+            instance.bindUI();
+        /*jshint expr:true */
+            instance.get(AUTONUMBER) && instance._calcPosMarkers();
+        /*jshint expr:false */
+            instance.syncUI(true);
+            instance._resolveHandler(); // resolving rendered-promise
+        }
+    );
 };
 
 /**
@@ -203,19 +221,21 @@ ITSAMapMarker.prototype._renderer = function() {
 ITSAMapMarker.prototype.renderUI = function() {
     var instance = this,
         mapid = instance.host.mapid,
-        mapNode = Y.one('#map_'+mapid),
         markerlayer, currentZoomedMapnode,
         markerColorClass = instance.get(MARKER_COLORCLASS) || '',
-        markersize = instance.get(MARKER_SIZE) || '';
-    if (mapNode) {
-        markerlayer = instance._markerlayer = Node.create(Lang.sub(MARKER_LAYER_TEMPLATE, {mapid: mapid, colorclass: markerColorClass, markersize: markersize}));
-
-        // at this moment we use the 'old' openstreetmap-module, so we need to reposition the layer:
-        currentZoomedMapnode = instance.host.currentZoomedMap();
-        markerlayer.setStyle('left', currentZoomedMapnode.getStyle('left'));
-        markerlayer.setStyle('top', currentZoomedMapnode.getStyle('top'));
-        mapNode.prepend(markerlayer);
-    }
+        markersize = instance.get(MARKER_SIZE) || '',
+        mapNode;
+    return Node.availablePromise('#map_'+mapid, 10000).then(
+        function() {
+            mapNode = Y.one('#map_'+mapid);
+            markerlayer = instance._markerlayer = Node.create(Lang.sub(MARKER_LAYER_TEMPLATE, {mapid: mapid, colorclass: markerColorClass, markersize: markersize}));
+            // at this moment we use the 'old' openstreetmap-module, so we need to reposition the layer:
+            currentZoomedMapnode = instance.host.currentZoomedMap();
+            markerlayer.setStyle('left', currentZoomedMapnode.getStyle('left'));
+            markerlayer.setStyle('top', currentZoomedMapnode.getStyle('top'));
+            mapNode.prepend(markerlayer);
+        }
+    );
 };
 
 /**
@@ -378,9 +398,9 @@ ITSAMapMarker.prototype.bindUI = function() {
     );
 
 /*jshint expr:true */
-    markerlayer && eventhandlers.push(
+    eventhandlers.push(
         markerlayer.delegate(
-            'click',
+            'tap',
             function(e) {
                 var button = e.currentTarget,
                     markerid = button.getAttribute('data-markerid'),
@@ -388,6 +408,30 @@ ITSAMapMarker.prototype.bindUI = function() {
                 marker && instance.hidePopup(marker);
             },
             '.itsa-closedetails'
+        )
+    );
+/*jshint expr:false */
+
+/*jshint expr:true */
+    eventhandlers.push(
+        markerlayer.delegate(
+            'tap',
+            function(e) {
+                var balloon = e.currentTarget,
+                    detailsOnClick = instance.get('detailsOnClick'),
+                    markerid = detailsOnClick && balloon.getAttribute('data-markerid'),
+                    marker, markerNode, detailsNode, isvisible;
+                if (markerid) {
+                    marker = instance.get(MARKERS).getByClientId(markerid);
+                    markerNode = instance.getMarkerNode(marker),
+                    detailsNode = markerNode && markerNode.one('.'+MARKER_DETAILS_CLASS);
+                    if (detailsNode) {
+                        isvisible = detailsNode.hasClass(VISIBLE_DETAILS_CLASS);
+                        isvisible ? instance.hidePopup(marker) : instance.showPopup(marker, (detailsOnClick===true));
+                    }
+                }
+            },
+            '.itsa-markerballoon'
         )
     );
 /*jshint expr:false */
@@ -532,7 +576,7 @@ ITSAMapMarker.prototype.centerView = function(options) {
 ITSAMapMarker.prototype.getMarkerNode = function(marker) {
     var instance = this,
         clientid = (marker instanceof Y.ITSAMarkerModel) ? marker.get(CLIENTID) : marker[CLIENTID];
-    return instance._markerlayer.one('[data-id="'+instance.host.mapid+'_'+clientid+'"]');
+    return instance._markerlayer && instance._markerlayer.one('[data-id="'+instance.host.mapid+'_'+clientid+'"]');
 };
 
 
@@ -733,15 +777,38 @@ ITSAMapMarker.promiseBeforeReady = function() {
  * @since 0.1
 */
 ITSAMapMarker.prototype.showPopup = function(markers, hideOthers) {
-    var instance = this;
+    var instance = this,
+        markersIsArray = Lang.isArray(markers),
+        markerIsItem = !markersIsArray && ((markers instanceof Y.ITSAMarkerModel) || (typeof markers === 'object')),
+        allmarkers, index;
+    if (markers && hideOthers) {
+        allmarkers = instance.get(MARKERS).toArray();
+        if (markersIsArray) {
+            YArray.each(
+                markers,
+                function(onemarker) {
+                    index = YArray.indexOf(allmarkers, onemarker);
 /*jshint expr:true */
-    hideOthers && instance.hidePopup();
+                    (index===-1) || allmarkers.splice(index, 1);
+/*jshint expr:false */
+                }
+            );
+        }
+        else if (markerIsItem) {
+            index = YArray.indexOf(allmarkers, markers);
+/*jshint expr:true */
+            (index===-1) || allmarkers.splice(index, 1);
+/*jshint expr:false */
+        }
+       instance.hidePopup(allmarkers);
+    }
+/*jshint expr:true */
     markers || (markers=instance.get(MARKERS).toArray());
 /*jshint expr:false */
-    if (Lang.isArray(markers)) {
+    if (markersIsArray) {
         YArray.each(markers, Y.bind(instance._showPopup, instance));
     }
-    else if ((markers instanceof Y.ITSAMarkerModel) || (typeof markers === 'object')) {
+    else if (markerIsItem) {
         instance._showPopup(markers);
     }
 };
@@ -774,13 +841,17 @@ ITSAMapMarker.prototype.stopContMarkersInView = function() {
 ITSAMapMarker.prototype.repositionMarkers = function() {
     var instance = this,
         markers = instance.get(MARKERS);
-    instance._markerlayer.addClass(HIDDEN_MARKERS);
+/*jshint expr:true */
+    instance._markerlayer && instance._markerlayer.addClass(HIDDEN_MARKERS);
+/*jshint expr:false */
     markers.each(
         function(marker) {
             instance.syncMarker(marker, {positiononly: true});
         }
     );
-    instance._markerlayer.removeClass(HIDDEN_MARKERS);
+/*jshint expr:true */
+    instance._markerlayer && instance._markerlayer.removeClass(HIDDEN_MARKERS);
+/*jshint expr:false */
 };
 
 /**
@@ -887,11 +958,11 @@ ITSAMapMarker.prototype.syncUI = function(initialize) {
     };
 /*jshint expr:true */
     initialize || instance._clearMarkers();
-/*jshint expr:false */
-    instance._markerlayer.addClass(HIDDEN_MARKERS);
+    instance._markerlayer && instance._markerlayer.addClass(HIDDEN_MARKERS);
     // how to process the list will depend on the fact whether 'markers' is a ModelList or a LazyModelList
     markers.each((markers instanceof Y.LazyModelList) ? processMarkerLML : processMarkerML);
-    instance._markerlayer.removeClass(HIDDEN_MARKERS);
+    instance._markerlayer && instance._markerlayer.removeClass(HIDDEN_MARKERS);
+/*jshint expr:false */
 };
 
 /**
@@ -907,8 +978,8 @@ ITSAMapMarker.prototype.destructor = function() {
 
 /*jshint expr:true */
     markers && markers.removeTarget(instance);
+    instance._markerlayer && instance._markerlayer.destroy(true);
 /*jshint expr:false */
-    instance._markerlayer.destroy(true);
     instance._clearEventhandlers();
 };
 
@@ -1052,6 +1123,10 @@ ITSAMapMarker.prototype._hidePopup = function(marker) {
         detailsNode = markerNode.one('.'+MARKER_DETAILS_CLASS);
         detailsNode.removeClass(VISIBLE_DETAILS_CLASS);
         markerNode.setStyle('zIndex', marker._originalZindex);
+        // delayed adding outofrange --> delay must be there, otherwise we don't see the fading effect (transistiontime 0.2sec)
+        Y.later(200, null, function() {
+            detailsNode.addClass(OUTOFRANGE_DETAILS_CLASS);
+        });
     }
 };
 
@@ -1098,7 +1173,9 @@ ITSAMapMarker.prototype._renderMarker = function(properties, clientid, headertem
             }
         )
     );
-    instance._markerlayer.append(markerNode);
+/*jshint expr:true */
+    instance._markerlayer && instance._markerlayer.append(markerNode);
+/*jshint expr:false */
     instance._syncMarkerNode(markerNode, properties[LAT], properties[LON]);
 };
 
@@ -1120,6 +1197,7 @@ ITSAMapMarker.prototype._showPopup = function(marker, hideOthers) {
 /*jshint expr:false */
     if (markerNode) {
         detailsNode = markerNode.one('.'+MARKER_DETAILS_CLASS);
+        detailsNode.removeClass(OUTOFRANGE_DETAILS_CLASS);
         detailsNode.addClass(VISIBLE_DETAILS_CLASS);
         markerNode.setStyle('zIndex', newz);
     }
@@ -1167,6 +1245,7 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
 }, '@VERSION@', {
     "requires": [
         "yui-base",
+        "event-tap",
         "oop",
         "model-list",
         "lazy-model-list",
@@ -1176,6 +1255,7 @@ ITSAMapMarker.prototype._syncMarkerNode = function(markerNode, lat, lon, clienti
         "json-stringify",
         "promise",
         "gallerycss-itsa-base",
+        "gallery-itsanodepromise",
         "gallery-itsamarkermodel",
         "gallery-itsapluginpromise",
         "gallery-itsawidgetrenderpromise"

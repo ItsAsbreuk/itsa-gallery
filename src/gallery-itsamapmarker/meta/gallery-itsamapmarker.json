@@ -2,6 +2,7 @@
     "gallery-itsamapmarker": {
         "requires": [
             "yui-base",
+            "event-tap",
             "oop",
             "model-list",
             "lazy-model-list",
@@ -11,6 +12,7 @@
             "json-stringify",
             "promise",
             "gallerycss-itsa-base",
+            "gallery-itsanodepromise",
             "gallery-itsamarkermodel",
             "gallery-itsapluginpromise",
             "gallery-itsawidgetrenderpromise"
