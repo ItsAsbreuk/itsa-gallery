@@ -15,7 +15,7 @@ YUI(yuiconfig).use('gallery-itsacheckboxgroup', 'gallery-itsaviewmodel', 'galler
         }
     }),
 
-    initialselected = ['item 0', 'item 1', 'item 2'];
+    initialselected = [];
     mymodel = new MyModel({selecteditems: initialselected});
     mymodel2 = new MyModel();
 
@@ -26,13 +26,14 @@ YUI(yuiconfig).use('gallery-itsacheckboxgroup', 'gallery-itsaviewmodel', 'galler
         template: '{selecteditems}'
     });
     view.render();
+    mymodel.setLifeUpdate(true);
 
-Y.later(3000, null, function() {
-    view.set('model', mymodel2);
+Y.later(2000, null, function() {
+    mymodel.set('selecteditems', ['item 2'], {fromInternal: true});
 });
 
 Y.later(5000, null, function() {
-    view.set('model', mymodel);
+//    view.set('model', mymodel);
 });
 
 });
