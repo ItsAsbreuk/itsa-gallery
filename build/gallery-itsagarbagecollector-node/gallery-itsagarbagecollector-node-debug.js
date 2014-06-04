@@ -1,66 +1,46 @@
 YUI.add('gallery-itsagarbagecollector-node', function (Y, NAME) {
 
-
 /**
- Your Code Goes Here
+ *
+ * Background process that keeps the internal Y.Node._instances healty by periodic remove node-instances that left the DOM
+ *
+ * @module gallery-itsagarbagecollector-node
+ * @since 0.1
+ *
+ * <i>Copyright (c) 2014 Marco Asbreuk - http://itsasbreuk.nl</i>
+ * YUI BSD License - http://developer.yahoo.com/yui/license.html
+ *
 */
-var REMOVECHILD = 'removeChild',
-    BOOLEAN = 'boolean';
 
-// I think -by making removeChild to destroy its node-refs- all the nodemethods are handled (like setHTML, set('text') etc)
-// but gotta search more deeper to be sure.
-Y.Node.prototype[REMOVECHILD] = function(arg1, arg2, arg3) {
+var INTERVAL = 3000,
+    BATCHCOUNT = 20,
+    lastPos = 0;
+
+Y.later(INTERVAL, null, function() {
+    var i = 0,
+        earlyExit = false,
+        exitCount = lastPos+BATCHCOUNT;
+    Y.Object.some(
+        Y.Node._instances,
+        function(nodeinstance) {
+            // start with position last left: we don't want to process only the first items every time
+            if (++i>lastPos) {
+                if (!nodeinstance.inDoc()) {
+                    // not in the DOC, now the node MIGHT have been removed,
+                    // but it could also mean someone defined Y.Node.create() but didn't had the change yet to insert
+                    // so, we first set a flag and expect these nodes to be inserted before the next loop
 /*jshint expr:true */
-    arg1 && arg1.destroy && arg1.destroy(true);
+                    nodeinstance._isFlaggedGC ? nodeinstance.remove(true) : (nodeinstance._isFlaggedGC=true);
 /*jshint expr:false */
-    return this.invoke(REMOVECHILD, arg1, arg2, arg3);
-};
-
-
-Y.Node.prototype.remove = function(destroy) {
-    var node = this._node,
-        destr = (typeof destroy === BOOLEAN) ? destroy : true;
-
-    if (node && node.parentNode) {
-        node.parentNode[REMOVECHILD](node);
-    }
-
-    if (destr) {
-        this.destroy();
-    }
-
-    return this;
-};
-
-
-Y.Node.prototype.destroy = function(recursive) {
-    var UID = Y.config.doc.uniqueID ? 'uniqueID' : '_yuid',
-        deep = (typeof recursive === BOOLEAN) ? recursive : true,
-        instance;
-
-    this.purge(); // TODO: only remove events add via this Node
-
-    if (this.unplug) { // may not be a PluginHost
-        this.unplug();
-    }
-
-    this.clearData();
-
-    if (deep) {
-        Y.NodeList.each(this.all('*'), function(node) {
-            instance = Y_Node._instances[node[UID]];
-            if (instance) {
-               instance.destroy();
-            } else { // purge in case added by other means
-                Y.Event.purgeElement(node);
+                }
+                earlyExit = (i>=exitCount);
             }
-        });
-    }
+            return earlyExit;
+        }
+    );
+    lastPos = earlyExit ? i : 0;
+}, null, true);
 
-    this._node = null;
-    this._stateProxy = null;
 
-    delete Y_Node._instances[this._yuid];
-};
 
-}, '@VERSION@', {"requires": ["yui-base"]});
+}, '@VERSION@', {"requires": ["yui-base", "node-core", "yui-later"]});

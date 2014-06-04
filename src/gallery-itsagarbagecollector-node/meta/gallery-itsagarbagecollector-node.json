@@ -1,7 +1,9 @@
 {
     "gallery-itsagarbagecollector-node": {
         "requires": [
-            "yui-base"
+            "yui-base",
+            "node-core",
+            "yui-later"
         ]
     }
 }
