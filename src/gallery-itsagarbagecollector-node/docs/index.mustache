@@ -4,18 +4,21 @@
   <p>
     {{description}}
   </p>
+  <p>
+    Just include this module, and the garbage-collector is functional.
+  </p>
 </div>
 
 {{>getting-started}}
 
 <h2>Description</h2>
     <p>
-       By using this module, a small number of nodes inside Y.Node._instances will periodic be inspected whether they are still part of the DOM. If not, they will be removed using Node.remove(true);
+       By using this module, a small number of nodes inside Y.Node._instances will periodically be inspected whether they are still part of the DOM. If not, they will be removed using Node.destroy(true);
     </p>
 
 <h2>Background information</h2>
     <p>
-       If you develop a webapp, you should take care of memorymanagement of the Nodes. However, in many cases you -or some module- might cleanup a parent-node without realizing some of its innernodes are cached inside Y.Node.instances.
+       If you develop a webapp, you should take care of memory management of the Nodes. However, in many cases you -or some module- might cleanup a parent-node without realizing some of its child nodes are cached inside Y.Node.instances.
     </p>
     <p>
         This can easily occur when you do just <code>Y.one('#someinnernode')</code> (creating a Node-refference) - and later on: <code>Y.one('#parentcontainer').setHTML('some new content')</code>.
