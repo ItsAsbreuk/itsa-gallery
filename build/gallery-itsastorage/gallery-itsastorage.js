@@ -23,6 +23,9 @@ var d           = Y.config.doc,
     JSON        = Y.JSON,
     ITSAStorageLite = Y.namespace('ITSAStorageLite'),
 
+    dateAddMinutes = function (oDate, numMinutes) {
+                         oDate.setTime(oDate.getTime() + 60000*numMinutes);
+                      },
 // -- Private Constants --------------------------------------------------------
 DB_NAME           = 'yui_itsastorage_lite',
 DB_DISPLAYNAME    = 'YUI ITSAStorageLite data',
@@ -494,11 +497,11 @@ ITSAStorageClass.prototype.removeItem = function (key) {
  * @method setItem
  * @param {String} key
  * @param {Object} value
- * @param {bool} json (optional) <code>true</code> if the item should be
- *     serialized to a JSON string before being stored
+ * @param {number|Date} expire (optional) if number then minutes
  */
 ITSAStorageClass.prototype.setItem = function (key, value, expire) {
-    var instance = this;
+    var instance = this,
+        expireminutes;
     return instance._ready.then(
         function() {
             // can throw an error (not likely, because the db will decrease)
@@ -506,6 +509,11 @@ ITSAStorageClass.prototype.setItem = function (key, value, expire) {
             var storevalue = {
                 value: value
             };
+            if (typeof expire==='number') {
+                expireminutes = expire;
+                expire = new Date();
+                dateAddMinutes(expire, expireminutes);
+            }
 /*jshint expr:true */
             expire && (storevalue.expire=expire.getTime());
 /*jshint expr:false */
