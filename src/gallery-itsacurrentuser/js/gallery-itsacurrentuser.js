@@ -364,6 +364,7 @@ ITSACurrentUserClass.prototype._loadUser = function() {
             instance.displayname = response.displayname;
             instance.messageLoggedin = response.messageLoggedin;
             instance.setAttrs(response.userdata);
+            instance.expireAfter = response.expireAfter;
             instance._isLoggedin = true;
             instance.refreshState();
         },
@@ -388,12 +389,13 @@ ITSACurrentUserClass.prototype._saveUser = function(expire) {
     // should save to localstorage, but that has to be done yet
     var instance = this,
         userdata = {
-        sessionid: instance.sessionid,
-        remember: instance.remember,
-        displayname: instance.displayname,
-        messageLoggedin: instance.messageLoggedin,
-        userdata: instance.toJSON()
-    };
+            sessionid: instance.sessionid,
+            remember: instance.remember,
+            displayname: instance.displayname,
+            messageLoggedin: instance.messageLoggedin,
+            expireAfter: instance.expireAfter,
+            userdata: instance.toJSON()
+        };
     return Y.ITSAStorage.setItem(CURRENT_USER, userdata, expire);
 };
 
