@@ -10,8 +10,8 @@
  *
 */
 
-var INTERVAL = 3000,
-    BATCHCOUNT = 20,
+var INTERVAL = 2000,
+    BATCHCOUNT = 10,
     lastPos = 0;
 
 Y.later(INTERVAL, null, function() {
@@ -23,12 +23,12 @@ Y.later(INTERVAL, null, function() {
         function(nodeinstance) {
             // start with position last left: we don't want to process only the first items every time
             if (++i>lastPos) {
-                if (!nodeinstance.inDoc()) {
+                if (!Y.DOM.contains(Y.config.doc, nodeinstance.getDOMNode())) {
                     // not in the DOC, now the node MIGHT have been removed,
                     // but it could also mean someone defined Y.Node.create() but didn't had the change yet to insert
                     // so, we first set a flag and expect these nodes to be inserted before the next loop
 /*jshint expr:true */
-                    nodeinstance._isFlaggedGC ? nodeinstance.remove(true) : (nodeinstance._isFlaggedGC=true);
+                    nodeinstance._isFlaggedGC ? nodeinstance.destroy(false) : (nodeinstance._isFlaggedGC=true);
 /*jshint expr:false */
                 }
                 earlyExit = (i>=exitCount);
