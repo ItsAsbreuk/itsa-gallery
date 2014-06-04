@@ -2095,6 +2095,17 @@ ITSAFormModel.prototype._defFn_changedate = function(e) {
         function(newdate) {
           // first we need to use the new datevalue and reflect it (update) to the UI-element
           dateformat = formElement.config.format;
+          if (!dateformat) {
+              if (type===DATEPICKER_CLICK) {
+                  dateformat = '%x';
+              }
+              else if (type===TIMEPICKER_CLICK) {
+                  dateformat = '%X';
+              }
+              else  {
+                  dateformat = '%x %X';
+              }
+          }
           instance._updateDateTimeUI(formElement.name, newdate, type, dateformat);
           if (instance._lifeUpdate) {
               instance.UIToModel(node.get(ID));
