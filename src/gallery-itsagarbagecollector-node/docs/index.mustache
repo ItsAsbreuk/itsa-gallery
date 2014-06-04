@@ -26,7 +26,13 @@
 
 <h2>Precaution</h2>
     <p>
-        Because node instances inside Y.Node._instances are checked for their presence inside the DOM, you could run into problems when your code is using <code>Y.Node.create()</code> <u>without inserting this node in the DOM</u>. You should insert these instances synchronously, or asynchronously within 2 seconds. After 2 seconds they are marked to be destroyed.
+        1. When using Y.App, you need to set <code>preserve: false</code> for all its views. Should these set <code>true</code> then Y.App keeps referring to the view's node-instance while at the same time they will be removed from the DOM. The node-garbage-collector will destroy those instances resulting into an error when Y.Apps is going to show these views again.
+    </p>
+    <p>
+        2. Because node instances inside Y.Node._instances are checked for their presence inside the DOM, you could run into problems when your code is using <code>Y.Node.create()</code> <u>without inserting this node in the DOM</u>. You should insert these instances synchronously, or asynchronously within 2 seconds. After 2 seconds they are marked to be destroyed.
+    </p>
+    <p>
+        3. When using this module, do not cache and reuse Nodes which you know that will leave the DOM temporarely. For the same reason as 1.
     </p>
 
 <h2>licence</h2>
