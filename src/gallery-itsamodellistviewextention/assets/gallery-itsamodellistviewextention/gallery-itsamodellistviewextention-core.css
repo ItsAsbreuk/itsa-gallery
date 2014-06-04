@@ -49,6 +49,7 @@
 .yui3-itsascrollviewmodellist ul {
     padding: 0;
     margin: 0;
+    list-style: none;
 }
 
 .yui3-itsaviewmodellist,
