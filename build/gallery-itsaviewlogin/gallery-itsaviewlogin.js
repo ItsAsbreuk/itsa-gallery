@@ -625,6 +625,7 @@ ITSAViewLogin.prototype.initializer = function() {
             Y.use(GALLERYITSALOGIN);
         });
     }
+/*
     eventhandlers.push(
         instance.after(
             USERNAME+CHANGE,
@@ -649,6 +650,7 @@ ITSAViewLogin.prototype.initializer = function() {
             }
         )
     );
+*/
     eventhandlers.push(
         instance.after(
             SYNC+CHANGE,
@@ -1020,8 +1022,8 @@ ITSAViewLogin.prototype._buildLogoutView = function(displayname, messageLoggedin
     messageLoggedin && instance.set(MESSAGELOGGEDIN, messageLoggedin);
 /*jshint expr:false */
     instance._setSubmitButtons(false);
-    model._set(USERNAME, '');
-    model._set(PASSWORD, '');
+    model._set(USERNAME, null);
+    model._set(PASSWORD, null);
     model._set(REMEMBER, false);
     model._set(BUTTON, LOGOUT);
     model.setSyncMessage(SUBMIT, loginintl.loggingout);
