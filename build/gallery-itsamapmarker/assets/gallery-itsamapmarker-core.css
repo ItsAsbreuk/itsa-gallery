@@ -1,4 +1,16 @@
 /*csslint adjoining-classes: false, star-property-hack: false */
+.itsa-mobile-walkthrough {
+    position: absolute;
+    right: 12px;
+    top: 14px;
+    z-index: 2;
+}
+
+.itsa-walkthrough-nav {
+    margin-left: 10px;
+    font-size: 25px;
+    background-color: #FFF;
+}
 
 .itsa-mapmarker-container {
     position: relative;

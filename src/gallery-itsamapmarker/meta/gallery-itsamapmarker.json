@@ -9,6 +9,7 @@
             "plugin",
             "node-core",
             "node-style",
+            "node-screen",
             "json-stringify",
             "promise",
             "gallerycss-itsa-base",
