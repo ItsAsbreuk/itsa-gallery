@@ -23,14 +23,11 @@ ITSAMarkerModel.NAME = 'itsamarkermodel';
 
 ITSAMarkerModel.ATTRS = {
 
-    /**
-     * Array with all the checked options. The Array is an Array of String-types which are present in 'options' and checked.
-     *
-     * @attribute checked
-     * @type {Array}
-     * @default []
-     * @since 0.1
-     */
+    extraZ: {
+        value: 0,
+        validator: function(v){ return (typeof v === 'boolean'); }
+    },
+
     lat: {
         value: 0,
         validator: function(v){ return (typeof v === 'number'); }
