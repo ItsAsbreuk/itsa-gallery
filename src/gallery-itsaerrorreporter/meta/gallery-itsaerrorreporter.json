@@ -4,6 +4,7 @@
             "yui-base",
             "event-base",
             "event-custom-base",
+            "json-stringify",
             "gallery-itsadialog"
         ]
     }

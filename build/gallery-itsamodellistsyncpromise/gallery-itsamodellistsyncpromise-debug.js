@@ -948,15 +948,16 @@ YModelList.prototype[DEFFN+SUBMIT] = function(e) {
 **/
 YModelList.prototype._lazyFireErrorEvent = function(facade) {
     var instance = this;
-
-    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModellistSyncPromise');
-    // lazy publish
-    if (!instance._errorEvent) {
-        instance._errorEvent = instance.publish(ERROR, {
-            broadcast: 1
-        });
+    if (facade.error.statusText!=='abort') {
+        Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModellistSyncPromise');
+        // lazy publish
+        if (!instance._errorEvent) {
+            instance._errorEvent = instance.publish(ERROR, {
+                broadcast: 1
+            });
+        }
+        instance.fire(ERROR, facade);
     }
-    instance.fire(ERROR, facade);
 };
 
 /**

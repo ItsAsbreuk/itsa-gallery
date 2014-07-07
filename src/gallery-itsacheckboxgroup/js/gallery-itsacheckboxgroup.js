@@ -241,7 +241,6 @@ ITSACheckboxGroup.prototype._setChecked = function(e) {
  * @since 0.1
 */
 ITSACheckboxGroup.prototype._resetChecked = function() {
-console.log('_resetChecked');
     Y.log('_resetChecked', 'info', 'ITSACheckboxGroup');
     var instance = this,
         checkedObj = {},
@@ -268,7 +267,6 @@ console.log('_resetChecked');
  * @since 0.1
 */
 ITSACheckboxGroup.prototype._resetOptions = function() {
-console.log('_resetOptions');
     Y.log('_resetOptions', 'info', 'ITSACheckboxGroup');
     var instance = this;
     YObject.each(

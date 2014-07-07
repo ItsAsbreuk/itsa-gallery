@@ -43,7 +43,10 @@ MODE_USERDATA     = 4,
 USERDATA_PATH     = 'yui_itsastorage_lite',
 USERDATA_NAME     = 'data',
 
-REVIVE            = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/, // datepattern will return date-type
+DATEPATTERN = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/, // datepattern will return date-type
+REVIVER = function(key, value) {
+    return DATEPATTERN.test(value) ? new Date(value) : value;
+},
 
 // -- Private Variables --------------------------------------------------------
 data = {},
@@ -200,7 +203,7 @@ if (storageMode === MODE_HTML5 || storageMode === MODE_GECKO) {
 
             getItem: function (key, json) {
                 try {
-                    return json ? JSON.parse(storageDriver.getItem(key), REVIVE) :
+                    return json ? JSON.parse(storageDriver.getItem(key), REVIVER) :
                             storageDriver.getItem(key);
                 } catch (ex) {
                     return null;
@@ -225,7 +228,7 @@ if (storageMode === MODE_HTML5 || storageMode === MODE_GECKO) {
 
             getItem: function (key, json) {
                 try {
-                    return json ? JSON.parse(storageDriver[key].value, REVIVE) :
+                    return json ? JSON.parse(storageDriver[key].value, REVIVER) :
                             storageDriver[key].value;
                 } catch (ex) {
                     return null;
@@ -292,7 +295,7 @@ if (storageMode === MODE_HTML5 || storageMode === MODE_GECKO) {
             t.executeSql("SELECT value FROM " + DB_NAME + " WHERE name = 'data'", [], function (t, results) {
                 if (results.rows.length) {
                     try {
-                        data = JSON.parse(results.rows.item(0).value, REVIVE);
+                        data = JSON.parse(results.rows.item(0).value, REVIVER);
                     } catch (ex) {
                         data = {};
                     }
@@ -331,7 +334,7 @@ if (storageMode === MODE_HTML5 || storageMode === MODE_GECKO) {
             storageDriver.load(USERDATA_PATH);
 
             try {
-                data = JSON.parse(storageDriver.getAttribute(USERDATA_NAME) || '{}', REVIVE);
+                data = JSON.parse(storageDriver.getAttribute(USERDATA_NAME) || '{}', REVIVER);
             } catch (ex) {
                 data = {};
             } finally {
@@ -528,4 +531,4 @@ Y.Global.ITSAStorage || (Y.Global.ITSAStorage=new ITSAStorageClass());
 /*jshint expr:false */
 Y.ITSAStorage = Y.Global.ITSAStorage;
 
-}, '@VERSION@', {"requires": ["yui-base", "base-base", "node", "promise", "gallery-itsautils"]});
+}, '@VERSION@', {"requires": ["yui-base", "base-base", "node", "promise", "json", "gallery-itsautils"]});

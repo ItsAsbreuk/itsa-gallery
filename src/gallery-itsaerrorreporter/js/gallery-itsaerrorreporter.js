@@ -66,6 +66,7 @@ if (!Y.Global.ITSAErrorReporter) {
                               src = e.src || e.source;
                         // in case of err as an windows Error-object, we need to transform the type to String:
                         err = err.toString();
+                        (typeof err === 'object') && (err = Y.JSON.stringify(err));
                         Y.showError(src, err);
                     }
                 );
@@ -124,6 +125,7 @@ if (!Y.Global.ITSAErrorReporter) {
                               cat = e.cat,
                               src = e.src;
                         if (cat===ERROR) {
+                            (typeof err === 'object') && (err = Y.JSON.stringify(err));
                             Y.showError(src, err);
                         }
                     }

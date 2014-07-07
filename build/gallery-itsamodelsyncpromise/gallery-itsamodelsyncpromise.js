@@ -871,14 +871,15 @@ YModel.prototype._publishAsync = function(type, opts) {
 **/
 YModel.prototype._lazyFireErrorEvent = function(facade) {
     var instance = this;
-
-    // lazy publish
-    if (!instance._errorEvent) {
-        instance._errorEvent = instance.publish(ERROR, {
-            broadcast: 1
-        });
+    if (facade.error.statusText!=='abort') {
+        // lazy publish
+        if (!instance._errorEvent) {
+            instance._errorEvent = instance.publish(ERROR, {
+                broadcast: 1
+            });
+        }
+        instance.fire(ERROR, facade);
     }
-    instance.fire(ERROR, facade);
 };
 
 /**

@@ -5,6 +5,7 @@
             "base-base",
             "node",
             "promise",
+            "json",
             "gallery-itsautils"
         ]
     }

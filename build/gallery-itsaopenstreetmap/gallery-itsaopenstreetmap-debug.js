@@ -394,39 +394,42 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             Y.log('bindUI', 'cmaserror', 'CMASMAPS');
             var instance = this,
                 mapNode = Y.one('#map_'+ instance.mapid),
+                mapdd, zoomhandled;
             // just to be sure the layer will allways become visible after 3 seconds:
+            if (mapNode) {
                 mapdd = new Y.DD.Drag({
                    node: mapNode
                 }),
-                zoomhandledd;
-            mapdd.on('drag:start', instance._handleMapDragStart, instance);
-            mapdd.on('drag:end', instance._handleMapDragEnd, instance);
-            mapNode.on('mousedown', instance._handleMapDragMousedown, instance);
-            mapNode.on('mouseup', instance._handleMapDragMouseup, instance);
-            Y.on('click', instance.moveHome, '#movehome_'+instance.mapid, instance);
-            Y.on('click', instance._handleZoomIn, '#zoomin_'+instance.mapid, instance);
-            Y.on('click', instance._handleZoomOut, '#zoomout_'+instance.mapid, instance);
-            instance.after(['latChange', 'lonChange'], Y.bind(instance.moveHome, instance));
-            if (!instance.mobiledevice) {
-                zoomhandledd = new Y.DD.Drag({
-                    node: '#zoomhandle_'+ instance.mapid
-                }).plug(Y.Plugin.DDConstrained, {
-                    constrain2node: '#zoomhandleconstraint_'+instance.mapid,
-                    tickY: 10,
-                    stickY: true
-                });
-                zoomhandledd.on('drag:drag', instance._handleDragZoomHandle, instance);
-                Y.on('click', instance._handleMoveUp, '#moveup_'+instance.mapid, instance);
-                Y.on('click', instance._handleMoveDown, '#movedown_'+instance.mapid, instance);
-                Y.on('click', instance._handleMoveLeft, '#moveleft_'+instance.mapid, instance);
-                Y.on('click', instance._handleMoveRight, '#moveright_'+instance.mapid, instance);
-                Y.on('mouseenter', instance._handleOverZoomHandleConstraint, '#zoomhandleconstraint_'+instance.mapid, instance);
-                Y.on('mouseleave', instance._handleMapLeaveZoomArea, '#zoomhandleconstraint_'+instance.mapid, instance);
-                Y.on('mouseenter', instance._handleOverZoomIn, '#zoomin_'+instance.mapid, instance);
-                Y.on('mouseenter', instance._handleOverZoomOut, '#zoomout_'+instance.mapid, instance);
-                Y.on('mouseleave', instance._handleMapLeaveZoomArea, '#zoomin_'+instance.mapid, instance);
-                Y.on('mouseleave', instance._handleMapLeaveZoomArea, '#zoomout_'+instance.mapid, instance);
-                instance.scrollEvent = Y.on("mousewheel", Y.bind(instance._handleMouseScroll, instance));
+                zoomhandled;
+                mapdd.on('drag:start', instance._handleMapDragStart, instance);
+                mapdd.on('drag:end', instance._handleMapDragEnd, instance);
+                mapNode.on('mousedown', instance._handleMapDragMousedown, instance);
+                mapNode.on('mouseup', instance._handleMapDragMouseup, instance);
+                Y.on('click', instance.moveHome, '#movehome_'+instance.mapid, instance);
+                Y.on('click', instance._handleZoomIn, '#zoomin_'+instance.mapid, instance);
+                Y.on('click', instance._handleZoomOut, '#zoomout_'+instance.mapid, instance);
+                instance.after(['latChange', 'lonChange'], Y.bind(instance.moveHome, instance));
+                if (!instance.mobiledevice) {
+                    zoomhandled = new Y.DD.Drag({
+                        node: '#zoomhandle_'+ instance.mapid
+                    }).plug(Y.Plugin.DDConstrained, {
+                        constrain2node: '#zoomhandleconstraint_'+instance.mapid,
+                        tickY: 10,
+                        stickY: true
+                    });
+                    zoomhandled.on('drag:drag', instance._handleDragZoomHandle, instance);
+                    Y.on('click', instance._handleMoveUp, '#moveup_'+instance.mapid, instance);
+                    Y.on('click', instance._handleMoveDown, '#movedown_'+instance.mapid, instance);
+                    Y.on('click', instance._handleMoveLeft, '#moveleft_'+instance.mapid, instance);
+                    Y.on('click', instance._handleMoveRight, '#moveright_'+instance.mapid, instance);
+                    Y.on('mouseenter', instance._handleOverZoomHandleConstraint, '#zoomhandleconstraint_'+instance.mapid, instance);
+                    Y.on('mouseleave', instance._handleMapLeaveZoomArea, '#zoomhandleconstraint_'+instance.mapid, instance);
+                    Y.on('mouseenter', instance._handleOverZoomIn, '#zoomin_'+instance.mapid, instance);
+                    Y.on('mouseenter', instance._handleOverZoomOut, '#zoomout_'+instance.mapid, instance);
+                    Y.on('mouseleave', instance._handleMapLeaveZoomArea, '#zoomin_'+instance.mapid, instance);
+                    Y.on('mouseleave', instance._handleMapLeaveZoomArea, '#zoomout_'+instance.mapid, instance);
+                    instance.scrollEvent = Y.on("mousewheel", Y.bind(instance._handleMouseScroll, instance));
+                }
             }
         },
 
@@ -505,7 +508,10 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 
             if (type===3) {zoom = zoomLevel;}
             else {zoom = instance.currentZoomLevel;}
-            mapNode = instance.zoomedMap(zoom);
+            mapNode = instance.zoomedMap && instance.zoomedMap(zoom);
+            if (!mapNode) {
+                return;
+            }
 
             xOffset = instance._getOffsetx(instance.currentLongitude, zoom);
             yOffset = instance._getOffsety(instance.currentLatitude, zoom);
@@ -580,7 +586,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
         currentZoomedMap : function () {
             Y.log('currentZoomedMap', 'cmas', 'CMASMAPS');
             var instance = this;
-            return instance.zoomedMap(instance.currentZoomLevel);
+            return instance.zoomedMap && instance.zoomedMap(instance.currentZoomLevel);
         },
 
         zoomedMap : function (zoomLevel) {
@@ -591,10 +597,13 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
         _setCurrentZoomedMapVisible : function () {
             Y.log('_setCurrentZoomedMapVisible', 'cmas', 'CMASMAPS');
             var instance = this,
-                i;
+                i, zoomedMap;
             for (i=0;i<=17; i++) {
-                if (i===instance.currentZoomLevel) {instance.zoomedMap(i).setStyle('visibility', 'inherit');}
-                else {instance.zoomedMap(i).setStyle('visibility', '');}
+                zoomedMap = instance.zoomedMap && instance.zoomedMap(i);
+                if (zoomedMap) {
+                    if (i===instance.currentZoomLevel) {zoomedMap.setStyle('visibility', 'inherit');}
+                    else {zoomedMap.setStyle('visibility', '');}
+                }
             }
         },
 
@@ -711,6 +720,9 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             var instance, zoomContraDirection, mouseLat, mouseLon, differenceY, differenceX, currentxNotRounded, currentyNotRounded, mouseX, mouseY, newX, newY, zoomFactor, mapdiv;
             instance = this;
             mapdiv = instance.get('boundingBox');
+            if (!mapdiv) {
+                return;
+            }
             if (!instance._mouseInScrollArea(e) || mapdiv.hasClass('cmasnodisplay')) {return;}
             zoomFactor = e.wheelDelta;
             zoomContraDirection = instance.osXLion;
@@ -834,9 +846,11 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             Y.log('_handleMapDragStart', 'cmas', 'CMASMAPS');
             var instance = this,
                 mapNode = Y.one('#map_'+ instance.mapid);
-            instance.dragStarted = true;
-            instance.oldX = mapNode.getX();
-            instance.oldY = mapNode.getY();
+            if (mapNode) {
+                instance.dragStarted = true;
+                instance.oldX = mapNode.getX();
+                instance.oldY = mapNode.getY();
+            }
         },
 
         _handleMapDragEnd : function() {
@@ -846,25 +860,29 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             instance.dragStarted = false;
 //            this._handleMapDragMouseup();
             mapNode = Y.one('#map_'+ instance.mapid);
-            shiftX = mapNode.getX() - instance.oldX;
-            shiftY = mapNode.getY() - instance.oldY;
-            Y.later(100, instance, instance._storePixelMovement, [shiftX, shiftY]); // delay, we want to be absolutely sure that mapNode.getX() and getY() give the final values
+            if (mapNode) {
+                shiftX = mapNode.getX() - instance.oldX;
+                shiftY = mapNode.getY() - instance.oldY;
+                Y.later(100, instance, instance._storePixelMovement, [shiftX, shiftY]); // delay, we want to be absolutely sure that mapNode.getX() and getY() give the final values
+            }
         },
 
         _handleMapDragMousedown : function() {
             Y.log('_handleMapDragMousedown', 'cmaswarn', 'CMASMAPS');
             var instance = this,
                 mapNode = Y.one('#map_'+ instance.mapid);
-            instance.oldX = mapNode.getX();
-            instance.oldY = mapNode.getY();
-            mapNode.setStyle('cursor', 'move');
+            if (mapNode) {
+                instance.oldX = mapNode.getX();
+                instance.oldY = mapNode.getY();
+                mapNode.setStyle('cursor', 'move');
+            }
         },
 
         _handleMapDragMouseup : function() {
             Y.log('_handleMapDragMouseup', 'cmaswarn', 'CMASMAPS');
             var instance = this,
                 mapNode = Y.one('#map_'+ instance.mapid);
-            mapNode.setStyle('cursor', '');
+            mapNode && mapNode.setStyle('cursor', '');
         },
 
         _handleMapLeaveZoomArea : function() {
@@ -892,9 +910,9 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             Y.log('_moveMap '+hor+','+ver, 'cmas', 'CMASMAPS');
             var instance = this,
                 mapNode = Y.one('#map_'+ instance.mapid),
-                newleft = parseInt(mapNode.getStyle('left'), 10) - hor,
-                newtop = parseInt(mapNode.getStyle('top'), 10) - ver;
-            mapNode.transition({
+                newleft = mapNode && parseInt(mapNode.getStyle('left'), 10) - hor,
+                newtop = mapNode && parseInt(mapNode.getStyle('top'), 10) - ver;
+            mapNode && mapNode.transition({
                 easing: instance.get('easing'),
                 duration: instance.get('moveDuration'), // seconds
                 left: newleft + 'px',
@@ -943,13 +961,13 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
                 yNotRounded = instance._lat2tileNOTROUNDED(instance.currentLatitude, zoomLevel),
                 y = Math.floor(yNotRounded),
                 yOffset = Math.round(instance.TILE_SIZE*(yNotRounded-y)),
-                correctXMapMovement = (parseInt(mapNode.getStyle('left'), 10)/Math.pow(2, (instance.currentZoomLevel-zoomLevel))),
-                correctYMapMovement = (parseInt(mapNode.getStyle('top'), 10)/Math.pow(2, (instance.currentZoomLevel-zoomLevel))),
+                correctXMapMovement = mapNode && (parseInt(mapNode.getStyle('left'), 10)/Math.pow(2, (instance.currentZoomLevel-zoomLevel))),
+                correctYMapMovement = mapNode && (parseInt(mapNode.getStyle('top'), 10)/Math.pow(2, (instance.currentZoomLevel-zoomLevel))),
                 xPos = parseInt(instance.get('xpos'), 10) + instance._getViewPortCenterX() - xOffset - (instance.TILE_SIZE*(x-1)) - correctXMapMovement,
                 yPos = parseInt(instance.get('ypos'), 10) + instance._getViewPortCenterY() - yOffset - (instance.TILE_SIZE*(y-1)) - correctYMapMovement,
                 node = Y.one('#map_zoom' + zoomLevel + '_' + instance.mapid);
-            node.setStyle('left', xPos+'px');
-            node.setStyle('top', yPos+'px');
+            node && node.setStyle('left', xPos+'px');
+            node && node.setStyle('top', yPos+'px');
             if (instance.itsamapmarker && instance.itsamapmarker._markerlayer) {
                 instance.itsamapmarker._markerlayer.setStyle('left', xPos+'px');
                 instance.itsamapmarker._markerlayer.setStyle('top', yPos+'px');
@@ -991,28 +1009,33 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             if (instance.mobiledevice) {return;}
             zoomHandleNode = Y.one('#zoomhandle_'+instance.mapid);
             newY = 170 - (10*instance.currentZoomLevel);
-            zoomHandleNode.setStyle('top', newY+'px');
+            zoomHandleNode && zoomHandleNode.setStyle('top', newY+'px');
         },
 
         showlayerwait : function() {
             Y.log('showlayerwait', 'cmas', 'CMASMAPS');
-            var instance = this;
-            Y.one('#busyfade_' + instance.mapid).setStyle('display', 'block');
-            Y.one('#busywait_' + instance.mapid).setStyle('display', 'block');
+            var instance = this,
+                node;
+            node = Y.one('#busyfade_' + instance.mapid);
+            node && node.setStyle('display', 'block');
+            node = Y.one('#busywait_' + instance.mapid);
+            node && node.setStyle('display', 'block');
         },
 
         hidelayerwait : function() {
             Y.log('hidelayerwait', 'cmas', 'CMASMAPS');
-            var instance = this;
-            Y.one('#busyfade_' + instance.mapid).setStyle('display', 'none');
-            Y.one('#busywait_' + instance.mapid).setStyle('display', 'none');
+            var instance = this, node;
+            node = Y.one('#busyfade_' + instance.mapid);
+            node && node.setStyle('display', 'none');
+            node = Y.one('#busywait_' + instance.mapid);
+            node && node.setStyle('display', 'none');
         },
 
         _getViewPortWidth: function() {
             var instance, mapdiv, mapdivwidth;
             instance = this;
             mapdiv = instance.get('boundingBox');
-            if (mapdiv.hasClass('cmasnodisplay')) { // with display:none, you cannot determine the sizes!
+            if (mapdiv && mapdiv.hasClass('cmasnodisplay')) { // with display:none, you cannot determine the sizes!
                 mapdiv.setStyle('visibility', 'hidden');
                 mapdiv.removeClass('cmasnodisplay');
                 mapdivwidth = parseInt(mapdiv.getStyle('width'), 10);
@@ -1027,7 +1050,7 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
             var instance, mapdiv, mapdivheight;
             instance = this;
             mapdiv = instance.get('boundingBox');
-            if (mapdiv.hasClass('cmasnodisplay')) { // with display:none, you cannot determine the sizes!
+            if (mapdiv && mapdiv.hasClass('cmasnodisplay')) { // with display:none, you cannot determine the sizes!
                 mapdiv.setStyle('visibility', 'hidden');
                 mapdiv.removeClass('cmasnodisplay');
                 mapdivheight = parseInt(mapdiv.getStyle('height'), 10);
@@ -1114,7 +1137,8 @@ Y.ITSAOpenStreetMap = Y.Base.create('itsaopenstreetmap', Y.Widget, [], {
 
         _setMapNodeVisible : function() {
             Y.log('_setMapNodeVisible', 'cmaserror', 'CMASMAPS');
-            Y.one('#map_'+ this.mapid).setStyle('visibility', 'visible');
+            var node = Y.one('#map_'+ this.mapid);
+            node && node.setStyle('visibility', 'visible');
         },
 
         _getOffsetx : function(longitude, zoomlevel) {

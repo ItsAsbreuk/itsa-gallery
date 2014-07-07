@@ -887,15 +887,16 @@ YModel.prototype._publishAsync = function(type, opts) {
 **/
 YModel.prototype._lazyFireErrorEvent = function(facade) {
     var instance = this;
-
-    Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
-    // lazy publish
-    if (!instance._errorEvent) {
-        instance._errorEvent = instance.publish(ERROR, {
-            broadcast: 1
-        });
+    if (facade.error.statusText!=='abort') {
+        Y.log('_lazyFireErrorEvent', 'info', 'ITSA-ModelSyncPromise');
+        // lazy publish
+        if (!instance._errorEvent) {
+            instance._errorEvent = instance.publish(ERROR, {
+                broadcast: 1
+            });
+        }
+        instance.fire(ERROR, facade);
     }
-    instance.fire(ERROR, facade);
 };
 
 /**
