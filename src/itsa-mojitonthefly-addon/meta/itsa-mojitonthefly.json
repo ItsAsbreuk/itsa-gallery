@@ -1,0 +1,14 @@
+{
+    "itsa-mojitonthefly": {
+        "requires": [
+            "node-base",
+            "promise",
+            "node-event-delegate",
+            "history-html5",
+            "event-tap",
+            "get", 
+            "io-base", 
+            "json-parse"
+        ]
+    }
+}

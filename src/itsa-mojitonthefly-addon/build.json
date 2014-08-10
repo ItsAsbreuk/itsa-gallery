@@ -1,0 +1,10 @@
+{
+    "name": "itsa-mojitonthefly",
+    "builds": {
+        "itsa-mojitonthefly": {
+            "jsfiles": [
+                "js/itsa-mojitonthefly.js"
+            ]
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "name"       : "itsa-mojitonthefly-addon",
+    "displayName": "Gallery: itsa-mojitonthefly-addon",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "itsasbreuk" ],
+    "use"        : [ "itsa-mojitonthefly-addon" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}
